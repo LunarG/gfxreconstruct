@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{c847ae64-88bc-42fb-8b58-6bb84f90f1a1}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>genlayer.py</StartupFile>
+    <SearchPath>..\external\Vulkan-Docs\src\spec</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>-registry ..\external\Vulkan-Docs\src\spec\vk.xml generated_api_call_trace.inc</CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="functablegenerator.py" />
+    <Compile Include="genlayer.py" />
+    <Compile Include="apicallgenerator.py" />
+    <Compile Include="idgenerator.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="structgenerator.py" />
+    <Compile Include="encodepnextstruct.py" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

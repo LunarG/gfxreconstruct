@@ -1,0 +1,322 @@
+/*
+** Copyright (c) 2018 LunarG, Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+
+/*
+** This file is generated from the Khronos Vulkan XML API Registry.
+**
+*/
+
+#include <unordered_map>
+
+#include "vulkan/vulkan.h"
+
+#include "util/defines.h"
+
+BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+
+const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
+    { "vkCreateInstance",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkCreateInstance) },
+    { "vkDestroyInstance",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkDestroyInstance) },
+    { "vkEnumeratePhysicalDevices",                                                                          reinterpret_cast<PFN_vkVoidFunction>(vkEnumeratePhysicalDevices) },
+    { "vkGetPhysicalDeviceFeatures",                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceFeatures) },
+    { "vkGetPhysicalDeviceFormatProperties",                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceFormatProperties) },
+    { "vkGetPhysicalDeviceImageFormatProperties",                                                            reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceImageFormatProperties) },
+    { "vkGetPhysicalDeviceProperties",                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceProperties) },
+    { "vkGetPhysicalDeviceQueueFamilyProperties",                                                            reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceQueueFamilyProperties) },
+    { "vkGetPhysicalDeviceMemoryProperties",                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceMemoryProperties) },
+    { "vkGetInstanceProcAddr",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkGetInstanceProcAddr) },
+    { "vkGetDeviceProcAddr",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceProcAddr) },
+    { "vkCreateDevice",                                                                                      reinterpret_cast<PFN_vkVoidFunction>(vkCreateDevice) },
+    { "vkDestroyDevice",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkDestroyDevice) },
+    { "vkEnumerateInstanceExtensionProperties",                                                              reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceExtensionProperties) },
+    { "vkEnumerateDeviceExtensionProperties",                                                                reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateDeviceExtensionProperties) },
+    { "vkEnumerateInstanceLayerProperties",                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateInstanceLayerProperties) },
+    { "vkEnumerateDeviceLayerProperties",                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkEnumerateDeviceLayerProperties) },
+    { "vkGetDeviceQueue",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceQueue) },
+    { "vkQueueSubmit",                                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkQueueSubmit) },
+    { "vkQueueWaitIdle",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkQueueWaitIdle) },
+    { "vkDeviceWaitIdle",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkDeviceWaitIdle) },
+    { "vkAllocateMemory",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkAllocateMemory) },
+    { "vkFreeMemory",                                                                                        reinterpret_cast<PFN_vkVoidFunction>(vkFreeMemory) },
+    { "vkMapMemory",                                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkMapMemory) },
+    { "vkUnmapMemory",                                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkUnmapMemory) },
+    { "vkFlushMappedMemoryRanges",                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkFlushMappedMemoryRanges) },
+    { "vkInvalidateMappedMemoryRanges",                                                                      reinterpret_cast<PFN_vkVoidFunction>(vkInvalidateMappedMemoryRanges) },
+    { "vkGetDeviceMemoryCommitment",                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceMemoryCommitment) },
+    { "vkBindBufferMemory",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkBindBufferMemory) },
+    { "vkBindImageMemory",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkBindImageMemory) },
+    { "vkGetBufferMemoryRequirements",                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkGetBufferMemoryRequirements) },
+    { "vkGetImageMemoryRequirements",                                                                        reinterpret_cast<PFN_vkVoidFunction>(vkGetImageMemoryRequirements) },
+    { "vkGetImageSparseMemoryRequirements",                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkGetImageSparseMemoryRequirements) },
+    { "vkGetPhysicalDeviceSparseImageFormatProperties",                                                      reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceSparseImageFormatProperties) },
+    { "vkQueueBindSparse",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkQueueBindSparse) },
+    { "vkCreateFence",                                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkCreateFence) },
+    { "vkDestroyFence",                                                                                      reinterpret_cast<PFN_vkVoidFunction>(vkDestroyFence) },
+    { "vkResetFences",                                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkResetFences) },
+    { "vkGetFenceStatus",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkGetFenceStatus) },
+    { "vkWaitForFences",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkWaitForFences) },
+    { "vkCreateSemaphore",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCreateSemaphore) },
+    { "vkDestroySemaphore",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkDestroySemaphore) },
+    { "vkCreateEvent",                                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkCreateEvent) },
+    { "vkDestroyEvent",                                                                                      reinterpret_cast<PFN_vkVoidFunction>(vkDestroyEvent) },
+    { "vkGetEventStatus",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkGetEventStatus) },
+    { "vkSetEvent",                                                                                          reinterpret_cast<PFN_vkVoidFunction>(vkSetEvent) },
+    { "vkResetEvent",                                                                                        reinterpret_cast<PFN_vkVoidFunction>(vkResetEvent) },
+    { "vkCreateQueryPool",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCreateQueryPool) },
+    { "vkDestroyQueryPool",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkDestroyQueryPool) },
+    { "vkGetQueryPoolResults",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkGetQueryPoolResults) },
+    { "vkCreateBuffer",                                                                                      reinterpret_cast<PFN_vkVoidFunction>(vkCreateBuffer) },
+    { "vkDestroyBuffer",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkDestroyBuffer) },
+    { "vkCreateBufferView",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkCreateBufferView) },
+    { "vkDestroyBufferView",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkDestroyBufferView) },
+    { "vkCreateImage",                                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkCreateImage) },
+    { "vkDestroyImage",                                                                                      reinterpret_cast<PFN_vkVoidFunction>(vkDestroyImage) },
+    { "vkGetImageSubresourceLayout",                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkGetImageSubresourceLayout) },
+    { "vkCreateImageView",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCreateImageView) },
+    { "vkDestroyImageView",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkDestroyImageView) },
+    { "vkCreateShaderModule",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkCreateShaderModule) },
+    { "vkDestroyShaderModule",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkDestroyShaderModule) },
+    { "vkCreatePipelineCache",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkCreatePipelineCache) },
+    { "vkDestroyPipelineCache",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkDestroyPipelineCache) },
+    { "vkGetPipelineCacheData",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkGetPipelineCacheData) },
+    { "vkMergePipelineCaches",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkMergePipelineCaches) },
+    { "vkCreateGraphicsPipelines",                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkCreateGraphicsPipelines) },
+    { "vkCreateComputePipelines",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkCreateComputePipelines) },
+    { "vkDestroyPipeline",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkDestroyPipeline) },
+    { "vkCreatePipelineLayout",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkCreatePipelineLayout) },
+    { "vkDestroyPipelineLayout",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkDestroyPipelineLayout) },
+    { "vkCreateSampler",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkCreateSampler) },
+    { "vkDestroySampler",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkDestroySampler) },
+    { "vkCreateDescriptorSetLayout",                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkCreateDescriptorSetLayout) },
+    { "vkDestroyDescriptorSetLayout",                                                                        reinterpret_cast<PFN_vkVoidFunction>(vkDestroyDescriptorSetLayout) },
+    { "vkCreateDescriptorPool",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkCreateDescriptorPool) },
+    { "vkDestroyDescriptorPool",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkDestroyDescriptorPool) },
+    { "vkResetDescriptorPool",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkResetDescriptorPool) },
+    { "vkAllocateDescriptorSets",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkAllocateDescriptorSets) },
+    { "vkFreeDescriptorSets",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkFreeDescriptorSets) },
+    { "vkUpdateDescriptorSets",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkUpdateDescriptorSets) },
+    { "vkCreateFramebuffer",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkCreateFramebuffer) },
+    { "vkDestroyFramebuffer",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkDestroyFramebuffer) },
+    { "vkCreateRenderPass",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkCreateRenderPass) },
+    { "vkDestroyRenderPass",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkDestroyRenderPass) },
+    { "vkGetRenderAreaGranularity",                                                                          reinterpret_cast<PFN_vkVoidFunction>(vkGetRenderAreaGranularity) },
+    { "vkCreateCommandPool",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkCreateCommandPool) },
+    { "vkDestroyCommandPool",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkDestroyCommandPool) },
+    { "vkResetCommandPool",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkResetCommandPool) },
+    { "vkAllocateCommandBuffers",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkAllocateCommandBuffers) },
+    { "vkFreeCommandBuffers",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkFreeCommandBuffers) },
+    { "vkBeginCommandBuffer",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkBeginCommandBuffer) },
+    { "vkEndCommandBuffer",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkEndCommandBuffer) },
+    { "vkResetCommandBuffer",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkResetCommandBuffer) },
+    { "vkCmdBindPipeline",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindPipeline) },
+    { "vkCmdSetViewport",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetViewport) },
+    { "vkCmdSetScissor",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetScissor) },
+    { "vkCmdSetLineWidth",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetLineWidth) },
+    { "vkCmdSetDepthBias",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetDepthBias) },
+    { "vkCmdSetBlendConstants",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetBlendConstants) },
+    { "vkCmdSetDepthBounds",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetDepthBounds) },
+    { "vkCmdSetStencilCompareMask",                                                                          reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetStencilCompareMask) },
+    { "vkCmdSetStencilWriteMask",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetStencilWriteMask) },
+    { "vkCmdSetStencilReference",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetStencilReference) },
+    { "vkCmdBindDescriptorSets",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindDescriptorSets) },
+    { "vkCmdBindIndexBuffer",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindIndexBuffer) },
+    { "vkCmdBindVertexBuffers",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkCmdBindVertexBuffers) },
+    { "vkCmdDraw",                                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkCmdDraw) },
+    { "vkCmdDrawIndexed",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndexed) },
+    { "vkCmdDrawIndirect",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndirect) },
+    { "vkCmdDrawIndexedIndirect",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndexedIndirect) },
+    { "vkCmdDispatch",                                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkCmdDispatch) },
+    { "vkCmdDispatchIndirect",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkCmdDispatchIndirect) },
+    { "vkCmdCopyBuffer",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyBuffer) },
+    { "vkCmdCopyImage",                                                                                      reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyImage) },
+    { "vkCmdBlitImage",                                                                                      reinterpret_cast<PFN_vkVoidFunction>(vkCmdBlitImage) },
+    { "vkCmdCopyBufferToImage",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyBufferToImage) },
+    { "vkCmdCopyImageToBuffer",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyImageToBuffer) },
+    { "vkCmdUpdateBuffer",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCmdUpdateBuffer) },
+    { "vkCmdFillBuffer",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkCmdFillBuffer) },
+    { "vkCmdClearColorImage",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkCmdClearColorImage) },
+    { "vkCmdClearDepthStencilImage",                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkCmdClearDepthStencilImage) },
+    { "vkCmdClearAttachments",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkCmdClearAttachments) },
+    { "vkCmdResolveImage",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCmdResolveImage) },
+    { "vkCmdSetEvent",                                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetEvent) },
+    { "vkCmdResetEvent",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkCmdResetEvent) },
+    { "vkCmdWaitEvents",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkCmdWaitEvents) },
+    { "vkCmdPipelineBarrier",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkCmdPipelineBarrier) },
+    { "vkCmdBeginQuery",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginQuery) },
+    { "vkCmdEndQuery",                                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndQuery) },
+    { "vkCmdResetQueryPool",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkCmdResetQueryPool) },
+    { "vkCmdWriteTimestamp",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkCmdWriteTimestamp) },
+    { "vkCmdCopyQueryPoolResults",                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkCmdCopyQueryPoolResults) },
+    { "vkCmdPushConstants",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkCmdPushConstants) },
+    { "vkCmdBeginRenderPass",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkCmdBeginRenderPass) },
+    { "vkCmdNextSubpass",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkCmdNextSubpass) },
+    { "vkCmdEndRenderPass",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkCmdEndRenderPass) },
+    { "vkCmdExecuteCommands",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkCmdExecuteCommands) },
+    { "vkDestroySurfaceKHR",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkDestroySurfaceKHR) },
+    { "vkGetPhysicalDeviceSurfaceSupportKHR",                                                                reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceSurfaceSupportKHR) },
+    { "vkGetPhysicalDeviceSurfaceCapabilitiesKHR",                                                           reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceSurfaceCapabilitiesKHR) },
+    { "vkGetPhysicalDeviceSurfaceFormatsKHR",                                                                reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceSurfaceFormatsKHR) },
+    { "vkGetPhysicalDeviceSurfacePresentModesKHR",                                                           reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceSurfacePresentModesKHR) },
+    { "vkCreateSwapchainKHR",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkCreateSwapchainKHR) },
+    { "vkDestroySwapchainKHR",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkDestroySwapchainKHR) },
+    { "vkGetSwapchainImagesKHR",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkGetSwapchainImagesKHR) },
+    { "vkAcquireNextImageKHR",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkAcquireNextImageKHR) },
+    { "vkQueuePresentKHR",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkQueuePresentKHR) },
+    { "vkGetPhysicalDeviceDisplayPropertiesKHR",                                                             reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceDisplayPropertiesKHR) },
+    { "vkGetPhysicalDeviceDisplayPlanePropertiesKHR",                                                        reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceDisplayPlanePropertiesKHR) },
+    { "vkGetDisplayPlaneSupportedDisplaysKHR",                                                               reinterpret_cast<PFN_vkVoidFunction>(vkGetDisplayPlaneSupportedDisplaysKHR) },
+    { "vkGetDisplayModePropertiesKHR",                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkGetDisplayModePropertiesKHR) },
+    { "vkCreateDisplayModeKHR",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkCreateDisplayModeKHR) },
+    { "vkGetDisplayPlaneCapabilitiesKHR",                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkGetDisplayPlaneCapabilitiesKHR) },
+    { "vkCreateDisplayPlaneSurfaceKHR",                                                                      reinterpret_cast<PFN_vkVoidFunction>(vkCreateDisplayPlaneSurfaceKHR) },
+    { "vkCreateSharedSwapchainsKHR",                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkCreateSharedSwapchainsKHR) },
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+    { "vkCreateXlibSurfaceKHR",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkCreateXlibSurfaceKHR) },
+    { "vkGetPhysicalDeviceXlibPresentationSupportKHR",                                                       reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceXlibPresentationSupportKHR) },
+#endif /* VK_USE_PLATFORM_XLIB_KHR */
+#ifdef VK_USE_PLATFORM_XCB_KHR
+    { "vkCreateXcbSurfaceKHR",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkCreateXcbSurfaceKHR) },
+    { "vkGetPhysicalDeviceXcbPresentationSupportKHR",                                                        reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceXcbPresentationSupportKHR) },
+#endif /* VK_USE_PLATFORM_XCB_KHR */
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+    { "vkCreateWaylandSurfaceKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkCreateWaylandSurfaceKHR) },
+    { "vkGetPhysicalDeviceWaylandPresentationSupportKHR",                                                    reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceWaylandPresentationSupportKHR) },
+#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
+#ifdef VK_USE_PLATFORM_MIR_KHR
+    { "vkCreateMirSurfaceKHR",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkCreateMirSurfaceKHR) },
+    { "vkGetPhysicalDeviceMirPresentationSupportKHR",                                                        reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceMirPresentationSupportKHR) },
+#endif /* VK_USE_PLATFORM_MIR_KHR */
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+    { "vkCreateAndroidSurfaceKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkCreateAndroidSurfaceKHR) },
+#endif /* VK_USE_PLATFORM_ANDROID_KHR */
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    { "vkCreateWin32SurfaceKHR",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkCreateWin32SurfaceKHR) },
+    { "vkGetPhysicalDeviceWin32PresentationSupportKHR",                                                      reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceWin32PresentationSupportKHR) },
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+    { "vkGetPhysicalDeviceFeatures2KHR",                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceFeatures2KHR) },
+    { "vkGetPhysicalDeviceProperties2KHR",                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceProperties2KHR) },
+    { "vkGetPhysicalDeviceFormatProperties2KHR",                                                             reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceFormatProperties2KHR) },
+    { "vkGetPhysicalDeviceImageFormatProperties2KHR",                                                        reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceImageFormatProperties2KHR) },
+    { "vkGetPhysicalDeviceQueueFamilyProperties2KHR",                                                        reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceQueueFamilyProperties2KHR) },
+    { "vkGetPhysicalDeviceMemoryProperties2KHR",                                                             reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceMemoryProperties2KHR) },
+    { "vkGetPhysicalDeviceSparseImageFormatProperties2KHR",                                                  reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceSparseImageFormatProperties2KHR) },
+    { "vkTrimCommandPoolKHR",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkTrimCommandPoolKHR) },
+    { "vkGetPhysicalDeviceExternalBufferPropertiesKHR",                                                      reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceExternalBufferPropertiesKHR) },
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    { "vkGetMemoryWin32HandleKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryWin32HandleKHR) },
+    { "vkGetMemoryWin32HandlePropertiesKHR",                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryWin32HandlePropertiesKHR) },
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+    { "vkGetMemoryFdKHR",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryFdKHR) },
+    { "vkGetMemoryFdPropertiesKHR",                                                                          reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryFdPropertiesKHR) },
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+    { "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR",                                                   reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceExternalSemaphorePropertiesKHR) },
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    { "vkImportSemaphoreWin32HandleKHR",                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkImportSemaphoreWin32HandleKHR) },
+    { "vkGetSemaphoreWin32HandleKHR",                                                                        reinterpret_cast<PFN_vkVoidFunction>(vkGetSemaphoreWin32HandleKHR) },
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+    { "vkImportSemaphoreFdKHR",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkImportSemaphoreFdKHR) },
+    { "vkGetSemaphoreFdKHR",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkGetSemaphoreFdKHR) },
+    { "vkCmdPushDescriptorSetKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkCmdPushDescriptorSetKHR) },
+    { "vkCreateDescriptorUpdateTemplateKHR",                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkCreateDescriptorUpdateTemplateKHR) },
+    { "vkDestroyDescriptorUpdateTemplateKHR",                                                                reinterpret_cast<PFN_vkVoidFunction>(vkDestroyDescriptorUpdateTemplateKHR) },
+    { "vkUpdateDescriptorSetWithTemplateKHR",                                                                reinterpret_cast<PFN_vkVoidFunction>(vkUpdateDescriptorSetWithTemplateKHR) },
+    { "vkCmdPushDescriptorSetWithTemplateKHR",                                                               reinterpret_cast<PFN_vkVoidFunction>(vkCmdPushDescriptorSetWithTemplateKHR) },
+    { "vkGetSwapchainStatusKHR",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkGetSwapchainStatusKHR) },
+    { "vkGetPhysicalDeviceExternalFencePropertiesKHR",                                                       reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceExternalFencePropertiesKHR) },
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    { "vkImportFenceWin32HandleKHR",                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkImportFenceWin32HandleKHR) },
+    { "vkGetFenceWin32HandleKHR",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkGetFenceWin32HandleKHR) },
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+    { "vkImportFenceFdKHR",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkImportFenceFdKHR) },
+    { "vkGetFenceFdKHR",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkGetFenceFdKHR) },
+    { "vkGetPhysicalDeviceSurfaceCapabilities2KHR",                                                          reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceSurfaceCapabilities2KHR) },
+    { "vkGetPhysicalDeviceSurfaceFormats2KHR",                                                               reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceSurfaceFormats2KHR) },
+    { "vkGetImageMemoryRequirements2KHR",                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkGetImageMemoryRequirements2KHR) },
+    { "vkGetBufferMemoryRequirements2KHR",                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkGetBufferMemoryRequirements2KHR) },
+    { "vkGetImageSparseMemoryRequirements2KHR",                                                              reinterpret_cast<PFN_vkVoidFunction>(vkGetImageSparseMemoryRequirements2KHR) },
+    { "vkCreateSamplerYcbcrConversionKHR",                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCreateSamplerYcbcrConversionKHR) },
+    { "vkDestroySamplerYcbcrConversionKHR",                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkDestroySamplerYcbcrConversionKHR) },
+    { "vkBindBufferMemory2KHR",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkBindBufferMemory2KHR) },
+    { "vkBindImageMemory2KHR",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkBindImageMemory2KHR) },
+    { "vkCreateDebugReportCallbackEXT",                                                                      reinterpret_cast<PFN_vkVoidFunction>(vkCreateDebugReportCallbackEXT) },
+    { "vkDestroyDebugReportCallbackEXT",                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkDestroyDebugReportCallbackEXT) },
+    { "vkDebugReportMessageEXT",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkDebugReportMessageEXT) },
+    { "vkDebugMarkerSetObjectTagEXT",                                                                        reinterpret_cast<PFN_vkVoidFunction>(vkDebugMarkerSetObjectTagEXT) },
+    { "vkDebugMarkerSetObjectNameEXT",                                                                       reinterpret_cast<PFN_vkVoidFunction>(vkDebugMarkerSetObjectNameEXT) },
+    { "vkCmdDebugMarkerBeginEXT",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkCmdDebugMarkerBeginEXT) },
+    { "vkCmdDebugMarkerEndEXT",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkCmdDebugMarkerEndEXT) },
+    { "vkCmdDebugMarkerInsertEXT",                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkCmdDebugMarkerInsertEXT) },
+    { "vkCmdDrawIndirectCountAMD",                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndirectCountAMD) },
+    { "vkCmdDrawIndexedIndirectCountAMD",                                                                    reinterpret_cast<PFN_vkVoidFunction>(vkCmdDrawIndexedIndirectCountAMD) },
+    { "vkGetShaderInfoAMD",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkGetShaderInfoAMD) },
+    { "vkGetPhysicalDeviceExternalImageFormatPropertiesNV",                                                  reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceExternalImageFormatPropertiesNV) },
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    { "vkGetMemoryWin32HandleNV",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryWin32HandleNV) },
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+    { "vkGetDeviceGroupPeerMemoryFeaturesKHX",                                                               reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceGroupPeerMemoryFeaturesKHX) },
+    { "vkCmdSetDeviceMaskKHX",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetDeviceMaskKHX) },
+    { "vkCmdDispatchBaseKHX",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkCmdDispatchBaseKHX) },
+    { "vkGetDeviceGroupPresentCapabilitiesKHX",                                                              reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceGroupPresentCapabilitiesKHX) },
+    { "vkGetDeviceGroupSurfacePresentModesKHX",                                                              reinterpret_cast<PFN_vkVoidFunction>(vkGetDeviceGroupSurfacePresentModesKHX) },
+    { "vkGetPhysicalDevicePresentRectanglesKHX",                                                             reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDevicePresentRectanglesKHX) },
+    { "vkAcquireNextImage2KHX",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkAcquireNextImage2KHX) },
+#ifdef VK_USE_PLATFORM_VI_NN
+    { "vkCreateViSurfaceNN",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkCreateViSurfaceNN) },
+#endif /* VK_USE_PLATFORM_VI_NN */
+    { "vkEnumeratePhysicalDeviceGroupsKHX",                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkEnumeratePhysicalDeviceGroupsKHX) },
+    { "vkCmdProcessCommandsNVX",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkCmdProcessCommandsNVX) },
+    { "vkCmdReserveSpaceForCommandsNVX",                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkCmdReserveSpaceForCommandsNVX) },
+    { "vkCreateIndirectCommandsLayoutNVX",                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkCreateIndirectCommandsLayoutNVX) },
+    { "vkDestroyIndirectCommandsLayoutNVX",                                                                  reinterpret_cast<PFN_vkVoidFunction>(vkDestroyIndirectCommandsLayoutNVX) },
+    { "vkCreateObjectTableNVX",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkCreateObjectTableNVX) },
+    { "vkDestroyObjectTableNVX",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkDestroyObjectTableNVX) },
+    { "vkRegisterObjectsNVX",                                                                                reinterpret_cast<PFN_vkVoidFunction>(vkRegisterObjectsNVX) },
+    { "vkUnregisterObjectsNVX",                                                                              reinterpret_cast<PFN_vkVoidFunction>(vkUnregisterObjectsNVX) },
+    { "vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX",                                                   reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX) },
+    { "vkCmdSetViewportWScalingNV",                                                                          reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetViewportWScalingNV) },
+    { "vkReleaseDisplayEXT",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkReleaseDisplayEXT) },
+#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
+    { "vkAcquireXlibDisplayEXT",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkAcquireXlibDisplayEXT) },
+    { "vkGetRandROutputDisplayEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(vkGetRandROutputDisplayEXT) },
+#endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
+    { "vkGetPhysicalDeviceSurfaceCapabilities2EXT",                                                          reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceSurfaceCapabilities2EXT) },
+    { "vkDisplayPowerControlEXT",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkDisplayPowerControlEXT) },
+    { "vkRegisterDeviceEventEXT",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkRegisterDeviceEventEXT) },
+    { "vkRegisterDisplayEventEXT",                                                                           reinterpret_cast<PFN_vkVoidFunction>(vkRegisterDisplayEventEXT) },
+    { "vkGetSwapchainCounterEXT",                                                                            reinterpret_cast<PFN_vkVoidFunction>(vkGetSwapchainCounterEXT) },
+    { "vkGetRefreshCycleDurationGOOGLE",                                                                     reinterpret_cast<PFN_vkVoidFunction>(vkGetRefreshCycleDurationGOOGLE) },
+    { "vkGetPastPresentationTimingGOOGLE",                                                                   reinterpret_cast<PFN_vkVoidFunction>(vkGetPastPresentationTimingGOOGLE) },
+    { "vkCmdSetDiscardRectangleEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetDiscardRectangleEXT) },
+    { "vkSetHdrMetadataEXT",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkSetHdrMetadataEXT) },
+#ifdef VK_USE_PLATFORM_IOS_MVK
+    { "vkCreateIOSSurfaceMVK",                                                                               reinterpret_cast<PFN_vkVoidFunction>(vkCreateIOSSurfaceMVK) },
+#endif /* VK_USE_PLATFORM_IOS_MVK */
+#ifdef VK_USE_PLATFORM_MACOS_MVK
+    { "vkCreateMacOSSurfaceMVK",                                                                             reinterpret_cast<PFN_vkVoidFunction>(vkCreateMacOSSurfaceMVK) },
+#endif /* VK_USE_PLATFORM_MACOS_MVK */
+    { "vkCmdSetSampleLocationsEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(vkCmdSetSampleLocationsEXT) },
+    { "vkGetPhysicalDeviceMultisamplePropertiesEXT",                                                         reinterpret_cast<PFN_vkVoidFunction>(vkGetPhysicalDeviceMultisamplePropertiesEXT) },
+    { "vkCreateValidationCacheEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(vkCreateValidationCacheEXT) },
+    { "vkDestroyValidationCacheEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkDestroyValidationCacheEXT) },
+    { "vkMergeValidationCachesEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(vkMergeValidationCachesEXT) },
+    { "vkGetValidationCacheDataEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(vkGetValidationCacheDataEXT) },
+    { "vkGetMemoryHostPointerPropertiesEXT",                                                                 reinterpret_cast<PFN_vkVoidFunction>(vkGetMemoryHostPointerPropertiesEXT) },
+};
+
+BRIMSTONE_END_NAMESPACE(brimstone)
