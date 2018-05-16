@@ -1,0 +1,8 @@
+LIBRARY brimstone_layer
+EXPORTS
+vkGetInstanceProcAddr
+vkGetDeviceProcAddr
+vkEnumerateInstanceLayerProperties
+vkEnumerateDeviceLayerProperties
+vkEnumerateInstanceExtensionProperties
+vkEnumerateDeviceExtensionProperties
