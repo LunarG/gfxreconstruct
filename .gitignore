@@ -1,0 +1,7 @@
+build/
+Debug/
+Release/
+__pycache__/
+.vs/
+*.db
+
