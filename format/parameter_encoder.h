@@ -1,0 +1,370 @@
+/*
+** Copyright (c) 2018 LunarG, Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+
+#ifndef BRIMSTONE_FORMAT_PARAMETER_ENCODER_H
+#define BRIMSTONE_FORMAT_PARAMETER_ENCODER_H
+
+#include <memory>
+#include <type_traits>
+
+#include "vulkan/vulkan.h"
+
+#include "util/defines.h"
+#include "util/output_stream.h"
+
+BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+BRIMSTONE_BEGIN_NAMESPACE(format)
+
+enum PointerAttributes
+{
+    kIsNull         = 0x01,     // The pointer was null, so the address and data were not encoded.
+
+    // Type of data
+    kIsSingle       = 0x02,     // Pointer to a single value.
+    kIsArray        = 0x04,     // Pointer to an array of values (can be combined with kIsString or kIsStruct).
+
+    // Type modifiers for pointers to aggregate data types
+    kIsString       = 0x08,     // Pointer to a string.
+    kIsStruct       = 0x10,     // Pointer to a struct.
+
+    // What was encoded
+    kHasAddress     = 0x20,     // The address of the pointer was encoded (always comes before data).
+    kHasData        = 0x40,     // The data pointed to was encoded.
+};
+
+class ParameterEncoder
+{
+public:
+    ParameterEncoder(util::OutputStream* stream) : output_stream_(stream) { }
+
+    ~ParameterEncoder() { }
+
+    void Reset() { output_stream_->Reset(); }
+
+    // Values
+    size_t EncodeInt32Value(int32_t value)                                                                               { return EncodeValue(value); }
+    size_t EncodeUInt32Value(uint32_t value)                                                                             { return EncodeValue(value); }
+    size_t EncodeInt64Value(int64_t value)                                                                               { return EncodeValue(value); }
+    size_t EncodeUInt64Value(uint64_t value)                                                                             { return EncodeValue(value); }
+    size_t EncodeFloatValue(float value)                                                                                 { return EncodeValue(value); }
+    size_t EncodeVkBool32Value(VkBool32 value)                                                                           { return EncodeValue(value); }
+    size_t EncodeVkSampleMaskValue(VkSampleMask value)                                                                   { return EncodeValue(value); }
+    size_t EncodeSizeTValue(size_t value)                                                                                { return EncodeValue(static_cast<uint64_t>(value)); }
+    size_t EncodeVkDeviceSizeValue(VkDeviceSize value)                                                                   { return EncodeValue(static_cast<uint64_t>(value)); }
+
+    // Treat pointers to non-Vulkan objects as 64-bit object IDs.
+    size_t EncodeVoidPtr(const void* value)                                                                              { return EncodeValue(reinterpret_cast<uint64_t>(value)); }
+    size_t EncodeFunctionPtr(const void* value)                                                                          { return EncodeValue(reinterpret_cast<uint64_t>(value)); }
+
+    template<typename T>
+    size_t EncodeHandleValue(T value)                                                                                    { return EncodeValue(TypeCast<uint64_t>(value)); }
+    template<typename T>
+    size_t EncodeEnumValue(T value)                                                                                      { return EncodeValue(static_cast<uint32_t>(value)); }
+    template<typename T>
+    size_t EncodeFlagsValue(T value)                                                                                     { return EncodeValue(static_cast<uint32_t>(value)); }
+
+    // Pointers
+    size_t EncodeInt32Ptr(const int32_t* ptr, bool omit_addr = false, bool omit_data = false)                            { return EncodePointer(ptr, omit_addr, omit_data); }
+    size_t EncodeUInt32Ptr(const uint32_t* ptr, bool omit_addr = false, bool omit_data = false)                          { return EncodePointer(ptr, omit_addr, omit_data); }
+    size_t EncodeInt64Ptr(const int64_t* ptr, bool omit_addr = false, bool omit_data = false)                            { return EncodePointer(ptr, omit_addr, omit_data); }
+    size_t EncodeUInt64Ptr(const uint64_t* ptr, bool omit_addr = false, bool omit_data = false)                          { return EncodePointer(ptr, omit_addr, omit_data); }
+    size_t EncodeFloatPtr(const float* ptr, bool omit_addr = false, bool omit_data = false)                              { return EncodePointer(ptr, omit_addr, omit_data); }
+    size_t EncodeVkBool32Ptr(const VkBool32* ptr, bool omit_addr = false, bool omit_data = false)                        { return EncodePointer(ptr, omit_addr, omit_data); }
+    size_t EncodeVkSampleMaskPtr(const VkSampleMask* ptr, bool omit_addr = false, bool omit_data = false)                { return EncodePointer(ptr, omit_addr, omit_data); }
+    size_t EncodeSizeTPtr(const size_t* ptr, bool omit_addr = false, bool omit_data = false)                             { return EncodePointerConverted<uint64_t>(ptr, omit_addr, omit_data); }
+    size_t EncodeVkDeviceSizePtr(const VkDeviceSize* ptr, bool omit_addr = false, bool omit_data = false)                { return EncodePointerConverted<uint64_t>(ptr, omit_addr, omit_data); }
+
+    // Treat pointers to non-Vulkan objects as 64-bit object IDs.
+    size_t EncodeVoidPtrPtr(const void* const* ptr, bool omit_addr = false, bool omit_data = false)                      { return EncodePointerConverted<uint64_t>(ptr, omit_addr, omit_data); }
+
+    template<typename T>
+    size_t EncodeHandlePtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                 { return EncodePointerConverted<uint64_t>(ptr, omit_addr, omit_data); }
+    template<typename T>
+    size_t EncodeEnumPtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                   { return EncodePointerConverted<uint32_t>(ptr, omit_addr, omit_data); }
+    template<typename T>
+    size_t EncodeFlagsPtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                  { return EncodePointerConverted<uint32_t>(ptr, omit_addr, omit_data); }
+
+    // Arrays
+    size_t EncodeInt32Array(const int32_t* arr, size_t len, bool omit_addr = false, bool omit_data = false)              { return EncodeArray(arr, len, omit_addr, omit_data); }
+    size_t EncodeUInt32Array(const uint32_t* arr, size_t len, bool omit_addr = false, bool omit_data = false)            { return EncodeArray(arr, len, omit_addr, omit_data); }
+    size_t EncodeInt64Array(const int64_t* arr, size_t len, bool omit_addr = false, bool omit_data = false)              { return EncodeArray(arr, len, omit_addr, omit_data); }
+    size_t EncodeUInt64Array(const uint64_t* arr, size_t len, bool omit_addr = false, bool omit_data = false)            { return EncodeArray(arr, len, omit_addr, omit_data); }
+    size_t EncodeFloatArray(const float* arr, size_t len, bool omit_addr = false, bool omit_data = false)                { return EncodeArray(arr, len, omit_addr, omit_data); }
+    size_t EncodeVkBool32Array(const VkBool32* arr, size_t len, bool omit_addr = false, bool omit_data = false)          { return EncodeArray(arr, len, omit_addr, omit_data); }
+    size_t EncodeVkSampleMaskArray(const VkSampleMask* arr, size_t len, bool omit_addr = false, bool omit_data = false)  { return EncodeArray(arr, len, omit_addr, omit_data); }
+    size_t EncodeSizeTArray(const size_t* arr, size_t len, bool omit_addr = false, bool omit_data = false)               { return EncodeArrayConverted<uint64_t>(arr, len, omit_addr, omit_data); }
+    size_t EncodeVkDeviceSizeArray(const VkDeviceSize* arr, size_t len, bool omit_addr = false, bool omit_data = false)  { return EncodeArrayConverted<uint64_t>(arr, len, omit_addr, omit_data); }
+
+    // Array of bytes.
+    size_t EncodeUInt8Array(const void* arr, size_t len, bool omit_addr = false, bool omit_data = false)                 { return EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_addr, omit_data); }
+    size_t EncodeVoidArray(const void* arr, size_t len, bool omit_addr = false, bool omit_data = false)                  { return EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_addr, omit_data); }
+
+    template<typename T>
+    size_t EncodeHandleArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                   { return EncodeArrayConverted<uint64_t>(arr, len, omit_addr, omit_data); }
+    template<typename T>
+    size_t EncodeEnumArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                     { return EncodeArrayConverted<uint32_t>(arr, len, omit_addr, omit_data); }
+    template<typename T>
+    size_t EncodeFlagsArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                    { return EncodeArrayConverted<uint32_t>(arr, len, omit_addr, omit_data); }
+
+    size_t EncodeString(const char* str, bool omit_addr = false, bool omit_data = false)
+    {
+        uint32_t pointer_attrib = kIsString | kIsSingle | GetPointerAttributeMask(str, omit_addr, omit_data);
+
+        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (str != nullptr)
+        {
+            if ((pointer_attrib & kHasAddress) == kHasAddress)
+            {
+                total += EncodeVoidPtr(str);
+            }
+
+            // Always write the string length.
+            size_t len = strlen(str);
+
+            total += EncodeSizeTValue(len);
+
+            if ((pointer_attrib & kHasData) == kHasData)
+            {
+                total += output_stream_->Write(str, len);
+            }
+        }
+
+        return total;
+    }
+
+    size_t EncodeStringArray(const char* const* str, size_t len, bool omit_addr = false, bool omit_data = false)
+    {
+        uint32_t pointer_attrib = kIsString | kIsArray | GetPointerAttributeMask(str, omit_addr, omit_data);
+
+        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (str != nullptr)
+        {
+            if ((pointer_attrib & kHasAddress) == kHasAddress)
+            {
+                total += EncodeVoidPtr(str);
+            }
+
+            // Always write the array size.
+            total += EncodeSizeTValue(len);
+
+            if ((pointer_attrib & kHasData) == kHasData)
+            {
+                for (size_t i = 0; i < len; ++i)
+                {
+                    total += EncodeString(str[i], omit_addr, omit_data);
+                }
+            }
+        }
+
+        return total;
+    }
+
+    size_t EncodeStructPtrPreamble(const void* ptr, bool omit_addr = false, bool omit_data = false)
+    {
+        uint32_t pointer_attrib = kIsStruct | kIsSingle | GetPointerAttributeMask(ptr, omit_addr, omit_data);
+
+        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if ((ptr != nullptr) && ((pointer_attrib & kHasAddress) == kHasAddress))
+        {
+            total += EncodeVoidPtr(ptr);
+        }
+
+        return total;
+    }
+
+    size_t EncodeStructArrayPreamble(const void* arr, size_t len, bool omit_addr = false, bool omit_data = false)
+    {
+        uint32_t pointer_attrib = kIsStruct | kIsArray | GetPointerAttributeMask(arr, omit_addr, omit_data);
+
+        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (arr != nullptr)
+        {
+            if ((pointer_attrib & kHasAddress) == kHasAddress)
+            {
+                total += EncodeVoidPtr(arr);
+            }
+
+            // Always write the array size when the pointer is not null.
+            total += EncodeSizeTValue(len);
+        }
+
+        return total;
+    }
+
+private:
+    uint32_t GetPointerAttributeMask(const void* ptr, bool omit_addr, bool omit_data)
+    {
+        uint32_t pointer_attrib = 0;
+
+        if (!omit_addr)
+        {
+            pointer_attrib |= kHasAddress;
+        }
+
+        if (!omit_data)
+        {
+            pointer_attrib |= kHasData;
+        }
+
+        if (ptr == nullptr)
+        {
+            pointer_attrib |= kIsNull;
+        }
+
+        return pointer_attrib;
+    }
+
+    template<typename DstT, typename SrcT>
+    typename std::enable_if<std::is_arithmetic<SrcT>::value && std::is_arithmetic<DstT>::value, DstT>::type TypeCast(SrcT value)
+    {
+        return static_cast<DstT>(value);
+    }
+
+    template<typename DstT, typename SrcT>
+    typename std::enable_if<!std::is_arithmetic<SrcT>::value || !std::is_arithmetic<DstT>::value, DstT>::type TypeCast(SrcT value)
+    {
+        return reinterpret_cast<DstT>(value);
+    }
+
+    template<typename T>
+    size_t EncodeValue(T value)
+    {
+        return output_stream_->Write(&value, sizeof(T));
+    }
+
+    template<typename T>
+    size_t EncodePointer(const T* ptr, bool omit_addr = false, bool omit_data = false)
+    {
+        uint32_t pointer_attrib = kIsSingle | GetPointerAttributeMask(ptr, omit_addr, omit_data);
+
+        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (ptr != nullptr)
+        {
+            if ((pointer_attrib & kHasAddress) == kHasAddress)
+            {
+                total += EncodeVoidPtr(ptr);
+            }
+
+            if ((pointer_attrib & kHasData) == kHasData)
+            {
+                total += output_stream_->Write(ptr, sizeof(T));
+            }
+        }
+
+        return total;
+    }
+
+    template<typename DstT, typename SrcT>
+    size_t EncodePointerConverted(const SrcT* ptr, bool omit_addr = false, bool omit_data = false)
+    {
+        uint32_t pointer_attrib = kIsSingle | GetPointerAttributeMask(ptr, omit_addr, omit_data);
+
+        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (ptr != nullptr)
+        {
+            if ((pointer_attrib & kHasAddress) == kHasAddress)
+            {
+                total += EncodeVoidPtr(ptr);
+            }
+
+            if ((pointer_attrib & kHasData) == kHasData)
+            {
+                DstT converted = TypeCast<DstT>(*ptr);
+                total += output_stream_->Write(&converted, sizeof(DstT));
+            }
+        }
+
+        return total;
+    }
+
+    template<typename T>
+    size_t EncodeArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)
+    {
+        uint32_t pointer_attrib = kIsArray | GetPointerAttributeMask(arr, omit_addr, omit_data);
+
+        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (arr != nullptr)
+        {
+            if ((pointer_attrib & kHasAddress) == kHasAddress)
+            {
+                total += EncodeVoidPtr(arr);
+            }
+
+            // Always write the array size when the pointer is not null.
+            total += EncodeSizeTValue(len);
+
+            if ((pointer_attrib & kHasData) == kHasData)
+            {
+                total += output_stream_->Write(arr, len * sizeof(T));
+            }
+        }
+
+        return total;
+    }
+
+    // Perform a type conversion for array elements when the original type has a size that is not equal to the target type for conversion.
+    template<typename DstT, typename SrcT>
+    typename std::enable_if<sizeof(SrcT) != sizeof(DstT), size_t>::type EncodeArrayConverted(const SrcT* arr, size_t len, bool omit_addr = false, bool omit_data = false)
+    {
+        uint32_t pointer_attrib = kIsArray | GetPointerAttributeMask(arr, omit_addr, omit_data);
+
+        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (arr != nullptr)
+        {
+            if ((pointer_attrib & kHasAddress) == kHasAddress)
+            {
+                total += EncodeVoidPtr(arr);
+            }
+
+            // Always write the array size when the pointer is not null.
+            total += EncodeSizeTValue(len);
+
+            if ((pointer_attrib & kHasData) == kHasData)
+            {
+                for (size_t i = 0; i < len; ++i)
+                {
+                    DstT converted = TypeCast<DstT>(array_values[i]);
+                    total += fwrite(&converted, sizeof(DstT), 1, stdout);
+                }
+            }
+        }
+
+        return total;
+    }
+
+    // Overload for the case where the original type and the conversion type have matching sizes, where we can skip the type conversion.
+    template<typename DstT, typename SrcT>
+    typename std::enable_if<sizeof(SrcT) == sizeof(DstT), size_t>::type EncodeArrayConverted(const SrcT* arr, size_t len, bool omit_addr = false, bool omit_data = false)
+    {
+        return EncodeArray(arr, len, omit_addr, omit_data);
+    }
+
+private:
+    util::OutputStream*                 output_stream_;
+};
+
+BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(brimstone)
+
+#endif // BRIMSTONE_FORMAT_PARAMETER_ENCODER_H
