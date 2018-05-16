@@ -21,6 +21,7 @@ from apicallgenerator import APICallGeneratorOptions, APICallOutputGenerator
 from functablegenerator import FuncTableGeneratorOptions, FuncTableOutputGenerator
 from structgenerator import StructGeneratorOptions, StructOutputGenerator
 from encodepnextstruct import EncodePNextStructGeneratorOptions, EncodePNextStructOutputGenerator
+from idgenerator import IdGeneratorOptions, IdOutputGenerator
 
 # Simple timer functions
 startTime = None
@@ -37,27 +38,52 @@ def endTimer(timeit, msg):
         startTime = None
 
 # Turn a list of strings into a regexp string matching exactly those strings
-def makeREstring(list):
-    return '^(' + '|'.join(list) + ')$'
+def makeREstring(list, default = None):
+    if len(list) > 0 or default == None:
+        return '^(' + '|'.join(list) + ')$'
+    else:
+        return default
 
 # Returns a directory of [ generator function, generator options ] indexed
 # by specified short names. The generator options incorporate the following
 # parameters:
 #
-#   extensions - list of extension names to include
-#   protect - True if re-inclusion protection should be added to headers
-#   directory - path to directory in which to generate the target(s)
-def makeGenOpts(extensions = [], protect = True, directory = '.'):
+# args is an parsed argument object; see below for the fields that are used.
+def makeGenOpts(args):
     global genOpts
     genOpts = {}
 
+    # Default class of extensions to include, or None
+    defaultExtensions = args.defaultExtensions
+
+    # Additional extensions to include (list of extensions)
+    extensions = args.extension
+
+    # Extensions to remove (list of extensions)
+    removeExtensions = args.removeExtensions
+
+    # Extensions to emit (list of extensions)
+    emitExtensions = args.emitExtensions
+
+    # Features to include (list of features)
+    features = args.feature
+
+    # Whether to disable inclusion protect in headers
+    protect = args.protect
+
+    # Output target directory
+    directory = args.directory
+
     # Descriptive names for various regexp patterns used to select
     # versions and extensions
-    allVersions     = allExtensions = '.*'
-    noVersions      = noExtensions = None
+    allFeatures     = allExtensions = '.*'
+    noFeatures      = noExtensions = None
 
-    addExtensions     = makeREstring(extensions)
-    removeExtensions  = makeREstring([])
+    # Turn lists of names/patterns into matching regular expressions
+    addExtensionsPat     = makeREstring(extensions, None)
+    removeExtensionsPat  = makeREstring(removeExtensions, None)
+    emitExtensionsPat    = makeREstring(emitExtensions, allExtensions)
+    featuresPat          = makeREstring(features, allFeatures)
 
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
@@ -101,13 +127,13 @@ def makeGenOpts(extensions = [], protect = True, directory = '.'):
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
-            versions          = allVersions,
-            emitversions      = allVersions,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
             defaultExtensions = 'vulkan',
-            addExtensions     = None,
-            removeExtensions  = None,
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
             prefixText        = prefixStrings + vkPrefixStrings,
-            genFuncPointers   = True,
             protectFile       = False,
             protectFeature    = False,
             protectProto      = '',
@@ -126,13 +152,13 @@ def makeGenOpts(extensions = [], protect = True, directory = '.'):
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
-            versions          = allVersions,
-            emitversions      = allVersions,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
             defaultExtensions = 'vulkan',
-            addExtensions     = None,
-            removeExtensions  = None,
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
             prefixText        = prefixStrings + vkPrefixStrings,
-            genFuncPointers   = True,
             protectFile       = False,
             protectFeature    = False,
             protectProto      = '',
@@ -151,11 +177,12 @@ def makeGenOpts(extensions = [], protect = True, directory = '.'):
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
-            versions          = allVersions,
-            emitversions      = allVersions,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
             defaultExtensions = 'vulkan',
-            addExtensions     = None,
-            removeExtensions  = None,
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
             prefixText        = prefixStrings + vkPrefixStrings,
             genFuncPointers   = True,
             protectFile       = False,
@@ -176,13 +203,40 @@ def makeGenOpts(extensions = [], protect = True, directory = '.'):
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
-            versions          = allVersions,
-            emitversions      = allVersions,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
             defaultExtensions = 'vulkan',
-            addExtensions     = None,
-            removeExtensions  = None,
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
             prefixText        = prefixStrings + vkPrefixStrings,
-            genFuncPointers   = True,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # vktrace API call ID generator. ID values should not be changed once they have been
+    # introduced to vktrace. So, the output of this generator should only be used to determine
+    # when new IDs are required.
+    genOpts['api_call_id.txt'] = [
+          IdOutputGenerator,
+          IdGeneratorOptions(
+            filename          = 'api_call_id.txt',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = False,
             protectProto      = '',
@@ -201,20 +255,25 @@ def makeGenOpts(extensions = [], protect = True, directory = '.'):
 #   directory - directory to generate it in
 #   protect - True if re-inclusion wrappers should be created
 #   extensions - list of additional extensions to include in generated
-#       interfaces
+#   interfaces
 def genTarget(args):
     global genOpts
 
     # Create generator options with specified parameters
-    makeGenOpts(extensions = args.extension,
-                protect = args.protect,
-                directory = args.directory)
+    makeGenOpts(args)
 
     if (args.target in genOpts.keys()):
         createGenerator = genOpts[args.target][0]
         options = genOpts[args.target][1]
 
-        write('* Building', options.filename, file=sys.stderr)
+        if not args.quiet:
+            write('* Building', options.filename, file=sys.stderr)
+            write('* options.versions          =', options.versions, file=sys.stderr)
+            write('* options.emitversions      =', options.emitversions, file=sys.stderr)
+            write('* options.defaultExtensions =', options.defaultExtensions, file=sys.stderr)
+            write('* options.addExtensions     =', options.addExtensions, file=sys.stderr)
+            write('* options.removeExtensions  =', options.removeExtensions, file=sys.stderr)
+            write('* options.emitExtensions    =', options.emitExtensions, file=sys.stderr)
 
         startTimer(args.time)
         gen = createGenerator(errFile=errWarn,
@@ -222,18 +281,36 @@ def genTarget(args):
                               diagFile=diag)
         reg.setGenerator(gen)
         reg.apiGen(options)
-        write('* Generated', options.filename, file=sys.stderr)
+
+        if not args.quiet:
+            write('* Generated', options.filename, file=sys.stderr)
         endTimer(args.time, '* Time to generate ' + options.filename + ' =')
     else:
         write('No generator options for unknown target:',
               args.target, file=sys.stderr)
 
+# -feature name
+# -extension name
+# For both, "name" may be a single name, or a space-separated list
+# of names, or a regular expression.
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('-defaultExtensions', action='store',
+                        default='vulkan',
+                        help='Specify a single class of extensions to add to targets')
     parser.add_argument('-extension', action='append',
                         default=[],
                         help='Specify an extension or extensions to add to targets')
+    parser.add_argument('-removeExtensions', action='append',
+                        default=[],
+                        help='Specify an extension or extensions to remove from targets')
+    parser.add_argument('-emitExtensions', action='append',
+                        default=[],
+                        help='Specify an extension or extensions to emit in targets')
+    parser.add_argument('-feature', action='append',
+                        default=[],
+                        help='Specify a core API feature name or names to add to targets')
     parser.add_argument('-debug', action='store_true',
                         help='Enable debugging')
     parser.add_argument('-dump', action='store_true',
@@ -260,10 +337,16 @@ if __name__ == '__main__':
                         help='Create target and related files in specified directory')
     parser.add_argument('target', metavar='target', nargs='?',
                         help='Specify target')
+    parser.add_argument('-quiet', action='store_true', default=True,
+                        help='Suppress script output during normal execution.')
+    parser.add_argument('-verbose', action='store_false', dest='quiet', default=True,
+                        help='Enable script output during normal execution.')
 
     args = parser.parse_args()
 
-    print('extensions =', args.extension)
+    # This splits arguments which are space-separated lists
+    args.feature = [name for arg in args.feature for name in arg.split()]
+    args.extension = [name for arg in args.extension for name in arg.split()]
 
     # Load & parse registry
     reg = Registry()
@@ -272,25 +355,28 @@ if __name__ == '__main__':
     tree = etree.parse(args.registry)
     endTimer(args.time, '* Time to make ElementTree =')
 
-    startTimer(args.time)
-    reg.loadElementTree(tree)
-    endTimer(args.time, '* Time to parse ElementTree =')
+    if args.debug:
+        pdb.run('reg.loadElementTree(tree)')
+    else:
+        startTimer(args.time)
+        reg.loadElementTree(tree)
+        endTimer(args.time, '* Time to parse ElementTree =')
 
     if (args.validate):
         reg.validateGroups()
 
     if (args.dump):
         write('* Dumping registry to regdump.txt', file=sys.stderr)
-        reg.dumpReg(filehandle = open('regdump.txt','w'))
+        reg.dumpReg(filehandle = open('regdump.txt', 'w', encoding='utf-8'))
 
     # create error/warning & diagnostic files
     if (args.errfile):
-        errWarn = open(args.errfile, 'w')
+        errWarn = open(args.errfile, 'w', encoding='utf-8')
     else:
         errWarn = sys.stderr
 
     if (args.diagfile):
-        diag = open(args.diagfile, 'w')
+        diag = open(args.diagfile, 'w', encoding='utf-8')
     else:
         diag = None
 

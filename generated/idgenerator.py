@@ -51,7 +51,7 @@ from generator import *
 #     parameter on a separate line
 #   alignFuncParam - if nonzero and parameters are being put on a
 #     separate line, align parameter names at the specified column
-class CGeneratorOptions(GeneratorOptions):
+class IdGeneratorOptions(GeneratorOptions):
     """Represents options during C interface generation for headers"""
     def __init__(self,
                  filename = None,
@@ -63,6 +63,7 @@ class CGeneratorOptions(GeneratorOptions):
                  defaultExtensions = None,
                  addExtensions = None,
                  removeExtensions = None,
+                 emitExtensions = None,
                  sortProcedure = regSortFeatures,
                  prefixText = "",
                  genFuncPointers = True,
@@ -78,7 +79,8 @@ class CGeneratorOptions(GeneratorOptions):
                  alignFuncParam = 0):
         GeneratorOptions.__init__(self, filename, directory, apiname, profile,
                                   versions, emitversions, defaultExtensions,
-                                  addExtensions, removeExtensions, sortProcedure)
+                                  addExtensions, removeExtensions,
+                                  emitExtensions, sortProcedure)
         self.prefixText      = prefixText
         self.genFuncPointers = genFuncPointers
         self.protectFile     = protectFile
@@ -108,7 +110,7 @@ class CGeneratorOptions(GeneratorOptions):
 # genGroup(groupinfo,name)
 # genEnum(enuminfo, name)
 # genCmd(cmdinfo)
-class COutputGenerator(OutputGenerator):
+class IdOutputGenerator(OutputGenerator):
     """Generate specified API interfaces in a specific style, such as a C header"""
     # This is an ordered list of sections in the header file.
     TYPE_SECTIONS = ['include', 'define', 'basetype', 'handle', 'enum',
@@ -174,8 +176,8 @@ class COutputGenerator(OutputGenerator):
         self.sections[section].append(text)
     #
     # Type generation
-    def genType(self, typeinfo, name):
-        OutputGenerator.genType(self, typeinfo, name)
+    def genType(self, typeinfo, name, alias):
+        OutputGenerator.genType(self, typeinfo, name, alias)
     #
     # Struct (e.g. C "struct" type) generation.
     # This is a special case of the <type> tag where the contents are
@@ -184,22 +186,22 @@ class COutputGenerator(OutputGenerator):
     # tags - they are a declaration of a struct or union member.
     # Only simple member declarations are supported (no nested
     # structs etc.)
-    def genStruct(self, typeinfo, typeName):
-        OutputGenerator.genStruct(self, typeinfo, typeName)
+    def genStruct(self, typeinfo, typeName, alias):
+        OutputGenerator.genStruct(self, typeinfo, typeName, alias)
     #
     # Group (e.g. C "enum" type) generation.
     # These are concatenated together with other types.
-    def genGroup(self, groupinfo, groupName):
-        OutputGenerator.genGroup(self, groupinfo, groupName)
+    def genGroup(self, groupinfo, groupName, alias):
+        OutputGenerator.genGroup(self, groupinfo, groupName, alias)
     # Enumerant generation
     # <enum> tags may specify their values in several ways, but are usually
     # just integers.
-    def genEnum(self, enuminfo, name):
-        OutputGenerator.genEnum(self, enuminfo, name)
+    def genEnum(self, enuminfo, name, alias):
+        OutputGenerator.genEnum(self, enuminfo, name, alias)
     #
     # Command generation
-    def genCmd(self, cmdinfo, name):
-        OutputGenerator.genCmd(self, cmdinfo, name)
+    def genCmd(self, cmdinfo, name, alias):
+        OutputGenerator.genCmd(self, cmdinfo, name, alias)
         tokenname = '    ApiCallId_' + name
         align = 100 - len(tokenname)
         self.appendSection('command', '{}{}= 0x1{:03x},'.format(tokenname, (' ' * align), self.apicount))

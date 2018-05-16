@@ -6,12 +6,12 @@
     <ProjectGuid>{c847ae64-88bc-42fb-8b58-6bb84f90f1a1}</ProjectGuid>
     <ProjectHome />
     <StartupFile>genlayer.py</StartupFile>
-    <SearchPath>..\external\Vulkan-Docs\src\spec</SearchPath>
+    <SearchPath>..\external\Vulkan-Headers\registry</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>-registry ..\external\Vulkan-Docs\src\spec\vk.xml generated_api_call_trace.inc</CommandLineArguments>
+    <CommandLineArguments>-registry ..\external\Vulkan-Headers\registry\vk.xml generated_api_call_trace.inc</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />

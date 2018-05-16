@@ -181,11 +181,224 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkRenderPassBeginInfo*>(value));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceSubgroupProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindBufferMemoryInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindImageMemoryInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDevice16BitStorageFeatures*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkMemoryDedicatedRequirements*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkMemoryDedicatedAllocateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkMemoryAllocateFlagsInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupRenderPassBeginInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupCommandBufferBeginInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupSubmitInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupBindSparseInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindBufferMemoryDeviceGroupInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindImageMemoryDeviceGroupInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceGroupProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupDeviceCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBufferMemoryRequirementsInfo2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageMemoryRequirementsInfo2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageSparseMemoryRequirementsInfo2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkMemoryRequirements2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSparseImageMemoryRequirements2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceFeatures2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceProperties2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkFormatProperties2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageFormatProperties2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceImageFormatInfo2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkQueueFamilyProperties2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceMemoryProperties2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSparseImageFormatProperties2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceSparseImageFormatInfo2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDevicePointClippingProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkRenderPassInputAttachmentAspectCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageViewUsageCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPipelineTessellationDomainOriginStateCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkRenderPassMultiviewCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceMultiviewFeatures*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceMultiviewProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTER_FEATURES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceVariablePointerFeatures*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceProtectedMemoryFeatures*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceProtectedMemoryProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceQueueInfo2*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkProtectedSubmitInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSamplerYcbcrConversionCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSamplerYcbcrConversionInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_BIND_IMAGE_PLANE_MEMORY_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindImagePlaneMemoryInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImagePlaneMemoryRequirementsInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSamplerYcbcrConversionImageFormatProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDescriptorUpdateTemplateCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceExternalImageFormatInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalImageFormatProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceExternalBufferInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalBufferProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceIDProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalMemoryImageCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalMemoryBufferCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExportMemoryAllocateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceExternalFenceInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalFenceProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExportFenceCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExportSemaphoreCreateInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceExternalSemaphoreInfo*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalSemaphoreProperties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceMaintenance3Properties*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_SUPPORT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDescriptorSetLayoutSupport*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETER_FEATURES:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderDrawParameterFeatures*>(value));
+            break;
         case VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkSwapchainCreateInfoKHR*>(value));
             break;
         case VK_STRUCTURE_TYPE_PRESENT_INFO_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkPresentInfoKHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageSwapchainCreateInfoKHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindImageMemorySwapchainInfoKHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkAcquireNextImageInfoKHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_CAPABILITIES_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupPresentCapabilitiesKHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupPresentInfoKHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupSwapchainCreateInfoKHR*>(value));
             break;
         case VK_STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkDisplayModeCreateInfoKHR*>(value));
@@ -226,57 +439,6 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkWin32SurfaceCreateInfoKHR*>(value));
             break;
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceFeatures2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceProperties2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkFormatProperties2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageFormatProperties2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceImageFormatInfo2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkQueueFamilyProperties2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceMemoryProperties2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSparseImageFormatProperties2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceSparseImageFormatInfo2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceExternalImageFormatInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalImageFormatPropertiesKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceExternalBufferInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalBufferPropertiesKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceIDPropertiesKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalMemoryImageCreateInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalMemoryBufferCreateInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExportMemoryAllocateInfoKHR*>(value));
-            break;
 #ifdef VK_USE_PLATFORM_WIN32_KHR
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkImportMemoryWin32HandleInfoKHR*>(value));
@@ -305,15 +467,6 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoKHR*>(value));
             break;
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceExternalSemaphoreInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalSemaphorePropertiesKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExportSemaphoreCreateInfoKHR*>(value));
-            break;
 #ifdef VK_USE_PLATFORM_WIN32_KHR
         case VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkImportSemaphoreWin32HandleInfoKHR*>(value));
@@ -337,26 +490,11 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDevicePushDescriptorPropertiesKHR*>(value));
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDevice16BitStorageFeaturesKHR*>(value));
-            break;
         case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkPresentRegionsKHR*>(value));
             break;
-        case VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDescriptorUpdateTemplateCreateInfoKHR*>(value));
-            break;
         case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkSharedPresentSurfaceCapabilitiesKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceExternalFenceInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalFencePropertiesKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExportFenceCreateInfoKHR*>(value));
             break;
 #ifdef VK_USE_PLATFORM_WIN32_KHR
         case VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR:
@@ -375,18 +513,6 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkFenceGetFdInfoKHR*>(value));
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDevicePointClippingPropertiesKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkRenderPassInputAttachmentAspectCreateInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageViewUsageCreateInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPipelineTessellationDomainOriginStateCreateInfoKHR*>(value));
-            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceSurfaceInfo2KHR*>(value));
             break;
@@ -396,56 +522,8 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkSurfaceFormat2KHR*>(value));
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTER_FEATURES_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceVariablePointerFeaturesKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkMemoryDedicatedRequirementsKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkMemoryDedicatedAllocateInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBufferMemoryRequirementsInfo2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageMemoryRequirementsInfo2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageSparseMemoryRequirementsInfo2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkMemoryRequirements2KHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSparseImageMemoryRequirements2KHR*>(value));
-            break;
         case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageFormatListCreateInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSamplerYcbcrConversionCreateInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSamplerYcbcrConversionInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_BIND_IMAGE_PLANE_MEMORY_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindImagePlaneMemoryInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImagePlaneMemoryRequirementsInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSamplerYcbcrConversionImageFormatPropertiesKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindBufferMemoryInfoKHR*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO_KHR:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindImageMemoryInfoKHR*>(value));
             break;
         case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkDebugReportCallbackCreateInfoEXT*>(value));
@@ -474,15 +552,6 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(value));
             break;
-        case VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkRenderPassMultiviewCreateInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceMultiviewFeaturesKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceMultiviewPropertiesKHX*>(value));
-            break;
         case VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalMemoryImageCreateInfoNV*>(value));
             break;
@@ -502,45 +571,6 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoNV*>(value));
             break;
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
-        case VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkMemoryAllocateFlagsInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupRenderPassBeginInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupCommandBufferBeginInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupSubmitInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupBindSparseInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindBufferMemoryDeviceGroupInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindImageMemoryDeviceGroupInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_CAPABILITIES_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupPresentCapabilitiesKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageSwapchainCreateInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkBindImageMemorySwapchainInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkAcquireNextImageInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupPresentInfoKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupSwapchainCreateInfoKHX*>(value));
-            break;
         case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkValidationFlagsEXT*>(value));
             break;
@@ -549,12 +579,6 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkViSurfaceCreateInfoNN*>(value));
             break;
 #endif /* VK_USE_PLATFORM_VI_NN */
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceGroupPropertiesKHX*>(value));
-            break;
-        case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO_KHX:
-            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGroupDeviceCreateInfoKHX*>(value));
-            break;
         case VK_STRUCTURE_TYPE_DEVICE_GENERATED_COMMANDS_FEATURES_NVX:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGeneratedCommandsFeaturesNVX*>(value));
             break;
@@ -625,6 +649,41 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkMacOSSurfaceCreateInfoMVK*>(value));
             break;
 #endif /* VK_USE_PLATFORM_MACOS_MVK */
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDebugUtilsObjectNameInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDebugUtilsObjectTagInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDebugUtilsLabelEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDebugUtilsMessengerCallbackDataEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(value));
+            break;
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+        case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkAndroidHardwareBufferUsageANDROID*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkAndroidHardwareBufferPropertiesANDROID*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkAndroidHardwareBufferFormatPropertiesANDROID*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkImportAndroidHardwareBufferInfoANDROID*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkMemoryGetAndroidHardwareBufferInfoANDROID*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkExternalFormatANDROID*>(value));
+            break;
+#endif /* VK_USE_PLATFORM_ANDROID_KHR */
         case VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO_EXT:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkSamplerReductionModeCreateInfoEXT*>(value));
             break;
@@ -667,6 +726,21 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkShaderModuleValidationCacheCreateInfoEXT*>(value));
             break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDescriptorSetLayoutBindingFlagsCreateInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorIndexingFeaturesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceDescriptorIndexingPropertiesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDescriptorSetVariableDescriptorCountAllocateInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDescriptorSetVariableDescriptorCountLayoutSupportEXT*>(value));
+            break;
         case VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_EXT:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceQueueGlobalPriorityCreateInfoEXT*>(value));
             break;
@@ -678,6 +752,15 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceExternalMemoryHostPropertiesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderCorePropertiesAMD*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPipelineVertexInputDivisorStateCreateInfoEXT*>(value));
             break;
         }
     }

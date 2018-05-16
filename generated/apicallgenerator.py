@@ -16,6 +16,7 @@
 
 import os,re,sys
 from generator import *
+from common_codegen import GetFeatureProtect
 
 # CGeneratorOptions - subclass of GeneratorOptions.
 #
@@ -62,6 +63,7 @@ class APICallGeneratorOptions(GeneratorOptions):
                  defaultExtensions = None,
                  addExtensions = None,
                  removeExtensions = None,
+                 emitExtensions = None,
                  sortProcedure = regSortFeatures,
                  prefixText = "",
                  genFuncPointers = True,
@@ -77,7 +79,8 @@ class APICallGeneratorOptions(GeneratorOptions):
                  alignFuncParam = 0):
         GeneratorOptions.__init__(self, filename, directory, apiname, profile,
                                   versions, emitversions, defaultExtensions,
-                                  addExtensions, removeExtensions, sortProcedure)
+                                  addExtensions, removeExtensions,
+                                  emitExtensions, sortProcedure)
         self.prefixText      = prefixText
         self.genFuncPointers = genFuncPointers
         self.protectFile     = protectFile
@@ -117,7 +120,8 @@ class APICallOutputGenerator(OutputGenerator):
                          'vkEnumerateInstanceLayerProperties',
                          'vkEnumerateDeviceLayerProperties',
                          'vkEnumerateInstanceExtensionProperties',
-                         'vkEnumerateDeviceExtensionProperties']
+                         'vkEnumerateDeviceExtensionProperties',
+                         'vkEnumerateInstanceVersion']
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -173,6 +177,7 @@ class APICallOutputGenerator(OutputGenerator):
         # end function prototypes separately for this feature. They're only
         # printed in endFeature().
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
+        self.featureExtraProtect = GetFeatureProtect(interface)
     def endFeature(self):
         # C-specific
         # Actually write the interface to the output file.
@@ -204,15 +209,15 @@ class APICallOutputGenerator(OutputGenerator):
         self.sections[section].append(text)
     #
     # Type generation
-    def genType(self, typeinfo, name):
-        OutputGenerator.genType(self, typeinfo, name)
+    def genType(self, typeinfo, name, alias):
+        OutputGenerator.genType(self, typeinfo, name, alias)
         typeElem = typeinfo.elem
         # If the type is a struct type, traverse the imbedded <member> tags
         # generating a structure. Otherwise, emit the tag text.
         category = typeElem.get('category')
         if (category == 'struct' or category == 'union'):
             self.structNames.append(name)
-            self.genStruct(typeinfo, name)
+            self.genStruct(typeinfo, name, alias)
         elif (category == 'handle'):
             self.handleTypes.add(name)
         elif (category == 'bitmask'):
@@ -225,23 +230,23 @@ class APICallOutputGenerator(OutputGenerator):
     # tags - they are a declaration of a struct or union member.
     # Only simple member declarations are supported (no nested
     # structs etc.)
-    def genStruct(self, typeinfo, typeName):
-        OutputGenerator.genStruct(self, typeinfo, typeName)
+    def genStruct(self, typeinfo, typeName, alias):
+        OutputGenerator.genStruct(self, typeinfo, typeName, alias)
     #
     # Group (e.g. C "enum" type) generation.
     # These are concatenated together with other types.
-    def genGroup(self, groupinfo, groupName):
-        OutputGenerator.genGroup(self, groupinfo, groupName)
+    def genGroup(self, groupinfo, groupName, alias):
+        OutputGenerator.genGroup(self, groupinfo, groupName, alias)
         self.enumTypes.add(groupName)
     # Enumerant generation
     # <enum> tags may specify their values in several ways, but are usually
     # just integers.
-    def genEnum(self, enuminfo, name):
-        OutputGenerator.genEnum(self, enuminfo, name)
+    def genEnum(self, enuminfo, name, alias):
+        OutputGenerator.genEnum(self, enuminfo, name, alias)
     #
     # Command generation
-    def genCmd(self, cmdinfo, name):
-        OutputGenerator.genCmd(self, cmdinfo, name)
+    def genCmd(self, cmdinfo, name, alias):
+        OutputGenerator.genCmd(self, cmdinfo, name, alias)
         #
         if not name in self.APICALL_BLACKLIST:
             cmddef = self.makeCDefs(cmdinfo.elem) + '\n'

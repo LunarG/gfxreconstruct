@@ -3885,6 +3885,2258 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDrawIndire
     return result;
 }
 
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceSubgroupProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.subgroupSize);
+    result += encoder->EncodeFlagsValue(value.supportedStages);
+    result += encoder->EncodeFlagsValue(value.supportedOperations);
+    result += encoder->EncodeVkBool32Value(value.quadOperationsInAllStages);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceSubgroupProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceSubgroupProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkBindBufferMemoryInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleValue(value.memory);
+    result += encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindBufferMemoryInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindBufferMemoryInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkBindImageMemoryInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.image);
+    result += encoder->EncodeHandleValue(value.memory);
+    result += encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindImageMemoryInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindImageMemoryInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDevice16BitStorageFeatures& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.storageBuffer16BitAccess);
+    result += encoder->EncodeVkBool32Value(value.uniformAndStorageBuffer16BitAccess);
+    result += encoder->EncodeVkBool32Value(value.storagePushConstant16);
+    result += encoder->EncodeVkBool32Value(value.storageInputOutput16);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDevice16BitStorageFeatures* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDevice16BitStorageFeatures* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryDedicatedRequirements& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.prefersDedicatedAllocation);
+    result += encoder->EncodeVkBool32Value(value.requiresDedicatedAllocation);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkMemoryDedicatedRequirements* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkMemoryDedicatedRequirements* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryDedicatedAllocateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.image);
+    result += encoder->EncodeHandleValue(value.buffer);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkMemoryDedicatedAllocateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkMemoryDedicatedAllocateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryAllocateFlagsInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.flags);
+    result += encoder->EncodeUInt32Value(value.deviceMask);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkMemoryAllocateFlagsInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkMemoryAllocateFlagsInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupRenderPassBeginInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.deviceMask);
+    result += encoder->EncodeUInt32Value(value.deviceRenderAreaCount);
+    result += encode_struct_array(encoder, value.pDeviceRenderAreas, value.deviceRenderAreaCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupRenderPassBeginInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupRenderPassBeginInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupCommandBufferBeginInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.deviceMask);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupCommandBufferBeginInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupCommandBufferBeginInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupSubmitInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.waitSemaphoreCount);
+    result += encoder->EncodeUInt32Array(value.pWaitSemaphoreDeviceIndices, value.waitSemaphoreCount);
+    result += encoder->EncodeUInt32Value(value.commandBufferCount);
+    result += encoder->EncodeUInt32Array(value.pCommandBufferDeviceMasks, value.commandBufferCount);
+    result += encoder->EncodeUInt32Value(value.signalSemaphoreCount);
+    result += encoder->EncodeUInt32Array(value.pSignalSemaphoreDeviceIndices, value.signalSemaphoreCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupSubmitInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupSubmitInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupBindSparseInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.resourceDeviceIndex);
+    result += encoder->EncodeUInt32Value(value.memoryDeviceIndex);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupBindSparseInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupBindSparseInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkBindBufferMemoryDeviceGroupInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.deviceIndexCount);
+    result += encoder->EncodeUInt32Array(value.pDeviceIndices, value.deviceIndexCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindBufferMemoryDeviceGroupInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindBufferMemoryDeviceGroupInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkBindImageMemoryDeviceGroupInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.deviceIndexCount);
+    result += encoder->EncodeUInt32Array(value.pDeviceIndices, value.deviceIndexCount);
+    result += encoder->EncodeUInt32Value(value.splitInstanceBindRegionCount);
+    result += encode_struct_array(encoder, value.pSplitInstanceBindRegions, value.splitInstanceBindRegionCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindImageMemoryDeviceGroupInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindImageMemoryDeviceGroupInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceGroupProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.physicalDeviceCount);
+    result += encoder->EncodeHandleArray(value.physicalDevices, VK_MAX_DEVICE_GROUP_SIZE);
+    result += encoder->EncodeVkBool32Value(value.subsetAllocation);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceGroupProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceGroupProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupDeviceCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.physicalDeviceCount);
+    result += encoder->EncodeHandleArray(value.pPhysicalDevices, value.physicalDeviceCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupDeviceCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupDeviceCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkBufferMemoryRequirementsInfo2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.buffer);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBufferMemoryRequirementsInfo2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBufferMemoryRequirementsInfo2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkImageMemoryRequirementsInfo2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.image);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageMemoryRequirementsInfo2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageMemoryRequirementsInfo2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkImageSparseMemoryRequirementsInfo2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.image);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageSparseMemoryRequirementsInfo2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageSparseMemoryRequirementsInfo2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryRequirements2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.memoryRequirements);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkMemoryRequirements2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkMemoryRequirements2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkSparseImageMemoryRequirements2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.memoryRequirements);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSparseImageMemoryRequirements2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSparseImageMemoryRequirements2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceFeatures2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.features);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceFeatures2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceFeatures2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceProperties2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.properties);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceProperties2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceProperties2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkFormatProperties2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.formatProperties);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkFormatProperties2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkFormatProperties2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkImageFormatProperties2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.imageFormatProperties);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageFormatProperties2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageFormatProperties2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceImageFormatInfo2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.format);
+    result += encoder->EncodeEnumValue(value.type);
+    result += encoder->EncodeEnumValue(value.tiling);
+    result += encoder->EncodeFlagsValue(value.usage);
+    result += encoder->EncodeFlagsValue(value.flags);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceImageFormatInfo2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceImageFormatInfo2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkQueueFamilyProperties2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.queueFamilyProperties);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkQueueFamilyProperties2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkQueueFamilyProperties2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.memoryProperties);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkSparseImageFormatProperties2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.properties);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSparseImageFormatProperties2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSparseImageFormatProperties2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceSparseImageFormatInfo2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.format);
+    result += encoder->EncodeEnumValue(value.type);
+    result += encoder->EncodeEnumValue(value.samples);
+    result += encoder->EncodeFlagsValue(value.usage);
+    result += encoder->EncodeEnumValue(value.tiling);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceSparseImageFormatInfo2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceSparseImageFormatInfo2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDevicePointClippingProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.pointClippingBehavior);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDevicePointClippingProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDevicePointClippingProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkInputAttachmentAspectReference& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeUInt32Value(value.subpass);
+    result += encoder->EncodeUInt32Value(value.inputAttachmentIndex);
+    result += encoder->EncodeFlagsValue(value.aspectMask);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkInputAttachmentAspectReference* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkInputAttachmentAspectReference* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkRenderPassInputAttachmentAspectCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.aspectReferenceCount);
+    result += encode_struct_array(encoder, value.pAspectReferences, value.aspectReferenceCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkRenderPassInputAttachmentAspectCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkRenderPassInputAttachmentAspectCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkImageViewUsageCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.usage);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageViewUsageCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageViewUsageCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPipelineTessellationDomainOriginStateCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.domainOrigin);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPipelineTessellationDomainOriginStateCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPipelineTessellationDomainOriginStateCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkRenderPassMultiviewCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.subpassCount);
+    result += encoder->EncodeUInt32Array(value.pViewMasks, value.subpassCount);
+    result += encoder->EncodeUInt32Value(value.dependencyCount);
+    result += encoder->EncodeInt32Array(value.pViewOffsets, value.dependencyCount);
+    result += encoder->EncodeUInt32Value(value.correlationMaskCount);
+    result += encoder->EncodeUInt32Array(value.pCorrelationMasks, value.correlationMaskCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkRenderPassMultiviewCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkRenderPassMultiviewCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewFeatures& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.multiview);
+    result += encoder->EncodeVkBool32Value(value.multiviewGeometryShader);
+    result += encoder->EncodeVkBool32Value(value.multiviewTessellationShader);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewFeatures* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewFeatures* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.maxMultiviewViewCount);
+    result += encoder->EncodeUInt32Value(value.maxMultiviewInstanceIndex);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceVariablePointerFeatures& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.variablePointersStorageBuffer);
+    result += encoder->EncodeVkBool32Value(value.variablePointers);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceVariablePointerFeatures* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceVariablePointerFeatures* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceProtectedMemoryFeatures& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.protectedMemory);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceProtectedMemoryFeatures* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceProtectedMemoryFeatures* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceProtectedMemoryProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.protectedNoFault);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceProtectedMemoryProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceProtectedMemoryProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceQueueInfo2& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.flags);
+    result += encoder->EncodeUInt32Value(value.queueFamilyIndex);
+    result += encoder->EncodeUInt32Value(value.queueIndex);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceQueueInfo2* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceQueueInfo2* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkProtectedSubmitInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.protectedSubmit);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkProtectedSubmitInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkProtectedSubmitInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.format);
+    result += encoder->EncodeEnumValue(value.ycbcrModel);
+    result += encoder->EncodeEnumValue(value.ycbcrRange);
+    result += encode_struct(encoder, value.components);
+    result += encoder->EncodeEnumValue(value.xChromaOffset);
+    result += encoder->EncodeEnumValue(value.yChromaOffset);
+    result += encoder->EncodeEnumValue(value.chromaFilter);
+    result += encoder->EncodeVkBool32Value(value.forceExplicitReconstruction);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.conversion);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkBindImagePlaneMemoryInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.planeAspect);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindImagePlaneMemoryInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindImagePlaneMemoryInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkImagePlaneMemoryRequirementsInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.planeAspect);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImagePlaneMemoryRequirementsInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImagePlaneMemoryRequirementsInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceSamplerYcbcrConversionFeatures& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.samplerYcbcrConversion);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceSamplerYcbcrConversionFeatures* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceSamplerYcbcrConversionFeatures* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionImageFormatProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.combinedImageSamplerDescriptorCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionImageFormatProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionImageFormatProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateEntry& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeUInt32Value(value.dstBinding);
+    result += encoder->EncodeUInt32Value(value.dstArrayElement);
+    result += encoder->EncodeUInt32Value(value.descriptorCount);
+    result += encoder->EncodeEnumValue(value.descriptorType);
+    result += encoder->EncodeSizeTValue(value.offset);
+    result += encoder->EncodeSizeTValue(value.stride);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateEntry* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateEntry* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.flags);
+    result += encoder->EncodeUInt32Value(value.descriptorUpdateEntryCount);
+    result += encode_struct_array(encoder, value.pDescriptorUpdateEntries, value.descriptorUpdateEntryCount);
+    result += encoder->EncodeEnumValue(value.templateType);
+    result += encoder->EncodeHandleValue(value.descriptorSetLayout);
+    result += encoder->EncodeEnumValue(value.pipelineBindPoint);
+    result += encoder->EncodeHandleValue(value.pipelineLayout);
+    result += encoder->EncodeUInt32Value(value.set);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalMemoryProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeFlagsValue(value.externalMemoryFeatures);
+    result += encoder->EncodeFlagsValue(value.exportFromImportedHandleTypes);
+    result += encoder->EncodeFlagsValue(value.compatibleHandleTypes);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalMemoryProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalMemoryProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalImageFormatInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.handleType);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalImageFormatInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalImageFormatInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalImageFormatProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.externalMemoryProperties);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalImageFormatProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalImageFormatProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalBufferInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.flags);
+    result += encoder->EncodeFlagsValue(value.usage);
+    result += encoder->EncodeEnumValue(value.handleType);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalBufferInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalBufferInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalBufferProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encode_struct(encoder, value.externalMemoryProperties);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalBufferProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalBufferProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceIDProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt8Array(value.deviceUUID, VK_UUID_SIZE);
+    result += encoder->EncodeUInt8Array(value.driverUUID, VK_UUID_SIZE);
+    result += encoder->EncodeUInt8Array(value.deviceLUID, VK_LUID_SIZE);
+    result += encoder->EncodeUInt32Value(value.deviceNodeMask);
+    result += encoder->EncodeVkBool32Value(value.deviceLUIDValid);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceIDProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceIDProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalMemoryImageCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.handleTypes);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalMemoryImageCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalMemoryImageCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalMemoryBufferCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.handleTypes);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalMemoryBufferCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalMemoryBufferCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExportMemoryAllocateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.handleTypes);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExportMemoryAllocateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExportMemoryAllocateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalFenceInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.handleType);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalFenceInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalFenceInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalFenceProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.exportFromImportedHandleTypes);
+    result += encoder->EncodeFlagsValue(value.compatibleHandleTypes);
+    result += encoder->EncodeFlagsValue(value.externalFenceFeatures);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalFenceProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalFenceProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExportFenceCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.handleTypes);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExportFenceCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExportFenceCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExportSemaphoreCreateInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.handleTypes);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExportSemaphoreCreateInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExportSemaphoreCreateInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalSemaphoreInfo& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.handleType);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalSemaphoreInfo* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalSemaphoreInfo* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalSemaphoreProperties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.exportFromImportedHandleTypes);
+    result += encoder->EncodeFlagsValue(value.compatibleHandleTypes);
+    result += encoder->EncodeFlagsValue(value.externalSemaphoreFeatures);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalSemaphoreProperties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalSemaphoreProperties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance3Properties& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.maxPerSetDescriptors);
+    result += encoder->EncodeVkDeviceSizeValue(value.maxMemoryAllocationSize);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance3Properties* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceMaintenance3Properties* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorSetLayoutSupport& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.supported);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDescriptorSetLayoutSupport* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDescriptorSetLayoutSupport* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceShaderDrawParameterFeatures& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.shaderDrawParameters);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceShaderDrawParameterFeatures* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceShaderDrawParameterFeatures* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
 size_t encode_struct(format::ParameterEncoder* encoder, const VkSurfaceCapabilitiesKHR& value)
 {
     size_t result = 0;
@@ -4027,6 +6279,206 @@ size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPresentInfoK
 }
 
 size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPresentInfoKHR* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkImageSwapchainCreateInfoKHR& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.swapchain);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageSwapchainCreateInfoKHR* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageSwapchainCreateInfoKHR* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkBindImageMemorySwapchainInfoKHR& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.swapchain);
+    result += encoder->EncodeUInt32Value(value.imageIndex);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindImageMemorySwapchainInfoKHR* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindImageMemorySwapchainInfoKHR* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkAcquireNextImageInfoKHR& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.swapchain);
+    result += encoder->EncodeUInt64Value(value.timeout);
+    result += encoder->EncodeHandleValue(value.semaphore);
+    result += encoder->EncodeHandleValue(value.fence);
+    result += encoder->EncodeUInt32Value(value.deviceMask);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkAcquireNextImageInfoKHR* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkAcquireNextImageInfoKHR* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupPresentCapabilitiesKHR& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Array(value.presentMask, VK_MAX_DEVICE_GROUP_SIZE);
+    result += encoder->EncodeFlagsValue(value.modes);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupPresentCapabilitiesKHR* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupPresentCapabilitiesKHR* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupPresentInfoKHR& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.swapchainCount);
+    result += encoder->EncodeUInt32Array(value.pDeviceMasks, value.swapchainCount);
+    result += encoder->EncodeEnumValue(value.mode);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupPresentInfoKHR* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupPresentInfoKHR* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupSwapchainCreateInfoKHR& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.modes);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupSwapchainCreateInfoKHR* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupSwapchainCreateInfoKHR* value, size_t len)
 {
     size_t result = encoder->EncodeStructArrayPreamble(value, len);
     if ((value != nullptr) && (len > 0))
@@ -4527,596 +6979,6 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkWin32Surfa
 }
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceFeatures2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.features);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceFeatures2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceFeatures2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceProperties2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.properties);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceProperties2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceProperties2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkFormatProperties2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.formatProperties);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkFormatProperties2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkFormatProperties2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkImageFormatProperties2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.imageFormatProperties);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageFormatProperties2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageFormatProperties2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceImageFormatInfo2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeEnumValue(value.format);
-    result += encoder->EncodeEnumValue(value.type);
-    result += encoder->EncodeEnumValue(value.tiling);
-    result += encoder->EncodeFlagsValue(value.usage);
-    result += encoder->EncodeFlagsValue(value.flags);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceImageFormatInfo2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceImageFormatInfo2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkQueueFamilyProperties2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.queueFamilyProperties);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkQueueFamilyProperties2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkQueueFamilyProperties2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.memoryProperties);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkSparseImageFormatProperties2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.properties);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSparseImageFormatProperties2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSparseImageFormatProperties2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceSparseImageFormatInfo2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeEnumValue(value.format);
-    result += encoder->EncodeEnumValue(value.type);
-    result += encoder->EncodeEnumValue(value.samples);
-    result += encoder->EncodeFlagsValue(value.usage);
-    result += encoder->EncodeEnumValue(value.tiling);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceSparseImageFormatInfo2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceSparseImageFormatInfo2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalMemoryPropertiesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeFlagsValue(value.externalMemoryFeatures);
-    result += encoder->EncodeFlagsValue(value.exportFromImportedHandleTypes);
-    result += encoder->EncodeFlagsValue(value.compatibleHandleTypes);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalMemoryPropertiesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalMemoryPropertiesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalImageFormatInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeEnumValue(value.handleType);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalImageFormatInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalImageFormatInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalImageFormatPropertiesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.externalMemoryProperties);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalImageFormatPropertiesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalImageFormatPropertiesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalBufferInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeFlagsValue(value.usage);
-    result += encoder->EncodeEnumValue(value.handleType);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalBufferInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalBufferInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalBufferPropertiesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.externalMemoryProperties);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalBufferPropertiesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalBufferPropertiesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceIDPropertiesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt8Array(value.deviceUUID, VK_UUID_SIZE);
-    result += encoder->EncodeUInt8Array(value.driverUUID, VK_UUID_SIZE);
-    result += encoder->EncodeUInt8Array(value.deviceLUID, VK_LUID_SIZE_KHR);
-    result += encoder->EncodeUInt32Value(value.deviceNodeMask);
-    result += encoder->EncodeVkBool32Value(value.deviceLUIDValid);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceIDPropertiesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceIDPropertiesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalMemoryImageCreateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.handleTypes);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalMemoryImageCreateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalMemoryImageCreateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalMemoryBufferCreateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.handleTypes);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalMemoryBufferCreateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalMemoryBufferCreateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkExportMemoryAllocateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.handleTypes);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExportMemoryAllocateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExportMemoryAllocateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t encode_struct(format::ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoKHR& value)
 {
@@ -5390,104 +7252,6 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkWin32Keyed
 }
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalSemaphoreInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeEnumValue(value.handleType);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalSemaphoreInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalSemaphoreInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalSemaphorePropertiesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.exportFromImportedHandleTypes);
-    result += encoder->EncodeFlagsValue(value.compatibleHandleTypes);
-    result += encoder->EncodeFlagsValue(value.externalSemaphoreFeatures);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalSemaphorePropertiesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalSemaphorePropertiesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkExportSemaphoreCreateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.handleTypes);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExportSemaphoreCreateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExportSemaphoreCreateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t encode_struct(format::ParameterEncoder* encoder, const VkImportSemaphoreWin32HandleInfoKHR& value)
 {
@@ -5728,41 +7492,6 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDe
     return result;
 }
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDevice16BitStorageFeaturesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeVkBool32Value(value.storageBuffer16BitAccess);
-    result += encoder->EncodeVkBool32Value(value.uniformAndStorageBuffer16BitAccess);
-    result += encoder->EncodeVkBool32Value(value.storagePushConstant16);
-    result += encoder->EncodeVkBool32Value(value.storageInputOutput16);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDevice16BitStorageFeaturesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDevice16BitStorageFeaturesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
 size_t encode_struct(format::ParameterEncoder* encoder, const VkRectLayerKHR& value)
 {
     size_t result = 0;
@@ -5859,80 +7588,6 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPresentReg
     return result;
 }
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateEntryKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeUInt32Value(value.dstBinding);
-    result += encoder->EncodeUInt32Value(value.dstArrayElement);
-    result += encoder->EncodeUInt32Value(value.descriptorCount);
-    result += encoder->EncodeEnumValue(value.descriptorType);
-    result += encoder->EncodeSizeTValue(value.offset);
-    result += encoder->EncodeSizeTValue(value.stride);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateEntryKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateEntryKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateCreateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeUInt32Value(value.descriptorUpdateEntryCount);
-    result += encode_struct_array(encoder, value.pDescriptorUpdateEntries, value.descriptorUpdateEntryCount);
-    result += encoder->EncodeEnumValue(value.templateType);
-    result += encoder->EncodeHandleValue(value.descriptorSetLayout);
-    result += encoder->EncodeEnumValue(value.pipelineBindPoint);
-    result += encoder->EncodeHandleValue(value.pipelineLayout);
-    result += encoder->EncodeUInt32Value(value.set);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateCreateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDescriptorUpdateTemplateCreateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
 size_t encode_struct(format::ParameterEncoder* encoder, const VkSharedPresentSurfaceCapabilitiesKHR& value)
 {
     size_t result = 0;
@@ -5953,104 +7608,6 @@ size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSharedPresen
 }
 
 size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSharedPresentSurfaceCapabilitiesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalFenceInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeEnumValue(value.handleType);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalFenceInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalFenceInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalFencePropertiesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.exportFromImportedHandleTypes);
-    result += encoder->EncodeFlagsValue(value.compatibleHandleTypes);
-    result += encoder->EncodeFlagsValue(value.externalFenceFeatures);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalFencePropertiesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalFencePropertiesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkExportFenceCreateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.handleTypes);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExportFenceCreateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExportFenceCreateInfoKHR* value, size_t len)
 {
     size_t result = encoder->EncodeStructArrayPreamble(value, len);
     if ((value != nullptr) && (len > 0))
@@ -6236,167 +7793,6 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkFenceGetFd
     return result;
 }
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDevicePointClippingPropertiesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeEnumValue(value.pointClippingBehavior);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDevicePointClippingPropertiesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDevicePointClippingPropertiesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkInputAttachmentAspectReferenceKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeUInt32Value(value.subpass);
-    result += encoder->EncodeUInt32Value(value.inputAttachmentIndex);
-    result += encoder->EncodeFlagsValue(value.aspectMask);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkInputAttachmentAspectReferenceKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkInputAttachmentAspectReferenceKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkRenderPassInputAttachmentAspectCreateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.aspectReferenceCount);
-    result += encode_struct_array(encoder, value.pAspectReferences, value.aspectReferenceCount);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkRenderPassInputAttachmentAspectCreateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkRenderPassInputAttachmentAspectCreateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkImageViewUsageCreateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.usage);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageViewUsageCreateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageViewUsageCreateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPipelineTessellationDomainOriginStateCreateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeEnumValue(value.domainOrigin);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPipelineTessellationDomainOriginStateCreateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPipelineTessellationDomainOriginStateCreateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
 size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceSurfaceInfo2KHR& value)
 {
     size_t result = 0;
@@ -6493,265 +7889,6 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSurfaceFor
     return result;
 }
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceVariablePointerFeaturesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeVkBool32Value(value.variablePointersStorageBuffer);
-    result += encoder->EncodeVkBool32Value(value.variablePointers);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceVariablePointerFeaturesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceVariablePointerFeaturesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryDedicatedRequirementsKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeVkBool32Value(value.prefersDedicatedAllocation);
-    result += encoder->EncodeVkBool32Value(value.requiresDedicatedAllocation);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkMemoryDedicatedRequirementsKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkMemoryDedicatedRequirementsKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryDedicatedAllocateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.image);
-    result += encoder->EncodeHandleValue(value.buffer);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkMemoryDedicatedAllocateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkMemoryDedicatedAllocateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkBufferMemoryRequirementsInfo2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.buffer);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBufferMemoryRequirementsInfo2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBufferMemoryRequirementsInfo2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkImageMemoryRequirementsInfo2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.image);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageMemoryRequirementsInfo2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageMemoryRequirementsInfo2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkImageSparseMemoryRequirementsInfo2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.image);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageSparseMemoryRequirementsInfo2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageSparseMemoryRequirementsInfo2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryRequirements2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.memoryRequirements);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkMemoryRequirements2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkMemoryRequirements2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkSparseImageMemoryRequirements2KHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encode_struct(encoder, value.memoryRequirements);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSparseImageMemoryRequirements2KHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSparseImageMemoryRequirements2KHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
 size_t encode_struct(format::ParameterEncoder* encoder, const VkImageFormatListCreateInfoKHR& value)
 {
     size_t result = 0;
@@ -6773,273 +7910,6 @@ size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageFormatL
 }
 
 size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageFormatListCreateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionCreateInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeEnumValue(value.format);
-    result += encoder->EncodeEnumValue(value.ycbcrModel);
-    result += encoder->EncodeEnumValue(value.ycbcrRange);
-    result += encode_struct(encoder, value.components);
-    result += encoder->EncodeEnumValue(value.xChromaOffset);
-    result += encoder->EncodeEnumValue(value.yChromaOffset);
-    result += encoder->EncodeEnumValue(value.chromaFilter);
-    result += encoder->EncodeVkBool32Value(value.forceExplicitReconstruction);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionCreateInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionCreateInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.conversion);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkBindImagePlaneMemoryInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeEnumValue(value.planeAspect);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindImagePlaneMemoryInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindImagePlaneMemoryInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkImagePlaneMemoryRequirementsInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeEnumValue(value.planeAspect);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImagePlaneMemoryRequirementsInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImagePlaneMemoryRequirementsInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeVkBool32Value(value.samplerYcbcrConversion);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionImageFormatPropertiesKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.combinedImageSamplerDescriptorCount);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionImageFormatPropertiesKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSamplerYcbcrConversionImageFormatPropertiesKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkBindBufferMemoryInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.buffer);
-    result += encoder->EncodeHandleValue(value.memory);
-    result += encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindBufferMemoryInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindBufferMemoryInfoKHR* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkBindImageMemoryInfoKHR& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.image);
-    result += encoder->EncodeHandleValue(value.memory);
-    result += encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindImageMemoryInfoKHR* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindImageMemoryInfoKHR* value, size_t len)
 {
     size_t result = encoder->EncodeStructArrayPreamble(value, len);
     if ((value != nullptr) && (len > 0))
@@ -7420,110 +8290,6 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkShaderStat
     return result;
 }
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkRenderPassMultiviewCreateInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.subpassCount);
-    result += encoder->EncodeUInt32Array(value.pViewMasks, value.subpassCount);
-    result += encoder->EncodeUInt32Value(value.dependencyCount);
-    result += encoder->EncodeInt32Array(value.pViewOffsets, value.dependencyCount);
-    result += encoder->EncodeUInt32Value(value.correlationMaskCount);
-    result += encoder->EncodeUInt32Array(value.pCorrelationMasks, value.correlationMaskCount);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkRenderPassMultiviewCreateInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkRenderPassMultiviewCreateInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewFeaturesKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeVkBool32Value(value.multiview);
-    result += encoder->EncodeVkBool32Value(value.multiviewGeometryShader);
-    result += encoder->EncodeVkBool32Value(value.multiviewTessellationShader);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewFeaturesKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewFeaturesKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPropertiesKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.maxMultiviewViewCount);
-    result += encoder->EncodeUInt32Value(value.maxMultiviewInstanceIndex);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPropertiesKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPropertiesKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
 size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalImageFormatPropertiesNV& value)
 {
     size_t result = 0;
@@ -7729,443 +8495,6 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkWin32Keyed
 }
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryAllocateFlagsInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeUInt32Value(value.deviceMask);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkMemoryAllocateFlagsInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkMemoryAllocateFlagsInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupRenderPassBeginInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.deviceMask);
-    result += encoder->EncodeUInt32Value(value.deviceRenderAreaCount);
-    result += encode_struct_array(encoder, value.pDeviceRenderAreas, value.deviceRenderAreaCount);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupRenderPassBeginInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupRenderPassBeginInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupCommandBufferBeginInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.deviceMask);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupCommandBufferBeginInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupCommandBufferBeginInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupSubmitInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.waitSemaphoreCount);
-    result += encoder->EncodeUInt32Array(value.pWaitSemaphoreDeviceIndices, value.waitSemaphoreCount);
-    result += encoder->EncodeUInt32Value(value.commandBufferCount);
-    result += encoder->EncodeUInt32Array(value.pCommandBufferDeviceMasks, value.commandBufferCount);
-    result += encoder->EncodeUInt32Value(value.signalSemaphoreCount);
-    result += encoder->EncodeUInt32Array(value.pSignalSemaphoreDeviceIndices, value.signalSemaphoreCount);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupSubmitInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupSubmitInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupBindSparseInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.resourceDeviceIndex);
-    result += encoder->EncodeUInt32Value(value.memoryDeviceIndex);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupBindSparseInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupBindSparseInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkBindBufferMemoryDeviceGroupInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.deviceIndexCount);
-    result += encoder->EncodeUInt32Array(value.pDeviceIndices, value.deviceIndexCount);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindBufferMemoryDeviceGroupInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindBufferMemoryDeviceGroupInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkBindImageMemoryDeviceGroupInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.deviceIndexCount);
-    result += encoder->EncodeUInt32Array(value.pDeviceIndices, value.deviceIndexCount);
-    result += encoder->EncodeUInt32Value(value.SFRRectCount);
-    result += encode_struct_array(encoder, value.pSFRRects, value.SFRRectCount);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindImageMemoryDeviceGroupInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindImageMemoryDeviceGroupInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupPresentCapabilitiesKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Array(value.presentMask, VK_MAX_DEVICE_GROUP_SIZE_KHX);
-    result += encoder->EncodeFlagsValue(value.modes);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupPresentCapabilitiesKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupPresentCapabilitiesKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkImageSwapchainCreateInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.swapchain);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImageSwapchainCreateInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImageSwapchainCreateInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkBindImageMemorySwapchainInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.swapchain);
-    result += encoder->EncodeUInt32Value(value.imageIndex);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkBindImageMemorySwapchainInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkBindImageMemorySwapchainInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkAcquireNextImageInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.swapchain);
-    result += encoder->EncodeUInt64Value(value.timeout);
-    result += encoder->EncodeHandleValue(value.semaphore);
-    result += encoder->EncodeHandleValue(value.fence);
-    result += encoder->EncodeUInt32Value(value.deviceMask);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkAcquireNextImageInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkAcquireNextImageInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupPresentInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.swapchainCount);
-    result += encoder->EncodeUInt32Array(value.pDeviceMasks, value.swapchainCount);
-    result += encoder->EncodeEnumValue(value.mode);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupPresentInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupPresentInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupSwapchainCreateInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeFlagsValue(value.modes);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupSwapchainCreateInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupSwapchainCreateInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
 size_t encode_struct(format::ParameterEncoder* encoder, const VkValidationFlagsEXT& value)
 {
     size_t result = 0;
@@ -8233,73 +8562,6 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkViSurfaceC
     return result;
 }
 #endif /* VK_USE_PLATFORM_VI_NN */
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceGroupPropertiesKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.physicalDeviceCount);
-    result += encoder->EncodeHandleArray(value.physicalDevices, VK_MAX_DEVICE_GROUP_SIZE_KHX);
-    result += encoder->EncodeVkBool32Value(value.subsetAllocation);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceGroupPropertiesKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceGroupPropertiesKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupDeviceCreateInfoKHX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.sType);
-    result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeUInt32Value(value.physicalDeviceCount);
-    result += encoder->EncodeHandleArray(value.pPhysicalDevices, value.physicalDeviceCount);
-    return result;
-}
-
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDeviceGroupDeviceCreateInfoKHX* value)
-{
-    size_t result = encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
-    {
-        result += encode_struct(encoder, *value);
-    }
-    return result;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGroupDeviceCreateInfoKHX* value, size_t len)
-{
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
-    {
-        for(size_t i = 0; i < len; ++i)
-        {
-            result = encode_struct(encoder, value[i]);
-        }
-    }
-    return result;
-}
 
 size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGeneratedCommandsFeaturesNVX& value)
 {
@@ -9521,6 +9783,388 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkMacOSSurfa
 }
 #endif /* VK_USE_PLATFORM_MACOS_MVK */
 
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.objectType);
+    result += encoder->EncodeUInt64Value(value.objectHandle);
+    result += encoder->EncodeString(value.pObjectName);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.objectType);
+    result += encoder->EncodeUInt64Value(value.objectHandle);
+    result += encoder->EncodeUInt64Value(value.tagName);
+    result += encoder->EncodeSizeTValue(value.tagSize);
+    result += encoder->EncodeVoidArray(value.pTag, value.tagSize);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeString(value.pLabelName);
+    result += encoder->EncodeFloatArray(value.color, 4);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDebugUtilsLabelEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDebugUtilsLabelEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.flags);
+    result += encoder->EncodeString(value.pMessageIdName);
+    result += encoder->EncodeInt32Value(value.messageIdNumber);
+    result += encoder->EncodeString(value.pMessage);
+    result += encoder->EncodeUInt32Value(value.queueLabelCount);
+    result += encode_struct_array(encoder, value.pQueueLabels, value.queueLabelCount);
+    result += encoder->EncodeUInt32Value(value.cmdBufLabelCount);
+    result += encode_struct_array(encoder, value.pCmdBufLabels, value.cmdBufLabelCount);
+    result += encoder->EncodeUInt32Value(value.objectCount);
+    result += encode_struct_array(encoder, value.pObjects, value.objectCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateInfoEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeFlagsValue(value.flags);
+    result += encoder->EncodeFlagsValue(value.messageSeverity);
+    result += encoder->EncodeFlagsValue(value.messageType);
+    result += encoder->EncodeFunctionPtr(value.pfnUserCallback);
+    result += encoder->EncodeVoidPtr(value.pUserData);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateInfoEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateInfoEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+size_t encode_struct(format::ParameterEncoder* encoder, const VkAndroidHardwareBufferUsageANDROID& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt64Value(value.androidHardwareBufferUsage);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkAndroidHardwareBufferUsageANDROID* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkAndroidHardwareBufferUsageANDROID* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkAndroidHardwareBufferPropertiesANDROID& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkDeviceSizeValue(value.allocationSize);
+    result += encoder->EncodeUInt32Value(value.memoryTypeBits);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkAndroidHardwareBufferPropertiesANDROID* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkAndroidHardwareBufferPropertiesANDROID* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkAndroidHardwareBufferFormatPropertiesANDROID& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeEnumValue(value.format);
+    result += encoder->EncodeUInt64Value(value.externalFormat);
+    result += encoder->EncodeFlagsValue(value.formatFeatures);
+    result += encode_struct(encoder, value.samplerYcbcrConversionComponents);
+    result += encoder->EncodeEnumValue(value.suggestedYcbcrModel);
+    result += encoder->EncodeEnumValue(value.suggestedYcbcrRange);
+    result += encoder->EncodeEnumValue(value.suggestedXChromaOffset);
+    result += encoder->EncodeEnumValue(value.suggestedYChromaOffset);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkAndroidHardwareBufferFormatPropertiesANDROID* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkAndroidHardwareBufferFormatPropertiesANDROID* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkImportAndroidHardwareBufferInfoANDROID& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeAHardwareBufferPtr(value.buffer);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkImportAndroidHardwareBufferInfoANDROID* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkImportAndroidHardwareBufferInfoANDROID* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryGetAndroidHardwareBufferInfoANDROID& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeHandleValue(value.memory);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkMemoryGetAndroidHardwareBufferInfoANDROID* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkMemoryGetAndroidHardwareBufferInfoANDROID* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkExternalFormatANDROID& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt64Value(value.externalFormat);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkExternalFormatANDROID* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkExternalFormatANDROID* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+#endif /* VK_USE_PLATFORM_ANDROID_KHR */
+
 size_t encode_struct(format::ParameterEncoder* encoder, const VkSamplerReductionModeCreateInfoEXT& value)
 {
     size_t result = 0;
@@ -10089,6 +10733,209 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkShaderModu
     return result;
 }
 
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorSetLayoutBindingFlagsCreateInfoEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.bindingCount);
+    result += encoder->EncodeFlagsArray(value.pBindingFlags, value.bindingCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDescriptorSetLayoutBindingFlagsCreateInfoEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDescriptorSetLayoutBindingFlagsCreateInfoEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIndexingFeaturesEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayDynamicIndexing);
+    result += encoder->EncodeVkBool32Value(value.shaderUniformTexelBufferArrayDynamicIndexing);
+    result += encoder->EncodeVkBool32Value(value.shaderStorageTexelBufferArrayDynamicIndexing);
+    result += encoder->EncodeVkBool32Value(value.shaderUniformBufferArrayNonUniformIndexing);
+    result += encoder->EncodeVkBool32Value(value.shaderSampledImageArrayNonUniformIndexing);
+    result += encoder->EncodeVkBool32Value(value.shaderStorageBufferArrayNonUniformIndexing);
+    result += encoder->EncodeVkBool32Value(value.shaderStorageImageArrayNonUniformIndexing);
+    result += encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayNonUniformIndexing);
+    result += encoder->EncodeVkBool32Value(value.shaderUniformTexelBufferArrayNonUniformIndexing);
+    result += encoder->EncodeVkBool32Value(value.shaderStorageTexelBufferArrayNonUniformIndexing);
+    result += encoder->EncodeVkBool32Value(value.descriptorBindingUniformBufferUpdateAfterBind);
+    result += encoder->EncodeVkBool32Value(value.descriptorBindingSampledImageUpdateAfterBind);
+    result += encoder->EncodeVkBool32Value(value.descriptorBindingStorageImageUpdateAfterBind);
+    result += encoder->EncodeVkBool32Value(value.descriptorBindingStorageBufferUpdateAfterBind);
+    result += encoder->EncodeVkBool32Value(value.descriptorBindingUniformTexelBufferUpdateAfterBind);
+    result += encoder->EncodeVkBool32Value(value.descriptorBindingStorageTexelBufferUpdateAfterBind);
+    result += encoder->EncodeVkBool32Value(value.descriptorBindingUpdateUnusedWhilePending);
+    result += encoder->EncodeVkBool32Value(value.descriptorBindingPartiallyBound);
+    result += encoder->EncodeVkBool32Value(value.descriptorBindingVariableDescriptorCount);
+    result += encoder->EncodeVkBool32Value(value.runtimeDescriptorArray);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIndexingFeaturesEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIndexingFeaturesEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIndexingPropertiesEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.maxUpdateAfterBindDescriptorsInAllPools);
+    result += encoder->EncodeVkBool32Value(value.shaderUniformBufferArrayNonUniformIndexingNative);
+    result += encoder->EncodeVkBool32Value(value.shaderSampledImageArrayNonUniformIndexingNative);
+    result += encoder->EncodeVkBool32Value(value.shaderStorageBufferArrayNonUniformIndexingNative);
+    result += encoder->EncodeVkBool32Value(value.shaderStorageImageArrayNonUniformIndexingNative);
+    result += encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayNonUniformIndexingNative);
+    result += encoder->EncodeVkBool32Value(value.robustBufferAccessUpdateAfterBind);
+    result += encoder->EncodeVkBool32Value(value.quadDivergentImplicitLod);
+    result += encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindSamplers);
+    result += encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindUniformBuffers);
+    result += encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindStorageBuffers);
+    result += encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindSampledImages);
+    result += encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindStorageImages);
+    result += encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindInputAttachments);
+    result += encoder->EncodeUInt32Value(value.maxPerStageUpdateAfterBindResources);
+    result += encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindSamplers);
+    result += encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindUniformBuffers);
+    result += encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindUniformBuffersDynamic);
+    result += encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageBuffers);
+    result += encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageBuffersDynamic);
+    result += encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindSampledImages);
+    result += encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageImages);
+    result += encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindInputAttachments);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIndexingPropertiesEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIndexingPropertiesEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountAllocateInfoEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.descriptorSetCount);
+    result += encoder->EncodeUInt32Array(value.pDescriptorCounts, value.descriptorSetCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountAllocateInfoEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountAllocateInfoEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountLayoutSupportEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.maxVariableDescriptorCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountLayoutSupportEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountLayoutSupportEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
 size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceQueueGlobalPriorityCreateInfoEXT& value)
 {
     size_t result = 0;
@@ -10206,6 +11053,147 @@ size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDevi
 }
 
 size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceExternalMemoryHostPropertiesEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceShaderCorePropertiesAMD& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.shaderEngineCount);
+    result += encoder->EncodeUInt32Value(value.shaderArraysPerEngineCount);
+    result += encoder->EncodeUInt32Value(value.computeUnitsPerShaderArray);
+    result += encoder->EncodeUInt32Value(value.simdPerComputeUnit);
+    result += encoder->EncodeUInt32Value(value.wavefrontsPerSimd);
+    result += encoder->EncodeUInt32Value(value.wavefrontSize);
+    result += encoder->EncodeUInt32Value(value.sgprsPerSimd);
+    result += encoder->EncodeUInt32Value(value.minSgprAllocation);
+    result += encoder->EncodeUInt32Value(value.maxSgprAllocation);
+    result += encoder->EncodeUInt32Value(value.sgprAllocationGranularity);
+    result += encoder->EncodeUInt32Value(value.vgprsPerSimd);
+    result += encoder->EncodeUInt32Value(value.minVgprAllocation);
+    result += encoder->EncodeUInt32Value(value.maxVgprAllocation);
+    result += encoder->EncodeUInt32Value(value.vgprAllocationGranularity);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceShaderCorePropertiesAMD* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceShaderCorePropertiesAMD* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.maxVertexAttribDivisor);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkVertexInputBindingDivisorDescriptionEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeUInt32Value(value.binding);
+    result += encoder->EncodeUInt32Value(value.divisor);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkVertexInputBindingDivisorDescriptionEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkVertexInputBindingDivisorDescriptionEXT* value, size_t len)
+{
+    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    if ((value != nullptr) && (len > 0))
+    {
+        for(size_t i = 0; i < len; ++i)
+        {
+            result = encode_struct(encoder, value[i]);
+        }
+    }
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkPipelineVertexInputDivisorStateCreateInfoEXT& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeEnumValue(value.sType);
+    result += encode_pnext_struct(encoder, value.pNext);
+    result += encoder->EncodeUInt32Value(value.vertexBindingDivisorCount);
+    result += encode_struct_array(encoder, value.pVertexBindingDivisors, value.vertexBindingDivisorCount);
+    return result;
+}
+
+size_t encode_struct_ptr(format::ParameterEncoder* encoder, const VkPipelineVertexInputDivisorStateCreateInfoEXT* value)
+{
+    size_t result = encoder->EncodeStructPtrPreamble(value);
+    if (value != nullptr)
+    {
+        result += encode_struct(encoder, *value);
+    }
+    return result;
+}
+
+size_t encode_struct_array(format::ParameterEncoder* encoder, const VkPipelineVertexInputDivisorStateCreateInfoEXT* value, size_t len)
 {
     size_t result = encoder->EncodeStructArrayPreamble(value, len);
     if ((value != nullptr) && (len > 0))
