@@ -62,6 +62,23 @@ enum FileOption : uint32_t
     kHandleEncodingSize = 8         // Unsigned integer value: defines number of bits used for API handle encoding, valid values are 32 and 64. Default = 64.
 };
 
+enum PointerAttributes : uint32_t
+{
+    kIsNull         = 0x01,     // The pointer was null, so the address and data were not encoded.
+
+    // Type of data
+    kIsSingle       = 0x02,     // Pointer to a single value.
+    kIsArray        = 0x04,     // Pointer to an array of values (can be combined with kIsString or kIsStruct).
+
+    // Type modifiers for pointers to aggregate data types
+    kIsString       = 0x08,     // Pointer to a string.
+    kIsStruct       = 0x10,     // Pointer to a struct.
+
+    // What was encoded
+    kHasAddress     = 0x20,     // The address of the pointer was encoded (always comes before data).
+    kHasData        = 0x40,     // The data pointed to was encoded.
+};
+
 struct EnabledOptions
 {
     CompressionType     compression_type{ kNone };
