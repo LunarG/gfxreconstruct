@@ -25,26 +25,10 @@
 
 #include "util/defines.h"
 #include "util/output_stream.h"
+#include "format/format.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
-
-enum PointerAttributes
-{
-    kIsNull         = 0x01,     // The pointer was null, so the address and data were not encoded.
-
-    // Type of data
-    kIsSingle       = 0x02,     // Pointer to a single value.
-    kIsArray        = 0x04,     // Pointer to an array of values (can be combined with kIsString or kIsStruct).
-
-    // Type modifiers for pointers to aggregate data types
-    kIsString       = 0x08,     // Pointer to a string.
-    kIsStruct       = 0x10,     // Pointer to a struct.
-
-    // What was encoded
-    kHasAddress     = 0x20,     // The address of the pointer was encoded (always comes before data).
-    kHasData        = 0x40,     // The data pointed to was encoded.
-};
 
 class ParameterEncoder
 {
