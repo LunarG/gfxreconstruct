@@ -91,9 +91,19 @@ ParameterEncoder* TraceManager::BeginApiCallTrace(ApiCallId call_id)
 
 void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 {
-    size_t size = thread_data_.parameter_buffer_->GetDataSize();
-
     FunctionCallHeader call_header;
+    size_t size = sizeof(call_header.api_call_id) + thread_data_.parameter_buffer_->GetDataSize();
+
+    if (file_options_.record_thread_id)
+    {
+        size += sizeof(thread_data_.thread_id_);
+    }
+
+    if (file_options_.record_begin_end_timestamp)
+    {
+        size += sizeof(thread_data_.call_begin_time_) + sizeof(thread_data_.call_end_time_);
+    }
+
     call_header.block_header.size = size;
     call_header.block_header.type = BlockType::kFunctionCallBlock;
     call_header.api_call_id = thread_data_.call_id_;
