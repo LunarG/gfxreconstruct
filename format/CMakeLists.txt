@@ -4,7 +4,9 @@ set(HEADER_FILES
     file_processor.h
     format.h
     parameter_encoder.h
+    pointer_decoder_base.h
     pointer_decoder.h
+    string_array_decoder.h
     trace_manager.h
     trace_pnext_util.h
     value_decoder.h
@@ -12,6 +14,7 @@ set(HEADER_FILES
 
 set(SOURCE_FILES
     file_processor.cpp
+    string_array_decoder.cpp
     trace_manager.cpp
     vulkan_decoder.cpp)
 
