@@ -28,15 +28,14 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-template<typename T>
-class PointerDecoder
+class PointerDecoderBase
 {
 public:
-    PointerDecoder() : data_(nullptr), len_(0), address_(0), attrib_(0) { }
+    PointerDecoderBase() : len_(0), address_(0), attrib_(PointerAttributes::kIsNull) { }
 
-    ~PointerDecoder() { DestroyData<T>(); }
+    ~PointerDecoderBase() { }
 
-    bool IsNull() const { return (data_ == nullptr) ? true : false; }
+    bool IsNull() const { return ((attrib_ & PointerAttributes::kIsNull) == PointerAttributes::kIsNull) ? true : false; }
 
     bool HasAddress() const { return ((attrib_ & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress) ? true : false; }
 
@@ -45,6 +44,20 @@ public:
     uint64_t GetAddress() const { return address_; }
 
     size_t GetLength() const { return len_; }
+
+protected:
+    size_t                  len_;
+    uint64_t                address_;
+    uint32_t                attrib_;
+};
+
+template<typename T>
+class PointerDecoder : public PointerDecoderBase
+{
+public:
+    PointerDecoder() : data_(nullptr) { }
+
+    ~PointerDecoder() { DestroyData<T>(); }
 
     T* GetPointer() const { return data_.get(); }
 
@@ -172,9 +185,6 @@ private:
 
 private:
     std::unique_ptr<T[]>    data_;
-    size_t                  len_;
-    uint64_t                address_;
-    uint32_t                attrib_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
