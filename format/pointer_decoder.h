@@ -23,33 +23,11 @@
 
 #include "util/defines.h"
 #include "format/format.h"
+#include "format/pointer_decoder_base.h"
 #include "format/value_decoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
-
-class PointerDecoderBase
-{
-public:
-    PointerDecoderBase() : len_(0), address_(0), attrib_(PointerAttributes::kIsNull) { }
-
-    ~PointerDecoderBase() { }
-
-    bool IsNull() const { return ((attrib_ & PointerAttributes::kIsNull) == PointerAttributes::kIsNull) ? true : false; }
-
-    bool HasAddress() const { return ((attrib_ & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress) ? true : false; }
-
-    bool HasData() const { return ((attrib_ & PointerAttributes::kHasData) == PointerAttributes::kHasData) ? true : false; }
-
-    uint64_t GetAddress() const { return address_; }
-
-    size_t GetLength() const { return len_; }
-
-protected:
-    size_t                  len_;
-    uint64_t                address_;
-    uint32_t                attrib_;
-};
 
 template<typename T>
 class PointerDecoder : public PointerDecoderBase
@@ -111,109 +89,6 @@ private:
 
 private:
     std::unique_ptr<T[]>    data_;
-};
-
-template<>
-class PointerDecoder<char*> : public PointerDecoderBase
-{
-public:
-    PointerDecoder() { }
-
-    ~PointerDecoder() { DestroyStrings(); }
-
-    uint64_t* GetStringAddresses() const { return string_addresses_.get(); }
-
-    size_t* GetStringLengths() const { return string_addresses_.get(); }
-
-    char** GetPointer() const { return strings_.get(); }
-
-    size_t Decode(const uint8_t* buffer, size_t buffer_size) { return DecodeStringArray(buffer, buffer_size); }
-
-private:
-    size_t DecodeStringArray(const uint8_t* buffer, size_t buffer_size)
-    {
-        size_t bytes_read = 0;
-
-        bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib_);
-
-        assert((attrib_ & (PointerAttributes::kIsString | PointerAttributes::kIsArray)) == (PointerAttributes::kIsString | PointerAttributes::kIsArray));
-
-        if ((attrib_ & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
-        {
-            if ((attrib_ & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
-            {
-                bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address_);
-            }
-
-            bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &len_);
-
-            if (((attrib_ & PointerAttributes::kHasData) == PointerAttributes::kHasData))
-            {
-                strings_ = std::make_unique<char*[]>(len_);
-                string_addresses_ = std::make_unique<uint64_t[]>(len_);
-                string_lengths_ = std::make_unique<size_t[]>(len_);
-
-                for (size_t i = 0; i < len_; ++i)
-                {
-                    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib_);
-
-                    if ((attrib_ & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
-                    {
-                        if ((attrib_ & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
-                        {
-                            bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &string_addresses_[i]);
-                        }
-
-                        assert((attrib_ & PointerAttributes::kIsString) == PointerAttributes::kIsString);
-
-                        size_t slen = 0;
-                        bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &slen);
-
-                        char* value = new char[slen + 1];
-
-                        if (((attrib_ & PointerAttributes::kHasData) == PointerAttributes::kHasData))
-                        {
-                            bytes_read += ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), value, slen);
-                            value[slen] = '\0';
-                        }
-                        else
-                        {
-                            value[0] = '\0';
-                        }
-
-                        strings_[i] = value;
-                        string_lengths_[i] = slen;
-                    }
-                    else
-                    {
-                        strings_[i] = nullptr;
-                        string_addresses_[i] = 0;
-                        string_lengths_[i] = 0;
-                    }
-                }
-            }
-        }
-
-        return bytes_read;
-    }
-
-    void DestroyStrings()
-    {
-        if (strings_ != nullptr)
-        {
-            // Must explicitly destroy the individual strings in the array.
-            for (size_t i = 0; i < len_; ++i)
-            {
-                delete [] strings_[i];
-                strings_[i] = nullptr;
-            }
-        }
-    }
-
-private:
-    std::unique_ptr<char*[]>        strings_;
-    std::unique_ptr<uint64_t[]>     string_addresses_;
-    std::unique_ptr<size_t[]>       string_lengths_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
