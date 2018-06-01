@@ -2,8 +2,10 @@ set(HEADER_FILES
     api_call_id.h
     format.h
     parameter_encoder.h
+    pointer_decoder.h
     trace_manager.h
-    trace_pnext_util.h)
+    trace_pnext_util.h
+    value_decoder.h)
 
 set(SOURCE_FILES
     trace_manager.cpp)
