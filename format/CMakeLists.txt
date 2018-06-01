@@ -1,14 +1,19 @@
 set(HEADER_FILES
     api_call_id.h
+    decoder.h
+    file_processor.h
     format.h
     parameter_encoder.h
     pointer_decoder.h
     trace_manager.h
     trace_pnext_util.h
-    value_decoder.h)
+    value_decoder.h
+    vulkan_decoder.h)
 
 set(SOURCE_FILES
-    trace_manager.cpp)
+    file_processor.cpp
+    trace_manager.cpp
+    vulkan_decoder.cpp)
 
 add_library(brimstone_format ${HEADER_FILES} ${SOURCE_FILES})
 
