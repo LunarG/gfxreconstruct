@@ -46,21 +46,22 @@ public:
     size_t EncodeUInt64Value(uint64_t value)                                                                             { return EncodeValue(value); }
     size_t EncodeFloatValue(float value)                                                                                 { return EncodeValue(value); }
     size_t EncodeVkBool32Value(VkBool32 value)                                                                           { return EncodeValue(value); }
-    size_t EncodeVkSampleMaskValue(VkSampleMask value)                                                                   { return EncodeValue(value); }
-    size_t EncodeSizeTValue(size_t value)                                                                                { return EncodeValue(static_cast<uint64_t>(value)); }
-    size_t EncodeVkDeviceSizeValue(VkDeviceSize value)                                                                   { return EncodeValue(static_cast<uint64_t>(value)); }
+    size_t EncodeVkSampleMaskValue(VkSampleMask value)                                                                   { return EncodeValue(static_cast<SampleMaskEncodeType>(value)); }
+    size_t EncodeVkDeviceSizeValue(VkDeviceSize value)                                                                   { return EncodeValue(static_cast<DeviceSizeEncodeType>(value)); }
+    size_t EncodeSizeTValue(size_t value)                                                                                { return EncodeValue(static_cast<SizeTEncodeType>(value)); }
 
-    // Treat pointers to non-Vulkan objects as 64-bit object IDs.
-    size_t EncodeVoidPtr(const void* value)                                                                              { return EncodeValue(reinterpret_cast<uint64_t>(value)); }
+    // Encode the address values for pointers to non-Vulkan objects to be used as object IDs.
+    size_t EncodeAddress(const void* value)                                                                              { return EncodeValue(reinterpret_cast<AddressEncodeType>(value)); }
+    size_t EncodeVoidPtr(const void* value)                                                                              { return EncodeAddress(value); }
     template<typename T>
-    size_t EncodeFunctionPtr(T value)                                                                                    { return EncodeValue(reinterpret_cast<uint64_t>(value)); }
+    size_t EncodeFunctionPtr(T value)                                                                                    { return EncodeValue(reinterpret_cast<AddressEncodeType>(value)); }
 
     template<typename T>
-    size_t EncodeHandleValue(T value)                                                                                    { return EncodeValue(TypeCast<uint64_t>(value)); }
+    size_t EncodeHandleValue(T value)                                                                                    { return EncodeValue(TypeCast<HandleEncodeType>(value)); }
     template<typename T>
-    size_t EncodeEnumValue(T value)                                                                                      { return EncodeValue(static_cast<uint32_t>(value)); }
+    size_t EncodeEnumValue(T value)                                                                                      { return EncodeValue(static_cast<EnumEncodeType>(value)); }
     template<typename T>
-    size_t EncodeFlagsValue(T value)                                                                                     { return EncodeValue(static_cast<uint32_t>(value)); }
+    size_t EncodeFlagsValue(T value)                                                                                     { return EncodeValue(static_cast<FlagsEncodeType>(value)); }
 
     // Pointers
     size_t EncodeInt32Ptr(const int32_t* ptr, bool omit_addr = false, bool omit_data = false)                            { return EncodePointer(ptr, omit_addr, omit_data); }
@@ -69,19 +70,19 @@ public:
     size_t EncodeUInt64Ptr(const uint64_t* ptr, bool omit_addr = false, bool omit_data = false)                          { return EncodePointer(ptr, omit_addr, omit_data); }
     size_t EncodeFloatPtr(const float* ptr, bool omit_addr = false, bool omit_data = false)                              { return EncodePointer(ptr, omit_addr, omit_data); }
     size_t EncodeVkBool32Ptr(const VkBool32* ptr, bool omit_addr = false, bool omit_data = false)                        { return EncodePointer(ptr, omit_addr, omit_data); }
-    size_t EncodeVkSampleMaskPtr(const VkSampleMask* ptr, bool omit_addr = false, bool omit_data = false)                { return EncodePointer(ptr, omit_addr, omit_data); }
-    size_t EncodeSizeTPtr(const size_t* ptr, bool omit_addr = false, bool omit_data = false)                             { return EncodePointerConverted<uint64_t>(ptr, omit_addr, omit_data); }
-    size_t EncodeVkDeviceSizePtr(const VkDeviceSize* ptr, bool omit_addr = false, bool omit_data = false)                { return EncodePointerConverted<uint64_t>(ptr, omit_addr, omit_data); }
+    size_t EncodeVkSampleMaskPtr(const VkSampleMask* ptr, bool omit_addr = false, bool omit_data = false)                { return EncodePointerConverted<SampleMaskEncodeType>(ptr, omit_addr, omit_data); }
+    size_t EncodeVkDeviceSizePtr(const VkDeviceSize* ptr, bool omit_addr = false, bool omit_data = false)                { return EncodePointerConverted<DeviceSizeEncodeType>(ptr, omit_addr, omit_data); }
+    size_t EncodeSizeTPtr(const size_t* ptr, bool omit_addr = false, bool omit_data = false)                             { return EncodePointerConverted<SizeTEncodeType>(ptr, omit_addr, omit_data); }
 
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
-    size_t EncodeVoidPtrPtr(const void* const* ptr, bool omit_addr = false, bool omit_data = false)                      { return EncodePointerConverted<uint64_t>(ptr, omit_addr, omit_data); }
+    size_t EncodeVoidPtrPtr(const void* const* ptr, bool omit_addr = false, bool omit_data = false)                      { return EncodePointerConverted<AddressEncodeType>(ptr, omit_addr, omit_data); }
 
     template<typename T>
-    size_t EncodeHandlePtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                 { return EncodePointerConverted<uint64_t>(ptr, omit_addr, omit_data); }
+    size_t EncodeHandlePtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                 { return EncodePointerConverted<HandleEncodeType>(ptr, omit_addr, omit_data); }
     template<typename T>
-    size_t EncodeEnumPtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                   { return EncodePointerConverted<uint32_t>(ptr, omit_addr, omit_data); }
+    size_t EncodeEnumPtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                   { return EncodePointerConverted<EnumEncodeType>(ptr, omit_addr, omit_data); }
     template<typename T>
-    size_t EncodeFlagsPtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                  { return EncodePointerConverted<uint32_t>(ptr, omit_addr, omit_data); }
+    size_t EncodeFlagsPtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                  { return EncodePointerConverted<FlagsEncodeType>(ptr, omit_addr, omit_data); }
 
     // Arrays
     size_t EncodeInt32Array(const int32_t* arr, size_t len, bool omit_addr = false, bool omit_data = false)              { return EncodeArray(arr, len, omit_addr, omit_data); }
@@ -90,20 +91,20 @@ public:
     size_t EncodeUInt64Array(const uint64_t* arr, size_t len, bool omit_addr = false, bool omit_data = false)            { return EncodeArray(arr, len, omit_addr, omit_data); }
     size_t EncodeFloatArray(const float* arr, size_t len, bool omit_addr = false, bool omit_data = false)                { return EncodeArray(arr, len, omit_addr, omit_data); }
     size_t EncodeVkBool32Array(const VkBool32* arr, size_t len, bool omit_addr = false, bool omit_data = false)          { return EncodeArray(arr, len, omit_addr, omit_data); }
-    size_t EncodeVkSampleMaskArray(const VkSampleMask* arr, size_t len, bool omit_addr = false, bool omit_data = false)  { return EncodeArray(arr, len, omit_addr, omit_data); }
-    size_t EncodeSizeTArray(const size_t* arr, size_t len, bool omit_addr = false, bool omit_data = false)               { return EncodeArrayConverted<uint64_t>(arr, len, omit_addr, omit_data); }
-    size_t EncodeVkDeviceSizeArray(const VkDeviceSize* arr, size_t len, bool omit_addr = false, bool omit_data = false)  { return EncodeArrayConverted<uint64_t>(arr, len, omit_addr, omit_data); }
+    size_t EncodeVkSampleMaskArray(const VkSampleMask* arr, size_t len, bool omit_addr = false, bool omit_data = false)  { return EncodeArrayConverted<SampleMaskEncodeType>(arr, len, omit_addr, omit_data); }
+    size_t EncodeVkDeviceSizeArray(const VkDeviceSize* arr, size_t len, bool omit_addr = false, bool omit_data = false)  { return EncodeArrayConverted<DeviceSizeEncodeType>(arr, len, omit_addr, omit_data); }
+    size_t EncodeSizeTArray(const size_t* arr, size_t len, bool omit_addr = false, bool omit_data = false)               { return EncodeArrayConverted<SizeTEncodeType>(arr, len, omit_addr, omit_data); }
 
     // Array of bytes.
     size_t EncodeUInt8Array(const void* arr, size_t len, bool omit_addr = false, bool omit_data = false)                 { return EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_addr, omit_data); }
     size_t EncodeVoidArray(const void* arr, size_t len, bool omit_addr = false, bool omit_data = false)                  { return EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_addr, omit_data); }
 
     template<typename T>
-    size_t EncodeHandleArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                   { return EncodeArrayConverted<uint64_t>(arr, len, omit_addr, omit_data); }
+    size_t EncodeHandleArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                   { return EncodeArrayConverted<HandleEncodeType>(arr, len, omit_addr, omit_data); }
     template<typename T>
-    size_t EncodeEnumArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                     { return EncodeArrayConverted<uint32_t>(arr, len, omit_addr, omit_data); }
+    size_t EncodeEnumArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                     { return EncodeArrayConverted<EnumEncodeType>(arr, len, omit_addr, omit_data); }
     template<typename T>
-    size_t EncodeFlagsArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                    { return EncodeArrayConverted<uint32_t>(arr, len, omit_addr, omit_data); }
+    size_t EncodeFlagsArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                    { return EncodeArrayConverted<FlagsEncodeType>(arr, len, omit_addr, omit_data); }
 
     size_t EncodeString(const char* str, bool omit_addr = false, bool omit_data = false)
     {
@@ -115,7 +116,7 @@ public:
         {
             if ((pointer_attrib & kHasAddress) == kHasAddress)
             {
-                total += EncodeVoidPtr(str);
+                total += EncodeAddress(str);
             }
 
             // Always write the string length.
@@ -142,7 +143,7 @@ public:
         {
             if ((pointer_attrib & kHasAddress) == kHasAddress)
             {
-                total += EncodeVoidPtr(str);
+                total += EncodeAddress(str);
             }
 
             // Always write the array size.
@@ -168,7 +169,7 @@ public:
 
         if ((ptr != nullptr) && ((pointer_attrib & kHasAddress) == kHasAddress))
         {
-            total += EncodeVoidPtr(ptr);
+            total += EncodeAddress(ptr);
         }
 
         return total;
@@ -184,7 +185,7 @@ public:
         {
             if ((pointer_attrib & kHasAddress) == kHasAddress)
             {
-                total += EncodeVoidPtr(arr);
+                total += EncodeAddress(arr);
             }
 
             // Always write the array size when the pointer is not null.
@@ -246,7 +247,7 @@ private:
         {
             if ((pointer_attrib & kHasAddress) == kHasAddress)
             {
-                total += EncodeVoidPtr(ptr);
+                total += EncodeAddress(ptr);
             }
 
             if ((pointer_attrib & kHasData) == kHasData)
@@ -269,7 +270,7 @@ private:
         {
             if ((pointer_attrib & kHasAddress) == kHasAddress)
             {
-                total += EncodeVoidPtr(ptr);
+                total += EncodeAddress(ptr);
             }
 
             if ((pointer_attrib & kHasData) == kHasData)
@@ -293,7 +294,7 @@ private:
         {
             if ((pointer_attrib & kHasAddress) == kHasAddress)
             {
-                total += EncodeVoidPtr(arr);
+                total += EncodeAddress(arr);
             }
 
             // Always write the array size when the pointer is not null.
@@ -320,7 +321,7 @@ private:
         {
             if ((pointer_attrib & kHasAddress) == kHasAddress)
             {
-                total += EncodeVoidPtr(arr);
+                total += EncodeAddress(arr);
             }
 
             // Always write the array size when the pointer is not null.

@@ -25,6 +25,17 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
+// Types to define encoding sizes.
+typedef uint32_t EnumEncodeType;
+typedef uint32_t FlagsEncodeType;
+typedef uint32_t SampleMaskEncodeType;
+typedef uint64_t HandleEncodeType;
+typedef uint64_t DeviceSizeEncodeType;
+typedef uint64_t SizeTEncodeType;
+typedef uint64_t AddressEncodeType;
+
+
+
 enum BlockType : uint32_t
 {
     kUnknownBlock = 0,
