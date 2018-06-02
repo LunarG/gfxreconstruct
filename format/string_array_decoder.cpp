@@ -23,65 +23,59 @@ BRIMSTONE_BEGIN_NAMESPACE(format)
 
 size_t StringArrayDecoder::Decode(const uint8_t* buffer, size_t buffer_size)
 {
-    size_t bytes_read = 0;
+    size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib_);
+    // We should only be decoding string arrays.
+    assert((GetAttributeMask() & (PointerAttributes::kIsString | PointerAttributes::kIsArray)) == (PointerAttributes::kIsString | PointerAttributes::kIsArray));
 
-    assert((attrib_ & (PointerAttributes::kIsString | PointerAttributes::kIsArray)) == (PointerAttributes::kIsString | PointerAttributes::kIsArray));
-
-    if ((attrib_ & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
+    if (!IsNull() && HasData())
     {
-        if ((attrib_ & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
+        size_t len = GetLength();
+        strings_ = std::make_unique<char*[]>(len);
+        string_attributes_ = std::make_unique<uint32_t[]>(len);
+        string_addresses_ = std::make_unique<uint64_t[]>(len);
+        string_lengths_ = std::make_unique<size_t[]>(len);
+
+        for (size_t i = 0; i < len; ++i)
         {
-            bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address_);
-        }
+            uint32_t attrib = 0;
+            bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
 
-        bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &len_);
-
-        if (((attrib_ & PointerAttributes::kHasData) == PointerAttributes::kHasData))
-        {
-            strings_ = std::make_unique<char*[]>(len_);
-            string_addresses_ = std::make_unique<uint64_t[]>(len_);
-            string_lengths_ = std::make_unique<size_t[]>(len_);
-
-            for (size_t i = 0; i < len_; ++i)
+            if ((attrib & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
             {
-                bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib_);
-
-                if ((attrib_ & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
+                if ((attrib & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
                 {
-                    if ((attrib_ & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
-                    {
-                        bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &string_addresses_[i]);
-                    }
+                    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &string_addresses_[i]);
+                }
 
-                    assert((attrib_ & PointerAttributes::kIsString) == PointerAttributes::kIsString);
+                assert((attrib & PointerAttributes::kIsString) == PointerAttributes::kIsString);
 
-                    size_t slen = 0;
-                    bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &slen);
+                size_t slen = 0;
+                bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &slen);
 
-                    char* value = new char[slen + 1];
+                char* value = new char[slen + 1];
 
-                    if (((attrib_ & PointerAttributes::kHasData) == PointerAttributes::kHasData))
-                    {
-                        bytes_read += ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), value, slen);
-                        value[slen] = '\0';
-                    }
-                    else
-                    {
-                        value[0] = '\0';
-                    }
-
-                    strings_[i] = value;
-                    string_lengths_[i] = slen;
+                if (((attrib & PointerAttributes::kHasData) == PointerAttributes::kHasData))
+                {
+                    bytes_read += ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), value, slen);
+                    value[slen] = '\0';
                 }
                 else
                 {
-                    strings_[i] = nullptr;
-                    string_addresses_[i] = 0;
-                    string_lengths_[i] = 0;
+                    value[0] = '\0';
                 }
+
+                strings_[i] = value;
+                string_lengths_[i] = slen;
             }
+            else
+            {
+                strings_[i] = nullptr;
+                string_addresses_[i] = 0;
+                string_lengths_[i] = 0;
+            }
+
+            string_attributes_[i] = attrib;
         }
     }
 
@@ -93,7 +87,7 @@ void StringArrayDecoder::DestroyStrings()
     if (strings_ != nullptr)
     {
         // Must explicitly destroy the individual strings in the array.
-        for (size_t i = 0; i < len_; ++i)
+        for (size_t i = 0; i < GetLength(); ++i)
         {
             delete [] strings_[i];
             strings_[i] = nullptr;

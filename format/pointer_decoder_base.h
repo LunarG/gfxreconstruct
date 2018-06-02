@@ -19,6 +19,7 @@
 
 #include "util/defines.h"
 #include "format/format.h"
+#include "format/value_decoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
@@ -36,11 +37,41 @@ public:
 
     bool HasData() const { return ((attrib_ & PointerAttributes::kHasData) == PointerAttributes::kHasData) ? true : false; }
 
+    uint32_t GetAttributeMask() const { return attrib_; }
+
     uint64_t GetAddress() const { return address_; }
 
     size_t GetLength() const { return len_; }
 
 protected:
+    size_t DecodeAttributes(const uint8_t* buffer, size_t buffer_size)
+    {
+        size_t bytes_read = 0;
+
+        bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib_);
+
+        if ((attrib_ & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
+        {
+            if ((attrib_ & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
+            {
+                bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address_);
+            }
+
+            if (((attrib_ & PointerAttributes::kIsArray) == PointerAttributes::kIsArray) ||
+                ((attrib_ & PointerAttributes::kIsString) == PointerAttributes::kIsString))
+            {
+                bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &len_);
+            }
+            else
+            {
+                len_ = 1;
+            }
+        }
+
+        return bytes_read;
+    }
+
+private:
     size_t                  len_;
     uint64_t                address_;
     uint32_t                attrib_;

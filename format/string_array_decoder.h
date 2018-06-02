@@ -32,6 +32,8 @@ public:
 
     ~StringArrayDecoder() { DestroyStrings(); }
 
+    uint32_t* GetStringAttributes() const { return string_attributes_.get(); }
+
     uint64_t* GetStringAddresses() const { return string_addresses_.get(); }
 
     size_t* GetStringLengths() const { return string_lengths_.get(); }
@@ -45,6 +47,7 @@ private:
 
 private:
     std::unique_ptr<char*[]>        strings_;
+    std::unique_ptr<uint32_t[]>     string_attributes_;
     std::unique_ptr<uint64_t[]>     string_addresses_;
     std::unique_ptr<size_t[]>       string_lengths_;
 };
