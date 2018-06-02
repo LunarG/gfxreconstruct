@@ -18,8 +18,6 @@
 #define BRIMSTONE_FORMAT_POINTER_DECODER_H
 
 #include <cassert>
-#include <limits>
-#include <memory>
 
 #include "util/defines.h"
 #include "format/format.h"
@@ -33,11 +31,25 @@ template<typename T>
 class PointerDecoder : public PointerDecoderBase
 {
 public:
-    PointerDecoder() { }
+    PointerDecoder() : data_(nullptr), capacity_(0), is_memory_external_(false) { }
 
-    ~PointerDecoder() { }
+    ~PointerDecoder() { if ((data_ != nullptr) && !is_memory_external_) delete [] data_; }
 
-    T* GetPointer() const { return data_.get(); }
+    T* GetPointer() const { return data_; }
+
+    void SetExternalMemory(T* data, size_t capacity)
+    {
+        if ((data != nullptr) && (capacity > 0))
+        {
+            data_ = data;
+            capacity_ = capacity;
+            is_memory_external_ = true;
+        }
+        else
+        {
+            // TODO: Log an error message
+        }
+    }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<T>(buffer, buffer_size); }
 
@@ -61,16 +73,36 @@ private:
 
         if (!IsNull() && HasData())
         {
-            data_ = std::make_unique<T[]>(len_);
+            size_t len = GetLength();
 
-            bytes_read += ValueDecoder::DecodeArrayFrom<SrcT>((buffer + bytes_read), (buffer_size - bytes_read), data_->get(), GetLength());
+            if (!is_memory_external_)
+            {
+                assert(data_ == nullptr);
+
+                data_ = new T[len];
+                capacity_ = len;
+                bytes_read += ValueDecoder::DecodeArrayFrom<SrcT>((buffer + bytes_read), (buffer_size - bytes_read), data_, len);
+            }
+            else
+            {
+                assert(data_ != nullptr);
+
+                // TODO: Report error if len > capacity_
+                ValueDecoder::DecodeArrayFrom<SrcT>((buffer + bytes_read), (buffer_size - bytes_read), data_, (len > capacity_) ? capacity_ : len);
+
+                // We always need to advance the position within the buffer by the amount of data that was expected to be decoded, not
+                // the actual amount of data decoded if capacity is too small to hold all of the data.
+                bytes_read += sizeof(SrcT) * len;
+            }
         }
 
         return bytes_read;
     }
 
 private:
-    std::unique_ptr<T[]>    data_;
+    T*      data_;
+    size_t  capacity_;
+    bool    is_memory_external_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
