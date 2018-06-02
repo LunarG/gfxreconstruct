@@ -53,35 +53,17 @@ private:
     template <typename SrcT>
     size_t DecodeFrom(const uint8_t* buffer, size_t buffer_size)
     {
-        size_t bytes_read = 0;
+        size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
-        bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib_);
+        // We should not be decoding string arrays or structs.
+        assert((GetAttributeMask() & (PointerAttributes::kIsString | PointerAttributes::kIsArray)) != (PointerAttributes::kIsString | PointerAttributes::kIsArray));
+        assert((GetAttributeMask() & PointerAttributes::kIsStruct) != PointerAttributes::kIsStruct);
 
-        assert((attrib_ & (PointerAttributes::kIsString | PointerAttributes::kIsArray)) != (PointerAttributes::kIsString | PointerAttributes::kIsArray));
-
-        if ((attrib_ & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
+        if (!IsNull() && HasData())
         {
-            if ((attrib_ & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
-            {
-                bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address_);
-            }
+            data_ = std::make_unique<T[]>(len_);
 
-            if (((attrib_ & PointerAttributes::kIsArray) == PointerAttributes::kIsArray) ||
-                ((attrib_ & PointerAttributes::kIsString) == PointerAttributes::kIsString))
-            {
-                bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &len_);
-            }
-            else
-            {
-                len_ = 1;
-            }
-
-            if (((attrib_ & PointerAttributes::kHasData) == PointerAttributes::kHasData))
-            {
-                data_ = std::make_unique<T[]>(len_);
-
-                bytes_read += ValueDecoder::DecodeArrayFrom<SrcT>(buffer, buffer_size, data_->get(), len_);
-            }
+            bytes_read += ValueDecoder::DecodeArrayFrom<SrcT>((buffer + bytes_read), (buffer_size - bytes_read), data_->get(), GetLength());
         }
 
         return bytes_read;
