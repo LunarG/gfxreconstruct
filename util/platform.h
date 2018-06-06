@@ -62,6 +62,29 @@ inline void trigger_debug_break()
     __debugbreak();
 }
 
+inline bool get_environment_variable(const char* name, std::string& value)
+{
+    try
+    {
+        // value_size DOES include the null terminator, so for any set variable
+        // will always be at least 1. If it's 0, the variable wasn't set.
+        DWORD value_size = GetEnvironmentVariableA(name, nullptr, 0);
+        if (value_size == 0) {
+            return false;
+        }
+
+        // Allocate the space necessary for the registry entry
+        value.resize(value_size);
+        GetEnvironmentVariableA(name, value_size.data(), value_size.size());
+        return true;
+    }
+    catch (...)
+    {
+        // Something bad happened during alloc or function call.
+        return false;
+    }
+}
+
 inline int32_t file_open(FILE** stream, const char* filename, const char* mode)
 {
     return static_cast<int32_t>(fopen_s(stream, filename, mode));
@@ -82,7 +105,7 @@ inline int file_vprintf(FILE *stream, const char *format, va_list vlist)
     return vfprintf_s(stream, format, vlist);
 }
 
-#else  // WIN32
+#else  // !defined(WIN32)
 
 inline pid_t get_current_process_id()
 {
@@ -97,6 +120,12 @@ inline uint64_t get_current_thread_id()
 inline void trigger_debug_break()
 {
     raise(SIGTRAP);
+}
+
+inline bool get_environment_variable(const char* name, std::string& value)
+{
+    value = getenv(name);
+    return (value.size() > 0);
 }
 
 inline int32_t file_open(FILE** stream, const char* filename, const char* mode)
