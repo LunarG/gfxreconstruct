@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <thread>
 
+
 #if defined(WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -31,7 +32,9 @@
 #include <pthread.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
+#include <sys/syscall.h>
 #include <unistd.h>
+#include <signal.h>
 #endif // WIN32
 
 #include "util/defines.h"
@@ -54,6 +57,11 @@ inline uint64_t get_current_thread_id()
     return GetCurrentThreadId();
 }
 
+inline void trigger_debug_break()
+{
+    __debugbreak();
+}
+
 inline int32_t file_open(FILE** stream, const char* filename, const char* mode)
 {
     return static_cast<int32_t>(fopen_s(stream, filename, mode));
@@ -69,6 +77,11 @@ inline size_t file_read_nolock(void* buffer, size_t element_size, size_t element
     return _fread_nolock(buffer, element_size, element_count, stream);
 }
 
+inline int file_vprintf(FILE *stream, const char *format, va_list vlist)
+{
+    return vfprintf_s(stream, format, vlist);
+}
+
 #else  // WIN32
 
 inline pid_t get_current_process_id()
@@ -79,6 +92,11 @@ inline pid_t get_current_process_id()
 inline uint64_t get_current_thread_id()
 {
     return static_cast<uint64_t>(syscall(SYS_gettid));
+}
+
+inline void trigger_debug_break()
+{
+    raise(SIGTRAP);
 }
 
 inline int32_t file_open(FILE** stream, const char* filename, const char* mode)
@@ -97,7 +115,22 @@ inline size_t file_read_nolock(void* buffer, size_t element_size, size_t element
     return fread_unlocked(buffer, element_size, element_count, stream);
 }
 
+inline int file_vprintf(FILE *stream, const char *format, va_list vlist)
+{
+    return vfprintf(stream, format, vlist);
+}
+
 #endif // WIN32
+
+inline int32_t file_puts(const char *char_string, FILE *stream)
+{
+    return fputs(char_string, stream);
+}
+
+inline int32_t file_flush(FILE *stream)
+{
+    return fflush(stream);
+}
 
 inline size_t file_write(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
