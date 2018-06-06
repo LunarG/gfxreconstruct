@@ -3,7 +3,8 @@ set(HEADER_FILES
     file_output_stream.h
     memory_output_stream.h
     output_stream.h
-    platform.h)
+    platform.h
+    logging.h)
 
 set(SOURCE_FILES
     file_output_stream.cpp

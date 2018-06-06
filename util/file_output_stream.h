@@ -22,6 +22,7 @@
 
 #include "util/defines.h"
 #include "util/output_stream.h"
+#include "util/platform.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

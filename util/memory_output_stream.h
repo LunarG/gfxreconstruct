@@ -19,6 +19,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <cinttypes>
 
 #include "util/defines.h"
 #include "util/output_stream.h"
