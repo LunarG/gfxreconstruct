@@ -9,6 +9,7 @@ set(HEADER_FILES
     pointer_decoder_base.h
     pointer_decoder.h
     string_array_decoder.h
+    string_decoder.h
     struct_pointer_decoder.h
     trace_manager.h
     trace_pnext_util.h
@@ -18,6 +19,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
     file_processor.cpp
     string_array_decoder.cpp
+    string_decoder.cpp
     trace_manager.cpp
     vulkan_decoder.cpp)
 
