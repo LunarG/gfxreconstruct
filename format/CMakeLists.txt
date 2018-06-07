@@ -4,6 +4,8 @@ set(HEADER_FILES
     file_processor.h
     format.h
     parameter_encoder.h
+    pnext_node.h
+    pnext_typed_node.h
     pointer_decoder_base.h
     pointer_decoder.h
     string_array_decoder.h
