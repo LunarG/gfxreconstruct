@@ -7,6 +7,7 @@ set(HEADER_FILES
     pointer_decoder_base.h
     pointer_decoder.h
     string_array_decoder.h
+    struct_pointer_decoder.h
     trace_manager.h
     trace_pnext_util.h
     value_decoder.h
