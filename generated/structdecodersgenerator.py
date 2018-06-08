@@ -51,7 +51,7 @@ from common_codegen import GetFeatureProtect
 #     parameter on a separate line
 #   alignFuncParam - if nonzero and parameters are being put on a
 #     separate line, align parameter names at the specified column
-class StructGeneratorOptions(GeneratorOptions):
+class StructDecodersGeneratorOptions(GeneratorOptions):
     """Represents options during C interface generation for headers"""
     def __init__(self,
                  filename = None,
@@ -110,7 +110,7 @@ class StructGeneratorOptions(GeneratorOptions):
 # genGroup(groupinfo,name)
 # genEnum(enuminfo, name)
 # genCmd(cmdinfo)
-class StructOutputGenerator(OutputGenerator):
+class StructDecodersOutputGenerator(OutputGenerator):
     """Generate specified API interfaces in a specific style, such as a C header"""
     ALL_SECTIONS = ['struct']
     # These API calls should not be processed by the code generator.  They require special layer specific implementations.
@@ -144,20 +144,28 @@ class StructOutputGenerator(OutputGenerator):
         if (genOpts.prefixText):
             for s in genOpts.prefixText:
                 write(s, file=self.outFile)
-        write('#include <cmath>', file=self.outFile)
+        write('#include <cassert>', file=self.outFile)
+        write('#include <memory>', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/parameter_encoder.h"', file=self.outFile)
+        write('#include "format/pnext_node.h"', file=self.outFile)
+        write('#include "format/pointer_decoder.h"', file=self.outFile)
+        write('#include "format/string_array_decoder.h"', file=self.outFile)
+        write('#include "format/string_decoder.h"', file=self.outFile)
+        write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
+        write('#include "format/value_decoder.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
         self.newline()
-        write('size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value);', file=self.outFile)
+        write('size_t decode_pnext_struct(const uint8_t* buffer, size_t buffer_size, std::unique_ptr<PNextNode>* pNext);', file=self.outFile)
     def endFile(self):
         # C-specific
         # Finish C++ wrapper and multiple inclusion protection
         self.newline()
+        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
         if (self.genOpts.protectFile and self.genOpts.filename):
             self.newline()
@@ -230,34 +238,16 @@ class StructOutputGenerator(OutputGenerator):
     def genStruct(self, typeinfo, typeName, alias):
         OutputGenerator.genStruct(self, typeinfo, typeName, alias)
         if not typeName in self.STRUCT_BLACKLIST:
-            body = 'size_t encode_struct(format::ParameterEncoder* encoder, const {}& value)\n'.format(typeName)
+            body = 'size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(typeName)
             body += '{\n'
-            body += '    size_t result = 0;\n'
-            body += ''.join(self.genStructBody(typeinfo, typeName, 'value.'))
-            body += '    return result;\n'
-            body += '}\n'
-            self.appendSection('struct', body)
-            body = 'size_t encode_struct_ptr(format::ParameterEncoder* encoder, const {}* value)\n'.format(typeName)
-            body += '{\n'
-            body += '    size_t result = encoder->EncodeStructPtrPreamble(value);\n'
-            body += '    if (value != nullptr)\n'
-            body += '    {\n'
-            body += '        result += encode_struct(encoder, *value);\n'
-            body += '    }\n'
-            body += '    return result;\n'
-            body += '}\n'
-            self.appendSection('struct', body)
-            body = 'size_t encode_struct_array(format::ParameterEncoder* encoder, const {}* value, size_t len)\n'.format(typeName)
-            body += '{\n'
-            body += '    size_t result = encoder->EncodeStructArrayPreamble(value, len);\n'
-            body += '    if ((value != nullptr) && (len > 0))\n'
-            body += '    {\n'
-            body += '        for(size_t i = 0; i < len; ++i)\n'
-            body += '        {\n'
-            body += '            result = encode_struct(encoder, value[i]);\n'
-            body += '        }\n'
-            body += '    }\n'
-            body += '    return result;\n'
+            body += '    assert((wrapper != nullptr) && (wrapper->value != nullptr));\n'
+            body += '\n'
+            body += '    size_t bytes_read = 0;\n'
+            body += '    {}* value = wrapper->value;\n'.format(typeName)
+            body += '\n'
+            body += self.genStructBody(typeinfo, typeName)
+            body += '\n'
+            body += '    return bytes_read;\n'
             body += '}\n'
             self.appendSection('struct', body)
     #
@@ -277,13 +267,12 @@ class StructOutputGenerator(OutputGenerator):
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
     #
     # Command definition
-    def genStructBody(self, typeinfo, name, prefix):
+    def genStructBody(self, typeinfo, name):
         # Build array of lines for function body
-        body = []
+        body = ''
         members = typeinfo.elem.findall('.//member')
         for member in members:
-            methodcall = self.genEncoderMethodCall(member, members, prefix)
-            body.append('    result += {};\n'.format(methodcall))
+            body += self.genDecoderFunctionCall(member)
 
         return body
     #
@@ -347,38 +336,20 @@ class StructOutputGenerator(OutputGenerator):
                 break
         return result
     #
-    # Extract length values from latexmath.  Currently an inflexible solution that looks for specific
-    # patterns that are found in vk.xml.  Will need to be updated when new patterns are introduced.
-    def parseLateXMath(self, source):
-        name = 'ERROR'
-        decoratedName = 'ERROR'
-        if 'mathit' in source:
-            # Matches expressions similar to 'latexmath:[\lceil{\mathit{rasterizationSamples} \over 32}\rceil]'
-            match = re.match(r'latexmath\s*\:\s*\[\s*\\l(\w+)\s*\{\s*\\mathit\s*\{\s*(\w+)\s*\}\s*\\over\s*(\d+)\s*\}\s*\\r(\w+)\s*\]', source)
-            if not match or match.group(1) != match.group(4):
-                raise 'Unrecognized latexmath expression'
-            name = match.group(2)
-            # TODO: More flexible typecasting support
-            decoratedName = 'static_cast<size_t>({}({}/{}))'.format(*match.group(1, 2, 3))
-        else:
-            # Matches expressions similar to 'latexmath : [dataSize \over 4]'
-            match = re.match(r'latexmath\s*\:\s*\[\s*(\w+)\s*\\over\s*(\d+)\s*\]', source)
-            name = match.group(1)
-            decoratedName = '{}/{}'.format(*match.group(1, 2))
-        return name, decoratedName
-    #
-    # Generate the parameter encoder method call invocation
-    def genEncoderMethodCall(self, param, params, prefix):
-        paramname = prefix + noneStr(param.find('name').text)
+    # Generate the parameter decoder function call invocation
+    def genDecoderFunctionCall(self, param):
+        bufferargs = '(buffer + bytes_read), (buffer_size - bytes_read)'
+        paramname = noneStr(param.find('name').text)
+
+        body = ''
 
         # pNext fields require special treatment and are not processed by typename
         if 'pNext' in paramname:
-            return 'encode_pnext_struct(encoder, {})'.format(paramname)
+            body += '    bytes_read += decode_pnext_struct({}, &(wrapper->{}));\n'.format(bufferargs, paramname)
+            body += '    value->pNext = wrapper->pNext->GetPointer();\n'
+            return body
 
-        methodcall = ''
-        args = [paramname]
         typename = noneStr(param.find('type').text)
-        paramnames = [noneStr(p.find('name').text) for p in params]
 
         isstruct = False
         isstring = False
@@ -386,8 +357,6 @@ class StructOutputGenerator(OutputGenerator):
 
         if typename in self.structNames:
             isstruct = True
-            args = ['encoder'] + args
-            methodcall = 'encode_struct'
         else:
             if typename in self.handleTypes:
                 typename = 'Handle'
@@ -412,38 +381,39 @@ class StructOutputGenerator(OutputGenerator):
                 typename = 'Int32'
             elif typename[0].islower():
                 typename = typename.title()
-            methodcall = 'encoder->Encode' + typename
 
         pointercount = self.getPointerCount(param)
         arraylen = self.getArrayLen(param)
 
-        if arraylen and not (isstring and self.isStaticArray(param)):  # Make sure strings delcared as 'char s[N]' are not treated as string arrays
-            lenparam = arraylen         # The parameter name that appears in the length expression
-            lenexpr = arraylen          # The expression that produces the array length (needed for the latexmath case where param name != param expr)
-            if 'latexmath' in arraylen:
-                lenparam, lenexpr = self.parseLateXMath(arraylen)
+        if pointercount or arraylen:
+            if typename == 'Void' and not arraylen:
+                # Pointer to an unknown object type, encoded as a 64-bit integer ID.
+                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferargs, paramname)
+                body += '    value->{} = nullptr;\n'.format(paramname)
+            else:
+                if self.isStaticArray(param):
+                    # The pointer decoder will write directly to the struct member's memory.
+                    body += '    wrapper->{paramname}.SetExternalMemory(value->{paramname}, {arraylen});\n'.format(paramname=paramname, arraylen=arraylen)
 
+                if isstruct:
+                    body += '    bytes_read += wrapper->{}.Decode<decode_struct>({});\n'.format(paramname, bufferargs)
+                elif isstring:
+                    body += '    bytes_read += wrapper->{}.Decode({});\n'.format(paramname, bufferargs)
+                else:
+                    body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(paramname, typename, bufferargs)
+
+                if not self.isStaticArray(param):
+                    # Point the real struct's member pointer to the pointer decoder's memory.
+                    body += '    value->{paramname} = wrapper->{paramname}.GetPointer();\n'.format(paramname=paramname)
+        else:
             if isstruct:
-                methodcall += '_array'
+                body += '    wrapper->{paramname}.value = &(value->{paramname});\n'.format(paramname=paramname)
+                body += '    bytes_read += decode_struct({}, &(wrapper->{}));\n'.format(bufferargs, paramname)
+            elif isfuncp:
+                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferargs, paramname)
+                body += '    value->{} = nullptr;\n'.format(paramname)
             else:
-                methodcall += 'Array'
-            if self.isPointer(lenparam, params):
-                args.append('({name} != nullptr) ? (*{name}) : 0'.format(name=lenexpr.replace(lenparam, prefix + lenparam)))
-            elif lenparam in paramnames:
-                # Length is provided by one of the other parameters and needs the prefix
-                args.append(lenexpr.replace(lenparam, prefix + lenparam))
-            else:
-                # Length is a constant value
-                args.append(lenexpr)
-        elif isstruct:
-            if pointercount:
-                methodcall += '_ptr'
-        # String function names do not have the Ptr/Value suffix
-        elif not (isstring or isfuncp):
-            if pointercount:
-                methodcall += 'Ptr' * pointercount
-            else:
-                methodcall += 'Value'
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(typename, bufferargs, paramname)
 
-        return '{}({})'.format(methodcall, ', '.join(args))
+        return body
 
