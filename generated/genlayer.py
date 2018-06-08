@@ -20,7 +20,9 @@ from generator import write
 from apicallgenerator import APICallGeneratorOptions, APICallOutputGenerator
 from functablegenerator import FuncTableGeneratorOptions, FuncTableOutputGenerator
 from structgenerator import StructGeneratorOptions, StructOutputGenerator
+from structdecodersgenerator import StructDecodersGeneratorOptions, StructDecodersOutputGenerator
 from encodepnextstruct import EncodePNextStructGeneratorOptions, EncodePNextStructOutputGenerator
+from decodedstructtypes import DecodedStructTypesGeneratorOptions, DecodedStructTypesOutputGenerator
 from idgenerator import IdGeneratorOptions, IdOutputGenerator
 
 # Simple timer functions
@@ -200,6 +202,56 @@ def makeGenOpts(args):
           FuncTableOutputGenerator,
           FuncTableGeneratorOptions(
             filename          = 'generated_func_table.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # Vulkan struct wrappers for file decoding.
+    genOpts['generated_decoded_struct_types.inc'] = [
+          DecodedStructTypesOutputGenerator,
+          DecodedStructTypesGeneratorOptions(
+            filename          = 'generated_decoded_struct_types.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # Vulkan struct decoding functions.
+    genOpts['generated_struct_decoders.inc'] = [
+          StructDecodersOutputGenerator,
+          StructDecodersGeneratorOptions(
+            filename          = 'generated_struct_decoders.inc',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,

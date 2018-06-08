@@ -51,7 +51,7 @@ from common_codegen import GetFeatureProtect
 #     parameter on a separate line
 #   alignFuncParam - if nonzero and parameters are being put on a
 #     separate line, align parameter names at the specified column
-class StructGeneratorOptions(GeneratorOptions):
+class DecodedStructTypesGeneratorOptions(GeneratorOptions):
     """Represents options during C interface generation for headers"""
     def __init__(self,
                  filename = None,
@@ -110,7 +110,7 @@ class StructGeneratorOptions(GeneratorOptions):
 # genGroup(groupinfo,name)
 # genEnum(enuminfo, name)
 # genCmd(cmdinfo)
-class StructOutputGenerator(OutputGenerator):
+class DecodedStructTypesOutputGenerator(OutputGenerator):
     """Generate specified API interfaces in a specific style, such as a C header"""
     ALL_SECTIONS = ['struct']
     # These API calls should not be processed by the code generator.  They require special layer specific implementations.
@@ -120,13 +120,8 @@ class StructOutputGenerator(OutputGenerator):
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
         OutputGenerator.__init__(self, errFile, warnFile, diagFile)
-        # Internal state - accumulators for different inner block text
-        self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
         # Typenames
         self.structNames = []                             # List of Vulkan struct typenames
-        self.handleTypes = set()                          # Set of handle type names
-        self.flagsTypes = set()                           # Set of bitmask (flags) type names
-        self.enumTypes = set()                            # Set of enum type names
     #
     def beginFile(self, genOpts):
         OutputGenerator.beginFile(self, genOpts)
@@ -144,20 +139,24 @@ class StructOutputGenerator(OutputGenerator):
         if (genOpts.prefixText):
             for s in genOpts.prefixText:
                 write(s, file=self.outFile)
-        write('#include <cmath>', file=self.outFile)
+        write('#include <memory>', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/parameter_encoder.h"', file=self.outFile)
+        write('#include "format/pnext_node.h"', file=self.outFile)
+        write('#include "format/pointer_decoder.h"', file=self.outFile)
+        write('#include "format/string_array_decoder.h"', file=self.outFile)
+        write('#include "format/string_decoder.h"', file=self.outFile)
+        write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        self.newline()
-        write('size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value);', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
     def endFile(self):
         # C-specific
         # Finish C++ wrapper and multiple inclusion protection
         self.newline()
+        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
         if (self.genOpts.protectFile and self.genOpts.filename):
             self.newline()
@@ -167,10 +166,6 @@ class StructOutputGenerator(OutputGenerator):
     def beginFeature(self, interface, emit):
         # Start processing in superclass
         OutputGenerator.beginFeature(self, interface, emit)
-        # C-specific
-        # Accumulate includes, defines, types, enums, function pointer typedefs,
-        # end function prototypes separately for this feature. They're only
-        # printed in endFeature().
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
         self.featureExtraProtect = GetFeatureProtect(interface)
     def endFeature(self):
@@ -185,12 +180,7 @@ class StructOutputGenerator(OutputGenerator):
             # or move it below the 'for section...' loop.
             if (self.featureExtraProtect != None):
                 write('#ifdef', self.featureExtraProtect, file=self.outFile)
-            if (self.genOpts.protectProto):
-                write(self.genOpts.protectProto,
-                        self.genOpts.protectProtoStr, file=self.outFile)
             write('\n'.join(self.sections['struct']), end='', file=self.outFile)
-            if (self.genOpts.protectProto):
-                write('#endif', file=self.outFile)
             if (self.featureExtraProtect != None):
                 write('#endif /*', self.featureExtraProtect, '*/', file=self.outFile)
             if (self.genOpts.protectFeature):
@@ -211,14 +201,9 @@ class StructOutputGenerator(OutputGenerator):
         # generating a structure. Otherwise, emit the tag text.
         category = typeElem.get('category')
         if (category == 'struct' or category == 'union'):
-            # Ignore structures that are a typedef of an alias
             if not alias:
                 self.structNames.append(name)
                 self.genStruct(typeinfo, name, alias)
-        elif (category == 'handle'):
-            self.handleTypes.add(name)
-        elif (category == 'bitmask'):
-            self.flagsTypes.add(name)
     #
     # Struct (e.g. C "struct" type) generation.
     # This is a special case of the <type> tag where the contents are
@@ -230,42 +215,22 @@ class StructOutputGenerator(OutputGenerator):
     def genStruct(self, typeinfo, typeName, alias):
         OutputGenerator.genStruct(self, typeinfo, typeName, alias)
         if not typeName in self.STRUCT_BLACKLIST:
-            body = 'size_t encode_struct(format::ParameterEncoder* encoder, const {}& value)\n'.format(typeName)
+            decls = self.genPointerDecode(typeinfo, typeName)
+            body = 'struct Decoded_{}\n'.format(typeName)
             body += '{\n'
-            body += '    size_t result = 0;\n'
-            body += ''.join(self.genStructBody(typeinfo, typeName, 'value.'))
-            body += '    return result;\n'
-            body += '}\n'
-            self.appendSection('struct', body)
-            body = 'size_t encode_struct_ptr(format::ParameterEncoder* encoder, const {}* value)\n'.format(typeName)
-            body += '{\n'
-            body += '    size_t result = encoder->EncodeStructPtrPreamble(value);\n'
-            body += '    if (value != nullptr)\n'
-            body += '    {\n'
-            body += '        result += encode_struct(encoder, *value);\n'
-            body += '    }\n'
-            body += '    return result;\n'
-            body += '}\n'
-            self.appendSection('struct', body)
-            body = 'size_t encode_struct_array(format::ParameterEncoder* encoder, const {}* value, size_t len)\n'.format(typeName)
-            body += '{\n'
-            body += '    size_t result = encoder->EncodeStructArrayPreamble(value, len);\n'
-            body += '    if ((value != nullptr) && (len > 0))\n'
-            body += '    {\n'
-            body += '        for(size_t i = 0; i < len; ++i)\n'
-            body += '        {\n'
-            body += '            result = encode_struct(encoder, value[i]);\n'
-            body += '        }\n'
-            body += '    }\n'
-            body += '    return result;\n'
-            body += '}\n'
+            body += '    using struct_type = {};\n'.format(typeName)
+            body += '\n'
+            body += '    {}* value{{ nullptr }};\n'.format(typeName)
+            if decls:
+                body += '\n'
+                body += ''.join(decls)
+            body += '};\n'
             self.appendSection('struct', body)
     #
     # Group (e.g. C "enum" type) generation.
     # These are concatenated together with other types.
     def genGroup(self, groupinfo, groupName, alias):
         OutputGenerator.genGroup(self, groupinfo, groupName, alias)
-        self.enumTypes.add(groupName)
     # Enumerant generation
     # <enum> tags may specify their values in several ways, but are usually
     # just integers.
@@ -275,32 +240,6 @@ class StructOutputGenerator(OutputGenerator):
     # Command generation
     def genCmd(self, cmdinfo, name, alias):
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
-    #
-    # Command definition
-    def genStructBody(self, typeinfo, name, prefix):
-        # Build array of lines for function body
-        body = []
-        members = typeinfo.elem.findall('.//member')
-        for member in members:
-            methodcall = self.genEncoderMethodCall(member, members, prefix)
-            body.append('    result += {};\n'.format(methodcall))
-
-        return body
-    #
-    # Check if the parameter is a function pointer
-    def isFunctionPtr(self, typename):
-        result = False
-        if typename[:4] == 'PFN_':
-            result = True
-        return result
-    #
-    # Check if the parameter is a pointer
-    def getPointerCount(self, param):
-        result = 0
-        paramtype = param.find('type')
-        if (paramtype.tail is not None) and ('*' in paramtype.tail):
-            result = paramtype.tail.count('*')
-        return result
     #
     # Retrieve the value of the len tag
     def getArrayLen(self, param):
@@ -337,113 +276,67 @@ class StructOutputGenerator(OutputGenerator):
             result = True
         return result
     #
-    # Find the the parameter with the specified name in the parameter list and determine if it is a pointer
-    def isPointer(self, name, params):
-        result = False
-        for param in params:
-            if name == noneStr(param.find('name').text):
-                if self.getPointerCount(param) > 0:
-                    result = True
-                break
+    # Check if the parameter is a pointer
+    def getPointerCount(self, param):
+        result = 0
+        paramtype = param.find('type')
+        if (paramtype.tail is not None) and ('*' in paramtype.tail):
+            result = paramtype.tail.count('*')
         return result
     #
-    # Extract length values from latexmath.  Currently an inflexible solution that looks for specific
-    # patterns that are found in vk.xml.  Will need to be updated when new patterns are introduced.
-    def parseLateXMath(self, source):
-        name = 'ERROR'
-        decoratedName = 'ERROR'
-        if 'mathit' in source:
-            # Matches expressions similar to 'latexmath:[\lceil{\mathit{rasterizationSamples} \over 32}\rceil]'
-            match = re.match(r'latexmath\s*\:\s*\[\s*\\l(\w+)\s*\{\s*\\mathit\s*\{\s*(\w+)\s*\}\s*\\over\s*(\d+)\s*\}\s*\\r(\w+)\s*\]', source)
-            if not match or match.group(1) != match.group(4):
-                raise 'Unrecognized latexmath expression'
-            name = match.group(2)
-            # TODO: More flexible typecasting support
-            decoratedName = 'static_cast<size_t>({}({}/{}))'.format(*match.group(1, 2, 3))
-        else:
-            # Matches expressions similar to 'latexmath : [dataSize \over 4]'
-            match = re.match(r'latexmath\s*\:\s*\[\s*(\w+)\s*\\over\s*(\d+)\s*\]', source)
-            name = match.group(1)
-            decoratedName = '{}/{}'.format(*match.group(1, 2))
-        return name, decoratedName
+    # Check if the parameter is a function pointer
+    def isFunctionPtr(self, typename):
+        result = False
+        if typename[:4] == 'PFN_':
+            result = True
+        return result
     #
-    # Generate the parameter encoder method call invocation
-    def genEncoderMethodCall(self, param, params, prefix):
-        paramname = prefix + noneStr(param.find('name').text)
+    # Command definition
+    def genPointerDecode(self, typeinfo, name):
+        # Build array of lines for function body
+        decls = []
+        members = typeinfo.elem.findall('.//member')
+        for member in members:
+            paramname = noneStr(member.find('name').text)
 
-        # pNext fields require special treatment and are not processed by typename
-        if 'pNext' in paramname:
-            return 'encode_pnext_struct(encoder, {})'.format(paramname)
-
-        methodcall = ''
-        args = [paramname]
-        typename = noneStr(param.find('type').text)
-        paramnames = [noneStr(p.find('name').text) for p in params]
-
-        isstruct = False
-        isstring = False
-        isfuncp = False
-
-        if typename in self.structNames:
-            isstruct = True
-            args = ['encoder'] + args
-            methodcall = 'encode_struct'
-        else:
-            if typename in self.handleTypes:
-                typename = 'Handle'
-            elif typename in self.flagsTypes:
-                typename = 'Flags'
-            elif typename in self.enumTypes:
-                typename = 'Enum'
-            elif typename == 'char':
-                isstring = True
-                typename = 'String'
-            elif self.isFunctionPtr(typename):
-                isfuncp = True
-                typename = 'FunctionPtr'
-            elif typename == 'size_t':
-                typename = 'SizeT'
-            elif typename[-2:] == '_t':
-                typename = typename[:-2].title()
-                if typename[0] == 'U':
-                    typename = typename[0] + typename[1].upper() + typename[2:]
-            elif typename == 'int':
-                # Extensions use the int type when dealing with file descriptors
-                typename = 'Int32'
-            elif typename[0].islower():
-                typename = typename.title()
-            methodcall = 'encoder->Encode' + typename
-
-        pointercount = self.getPointerCount(param)
-        arraylen = self.getArrayLen(param)
-
-        if arraylen and not (isstring and self.isStaticArray(param)):  # Make sure strings delcared as 'char s[N]' are not treated as string arrays
-            lenparam = arraylen         # The parameter name that appears in the length expression
-            lenexpr = arraylen          # The expression that produces the array length (needed for the latexmath case where param name != param expr)
-            if 'latexmath' in arraylen:
-                lenparam, lenexpr = self.parseLateXMath(arraylen)
-
-            if isstruct:
-                methodcall += '_array'
+            if paramname == 'pNext':
+                # We have a special type to store the pNext chain
+                decls.append('    std::unique_ptr<PNextNode> pNext;\n')
             else:
-                methodcall += 'Array'
-            if self.isPointer(lenparam, params):
-                args.append('({name} != nullptr) ? (*{name}) : 0'.format(name=lenexpr.replace(lenparam, prefix + lenparam)))
-            elif lenparam in paramnames:
-                # Length is provided by one of the other parameters and needs the prefix
-                args.append(lenexpr.replace(lenparam, prefix + lenparam))
-            else:
-                # Length is a constant value
-                args.append(lenexpr)
-        elif isstruct:
-            if pointercount:
-                methodcall += '_ptr'
-        # String function names do not have the Ptr/Value suffix
-        elif not (isstring or isfuncp):
-            if pointercount:
-                methodcall += 'Ptr' * pointercount
-            else:
-                methodcall += 'Value'
+                typename = noneStr(member.find('type').text)
+                count = self.getPointerCount(member)
 
-        return '{}({})'.format(methodcall, ', '.join(args))
+                if count > 0:
+                    # We currently only expect the '*' count to be greater than one for the char** case
+                    if count > 1 and typename != 'char':
+                        print("WARNING: Processing a multi-dimensional array that is not an array of strings ({})".format(typename + ('*' * count)))
+                    if typename in self.structNames:
+                        decls.append('    StructPointerDecoder<Decoded_{}> {};\n'.format(typename, paramname))
+                    elif typename == 'char':
+                        if count == 2:
+                            decls.append('    StringArrayDecoder {};\n'.format(paramname))
+                        else:
+                            decls.append('    StringDecoder {};\n'.format(paramname))
+                    elif typename == 'void':
+                        if self.getArrayLen(member):
+                            # If this was an array it was encoded as an array of bytes.
+                            decls.append('    PointerDecoder<uint8_t> {};\n'.format(paramname))
+                        else:
+                            # If this was a pointer to an unknown object, it was encoded as a 64-bit address value.
+                            decls.append('    uint64_t {};\n'.format(paramname))
+                    else:
+                        decls.append('    PointerDecoder<{}> {};\n'.format(typename, paramname))
+                elif self.isStaticArray(member):
+                    if typename in self.structNames:
+                        decls.append('    StructPointerDecoder<Decoded_{}> {};\n'.format(typename, paramname))
+                    elif typename == 'char':
+                        decls.append('    StringDecoder {};\n'.format(paramname))
+                    else:
+                        decls.append('    PointerDecoder<{}> {};\n'.format(typename, paramname))
+                elif self.isFunctionPtr(typename):
+                    # Function pointers are encoded as a 64-bit address value.
+                    decls.append('    uint64_t {};\n'.format(paramname))
+                elif typename in self.structNames:
+                    decls.append('    Decoded_{} {};\n'.format(typename, paramname))
 
+        return decls
