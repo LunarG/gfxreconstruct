@@ -4,11 +4,13 @@ set(HEADER_FILES
     memory_output_stream.h
     output_stream.h
     platform.h
-    logging.h)
+    logging.h
+    metadata.h)
 
 set(SOURCE_FILES
     file_output_stream.cpp
-    memory_output_stream.cpp)
+    memory_output_stream.cpp
+    metadata.cpp)
 
 add_library(brimstone_util ${HEADER_FILES} ${SOURCE_FILES})
 
