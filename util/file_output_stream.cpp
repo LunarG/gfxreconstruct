@@ -25,7 +25,7 @@ FileOutputStream::FileOutputStream(const std::string& filename, bool append) :
     own_file_(true)
 {
     // TODO: Log an error if file open failed.
-    platform::file_open(&file_, filename.c_str(), append ? "ab" : "wb");
+    platform::FileOpen(&file_, filename.c_str(), append ? "ab" : "wb");
 }
 
 FileOutputStream::FileOutputStream(FILE* file, bool owned) :
@@ -38,13 +38,13 @@ FileOutputStream::~FileOutputStream()
 {
     if ((file_ != nullptr) && own_file_)
     {
-        platform::file_close(file_);
+        platform::FileClose(file_);
     }
 }
 
 size_t FileOutputStream::Write(const void* data, size_t len)
 {
-    return platform::file_write_nolock(data, 1, len, file_);
+    return platform::FileWriteNolock(data, 1, len, file_);
 }
 
 BRIMSTONE_END_NAMESPACE(util)

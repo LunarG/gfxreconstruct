@@ -40,7 +40,7 @@ TraceManager::ThreadData::ThreadData() :
 uint32_t TraceManager::ThreadData::GetThreadId()
 {
     uint32_t id = 0;
-    uint64_t tid = util::platform::get_current_thread_id();
+    uint64_t tid = util::platform::GetCurrentThreadId();
 
     // Using a uint32_t sequence number associated with the thread ID.
     std::lock_guard<std::mutex> lock(count_lock_);

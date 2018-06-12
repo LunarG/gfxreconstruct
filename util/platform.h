@@ -19,6 +19,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <thread>
 
 
@@ -47,22 +48,22 @@ BRIMSTONE_BEGIN_NAMESPACE(platform)
 
 typedef DWORD pid_t;
 
-inline pid_t get_current_process_id()
+inline pid_t GetCurrentProcessId()
 {
     return GetCurrentProcessId();
 }
 
-inline uint64_t get_current_thread_id()
+inline uint64_t GetCurrentThreadId()
 {
     return GetCurrentThreadId();
 }
 
-inline void trigger_debug_break()
+inline void TriggerDebugBreak()
 {
     __debugbreak();
 }
 
-inline bool get_environment_variable(const char* name, std::string& value)
+inline bool GetEnvironmentVariable(const char* name, std::string& value)
 {
     try
     {
@@ -85,93 +86,154 @@ inline bool get_environment_variable(const char* name, std::string& value)
     }
 }
 
-inline int32_t file_open(FILE** stream, const char* filename, const char* mode)
+inline int32_t MemoryCopy(void* destination, size_t destination_size, const void* source, size_t source_size)
+{
+    return memcpy_s(destination, destination_size, source, source_size);
+}
+
+inline int32_t MemoryCompare(const void* memory_1, const void* memory_2, size_t compare_size)
+{
+    return memcmp(memory_1, memory_2, compare_size);
+}
+
+inline int32_t StringCopy(char* destination, size_t destination_size, const char* source, size_t source_size)
+{
+    return strncpy_s(destination, destination_size, source, copy_size);
+}
+
+inline int32_t StringCompare(const char* string_1, const char* string_2, size_t compare_size)
+{
+    return strncmp(string_1, string_2, compare_size);
+}
+
+inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
 {
     return static_cast<int32_t>(fopen_s(stream, filename, mode));
 }
 
-inline size_t file_write_nolock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
+inline size_t FileWriteNolock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
     return _fwrite_nolock(buffer, element_size, element_count, stream);
 }
 
-inline size_t file_read_nolock(void* buffer, size_t element_size, size_t element_count, FILE* stream)
+inline size_t FileReadNolock(void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
     return _fread_nolock(buffer, element_size, element_count, stream);
 }
 
-inline int file_vprintf(FILE *stream, const char *format, va_list vlist)
+inline int32_t FileVprintf(FILE *stream, const char *format, va_list vlist)
 {
     return vfprintf_s(stream, format, vlist);
 }
 
 #else  // !defined(WIN32)
 
-inline pid_t get_current_process_id()
+// Error value indicating string was truncated
+#define STRUNCATE   80
+
+inline pid_t GetCurrentProcessId()
 {
     return getpid();
 }
 
-inline uint64_t get_current_thread_id()
+inline uint64_t GetCurrentThreadId()
 {
     return static_cast<uint64_t>(syscall(SYS_gettid));
 }
 
-inline void trigger_debug_break()
+inline void TriggerDebugBreak()
 {
     raise(SIGTRAP);
 }
 
-inline bool get_environment_variable(const char* name, std::string& value)
+inline bool GetEnvironmentVariable(const char* name, std::string& value)
 {
     value = getenv(name);
     return (value.size() > 0);
 }
 
-inline int32_t file_open(FILE** stream, const char* filename, const char* mode)
+inline int32_t MemoryCopy(void* destination, size_t destination_size, const void* source, size_t source_size)
+{
+    if (source_size > destination_size)
+    {
+        std::memcpy(destination, source, destination_size);
+        return STRUNCATE;
+    }
+    else
+    {
+        std::memcpy(destination, source, source_size);
+        return 0;
+    }
+}
+
+inline int32_t MemoryCompare(const void* memory_1, const void* memory_2, size_t compare_size)
+{
+    return memcmp(memory_1, memory_2, compare_size);
+}
+
+inline int32_t StringCopy(char* destination, size_t destination_size, const char* source, size_t source_size)
+{
+    if (source_size > destination_size)
+    {
+        strncpy(destination, source, destination_size);
+        return STRUNCATE;
+    }
+    else
+    {
+        strncpy(destination, source, source_size);
+        return 0;
+    }
+}
+
+inline int32_t StringCompare(const char* string_1, const char* string_2, size_t compare_size)
+{
+    return strncmp(string_1, string_2, compare_size);
+}
+
+inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
 {
     (*stream) = fopen(filename, mode);
     return errno;
 }
 
-inline size_t file_write_nolock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
+inline size_t FileWriteNolock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
     return fwrite_unlocked(buffer, element_size, element_count, stream);
 }
 
-inline size_t file_read_nolock(void* buffer, size_t element_size, size_t element_count, FILE* stream)
+inline size_t FileReadNolock(void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
     return fread_unlocked(buffer, element_size, element_count, stream);
 }
 
-inline int file_vprintf(FILE *stream, const char *format, va_list vlist)
+inline int32_t FileVprintf(FILE *stream, const char *format, va_list vlist)
 {
     return vfprintf(stream, format, vlist);
 }
 
 #endif // WIN32
 
-inline int32_t file_puts(const char *char_string, FILE *stream)
+inline int32_t FilePuts(const char *char_string, FILE *stream)
 {
     return fputs(char_string, stream);
 }
 
-inline int32_t file_flush(FILE *stream)
+inline int32_t FileFlush(FILE *stream)
 {
     return fflush(stream);
 }
 
-inline size_t file_write(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
+inline size_t FileWrite(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
     return fwrite(buffer, element_size, element_count, stream);
 }
 
-inline size_t file_read(void* buffer, size_t element_size, size_t element_count, FILE* stream)
+inline size_t FileRead(void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
     return fread(buffer, element_size, element_count, stream);
 }
 
-inline int32_t file_close(FILE* stream)
+inline int32_t FileClose(FILE* stream)
 {
     return fclose(stream);
 }
