@@ -106,14 +106,14 @@ void Init(Severity min_severity = SEVERITY_ERROR, const char* log_file_name = NU
         {
             file_modifiers[0] = 'a';
         }
-        if (!platform::file_open(&g_settings.file_pointer, log_file_name, &file_modifiers[0]))
+        if (!platform::FileOpen(&g_settings.file_pointer, log_file_name, &file_modifiers[0]))
         {
             g_settings.write_to_file = true;
             g_settings.leave_file_open = leave_file_open;
             g_settings.file_name = log_file_name;
             if (!g_settings.leave_file_open)
             {
-                platform::file_close(g_settings.file_pointer);
+                platform::FileClose(g_settings.file_pointer);
             }
         }
     }
@@ -129,7 +129,7 @@ void Release()
 {
     if (g_settings.write_to_file && g_settings.leave_file_open)
     {
-        platform::file_close(g_settings.file_pointer);
+        platform::FileClose(g_settings.file_pointer);
     }
 }
 
@@ -137,7 +137,6 @@ void LogMessage(Severity severity, const char* file, const char* function, const
                 const char* message, ...)
 {
     bool opened_file = false;
-    bool write_message = false;
     bool write_indent = g_settings.use_indent && g_settings.indent > 0;
     bool message_written = false;
     FILE* log_file_ptr;
@@ -188,7 +187,7 @@ void LogMessage(Severity severity, const char* file, const char* function, const
                 }
                 else if (severity >= g_settings.min_severity)
                 {
-                    if (!platform::file_open(&log_file_ptr, g_settings.file_name.c_str(), "a"))
+                    if (!platform::FileOpen(&log_file_ptr, g_settings.file_name.c_str(), "a"))
                     {
                         opened_file = true;
                     }
@@ -196,46 +195,36 @@ void LogMessage(Severity severity, const char* file, const char* function, const
                 break;
         }
 
-        // Only write out messages the user is interested in.
-        if (severity >= g_settings.min_severity)
+        // Only write out messages the user is interested in or errors if we're
+        // re-directing errors to stderr
+        if (severity < g_settings.min_severity &&
+            !(output_target == 0 && severity >= SEVERITY_ERROR && g_settings.output_errors_to_stderr))
         {
-            write_message = true;
-            if (g_settings.write_to_file)
-            {
-                if (!platform::file_open(&log_file_ptr, g_settings.file_name.c_str(), "a"))
-                {
-                    opened_file = true;
-                }
-            }
-        }
-        else if (SEVERITY_ERROR <= severity)
-        {
-            log_file_ptr = stderr;
-            write_indent = false;
+            continue;
         }
 
-        platform::file_puts(prefix.c_str(), log_file_ptr);
+        platform::FilePuts(prefix.c_str(), log_file_ptr);
         if (write_indent)
         {
             for (uint32_t iii = 0; iii < g_settings.indent; ++iii)
             {
-                platform::file_puts(g_settings.indent_spaces.c_str(), log_file_ptr);
+                platform::FilePuts(g_settings.indent_spaces.c_str(), log_file_ptr);
             }
         }
 
         va_list valist;
         va_start(valist, message);
-        platform::file_vprintf(log_file_ptr, message, valist);
+        platform::FileVprintf(log_file_ptr, message, valist);
         va_end(valist);
-        platform::file_puts("\n", log_file_ptr);
+        platform::FilePuts("\n", log_file_ptr);
 
         if (g_settings.flush_after_write)
         {
-            platform::file_flush(log_file_ptr);
+            platform::FileFlush(log_file_ptr);
         }
         if (output_target == 1 && opened_file && !g_settings.leave_file_open)
         {
-            platform::file_close(log_file_ptr);
+            platform::FileClose(log_file_ptr);
         }
     }
 
@@ -243,7 +232,7 @@ void LogMessage(Severity severity, const char* file, const char* function, const
     // (also the last one written).
     if (SEVERITY_ERROR <= severity && g_settings.break_on_error)
     {
-        platform::trigger_debug_break();
+        platform::TriggerDebugBreak();
     }
 }
 
