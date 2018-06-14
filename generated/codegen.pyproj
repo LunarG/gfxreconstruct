@@ -22,6 +22,7 @@
   <ItemGroup>
     <Compile Include="common_codegen.py" />
     <Compile Include="decodedstructtypes.py" />
+    <Compile Include="decodepnextstruct.py" />
     <Compile Include="functablegenerator.py" />
     <Compile Include="genlayer.py" />
     <Compile Include="apicallgenerator.py" />
