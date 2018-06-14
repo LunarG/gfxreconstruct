@@ -21,6 +21,9 @@ from apicallgenerator import APICallGeneratorOptions, APICallOutputGenerator
 from functablegenerator import FuncTableGeneratorOptions, FuncTableOutputGenerator
 from structgenerator import StructGeneratorOptions, StructOutputGenerator
 from structdecodersgenerator import StructDecodersGeneratorOptions, StructDecodersOutputGenerator
+from apicalldecodersgenerator import APICallDecodersGeneratorOptions, APICallDecodersOutputGenerator
+from apicalldecoderdeclarationsgenerator import APICallDecoderDeclarationsGeneratorOptions, APICallDecoderDeclarationsOutputGenerator
+from apicalldecodecasesgenerator import APICallDecodeCasesGeneratorOptions, APICallDecodeCasesOutputGenerator
 from encodepnextstruct import EncodePNextStructGeneratorOptions, EncodePNextStructOutputGenerator
 from decodepnextstruct import DecodePNextStructGeneratorOptions, DecodePNextStructOutputGenerator
 from decodedstructtypes import DecodedStructTypesGeneratorOptions, DecodedStructTypesOutputGenerator
@@ -253,6 +256,81 @@ def makeGenOpts(args):
           StructDecodersOutputGenerator,
           StructDecodersGeneratorOptions(
             filename          = 'generated_struct_decoders.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # Vulkan api call parameter decoding functions.
+    genOpts['generated_api_call_decoders.inc'] = [
+          APICallDecodersOutputGenerator,
+          APICallDecodersGeneratorOptions(
+            filename          = 'generated_api_call_decoders.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # Vulkan api call parameter decoding function declarations.
+    genOpts['generated_api_call_decoder_declarations.inc'] = [
+          APICallDecoderDeclarationsOutputGenerator,
+          APICallDecoderDeclarationsGeneratorOptions(
+            filename          = 'generated_api_call_decoder_declarations.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # Vulkan api call decoding case statements.
+    genOpts['generated_api_call_decode_cases.inc'] = [
+          APICallDecodeCasesOutputGenerator,
+          APICallDecodeCasesGeneratorOptions(
+            filename          = 'generated_api_call_decode_cases.inc',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
