@@ -14,37 +14,38 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_FILE_OUTPUT_STREAM_H
-#define BRIMSTONE_UTIL_FILE_OUTPUT_STREAM_H
-
-#include <cstdio>
-#include <string>
-
-#include "util/defines.h"
-#include "util/output_stream.h"
+#include "util/platform.h"
+#include "util/file_output_stream.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
-class FileOutputStream : public OutputStream
+FileOutputStream::FileOutputStream(const std::string& filename, bool append) :
+    file_(nullptr),
+    own_file_(true)
 {
-public:
-    FileOutputStream(const std::string& filename, bool append = false);
+    // TODO: Log an error if file open failed.
+    platform::file_open(&file_, filename.c_str(), append ? "ab" : "wb");
+}
 
-    FileOutputStream(FILE* file, bool owned = false);
+FileOutputStream::FileOutputStream(FILE* file, bool owned) :
+    file_(file),
+    own_file_(owned)
+{
+}
 
-    virtual ~FileOutputStream();
+FileOutputStream::~FileOutputStream()
+{
+    if ((file_ != nullptr) && own_file_)
+    {
+        platform::file_close(file_);
+    }
+}
 
-    virtual bool IsValid() { return (file_ != nullptr); }
-
-    virtual size_t Write(const void* data, size_t len) override;
-
-private:
-    FILE*          file_;
-    bool           own_file_;
-};
+size_t FileOutputStream::Write(const void* data, size_t len)
+{
+    return platform::file_write_nolock(data, 1, len, file_);
+}
 
 BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)
-
-#endif // BRIMSTONE_UTIL_FILE_OUTPUT_STREAM_H

@@ -6,6 +6,7 @@ set(HEADER_FILES
     platform.h)
 
 set(SOURCE_FILES
+    file_output_stream.cpp
     memory_output_stream.cpp)
 
 add_library(brimstone_util ${HEADER_FILES} ${SOURCE_FILES})
