@@ -219,13 +219,13 @@ private:
     }
 
     template<typename DstT, typename SrcT>
-    typename std::enable_if<std::is_arithmetic<SrcT>::value && std::is_arithmetic<DstT>::value, DstT>::type TypeCast(SrcT value)
+    typename std::enable_if<!std::is_pointer<SrcT>::value && !std::is_pointer<DstT>::value, DstT>::type TypeCast(SrcT value)
     {
         return static_cast<DstT>(value);
     }
 
     template<typename DstT, typename SrcT>
-    typename std::enable_if<!std::is_arithmetic<SrcT>::value || !std::is_arithmetic<DstT>::value, DstT>::type TypeCast(SrcT value)
+    typename std::enable_if<std::is_pointer<SrcT>::value || std::is_pointer<DstT>::value, DstT>::type TypeCast(SrcT value)
     {
         return reinterpret_cast<DstT>(value);
     }
