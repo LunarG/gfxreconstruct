@@ -21,21 +21,20 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-void VulkanDecoder::DecodeFunctionCall(ApiCallId call_id, const uint8_t* buffer, size_t buffer_size)
+void VulkanDecoder::DecodeFunctionCall(ApiCallId call_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     switch (call_id)
     {
-    case ApiCallId_vkCreateInstance:
-        Decode_vkCreateInstance(buffer, buffer_size);
-        break;
+#include "generated/generated_api_call_decode_cases.inc"
     default:
         break;
     }
 }
 
-void VulkanDecoder::Decode_vkCreateInstance(const uint8_t* buffer, size_t buffer_size)
-{
-}
-
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
+
+#include "generated/generated_decoded_struct_types.inc"
+#include "generated/generated_struct_decoders.inc"
+#include "generated/generated_decode_pnext_struct.inc"
+#include "generated/generated_api_call_decoders.inc"
