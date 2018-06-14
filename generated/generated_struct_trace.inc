@@ -19,6 +19,8 @@
 **
 */
 
+#include <cmath>
+
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"

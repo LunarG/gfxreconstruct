@@ -17,6 +17,7 @@
 #ifndef BRIMSTONE_UTIL_MEMORY_OUTPUT_STREAM_H
 #define BRIMSTONE_UTIL_MEMORY_OUTPUT_STREAM_H
 
+#include <cstdint>
 #include <vector>
 
 #include "util/defines.h"

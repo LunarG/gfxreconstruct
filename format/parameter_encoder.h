@@ -17,6 +17,7 @@
 #ifndef BRIMSTONE_FORMAT_PARAMETER_ENCODER_H
 #define BRIMSTONE_FORMAT_PARAMETER_ENCODER_H
 
+#include <cstring>
 #include <memory>
 #include <type_traits>
 
@@ -67,7 +68,8 @@ public:
 
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
     size_t EncodeVoidPtr(const void* value)                                                                              { return EncodeValue(reinterpret_cast<uint64_t>(value)); }
-    size_t EncodeFunctionPtr(const void* value)                                                                          { return EncodeValue(reinterpret_cast<uint64_t>(value)); }
+    template<typename T>
+    size_t EncodeFunctionPtr(T value)                                                                                    { return EncodeValue(reinterpret_cast<uint64_t>(value)); }
 
     template<typename T>
     size_t EncodeHandleValue(T value)                                                                                    { return EncodeValue(TypeCast<uint64_t>(value)); }
@@ -344,7 +346,7 @@ private:
             {
                 for (size_t i = 0; i < len; ++i)
                 {
-                    DstT converted = TypeCast<DstT>(array_values[i]);
+                    DstT converted = TypeCast<DstT>(arr[i]);
                     total += fwrite(&converted, sizeof(DstT), 1, stdout);
                 }
             }

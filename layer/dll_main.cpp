@@ -55,12 +55,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 #else // WIN32
 
-static void initialize_trace_layer() __attribute__((constructor))
+__attribute__((constructor))
+static void initialize_trace_layer()
 {
     brimstone::init_layer();
 }
 
-static void destroy_trace_layer() __attribute__((destructor))
+__attribute__((destructor))
+static void destroy_trace_layer()
 {
     brimstone::destroy_layer();
 }

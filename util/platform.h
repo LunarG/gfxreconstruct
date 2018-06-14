@@ -17,7 +17,7 @@
 #ifndef BRIMSTONE_UTIL_PLATFORM_H
 #define BRIMSTONE_UTIL_PLATFORM_H
 
-#include <cinttypes>
+#include <cstdint>
 #include <cstdio>
 #include <thread>
 
@@ -29,6 +29,7 @@
 #else  // WIN32
 #include <errno.h>
 #include <pthread.h>
+#include <sys/syscall.h>
 #include <sys/types.h>
 #include <unistd.h>
 #endif // WIN32
@@ -53,9 +54,9 @@ inline uint64_t get_current_thread_id()
     return GetCurrentThreadId();
 }
 
-inline errno_t file_open(FILE** stream, const char* filename, const char* mode)
+inline int32_t file_open(FILE** stream, const char* filename, const char* mode)
 {
-    return fopen_s(stream, filename, mode);
+    return static_cast<int32_t>(fopen_s(stream, filename, mode));
 }
 
 inline size_t file_write_nolock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
@@ -77,12 +78,10 @@ inline pid_t get_current_process_id()
 
 inline uint64_t get_current_thread_id()
 {
-    uint64_t tid = 0;
-    pthread_threadid_np(NULL, &tid);
-    return tid;
+    return static_cast<uint64_t>(syscall(SYS_gettid));
 }
 
-inline errno_t file_open(FILE** stream, const char* filename, const char* mode)
+inline int32_t file_open(FILE** stream, const char* filename, const char* mode)
 {
     (*stream) = fopen(filename, mode);
     return errno;
