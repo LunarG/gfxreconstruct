@@ -22,6 +22,7 @@ from functablegenerator import FuncTableGeneratorOptions, FuncTableOutputGenerat
 from structgenerator import StructGeneratorOptions, StructOutputGenerator
 from structdecodersgenerator import StructDecodersGeneratorOptions, StructDecodersOutputGenerator
 from encodepnextstruct import EncodePNextStructGeneratorOptions, EncodePNextStructOutputGenerator
+from decodepnextstruct import DecodePNextStructGeneratorOptions, DecodePNextStructOutputGenerator
 from decodedstructtypes import DecodedStructTypesGeneratorOptions, DecodedStructTypesOutputGenerator
 from idgenerator import IdGeneratorOptions, IdOutputGenerator
 
@@ -252,6 +253,31 @@ def makeGenOpts(args):
           StructDecodersOutputGenerator,
           StructDecodersGeneratorOptions(
             filename          = 'generated_struct_decoders.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # vktrace utility function to select struct encoding function based on struct's sType field.
+    genOpts['generated_decode_pnext_struct.inc'] = [
+          DecodePNextStructOutputGenerator,
+          DecodePNextStructGeneratorOptions(
+            filename          = 'generated_decode_pnext_struct.inc',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
