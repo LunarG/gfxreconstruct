@@ -18,33 +18,31 @@
 
 #include "util/platform.h"
 #include "format/trace_manager.h"
+#include "util/compressor.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-std::mutex                              TraceManager::ThreadData::count_lock_;
-uint32_t                                TraceManager::ThreadData::thread_count_ = 0;
-std::map<uint64_t, uint32_t>            TraceManager::ThreadData::id_map_;
-thread_local TraceManager::ThreadData   TraceManager::thread_data_;
+std::mutex                            TraceManager::ThreadData::count_lock_;
+uint32_t                              TraceManager::ThreadData::thread_count_ = 0;
+std::map<uint64_t, uint32_t>          TraceManager::ThreadData::id_map_;
+thread_local TraceManager::ThreadData TraceManager::thread_data_;
 
 TraceManager::ThreadData::ThreadData() :
-    thread_id_(GetThreadId()),
-    call_id_(ApiCallId_Unknown),
-    call_begin_time_(0),
-    call_end_time_(0)
+    thread_id_(GetThreadId()), call_id_(ApiCallId_Unknown), call_begin_time_(0), call_end_time_(0)
 {
-    parameter_buffer_ = std::make_unique<util::MemoryOutputStream>();
+    parameter_buffer_  = std::make_unique<util::MemoryOutputStream>();
     parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
 }
 
 uint32_t TraceManager::ThreadData::GetThreadId()
 {
-    uint32_t id = 0;
+    uint32_t id  = 0;
     uint64_t tid = util::platform::GetCurrentThreadId();
 
     // Using a uint32_t sequence number associated with the thread ID.
     std::lock_guard<std::mutex> lock(count_lock_);
-    auto entry = id_map_.find(tid);
+    auto                        entry = id_map_.find(tid);
     if (entry != id_map_.end())
     {
         id = entry->second;
@@ -63,10 +61,16 @@ bool TraceManager::Initialize(std::string filename, EnabledOptions file_options)
     bool success = false;
 
     file_options_ = file_options;
-    filename_ = filename;
-    file_stream_ = std::make_unique<util::FileOutputStream>(filename_);
+    filename_     = filename;
+    file_stream_  = std::make_unique<util::FileOutputStream>(filename_);
 
     // TODO: Perform options related setup (enable compression, etc).
+
+    compressor_ = util::Compressor::CreateCompressor(file_options.compression_type);
+    if ((nullptr == compressor_) && (util::kNone != file_options.compression_type))
+    {
+        return false;
+    }
 
     if (file_stream_->IsValid())
     {
@@ -91,28 +95,76 @@ ParameterEncoder* TraceManager::BeginApiCallTrace(ApiCallId call_id)
 
 void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 {
-    FunctionCallHeader call_header;
-    size_t size = sizeof(call_header.api_call_id) + thread_data_.parameter_buffer_->GetDataSize();
+    bool                         not_compressed      = true;
+    CompressedFunctionCallHeader compressed_header   = {};
+    FunctionCallHeader           uncompressed_header = {};
+    size_t                       uncompressed_size   = thread_data_.parameter_buffer_->GetDataSize();
+    size_t                       header_size         = 0;
+    const void*                  header_pointer      = nullptr;
+    size_t                       data_size           = 0;
+    const void*                  data_pointer        = nullptr;
 
-    if (file_options_.record_thread_id)
+    if (nullptr != compressor_)
     {
-        size += sizeof(thread_data_.thread_id_);
+        size_t packet_size = 0;
+        size_t compressed_size =
+            compressor_->Compress(uncompressed_size, thread_data_.parameter_buffer_->GetData(), &compressed_buffer_);
+        if ((0 < compressed_size) && (compressed_size < uncompressed_size))
+        {
+            data_pointer   = reinterpret_cast<const void*>(compressed_buffer_.data());
+            data_size      = compressed_size;
+            header_pointer = reinterpret_cast<const void*>(&compressed_header);
+            header_size    = sizeof(CompressedFunctionCallHeader);
+
+            compressed_header.block_header.type = BlockType::kCompressedFunctionCallBlock;
+            compressed_header.api_call_id       = thread_data_.call_id_;
+            compressed_header.uncompressed_size = uncompressed_size;
+
+            packet_size +=
+                sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) + compressed_size;
+            if (file_options_.record_thread_id)
+            {
+                packet_size += sizeof(thread_data_.thread_id_);
+            }
+
+            if (file_options_.record_begin_end_timestamp)
+            {
+                packet_size += sizeof(thread_data_.call_begin_time_) + sizeof(thread_data_.call_end_time_);
+            }
+            compressed_header.block_header.size = packet_size;
+            not_compressed                      = false;
+        }
     }
 
-    if (file_options_.record_begin_end_timestamp)
+    if (not_compressed)
     {
-        size += sizeof(thread_data_.call_begin_time_) + sizeof(thread_data_.call_end_time_);
-    }
+        size_t packet_size = 0;
+        data_pointer       = reinterpret_cast<const void*>(thread_data_.parameter_buffer_->GetData());
+        data_size          = uncompressed_size;
+        header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
+        header_size        = sizeof(FunctionCallHeader);
 
-    call_header.block_header.size = size;
-    call_header.block_header.type = BlockType::kFunctionCallBlock;
-    call_header.api_call_id = thread_data_.call_id_;
+        uncompressed_header.block_header.type = BlockType::kFunctionCallBlock;
+        uncompressed_header.api_call_id       = thread_data_.call_id_;
+
+        packet_size += sizeof(uncompressed_header.api_call_id) + data_size;
+        if (file_options_.record_thread_id)
+        {
+            packet_size += sizeof(thread_data_.thread_id_);
+        }
+
+        if (file_options_.record_begin_end_timestamp)
+        {
+            packet_size += sizeof(thread_data_.call_begin_time_) + sizeof(thread_data_.call_end_time_);
+        }
+        uncompressed_header.block_header.size = packet_size;
+    }
 
     {
         std::lock_guard<std::mutex> lock(file_lock_);
 
         // Write standard function call block header.
-        bytes_written_ += file_stream_->Write(&call_header, sizeof(call_header));
+        bytes_written_ += file_stream_->Write(header_pointer, header_size);
 
         // Add optional header items.
         if (file_options_.record_thread_id)
@@ -122,13 +174,13 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 
         if (file_options_.record_begin_end_timestamp)
         {
-            bytes_written_ += file_stream_->Write(&thread_data_.call_begin_time_, sizeof(thread_data_.call_begin_time_));
+            bytes_written_ +=
+                file_stream_->Write(&thread_data_.call_begin_time_, sizeof(thread_data_.call_begin_time_));
             bytes_written_ += file_stream_->Write(&thread_data_.call_end_time_, sizeof(thread_data_.call_end_time_));
         }
 
         // Write parameter data.
-        bytes_written_ += file_stream_->Write(thread_data_.parameter_buffer_->GetData(),
-                                              thread_data_.parameter_buffer_->GetDataSize());
+        bytes_written_ += file_stream_->Write(data_pointer, data_size);
     }
 
     thread_data_.parameter_encoder_->Reset();
@@ -141,10 +193,10 @@ void TraceManager::WriteFileHeader()
     BuildOptionList(file_options_, &option_list);
 
     FileHeader file_header;
-    file_header.fourcc = BRIMSTONE_FOURCC;
+    file_header.fourcc        = BRIMSTONE_FOURCC;
     file_header.major_version = 1;
     file_header.minor_version = 0;
-    file_header.num_options = static_cast<uint32_t>(option_list.size());
+    file_header.num_options   = static_cast<uint32_t>(option_list.size());
 
     bytes_written_ += file_stream_->Write(&file_header, sizeof(file_header));
     bytes_written_ += file_stream_->Write(option_list.data(), option_list.size() * sizeof(FileOptionPair));
@@ -156,7 +208,8 @@ void TraceManager::BuildOptionList(const EnabledOptions& enabled_options, std::v
 
     option_list->push_back({ FileOption::kCompressionType, enabled_options.compression_type });
     option_list->push_back({ FileOption::kHaveThreadId, enabled_options.record_thread_id ? 1u : 0u });
-    option_list->push_back({ FileOption::kHaveBeginEndTimestamp, enabled_options.record_begin_end_timestamp ? 1u : 0u });
+    option_list->push_back(
+        { FileOption::kHaveBeginEndTimestamp, enabled_options.record_begin_end_timestamp ? 1u : 0u });
     option_list->push_back({ FileOption::kOmitTextures, enabled_options.omit_textures ? 1u : 0u });
     option_list->push_back({ FileOption::kOmitBuffers, enabled_options.omit_buffers ? 1u : 0u });
 }

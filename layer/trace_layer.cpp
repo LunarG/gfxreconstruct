@@ -72,6 +72,9 @@ bool init_layer()
 {
     // TODO: load settings from file.
     format::EnabledOptions options;
+#ifdef ENABLE_LZ4_COMPRESSION
+    options.compression_type = brimstone::util::kLz4;
+#endif
     return trace_manager.Initialize("D:\\temp\\brimstone_test.bin", options);
 }
 

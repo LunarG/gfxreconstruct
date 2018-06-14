@@ -14,32 +14,28 @@
 ** limitations under the License.
 */
 
-#include "util/platform.h"
-#include "util/file_output_stream.h"
+#ifndef BRIMSTONE_FORMAT_LZ4_COMPRESSOR_H
+#define BRIMSTONE_FORMAT_LZ4_COMPRESSOR_H
+
+#include "util/compressor.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
-FileOutputStream::FileOutputStream(const std::string& filename, bool append) : file_(nullptr), own_file_(true)
+class Lz4Compressor : public Compressor
 {
-    // TODO: Log an error if file open failed.
-    platform::FileOpen(&file_, filename.c_str(), append ? "ab" : "wb");
-}
+  public:
+    Lz4Compressor(CompressionType type) : Compressor(type) {}
+    ~Lz4Compressor() {}
 
-FileOutputStream::FileOutputStream(FILE* file, bool owned) : file_(file), own_file_(owned) {}
-
-FileOutputStream::~FileOutputStream()
-{
-    if ((file_ != nullptr) && own_file_)
-    {
-        platform::FileClose(file_);
-    }
-}
-
-size_t FileOutputStream::Write(const void* data, size_t len)
-{
-    return platform::FileWriteNoLock(data, 1, len, file_);
-}
+    virtual size_t
+                   Compress(const size_t uncompressed_size, const uint8_t* uncompressed_data, std::vector<uint8_t>* compressed_data);
+    virtual size_t Decompress(const size_t                compressed_size,
+                              const std::vector<uint8_t>& compressed_data,
+                              std::vector<uint8_t>*       uncompressed_data);
+};
 
 BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)
+
+#endif // BRIMSTONE_FORMAT_LZ4_COMPRESSOR_H

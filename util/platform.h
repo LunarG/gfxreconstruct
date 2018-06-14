@@ -22,13 +22,12 @@
 #include <cstring>
 #include <thread>
 
-
 #if defined(WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
-#else  // WIN32
+#else // WIN32
 #include <errno.h>
 #include <pthread.h>
 #include <sys/syscall.h>
@@ -70,13 +69,14 @@ inline bool GetEnv(const char* name, std::string& value)
         // value_size DOES include the null terminator, so for any set variable
         // will always be at least 1. If it's 0, the variable wasn't set.
         DWORD value_size = GetEnvironmentVariableA(name, nullptr, 0);
-        if (value_size == 0) {
+        if (value_size == 0)
+        {
             return false;
         }
 
         // Max environment variable size (including null terminator).
         const size_t kMaxEnvSize = 32767;
-        char return_value[kMaxEnvSize];
+        char         return_value[kMaxEnvSize];
 
         GetEnvironmentVariableA(name, return_value, value_size);
 
@@ -116,25 +116,25 @@ inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
     return static_cast<int32_t>(fopen_s(stream, filename, mode));
 }
 
-inline size_t FileWriteNolock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
+inline size_t FileWriteNoLock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
     return _fwrite_nolock(buffer, element_size, element_count, stream);
 }
 
-inline size_t FileReadNolock(void* buffer, size_t element_size, size_t element_count, FILE* stream)
+inline size_t FileReadNoLock(void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
     return _fread_nolock(buffer, element_size, element_count, stream);
 }
 
-inline int32_t FileVprintf(FILE *stream, const char *format, va_list vlist)
+inline int32_t FileVprintf(FILE* stream, const char* format, va_list vlist)
 {
     return vfprintf_s(stream, format, vlist);
 }
 
-#else  // !defined(WIN32)
+#else // !defined(WIN32)
 
 // Error value indicating string was truncated
-#define STRUNCATE   80
+#define STRUNCATE 80
 
 inline pid_t GetCurrentProcessId()
 {
@@ -201,29 +201,29 @@ inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
     return errno;
 }
 
-inline size_t FileWriteNolock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
+inline size_t FileWriteNoLock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
     return fwrite_unlocked(buffer, element_size, element_count, stream);
 }
 
-inline size_t FileReadNolock(void* buffer, size_t element_size, size_t element_count, FILE* stream)
+inline size_t FileReadNoLock(void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
     return fread_unlocked(buffer, element_size, element_count, stream);
 }
 
-inline int32_t FileVprintf(FILE *stream, const char *format, va_list vlist)
+inline int32_t FileVprintf(FILE* stream, const char* format, va_list vlist)
 {
     return vfprintf(stream, format, vlist);
 }
 
 #endif // WIN32
 
-inline int32_t FilePuts(const char *char_string, FILE *stream)
+inline int32_t FilePuts(const char* char_string, FILE* stream)
 {
     return fputs(char_string, stream);
 }
 
-inline int32_t FileFlush(FILE *stream)
+inline int32_t FileFlush(FILE* stream)
 {
     return fflush(stream);
 }
@@ -242,6 +242,7 @@ inline int32_t FileClose(FILE* stream)
 {
     return fclose(stream);
 }
+
 
 BRIMSTONE_END_NAMESPACE(platform)
 BRIMSTONE_END_NAMESPACE(util)

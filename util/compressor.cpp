@@ -14,31 +14,23 @@
 ** limitations under the License.
 */
 
-#include "util/platform.h"
-#include "util/file_output_stream.h"
+#include "util/compressor.h"
+#include "util/lz4_compressor.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
-FileOutputStream::FileOutputStream(const std::string& filename, bool append) : file_(nullptr), own_file_(true)
+Compressor* Compressor::CreateCompressor(CompressionType type)
 {
-    // TODO: Log an error if file open failed.
-    platform::FileOpen(&file_, filename.c_str(), append ? "ab" : "wb");
-}
-
-FileOutputStream::FileOutputStream(FILE* file, bool owned) : file_(file), own_file_(owned) {}
-
-FileOutputStream::~FileOutputStream()
-{
-    if ((file_ != nullptr) && own_file_)
+    if (type == kLz4)
     {
-        platform::FileClose(file_);
+#ifdef ENABLE_LZ4_COMPRESSION
+        return new Lz4Compressor(type);
+#endif // ENABLE_LZ4_COMPRESSION
     }
-}
 
-size_t FileOutputStream::Write(const void* data, size_t len)
-{
-    return platform::FileWriteNoLock(data, 1, len, file_);
+    // No supported compression, so return nullptr.
+    return nullptr;
 }
 
 BRIMSTONE_END_NAMESPACE(util)

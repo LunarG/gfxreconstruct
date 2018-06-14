@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "util/defines.h"
+#include "util/compressor.h"
 #include "format/api_call_id.h"
 #include "format/decoder.h"
 #include "format/format.h"
@@ -57,6 +58,8 @@ private:
 
     bool ReadParameterBuffer(size_t buffer_size);
 
+    bool ReadCompressedParameterBuffer(size_t compressed_buffer_size, size_t expected_uncompressed_size, size_t* uncompressed_buffer_size);
+
     size_t ReadBytes(void* buffer, size_t buffer_size);
 
     void ProcessFunctionCall(ApiCallId call_id, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -75,7 +78,8 @@ private:
     uint64_t                    bytes_read_;
     std::vector<Decoder*>       decoders_;
     std::vector<uint8_t>        parameter_buffer_;
-
+    std::vector<uint8_t>        compressed_parameter_buffer_;
+    util::Compressor*           compressor_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
