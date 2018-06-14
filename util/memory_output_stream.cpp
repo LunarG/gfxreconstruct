@@ -14,6 +14,7 @@
 ** limitations under the License.
 */
 
+#include "util/platform.h"
 #include "util/memory_output_stream.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
@@ -29,9 +30,7 @@ MemoryOutputStream::MemoryOutputStream(size_t initial_size)
     buffer_.reserve(initial_size);
 }
 
-MemoryOutputStream::~MemoryOutputStream()
-{
-}
+MemoryOutputStream::~MemoryOutputStream() {}
 
 size_t MemoryOutputStream::Write(const void* data, size_t len)
 {

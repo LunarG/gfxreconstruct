@@ -25,12 +25,14 @@
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/memory_output_stream.h"
+#include "util/compressor.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "format/parameter_encoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
+
 
 class TraceManager
 {
@@ -83,6 +85,8 @@ private:
     std::string                                             filename_;
     std::mutex                                              file_lock_;
     size_t                                                  bytes_written_;
+    std::vector<uint8_t>                                    compressed_buffer_;
+    util::Compressor*                                       compressor_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)

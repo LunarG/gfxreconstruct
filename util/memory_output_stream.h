@@ -28,10 +28,10 @@ BRIMSTONE_BEGIN_NAMESPACE(util)
 
 class MemoryOutputStream : public OutputStream
 {
-public:
+  public:
     const size_t kDefaultBufferSize = 512;
 
-public:
+  public:
     MemoryOutputStream();
 
     MemoryOutputStream(size_t initial_size);
@@ -48,8 +48,8 @@ public:
 
     size_t GetDataSize() const { return buffer_.size(); }
 
-private:
-    std::vector<uint8_t>    buffer_;
+  private:
+    std::vector<uint8_t> buffer_;
 };
 
 BRIMSTONE_END_NAMESPACE(util)

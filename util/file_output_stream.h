@@ -29,7 +29,7 @@ BRIMSTONE_BEGIN_NAMESPACE(util)
 
 class FileOutputStream : public OutputStream
 {
-public:
+  public:
     FileOutputStream(const std::string& filename, bool append = false);
 
     FileOutputStream(FILE* file, bool owned = false);
@@ -40,9 +40,9 @@ public:
 
     virtual size_t Write(const void* data, size_t len) override;
 
-private:
-    FILE*          file_;
-    bool           own_file_;
+  private:
+    FILE* file_;
+    bool  own_file_;
 };
 
 BRIMSTONE_END_NAMESPACE(util)

@@ -21,6 +21,7 @@
 
 #include "util/defines.h"
 #include "format/api_call_id.h"
+#include "util/compressor.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
@@ -43,7 +44,8 @@ enum BlockType : uint32_t
     kStateBlock = 2,                // Encapsulates a group of metadata, apicall, and methodcall blocks representing the initial state for a trimmed trace.
     kMetaDataBlock = 3,
     kFunctionCallBlock = 4,
-    kCompressedFunctionCallBlock = 5
+    kCompressedFunctionCallBlock = 5,
+    kCompressedMetaDataBlock = 6,
 };
 
 enum MetaDataType : uint32_t
@@ -52,12 +54,6 @@ enum MetaDataType : uint32_t
     kVulkanPhysicalDeviceInfo = 1,
     kVulkanMemoryInfo = 2,
     kFillMemoryCommand = 3
-};
-
-enum CompressionType : uint32_t
-{
-    kNone = 0,
-    kLz4 = 1
 };
 
 enum FileOption : uint32_t
@@ -92,11 +88,11 @@ enum PointerAttributes : uint32_t
 
 struct EnabledOptions
 {
-    CompressionType     compression_type{ kNone };
-    bool                record_thread_id{ true };
-    bool                record_begin_end_timestamp{ false };
-    bool                omit_textures{ false };
-    bool                omit_buffers{ false };
+    util::CompressionType compression_type{ util::kNone };
+    bool                  record_thread_id{ true };
+    bool                  record_begin_end_timestamp{ false };
+    bool                  omit_textures{ false };
+    bool                  omit_buffers{ false };
 };
 
 #pragma pack(push)
@@ -126,6 +122,13 @@ struct FunctionCallHeader
 {
     BlockHeader block_header;
     ApiCallId api_call_id;
+};
+
+struct CompressedFunctionCallHeader
+{
+    BlockHeader block_header;
+    ApiCallId api_call_id;
+    uint64_t uncompressed_size;
 };
 
 struct MethodCallHeader
