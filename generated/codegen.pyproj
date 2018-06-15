@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>-registry ..\external\Vulkan-Headers\registry\vk.xml generated_api_call_decode_cases.inc</CommandLineArguments>
+    <CommandLineArguments>-registry ..\external\Vulkan-Headers\registry\vk.xml generated_struct_decode_declarations.inc</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
@@ -32,6 +32,7 @@
     <Compile Include="idgenerator.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="structdecodedeclarations.py" />
     <Compile Include="structdecodersgenerator.py" />
     <Compile Include="structgenerator.py" />
     <Compile Include="encodepnextstruct.py" />

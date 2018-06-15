@@ -21,6 +21,7 @@ from apicallgenerator import APICallGeneratorOptions, APICallOutputGenerator
 from functablegenerator import FuncTableGeneratorOptions, FuncTableOutputGenerator
 from structgenerator import StructGeneratorOptions, StructOutputGenerator
 from structdecodersgenerator import StructDecodersGeneratorOptions, StructDecodersOutputGenerator
+from structdecodedeclarations import StructDecodeDeclarationsGeneratorOptions, StructDecodeDeclarationsOutputGenerator
 from apicalldecodersgenerator import APICallDecodersGeneratorOptions, APICallDecodersOutputGenerator
 from apicalldecoderdeclarationsgenerator import APICallDecoderDeclarationsGeneratorOptions, APICallDecoderDeclarationsOutputGenerator
 from apicalldecodecasesgenerator import APICallDecodeCasesGeneratorOptions, APICallDecodeCasesOutputGenerator
@@ -256,6 +257,31 @@ def makeGenOpts(args):
           StructDecodersOutputGenerator,
           StructDecodersGeneratorOptions(
             filename          = 'generated_struct_decoders.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            apicall           = 'VKAPI_ATTR ',
+            apientry          = 'VKAPI_CALL ',
+            apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # Vulkan struct decoding wrapper and function declarations.
+    genOpts['generated_struct_decode_declarations.inc'] = [
+          StructDecodeDeclarationsOutputGenerator,
+          StructDecodeDeclarationsGeneratorOptions(
+            filename          = 'generated_struct_decode_declarations.inc',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
