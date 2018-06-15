@@ -458,7 +458,7 @@ class APICallDecodersOutputGenerator(OutputGenerator):
                     body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(bufferargs, paramname)
             else:
                 if isstruct:
-                    body += '    bytes_read += {}.Decode<decode_struct>({});\n'.format(paramname, bufferargs)
+                    body += '    bytes_read += {}.Decode({});\n'.format(paramname, bufferargs)
                 elif isstring:
                     body += '    bytes_read += {}.Decode({});\n'.format(paramname, bufferargs)
                 else:
