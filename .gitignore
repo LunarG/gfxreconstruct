@@ -1,8 +1,10 @@
 build/
+dbuild/
 Debug/
 Release/
 __pycache__/
 .vs/
+.vscode/
 *.db
 *.pyc
 
