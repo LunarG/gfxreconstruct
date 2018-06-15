@@ -25,6 +25,8 @@
 #include "format/pointer_decoder_base.h"
 #include "format/value_decoder.h"
 
+#include "generated/generated_struct_decode_declarations.inc"
+
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
@@ -65,7 +67,6 @@ public:
         }
     }
 
-    template<size_t(*StructDecoder)(const uint8_t* buffer, size_t buffer_size, T*)>
     size_t Decode(const uint8_t* buffer, size_t buffer_size)
     {
         size_t bytes_read = DecodeAttributes(buffer, buffer_size);
@@ -103,7 +104,11 @@ public:
             for (size_t i = 0; i < len; ++i)
             {
                 decoded_structs_[i].value = &struct_memory_[i];
-                bytes_read += StructDecoder((buffer + bytes_read), (buffer_size - bytes_read), &decoded_structs_[i]);
+
+                // Note: We only expect this class to be used with structs that have a decode_struct function.
+                //       If an error is encoutered here due to a new struct type, the struct decoders need to be
+                //       updated to support the new type.
+                bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &decoded_structs_[i]);
             }
         }
 

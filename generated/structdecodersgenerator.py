@@ -396,7 +396,7 @@ class StructDecodersOutputGenerator(OutputGenerator):
                     body += '    wrapper->{paramname}.SetExternalMemory(value->{paramname}, {arraylen});\n'.format(paramname=paramname, arraylen=arraylen)
 
                 if isstruct:
-                    body += '    bytes_read += wrapper->{}.Decode<decode_struct>({});\n'.format(paramname, bufferargs)
+                    body += '    bytes_read += wrapper->{}.Decode({});\n'.format(paramname, bufferargs)
                 elif isstring:
                     body += '    bytes_read += wrapper->{}.Decode({});\n'.format(paramname, bufferargs)
                 else:

@@ -41,8 +41,8 @@ size_t VulkanDecoder::Decode_vkCreateInstance(const uint8_t* parameter_buffer, s
     PointerDecoder<VkInstance> pInstance;
     VkResult return_value;
 
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pInstance.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -62,7 +62,7 @@ size_t VulkanDecoder::Decode_vkDestroyInstance(const uint8_t* parameter_buffer, 
     StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -102,7 +102,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceFeatures(const uint8_t* paramete
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures> pFeatures;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pFeatures.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pFeatures.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -122,7 +122,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceFormatProperties(const uint8_t* 
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &format);
-    bytes_read += pFormatProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pFormatProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -151,7 +151,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceImageFormatProperties(const uint
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &tiling);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &usage);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &flags);
-    bytes_read += pImageFormatProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImageFormatProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -170,7 +170,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceProperties(const uint8_t* parame
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties> pProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -190,7 +190,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceQueueFamilyProperties(const uint
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += pQueueFamilyPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pQueueFamilyProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pQueueFamilyProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -208,7 +208,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceMemoryProperties(const uint8_t* 
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties> pMemoryProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pMemoryProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -229,8 +229,8 @@ size_t VulkanDecoder::Decode_vkCreateDevice(const uint8_t* parameter_buffer, siz
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pDevice.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -250,7 +250,7 @@ size_t VulkanDecoder::Decode_vkDestroyDevice(const uint8_t* parameter_buffer, si
     StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -294,7 +294,7 @@ size_t VulkanDecoder::Decode_vkQueueSubmit(const uint8_t* parameter_buffer, size
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queue);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &submitCount);
-    bytes_read += pSubmits.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSubmits.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &fence);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -353,8 +353,8 @@ size_t VulkanDecoder::Decode_vkAllocateMemory(const uint8_t* parameter_buffer, s
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pAllocateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pMemory.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -376,7 +376,7 @@ size_t VulkanDecoder::Decode_vkFreeMemory(const uint8_t* parameter_buffer, size_
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &memory);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -443,7 +443,7 @@ size_t VulkanDecoder::Decode_vkFlushMappedMemoryRanges(const uint8_t* parameter_
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &memoryRangeCount);
-    bytes_read += pMemoryRanges.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRanges.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -465,7 +465,7 @@ size_t VulkanDecoder::Decode_vkInvalidateMappedMemoryRanges(const uint8_t* param
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &memoryRangeCount);
-    bytes_read += pMemoryRanges.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRanges.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -554,7 +554,7 @@ size_t VulkanDecoder::Decode_vkGetBufferMemoryRequirements(const uint8_t* parame
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &buffer);
-    bytes_read += pMemoryRequirements.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -574,7 +574,7 @@ size_t VulkanDecoder::Decode_vkGetImageMemoryRequirements(const uint8_t* paramet
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &image);
-    bytes_read += pMemoryRequirements.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -596,7 +596,7 @@ size_t VulkanDecoder::Decode_vkGetImageSparseMemoryRequirements(const uint8_t* p
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &image);
     bytes_read += pSparseMemoryRequirementCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSparseMemoryRequirements.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSparseMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -626,7 +626,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSparseImageFormatProperties(cons
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &usage);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &tiling);
     bytes_read += pPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -648,7 +648,7 @@ size_t VulkanDecoder::Decode_vkQueueBindSparse(const uint8_t* parameter_buffer, 
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queue);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bindInfoCount);
-    bytes_read += pBindInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pBindInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &fence);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -671,8 +671,8 @@ size_t VulkanDecoder::Decode_vkCreateFence(const uint8_t* parameter_buffer, size
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pFence.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -694,7 +694,7 @@ size_t VulkanDecoder::Decode_vkDestroyFence(const uint8_t* parameter_buffer, siz
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &fence);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -783,8 +783,8 @@ size_t VulkanDecoder::Decode_vkCreateSemaphore(const uint8_t* parameter_buffer, 
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSemaphore.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -806,7 +806,7 @@ size_t VulkanDecoder::Decode_vkDestroySemaphore(const uint8_t* parameter_buffer,
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &semaphore);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -827,8 +827,8 @@ size_t VulkanDecoder::Decode_vkCreateEvent(const uint8_t* parameter_buffer, size
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pEvent.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -850,7 +850,7 @@ size_t VulkanDecoder::Decode_vkDestroyEvent(const uint8_t* parameter_buffer, siz
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &event);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -931,8 +931,8 @@ size_t VulkanDecoder::Decode_vkCreateQueryPool(const uint8_t* parameter_buffer, 
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pQueryPool.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -954,7 +954,7 @@ size_t VulkanDecoder::Decode_vkDestroyQueryPool(const uint8_t* parameter_buffer,
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queryPool);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1007,8 +1007,8 @@ size_t VulkanDecoder::Decode_vkCreateBuffer(const uint8_t* parameter_buffer, siz
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pBuffer.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1030,7 +1030,7 @@ size_t VulkanDecoder::Decode_vkDestroyBuffer(const uint8_t* parameter_buffer, si
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &buffer);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1051,8 +1051,8 @@ size_t VulkanDecoder::Decode_vkCreateBufferView(const uint8_t* parameter_buffer,
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pView.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1074,7 +1074,7 @@ size_t VulkanDecoder::Decode_vkDestroyBufferView(const uint8_t* parameter_buffer
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bufferView);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1095,8 +1095,8 @@ size_t VulkanDecoder::Decode_vkCreateImage(const uint8_t* parameter_buffer, size
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pImage.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1118,7 +1118,7 @@ size_t VulkanDecoder::Decode_vkDestroyImage(const uint8_t* parameter_buffer, siz
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &image);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1139,8 +1139,8 @@ size_t VulkanDecoder::Decode_vkGetImageSubresourceLayout(const uint8_t* paramete
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &image);
-    bytes_read += pSubresource.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pLayout.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSubresource.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pLayout.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1161,8 +1161,8 @@ size_t VulkanDecoder::Decode_vkCreateImageView(const uint8_t* parameter_buffer, 
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pView.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1184,7 +1184,7 @@ size_t VulkanDecoder::Decode_vkDestroyImageView(const uint8_t* parameter_buffer,
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageView);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1205,8 +1205,8 @@ size_t VulkanDecoder::Decode_vkCreateShaderModule(const uint8_t* parameter_buffe
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pShaderModule.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1228,7 +1228,7 @@ size_t VulkanDecoder::Decode_vkDestroyShaderModule(const uint8_t* parameter_buff
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &shaderModule);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1249,8 +1249,8 @@ size_t VulkanDecoder::Decode_vkCreatePipelineCache(const uint8_t* parameter_buff
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pPipelineCache.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1272,7 +1272,7 @@ size_t VulkanDecoder::Decode_vkDestroyPipelineCache(const uint8_t* parameter_buf
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipelineCache);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1345,8 +1345,8 @@ size_t VulkanDecoder::Decode_vkCreateGraphicsPipelines(const uint8_t* parameter_
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipelineCache);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &createInfoCount);
-    bytes_read += pCreateInfos.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pPipelines.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1373,8 +1373,8 @@ size_t VulkanDecoder::Decode_vkCreateComputePipelines(const uint8_t* parameter_b
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipelineCache);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &createInfoCount);
-    bytes_read += pCreateInfos.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pPipelines.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1396,7 +1396,7 @@ size_t VulkanDecoder::Decode_vkDestroyPipeline(const uint8_t* parameter_buffer, 
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipeline);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1417,8 +1417,8 @@ size_t VulkanDecoder::Decode_vkCreatePipelineLayout(const uint8_t* parameter_buf
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pPipelineLayout.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1440,7 +1440,7 @@ size_t VulkanDecoder::Decode_vkDestroyPipelineLayout(const uint8_t* parameter_bu
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipelineLayout);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1461,8 +1461,8 @@ size_t VulkanDecoder::Decode_vkCreateSampler(const uint8_t* parameter_buffer, si
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSampler.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1484,7 +1484,7 @@ size_t VulkanDecoder::Decode_vkDestroySampler(const uint8_t* parameter_buffer, s
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &sampler);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1505,8 +1505,8 @@ size_t VulkanDecoder::Decode_vkCreateDescriptorSetLayout(const uint8_t* paramete
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSetLayout.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1528,7 +1528,7 @@ size_t VulkanDecoder::Decode_vkDestroyDescriptorSetLayout(const uint8_t* paramet
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorSetLayout);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1549,8 +1549,8 @@ size_t VulkanDecoder::Decode_vkCreateDescriptorPool(const uint8_t* parameter_buf
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pDescriptorPool.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1572,7 +1572,7 @@ size_t VulkanDecoder::Decode_vkDestroyDescriptorPool(const uint8_t* parameter_bu
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorPool);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1614,7 +1614,7 @@ size_t VulkanDecoder::Decode_vkAllocateDescriptorSets(const uint8_t* parameter_b
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pAllocateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pDescriptorSets.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1662,9 +1662,9 @@ size_t VulkanDecoder::Decode_vkUpdateDescriptorSets(const uint8_t* parameter_buf
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorWriteCount);
-    bytes_read += pDescriptorWrites.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDescriptorWrites.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorCopyCount);
-    bytes_read += pDescriptorCopies.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDescriptorCopies.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1685,8 +1685,8 @@ size_t VulkanDecoder::Decode_vkCreateFramebuffer(const uint8_t* parameter_buffer
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pFramebuffer.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1708,7 +1708,7 @@ size_t VulkanDecoder::Decode_vkDestroyFramebuffer(const uint8_t* parameter_buffe
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &framebuffer);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1729,8 +1729,8 @@ size_t VulkanDecoder::Decode_vkCreateRenderPass(const uint8_t* parameter_buffer,
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pRenderPass.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1752,7 +1752,7 @@ size_t VulkanDecoder::Decode_vkDestroyRenderPass(const uint8_t* parameter_buffer
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &renderPass);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1772,7 +1772,7 @@ size_t VulkanDecoder::Decode_vkGetRenderAreaGranularity(const uint8_t* parameter
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &renderPass);
-    bytes_read += pGranularity.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pGranularity.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1793,8 +1793,8 @@ size_t VulkanDecoder::Decode_vkCreateCommandPool(const uint8_t* parameter_buffer
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pCommandPool.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1816,7 +1816,7 @@ size_t VulkanDecoder::Decode_vkDestroyCommandPool(const uint8_t* parameter_buffe
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandPool);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -1858,7 +1858,7 @@ size_t VulkanDecoder::Decode_vkAllocateCommandBuffers(const uint8_t* parameter_b
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pAllocateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pCommandBuffers.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1901,7 +1901,7 @@ size_t VulkanDecoder::Decode_vkBeginCommandBuffer(const uint8_t* parameter_buffe
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pBeginInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pBeginInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -1982,7 +1982,7 @@ size_t VulkanDecoder::Decode_vkCmdSetViewport(const uint8_t* parameter_buffer, s
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstViewport);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &viewportCount);
-    bytes_read += pViewports.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pViewports.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2004,7 +2004,7 @@ size_t VulkanDecoder::Decode_vkCmdSetScissor(const uint8_t* parameter_buffer, si
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstScissor);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &scissorCount);
-    bytes_read += pScissors.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pScissors.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2382,7 +2382,7 @@ size_t VulkanDecoder::Decode_vkCmdCopyBuffer(const uint8_t* parameter_buffer, si
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &srcBuffer);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &regionCount);
-    bytes_read += pRegions.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2410,7 +2410,7 @@ size_t VulkanDecoder::Decode_vkCmdCopyImage(const uint8_t* parameter_buffer, siz
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstImage);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstImageLayout);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &regionCount);
-    bytes_read += pRegions.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2439,7 +2439,7 @@ size_t VulkanDecoder::Decode_vkCmdBlitImage(const uint8_t* parameter_buffer, siz
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstImage);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstImageLayout);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &regionCount);
-    bytes_read += pRegions.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &filter);
 
     for (auto consumer : consumers_)
@@ -2466,7 +2466,7 @@ size_t VulkanDecoder::Decode_vkCmdCopyBufferToImage(const uint8_t* parameter_buf
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstImage);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstImageLayout);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &regionCount);
-    bytes_read += pRegions.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2492,7 +2492,7 @@ size_t VulkanDecoder::Decode_vkCmdCopyImageToBuffer(const uint8_t* parameter_buf
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &srcImageLayout);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &regionCount);
-    bytes_read += pRegions.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2564,9 +2564,9 @@ size_t VulkanDecoder::Decode_vkCmdClearColorImage(const uint8_t* parameter_buffe
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &image);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageLayout);
-    bytes_read += pColor.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pColor.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rangeCount);
-    bytes_read += pRanges.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRanges.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2590,9 +2590,9 @@ size_t VulkanDecoder::Decode_vkCmdClearDepthStencilImage(const uint8_t* paramete
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &image);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageLayout);
-    bytes_read += pDepthStencil.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDepthStencil.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rangeCount);
-    bytes_read += pRanges.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRanges.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2614,9 +2614,9 @@ size_t VulkanDecoder::Decode_vkCmdClearAttachments(const uint8_t* parameter_buff
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &attachmentCount);
-    bytes_read += pAttachments.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAttachments.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rectCount);
-    bytes_read += pRects.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRects.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2644,7 +2644,7 @@ size_t VulkanDecoder::Decode_vkCmdResolveImage(const uint8_t* parameter_buffer, 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstImage);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstImageLayout);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &regionCount);
-    bytes_read += pRegions.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRegions.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2716,11 +2716,11 @@ size_t VulkanDecoder::Decode_vkCmdWaitEvents(const uint8_t* parameter_buffer, si
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &srcStageMask);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstStageMask);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &memoryBarrierCount);
-    bytes_read += pMemoryBarriers.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryBarriers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bufferMemoryBarrierCount);
-    bytes_read += pBufferMemoryBarriers.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pBufferMemoryBarriers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageMemoryBarrierCount);
-    bytes_read += pImageMemoryBarriers.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImageMemoryBarriers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2750,11 +2750,11 @@ size_t VulkanDecoder::Decode_vkCmdPipelineBarrier(const uint8_t* parameter_buffe
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dstStageMask);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dependencyFlags);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &memoryBarrierCount);
-    bytes_read += pMemoryBarriers.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryBarriers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bufferMemoryBarrierCount);
-    bytes_read += pBufferMemoryBarriers.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pBufferMemoryBarriers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageMemoryBarrierCount);
-    bytes_read += pImageMemoryBarriers.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImageMemoryBarriers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -2915,7 +2915,7 @@ size_t VulkanDecoder::Decode_vkCmdBeginRenderPass(const uint8_t* parameter_buffe
     VkSubpassContents contents;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pRenderPassBegin.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRenderPassBegin.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &contents);
 
     for (auto consumer : consumers_)
@@ -2991,7 +2991,7 @@ size_t VulkanDecoder::Decode_vkBindBufferMemory2(const uint8_t* parameter_buffer
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bindInfoCount);
-    bytes_read += pBindInfos.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pBindInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3013,7 +3013,7 @@ size_t VulkanDecoder::Decode_vkBindImageMemory2(const uint8_t* parameter_buffer,
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bindInfoCount);
-    bytes_read += pBindInfos.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pBindInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3105,7 +3105,7 @@ size_t VulkanDecoder::Decode_vkEnumeratePhysicalDeviceGroups(const uint8_t* para
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += pPhysicalDeviceGroupCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pPhysicalDeviceGroupProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPhysicalDeviceGroupProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3125,8 +3125,8 @@ size_t VulkanDecoder::Decode_vkGetImageMemoryRequirements2(const uint8_t* parame
     StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pMemoryRequirements.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3145,8 +3145,8 @@ size_t VulkanDecoder::Decode_vkGetBufferMemoryRequirements2(const uint8_t* param
     StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pMemoryRequirements.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3166,9 +3166,9 @@ size_t VulkanDecoder::Decode_vkGetImageSparseMemoryRequirements2(const uint8_t* 
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2> pSparseMemoryRequirements;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSparseMemoryRequirementCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSparseMemoryRequirements.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSparseMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3186,7 +3186,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceFeatures2(const uint8_t* paramet
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2> pFeatures;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pFeatures.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pFeatures.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3204,7 +3204,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceProperties2(const uint8_t* param
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2> pProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3224,7 +3224,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceFormatProperties2(const uint8_t*
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &format);
-    bytes_read += pFormatProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pFormatProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3244,8 +3244,8 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceImageFormatProperties2(const uin
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pImageFormatInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pImageFormatProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImageFormatInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImageFormatProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3266,7 +3266,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceQueueFamilyProperties2(const uin
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += pQueueFamilyPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pQueueFamilyProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pQueueFamilyProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3284,7 +3284,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceMemoryProperties2(const uint8_t*
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2> pMemoryProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pMemoryProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3304,9 +3304,9 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSparseImageFormatProperties2(con
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties2> pProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pFormatInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pFormatInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3345,7 +3345,7 @@ size_t VulkanDecoder::Decode_vkGetDeviceQueue2(const uint8_t* parameter_buffer, 
     PointerDecoder<VkQueue> pQueue;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pQueueInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pQueueInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pQueue.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
@@ -3367,8 +3367,8 @@ size_t VulkanDecoder::Decode_vkCreateSamplerYcbcrConversion(const uint8_t* param
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pYcbcrConversion.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3390,7 +3390,7 @@ size_t VulkanDecoder::Decode_vkDestroySamplerYcbcrConversion(const uint8_t* para
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ycbcrConversion);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3411,8 +3411,8 @@ size_t VulkanDecoder::Decode_vkCreateDescriptorUpdateTemplate(const uint8_t* par
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pDescriptorUpdateTemplate.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3434,7 +3434,7 @@ size_t VulkanDecoder::Decode_vkDestroyDescriptorUpdateTemplate(const uint8_t* pa
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorUpdateTemplate);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3475,8 +3475,8 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalBufferProperties(const u
     StructPointerDecoder<Decoded_VkExternalBufferProperties> pExternalBufferProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pExternalBufferInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pExternalBufferProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalBufferProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3495,8 +3495,8 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalFenceProperties(const ui
     StructPointerDecoder<Decoded_VkExternalFenceProperties> pExternalFenceProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pExternalFenceInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pExternalFenceProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalFenceInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalFenceProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3515,8 +3515,8 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalSemaphoreProperties(cons
     StructPointerDecoder<Decoded_VkExternalSemaphoreProperties> pExternalSemaphoreProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pExternalSemaphoreInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pExternalSemaphoreProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalSemaphoreInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalSemaphoreProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3535,8 +3535,8 @@ size_t VulkanDecoder::Decode_vkGetDescriptorSetLayoutSupport(const uint8_t* para
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport> pSupport;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSupport.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSupport.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3556,7 +3556,7 @@ size_t VulkanDecoder::Decode_vkDestroySurfaceKHR(const uint8_t* parameter_buffer
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &surface);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3601,7 +3601,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(const uin
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &surface);
-    bytes_read += pSurfaceCapabilities.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSurfaceCapabilities.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3625,7 +3625,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSurfaceFormatsKHR(const uint8_t*
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &surface);
     bytes_read += pSurfaceFormatCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSurfaceFormats.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSurfaceFormats.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3671,8 +3671,8 @@ size_t VulkanDecoder::Decode_vkCreateSwapchainKHR(const uint8_t* parameter_buffe
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSwapchain.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3694,7 +3694,7 @@ size_t VulkanDecoder::Decode_vkDestroySwapchainKHR(const uint8_t* parameter_buff
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -3765,7 +3765,7 @@ size_t VulkanDecoder::Decode_vkQueuePresentKHR(const uint8_t* parameter_buffer, 
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queue);
-    bytes_read += pPresentInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPresentInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3785,7 +3785,7 @@ size_t VulkanDecoder::Decode_vkGetDeviceGroupPresentCapabilitiesKHR(const uint8_
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pDeviceGroupPresentCapabilities.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDeviceGroupPresentCapabilities.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3831,7 +3831,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDevicePresentRectanglesKHR(const uint8
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &surface);
     bytes_read += pRectCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pRects.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pRects.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3852,7 +3852,7 @@ size_t VulkanDecoder::Decode_vkAcquireNextImage2KHR(const uint8_t* parameter_buf
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pAcquireInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAcquireInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pImageIndex.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3875,7 +3875,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceDisplayPropertiesKHR(const uint8
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += pPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3897,7 +3897,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(const 
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += pPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3945,7 +3945,7 @@ size_t VulkanDecoder::Decode_vkGetDisplayModePropertiesKHR(const uint8_t* parame
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &display);
     bytes_read += pPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -3969,8 +3969,8 @@ size_t VulkanDecoder::Decode_vkCreateDisplayModeKHR(const uint8_t* parameter_buf
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &display);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pMode.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3995,7 +3995,7 @@ size_t VulkanDecoder::Decode_vkGetDisplayPlaneCapabilitiesKHR(const uint8_t* par
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &mode);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &planeIndex);
-    bytes_read += pCapabilities.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCapabilities.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -4017,8 +4017,8 @@ size_t VulkanDecoder::Decode_vkCreateDisplayPlaneSurfaceKHR(const uint8_t* param
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurface.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4043,8 +4043,8 @@ size_t VulkanDecoder::Decode_vkCreateSharedSwapchainsKHR(const uint8_t* paramete
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchainCount);
-    bytes_read += pCreateInfos.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSwapchains.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4068,8 +4068,8 @@ size_t VulkanDecoder::Decode_vkCreateXlibSurfaceKHR(const uint8_t* parameter_buf
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurface.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4118,8 +4118,8 @@ size_t VulkanDecoder::Decode_vkCreateXcbSurfaceKHR(const uint8_t* parameter_buff
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurface.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4168,8 +4168,8 @@ size_t VulkanDecoder::Decode_vkCreateWaylandSurfaceKHR(const uint8_t* parameter_
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurface.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4216,8 +4216,8 @@ size_t VulkanDecoder::Decode_vkCreateMirSurfaceKHR(const uint8_t* parameter_buff
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurface.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4264,8 +4264,8 @@ size_t VulkanDecoder::Decode_vkCreateAndroidSurfaceKHR(const uint8_t* parameter_
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurface.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4290,8 +4290,8 @@ size_t VulkanDecoder::Decode_vkCreateWin32SurfaceKHR(const uint8_t* parameter_bu
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurface.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4332,7 +4332,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceFeatures2KHR(const uint8_t* para
     StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2> pFeatures;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pFeatures.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pFeatures.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4350,7 +4350,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceProperties2KHR(const uint8_t* pa
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2> pProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4370,7 +4370,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceFormatProperties2KHR(const uint8
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &format);
-    bytes_read += pFormatProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pFormatProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4390,8 +4390,8 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceImageFormatProperties2KHR(const 
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pImageFormatInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pImageFormatProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImageFormatInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImageFormatProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -4412,7 +4412,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceQueueFamilyProperties2KHR(const 
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += pQueueFamilyPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pQueueFamilyProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pQueueFamilyProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4430,7 +4430,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceMemoryProperties2KHR(const uint8
     StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2> pMemoryProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pMemoryProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4450,9 +4450,9 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(
     StructPointerDecoder<Decoded_VkSparseImageFormatProperties2> pProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pFormatInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pFormatInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4563,7 +4563,7 @@ size_t VulkanDecoder::Decode_vkEnumeratePhysicalDeviceGroupsKHR(const uint8_t* p
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += pPhysicalDeviceGroupCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pPhysicalDeviceGroupProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPhysicalDeviceGroupProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -4583,8 +4583,8 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalBufferPropertiesKHR(cons
     StructPointerDecoder<Decoded_VkExternalBufferProperties> pExternalBufferProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pExternalBufferInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pExternalBufferProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalBufferProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4605,7 +4605,7 @@ size_t VulkanDecoder::Decode_vkGetMemoryWin32HandleKHR(const uint8_t* parameter_
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pGetWin32HandleInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pGetWin32HandleInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pHandle.DecodeHANDLE((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4630,7 +4630,7 @@ size_t VulkanDecoder::Decode_vkGetMemoryWin32HandlePropertiesKHR(const uint8_t* 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &handleType);
     bytes_read += ValueDecoder::DecodeHANDLEValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &handle);
-    bytes_read += pMemoryWin32HandleProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryWin32HandleProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -4652,7 +4652,7 @@ size_t VulkanDecoder::Decode_vkGetMemoryFdKHR(const uint8_t* parameter_buffer, s
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pGetFdInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pGetFdInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pFd.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4677,7 +4677,7 @@ size_t VulkanDecoder::Decode_vkGetMemoryFdPropertiesKHR(const uint8_t* parameter
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &handleType);
     bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &fd);
-    bytes_read += pMemoryFdProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryFdProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -4697,8 +4697,8 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(c
     StructPointerDecoder<Decoded_VkExternalSemaphoreProperties> pExternalSemaphoreProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pExternalSemaphoreInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pExternalSemaphoreProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalSemaphoreInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalSemaphoreProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4718,7 +4718,7 @@ size_t VulkanDecoder::Decode_vkImportSemaphoreWin32HandleKHR(const uint8_t* para
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pImportSemaphoreWin32HandleInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImportSemaphoreWin32HandleInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -4739,7 +4739,7 @@ size_t VulkanDecoder::Decode_vkGetSemaphoreWin32HandleKHR(const uint8_t* paramet
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pGetWin32HandleInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pGetWin32HandleInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pHandle.DecodeHANDLE((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4761,7 +4761,7 @@ size_t VulkanDecoder::Decode_vkImportSemaphoreFdKHR(const uint8_t* parameter_buf
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pImportSemaphoreFdInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImportSemaphoreFdInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -4782,7 +4782,7 @@ size_t VulkanDecoder::Decode_vkGetSemaphoreFdKHR(const uint8_t* parameter_buffer
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pGetFdInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pGetFdInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pFd.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4810,7 +4810,7 @@ size_t VulkanDecoder::Decode_vkCmdPushDescriptorSetKHR(const uint8_t* parameter_
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &layout);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &set);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorWriteCount);
-    bytes_read += pDescriptorWrites.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDescriptorWrites.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4855,8 +4855,8 @@ size_t VulkanDecoder::Decode_vkCreateDescriptorUpdateTemplateKHR(const uint8_t* 
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pDescriptorUpdateTemplate.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4878,7 +4878,7 @@ size_t VulkanDecoder::Decode_vkDestroyDescriptorUpdateTemplateKHR(const uint8_t*
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &descriptorUpdateTemplate);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4939,8 +4939,8 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalFencePropertiesKHR(const
     StructPointerDecoder<Decoded_VkExternalFenceProperties> pExternalFenceProperties;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pExternalFenceInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pExternalFenceProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalFenceInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalFenceProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -4960,7 +4960,7 @@ size_t VulkanDecoder::Decode_vkImportFenceWin32HandleKHR(const uint8_t* paramete
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pImportFenceWin32HandleInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImportFenceWin32HandleInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -4981,7 +4981,7 @@ size_t VulkanDecoder::Decode_vkGetFenceWin32HandleKHR(const uint8_t* parameter_b
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pGetWin32HandleInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pGetWin32HandleInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pHandle.DecodeHANDLE((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -5003,7 +5003,7 @@ size_t VulkanDecoder::Decode_vkImportFenceFdKHR(const uint8_t* parameter_buffer,
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pImportFenceFdInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pImportFenceFdInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5024,7 +5024,7 @@ size_t VulkanDecoder::Decode_vkGetFenceFdKHR(const uint8_t* parameter_buffer, si
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pGetFdInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pGetFdInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pFd.DecodeInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -5046,8 +5046,8 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSurfaceCapabilities2KHR(const ui
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pSurfaceInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSurfaceCapabilities.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSurfaceInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSurfaceCapabilities.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5069,9 +5069,9 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSurfaceFormats2KHR(const uint8_t
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pSurfaceInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSurfaceInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurfaceFormatCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSurfaceFormats.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSurfaceFormats.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5091,8 +5091,8 @@ size_t VulkanDecoder::Decode_vkGetImageMemoryRequirements2KHR(const uint8_t* par
     StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pMemoryRequirements.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5111,8 +5111,8 @@ size_t VulkanDecoder::Decode_vkGetBufferMemoryRequirements2KHR(const uint8_t* pa
     StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pMemoryRequirements.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5132,9 +5132,9 @@ size_t VulkanDecoder::Decode_vkGetImageSparseMemoryRequirements2KHR(const uint8_
     StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2> pSparseMemoryRequirements;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSparseMemoryRequirementCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSparseMemoryRequirements.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSparseMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5155,8 +5155,8 @@ size_t VulkanDecoder::Decode_vkCreateSamplerYcbcrConversionKHR(const uint8_t* pa
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pYcbcrConversion.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -5178,7 +5178,7 @@ size_t VulkanDecoder::Decode_vkDestroySamplerYcbcrConversionKHR(const uint8_t* p
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &ycbcrConversion);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5199,7 +5199,7 @@ size_t VulkanDecoder::Decode_vkBindBufferMemory2KHR(const uint8_t* parameter_buf
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bindInfoCount);
-    bytes_read += pBindInfos.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pBindInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5221,7 +5221,7 @@ size_t VulkanDecoder::Decode_vkBindImageMemory2KHR(const uint8_t* parameter_buff
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bindInfoCount);
-    bytes_read += pBindInfos.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pBindInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5241,8 +5241,8 @@ size_t VulkanDecoder::Decode_vkGetDescriptorSetLayoutSupportKHR(const uint8_t* p
     StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport> pSupport;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pSupport.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSupport.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5263,8 +5263,8 @@ size_t VulkanDecoder::Decode_vkCreateDebugReportCallbackEXT(const uint8_t* param
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pCallback.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -5286,7 +5286,7 @@ size_t VulkanDecoder::Decode_vkDestroyDebugReportCallbackEXT(const uint8_t* para
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &callback);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5335,7 +5335,7 @@ size_t VulkanDecoder::Decode_vkDebugMarkerSetObjectTagEXT(const uint8_t* paramet
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pTagInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pTagInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5355,7 +5355,7 @@ size_t VulkanDecoder::Decode_vkDebugMarkerSetObjectNameEXT(const uint8_t* parame
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pNameInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pNameInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5374,7 +5374,7 @@ size_t VulkanDecoder::Decode_vkCmdDebugMarkerBeginEXT(const uint8_t* parameter_b
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT> pMarkerInfo;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pMarkerInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMarkerInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5408,7 +5408,7 @@ size_t VulkanDecoder::Decode_vkCmdDebugMarkerInsertEXT(const uint8_t* parameter_
     StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT> pMarkerInfo;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pMarkerInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMarkerInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5523,7 +5523,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &usage);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &flags);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &externalHandleType);
-    bytes_read += pExternalImageFormatProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pExternalImageFormatProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5572,8 +5572,8 @@ size_t VulkanDecoder::Decode_vkCreateViSurfaceNN(const uint8_t* parameter_buffer
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurface.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -5594,7 +5594,7 @@ size_t VulkanDecoder::Decode_vkCmdProcessCommandsNVX(const uint8_t* parameter_bu
     StructPointerDecoder<Decoded_VkCmdProcessCommandsInfoNVX> pProcessCommandsInfo;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pProcessCommandsInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProcessCommandsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5612,7 +5612,7 @@ size_t VulkanDecoder::Decode_vkCmdReserveSpaceForCommandsNVX(const uint8_t* para
     StructPointerDecoder<Decoded_VkCmdReserveSpaceForCommandsInfoNVX> pReserveSpaceInfo;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pReserveSpaceInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pReserveSpaceInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5633,8 +5633,8 @@ size_t VulkanDecoder::Decode_vkCreateIndirectCommandsLayoutNVX(const uint8_t* pa
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pIndirectCommandsLayout.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -5656,7 +5656,7 @@ size_t VulkanDecoder::Decode_vkDestroyIndirectCommandsLayoutNVX(const uint8_t* p
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &indirectCommandsLayout);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5677,8 +5677,8 @@ size_t VulkanDecoder::Decode_vkCreateObjectTableNVX(const uint8_t* parameter_buf
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pObjectTable.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -5700,7 +5700,7 @@ size_t VulkanDecoder::Decode_vkDestroyObjectTableNVX(const uint8_t* parameter_bu
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectTable);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5724,7 +5724,7 @@ size_t VulkanDecoder::Decode_vkRegisterObjectsNVX(const uint8_t* parameter_buffe
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectTable);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectCount);
-    bytes_read += ppObjectTableEntries.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppObjectTableEntries.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pObjectIndices.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -5771,8 +5771,8 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX(c
     StructPointerDecoder<Decoded_VkDeviceGeneratedCommandsLimitsNVX> pLimits;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pFeatures.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pLimits.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pFeatures.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pLimits.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5794,7 +5794,7 @@ size_t VulkanDecoder::Decode_vkCmdSetViewportWScalingNV(const uint8_t* parameter
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstViewport);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &viewportCount);
-    bytes_read += pViewportWScalings.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pViewportWScalings.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -5883,7 +5883,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSurfaceCapabilities2EXT(const ui
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &surface);
-    bytes_read += pSurfaceCapabilities.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSurfaceCapabilities.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5905,7 +5905,7 @@ size_t VulkanDecoder::Decode_vkDisplayPowerControlEXT(const uint8_t* parameter_b
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &display);
-    bytes_read += pDisplayPowerInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDisplayPowerInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5927,8 +5927,8 @@ size_t VulkanDecoder::Decode_vkRegisterDeviceEventEXT(const uint8_t* parameter_b
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pDeviceEventInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDeviceEventInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pFence.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -5953,8 +5953,8 @@ size_t VulkanDecoder::Decode_vkRegisterDisplayEventEXT(const uint8_t* parameter_
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &display);
-    bytes_read += pDisplayEventInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDisplayEventInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pFence.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -6001,7 +6001,7 @@ size_t VulkanDecoder::Decode_vkGetRefreshCycleDurationGOOGLE(const uint8_t* para
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
-    bytes_read += pDisplayTimingProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDisplayTimingProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -6025,7 +6025,7 @@ size_t VulkanDecoder::Decode_vkGetPastPresentationTimingGOOGLE(const uint8_t* pa
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
     bytes_read += pPresentationTimingCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pPresentationTimings.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPresentationTimings.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -6048,7 +6048,7 @@ size_t VulkanDecoder::Decode_vkCmdSetDiscardRectangleEXT(const uint8_t* paramete
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstDiscardRectangle);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &discardRectangleCount);
-    bytes_read += pDiscardRectangles.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDiscardRectangles.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6070,7 +6070,7 @@ size_t VulkanDecoder::Decode_vkSetHdrMetadataEXT(const uint8_t* parameter_buffer
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchainCount);
     bytes_read += pSwapchains.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pMetadata.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMetadata.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6092,8 +6092,8 @@ size_t VulkanDecoder::Decode_vkCreateIOSSurfaceMVK(const uint8_t* parameter_buff
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurface.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -6118,8 +6118,8 @@ size_t VulkanDecoder::Decode_vkCreateMacOSSurfaceMVK(const uint8_t* parameter_bu
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pSurface.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -6141,7 +6141,7 @@ size_t VulkanDecoder::Decode_vkSetDebugUtilsObjectNameEXT(const uint8_t* paramet
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pNameInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pNameInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -6161,7 +6161,7 @@ size_t VulkanDecoder::Decode_vkSetDebugUtilsObjectTagEXT(const uint8_t* paramete
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pTagInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pTagInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -6180,7 +6180,7 @@ size_t VulkanDecoder::Decode_vkQueueBeginDebugUtilsLabelEXT(const uint8_t* param
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT> pLabelInfo;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queue);
-    bytes_read += pLabelInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pLabelInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6214,7 +6214,7 @@ size_t VulkanDecoder::Decode_vkQueueInsertDebugUtilsLabelEXT(const uint8_t* para
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT> pLabelInfo;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queue);
-    bytes_read += pLabelInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pLabelInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6232,7 +6232,7 @@ size_t VulkanDecoder::Decode_vkCmdBeginDebugUtilsLabelEXT(const uint8_t* paramet
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT> pLabelInfo;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pLabelInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pLabelInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6266,7 +6266,7 @@ size_t VulkanDecoder::Decode_vkCmdInsertDebugUtilsLabelEXT(const uint8_t* parame
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT> pLabelInfo;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pLabelInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pLabelInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6287,8 +6287,8 @@ size_t VulkanDecoder::Decode_vkCreateDebugUtilsMessengerEXT(const uint8_t* param
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pMessenger.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -6310,7 +6310,7 @@ size_t VulkanDecoder::Decode_vkDestroyDebugUtilsMessengerEXT(const uint8_t* para
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &messenger);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6332,7 +6332,7 @@ size_t VulkanDecoder::Decode_vkSubmitDebugUtilsMessageEXT(const uint8_t* paramet
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &messageSeverity);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &messageTypes);
-    bytes_read += pCallbackData.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCallbackData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6354,7 +6354,7 @@ size_t VulkanDecoder::Decode_vkGetAndroidHardwareBufferPropertiesANDROID(const u
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &buffer);
-    bytes_read += pProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -6375,7 +6375,7 @@ size_t VulkanDecoder::Decode_vkGetMemoryAndroidHardwareBufferANDROID(const uint8
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pBuffer.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -6396,7 +6396,7 @@ size_t VulkanDecoder::Decode_vkCmdSetSampleLocationsEXT(const uint8_t* parameter
     StructPointerDecoder<Decoded_VkSampleLocationsInfoEXT> pSampleLocationsInfo;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pSampleLocationsInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSampleLocationsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6416,7 +6416,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceMultisamplePropertiesEXT(const u
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &samples);
-    bytes_read += pMultisampleProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMultisampleProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6437,8 +6437,8 @@ size_t VulkanDecoder::Decode_vkCreateValidationCacheEXT(const uint8_t* parameter
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += pValidationCache.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -6460,7 +6460,7 @@ size_t VulkanDecoder::Decode_vkDestroyValidationCacheEXT(const uint8_t* paramete
 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &validationCache);
-    bytes_read += pAllocator.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : consumers_)
     {
@@ -6531,7 +6531,7 @@ size_t VulkanDecoder::Decode_vkGetMemoryHostPointerPropertiesEXT(const uint8_t* 
     bytes_read += ValueDecoder::DecodeHandleValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &handleType);
     bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pHostPointer);
-    bytes_read += pMemoryHostPointerProperties.Decode<decode_struct>((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryHostPointerProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)

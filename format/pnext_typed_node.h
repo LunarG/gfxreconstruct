@@ -24,8 +24,6 @@
 #include "format/format.h"
 #include "format/struct_pointer_decoder.h"
 
-// TODO: Need to generate a header with the 'decode_struct' function declarations to include here.
-
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
@@ -43,7 +41,7 @@ public:
 
     virtual void* GetPointer() const override { return struct_pointer_.GetPointer(); }
 
-    virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) override { return struct_pointer_.Decode<decode_struct>(buffer, buffer_size); }
+    virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) override { return struct_pointer_.Decode(buffer, buffer_size); }
 
 private:
     StructPointerDecoder<T> struct_pointer_;
