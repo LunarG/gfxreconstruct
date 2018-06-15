@@ -14,45 +14,46 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_WINDOW_H
-#define BRIMSTONE_UTIL_WINDOW_H
+#ifndef BRIMSTONE_UTIL_APPLICATION_H
+#define BRIMSTONE_UTIL_APPLICATION_H
 
-#include "util/application.h"
+#include <vector>
+#include <algorithm>
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
-class Window
+class Application
 {
 public:
-    Window(Application* application) {};
+    bool RegisterWindow(class Window* window)
+    {
+        if (std::find(windows_.begin(), windows_.end(), window) != windows_.end()) {
+            return false;
+        }
+        windows_.push_back(window);
+        return true;
+    }
 
-    virtual bool Create(const uint32_t width, const uint32_t height) = 0;
+    bool UnregisterWindow(class Window* window)
+    {
+        auto pos = std::find(windows_.begin(), windows_.end(), window);
+        if (pos == windows_.end()) {
+            return false;
+        }
+        windows_.erase(pos);
+        return true;
+    }
 
-    virtual bool Destroy() = 0;
+    virtual void ProcessEvents() = 0;
 
-    virtual void SetPosition(const uint32_t x, const uint32_t y) = 0;
-
-    virtual void SetSize(const uint32_t width, const uint32_t height) = 0;
-
-    virtual void SetVisibility(bool show) = 0;
-
-    virtual void SetFocus() = 0;
-
-    virtual bool GetNativeHandle(uint32_t id, void ** handle) = 0;
-};
-
-class WindowFactory
-{
-public:
-    WindowFactory(Application* application) {};
-
-    virtual Window* Create(const uint32_t width, const uint32_t height) = 0;
+protected:
+    std::vector<class Window*> windows_;
 };
 
 BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_UTIL_WINDOW_H
+#endif // BRIMSTONE_UTIL_APPLICATION_H
