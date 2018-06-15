@@ -57,8 +57,9 @@ public:
     xcb_intern_atom_reply_t*    atom_wm_delete_window;
 
 private:
-    XcbApplication*            application_;
-    uint32_t                    width_, height_;
+    XcbApplication*             xcb_application_;
+    uint32_t                    width_;
+    uint32_t                    height_;
     xcb_window_t                window_;
 };
 
@@ -70,7 +71,7 @@ public:
     Window* Create(const uint32_t width, const uint32_t height) override;
 
 private:
-    XcbApplication*            application_;
+    XcbApplication*            xcb_application_;
 };
 
 BRIMSTONE_END_NAMESPACE(util)

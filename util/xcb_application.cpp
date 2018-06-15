@@ -26,7 +26,7 @@ XcbApplication::XcbApplication()
 {
     const xcb_setup_t *setup;    
     int scr;
-    connection = xcb_connect(NULL, &scr);   
+    connection = xcb_connect(NULL, &scr);
     xcb_screen_iterator_t iter;
     setup = xcb_get_setup(connection);
     iter = xcb_setup_roots_iterator(setup);
@@ -34,45 +34,56 @@ XcbApplication::XcbApplication()
     screen = iter.data;
 }
 
-void XcbApplication::ProcessEvents()
+void XcbApplication::ProcessEvents(bool wait_for_input)
 {
     xcb_generic_event_t *event = xcb_poll_for_event(connection);
     xcb_flush(connection);
     uint8_t event_code = 0;
 
-    while (event) {
+    while (event)
+    {
         event_code = event->response_type & 0x7f;
-        switch (event_code) {
+        switch (event_code)
+        {
             case XCB_EXPOSE:
                 // TODO: Resize window
                 break;
             case XCB_CLIENT_MESSAGE:
-                for (auto window : windows_) {
+                for (auto window : windows)
+                {
                     auto xcb_window = dynamic_cast<XcbWindow*>(window);
-                    if (xcb_window && 
-                        (*(xcb_client_message_event_t *)event).data.data32[0] == (*xcb_window->atom_wm_delete_window).atom) {
-                        // TODO Close window
+                    if (xcb_window && (*(xcb_client_message_event_t *)event).data.data32[0] == (*xcb_window->atom_wm_delete_window).atom)
+                    {
+                        window->Destroy();
                     }
                 }
                 break;
-            case XCB_KEY_RELEASE: {
+            case XCB_KEY_RELEASE:
+            {
                 const xcb_key_release_event_t *key = (const xcb_key_release_event_t *)event;
 
-                switch (key->detail) {
+                switch (key->detail)
+                {
                     case 0x9:  // Escape
-                        // TODO close
+                        // Close all windows for now
+                        for (auto window : windows)
+                        {
+                            window->Destroy();
+                        }
                         break;
                     case 0x41:  // Space
-                        // TODO pause
+                        SetPaused(!GetPaused());
                         break;
                 }
             } break;
-            case XCB_CONFIGURE_NOTIFY: {
+            case XCB_CONFIGURE_NOTIFY:
+            {
                 xcb_configure_notify_event_t *cne = (xcb_configure_notify_event_t *)event;
                 // Our window has been resized, probably by the window manager.
                 // TODO
             } break;
-            case XCB_MAP_NOTIFY: {
+            case XCB_MAP_NOTIFY:
+            {
                 // If we were waiting for a MapWindow request to be processed,
                 // we can now continue
                 // TODO

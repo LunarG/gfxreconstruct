@@ -27,7 +27,8 @@ BRIMSTONE_BEGIN_NAMESPACE(util)
 class Window
 {
 public:
-    Window(Application* application) {};
+    Window(Application* application);
+    virtual ~Window();
 
     virtual bool Create(const uint32_t width, const uint32_t height) = 0;
 
@@ -42,12 +43,16 @@ public:
     virtual void SetFocus() = 0;
 
     virtual bool GetNativeHandle(uint32_t id, void ** handle) = 0;
+
+protected:
+    Application* application_;
 };
 
 class WindowFactory
 {
 public:
     WindowFactory(Application* application) {};
+    virtual ~WindowFactory() {};
 
     virtual Window* Create(const uint32_t width, const uint32_t height) = 0;
 };

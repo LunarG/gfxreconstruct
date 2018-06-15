@@ -20,37 +20,43 @@
 #include <vector>
 #include <algorithm>
 
+#include "format/file_processor.h"
+
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
+
 class Application
 {
 public:
-    bool RegisterWindow(class Window* window)
-    {
-        if (std::find(windows_.begin(), windows_.end(), window) != windows_.end()) {
-            return false;
-        }
-        windows_.push_back(window);
-        return true;
-    }
+    Application();
+    virtual ~Application() {};
 
-    bool UnregisterWindow(class Window* window)
-    {
-        auto pos = std::find(windows_.begin(), windows_.end(), window);
-        if (pos == windows_.end()) {
-            return false;
-        }
-        windows_.erase(pos);
-        return true;
-    }
+    void SetFileProcessor(format::FileProcessor* file_processor);
 
-    virtual void ProcessEvents() = 0;
+    void Run();
+
+    bool GetPaused();
+
+    void SetPaused(bool paused);
+
+    void PlaySingleFrame();
+
+    bool RegisterWindow(class Window* window);
+
+    bool UnregisterWindow(class Window* window);
+
+public:
+    std::vector<class Window*> windows;
 
 protected:
-    std::vector<class Window*> windows_;
+    virtual void ProcessEvents(bool wait_for_input) = 0;
+
+private:
+    format::FileProcessor* file_processor_;
+    bool paused_;
 };
 
 BRIMSTONE_END_NAMESPACE(util)
