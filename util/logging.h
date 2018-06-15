@@ -28,14 +28,14 @@ BRIMSTONE_BEGIN_NAMESPACE(util)
 BRIMSTONE_BEGIN_NAMESPACE(logging)
 
 // Logging types
-enum Severity
+enum Severity : uint32_t
 {
-   SEVERITY_COMMANDS = 0,
-   SEVERITY_DEBUG,
-   SEVERITY_INFO,
-   SEVERITY_WARNING,
-   SEVERITY_ERROR,
-   SEVERITY_FATAL,
+    kCommandsSeverity = 0,
+    kDebugSeverity,
+    kInfoSeverity,
+    kWarningSeverity,
+    kErrorSeverity,
+    kFatalSeverity
 };
 
 struct Settings
@@ -60,7 +60,7 @@ struct Settings
     bool output_errors_to_stderr;   // Output errors to stderr versus stdout
 
     // Constructor used for default initialization
-    Settings() : min_severity(SEVERITY_ERROR), output_detailed_log_info(false),
+    Settings() : min_severity(kErrorSeverity), output_detailed_log_info(false),
                  flush_after_write(false), use_indent(false), indent(0),
                  indent_spaces(std::string("   ")), break_on_error(false), write_to_file(false),
                  leave_file_open(true), file_name(std::string("")), file_pointer(nullptr),
@@ -72,30 +72,30 @@ struct Settings
 static Settings g_settings;
 
 // General Logging functions
-std::string SeverityToString(Severity severity)
+inline std::string SeverityToString(Severity severity)
 {
     switch (severity) {
-        case SEVERITY_COMMANDS:
+        case kCommandSeverity:
             return "COMMAND";
-        case SEVERITY_DEBUG:
+        case kDebugSeverity:
             return "DEBUG";
-        case SEVERITY_INFO:
+        case kInfoSeverity:
             return "INFO";
-        case SEVERITY_WARNING:
+        case kWarningSeverity:
             return "WARNING";
-        case SEVERITY_ERROR:
+        case kErrorSeverity:
             return "ERROR";
-        case SEVERITY_FATAL:
+        case kFatalSeverity:
             return "FATAL";
         default:
             return "UNKNOWN";
     }
 }
 
-void Init(Severity min_severity = SEVERITY_ERROR, const char* log_file_name = NULL, bool leave_file_open = true,
-          bool create_new_file_on_open = true, bool flush_after_write = false, bool break_on_error = false,
-          bool output_detailed_log_info = false, bool write_to_console = true, bool errors_to_stderr = true,
-          bool use_indent = false)
+inline void Init(Severity min_severity = SEVERITY_ERROR, const char* log_file_name = NULL, bool leave_file_open = true,
+                 bool create_new_file_on_open = true, bool flush_after_write = false, bool break_on_error = false,
+                 bool output_detailed_log_info = false, bool write_to_console = true, bool errors_to_stderr = true,
+                 bool use_indent = false)
 {
     g_settings.min_severity = min_severity;
     if (NULL != log_file_name && strlen(log_file_name) > 0)
@@ -125,7 +125,7 @@ void Init(Severity min_severity = SEVERITY_ERROR, const char* log_file_name = NU
     g_settings.use_indent = use_indent;
 }
 
-void Release()
+inline void Release()
 {
     if (g_settings.write_to_file && g_settings.leave_file_open)
     {
@@ -133,8 +133,8 @@ void Release()
     }
 }
 
-void LogMessage(Severity severity, const char* file, const char* function, const char* line,
-                const char* message, ...)
+inline void LogMessage(Severity severity, const char* file, const char* function, const char* line,
+                       const char* message, ...)
 {
     bool opened_file = false;
     bool write_indent = g_settings.use_indent && g_settings.indent > 0;
@@ -166,7 +166,7 @@ void LogMessage(Severity severity, const char* file, const char* function, const
                     continue;
                 }
 
-                if (SEVERITY_ERROR <= severity && g_settings.output_errors_to_stderr)
+                if (kErrorSeverity <= severity && g_settings.output_errors_to_stderr)
                 {
                     log_file_ptr = stderr;
                 }
@@ -198,7 +198,7 @@ void LogMessage(Severity severity, const char* file, const char* function, const
         // Only write out messages the user is interested in or errors if we're
         // re-directing errors to stderr
         if (severity < g_settings.min_severity &&
-            !(output_target == 0 && severity >= SEVERITY_ERROR && g_settings.output_errors_to_stderr))
+            !(output_target == 0 && severity >= kErrorSeverity && g_settings.output_errors_to_stderr))
         {
             continue;
         }
@@ -230,7 +230,7 @@ void LogMessage(Severity severity, const char* file, const char* function, const
 
     // Break on error if necessary, failing message should be this one
     // (also the last one written).
-    if (SEVERITY_ERROR <= severity && g_settings.break_on_error)
+    if (kErrorSeverity <= severity && g_settings.break_on_error)
     {
         platform::TriggerDebugBreak();
     }
@@ -245,7 +245,7 @@ class CommandTrace
     {
         _file = file;
         _function = function;
-        LogMessage(SEVERITY_COMMANDS, _file.c_str(), _function.c_str(), "", "Entering %s", _function.c_str());
+        LogMessage(kCommandSeverity, _file.c_str(), _function.c_str(), "", "Entering %s", _function.c_str());
         if (g_settings.use_indent)
         {
             g_settings.indent++;
@@ -258,7 +258,7 @@ class CommandTrace
         {
             g_settings.indent--;
         }
-        LogMessage(SEVERITY_COMMANDS, _file.c_str(), _function.c_str(), "", "Exiting %s", _function.c_str());
+        LogMessage(kCommandSeverity, _file.c_str(), _function.c_str(), "", "Exiting %s", _function.c_str());
     }
 
   private:
@@ -274,23 +274,23 @@ BRIMSTONE_END_NAMESPACE(brimstone)
 
 // Functions defined outside of the namespace for easier use
 #define BRIMSTONE_LOG_FATAL(message, ...) do { \
-        brimstone::utils::logging::LogMessage(brimstone::utils::logging::SEVERITY_FATAL, \
+        brimstone::utils::logging::LogMessage(brimstone::utils::logging::kFatalSeverity, \
                                               __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__); \
     } while (0)
 #define BRIMSTONE_LOG_ERROR(message, ...) do { \
-        brimstone::utils::logging::LogMessage(brimstone::utils::logging::SEVERITY_ERROR, \
+        brimstone::utils::logging::LogMessage(brimstone::utils::logging::kErrorSeverity, \
                                               __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__); \
     } while (0)
 #define BRIMSTONE_LOG_WARNING(message, ...) do { \
-        brimstone::utils::logging::LogMessage(brimstone::utils::logging::SEVERITY_WARNING, \
+        brimstone::utils::logging::LogMessage(brimstone::utils::logging::kWarningSeverity, \
                                               __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__); \
     } while (0)
 #define BRIMSTONE_LOG_INFO(message, ...) do { \
-        brimstone::utils::logging::LogMessage(brimstone::utils::logging::SEVERITY_INFO, \
+        brimstone::utils::logging::LogMessage(brimstone::utils::logging::kInfoSeverity, \
                                               __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__); \
     } while (0)
 #define BRIMSTONE_LOG_DEBUG(message, ...) do { \
-        brimstone::utils::logging::LogMessage(brimstone::utils::logging::SEVERITY_DEBUG, \
+        brimstone::utils::logging::LogMessage(brimstone::utils::logging::kDebugSeverity, \
                                               __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__); \
     } while (0)
 
