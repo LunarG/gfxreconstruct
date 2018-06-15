@@ -31,7 +31,7 @@ class XcbApplication : public Application
 public:
     XcbApplication();
 
-    void ProcessEvents() override;
+    void ProcessEvents(bool wait_for_input) override;
 
 public:
     xcb_connection_t*           connection;

@@ -14,26 +14,21 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_SURFACE_FACTORY_H
-#define BRIMSTONE_UTIL_SURFACE_FACTORY_H
-
-#include "vulkan/vulkan.h"
 #include "util/window.h"
-
-#include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
-class SurfaceFactory
+Window::Window(Application* application)
 {
-public:
-    virtual ~SurfaceFactory();
+    application_ = application;
+    application_->RegisterWindow(this);
+}
 
-    virtual VkSurfaceKHR Create(Window* window, VkFlags flags, void ** pHandles) = 0;
-};
+Window::~Window()
+{
+    application_->UnregisterWindow(this);
+}
 
 BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)
-
-#endif // BRIMSTONE_UTIL_SURFACE_FACTORY_H

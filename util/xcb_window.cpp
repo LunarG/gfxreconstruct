@@ -23,7 +23,7 @@ BRIMSTONE_BEGIN_NAMESPACE(util)
 
 XcbWindow::XcbWindow(XcbApplication* application) : Window(application)
 {
-    application_ = application;
+    xcb_application_ = application;
 }
 
 bool XcbWindow::Create(const uint32_t width, const uint32_t height)
@@ -32,29 +32,29 @@ bool XcbWindow::Create(const uint32_t width, const uint32_t height)
     height_ = height;
 
     uint32_t value_mask, value_list[32];
-    window_ = xcb_generate_id(application_->connection);
+    window_ = xcb_generate_id(xcb_application_->connection);
 
     value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-    value_list[0] = application_->screen->black_pixel;
+    value_list[0] = xcb_application_->screen->black_pixel;
     value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
-    xcb_create_window(application_->connection, XCB_COPY_FROM_PARENT, window_, application_->screen->root, 0, 0, width, height, 0,
-                      XCB_WINDOW_CLASS_INPUT_OUTPUT, application_->screen->root_visual, value_mask, value_list);
+    xcb_create_window(xcb_application_->connection, XCB_COPY_FROM_PARENT, window_, xcb_application_->screen->root, 0, 0, width, height, 0,
+                      XCB_WINDOW_CLASS_INPUT_OUTPUT, xcb_application_->screen->root_visual, value_mask, value_list);
 
     // Magic code that will send notification when window is destroyed
-    xcb_intern_atom_cookie_t cookie = xcb_intern_atom(application_->connection, 1, 12, "WM_PROTOCOLS");
-    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(application_->connection, cookie, 0);
+    xcb_intern_atom_cookie_t cookie = xcb_intern_atom(xcb_application_->connection, 1, 12, "WM_PROTOCOLS");
+    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(xcb_application_->connection, cookie, 0);
 
-    xcb_intern_atom_cookie_t cookie2 = xcb_intern_atom(application_->connection, 0, 16, "WM_DELETE_WINDOW");
-    atom_wm_delete_window = xcb_intern_atom_reply(application_->connection, cookie2, 0);
+    xcb_intern_atom_cookie_t cookie2 = xcb_intern_atom(xcb_application_->connection, 0, 16, "WM_DELETE_WINDOW");
+    atom_wm_delete_window = xcb_intern_atom_reply(xcb_application_->connection, cookie2, 0);
 
-    xcb_change_property(application_->connection, XCB_PROP_MODE_REPLACE, window_, (*reply).atom, 4, 32, 1,
+    xcb_change_property(xcb_application_->connection, XCB_PROP_MODE_REPLACE, window_, (*reply).atom, 4, 32, 1,
                         &(*atom_wm_delete_window).atom);
     free(reply);
 
     // Make sure window is visible.
-    xcb_map_window(application_->connection, window_);
-    xcb_flush(application_->connection);
+    xcb_map_window(xcb_application_->connection, window_);
+    xcb_flush(xcb_application_->connection);
 
     return true;
 }
@@ -62,7 +62,7 @@ bool XcbWindow::Create(const uint32_t width, const uint32_t height)
 bool XcbWindow::Destroy()
 {
     if (window_ != 0) {
-        xcb_destroy_window(application_->connection, window_);
+        xcb_destroy_window(xcb_application_->connection, window_);
     }
     return true;
 }
@@ -79,12 +79,12 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
         uint32_t values[2];
         values[0] = width;
         values[1] = height;
-        xcb_configure_window(application_->connection, window_, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-        xcb_flush(application_->connection);
+        xcb_configure_window(xcb_application_->connection, window_, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+        xcb_flush(xcb_application_->connection);
 
         // Make sure window is visible.
-        xcb_map_window(application_->connection, window_);
-        xcb_flush(application_->connection);
+        xcb_map_window(xcb_application_->connection, window_);
+        xcb_flush(xcb_application_->connection);
     }
 }
 
@@ -102,7 +102,7 @@ bool XcbWindow::GetNativeHandle(uint32_t id, void ** handle)
 {
     switch (id) {
         case XcbWindow::kConnection:
-            *handle = reinterpret_cast<void*>(application_->connection);
+            *handle = reinterpret_cast<void*>(xcb_application_->connection);
             return true;
         case XcbWindow::kWindow:
             *handle = reinterpret_cast<void*>(window_);
@@ -114,12 +114,12 @@ bool XcbWindow::GetNativeHandle(uint32_t id, void ** handle)
 
 XcbWindowFactory::XcbWindowFactory(XcbApplication* application) : WindowFactory(application)
 {
-    application_ = application;
+    xcb_application_ = application;
 }
 
 Window* XcbWindowFactory::Create(const uint32_t width, const uint32_t height)
 {
-    auto window = new XcbWindow(application_);
+    auto window = new XcbWindow(xcb_application_);
     window->Create(width, height);
     return window;
 }
