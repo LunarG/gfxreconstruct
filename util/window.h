@@ -44,6 +44,9 @@ public:
 
     virtual bool GetNativeHandle(uint32_t id, void ** handle) = 0;
 
+public:
+    std::string name = "Brimstone";
+
 protected:
     Application* application_;
 };
