@@ -26,7 +26,7 @@ XcbApplication::XcbApplication()
 {
     const xcb_setup_t *setup;    
     int scr;
-    connection = xcb_connect(NULL, &scr);
+    connection = xcb_connect(nullptr, &scr);
     xcb_screen_iterator_t iter;
     setup = xcb_get_setup(connection);
     iter = xcb_setup_roots_iterator(setup);
