@@ -74,11 +74,11 @@ void Win32Application::ProcessEvents(bool wait_for_input)
         bool found_message;
         if (wait_for_input)
         {
-            found_message = (GetMessage(&msg, NULL, 0, 0) > 0);
+            found_message = (GetMessage(&msg, nullptr, 0, 0) > 0);
         }
         else
         {
-            found_message = PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
+            found_message = PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
         }
 
         if (found_message)
