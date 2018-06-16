@@ -14,52 +14,23 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_APPLICATION_H
-#define BRIMSTONE_UTIL_APPLICATION_H
+#ifndef BRIMSTONE_UTIL_WIN32_SURFACE_FACTORY_H
+#define BRIMSTONE_UTIL_WIN32_SURFACE_FACTORY_H
 
-#include <vector>
-#include <algorithm>
-
-#include "format/file_processor.h"
+#include "util/surface_factory.h"
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
-
-class Application
+class XcbSurfaceFactory : public SurfaceFactory
 {
 public:
-    Application();
-    virtual ~Application() {};
-
-    void SetFileProcessor(format::FileProcessor* file_processor);
-
-    void Run();
-
-    bool GetPaused();
-
-    void SetPaused(bool paused);
-
-    void PlaySingleFrame();
-
-    bool RegisterWindow(class Window* window);
-
-    bool UnregisterWindow(class Window* window);
-
-public:
-    std::vector<class Window*> windows;
-
-protected:
-    virtual void ProcessEvents(bool wait_for_input) = 0;
-
-private:
-    format::FileProcessor* file_processor_ = nullptr;
-    bool paused_;
+    VkSurfaceKHR Create(Window* window, VkFlags flags, void ** pHandles) override;
 };
 
 BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_UTIL_APPLICATION_H
+#endif // BRIMSTONE_UTIL_WIN32_SURFACE_FACTORY_H

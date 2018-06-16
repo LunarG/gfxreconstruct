@@ -14,52 +14,31 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_APPLICATION_H
-#define BRIMSTONE_UTIL_APPLICATION_H
+#ifndef BRIMSTONE_UTIL_WIN32_APPLICATION_H
+#define BRIMSTONE_UTIL_WIN32_APPLICATION_H
 
-#include <vector>
-#include <algorithm>
+#include <windows.h>
 
-#include "format/file_processor.h"
+#include "util/application.h"
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
-
-class Application
+class Win32Application : public Application
 {
 public:
-    Application();
-    virtual ~Application() {};
+    Win32Application();
 
-    void SetFileProcessor(format::FileProcessor* file_processor);
+    void ProcessEvents(bool wait_for_input) override;
 
-    void Run();
-
-    bool GetPaused();
-
-    void SetPaused(bool paused);
-
-    void PlaySingleFrame();
-
-    bool RegisterWindow(class Window* window);
-
-    bool UnregisterWindow(class Window* window);
+    static LRESULT WINAPI WindowProcVk(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
 
 public:
-    std::vector<class Window*> windows;
-
-protected:
-    virtual void ProcessEvents(bool wait_for_input) = 0;
-
-private:
-    format::FileProcessor* file_processor_ = nullptr;
-    bool paused_;
 };
 
 BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_UTIL_APPLICATION_H
+#endif // BRIMSTONE_UTIL_WIN32_APPLICATION_H
