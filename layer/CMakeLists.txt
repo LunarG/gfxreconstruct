@@ -1,15 +1,12 @@
-set(HEADER_FILES
-    trace_layer.h)
+add_library(brimstone_layer "")
 
-set(SOURCE_FILES
-    dll_main.cpp
-    trace_layer.cpp)
-
-if (WIN32)
-    set(SOURCE_FILES ${SOURCE_FILES} trace_layer.def)
-endif (WIN32)
-
-add_library(brimstone_layer SHARED ${HEADER_FILES} ${SOURCE_FILES})
+target_sources(brimstone_layer
+               PRIVATE
+                   trace_layer.h
+                   dll_main.cpp
+                   trace_layer.cpp
+                   $<$<BOOL:WIN32>:trace_layer.def>
+              )
 
 if (WIN32)
     target_compile_definitions(brimstone_layer PRIVATE -DWIN32_LEAN_AND_MEAN)
