@@ -1,4 +1,5 @@
 ---
+AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AlignEscapedNewlines: true
@@ -6,6 +7,11 @@ AlignOperands: true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortFunctionsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakTemplateDeclarations: true
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterClass: true
@@ -22,12 +28,15 @@ BraceWrapping:
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
 BreakConstructorInitializers: AfterColon
+# Not supported in 6
 #BreakInheritanceList: BeforeColon
 Cpp11BracedListStyle: false
 ColumnLimit: 120
 IndentCaseLabels: true
 IndentWidth: 4
 PointerAlignment: Left
+ReflowComments: true
 SortIncludes: false
+SpaceAfterTemplateKeyword: true
 SpaceBeforeParens: ControlStatements
 ...
