@@ -50,12 +50,12 @@ typedef DWORD pid_t;
 
 inline pid_t GetCurrentProcessId()
 {
-    return GetCurrentProcessId();
+    return ::GetCurrentProcessId();
 }
 
 inline uint64_t GetCurrentThreadId()
 {
-    return GetCurrentThreadId();
+    return ::GetCurrentThreadId();
 }
 
 inline void TriggerDebugBreak()
@@ -63,7 +63,7 @@ inline void TriggerDebugBreak()
     __debugbreak();
 }
 
-inline bool GetEnvironmentVariable(const char* name, std::string& value)
+inline bool GetEnv(const char* name, std::string& value)
 {
     try
     {
@@ -74,9 +74,14 @@ inline bool GetEnvironmentVariable(const char* name, std::string& value)
             return false;
         }
 
-        // Allocate the space necessary for the registry entry
-        value.resize(value_size);
-        GetEnvironmentVariableA(name, value_size.data(), value_size.size());
+        // Max environment variable size (including null terminator).
+        const size_t kMaxEnvSize = 32767;
+        char return_value[kMaxEnvSize];
+
+        GetEnvironmentVariableA(name, return_value, value_size);
+
+        value = return_value;
+
         return true;
     }
     catch (...)
@@ -98,7 +103,7 @@ inline int32_t MemoryCompare(const void* memory_1, const void* memory_2, size_t 
 
 inline int32_t StringCopy(char* destination, size_t destination_size, const char* source, size_t source_size)
 {
-    return strncpy_s(destination, destination_size, source, copy_size);
+    return strncpy_s(destination, destination_size, source, source_size);
 }
 
 inline int32_t StringCompare(const char* string_1, const char* string_2, size_t compare_size)
@@ -146,7 +151,7 @@ inline void TriggerDebugBreak()
     raise(SIGTRAP);
 }
 
-inline bool GetEnvironmentVariable(const char* name, std::string& value)
+inline bool GetEnv(const char* name, std::string& value)
 {
     value = getenv(name);
     return (value.size() > 0);
