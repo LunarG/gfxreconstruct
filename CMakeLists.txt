@@ -22,6 +22,7 @@ target_link_libraries(volk PUBLIC vulkan_registry $<$<NOT:$<BOOL:${WIN32}>>:dl>)
 
 find_package(LZ4)
 find_package(XCB)
+find_package(WAYLAND)
 
 add_subdirectory(util)
 add_subdirectory(format)
