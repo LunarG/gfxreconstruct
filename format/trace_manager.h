@@ -44,8 +44,10 @@ public:
     void Destroy();
 
     ParameterEncoder* BeginApiCallTrace(ApiCallId call_id);
-
     void EndApiCallTrace(ParameterEncoder* encoder);
+
+    ParameterEncoder* BeginMetaDataBlock(MetaDataType meta_data);
+    void EndMetaDataBlock(ParameterEncoder* encoder);
 
 private:
     class ThreadData
@@ -58,6 +60,7 @@ private:
     public:
         const uint32_t                                      thread_id_;
         ApiCallId                                           call_id_;
+        MetaDataType                                        meta_data_type_;
         uint32_t                                            call_begin_time_;
         uint32_t                                            call_end_time_;
         std::unique_ptr<util::MemoryOutputStream>           parameter_buffer_;

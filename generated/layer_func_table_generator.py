@@ -134,6 +134,7 @@ class LayerFuncTableOutputGenerator(OutputGenerator):
         if (genOpts.protectFile and self.genOpts.filename):
             headerSym = re.sub('\.h', '_h',
                                os.path.basename(self.genOpts.filename)).upper()
+            headerSym = re.sub('\.INC', '_INC', headerSym)
             write('#ifndef', headerSym, file=self.outFile)
             write('#define', headerSym, file=self.outFile)
             self.newline()

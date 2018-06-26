@@ -30,6 +30,7 @@ thread_local TraceManager::ThreadData   TraceManager::thread_data_;
 TraceManager::ThreadData::ThreadData() :
     thread_id_(GetThreadId()),
     call_id_(ApiCallId_Unknown),
+    meta_data_type_(kUnknownMetaDataType),
     call_begin_time_(0),
     call_end_time_(0)
 {
@@ -159,6 +160,34 @@ void TraceManager::BuildOptionList(const EnabledOptions& enabled_options, std::v
     option_list->push_back({ FileOption::kHaveBeginEndTimestamp, enabled_options.record_begin_end_timestamp ? 1u : 0u });
     option_list->push_back({ FileOption::kOmitTextures, enabled_options.omit_textures ? 1u : 0u });
     option_list->push_back({ FileOption::kOmitBuffers, enabled_options.omit_buffers ? 1u : 0u });
+}
+
+ParameterEncoder* TraceManager::BeginMetaDataBlock(MetaDataType meta_data)
+{
+    thread_data_.meta_data_type_ = meta_data;
+    return thread_data_.parameter_encoder_.get();
+}
+
+void TraceManager::EndMetaDataBlock(ParameterEncoder* encoder)
+{
+    MetaDataHeader data_header;
+    size_t size = sizeof(data_header.meta_data_type) + thread_data_.parameter_buffer_->GetDataSize();
+
+    data_header.block_header.size = size;
+    data_header.block_header.type = BlockType::kMetaDataBlock;
+    data_header.meta_data_type = thread_data_.meta_data_type_;
+
+    {
+        std::lock_guard<std::mutex> lock(file_lock_);
+
+        // Write standard function call block header.
+        bytes_written_ += file_stream_->Write(&data_header, sizeof(data_header));
+
+        // Write parameter data.
+        bytes_written_ += file_stream_->Write(thread_data_.parameter_buffer_->GetData(), size);
+    }
+
+    thread_data_.parameter_encoder_->Reset();
 }
 
 BRIMSTONE_END_NAMESPACE(format)

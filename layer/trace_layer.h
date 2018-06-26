@@ -29,6 +29,7 @@
 #if defined(CreateEvent)
 #undef CreateEvent
 #endif
+#include "format/metadata_handler.h"
 #include "layer/vk_layer_dispatch_table.h"
 
 extern "C" {
@@ -45,6 +46,7 @@ BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 bool init_layer();
 void destroy_layer();
 format::TraceManager* get_trace_manager();
+format::MetadataHandler* get_metadata_handler();
 
 void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
 void init_device_table(VkDevice device, PFN_vkGetDeviceProcAddr gpa);

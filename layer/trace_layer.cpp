@@ -65,6 +65,7 @@ static const void* get_dispatch_key(const void* handle)
 static std::unordered_map<const void*, VkLayerInstanceDispatchTable> instance_table;
 static std::unordered_map<const void*, VkLayerDispatchTable> device_table;
 static brimstone::format::TraceManager trace_manager;
+static brimstone::format::MetadataHandler* metadata_handler = nullptr;
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
@@ -72,17 +73,32 @@ bool init_layer()
 {
     // TODO: load settings from file.
     format::EnabledOptions options;
+    metadata_handler = new brimstone::format::MetadataHandler;
+    if (nullptr == metadata_handler)
+    {
+        return false;
+    }
     return trace_manager.Initialize("D:\\temp\\brimstone_test.bin", options);
 }
 
 void destroy_layer()
 {
     trace_manager.Destroy();
+    if (nullptr != metadata_handler)
+    {
+        delete metadata_handler;
+        metadata_handler = nullptr;
+    }
 }
 
 format::TraceManager* get_trace_manager()
 {
     return &trace_manager;
+}
+
+format::MetadataHandler* get_metadata_handler()
+{
+    return metadata_handler;
 }
 
 void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa)

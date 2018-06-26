@@ -1,0 +1,172 @@
+{
+    "version info": {
+      "schema version": 1
+    },
+    "metadata": [
+        {
+            "vkCreateInstance": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative",
+                    "comment": "This means that we have a standard function call (which can be automatically generated, and it's only used for informational purposes"
+                },
+                "post-playback" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkDestroyInstance": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                },
+                "post-playback" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkEnumeratePhysicalDevices": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                },
+                "post-playback" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkEnumeratePhysicalDeviceGroups": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                },
+                "post-playback" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkCreateDevice": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "encode"
+                },
+                "pre-playback" : {
+                    "type": "standard",
+                    "purpose": "decode"
+                }
+            }
+        },
+        {
+            "vkDestroyDevice": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                },
+                "post-playback" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkAllocateMemory": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "encode"
+                },
+                "pre-playback" : {
+                    "type": "standard",
+                    "purpose": "decode"
+                }
+            }
+        },
+        {
+            "vkFreeMemory": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkCreateBuffer": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkCreateImage": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkBindBufferMemory": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkBindImageMemory": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkGetBufferMemoryRequirements": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkGetImageMemoryRequirements": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkGetImageSparseMemoryRequirements": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkDestroyBuffer": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        },
+        {
+            "vkDestroyImage": {
+                "recording" : {
+                    "type": "standard",
+                    "purpose": "informative"
+                }
+            }
+        }
+    ]
+}

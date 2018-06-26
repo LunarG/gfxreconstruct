@@ -21,12 +21,17 @@ target_sources(brimstone_format
                    vulkan_ascii_consumer.h
                    vulkan_consumer.h
                    vulkan_decoder.h
+                   metadata.h
+                   metadata_encoder.h
+                   metadata_decoder.h
+                   metadata_handler.h
                    file_processor.cpp
                    string_array_decoder.cpp
                    string_decoder.cpp
                    trace_manager.cpp
                    vulkan_ascii_consumer.cpp
                    vulkan_decoder.cpp
+                   metadata_handler.cpp
               )
 
 target_include_directories(brimstone_format

@@ -25,6 +25,7 @@
 #include "format/api_call_id.h"
 #include "format/trace_manager.h"
 #include "format/parameter_encoder.h"
+#include "format/metadata_encoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
@@ -44,6 +45,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateInstance(
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_CreateInstance(pCreateInfo, pAllocator, pInstance);
 
     return result;
 }
@@ -61,6 +63,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyInstance(
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_DestroyInstance(instance, pAllocator);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(
@@ -79,6 +82,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDevices(
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
 
     return result;
 }
@@ -208,6 +212,17 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateDevice(
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    auto metadata_encoder = get_trace_manager()->BeginMetaDataBlock(format::kVulkanCreateDeviceMetaData);
+    if (metadata_encoder)
+    {
+        brimstone::format::CreateDeviceMetadata metadata;
+        if (get_metadata_handler()->Generate_CreateDeviceMetadata(physicalDevice, pCreateInfo, pAllocator, pDevice, &metadata))
+        {
+            brimstone::format::EncodeCreateDeviceMetadata(metadata_encoder, &metadata);
+            get_metadata_handler()->Destroy_CreateDeviceMetadata(&metadata);
+        }
+        get_trace_manager()->EndMetaDataBlock(metadata_encoder);
+    }
 
     return result;
 }
@@ -225,6 +240,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDevice(
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_DestroyDevice(device, pAllocator);
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetDeviceQueue(
@@ -318,6 +334,17 @@ VKAPI_ATTR VkResult VKAPI_CALL vkAllocateMemory(
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    auto metadata_encoder = get_trace_manager()->BeginMetaDataBlock(format::kVulkanAllocateMemoryMetaData);
+    if (metadata_encoder)
+    {
+        brimstone::format::AllocateMemoryMetadata metadata;
+        if (get_metadata_handler()->Generate_AllocateMemoryMetadata(device, pAllocateInfo, pAllocator, pMemory, &metadata))
+        {
+            brimstone::format::EncodeAllocateMemoryMetadata(metadata_encoder, &metadata);
+            get_metadata_handler()->Destroy_AllocateMemoryMetadata(&metadata);
+        }
+        get_trace_manager()->EndMetaDataBlock(metadata_encoder);
+    }
 
     return result;
 }
@@ -337,6 +364,7 @@ VKAPI_ATTR void VKAPI_CALL vkFreeMemory(
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_FreeMemory(device, memory, pAllocator);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkMapMemory(
@@ -455,6 +483,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindBufferMemory(
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_BindBufferMemory(device, buffer, memory, memoryOffset);
 
     return result;
 }
@@ -477,6 +506,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkBindImageMemory(
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_BindImageMemory(device, image, memory, memoryOffset);
 
     return result;
 }
@@ -496,6 +526,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetBufferMemoryRequirements(
         encode_struct_ptr(encoder, pMemoryRequirements);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_GetBufferMemoryRequirements(device, buffer, pMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements(
@@ -513,6 +544,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageMemoryRequirements(
         encode_struct_ptr(encoder, pMemoryRequirements);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_GetImageMemoryRequirements(device, image, pMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements(
@@ -532,6 +564,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetImageSparseMemoryRequirements(
         encode_struct_array(encoder, pSparseMemoryRequirements, (pSparseMemoryRequirementCount != nullptr) ? (*pSparseMemoryRequirementCount) : 0);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_GetImageSparseMemoryRequirements(device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceSparseImageFormatProperties(
@@ -903,6 +936,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateBuffer(
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_CreateBuffer(device, pCreateInfo, pAllocator, pBuffer);
 
     return result;
 }
@@ -922,6 +956,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyBuffer(
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_DestroyBuffer(device, buffer, pAllocator);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL vkCreateBufferView(
@@ -981,6 +1016,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkCreateImage(
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_CreateImage(device, pCreateInfo, pAllocator, pImage);
 
     return result;
 }
@@ -1000,6 +1036,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyImage(
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_DestroyImage(device, image, pAllocator);
 }
 
 VKAPI_ATTR void VKAPI_CALL vkGetImageSubresourceLayout(
@@ -2750,6 +2787,7 @@ VKAPI_ATTR VkResult VKAPI_CALL vkEnumeratePhysicalDeviceGroups(
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
+    get_metadata_handler()->RecordingUpdate_EnumeratePhysicalDeviceGroups(instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
     return result;
 }

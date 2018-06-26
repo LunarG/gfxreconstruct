@@ -31,6 +31,7 @@
 #include "format/struct_pointer_decoder.h"
 #include "format/value_decoder.h"
 #include "format/vulkan_consumer.h"
+#include "format/metadata_decoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
@@ -53,6 +54,7 @@ size_t VulkanDecoder::Decode_vkCreateInstance(const uint8_t* parameter_buffer, s
     {
         consumer->Process_vkCreateInstance(return_value, pCreateInfo, pAllocator, pInstance);
     }
+    // get_metadata_handler()->PlaybackUpdate_CreateInstance(pCreateInfo, pAllocator, pInstance);
 
     return bytes_read;
 }
@@ -71,6 +73,7 @@ size_t VulkanDecoder::Decode_vkDestroyInstance(const uint8_t* parameter_buffer, 
     {
         consumer->Process_vkDestroyInstance(instance, pAllocator);
     }
+    // get_metadata_handler()->PlaybackUpdate_DestroyInstance(instance, pAllocator);
 
     return bytes_read;
 }
@@ -93,6 +96,7 @@ size_t VulkanDecoder::Decode_vkEnumeratePhysicalDevices(const uint8_t* parameter
     {
         consumer->Process_vkEnumeratePhysicalDevices(return_value, instance, pPhysicalDeviceCount, pPhysicalDevices);
     }
+    // get_metadata_handler()->PlaybackUpdate_EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
 
     return bytes_read;
 }
@@ -237,6 +241,9 @@ size_t VulkanDecoder::Decode_vkCreateDevice(const uint8_t* parameter_buffer, siz
     bytes_read += pDevice.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
+    brimstone::format::Decoded_CreateDeviceMetadata decoded_metadata;
+    DecodeCreateDeviceMetadata(parameter_buffer, buffer_size, &decoded_metadata);
+    brimstone::format::CreateDeviceMetadata *metadata = decoded_metadata.value;
     for (auto consumer : consumers_)
     {
         consumer->Process_vkCreateDevice(return_value, physicalDevice, pCreateInfo, pAllocator, pDevice);
@@ -259,6 +266,7 @@ size_t VulkanDecoder::Decode_vkDestroyDevice(const uint8_t* parameter_buffer, si
     {
         consumer->Process_vkDestroyDevice(device, pAllocator);
     }
+    // get_metadata_handler()->PlaybackUpdate_DestroyDevice(device, pAllocator);
 
     return bytes_read;
 }
@@ -361,6 +369,9 @@ size_t VulkanDecoder::Decode_vkAllocateMemory(const uint8_t* parameter_buffer, s
     bytes_read += pMemory.DecodeHandle((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
+    brimstone::format::Decoded_AllocateMemoryMetadata decoded_metadata;
+    DecodeAllocateMemoryMetadata(parameter_buffer, buffer_size, &decoded_metadata);
+    brimstone::format::AllocateMemoryMetadata *metadata = decoded_metadata.value;
     for (auto consumer : consumers_)
     {
         consumer->Process_vkAllocateMemory(return_value, device, pAllocateInfo, pAllocator, pMemory);
@@ -3115,6 +3126,7 @@ size_t VulkanDecoder::Decode_vkEnumeratePhysicalDeviceGroups(const uint8_t* para
     {
         consumer->Process_vkEnumeratePhysicalDeviceGroups(return_value, instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
     }
+    // get_metadata_handler()->PlaybackUpdate_EnumeratePhysicalDeviceGroups(instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
     return bytes_read;
 }

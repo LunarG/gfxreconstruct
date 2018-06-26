@@ -13,4 +13,4 @@ if (WIN32)
 endif (WIN32)
 
 target_include_directories(brimstone_layer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(brimstone_layer brimstone_format brimstone_generated)
+target_link_libraries(brimstone_layer brimstone_format brimstone_generated brimstone_util)

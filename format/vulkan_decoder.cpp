@@ -38,3 +38,4 @@ BRIMSTONE_END_NAMESPACE(brimstone)
 #include "generated/generated_struct_decoders.inc"
 #include "generated/generated_decode_pnext_struct.inc"
 #include "generated/generated_api_call_decoders.inc"
+#include "format/metadata_decoder.h"

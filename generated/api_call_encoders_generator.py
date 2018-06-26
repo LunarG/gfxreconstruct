@@ -17,6 +17,7 @@
 import os,re,sys
 from generator import *
 from common_codegen import GetFeatureProtect
+from parsemetadatajson import MetadataJson
 
 # CGeneratorOptions - subclass of GeneratorOptions.
 #
@@ -134,6 +135,7 @@ class APICallEncodersOutputGenerator(OutputGenerator):
         self.handleTypes = set()                          # Set of handle type names
         self.flagsTypes = set()                            # Set of bitmask (flags) type names
         self.enumTypes = set()                            # Set of enum type names
+        self.metadata_json = MetadataJson('metadata_entrypoints.json')
     #
     def beginFile(self, genOpts):
         OutputGenerator.beginFile(self, genOpts)
@@ -143,6 +145,7 @@ class APICallEncodersOutputGenerator(OutputGenerator):
         if (genOpts.protectFile and self.genOpts.filename):
             headerSym = re.sub('\.h', '_h',
                                os.path.basename(self.genOpts.filename)).upper()
+            headerSym = re.sub('\.INC', '_INC', headerSym)
             write('#ifndef', headerSym, file=self.outFile)
             write('#define', headerSym, file=self.outFile)
             self.newline()
@@ -157,6 +160,7 @@ class APICallEncodersOutputGenerator(OutputGenerator):
         write('#include "format/api_call_id.h"', file=self.outFile)
         write('#include "format/trace_manager.h"', file=self.outFile)
         write('#include "format/parameter_encoder.h"', file=self.outFile)
+        write('#include "format/metadata_encoder.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
     def endFile(self):
@@ -340,6 +344,26 @@ class APICallEncodersOutputGenerator(OutputGenerator):
             body.append('        encoder->EncodeEnumValue(result);\n')
         body.append('        get_trace_manager()->EndApiCallTrace(encoder);\n')
         body.append('    }\n')
+        if self.metadata_json.HasRecordingAction(name):
+            type_string, purpose_string = self.metadata_json.GetRecordingAction(name)
+            enum_string = ''
+            if purpose_string == 'encode':
+                enum_string = "format::kVulkan{}MetaData".format(name[2:])
+                body.append('    auto metadata_encoder = get_trace_manager()->BeginMetaDataBlock({});\n'.format(enum_string))
+                body.append('    if (metadata_encoder)\n')
+                body.append('    {\n')
+                body.append('        brimstone::format::{}Metadata metadata;\n'.format(name[2:]))
+                paramnames = [noneStr(param.find('name').text) for param in params]
+                body.append('        if (get_metadata_handler()->Generate_{}Metadata({}, &metadata))\n'.format(name[2:], ', '.join(paramnames)))
+                body.append('        {\n')
+                body.append('            brimstone::format::Encode{}Metadata(metadata_encoder, &metadata);\n'.format(name[2:]))
+                body.append('            get_metadata_handler()->Destroy_{}Metadata(&metadata);\n'.format(name[2:]))
+                body.append('        }\n')
+                body.append('        get_trace_manager()->EndMetaDataBlock(metadata_encoder);\n')
+                body.append('    }\n')
+            else:
+                paramnames = [noneStr(param.find('name').text) for param in params]
+                body.append('    get_metadata_handler()->RecordingUpdate_{}({});\n'.format(name[2:], ', '.join(paramnames)))
         if returntype and returntype != 'void':
             body.append('\n')
             body.append('    return result;\n')
@@ -478,4 +502,3 @@ class APICallEncodersOutputGenerator(OutputGenerator):
                 methodcall += 'Value'
 
         return '{}({})'.format(methodcall, ', '.join(args))
-

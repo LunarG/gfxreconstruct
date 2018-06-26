@@ -17,6 +17,7 @@
 import os,re,sys
 from generator import *
 from common_codegen import GetFeatureProtect
+from parsemetadatajson import MetadataJson
 
 # CGeneratorOptions - subclass of GeneratorOptions.
 #
@@ -136,6 +137,7 @@ class APICallDecodersOutputGenerator(OutputGenerator):
         self.handleTypes = set()                          # Set of handle type names
         self.flagsTypes = set()                           # Set of bitmask (flags) type names
         self.enumTypes = set()                            # Set of enum type names
+        self.metadata_json = MetadataJson('metadata_entrypoints.json')
     #
     def beginFile(self, genOpts):
         OutputGenerator.beginFile(self, genOpts)
@@ -145,6 +147,7 @@ class APICallDecodersOutputGenerator(OutputGenerator):
         if (genOpts.protectFile and self.genOpts.filename):
             headerSym = re.sub('\.h', '_h',
                                os.path.basename(self.genOpts.filename)).upper()
+            headerSym = re.sub('\.INC', '_INC', headerSym)
             write('#ifndef', headerSym, file=self.outFile)
             write('#define', headerSym, file=self.outFile)
             self.newline()
@@ -165,6 +168,7 @@ class APICallDecodersOutputGenerator(OutputGenerator):
         write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "format/value_decoder.h"', file=self.outFile)
         write('#include "format/vulkan_consumer.h"', file=self.outFile)
+        write('#include "format/metadata_decoder.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
@@ -298,6 +302,12 @@ class APICallDecodersOutputGenerator(OutputGenerator):
                 body += self.genDecoderFunctionCalls(returntype, 'return_value', 0, 0)
             body += '\n'
 
+        if self.metadata_json.HasPrePlaybackAction(name):
+            type_string, purpose_string = self.metadata_json.GetPrePlaybackAction(name)
+            if purpose_string == 'decode':
+                body += '    brimstone::format::Decoded_{}Metadata decoded_metadata;\n'.format(name[2:])
+                body += '    Decode{}Metadata(parameter_buffer, buffer_size, &decoded_metadata);\n'.format(name[2:])
+                body += '    brimstone::format::{}Metadata *metadata = decoded_metadata.value;\n'.format(name[2:])
         body += '    for (auto consumer : consumers_)\n'
         body += '    {\n'
         if returntype and returntype != 'void':
@@ -305,6 +315,12 @@ class APICallDecodersOutputGenerator(OutputGenerator):
         else:
             body += '        consumer->Process_{}({});\n'.format(name, ', '.join(paramnames))
         body += '    }\n'
+
+        if self.metadata_json.HasPostPlaybackAction(name):
+            type_string, purpose_string = self.metadata_json.GetPostPlaybackAction(name)
+            body += '    // get_metadata_handler()->PlaybackUpdate_{}({});\n'.format(name[2:], ', '.join(paramnames))
+        elif self.metadata_json.HasPrePlaybackAction(name):
+            type_string, purpose_string = self.metadata_json.GetPrePlaybackAction(name)
 
         return body
     #

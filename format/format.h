@@ -49,9 +49,9 @@ enum BlockType : uint32_t
 enum MetaDataType : uint32_t
 {
     kUnknownMetaDataType = 0,
-    kVulkanPhysicalDeviceInfo = 1,
-    kVulkanMemoryInfo = 2,
-    kFillMemoryCommand = 3
+    kVulkanCreateDeviceMetaData = 1,
+    kVulkanAllocateMemoryMetaData = 2,
+    kFillMemoryCommand = 3,
 };
 
 enum CompressionType : uint32_t
