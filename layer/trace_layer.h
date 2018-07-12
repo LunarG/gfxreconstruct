@@ -22,6 +22,13 @@
 #include "util/defines.h"
 #include "format/parameter_encoder.h"
 #include "format/trace_manager.h"
+
+#if defined(CreateSemaphore)
+#undef CreateSemaphore
+#endif
+#if defined(CreateEvent)
+#undef CreateEvent
+#endif
 #include "layer/vk_layer_dispatch_table.h"
 
 extern "C" {
