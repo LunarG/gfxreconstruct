@@ -51,7 +51,7 @@ from common_codegen import GetFeatureProtect
 #     parameter on a separate line
 #   alignFuncParam - if nonzero and parameters are being put on a
 #     separate line, align parameter names at the specified column
-class StructGeneratorOptions(GeneratorOptions):
+class StructEncodersGeneratorOptions(GeneratorOptions):
     """Represents options during C interface generation for headers"""
     def __init__(self,
                  filename = None,
@@ -110,7 +110,7 @@ class StructGeneratorOptions(GeneratorOptions):
 # genGroup(groupinfo,name)
 # genEnum(enuminfo, name)
 # genCmd(cmdinfo)
-class StructOutputGenerator(OutputGenerator):
+class StructEncodersOutputGenerator(OutputGenerator):
     """Generate specified API interfaces in a specific style, such as a C header"""
     ALL_SECTIONS = ['struct']
     # These API calls should not be processed by the code generator.  They require special layer specific implementations.

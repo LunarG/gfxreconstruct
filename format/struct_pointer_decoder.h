@@ -25,7 +25,7 @@
 #include "format/pointer_decoder_base.h"
 #include "format/value_decoder.h"
 
-#include "generated/generated_struct_decode_declarations.inc"
+#include "generated/generated_struct_decoder_declarations.inc"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
