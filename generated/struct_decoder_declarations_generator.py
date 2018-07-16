@@ -1,4 +1,3 @@
-
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2013-2016 The Khronos Group Inc.
@@ -52,7 +51,7 @@ from common_codegen import GetFeatureProtect
 #     parameter on a separate line
 #   alignFuncParam - if nonzero and parameters are being put on a
 #     separate line, align parameter names at the specified column
-class FuncTableGeneratorOptions(GeneratorOptions):
+class StructDecoderDeclarationsGeneratorOptions(GeneratorOptions):
     """Represents options during C interface generation for headers"""
     def __init__(self,
                  filename = None,
@@ -111,20 +110,18 @@ class FuncTableGeneratorOptions(GeneratorOptions):
 # genGroup(groupinfo,name)
 # genEnum(enuminfo, name)
 # genCmd(cmdinfo)
-class FuncTableOutputGenerator(OutputGenerator):
+class StructDecoderDeclarationsOutputGenerator(OutputGenerator):
     """Generate specified API interfaces in a specific style, such as a C header"""
-    # This is an ordered list of sections in the header file.
-    ALL_SECTIONS = ['command']
-    # These API calls should not be exported by the layer.
-    APICALL_BLACKLIST = ['vkEnumerateInstanceVersion']
+    ALL_SECTIONS = ['struct']
+    # These API calls should not be processed by the code generator.  They require special layer specific implementations.
+    STRUCT_BLACKLIST = []
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
         OutputGenerator.__init__(self, errFile, warnFile, diagFile)
-        # Internal state - accumulators for different inner block text
-        self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
-        self.apicount = 0
+        # Typenames
+        self.structNames = []                             # List of Vulkan struct typenames
     #
     def beginFile(self, genOpts):
         OutputGenerator.beginFile(self, genOpts)
@@ -142,20 +139,19 @@ class FuncTableOutputGenerator(OutputGenerator):
         if (genOpts.prefixText):
             for s in genOpts.prefixText:
                 write(s, file=self.outFile)
-        write('#include <unordered_map>', file=self.outFile)
+        write('#include <cstdint>', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        self.newline()
-        write('const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
     def endFile(self):
         # C-specific
         # Finish C++ wrapper and multiple inclusion protection
-        write('};', file=self.outFile)
         self.newline()
+        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
         if (self.genOpts.protectFile and self.genOpts.filename):
             self.newline()
@@ -169,12 +165,13 @@ class FuncTableOutputGenerator(OutputGenerator):
         # Accumulate includes, defines, types, enums, function pointer typedefs,
         # end function prototypes separately for this feature. They're only
         # printed in endFeature().
-        self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
+        structNames = []
         self.featureExtraProtect = GetFeatureProtect(interface)
     def endFeature(self):
         # C-specific
         # Actually write the interface to the output file.
-        if (self.emit):
+        if (self.emit and self.structNames):
+            self.newline()
             if (self.genOpts.protectFeature):
                 write('#ifndef', self.featureName, file=self.outFile)
             # If type declarations are needed by other features based on
@@ -182,9 +179,18 @@ class FuncTableOutputGenerator(OutputGenerator):
             # or move it below the 'for section...' loop.
             if (self.featureExtraProtect != None):
                 write('#ifdef', self.featureExtraProtect, file=self.outFile)
-            if (self.sections['command']):
-                write('\n'.join(self.sections['command']), end='', file=self.outFile)
-                self.newline()
+            if (self.genOpts.protectProto):
+                write(self.genOpts.protectProto,
+                        self.genOpts.protectProtoStr, file=self.outFile)
+
+            for structName in self.structNames:
+                write('struct Decoded_{};'.format(structName), file=self.outFile)
+            self.newline()
+            for structName in self.structNames:
+                write('size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'.format(structName), file=self.outFile)
+
+            if (self.genOpts.protectProto):
+                write('#endif', file=self.outFile)
             if (self.featureExtraProtect != None):
                 write('#endif /*', self.featureExtraProtect, '*/', file=self.outFile)
             if (self.genOpts.protectFeature):
@@ -192,14 +198,18 @@ class FuncTableOutputGenerator(OutputGenerator):
         # Finish processing in superclass
         OutputGenerator.endFeature(self)
     #
-    # Append a definition to the specified section
-    def appendSection(self, section, text):
-        # self.sections[section].append('SECTION: ' + section + '\n')
-        self.sections[section].append(text)
-    #
     # Type generation
     def genType(self, typeinfo, name, alias):
         OutputGenerator.genType(self, typeinfo, name, alias)
+        typeElem = typeinfo.elem
+        # If the type is a struct type, traverse the imbedded <member> tags
+        # generating a structure. Otherwise, emit the tag text.
+        category = typeElem.get('category')
+        if (category == 'struct' or category == 'union'):
+            # Ignore structures that are a typedef of an alias
+            if not alias:
+                self.structNames.append(name)
+                self.genStruct(typeinfo, name, alias)
     #
     # Struct (e.g. C "struct" type) generation.
     # This is a special case of the <type> tag where the contents are
@@ -224,7 +234,3 @@ class FuncTableOutputGenerator(OutputGenerator):
     # Command generation
     def genCmd(self, cmdinfo, name, alias):
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
-        if not name in self.APICALL_BLACKLIST:
-            align = 100 - len(name)
-            self.appendSection('command', '    {{ "{n}",{}reinterpret_cast<PFN_vkVoidFunction>({n}) }},'.format((' ' * align), n=name))
-            self.apicount += 1

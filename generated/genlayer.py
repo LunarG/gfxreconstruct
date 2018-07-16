@@ -17,17 +17,17 @@
 import argparse, cProfile, pdb, string, sys, time
 from reg import *
 from generator import write
-from apicallgenerator import APICallGeneratorOptions, APICallOutputGenerator
-from functablegenerator import FuncTableGeneratorOptions, FuncTableOutputGenerator
-from structgenerator import StructGeneratorOptions, StructOutputGenerator
-from structdecodersgenerator import StructDecodersGeneratorOptions, StructDecodersOutputGenerator
-from structdecodedeclarations import StructDecodeDeclarationsGeneratorOptions, StructDecodeDeclarationsOutputGenerator
-from apicalldecodersgenerator import APICallDecodersGeneratorOptions, APICallDecodersOutputGenerator
-from apicalldecoderdeclarationsgenerator import APICallDecoderDeclarationsGeneratorOptions, APICallDecoderDeclarationsOutputGenerator
-from apicalldecodecasesgenerator import APICallDecodeCasesGeneratorOptions, APICallDecodeCasesOutputGenerator
-from encodepnextstruct import EncodePNextStructGeneratorOptions, EncodePNextStructOutputGenerator
-from decodepnextstruct import DecodePNextStructGeneratorOptions, DecodePNextStructOutputGenerator
-from decodedstructtypes import DecodedStructTypesGeneratorOptions, DecodedStructTypesOutputGenerator
+from api_call_encoders_generator import APICallEncodersGeneratorOptions, APICallEncodersOutputGenerator
+from layer_func_table_generator import LayerFuncTableGeneratorOptions, LayerFuncTableOutputGenerator
+from struct_encoders_generator import StructEncodersGeneratorOptions, StructEncodersOutputGenerator
+from struct_decoders_generator import StructDecodersGeneratorOptions, StructDecodersOutputGenerator
+from struct_decoder_declarations_generator import StructDecoderDeclarationsGeneratorOptions, StructDecoderDeclarationsOutputGenerator
+from api_call_decoders_generator import APICallDecodersGeneratorOptions, APICallDecodersOutputGenerator
+from api_call_decoder_declarations_generator import APICallDecoderDeclarationsGeneratorOptions, APICallDecoderDeclarationsOutputGenerator
+from api_call_decode_cases_generator import APICallDecodeCasesGeneratorOptions, APICallDecodeCasesOutputGenerator
+from encode_pnext_struct_generator import EncodePNextStructGeneratorOptions, EncodePNextStructOutputGenerator
+from decode_pnext_struct_generator import DecodePNextStructGeneratorOptions, DecodePNextStructOutputGenerator
+from decoded_struct_types_generator import DecodedStructTypesGeneratorOptions, DecodedStructTypesOutputGenerator
 from idgenerator import IdGeneratorOptions, IdOutputGenerator
 
 # Simple timer functions
@@ -152,10 +152,10 @@ def makeGenOpts(args):
         ]
 
     # vktrace struct encoding functions.
-    genOpts['generated_struct_trace.inc'] = [
-          StructOutputGenerator,
-          StructGeneratorOptions(
-            filename          = 'generated_struct_trace.inc',
+    genOpts['generated_struct_encoders.inc'] = [
+          StructEncodersOutputGenerator,
+          StructEncodersGeneratorOptions(
+            filename          = 'generated_struct_encoders.inc',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
@@ -177,10 +177,10 @@ def makeGenOpts(args):
         ]
 
     # vktrace api call encoding functions.
-    genOpts['generated_api_call_trace.inc'] = [
-          APICallOutputGenerator,
-          APICallGeneratorOptions(
-            filename          = 'generated_api_call_trace.inc',
+    genOpts['generated_api_call_encoders.inc'] = [
+          APICallEncodersOutputGenerator,
+          APICallEncodersGeneratorOptions(
+            filename          = 'generated_api_call_encoders.inc',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
@@ -203,10 +203,10 @@ def makeGenOpts(args):
         ]
 
     # vktrace layer function table.
-    genOpts['generated_func_table.inc'] = [
-          FuncTableOutputGenerator,
-          FuncTableGeneratorOptions(
-            filename          = 'generated_func_table.inc',
+    genOpts['generated_layer_func_table.inc'] = [
+          LayerFuncTableOutputGenerator,
+          LayerFuncTableGeneratorOptions(
+            filename          = 'generated_layer_func_table.inc',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
@@ -278,10 +278,10 @@ def makeGenOpts(args):
         ]
 
     # Vulkan struct decoding wrapper and function declarations.
-    genOpts['generated_struct_decode_declarations.inc'] = [
-          StructDecodeDeclarationsOutputGenerator,
-          StructDecodeDeclarationsGeneratorOptions(
-            filename          = 'generated_struct_decode_declarations.inc',
+    genOpts['generated_struct_decoder_declarations.inc'] = [
+          StructDecoderDeclarationsOutputGenerator,
+          StructDecoderDeclarationsGeneratorOptions(
+            filename          = 'generated_struct_decoder_declarations.inc',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,

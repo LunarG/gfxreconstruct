@@ -12,7 +12,7 @@
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <CommandLineArguments>-registry ..\external\Vulkan-Headers\registry\vk.xml generated_struct_decode_declarations.inc</CommandLineArguments>
-    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <EnableNativeCodeDebugging>True</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
@@ -22,20 +22,20 @@
   <ItemGroup>
     <Compile Include="apicalldecodecasesgenerator.py" />
     <Compile Include="apicalldecoderdeclarationsgenerator.py" />
-    <Compile Include="apicalldecodersgenerator.py" />
+    <Compile Include="api_call_decoders_generator.py" />
     <Compile Include="common_codegen.py" />
-    <Compile Include="decodedstructtypes.py" />
-    <Compile Include="decodepnextstruct.py" />
-    <Compile Include="functablegenerator.py" />
+    <Compile Include="decoded_struct_types_generator.py" />
+    <Compile Include="decode_pnext_struct_generator.py" />
+    <Compile Include="layer_func_table_generator.py" />
     <Compile Include="genlayer.py" />
-    <Compile Include="apicallgenerator.py" />
+    <Compile Include="api_call_encoders_generator.py" />
     <Compile Include="idgenerator.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="structdecodedeclarations.py" />
-    <Compile Include="structdecodersgenerator.py" />
-    <Compile Include="structgenerator.py" />
-    <Compile Include="encodepnextstruct.py" />
+    <Compile Include="struct_decoder_declarations_generator.py" />
+    <Compile Include="struct_decoders_generator.py" />
+    <Compile Include="struct_encoders_generator.py" />
+    <Compile Include="encode_pnext_struct_generator.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
