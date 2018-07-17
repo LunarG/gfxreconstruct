@@ -114,7 +114,7 @@ class DecodedStructTypesOutputGenerator(OutputGenerator):
     """Generate specified API interfaces in a specific style, such as a C header"""
     ALL_SECTIONS = ['struct']
     # These API calls should not be processed by the code generator.  They require special layer specific implementations.
-    STRUCT_BLACKLIST = []
+    STRUCT_BLACKLIST = ['VkBaseInStructure', 'VkBaseOutStructure']
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
