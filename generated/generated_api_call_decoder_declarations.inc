@@ -472,6 +472,14 @@
 
     size_t Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCreateRenderPass2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBeginRenderPass2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdNextSubpass2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdEndRenderPass2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetSwapchainStatusKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceExternalFencePropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -490,6 +498,14 @@
 
     size_t Decode_vkGetPhysicalDeviceSurfaceFormats2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetPhysicalDeviceDisplayProperties2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDisplayModeProperties2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDisplayPlaneCapabilities2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetImageMemoryRequirements2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetBufferMemoryRequirements2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -505,6 +521,10 @@
     size_t Decode_vkBindImageMemory2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetDescriptorSetLayoutSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawIndirectCountKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawIndexedIndirectCountKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateDebugReportCallbackEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -537,6 +557,10 @@
 #ifdef VK_USE_PLATFORM_VI_NN
     size_t Decode_vkCreateViSurfaceNN(const uint8_t* parameter_buffer, size_t buffer_size);
 #endif /* VK_USE_PLATFORM_VI_NN */
+
+    size_t Decode_vkCmdBeginConditionalRenderingEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdEndConditionalRenderingEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdProcessCommandsNVX(const uint8_t* parameter_buffer, size_t buffer_size);
 

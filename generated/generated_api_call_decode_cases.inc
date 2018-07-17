@@ -714,6 +714,19 @@
         Decode_vkUpdateDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
         break;
 
+    case ApiCallId_vkCreateRenderPass2KHR:
+        Decode_vkCreateRenderPass2KHR(parameter_buffer, buffer_size);
+        break;
+    case ApiCallId_vkCmdBeginRenderPass2KHR:
+        Decode_vkCmdBeginRenderPass2KHR(parameter_buffer, buffer_size);
+        break;
+    case ApiCallId_vkCmdNextSubpass2KHR:
+        Decode_vkCmdNextSubpass2KHR(parameter_buffer, buffer_size);
+        break;
+    case ApiCallId_vkCmdEndRenderPass2KHR:
+        Decode_vkCmdEndRenderPass2KHR(parameter_buffer, buffer_size);
+        break;
+
     case ApiCallId_vkGetSwapchainStatusKHR:
         Decode_vkGetSwapchainStatusKHR(parameter_buffer, buffer_size);
         break;
@@ -745,6 +758,19 @@
         Decode_vkGetPhysicalDeviceSurfaceFormats2KHR(parameter_buffer, buffer_size);
         break;
 
+    case ApiCallId_vkGetPhysicalDeviceDisplayProperties2KHR:
+        Decode_vkGetPhysicalDeviceDisplayProperties2KHR(parameter_buffer, buffer_size);
+        break;
+    case ApiCallId_vkGetPhysicalDeviceDisplayPlaneProperties2KHR:
+        Decode_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(parameter_buffer, buffer_size);
+        break;
+    case ApiCallId_vkGetDisplayModeProperties2KHR:
+        Decode_vkGetDisplayModeProperties2KHR(parameter_buffer, buffer_size);
+        break;
+    case ApiCallId_vkGetDisplayPlaneCapabilities2KHR:
+        Decode_vkGetDisplayPlaneCapabilities2KHR(parameter_buffer, buffer_size);
+        break;
+
     case ApiCallId_vkGetImageMemoryRequirements2KHR:
         Decode_vkGetImageMemoryRequirements2KHR(parameter_buffer, buffer_size);
         break;
@@ -771,6 +797,13 @@
 
     case ApiCallId_vkGetDescriptorSetLayoutSupportKHR:
         Decode_vkGetDescriptorSetLayoutSupportKHR(parameter_buffer, buffer_size);
+        break;
+
+    case ApiCallId_vkCmdDrawIndirectCountKHR:
+        Decode_vkCmdDrawIndirectCountKHR(parameter_buffer, buffer_size);
+        break;
+    case ApiCallId_vkCmdDrawIndexedIndirectCountKHR:
+        Decode_vkCmdDrawIndexedIndirectCountKHR(parameter_buffer, buffer_size);
         break;
 
     case ApiCallId_vkCreateDebugReportCallbackEXT:
@@ -825,6 +858,13 @@
         Decode_vkCreateViSurfaceNN(parameter_buffer, buffer_size);
         break;
 #endif /* VK_USE_PLATFORM_VI_NN */
+
+    case ApiCallId_vkCmdBeginConditionalRenderingEXT:
+        Decode_vkCmdBeginConditionalRenderingEXT(parameter_buffer, buffer_size);
+        break;
+    case ApiCallId_vkCmdEndConditionalRenderingEXT:
+        Decode_vkCmdEndConditionalRenderingEXT(parameter_buffer, buffer_size);
+        break;
 
     case ApiCallId_vkCmdProcessCommandsNVX:
         Decode_vkCmdProcessCommandsNVX(parameter_buffer, buffer_size);

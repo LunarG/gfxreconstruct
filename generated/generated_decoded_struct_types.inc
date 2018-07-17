@@ -2100,6 +2100,78 @@ struct Decoded_VkPresentRegionsKHR
     StructPointerDecoder<Decoded_VkPresentRegionKHR> pRegions;
 };
 
+struct Decoded_VkAttachmentDescription2KHR
+{
+    using struct_type = VkAttachmentDescription2KHR;
+
+    VkAttachmentDescription2KHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkAttachmentReference2KHR
+{
+    using struct_type = VkAttachmentReference2KHR;
+
+    VkAttachmentReference2KHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkSubpassDescription2KHR
+{
+    using struct_type = VkSubpassDescription2KHR;
+
+    VkSubpassDescription2KHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    StructPointerDecoder<Decoded_VkAttachmentReference2KHR> pInputAttachments;
+    StructPointerDecoder<Decoded_VkAttachmentReference2KHR> pColorAttachments;
+    StructPointerDecoder<Decoded_VkAttachmentReference2KHR> pResolveAttachments;
+    StructPointerDecoder<Decoded_VkAttachmentReference2KHR> pDepthStencilAttachment;
+    PointerDecoder<uint32_t> pPreserveAttachments;
+};
+
+struct Decoded_VkSubpassDependency2KHR
+{
+    using struct_type = VkSubpassDependency2KHR;
+
+    VkSubpassDependency2KHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkRenderPassCreateInfo2KHR
+{
+    using struct_type = VkRenderPassCreateInfo2KHR;
+
+    VkRenderPassCreateInfo2KHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    StructPointerDecoder<Decoded_VkAttachmentDescription2KHR> pAttachments;
+    StructPointerDecoder<Decoded_VkSubpassDescription2KHR> pSubpasses;
+    StructPointerDecoder<Decoded_VkSubpassDependency2KHR> pDependencies;
+    PointerDecoder<uint32_t> pCorrelatedViewMasks;
+};
+
+struct Decoded_VkSubpassBeginInfoKHR
+{
+    using struct_type = VkSubpassBeginInfoKHR;
+
+    VkSubpassBeginInfoKHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkSubpassEndInfoKHR
+{
+    using struct_type = VkSubpassEndInfoKHR;
+
+    VkSubpassEndInfoKHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 struct Decoded_VkSharedPresentSurfaceCapabilitiesKHR
 {
     using struct_type = VkSharedPresentSurfaceCapabilitiesKHR;
@@ -2186,6 +2258,55 @@ struct Decoded_VkSurfaceFormat2KHR
     Decoded_VkSurfaceFormatKHR surfaceFormat;
 };
 
+struct Decoded_VkDisplayProperties2KHR
+{
+    using struct_type = VkDisplayProperties2KHR;
+
+    VkDisplayProperties2KHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    Decoded_VkDisplayPropertiesKHR displayProperties;
+};
+
+struct Decoded_VkDisplayPlaneProperties2KHR
+{
+    using struct_type = VkDisplayPlaneProperties2KHR;
+
+    VkDisplayPlaneProperties2KHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    Decoded_VkDisplayPlanePropertiesKHR displayPlaneProperties;
+};
+
+struct Decoded_VkDisplayModeProperties2KHR
+{
+    using struct_type = VkDisplayModeProperties2KHR;
+
+    VkDisplayModeProperties2KHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    Decoded_VkDisplayModePropertiesKHR displayModeProperties;
+};
+
+struct Decoded_VkDisplayPlaneInfo2KHR
+{
+    using struct_type = VkDisplayPlaneInfo2KHR;
+
+    VkDisplayPlaneInfo2KHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkDisplayPlaneCapabilities2KHR
+{
+    using struct_type = VkDisplayPlaneCapabilities2KHR;
+
+    VkDisplayPlaneCapabilities2KHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    Decoded_VkDisplayPlaneCapabilitiesKHR capabilities;
+};
+
 struct Decoded_VkImageFormatListCreateInfoKHR
 {
     using struct_type = VkImageFormatListCreateInfoKHR;
@@ -2194,6 +2315,15 @@ struct Decoded_VkImageFormatListCreateInfoKHR
 
     std::unique_ptr<PNextNode> pNext;
     PointerDecoder<VkFormat> pViewFormats;
+};
+
+struct Decoded_VkPhysicalDevice8BitStorageFeaturesKHR
+{
+    using struct_type = VkPhysicalDevice8BitStorageFeaturesKHR;
+
+    VkPhysicalDevice8BitStorageFeaturesKHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
 };
 
 struct Decoded_VkDebugReportCallbackCreateInfoEXT
@@ -2385,6 +2515,33 @@ struct Decoded_VkViSurfaceCreateInfoNN
     uint64_t window;
 };
 #endif /* VK_USE_PLATFORM_VI_NN */
+
+struct Decoded_VkConditionalRenderingBeginInfoEXT
+{
+    using struct_type = VkConditionalRenderingBeginInfoEXT;
+
+    VkConditionalRenderingBeginInfoEXT* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceConditionalRenderingFeaturesEXT;
+
+    VkPhysicalDeviceConditionalRenderingFeaturesEXT* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkCommandBufferInheritanceConditionalRenderingInfoEXT
+{
+    using struct_type = VkCommandBufferInheritanceConditionalRenderingInfoEXT;
+
+    VkCommandBufferInheritanceConditionalRenderingInfoEXT* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
 
 struct Decoded_VkDeviceGeneratedCommandsFeaturesNVX
 {

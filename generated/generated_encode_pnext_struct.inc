@@ -493,6 +493,27 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkPresentRegionsKHR*>(value));
             break;
+        case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkAttachmentDescription2KHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkAttachmentReference2KHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSubpassDescription2KHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSubpassDependency2KHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkRenderPassCreateInfo2KHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSubpassBeginInfoKHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_SUBPASS_END_INFO_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkSubpassEndInfoKHR*>(value));
+            break;
         case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkSharedPresentSurfaceCapabilitiesKHR*>(value));
             break;
@@ -522,8 +543,26 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkSurfaceFormat2KHR*>(value));
             break;
+        case VK_STRUCTURE_TYPE_DISPLAY_PROPERTIES_2_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDisplayProperties2KHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_PROPERTIES_2_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDisplayPlaneProperties2KHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DISPLAY_MODE_PROPERTIES_2_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDisplayModeProperties2KHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDisplayPlaneInfo2KHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_CAPABILITIES_2_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkDisplayPlaneCapabilities2KHR*>(value));
+            break;
         case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkImageFormatListCreateInfoKHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES_KHR:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDevice8BitStorageFeaturesKHR*>(value));
             break;
         case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkDebugReportCallbackCreateInfoEXT*>(value));
@@ -579,6 +618,15 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkViSurfaceCreateInfoNN*>(value));
             break;
 #endif /* VK_USE_PLATFORM_VI_NN */
+        case VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkConditionalRenderingBeginInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceConditionalRenderingFeaturesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT:
+            result = encode_struct_ptr(encoder, reinterpret_cast<const VkCommandBufferInheritanceConditionalRenderingInfoEXT*>(value));
+            break;
         case VK_STRUCTURE_TYPE_DEVICE_GENERATED_COMMANDS_FEATURES_NVX:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceGeneratedCommandsFeaturesNVX*>(value));
             break;
