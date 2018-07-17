@@ -165,7 +165,7 @@ class StructDecoderDeclarationsOutputGenerator(OutputGenerator):
         # Accumulate includes, defines, types, enums, function pointer typedefs,
         # end function prototypes separately for this feature. They're only
         # printed in endFeature().
-        structNames = []
+        self.structNames = []
         self.featureExtraProtect = GetFeatureProtect(interface)
     def endFeature(self):
         # C-specific
