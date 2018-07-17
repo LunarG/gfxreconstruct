@@ -642,6 +642,34 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
             (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPresentRegionsKHR>>();
             bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
             break;
+        case VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkAttachmentDescription2KHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkAttachmentReference2KHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkSubpassDescription2KHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkSubpassDependency2KHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkRenderPassCreateInfo2KHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkSubpassBeginInfoKHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_SUBPASS_END_INFO_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkSubpassEndInfoKHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
         case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
             (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkSharedPresentSurfaceCapabilitiesKHR>>();
             bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -680,8 +708,32 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
             (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkSurfaceFormat2KHR>>();
             bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
             break;
+        case VK_STRUCTURE_TYPE_DISPLAY_PROPERTIES_2_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkDisplayProperties2KHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_PROPERTIES_2_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkDisplayPlaneProperties2KHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_DISPLAY_MODE_PROPERTIES_2_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkDisplayModeProperties2KHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkDisplayPlaneInfo2KHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_DISPLAY_PLANE_CAPABILITIES_2_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkDisplayPlaneCapabilities2KHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
         case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:
             (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkImageFormatListCreateInfoKHR>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES_KHR:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDevice8BitStorageFeaturesKHR>>();
             bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
             break;
         case VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT:
@@ -754,6 +806,18 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
             bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
             break;
 #endif /* VK_USE_PLATFORM_VI_NN */
+        case VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkConditionalRenderingBeginInfoEXT>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
+        case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT:
+            (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkCommandBufferInheritanceConditionalRenderingInfoEXT>>();
+            bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+            break;
         case VK_STRUCTURE_TYPE_DEVICE_GENERATED_COMMANDS_FEATURES_NVX:
             (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkDeviceGeneratedCommandsFeaturesNVX>>();
             bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
