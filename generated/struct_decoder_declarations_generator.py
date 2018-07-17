@@ -114,7 +114,7 @@ class StructDecoderDeclarationsOutputGenerator(OutputGenerator):
     """Generate specified API interfaces in a specific style, such as a C header"""
     ALL_SECTIONS = ['struct']
     # These API calls should not be processed by the code generator.  They require special layer specific implementations.
-    STRUCT_BLACKLIST = []
+    STRUCT_BLACKLIST = ['VkBaseInStructure', 'VkBaseOutStructure']
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -184,10 +184,12 @@ class StructDecoderDeclarationsOutputGenerator(OutputGenerator):
                         self.genOpts.protectProtoStr, file=self.outFile)
 
             for structName in self.structNames:
-                write('struct Decoded_{};'.format(structName), file=self.outFile)
+                if structName not in self.STRUCT_BLACKLIST:
+                    write('struct Decoded_{};'.format(structName), file=self.outFile)
             self.newline()
             for structName in self.structNames:
-                write('size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'.format(structName), file=self.outFile)
+                if structName not in self.STRUCT_BLACKLIST:
+                    write('size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'.format(structName), file=self.outFile)
 
             if (self.genOpts.protectProto):
                 write('#endif', file=self.outFile)
