@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.1)
 project(brimstone)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include("FindVulkanVersion")
 
 add_library(windows_specific INTERFACE)
 target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX)
