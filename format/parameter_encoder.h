@@ -167,7 +167,7 @@ public:
 
         size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
 
-        if ((ptr != nullptr) && ((pointer_attrib & kHasAddress) == kHasAddress))
+        if ((pointer_attrib & kHasAddress) == kHasAddress)
         {
             total += EncodeAddress(ptr);
         }
@@ -200,19 +200,21 @@ private:
     {
         uint32_t pointer_attrib = 0;
 
-        if (!omit_addr)
-        {
-            pointer_attrib |= kHasAddress;
-        }
-
-        if (!omit_data)
-        {
-            pointer_attrib |= kHasData;
-        }
-
         if (ptr == nullptr)
         {
             pointer_attrib |= kIsNull;
+        }
+        else
+        {
+            if (!omit_addr)
+            {
+                pointer_attrib |= kHasAddress;
+            }
+
+            if (!omit_data)
+            {
+                pointer_attrib |= kHasData;
+            }
         }
 
         return pointer_attrib;
