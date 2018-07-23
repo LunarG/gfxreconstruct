@@ -132,9 +132,9 @@ class APICallDecodersOutputGenerator(OutputGenerator):
         # Internal state - accumulators for different inner block text
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
         # Typenames
-        self.structNames = []                             # List of Vulkan struct typenames
+        self.structNames = set()                          # Set of Vulkan struct typenames
         self.handleTypes = set()                          # Set of handle type names
-        self.flagsTypes = set()                            # Set of bitmask (flags) type names
+        self.flagsTypes = set()                           # Set of bitmask (flags) type names
         self.enumTypes = set()                            # Set of enum type names
     #
     def beginFile(self, genOpts):
@@ -223,7 +223,7 @@ class APICallDecodersOutputGenerator(OutputGenerator):
         # generating a structure. Otherwise, emit the tag text.
         category = typeElem.get('category')
         if (category == 'struct' or category == 'union'):
-            self.structNames.append(name)
+            self.structNames.add(name)
             self.genStruct(typeinfo, name, alias)
         elif (category == 'handle'):
             self.handleTypes.add(name)
