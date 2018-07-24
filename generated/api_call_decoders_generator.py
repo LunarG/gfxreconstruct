@@ -153,6 +153,8 @@ class APICallDecodersOutputGenerator(OutputGenerator):
         if (genOpts.prefixText):
             for s in genOpts.prefixText:
                 write(s, file=self.outFile)
+        write('#include <cstddef>', file=self.outFile)
+        self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
@@ -162,6 +164,7 @@ class APICallDecodersOutputGenerator(OutputGenerator):
         write('#include "format/string_decoder.h"', file=self.outFile)
         write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "format/value_decoder.h"', file=self.outFile)
+        write('#include "format/vulkan_consumer.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
@@ -298,9 +301,9 @@ class APICallDecodersOutputGenerator(OutputGenerator):
         body += '    for (auto consumer : consumers_)\n'
         body += '    {\n'
         if returntype and returntype != 'void':
-            body += '        //consumer->Process_{}(return_value, {});\n'.format(name, ', '.join(paramnames))
+            body += '        consumer->Process_{}(return_value, {});\n'.format(name, ', '.join(paramnames))
         else:
-            body += '        //consumer->Process_{}({});\n'.format(name, ', '.join(paramnames))
+            body += '        consumer->Process_{}({});\n'.format(name, ', '.join(paramnames))
         body += '    }\n'
 
         return body
