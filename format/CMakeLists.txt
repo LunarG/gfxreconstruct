@@ -18,11 +18,14 @@ target_sources(brimstone_format
                    trace_manager.h
                    trace_pnext_util.h
                    value_decoder.h
+                   vulkan_ascii_consumer.h
+                   vulkan_consumer.h
                    vulkan_decoder.h
                    file_processor.cpp
                    string_array_decoder.cpp
                    string_decoder.cpp
                    trace_manager.cpp
+                   vulkan_ascii_consumer.cpp
                    vulkan_decoder.cpp
               )
 
