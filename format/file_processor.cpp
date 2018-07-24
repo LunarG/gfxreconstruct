@@ -103,7 +103,7 @@ bool FileProcessor::ProcessNextFrame()
 
                 if (success)
                 {
-                    success = ProcessFunctionCall(api_call_id, parameter_buffer_.data(), parameter_buffer_size);
+                    ProcessFunctionCall(api_call_id, parameter_buffer_.data(), parameter_buffer_size);
 
                     // Break from loop on frame delimiter.
                     if (IsFrameDelimiter(api_call_id))
@@ -232,10 +232,8 @@ size_t FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
     return bytes_read;
 }
 
-bool FileProcessor::ProcessFunctionCall(ApiCallId call_id, const uint8_t* parameter_buffer, size_t buffer_size)
+void FileProcessor::ProcessFunctionCall(ApiCallId call_id, const uint8_t* parameter_buffer, size_t buffer_size)
 {
-    bool success = false;
-
     for (auto decoder : decoders_)
     {
         if (decoder->SupportsApiCall(call_id))
@@ -243,8 +241,6 @@ bool FileProcessor::ProcessFunctionCall(ApiCallId call_id, const uint8_t* parame
             decoder->DecodeFunctionCall(call_id, parameter_buffer, buffer_size);
         }
     }
-
-    return success;
 }
 
 bool FileProcessor::IsFrameDelimiter(ApiCallId call_id) const

@@ -59,7 +59,7 @@ private:
 
     size_t ReadBytes(void* buffer, size_t buffer_size);
 
-    bool ProcessFunctionCall(ApiCallId call_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    void ProcessFunctionCall(ApiCallId call_id, const uint8_t* parameter_buffer, size_t buffer_size);
 
     bool IsFrameDelimiter(ApiCallId call_id) const;
 
