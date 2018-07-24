@@ -28,6 +28,9 @@ from api_call_decode_cases_generator import APICallDecodeCasesGeneratorOptions, 
 from encode_pnext_struct_generator import EncodePNextStructGeneratorOptions, EncodePNextStructOutputGenerator
 from decode_pnext_struct_generator import DecodePNextStructGeneratorOptions, DecodePNextStructOutputGenerator
 from decoded_struct_types_generator import DecodedStructTypesGeneratorOptions, DecodedStructTypesOutputGenerator
+from api_call_consumer_declarations_generator import APICallConsumerDeclarationsGeneratorOptions, APICallConsumerDeclarationsOutputGenerator
+from api_call_ascii_consumer_declarations_generator import APICallASCIIConsumerDeclarationsGeneratorOptions, APICallASCIIConsumerDeclarationsOutputGenerator
+from api_call_ascii_consumer_definitions_generator import APICallASCIIConsumerDefinitionsGeneratorOptions, APICallASCIIConsumerDefinitionsOutputGenerator
 from idgenerator import IdGeneratorOptions, IdOutputGenerator
 
 # Simple timer functions
@@ -399,6 +402,72 @@ def makeGenOpts(args):
             apicall           = 'VKAPI_ATTR ',
             apientry          = 'VKAPI_CALL ',
             apientryp         = 'VKAPI_PTR *',
+            alignFuncParam    = 48)
+        ]
+
+    # vktrace consumer class method declarations.
+    genOpts['generated_api_call_consumer_declarations.inc'] = [
+          APICallConsumerDeclarationsOutputGenerator,
+          APICallConsumerDeclarationsGeneratorOptions(
+            filename          = 'generated_api_call_consumer_declarations.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            alignFuncParam    = 48)
+        ]
+
+    # vktrace binary to ASCII conversion consumer class method declarations.
+    genOpts['generated_api_call_ascii_consumer_declarations.inc'] = [
+          APICallASCIIConsumerDeclarationsOutputGenerator,
+          APICallASCIIConsumerDeclarationsGeneratorOptions(
+            filename          = 'generated_api_call_ascii_consumer_declarations.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            alignFuncParam    = 48)
+        ]
+
+    # vktrace binary to ASCII conversion consumer class method definitions.
+    genOpts['generated_api_call_ascii_consumer_definitions.inc'] = [
+          APICallASCIIConsumerDefinitionsOutputGenerator,
+          APICallASCIIConsumerDefinitionsGeneratorOptions(
+            filename          = 'generated_api_call_ascii_consumer_definitions.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
             alignFuncParam    = 48)
         ]
 
