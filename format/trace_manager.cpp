@@ -127,7 +127,8 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
         }
 
         // Write parameter data.
-        bytes_written_ += file_stream_->Write(thread_data_.parameter_buffer_->GetData(), size);
+        bytes_written_ += file_stream_->Write(thread_data_.parameter_buffer_->GetData(),
+                                              thread_data_.parameter_buffer_->GetDataSize());
     }
 
     thread_data_.parameter_encoder_->Reset();
