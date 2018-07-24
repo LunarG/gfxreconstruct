@@ -136,6 +136,8 @@ class EncodePNextStructOutputGenerator(OutputGenerator):
         if (genOpts.prefixText):
             for s in genOpts.prefixText:
                 write(s, file=self.outFile)
+        write('#include <cassert>', file=self.outFile)
+        self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
@@ -146,6 +148,8 @@ class EncodePNextStructOutputGenerator(OutputGenerator):
         self.newline()
         write('size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)', file=self.outFile)
         write('{', file=self.outFile)
+        write('    assert(encoder != nullptr);', file=self.outFile)
+        self.newline()
         write('    size_t result = 0;', file=self.outFile)
         self.newline()
         write('    const format::VulkanStructHeader* header = reinterpret_cast<const format::VulkanStructHeader*>(value);', file=self.outFile)
@@ -157,10 +161,20 @@ class EncodePNextStructOutputGenerator(OutputGenerator):
         write('    {', file=self.outFile)
         write('        switch (header->sType)', file=self.outFile)
         write('        {', file=self.outFile)
+        write('        default:', file=self.outFile)
+        write('            // TODO: Write metadata message with unrecongized sType?', file=self.outFile)
+        write('            break;', file=self.outFile)
     def endFile(self):
         # C-specific
         # Finish C++ wrapper and multiple inclusion protection
         write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        self.newline()
+        write('    if (result == 0)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('        // pNext was either NULL, an ignored loader specific struct, or was unrecongized and no data was written.', file=self.outFile)
+        write('        // Write an encoding for a NULL pointer.', file=self.outFile)
+        write('        result = encoder->EncodeStructPtrPreamble(nullptr);', file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
         write('    return result;', file=self.outFile)

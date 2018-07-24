@@ -19,6 +19,8 @@
 **
 */
 
+#include <cassert>
+
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
@@ -29,6 +31,8 @@ BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
 size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
 {
+    assert(encoder != nullptr);
+
     size_t result = 0;
 
     const format::VulkanStructHeader* header = reinterpret_cast<const format::VulkanStructHeader*>(value);
@@ -40,6 +44,9 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
     {
         switch (header->sType)
         {
+        default:
+            // TODO: Write metadata message with unrecongized sType?
+            break;
         case VK_STRUCTURE_TYPE_APPLICATION_INFO:
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkApplicationInfo*>(value));
             break;
@@ -811,6 +818,13 @@ size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
             result = encode_struct_ptr(encoder, reinterpret_cast<const VkPipelineVertexInputDivisorStateCreateInfoEXT*>(value));
             break;
         }
+    }
+
+    if (result == 0)
+    {
+        // pNext was either NULL, an ignored loader specific struct, or was unrecongized and no data was written.
+        // Write an encoding for a NULL pointer.
+        result = encoder->EncodeStructPtrPreamble(nullptr);
     }
 
     return result;
