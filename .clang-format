@@ -19,11 +19,12 @@ BraceWrapping:
   AfterClass: true
   AfterControlStatement: true
   AfterEnum: true
+  # Not currently supported by the VS2017 built in clang-format v5
+  #AfterExternBlock: true
   AfterFunction: true
   AfterNamespace: true
   AfterStruct: true
   AfterUnion: true
-  AfterExternBlock: true
   BeforeCatch: true
   BeforeElse: true
   SplitEmptyFunction: false
