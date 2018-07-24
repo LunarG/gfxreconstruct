@@ -1,4 +1,4 @@
-add_library(brimstone_layer "")
+add_library(brimstone_layer SHARED "")
 
 target_sources(brimstone_layer
                PRIVATE
