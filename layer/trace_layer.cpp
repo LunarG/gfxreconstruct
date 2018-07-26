@@ -64,28 +64,36 @@ static const void* get_dispatch_key(const void* handle)
 
 static std::unordered_map<const void*, VkLayerInstanceDispatchTable> instance_table;
 static std::unordered_map<const void*, VkLayerDispatchTable> device_table;
-static brimstone::format::TraceManager trace_manager;
+static brimstone::format::TraceManager* trace_manager;
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
 bool init_layer()
 {
+    if (nullptr != trace_manager)
+    {
+        return true;
+    }
+
     // TODO: load settings from file.
     format::EnabledOptions options;
-#ifdef ENABLE_LZ4_COMPRESSION
-    options.compression_type = brimstone::util::kLz4;
-#endif
-    return trace_manager.Initialize("D:\\temp\\brimstone_test.bin", options);
+    trace_manager = new brimstone::format::TraceManager();
+    return trace_manager->Initialize("D:\\temp\\brimstone_test.bin", options);
 }
 
 void destroy_layer()
 {
-    trace_manager.Destroy();
+    if (nullptr != trace_manager)
+    {
+        trace_manager->Destroy();
+        delete trace_manager;
+        trace_manager = nullptr;
+    }
 }
 
 format::TraceManager* get_trace_manager()
 {
-    return &trace_manager;
+    return trace_manager;
 }
 
 void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa)
