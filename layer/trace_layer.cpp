@@ -78,7 +78,11 @@ bool init_layer()
     // TODO: load settings from file.
     format::EnabledOptions options;
     trace_manager = new brimstone::format::TraceManager();
+#if defined(WIN32)
     return trace_manager->Initialize("D:\\temp\\brimstone_test.bin", options);
+#else // WIN32
+    return trace_manager->Initialize("./brimstone_test.bin", options);
+#endif
 }
 
 void destroy_layer()
