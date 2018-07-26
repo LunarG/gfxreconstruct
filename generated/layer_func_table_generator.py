@@ -148,10 +148,17 @@ class LayerFuncTableOutputGenerator(OutputGenerator):
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
+
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         self.newline()
         write('const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {', file=self.outFile)
     def endFile(self):
+        # Add the special-case internal loader/layer command 'vk_layerGetPhysicalDeviceProcAddr'
+        self.newline()
+        write('    // Special case handling of "vk_layerGetPhysicalDeviceProcAddr"', file=self.outFile)
+        align = 100 - len('vk_layerGetPhysicalDeviceProcAddr')
+        write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
+
         # C-specific
         # Finish C++ wrapper and multiple inclusion protection
         write('};', file=self.outFile)
@@ -226,5 +233,6 @@ class LayerFuncTableOutputGenerator(OutputGenerator):
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
         if not name in self.APICALL_BLACKLIST:
             align = 100 - len(name)
-            self.appendSection('command', '    {{ "{n}",{}reinterpret_cast<PFN_vkVoidFunction>({n}) }},'.format((' ' * align), n=name))
+            self.appendSection('command',
+                            '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>({}) }},'.format(name, (' ' * align), name[2:]))
             self.apicount += 1

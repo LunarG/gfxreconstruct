@@ -277,7 +277,7 @@ class APICallEncodersOutputGenerator(OutputGenerator):
             text = noneStr(elem.text)
             tail = noneStr(elem.tail)
             if (elem.tag == 'name'):
-                pdecl += self.makeProtoName(text, tail)
+                pdecl += self.makeProtoName(text, tail).replace('CALL vk', 'CALL ')
             else:
                 pdecl += text + tail
         # Now add the parameter declaration list. Concatenate all
