@@ -204,9 +204,7 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const void* value,
     return 0;
 }
 
-BRIMSTONE_END_NAMESPACE(brimstone)
-
-PFN_vkVoidFunction vkGetInstanceProcAddr(VkInstance instance, const char* pName)
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;
     const auto entry = brimstone::func_table.find(pName);
@@ -227,7 +225,7 @@ PFN_vkVoidFunction vkGetInstanceProcAddr(VkInstance instance, const char* pName)
     return result;
 }
 
-PFN_vkVoidFunction vkGetDeviceProcAddr(VkDevice device, const char* pName)
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;
     const auto entry = brimstone::func_table.find(pName);
@@ -248,8 +246,18 @@ PFN_vkVoidFunction vkGetDeviceProcAddr(VkDevice device, const char* pName)
     return result;
 }
 
-// The following four functions are not invoked by the desktop loader, which retrieves the layer specific properties and extensions from the layer's JSON file.
-VkResult vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char *pName) {
+    PFN_vkVoidFunction result = nullptr;
+    assert(instance != VK_NULL_HANDLE);
+    const auto table = brimstone::get_instance_table(instance);
+    if (table && table->GetPhysicalDeviceProcAddr)
+    {
+        result = table->GetPhysicalDeviceProcAddr(instance, pName);
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
 {
     VkResult result = VK_SUCCESS;
 
@@ -270,7 +278,7 @@ VkResult vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, c
     return result;
 }
 
-VkResult vkEnumerateInstanceExtensionProperties(const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
 {
     VkResult result = VK_SUCCESS;
 
@@ -289,7 +297,7 @@ VkResult vkEnumerateInstanceExtensionProperties(const char* pLayerName, uint32_t
     return result;
 }
 
-VkResult vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties)
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties)
 {
     VkResult result = VK_SUCCESS;
 
@@ -316,8 +324,68 @@ VkResult vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerPro
     return result;
 }
 
-VkResult vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties)
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(physicalDevice);
-    return vkEnumerateInstanceLayerProperties(pPropertyCount, pProperties);
+    return EnumerateInstanceLayerProperties(pPropertyCount, pProperties);
+}
+
+BRIMSTONE_END_NAMESPACE(brimstone)
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *pVersionStruct) {
+    assert(pVersionStruct != NULL);
+    assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
+
+    // Fill in the function pointers if our version is at least capable of having the structure contain them.
+    if (pVersionStruct->loaderLayerInterfaceVersion >= 2) {
+        pVersionStruct->pfnGetInstanceProcAddr = brimstone::GetInstanceProcAddr;
+        pVersionStruct->pfnGetDeviceProcAddr = brimstone::GetDeviceProcAddr;
+        pVersionStruct->pfnGetPhysicalDeviceProcAddr = brimstone::GetPhysicalDeviceProcAddr;
+    }
+
+    if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION) {
+        pVersionStruct->loaderLayerInterfaceVersion = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+    }
+
+    return VK_SUCCESS;
+}
+
+// The following three functions are not directly invoked by the desktop loader, which instead uses the function pointers
+// returned by the negotiate function.
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
+{
+    return brimstone::GetInstanceProcAddr(instance, pName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
+{
+    return brimstone::GetDeviceProcAddr(device, pName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance instance, const char *pName) {
+    return brimstone::GetPhysicalDeviceProcAddr(instance, pName);
+}
+
+// The following four functions are not invoked by the desktop loader, which retrieves the layer specific properties and extensions
+// from both the layer's JSON file and during the negotiation process.
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
+{
+    assert(physicalDevice == VK_NULL_HANDLE);
+    return brimstone::EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pPropertyCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
+{
+    return brimstone::EnumerateInstanceExtensionProperties(pLayerName, pPropertyCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties)
+{
+    return brimstone::EnumerateInstanceLayerProperties(pPropertyCount, pProperties);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties)
+{
+    assert(physicalDevice == VK_NULL_HANDLE);
+    return brimstone::EnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
 }
