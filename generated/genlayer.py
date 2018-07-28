@@ -31,6 +31,7 @@ from decoded_struct_types_generator import DecodedStructTypesGeneratorOptions, D
 from api_call_consumer_declarations_generator import APICallConsumerDeclarationsGeneratorOptions, APICallConsumerDeclarationsOutputGenerator
 from api_call_consumer_override_declarations_generator import APICallConsumerOverrideDeclarationsGeneratorOptions, APICallConsumerOverrideDeclarationsOutputGenerator
 from api_call_ascii_consumer_definitions_generator import APICallASCIIConsumerDefinitionsGeneratorOptions, APICallASCIIConsumerDefinitionsOutputGenerator
+from api_call_replay_consumer_definitions_generator import APICallReplayConsumerDefinitionsGeneratorOptions, APICallReplayConsumerDefinitionsOutputGenerator
 from idgenerator import IdGeneratorOptions, IdOutputGenerator
 
 # Simple timer functions
@@ -454,6 +455,28 @@ def makeGenOpts(args):
           APICallASCIIConsumerDefinitionsOutputGenerator,
           APICallASCIIConsumerDefinitionsGeneratorOptions(
             filename          = 'generated_api_call_ascii_consumer_definitions.inc',
+            directory         = directory,
+            apiname           = 'vulkan',
+            profile           = None,
+            versions          = featuresPat,
+            emitversions      = featuresPat,
+            defaultExtensions = 'vulkan',
+            addExtensions     = addExtensionsPat,
+            removeExtensions  = removeExtensionsPat,
+            emitExtensions    = emitExtensionsPat,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False,
+            protectProto      = '',
+            protectProtoStr   = '',
+            alignFuncParam    = 48)
+        ]
+
+    # vktrace replay class method definitions.
+    genOpts['generated_api_call_replay_consumer_definitions.inc'] = [
+          APICallReplayConsumerDefinitionsOutputGenerator,
+          APICallReplayConsumerDefinitionsGeneratorOptions(
+            filename          = 'generated_api_call_replay_consumer_definitions.inc',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
