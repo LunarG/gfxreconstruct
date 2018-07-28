@@ -17,6 +17,8 @@
 #include "util/platform.h"
 #include "format/vulkan_ascii_consumer.h"
 
+#include "generated/generated_decoded_struct_types.inc"
+
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
@@ -44,7 +46,7 @@ bool VulkanAsciiConsumer::Initialize(const std::string& filename)
         }
     }
 
-    return false;
+    return success;
 }
 
 void VulkanAsciiConsumer::Destroy()
