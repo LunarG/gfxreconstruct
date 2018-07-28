@@ -29,7 +29,7 @@ from encode_pnext_struct_generator import EncodePNextStructGeneratorOptions, Enc
 from decode_pnext_struct_generator import DecodePNextStructGeneratorOptions, DecodePNextStructOutputGenerator
 from decoded_struct_types_generator import DecodedStructTypesGeneratorOptions, DecodedStructTypesOutputGenerator
 from api_call_consumer_declarations_generator import APICallConsumerDeclarationsGeneratorOptions, APICallConsumerDeclarationsOutputGenerator
-from api_call_ascii_consumer_declarations_generator import APICallASCIIConsumerDeclarationsGeneratorOptions, APICallASCIIConsumerDeclarationsOutputGenerator
+from api_call_consumer_override_declarations_generator import APICallConsumerOverrideDeclarationsGeneratorOptions, APICallConsumerOverrideDeclarationsOutputGenerator
 from api_call_ascii_consumer_definitions_generator import APICallASCIIConsumerDefinitionsGeneratorOptions, APICallASCIIConsumerDefinitionsOutputGenerator
 from idgenerator import IdGeneratorOptions, IdOutputGenerator
 
@@ -405,7 +405,7 @@ def makeGenOpts(args):
             alignFuncParam    = 48)
         ]
 
-    # vktrace consumer class method declarations.
+    # vktrace consumer class pure virtual method declarations.
     genOpts['generated_api_call_consumer_declarations.inc'] = [
           APICallConsumerDeclarationsOutputGenerator,
           APICallConsumerDeclarationsGeneratorOptions(
@@ -427,11 +427,11 @@ def makeGenOpts(args):
             alignFuncParam    = 48)
         ]
 
-    # vktrace binary to ASCII conversion consumer class method declarations.
-    genOpts['generated_api_call_ascii_consumer_declarations.inc'] = [
-          APICallASCIIConsumerDeclarationsOutputGenerator,
-          APICallASCIIConsumerDeclarationsGeneratorOptions(
-            filename          = 'generated_api_call_ascii_consumer_declarations.inc',
+    # vktrace consumer class method override declarations.
+    genOpts['generated_api_call_consumer_override_declarations.inc'] = [
+          APICallConsumerOverrideDeclarationsOutputGenerator,
+          APICallConsumerOverrideDeclarationsGeneratorOptions(
+            filename          = 'generated_api_call_consumer_override_declarations.inc',
             directory         = directory,
             apiname           = 'vulkan',
             profile           = None,
