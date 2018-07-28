@@ -19,6 +19,7 @@ target_sources(brimstone_format
                    trace_pnext_util.h
                    value_decoder.h
                    vulkan_ascii_consumer.h
+                   vulkan_replay_consumer.h
                    vulkan_consumer.h
                    vulkan_decoder.h
                    file_processor.cpp
@@ -26,6 +27,7 @@ target_sources(brimstone_format
                    string_decoder.cpp
                    trace_manager.cpp
                    vulkan_ascii_consumer.cpp
+                   vulkan_replay_consumer.cpp
                    vulkan_decoder.cpp
               )
 
