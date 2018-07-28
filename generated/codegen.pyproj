@@ -20,7 +20,7 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="api_call_ascii_consumer_declarations_generator.py" />
+    <Compile Include="api_call_consumer_override_declarations_generator.py" />
     <Compile Include="api_call_ascii_consumer_definitions_generator.py" />
     <Compile Include="api_call_consumer_declarations_generator.py" />
     <Compile Include="api_call_decoders_generator.py" />

@@ -51,7 +51,7 @@ from common_codegen import GetFeatureProtect
 #     parameter on a separate line
 #   alignFuncParam - if nonzero and parameters are being put on a
 #     separate line, align parameter names at the specified column
-class APICallASCIIConsumerDeclarationsGeneratorOptions(GeneratorOptions):
+class APICallConsumerOverrideDeclarationsGeneratorOptions(GeneratorOptions):
     """Represents options during C interface generation for headers"""
     def __init__(self,
                  filename = None,
@@ -110,7 +110,7 @@ class APICallASCIIConsumerDeclarationsGeneratorOptions(GeneratorOptions):
 # genGroup(groupinfo,name)
 # genEnum(enuminfo, name)
 # genCmd(cmdinfo)
-class APICallASCIIConsumerDeclarationsOutputGenerator(OutputGenerator):
+class APICallConsumerOverrideDeclarationsOutputGenerator(OutputGenerator):
     """Generate specified API interfaces in a specific style, such as a C header"""
     # This is an ordered list of sections in the header file.
     ALL_SECTIONS = ['command']

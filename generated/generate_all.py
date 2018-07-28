@@ -35,7 +35,7 @@ generate_targets = [
     'generated_api_call_decode_cases.inc',
     'generated_decode_pnext_struct.inc',
     'generated_api_call_consumer_declarations.inc',
-    'generated_api_call_ascii_consumer_declarations.inc',
+    'generated_api_call_consumer_override_declarations.inc',
     'generated_api_call_ascii_consumer_definitions.inc'
 ]
 

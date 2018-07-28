@@ -43,7 +43,7 @@ public:
 
     const std::string& GetFilename() const { return m_filename; }
 
-#include "generated/generated_api_call_ascii_consumer_declarations.inc"
+#include "generated/generated_api_call_consumer_override_declarations.inc"
 
 private:
     FILE*           m_file;
