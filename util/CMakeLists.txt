@@ -4,14 +4,18 @@ target_sources(brimstone_util
                PRIVATE
                    defines.h
                    file_output_stream.h
+                   graphics_memory_allocator.h
+                   graphics_memory.h
                    memory_output_stream.h
                    output_stream.h
+                   passthrough_memory_allocator.h
                    platform.h
                    logging.h
                    metadata.h
                    file_output_stream.cpp
                    memory_output_stream.cpp
                    metadata.cpp
+                   passthrough_memory_allocator.cpp
               )
 
 if (WIN32)
