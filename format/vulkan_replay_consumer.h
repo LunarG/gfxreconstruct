@@ -24,6 +24,7 @@
 
 #include "util/defines.h"
 #include "format/vulkan_consumer.h"
+#include "format/vulkan_object_mapper.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
@@ -39,6 +40,9 @@ public:
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
 
 #include "generated/generated_api_call_consumer_override_declarations.inc"
+
+private:
+    VulkanObjectMapper object_mapper_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
