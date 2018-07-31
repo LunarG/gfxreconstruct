@@ -133,6 +133,7 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
         # Typenames
         self.structNames = set()                          # Set of Vulkan struct typenames
+        self.handleTypes = set()                          # Set of handle type names
     #
     def beginFile(self, genOpts):
         OutputGenerator.beginFile(self, genOpts)
@@ -206,6 +207,8 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
         if (category == 'struct' or category == 'union'):
             self.structNames.add(name)
             self.genStruct(typeinfo, name, alias)
+        elif (category == 'handle'):
+            self.handleTypes.add(name)
     #
     # Struct (e.g. C "struct" type) generation.
     # This is a special case of the <type> tag where the contents are
@@ -545,6 +548,13 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
                             else:
                                 preexpr.append('{basetype} {} = static_cast<{basetype}>(0);'.format(outval, basetype = basetype))
                             expr += '&{};'.format(outval)
+                preexpr.append(expr)
+            elif basetype in self.handleTypes:
+                # Handles need to be mapped.
+                argname = 'in_' + paramname
+                args.append(argname)
+                expr = '{} {} = '.format(paramtype, argname)
+                expr += 'object_mapper_.Map{}({});'.format(basetype, paramname)
                 preexpr.append(expr)
             elif self.isFunctionPtr(basetype):
                 # Function pointers are encoded as a 64-bit address value.
