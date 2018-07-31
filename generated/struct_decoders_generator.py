@@ -354,12 +354,14 @@ class StructDecodersOutputGenerator(OutputGenerator):
         isstruct = False
         isstring = False
         isfuncp = False
+        ishandle = False
 
         if typename in self.structNames:
             isstruct = True
         else:
             if typename in self.handleTypes:
-                typename = 'Handle'
+                ishandle = True
+                typename = 'HandleId'
             elif typename in self.flagsTypes:
                 typename = 'Flags'
             elif typename in self.enumTypes:
@@ -391,8 +393,9 @@ class StructDecodersOutputGenerator(OutputGenerator):
                 body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferargs, paramname)
                 body += '    value->{} = nullptr;\n'.format(paramname)
             else:
-                if self.isStaticArray(param):
+                if self.isStaticArray(param) and not ishandle:
                     # The pointer decoder will write directly to the struct member's memory.
+                    # Handles are a special case that decode as 64-bit integer IDs into a separate allocation.
                     body += '    wrapper->{paramname}.SetExternalMemory(value->{paramname}, {arraylen});\n'.format(paramname=paramname, arraylen=arraylen)
 
                 if isstruct:
@@ -403,14 +406,22 @@ class StructDecodersOutputGenerator(OutputGenerator):
                     body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(paramname, typename, bufferargs)
 
                 if not self.isStaticArray(param):
-                    # Point the real struct's member pointer to the pointer decoder's memory.
-                    body += '    value->{paramname} = wrapper->{paramname}.GetPointer();\n'.format(paramname=paramname)
+                    if ishandle:
+                        # The handle pointers are initialized as NULL.
+                        # The consumer is responisble for mapping the decoded handle ID to a usable object handle on replay.
+                        body += '    value->{} = nullptr;\n'.format(paramname)
+                    else:
+                        # Point the real struct's member pointer to the pointer decoder's memory.
+                        body += '    value->{paramname} = wrapper->{paramname}.GetPointer();\n'.format(paramname=paramname)
         else:
             if isstruct:
                 body += '    wrapper->{paramname}.value = &(value->{paramname});\n'.format(paramname=paramname)
                 body += '    bytes_read += decode_struct({}, &(wrapper->{}));\n'.format(bufferargs, paramname)
             elif isfuncp:
                 body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferargs, paramname)
+                body += '    value->{} = nullptr;\n'.format(paramname)
+            elif ishandle:
+                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(bufferargs, paramname)
                 body += '    value->{} = nullptr;\n'.format(paramname)
             else:
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(typename, bufferargs, paramname)

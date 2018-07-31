@@ -48,8 +48,7 @@ public:
     static size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size, uint64_t* value) { return DecodeAddress(buffer, buffer_size, value); }
     static size_t DecodeFunctionPtr(const uint8_t* buffer, size_t buffer_size, uint64_t* value) { return DecodeAddress(buffer, buffer_size, value); }
 
-    template<typename T>
-    static size_t DecodeHandleValue(const uint8_t* buffer, size_t buffer_size, T* value) { return DecodeValueFrom<HandleEncodeType>(buffer, buffer_size, value); }
+    static size_t DecodeHandleIdValue(const uint8_t* buffer, size_t buffer_size, HandleId* value) { return DecodeValueFrom<HandleEncodeType>(buffer, buffer_size, value); }
     template<typename T>
     static size_t DecodeEnumValue(const uint8_t* buffer, size_t buffer_size, T* value) { return DecodeValueFrom<EnumEncodeType>(buffer, buffer_size, value); }
     template<typename T>
@@ -70,8 +69,7 @@ public:
     static size_t DecodeUInt8Array(const uint8_t* buffer, size_t buffer_size, void* arr, size_t len) { return DecodeArray(buffer, buffer_size, reinterpret_cast<uint8_t*>(arr), len); }
     static size_t DecodeVoidArray(const uint8_t* buffer, size_t buffer_size, void* arr, size_t len) { return DecodeArray(buffer, buffer_size, reinterpret_cast<uint8_t*>(arr), len); }
 
-    template<typename T>
-    static size_t DecodeHandleArray(const uint8_t* buffer, size_t buffer_size, T* arr, size_t len) { return DecodeArrayFrom<HandleEncodeType>(buffer, buffer_size, arr, len); }
+    static size_t DecodeHandleIdArray(const uint8_t* buffer, size_t buffer_size, HandleId* arr, size_t len) { return DecodeArrayFrom<HandleEncodeType>(buffer, buffer_size, arr, len); }
     template<typename T>
     static size_t DecodeEnumArray(const uint8_t* buffer, size_t buffer_size, T* arr, size_t len) { return DecodeArrayFrom<EnumEncodeType>(buffer, buffer_size, arr, len); }
     template<typename T>
