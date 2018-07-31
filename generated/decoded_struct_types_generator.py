@@ -121,7 +121,8 @@ class DecodedStructTypesOutputGenerator(OutputGenerator):
                  diagFile = sys.stdout):
         OutputGenerator.__init__(self, errFile, warnFile, diagFile)
         # Typenames
-        self.structNames = []                             # List of Vulkan struct typenames
+        self.structNames = set()                          # List of Vulkan struct typenames
+        self.handleTypes = set()                          # Set of handle type names
     #
     def beginFile(self, genOpts):
         OutputGenerator.beginFile(self, genOpts)
@@ -202,8 +203,10 @@ class DecodedStructTypesOutputGenerator(OutputGenerator):
         category = typeElem.get('category')
         if (category == 'struct' or category == 'union'):
             if not alias:
-                self.structNames.append(name)
+                self.structNames.add(name)
                 self.genStruct(typeinfo, name, alias)
+        elif (category == 'handle'):
+            self.handleTypes.add(name)
     #
     # Struct (e.g. C "struct" type) generation.
     # This is a special case of the <type> tag where the contents are
@@ -324,6 +327,9 @@ class DecodedStructTypesOutputGenerator(OutputGenerator):
                         else:
                             # If this was a pointer to an unknown object, it was encoded as a 64-bit address value.
                             decls.append('    uint64_t {};\n'.format(paramname))
+                    elif typename in self.handleTypes:
+                        # Handles are encoded as a 64-bit ID value.
+                        decls.append('    PointerDecoder<HandleId> {};\n'.format(paramname))
                     else:
                         decls.append('    PointerDecoder<{}> {};\n'.format(typename, paramname))
                 elif self.isStaticArray(member):
@@ -336,6 +342,9 @@ class DecodedStructTypesOutputGenerator(OutputGenerator):
                 elif self.isFunctionPtr(typename):
                     # Function pointers are encoded as a 64-bit address value.
                     decls.append('    uint64_t {};\n'.format(paramname))
+                elif typename in self.handleTypes:
+                    # Handles are encoded as a 64-bit ID value.
+                    decls.append('    HandleId {};\n'.format(paramname))
                 elif typename in self.structNames:
                     decls.append('    Decoded_{} {};\n'.format(typename, paramname))
 

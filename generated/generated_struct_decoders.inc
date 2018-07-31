@@ -524,16 +524,16 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSubmit
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->waitSemaphoreCount));
-    bytes_read += wrapper->pWaitSemaphores.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pWaitSemaphores = wrapper->pWaitSemaphores.GetPointer();
+    bytes_read += wrapper->pWaitSemaphores.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pWaitSemaphores = nullptr;
     bytes_read += wrapper->pWaitDstStageMask.DecodeFlags((buffer + bytes_read), (buffer_size - bytes_read));
     value->pWaitDstStageMask = wrapper->pWaitDstStageMask.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->commandBufferCount));
-    bytes_read += wrapper->pCommandBuffers.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pCommandBuffers = wrapper->pCommandBuffers.GetPointer();
+    bytes_read += wrapper->pCommandBuffers.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pCommandBuffers = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->signalSemaphoreCount));
-    bytes_read += wrapper->pSignalSemaphores.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSignalSemaphores = wrapper->pSignalSemaphores.GetPointer();
+    bytes_read += wrapper->pSignalSemaphores.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSignalSemaphores = nullptr;
 
     return bytes_read;
 }
@@ -564,7 +564,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMapped
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memory));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->memory));
+    value->memory = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->offset));
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->size));
 
@@ -626,7 +627,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparse
 
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->resourceOffset));
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->size));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memory));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->memory));
+    value->memory = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memoryOffset));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
 
@@ -640,7 +642,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparse
     size_t bytes_read = 0;
     VkSparseBufferMemoryBindInfo* value = wrapper->value;
 
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bindCount));
     bytes_read += wrapper->pBinds.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBinds = wrapper->pBinds.GetPointer();
@@ -655,7 +658,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparse
     size_t bytes_read = 0;
     VkSparseImageOpaqueMemoryBindInfo* value = wrapper->value;
 
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->image));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
+    value->image = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bindCount));
     bytes_read += wrapper->pBinds.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBinds = wrapper->pBinds.GetPointer();
@@ -704,7 +708,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparse
     bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->offset));
     wrapper->extent.value = &(value->extent);
     bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->extent));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memory));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->memory));
+    value->memory = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memoryOffset));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
 
@@ -718,7 +723,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSparse
     size_t bytes_read = 0;
     VkSparseImageMemoryBindInfo* value = wrapper->value;
 
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->image));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
+    value->image = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bindCount));
     bytes_read += wrapper->pBinds.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBinds = wrapper->pBinds.GetPointer();
@@ -737,8 +743,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBindSp
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->waitSemaphoreCount));
-    bytes_read += wrapper->pWaitSemaphores.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pWaitSemaphores = wrapper->pWaitSemaphores.GetPointer();
+    bytes_read += wrapper->pWaitSemaphores.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pWaitSemaphores = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bufferBindCount));
     bytes_read += wrapper->pBufferBinds.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBufferBinds = wrapper->pBufferBinds.GetPointer();
@@ -749,8 +755,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBindSp
     bytes_read += wrapper->pImageBinds.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pImageBinds = wrapper->pImageBinds.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->signalSemaphoreCount));
-    bytes_read += wrapper->pSignalSemaphores.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSignalSemaphores = wrapper->pSignalSemaphores.GetPointer();
+    bytes_read += wrapper->pSignalSemaphores.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSignalSemaphores = nullptr;
 
     return bytes_read;
 }
@@ -850,7 +856,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBuffer
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->format));
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->offset));
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->range));
@@ -945,7 +952,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageV
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->image));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
+    value->image = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewType));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->format));
     wrapper->components.value = &(value->components);
@@ -1035,7 +1043,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipeli
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->stage));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->module));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->module));
+    value->module = nullptr;
     bytes_read += wrapper->pName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pName = wrapper->pName.GetPointer();
     bytes_read += wrapper->pSpecializationInfo.Decode((buffer + bytes_read), (buffer_size - bytes_read));
@@ -1388,10 +1397,13 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkGraphi
     value->pColorBlendState = wrapper->pColorBlendState.GetPointer();
     bytes_read += wrapper->pDynamicState.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDynamicState = wrapper->pDynamicState.GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->layout));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->renderPass));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->layout));
+    value->layout = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->renderPass));
+    value->renderPass = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subpass));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->basePipelineHandle));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->basePipelineHandle));
+    value->basePipelineHandle = nullptr;
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->basePipelineIndex));
 
     return bytes_read;
@@ -1410,8 +1422,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkComput
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     wrapper->stage.value = &(value->stage);
     bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->stage));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->layout));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->basePipelineHandle));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->layout));
+    value->layout = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->basePipelineHandle));
+    value->basePipelineHandle = nullptr;
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->basePipelineIndex));
 
     return bytes_read;
@@ -1443,8 +1457,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipeli
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->setLayoutCount));
-    bytes_read += wrapper->pSetLayouts.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSetLayouts = wrapper->pSetLayouts.GetPointer();
+    bytes_read += wrapper->pSetLayouts.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSetLayouts = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->pushConstantRangeCount));
     bytes_read += wrapper->pPushConstantRanges.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPushConstantRanges = wrapper->pPushConstantRanges.GetPointer();
@@ -1493,8 +1507,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescri
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorType));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorCount));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->stageFlags));
-    bytes_read += wrapper->pImmutableSamplers.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pImmutableSamplers = wrapper->pImmutableSamplers.GetPointer();
+    bytes_read += wrapper->pImmutableSamplers.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pImmutableSamplers = nullptr;
 
     return bytes_read;
 }
@@ -1559,10 +1573,11 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescri
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorPool));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->descriptorPool));
+    value->descriptorPool = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorSetCount));
-    bytes_read += wrapper->pSetLayouts.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSetLayouts = wrapper->pSetLayouts.GetPointer();
+    bytes_read += wrapper->pSetLayouts.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSetLayouts = nullptr;
 
     return bytes_read;
 }
@@ -1574,8 +1589,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescri
     size_t bytes_read = 0;
     VkDescriptorImageInfo* value = wrapper->value;
 
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sampler));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageView));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->sampler));
+    value->sampler = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->imageView));
+    value->imageView = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageLayout));
 
     return bytes_read;
@@ -1588,7 +1605,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescri
     size_t bytes_read = 0;
     VkDescriptorBufferInfo* value = wrapper->value;
 
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->offset));
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->range));
 
@@ -1605,7 +1623,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWriteD
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstSet));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->dstSet));
+    value->dstSet = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstBinding));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstArrayElement));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorCount));
@@ -1614,8 +1633,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWriteD
     value->pImageInfo = wrapper->pImageInfo.GetPointer();
     bytes_read += wrapper->pBufferInfo.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBufferInfo = wrapper->pBufferInfo.GetPointer();
-    bytes_read += wrapper->pTexelBufferView.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pTexelBufferView = wrapper->pTexelBufferView.GetPointer();
+    bytes_read += wrapper->pTexelBufferView.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pTexelBufferView = nullptr;
 
     return bytes_read;
 }
@@ -1630,10 +1649,12 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCopyDe
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->srcSet));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->srcSet));
+    value->srcSet = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->srcBinding));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->srcArrayElement));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstSet));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->dstSet));
+    value->dstSet = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstBinding));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstArrayElement));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorCount));
@@ -1652,10 +1673,11 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkFrameb
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->renderPass));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->renderPass));
+    value->renderPass = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->attachmentCount));
-    bytes_read += wrapper->pAttachments.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pAttachments = wrapper->pAttachments.GetPointer();
+    bytes_read += wrapper->pAttachments.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pAttachments = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->width));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->height));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layers));
@@ -1790,7 +1812,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkComman
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->commandPool));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->commandPool));
+    value->commandPool = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->level));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->commandBufferCount));
 
@@ -1807,9 +1830,11 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkComman
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->renderPass));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->renderPass));
+    value->renderPass = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subpass));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->framebuffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->framebuffer));
+    value->framebuffer = nullptr;
     bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->occlusionQueryEnable));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->queryFlags));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineStatistics));
@@ -2049,7 +2074,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBuffer
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstAccessMask));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->srcQueueFamilyIndex));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstQueueFamilyIndex));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->offset));
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->size));
 
@@ -2072,7 +2098,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageM
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->newLayout));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->srcQueueFamilyIndex));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstQueueFamilyIndex));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->image));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
+    value->image = nullptr;
     wrapper->subresourceRange.value = &(value->subresourceRange);
     bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->subresourceRange));
 
@@ -2089,8 +2116,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkRender
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->renderPass));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->framebuffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->renderPass));
+    value->renderPass = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->framebuffer));
+    value->framebuffer = nullptr;
     wrapper->renderArea.value = &(value->renderArea);
     bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->renderArea));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->clearValueCount));
@@ -2173,8 +2202,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBindBu
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memory));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->memory));
+    value->memory = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memoryOffset));
 
     return bytes_read;
@@ -2190,8 +2221,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBindIm
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->image));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memory));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
+    value->image = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->memory));
+    value->memory = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memoryOffset));
 
     return bytes_read;
@@ -2241,8 +2274,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMemory
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->image));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
+    value->image = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
 
     return bytes_read;
 }
@@ -2383,8 +2418,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysic
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->physicalDeviceCount));
-    wrapper->physicalDevices.SetExternalMemory(value->physicalDevices, VK_MAX_DEVICE_GROUP_SIZE);
-    bytes_read += wrapper->physicalDevices.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += wrapper->physicalDevices.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subsetAllocation));
 
     return bytes_read;
@@ -2401,8 +2435,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDevice
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->physicalDeviceCount));
-    bytes_read += wrapper->pPhysicalDevices.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pPhysicalDevices = wrapper->pPhysicalDevices.GetPointer();
+    bytes_read += wrapper->pPhysicalDevices.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pPhysicalDevices = nullptr;
 
     return bytes_read;
 }
@@ -2417,7 +2451,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBuffer
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
 
     return bytes_read;
 }
@@ -2432,7 +2467,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageM
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->image));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
+    value->image = nullptr;
 
     return bytes_read;
 }
@@ -2447,7 +2483,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageS
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->image));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
+    value->image = nullptr;
 
     return bytes_read;
 }
@@ -2877,7 +2914,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSample
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->conversion));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->conversion));
+    value->conversion = nullptr;
 
     return bytes_read;
 }
@@ -2974,9 +3012,11 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescri
     bytes_read += wrapper->pDescriptorUpdateEntries.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pDescriptorUpdateEntries = wrapper->pDescriptorUpdateEntries.GetPointer();
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->templateType));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorSetLayout));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->descriptorSetLayout));
+    value->descriptorSetLayout = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineBindPoint));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineLayout));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pipelineLayout));
+    value->pipelineLayout = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->set));
 
     return bytes_read;
@@ -3315,7 +3355,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSwapch
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->surface));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->surface));
+    value->surface = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->minImageCount));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageFormat));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageColorSpace));
@@ -3331,7 +3372,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSwapch
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->compositeAlpha));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->presentMode));
     bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->clipped));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->oldSwapchain));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->oldSwapchain));
+    value->oldSwapchain = nullptr;
 
     return bytes_read;
 }
@@ -3347,11 +3389,11 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPresen
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->waitSemaphoreCount));
-    bytes_read += wrapper->pWaitSemaphores.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pWaitSemaphores = wrapper->pWaitSemaphores.GetPointer();
+    bytes_read += wrapper->pWaitSemaphores.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pWaitSemaphores = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->swapchainCount));
-    bytes_read += wrapper->pSwapchains.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSwapchains = wrapper->pSwapchains.GetPointer();
+    bytes_read += wrapper->pSwapchains.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSwapchains = nullptr;
     bytes_read += wrapper->pImageIndices.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
     value->pImageIndices = wrapper->pImageIndices.GetPointer();
     bytes_read += wrapper->pResults.DecodeEnum((buffer + bytes_read), (buffer_size - bytes_read));
@@ -3370,7 +3412,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImageS
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->swapchain));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->swapchain));
+    value->swapchain = nullptr;
 
     return bytes_read;
 }
@@ -3385,7 +3428,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBindIm
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->swapchain));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->swapchain));
+    value->swapchain = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageIndex));
 
     return bytes_read;
@@ -3401,10 +3445,13 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcquir
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->swapchain));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->swapchain));
+    value->swapchain = nullptr;
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->timeout));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->semaphore));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->fence));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->semaphore));
+    value->semaphore = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->fence));
+    value->fence = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceMask));
 
     return bytes_read;
@@ -3467,7 +3514,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDispla
     size_t bytes_read = 0;
     VkDisplayPropertiesKHR* value = wrapper->value;
 
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->display));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->display));
+    value->display = nullptr;
     bytes_read += wrapper->displayName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->displayName = wrapper->displayName.GetPointer();
     wrapper->physicalDimensions.value = &(value->physicalDimensions);
@@ -3502,7 +3550,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDispla
     size_t bytes_read = 0;
     VkDisplayModePropertiesKHR* value = wrapper->value;
 
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->displayMode));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->displayMode));
+    value->displayMode = nullptr;
     wrapper->parameters.value = &(value->parameters);
     bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->parameters));
 
@@ -3561,7 +3610,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDispla
     size_t bytes_read = 0;
     VkDisplayPlanePropertiesKHR* value = wrapper->value;
 
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->currentDisplay));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->currentDisplay));
+    value->currentDisplay = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->currentStackIndex));
 
     return bytes_read;
@@ -3578,7 +3628,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDispla
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->displayMode));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->displayMode));
+    value->displayMode = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->planeIndex));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->planeStackIndex));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->transform));
@@ -3790,7 +3841,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMemory
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memory));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->memory));
+    value->memory = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
 
     return bytes_read;
@@ -3838,7 +3890,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMemory
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memory));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->memory));
+    value->memory = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
 
     return bytes_read;
@@ -3856,15 +3909,15 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32K
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->acquireCount));
-    bytes_read += wrapper->pAcquireSyncs.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pAcquireSyncs = wrapper->pAcquireSyncs.GetPointer();
+    bytes_read += wrapper->pAcquireSyncs.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pAcquireSyncs = nullptr;
     bytes_read += wrapper->pAcquireKeys.DecodeUInt64((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAcquireKeys = wrapper->pAcquireKeys.GetPointer();
     bytes_read += wrapper->pAcquireTimeouts.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAcquireTimeouts = wrapper->pAcquireTimeouts.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->releaseCount));
-    bytes_read += wrapper->pReleaseSyncs.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pReleaseSyncs = wrapper->pReleaseSyncs.GetPointer();
+    bytes_read += wrapper->pReleaseSyncs.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pReleaseSyncs = nullptr;
     bytes_read += wrapper->pReleaseKeys.DecodeUInt64((buffer + bytes_read), (buffer_size - bytes_read));
     value->pReleaseKeys = wrapper->pReleaseKeys.GetPointer();
 
@@ -3883,7 +3936,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImport
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->semaphore));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->semaphore));
+    value->semaphore = nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
     bytes_read += ValueDecoder::DecodeHANDLEValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handle));
@@ -3940,7 +3994,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSemaph
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->semaphore));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->semaphore));
+    value->semaphore = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
 
     return bytes_read;
@@ -3957,7 +4012,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImport
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->semaphore));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->semaphore));
+    value->semaphore = nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->fd));
@@ -3975,7 +4031,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSemaph
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->semaphore));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->semaphore));
+    value->semaphore = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
 
     return bytes_read;
@@ -4217,7 +4274,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImport
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->fence));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->fence));
+    value->fence = nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
     bytes_read += ValueDecoder::DecodeHANDLEValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handle));
@@ -4254,7 +4312,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkFenceG
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->fence));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->fence));
+    value->fence = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
 
     return bytes_read;
@@ -4271,7 +4330,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImport
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->fence));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->fence));
+    value->fence = nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->fd));
@@ -4289,7 +4349,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkFenceG
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->fence));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->fence));
+    value->fence = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
 
     return bytes_read;
@@ -4305,7 +4366,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysic
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->surface));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->surface));
+    value->surface = nullptr;
 
     return bytes_read;
 }
@@ -4400,7 +4462,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDispla
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->mode));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->mode));
+    value->mode = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->planeIndex));
 
     return bytes_read;
@@ -4586,8 +4649,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDedica
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->image));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->image));
+    value->image = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
 
     return bytes_read;
 }
@@ -4736,15 +4801,15 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32K
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->acquireCount));
-    bytes_read += wrapper->pAcquireSyncs.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pAcquireSyncs = wrapper->pAcquireSyncs.GetPointer();
+    bytes_read += wrapper->pAcquireSyncs.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pAcquireSyncs = nullptr;
     bytes_read += wrapper->pAcquireKeys.DecodeUInt64((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAcquireKeys = wrapper->pAcquireKeys.GetPointer();
     bytes_read += wrapper->pAcquireTimeoutMilliseconds.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAcquireTimeoutMilliseconds = wrapper->pAcquireTimeoutMilliseconds.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->releaseCount));
-    bytes_read += wrapper->pReleaseSyncs.DecodeHandle((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pReleaseSyncs = wrapper->pReleaseSyncs.GetPointer();
+    bytes_read += wrapper->pReleaseSyncs.DecodeHandleId((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pReleaseSyncs = nullptr;
     bytes_read += wrapper->pReleaseKeys.DecodeUInt64((buffer + bytes_read), (buffer_size - bytes_read));
     value->pReleaseKeys = wrapper->pReleaseKeys.GetPointer();
 
@@ -4798,7 +4863,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCondit
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->offset));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
 
@@ -4878,7 +4944,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndire
     VkIndirectCommandsTokenNVX* value = wrapper->value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->tokenType));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->offset));
 
     return bytes_read;
@@ -4928,16 +4995,21 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCmdPro
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->objectTable));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->indirectCommandsLayout));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->objectTable));
+    value->objectTable = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->indirectCommandsLayout));
+    value->indirectCommandsLayout = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->indirectCommandsTokenCount));
     bytes_read += wrapper->pIndirectCommandsTokens.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pIndirectCommandsTokens = wrapper->pIndirectCommandsTokens.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxSequencesCount));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->targetCommandBuffer));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sequencesCountBuffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->targetCommandBuffer));
+    value->targetCommandBuffer = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->sequencesCountBuffer));
+    value->sequencesCountBuffer = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sequencesCountOffset));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sequencesIndexBuffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->sequencesIndexBuffer));
+    value->sequencesIndexBuffer = nullptr;
     bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sequencesIndexOffset));
 
     return bytes_read;
@@ -4953,8 +5025,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkCmdRes
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->objectTable));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->indirectCommandsLayout));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->objectTable));
+    value->objectTable = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->indirectCommandsLayout));
+    value->indirectCommandsLayout = nullptr;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxSequencesCount));
 
     return bytes_read;
@@ -5008,7 +5082,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkObject
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipeline));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pipeline));
+    value->pipeline = nullptr;
 
     return bytes_read;
 }
@@ -5022,8 +5097,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkObject
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineLayout));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorSet));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pipelineLayout));
+    value->pipelineLayout = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->descriptorSet));
+    value->descriptorSet = nullptr;
 
     return bytes_read;
 }
@@ -5037,7 +5114,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkObject
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
 
     return bytes_read;
 }
@@ -5051,7 +5129,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkObject
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->buffer));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->indexType));
 
     return bytes_read;
@@ -5066,7 +5145,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkObject
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineLayout));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pipelineLayout));
+    value->pipelineLayout = nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->stageFlags));
 
     return bytes_read;
@@ -5635,7 +5715,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMemory
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->memory));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->memory));
+    value->memory = nullptr;
 
     return bytes_read;
 }
@@ -5939,7 +6020,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkShader
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += ValueDecoder::DecodeHandleValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->validationCache));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->validationCache));
+    value->validationCache = nullptr;
 
     return bytes_read;
 }

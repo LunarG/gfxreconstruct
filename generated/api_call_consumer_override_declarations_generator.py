@@ -133,6 +133,7 @@ class APICallConsumerOverrideDeclarationsOutputGenerator(OutputGenerator):
         self.sections = dict([(section, []) for section in self.ALL_SECTIONS])
         # Typenames
         self.structNames = set()                          # Set of Vulkan struct typenames
+        self.handleTypes = set()                          # Set of handle type names
     #
     def beginFile(self, genOpts):
         OutputGenerator.beginFile(self, genOpts)
@@ -206,6 +207,8 @@ class APICallConsumerOverrideDeclarationsOutputGenerator(OutputGenerator):
         if (category == 'struct' or category == 'union'):
             self.structNames.add(name)
             self.genStruct(typeinfo, name, alias)
+        elif (category == 'handle'):
+            self.handleTypes.add(name)
     #
     # Struct (e.g. C "struct" type) generation.
     # This is a special case of the <type> tag where the contents are
@@ -415,6 +418,9 @@ class APICallConsumerOverrideDeclarationsOutputGenerator(OutputGenerator):
                 else:
                     # If this was a pointer to an unknown object, it was encoded as a 64-bit address value.
                     typename = 'uint64_t'
+            elif typename in self.handleTypes:
+                # Handles are encoded as a 64-bit ID value.
+                typename = wrapprefix + 'PointerDecoder<HandleId>' + wrapsuffix
             else:
                 typename = wrapprefix + 'PointerDecoder<{}>'.format(typename) + wrapsuffix
         elif self.isStaticArray(param):
@@ -425,6 +431,9 @@ class APICallConsumerOverrideDeclarationsOutputGenerator(OutputGenerator):
         elif self.isFunctionPtr(typename):
             # Function pointers are encoded as a 64-bit address value.
             typename = 'uint64_t'
+        elif typename in self.handleTypes:
+            # Handles are encoded as a 64-bit ID value.
+            typename = 'HandleId'
         elif typename in self.structNames:
             typename = wrapprefix + 'Decoded_{}'.format(typename) + wrapsuffix
 

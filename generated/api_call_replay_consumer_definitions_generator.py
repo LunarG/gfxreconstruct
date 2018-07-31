@@ -431,6 +431,9 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
                 else:
                     # If this was a pointer to an unknown object, it was encoded as a 64-bit address value.
                     typename = 'uint64_t'
+            elif typename in self.handleTypes:
+                # Handles are encoded as a 64-bit ID value.
+                typename = wrapprefix + 'PointerDecoder<HandleId>' + wrapsuffix
             else:
                 typename = wrapprefix + 'PointerDecoder<{}>'.format(typename) + wrapsuffix
         elif self.isStaticArray(param):
@@ -441,6 +444,9 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
         elif self.isFunctionPtr(typename):
             # Function pointers are encoded as a 64-bit address value.
             typename = 'uint64_t'
+        elif typename in self.handleTypes:
+            # Handles are encoded as a 64-bit ID value.
+            typename = 'HandleId'
         elif typename in self.structNames:
             typename = wrapprefix + 'Decoded_{}'.format(typename) + wrapsuffix
 

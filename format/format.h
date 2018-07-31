@@ -34,7 +34,7 @@ typedef uint64_t DeviceSizeEncodeType;
 typedef uint64_t SizeTEncodeType;
 typedef uint64_t AddressEncodeType;
 
-
+typedef HandleEncodeType HandleId;
 
 enum BlockType : uint32_t
 {

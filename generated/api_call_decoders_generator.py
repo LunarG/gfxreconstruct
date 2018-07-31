@@ -397,6 +397,8 @@ class APICallDecodersOutputGenerator(OutputGenerator):
                     else:
                         # If this was a pointer to an unknown object, it was encoded as a 64-bit address value.
                         decls += '    uint64_t {};\n'.format(paramname)
+                elif typename in self.handleTypes:
+                    decls += '    PointerDecoder<HandleId> {};\n'.format(paramname)
                 else:
                     decls += '    PointerDecoder<{}> {};\n'.format(typename, paramname)
             elif self.isStaticArray(param):
@@ -409,6 +411,8 @@ class APICallDecodersOutputGenerator(OutputGenerator):
                 decls += '    uint64_t {};\n'.format(paramname)
             elif typename in self.structNames:
                 decls += '    Decoded_{} {};\n'.format(typename, paramname)
+            elif typename in self.handleTypes:
+                decls += '    HandleId {};\n'.format(paramname)
             else:
                 decls += '    {} {};\n'.format(typename, paramname)
 
@@ -428,7 +432,7 @@ class APICallDecodersOutputGenerator(OutputGenerator):
             isstruct = True
         else:
             if typename in self.handleTypes:
-                typename = 'Handle'
+                typename = 'HandleId'
             elif typename in self.flagsTypes:
                 typename = 'Flags'
             elif typename in self.enumTypes:
