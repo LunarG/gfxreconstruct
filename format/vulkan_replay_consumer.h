@@ -17,6 +17,7 @@
 #ifndef BRIMSTONE_VULKAN_REPLAY_CONSUMER_H
 #define BRIMSTONE_VULKAN_REPLAY_CONSUMER_H
 
+#include <cassert>
 #include <cstdio>
 #include <string>
 
@@ -31,17 +32,60 @@ BRIMSTONE_BEGIN_NAMESPACE(format)
 
 class VulkanReplayConsumer : public VulkanConsumer
 {
-public:
+  public:
     VulkanReplayConsumer();
 
     virtual ~VulkanReplayConsumer();
+
+  private:
+    template <typename T>
+    T* AllocateArray(size_t len) const
+    {
+        return new T[len];
+    }
+
+    template <typename T>
+    void FreeArray(T** arr) const
+    {
+        assert(arr != nullptr);
+
+        if ((*arr) != nullptr)
+        {
+            delete[](*arr);
+            *arr = nullptr;
+        }
+    }
+
+    template <typename T>
+    void MapHandles(const HandleId* ids, T* handles, size_t len, T (VulkanObjectMapper::*MapFunc)(HandleId) const) const
+    {
+        if ((ids != nullptr) && (handles != nullptr))
+        {
+            for (size_t i = 0; i < len; ++i)
+            {
+                handles[i] = (object_mapper_.*MapFunc)(ids[i]);
+            }
+        }
+    }
+
+    template <typename T>
+    void AddHandles(const HandleId* ids, const T* handles, size_t len, void (VulkanObjectMapper::*AddFunc)(HandleId, T))
+    {
+        if ((ids != nullptr) && (handles != nullptr))
+        {
+            for (size_t i = 0; i < len; ++i)
+            {
+                (object_mapper_.*AddFunc)(ids[i], handles[i]);
+            }
+        }
+    }
 
     const VkAllocationCallbacks*
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
 
 #include "generated/generated_api_call_consumer_override_declarations.inc"
 
-private:
+  private:
     VulkanObjectMapper object_mapper_;
 };
 

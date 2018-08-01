@@ -32,6 +32,8 @@ void VulkanReplayConsumer::Process_vkCreateInstance(
     VkInstance* out_pInstance = &out_pInstance_value;
 
     vkCreateInstance(in_pCreateInfo, in_pAllocator, out_pInstance);
+
+    AddHandles<VkInstance>(pInstance.GetPointer(), out_pInstance, 1, &VulkanObjectMapper::AddVkInstance);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyInstance(
@@ -53,11 +55,12 @@ void VulkanReplayConsumer::Process_vkEnumeratePhysicalDevices(
     VkInstance in_instance = object_mapper_.MapVkInstance(instance);
     uint32_t out_pPhysicalDeviceCount_value = pPhysicalDeviceCount.IsNull() ? static_cast<uint32_t>(0) : *(pPhysicalDeviceCount.GetPointer());
     uint32_t* out_pPhysicalDeviceCount = &out_pPhysicalDeviceCount_value;
-    VkPhysicalDevice* out_pPhysicalDevices = pPhysicalDevices.IsNull() ? nullptr : new VkPhysicalDevice[out_pPhysicalDeviceCount_value];
+    VkPhysicalDevice* out_pPhysicalDevices = pPhysicalDevices.IsNull() ? nullptr : AllocateArray<VkPhysicalDevice>(out_pPhysicalDeviceCount_value);
 
     vkEnumeratePhysicalDevices(in_instance, out_pPhysicalDeviceCount, out_pPhysicalDevices);
 
-    if (out_pPhysicalDevices != nullptr) delete [] out_pPhysicalDevices;
+    AddHandles<VkPhysicalDevice>(pPhysicalDevices.GetPointer(), out_pPhysicalDevices, out_pPhysicalDeviceCount_value, &VulkanObjectMapper::AddVkPhysicalDevice);
+    FreeArray<VkPhysicalDevice>(&out_pPhysicalDevices);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceFeatures(
@@ -119,11 +122,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties(
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
     uint32_t out_pQueueFamilyPropertyCount_value = pQueueFamilyPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pQueueFamilyPropertyCount.GetPointer());
     uint32_t* out_pQueueFamilyPropertyCount = &out_pQueueFamilyPropertyCount_value;
-    VkQueueFamilyProperties* out_pQueueFamilyProperties = pQueueFamilyProperties.IsNull() ? nullptr : new VkQueueFamilyProperties[out_pQueueFamilyPropertyCount_value];
+    VkQueueFamilyProperties* out_pQueueFamilyProperties = pQueueFamilyProperties.IsNull() ? nullptr : AllocateArray<VkQueueFamilyProperties>(out_pQueueFamilyPropertyCount_value);
 
     vkGetPhysicalDeviceQueueFamilyProperties(in_physicalDevice, out_pQueueFamilyPropertyCount, out_pQueueFamilyProperties);
 
-    if (out_pQueueFamilyProperties != nullptr) delete [] out_pQueueFamilyProperties;
+    FreeArray<VkQueueFamilyProperties>(&out_pQueueFamilyProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceMemoryProperties(
@@ -151,6 +154,8 @@ void VulkanReplayConsumer::Process_vkCreateDevice(
     VkDevice* out_pDevice = &out_pDevice_value;
 
     vkCreateDevice(in_physicalDevice, in_pCreateInfo, in_pAllocator, out_pDevice);
+
+    AddHandles<VkDevice>(pDevice.GetPointer(), out_pDevice, 1, &VulkanObjectMapper::AddVkDevice);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyDevice(
@@ -174,6 +179,8 @@ void VulkanReplayConsumer::Process_vkGetDeviceQueue(
     VkQueue* out_pQueue = &out_pQueue_value;
 
     vkGetDeviceQueue(in_device, queueFamilyIndex, queueIndex, out_pQueue);
+
+    AddHandles<VkQueue>(pQueue.GetPointer(), out_pQueue, 1, &VulkanObjectMapper::AddVkQueue);
 }
 
 void VulkanReplayConsumer::Process_vkQueueSubmit(
@@ -222,6 +229,8 @@ void VulkanReplayConsumer::Process_vkAllocateMemory(
     VkDeviceMemory* out_pMemory = &out_pMemory_value;
 
     vkAllocateMemory(in_device, in_pAllocateInfo, in_pAllocator, out_pMemory);
+
+    AddHandles<VkDeviceMemory>(pMemory.GetPointer(), out_pMemory, 1, &VulkanObjectMapper::AddVkDeviceMemory);
 }
 
 void VulkanReplayConsumer::Process_vkFreeMemory(
@@ -364,11 +373,11 @@ void VulkanReplayConsumer::Process_vkGetImageSparseMemoryRequirements(
     VkImage in_image = object_mapper_.MapVkImage(image);
     uint32_t out_pSparseMemoryRequirementCount_value = pSparseMemoryRequirementCount.IsNull() ? static_cast<uint32_t>(0) : *(pSparseMemoryRequirementCount.GetPointer());
     uint32_t* out_pSparseMemoryRequirementCount = &out_pSparseMemoryRequirementCount_value;
-    VkSparseImageMemoryRequirements* out_pSparseMemoryRequirements = pSparseMemoryRequirements.IsNull() ? nullptr : new VkSparseImageMemoryRequirements[out_pSparseMemoryRequirementCount_value];
+    VkSparseImageMemoryRequirements* out_pSparseMemoryRequirements = pSparseMemoryRequirements.IsNull() ? nullptr : AllocateArray<VkSparseImageMemoryRequirements>(out_pSparseMemoryRequirementCount_value);
 
     vkGetImageSparseMemoryRequirements(in_device, in_image, out_pSparseMemoryRequirementCount, out_pSparseMemoryRequirements);
 
-    if (out_pSparseMemoryRequirements != nullptr) delete [] out_pSparseMemoryRequirements;
+    FreeArray<VkSparseImageMemoryRequirements>(&out_pSparseMemoryRequirements);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties(
@@ -384,11 +393,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSparseImageFormatPropertie
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
     uint32_t out_pPropertyCount_value = pPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pPropertyCount.GetPointer());
     uint32_t* out_pPropertyCount = &out_pPropertyCount_value;
-    VkSparseImageFormatProperties* out_pProperties = pProperties.IsNull() ? nullptr : new VkSparseImageFormatProperties[out_pPropertyCount_value];
+    VkSparseImageFormatProperties* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkSparseImageFormatProperties>(out_pPropertyCount_value);
 
     vkGetPhysicalDeviceSparseImageFormatProperties(in_physicalDevice, format, type, samples, usage, tiling, out_pPropertyCount, out_pProperties);
 
-    if (out_pProperties != nullptr) delete [] out_pProperties;
+    FreeArray<VkSparseImageFormatProperties>(&out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkQueueBindSparse(
@@ -419,6 +428,8 @@ void VulkanReplayConsumer::Process_vkCreateFence(
     VkFence* out_pFence = &out_pFence_value;
 
     vkCreateFence(in_device, in_pCreateInfo, in_pAllocator, out_pFence);
+
+    AddHandles<VkFence>(pFence.GetPointer(), out_pFence, 1, &VulkanObjectMapper::AddVkFence);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyFence(
@@ -440,9 +451,12 @@ void VulkanReplayConsumer::Process_vkResetFences(
     const PointerDecoder<HandleId>&             pFences)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    const VkFence* in_pFences = reinterpret_cast<const VkFence*>(pFences.GetPointer());
+    VkFence* in_pFences = pFences.IsNull() ? nullptr : AllocateArray<VkFence>(fenceCount);
+    MapHandles<VkFence>(pFences.GetPointer(), in_pFences, fenceCount, &VulkanObjectMapper::MapVkFence);
 
     vkResetFences(in_device, fenceCount, in_pFences);
+
+    FreeArray<VkFence>(&in_pFences);
 }
 
 void VulkanReplayConsumer::Process_vkGetFenceStatus(
@@ -465,9 +479,12 @@ void VulkanReplayConsumer::Process_vkWaitForFences(
     uint64_t                                    timeout)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    const VkFence* in_pFences = reinterpret_cast<const VkFence*>(pFences.GetPointer());
+    VkFence* in_pFences = pFences.IsNull() ? nullptr : AllocateArray<VkFence>(fenceCount);
+    MapHandles<VkFence>(pFences.GetPointer(), in_pFences, fenceCount, &VulkanObjectMapper::MapVkFence);
 
     vkWaitForFences(in_device, fenceCount, in_pFences, waitAll, timeout);
+
+    FreeArray<VkFence>(&in_pFences);
 }
 
 void VulkanReplayConsumer::Process_vkCreateSemaphore(
@@ -484,6 +501,8 @@ void VulkanReplayConsumer::Process_vkCreateSemaphore(
     VkSemaphore* out_pSemaphore = &out_pSemaphore_value;
 
     vkCreateSemaphore(in_device, in_pCreateInfo, in_pAllocator, out_pSemaphore);
+
+    AddHandles<VkSemaphore>(pSemaphore.GetPointer(), out_pSemaphore, 1, &VulkanObjectMapper::AddVkSemaphore);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySemaphore(
@@ -512,6 +531,8 @@ void VulkanReplayConsumer::Process_vkCreateEvent(
     VkEvent* out_pEvent = &out_pEvent_value;
 
     vkCreateEvent(in_device, in_pCreateInfo, in_pAllocator, out_pEvent);
+
+    AddHandles<VkEvent>(pEvent.GetPointer(), out_pEvent, 1, &VulkanObjectMapper::AddVkEvent);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyEvent(
@@ -573,6 +594,8 @@ void VulkanReplayConsumer::Process_vkCreateQueryPool(
     VkQueryPool* out_pQueryPool = &out_pQueryPool_value;
 
     vkCreateQueryPool(in_device, in_pCreateInfo, in_pAllocator, out_pQueryPool);
+
+    AddHandles<VkQueryPool>(pQueryPool.GetPointer(), out_pQueryPool, 1, &VulkanObjectMapper::AddVkQueryPool);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyQueryPool(
@@ -600,11 +623,11 @@ void VulkanReplayConsumer::Process_vkGetQueryPoolResults(
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkQueryPool in_queryPool = object_mapper_.MapVkQueryPool(queryPool);
-    void* out_pData = pData.IsNull() ? nullptr : new uint8_t[dataSize];
+    uint8_t* out_pData = pData.IsNull() ? nullptr : AllocateArray<uint8_t>(dataSize);
 
     vkGetQueryPoolResults(in_device, in_queryPool, firstQuery, queryCount, dataSize, out_pData, stride, flags);
 
-    if (out_pData != nullptr) delete [] out_pData;
+    FreeArray<uint8_t>(&out_pData);
 }
 
 void VulkanReplayConsumer::Process_vkCreateBuffer(
@@ -621,6 +644,8 @@ void VulkanReplayConsumer::Process_vkCreateBuffer(
     VkBuffer* out_pBuffer = &out_pBuffer_value;
 
     vkCreateBuffer(in_device, in_pCreateInfo, in_pAllocator, out_pBuffer);
+
+    AddHandles<VkBuffer>(pBuffer.GetPointer(), out_pBuffer, 1, &VulkanObjectMapper::AddVkBuffer);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyBuffer(
@@ -649,6 +674,8 @@ void VulkanReplayConsumer::Process_vkCreateBufferView(
     VkBufferView* out_pView = &out_pView_value;
 
     vkCreateBufferView(in_device, in_pCreateInfo, in_pAllocator, out_pView);
+
+    AddHandles<VkBufferView>(pView.GetPointer(), out_pView, 1, &VulkanObjectMapper::AddVkBufferView);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyBufferView(
@@ -677,6 +704,8 @@ void VulkanReplayConsumer::Process_vkCreateImage(
     VkImage* out_pImage = &out_pImage_value;
 
     vkCreateImage(in_device, in_pCreateInfo, in_pAllocator, out_pImage);
+
+    AddHandles<VkImage>(pImage.GetPointer(), out_pImage, 1, &VulkanObjectMapper::AddVkImage);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyImage(
@@ -720,6 +749,8 @@ void VulkanReplayConsumer::Process_vkCreateImageView(
     VkImageView* out_pView = &out_pView_value;
 
     vkCreateImageView(in_device, in_pCreateInfo, in_pAllocator, out_pView);
+
+    AddHandles<VkImageView>(pView.GetPointer(), out_pView, 1, &VulkanObjectMapper::AddVkImageView);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyImageView(
@@ -748,6 +779,8 @@ void VulkanReplayConsumer::Process_vkCreateShaderModule(
     VkShaderModule* out_pShaderModule = &out_pShaderModule_value;
 
     vkCreateShaderModule(in_device, in_pCreateInfo, in_pAllocator, out_pShaderModule);
+
+    AddHandles<VkShaderModule>(pShaderModule.GetPointer(), out_pShaderModule, 1, &VulkanObjectMapper::AddVkShaderModule);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyShaderModule(
@@ -776,6 +809,8 @@ void VulkanReplayConsumer::Process_vkCreatePipelineCache(
     VkPipelineCache* out_pPipelineCache = &out_pPipelineCache_value;
 
     vkCreatePipelineCache(in_device, in_pCreateInfo, in_pAllocator, out_pPipelineCache);
+
+    AddHandles<VkPipelineCache>(pPipelineCache.GetPointer(), out_pPipelineCache, 1, &VulkanObjectMapper::AddVkPipelineCache);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyPipelineCache(
@@ -801,11 +836,11 @@ void VulkanReplayConsumer::Process_vkGetPipelineCacheData(
     VkPipelineCache in_pipelineCache = object_mapper_.MapVkPipelineCache(pipelineCache);
     size_t out_pDataSize_value = pDataSize.IsNull() ? static_cast<size_t>(0) : *(pDataSize.GetPointer());
     size_t* out_pDataSize = &out_pDataSize_value;
-    void* out_pData = pData.IsNull() ? nullptr : new uint8_t[out_pDataSize_value];
+    uint8_t* out_pData = pData.IsNull() ? nullptr : AllocateArray<uint8_t>(out_pDataSize_value);
 
     vkGetPipelineCacheData(in_device, in_pipelineCache, out_pDataSize, out_pData);
 
-    if (out_pData != nullptr) delete [] out_pData;
+    FreeArray<uint8_t>(&out_pData);
 }
 
 void VulkanReplayConsumer::Process_vkMergePipelineCaches(
@@ -817,9 +852,12 @@ void VulkanReplayConsumer::Process_vkMergePipelineCaches(
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkPipelineCache in_dstCache = object_mapper_.MapVkPipelineCache(dstCache);
-    const VkPipelineCache* in_pSrcCaches = reinterpret_cast<const VkPipelineCache*>(pSrcCaches.GetPointer());
+    VkPipelineCache* in_pSrcCaches = pSrcCaches.IsNull() ? nullptr : AllocateArray<VkPipelineCache>(srcCacheCount);
+    MapHandles<VkPipelineCache>(pSrcCaches.GetPointer(), in_pSrcCaches, srcCacheCount, &VulkanObjectMapper::MapVkPipelineCache);
 
     vkMergePipelineCaches(in_device, in_dstCache, srcCacheCount, in_pSrcCaches);
+
+    FreeArray<VkPipelineCache>(&in_pSrcCaches);
 }
 
 void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
@@ -835,11 +873,12 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     VkPipelineCache in_pipelineCache = object_mapper_.MapVkPipelineCache(pipelineCache);
     const VkGraphicsPipelineCreateInfo* in_pCreateInfos = reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(pCreateInfos.GetPointer());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-    VkPipeline* out_pPipelines = pPipelines.IsNull() ? nullptr : new VkPipeline[createInfoCount];
+    VkPipeline* out_pPipelines = pPipelines.IsNull() ? nullptr : AllocateArray<VkPipeline>(createInfoCount);
 
     vkCreateGraphicsPipelines(in_device, in_pipelineCache, createInfoCount, in_pCreateInfos, in_pAllocator, out_pPipelines);
 
-    if (out_pPipelines != nullptr) delete [] out_pPipelines;
+    AddHandles<VkPipeline>(pPipelines.GetPointer(), out_pPipelines, createInfoCount, &VulkanObjectMapper::AddVkPipeline);
+    FreeArray<VkPipeline>(&out_pPipelines);
 }
 
 void VulkanReplayConsumer::Process_vkCreateComputePipelines(
@@ -855,11 +894,12 @@ void VulkanReplayConsumer::Process_vkCreateComputePipelines(
     VkPipelineCache in_pipelineCache = object_mapper_.MapVkPipelineCache(pipelineCache);
     const VkComputePipelineCreateInfo* in_pCreateInfos = reinterpret_cast<const VkComputePipelineCreateInfo*>(pCreateInfos.GetPointer());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-    VkPipeline* out_pPipelines = pPipelines.IsNull() ? nullptr : new VkPipeline[createInfoCount];
+    VkPipeline* out_pPipelines = pPipelines.IsNull() ? nullptr : AllocateArray<VkPipeline>(createInfoCount);
 
     vkCreateComputePipelines(in_device, in_pipelineCache, createInfoCount, in_pCreateInfos, in_pAllocator, out_pPipelines);
 
-    if (out_pPipelines != nullptr) delete [] out_pPipelines;
+    AddHandles<VkPipeline>(pPipelines.GetPointer(), out_pPipelines, createInfoCount, &VulkanObjectMapper::AddVkPipeline);
+    FreeArray<VkPipeline>(&out_pPipelines);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyPipeline(
@@ -888,6 +928,8 @@ void VulkanReplayConsumer::Process_vkCreatePipelineLayout(
     VkPipelineLayout* out_pPipelineLayout = &out_pPipelineLayout_value;
 
     vkCreatePipelineLayout(in_device, in_pCreateInfo, in_pAllocator, out_pPipelineLayout);
+
+    AddHandles<VkPipelineLayout>(pPipelineLayout.GetPointer(), out_pPipelineLayout, 1, &VulkanObjectMapper::AddVkPipelineLayout);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyPipelineLayout(
@@ -916,6 +958,8 @@ void VulkanReplayConsumer::Process_vkCreateSampler(
     VkSampler* out_pSampler = &out_pSampler_value;
 
     vkCreateSampler(in_device, in_pCreateInfo, in_pAllocator, out_pSampler);
+
+    AddHandles<VkSampler>(pSampler.GetPointer(), out_pSampler, 1, &VulkanObjectMapper::AddVkSampler);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySampler(
@@ -944,6 +988,8 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorSetLayout(
     VkDescriptorSetLayout* out_pSetLayout = &out_pSetLayout_value;
 
     vkCreateDescriptorSetLayout(in_device, in_pCreateInfo, in_pAllocator, out_pSetLayout);
+
+    AddHandles<VkDescriptorSetLayout>(pSetLayout.GetPointer(), out_pSetLayout, 1, &VulkanObjectMapper::AddVkDescriptorSetLayout);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(
@@ -972,6 +1018,8 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorPool(
     VkDescriptorPool* out_pDescriptorPool = &out_pDescriptorPool_value;
 
     vkCreateDescriptorPool(in_device, in_pCreateInfo, in_pAllocator, out_pDescriptorPool);
+
+    AddHandles<VkDescriptorPool>(pDescriptorPool.GetPointer(), out_pDescriptorPool, 1, &VulkanObjectMapper::AddVkDescriptorPool);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyDescriptorPool(
@@ -1006,11 +1054,12 @@ void VulkanReplayConsumer::Process_vkAllocateDescriptorSets(
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     const VkDescriptorSetAllocateInfo* in_pAllocateInfo = reinterpret_cast<const VkDescriptorSetAllocateInfo*>(pAllocateInfo.GetPointer());
-    VkDescriptorSet* out_pDescriptorSets = pDescriptorSets.IsNull() ? nullptr : new VkDescriptorSet[in_pAllocateInfo->descriptorSetCount];
+    VkDescriptorSet* out_pDescriptorSets = pDescriptorSets.IsNull() ? nullptr : AllocateArray<VkDescriptorSet>(in_pAllocateInfo->descriptorSetCount);
 
     vkAllocateDescriptorSets(in_device, in_pAllocateInfo, out_pDescriptorSets);
 
-    if (out_pDescriptorSets != nullptr) delete [] out_pDescriptorSets;
+    AddHandles<VkDescriptorSet>(pDescriptorSets.GetPointer(), out_pDescriptorSets, in_pAllocateInfo->descriptorSetCount, &VulkanObjectMapper::AddVkDescriptorSet);
+    FreeArray<VkDescriptorSet>(&out_pDescriptorSets);
 }
 
 void VulkanReplayConsumer::Process_vkFreeDescriptorSets(
@@ -1022,9 +1071,12 @@ void VulkanReplayConsumer::Process_vkFreeDescriptorSets(
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkDescriptorPool in_descriptorPool = object_mapper_.MapVkDescriptorPool(descriptorPool);
-    const VkDescriptorSet* in_pDescriptorSets = reinterpret_cast<const VkDescriptorSet*>(pDescriptorSets.GetPointer());
+    VkDescriptorSet* in_pDescriptorSets = pDescriptorSets.IsNull() ? nullptr : AllocateArray<VkDescriptorSet>(descriptorSetCount);
+    MapHandles<VkDescriptorSet>(pDescriptorSets.GetPointer(), in_pDescriptorSets, descriptorSetCount, &VulkanObjectMapper::MapVkDescriptorSet);
 
     vkFreeDescriptorSets(in_device, in_descriptorPool, descriptorSetCount, in_pDescriptorSets);
+
+    FreeArray<VkDescriptorSet>(&in_pDescriptorSets);
 }
 
 void VulkanReplayConsumer::Process_vkUpdateDescriptorSets(
@@ -1055,6 +1107,8 @@ void VulkanReplayConsumer::Process_vkCreateFramebuffer(
     VkFramebuffer* out_pFramebuffer = &out_pFramebuffer_value;
 
     vkCreateFramebuffer(in_device, in_pCreateInfo, in_pAllocator, out_pFramebuffer);
+
+    AddHandles<VkFramebuffer>(pFramebuffer.GetPointer(), out_pFramebuffer, 1, &VulkanObjectMapper::AddVkFramebuffer);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyFramebuffer(
@@ -1083,6 +1137,8 @@ void VulkanReplayConsumer::Process_vkCreateRenderPass(
     VkRenderPass* out_pRenderPass = &out_pRenderPass_value;
 
     vkCreateRenderPass(in_device, in_pCreateInfo, in_pAllocator, out_pRenderPass);
+
+    AddHandles<VkRenderPass>(pRenderPass.GetPointer(), out_pRenderPass, 1, &VulkanObjectMapper::AddVkRenderPass);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyRenderPass(
@@ -1124,6 +1180,8 @@ void VulkanReplayConsumer::Process_vkCreateCommandPool(
     VkCommandPool* out_pCommandPool = &out_pCommandPool_value;
 
     vkCreateCommandPool(in_device, in_pCreateInfo, in_pAllocator, out_pCommandPool);
+
+    AddHandles<VkCommandPool>(pCommandPool.GetPointer(), out_pCommandPool, 1, &VulkanObjectMapper::AddVkCommandPool);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyCommandPool(
@@ -1158,11 +1216,12 @@ void VulkanReplayConsumer::Process_vkAllocateCommandBuffers(
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     const VkCommandBufferAllocateInfo* in_pAllocateInfo = reinterpret_cast<const VkCommandBufferAllocateInfo*>(pAllocateInfo.GetPointer());
-    VkCommandBuffer* out_pCommandBuffers = pCommandBuffers.IsNull() ? nullptr : new VkCommandBuffer[in_pAllocateInfo->commandBufferCount];
+    VkCommandBuffer* out_pCommandBuffers = pCommandBuffers.IsNull() ? nullptr : AllocateArray<VkCommandBuffer>(in_pAllocateInfo->commandBufferCount);
 
     vkAllocateCommandBuffers(in_device, in_pAllocateInfo, out_pCommandBuffers);
 
-    if (out_pCommandBuffers != nullptr) delete [] out_pCommandBuffers;
+    AddHandles<VkCommandBuffer>(pCommandBuffers.GetPointer(), out_pCommandBuffers, in_pAllocateInfo->commandBufferCount, &VulkanObjectMapper::AddVkCommandBuffer);
+    FreeArray<VkCommandBuffer>(&out_pCommandBuffers);
 }
 
 void VulkanReplayConsumer::Process_vkFreeCommandBuffers(
@@ -1173,9 +1232,12 @@ void VulkanReplayConsumer::Process_vkFreeCommandBuffers(
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkCommandPool in_commandPool = object_mapper_.MapVkCommandPool(commandPool);
-    const VkCommandBuffer* in_pCommandBuffers = reinterpret_cast<const VkCommandBuffer*>(pCommandBuffers.GetPointer());
+    VkCommandBuffer* in_pCommandBuffers = pCommandBuffers.IsNull() ? nullptr : AllocateArray<VkCommandBuffer>(commandBufferCount);
+    MapHandles<VkCommandBuffer>(pCommandBuffers.GetPointer(), in_pCommandBuffers, commandBufferCount, &VulkanObjectMapper::MapVkCommandBuffer);
 
     vkFreeCommandBuffers(in_device, in_commandPool, commandBufferCount, in_pCommandBuffers);
+
+    FreeArray<VkCommandBuffer>(&in_pCommandBuffers);
 }
 
 void VulkanReplayConsumer::Process_vkBeginCommandBuffer(
@@ -1325,10 +1387,13 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets(
 {
     VkCommandBuffer in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
     VkPipelineLayout in_layout = object_mapper_.MapVkPipelineLayout(layout);
-    const VkDescriptorSet* in_pDescriptorSets = reinterpret_cast<const VkDescriptorSet*>(pDescriptorSets.GetPointer());
+    VkDescriptorSet* in_pDescriptorSets = pDescriptorSets.IsNull() ? nullptr : AllocateArray<VkDescriptorSet>(descriptorSetCount);
+    MapHandles<VkDescriptorSet>(pDescriptorSets.GetPointer(), in_pDescriptorSets, descriptorSetCount, &VulkanObjectMapper::MapVkDescriptorSet);
     const uint32_t* in_pDynamicOffsets = reinterpret_cast<const uint32_t*>(pDynamicOffsets.GetPointer());
 
     vkCmdBindDescriptorSets(in_commandBuffer, pipelineBindPoint, in_layout, firstSet, descriptorSetCount, in_pDescriptorSets, dynamicOffsetCount, in_pDynamicOffsets);
+
+    FreeArray<VkDescriptorSet>(&in_pDescriptorSets);
 }
 
 void VulkanReplayConsumer::Process_vkCmdBindIndexBuffer(
@@ -1351,10 +1416,13 @@ void VulkanReplayConsumer::Process_vkCmdBindVertexBuffers(
     const PointerDecoder<VkDeviceSize>&         pOffsets)
 {
     VkCommandBuffer in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
-    const VkBuffer* in_pBuffers = reinterpret_cast<const VkBuffer*>(pBuffers.GetPointer());
+    VkBuffer* in_pBuffers = pBuffers.IsNull() ? nullptr : AllocateArray<VkBuffer>(bindingCount);
+    MapHandles<VkBuffer>(pBuffers.GetPointer(), in_pBuffers, bindingCount, &VulkanObjectMapper::MapVkBuffer);
     const VkDeviceSize* in_pOffsets = reinterpret_cast<const VkDeviceSize*>(pOffsets.GetPointer());
 
     vkCmdBindVertexBuffers(in_commandBuffer, firstBinding, bindingCount, in_pBuffers, in_pOffsets);
+
+    FreeArray<VkBuffer>(&in_pBuffers);
 }
 
 void VulkanReplayConsumer::Process_vkCmdDraw(
@@ -1638,12 +1706,15 @@ void VulkanReplayConsumer::Process_vkCmdWaitEvents(
     const StructPointerDecoder<Decoded_VkImageMemoryBarrier>& pImageMemoryBarriers)
 {
     VkCommandBuffer in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
-    const VkEvent* in_pEvents = reinterpret_cast<const VkEvent*>(pEvents.GetPointer());
+    VkEvent* in_pEvents = pEvents.IsNull() ? nullptr : AllocateArray<VkEvent>(eventCount);
+    MapHandles<VkEvent>(pEvents.GetPointer(), in_pEvents, eventCount, &VulkanObjectMapper::MapVkEvent);
     const VkMemoryBarrier* in_pMemoryBarriers = reinterpret_cast<const VkMemoryBarrier*>(pMemoryBarriers.GetPointer());
     const VkBufferMemoryBarrier* in_pBufferMemoryBarriers = reinterpret_cast<const VkBufferMemoryBarrier*>(pBufferMemoryBarriers.GetPointer());
     const VkImageMemoryBarrier* in_pImageMemoryBarriers = reinterpret_cast<const VkImageMemoryBarrier*>(pImageMemoryBarriers.GetPointer());
 
     vkCmdWaitEvents(in_commandBuffer, eventCount, in_pEvents, srcStageMask, dstStageMask, memoryBarrierCount, in_pMemoryBarriers, bufferMemoryBarrierCount, in_pBufferMemoryBarriers, imageMemoryBarrierCount, in_pImageMemoryBarriers);
+
+    FreeArray<VkEvent>(&in_pEvents);
 }
 
 void VulkanReplayConsumer::Process_vkCmdPipelineBarrier(
@@ -1779,9 +1850,12 @@ void VulkanReplayConsumer::Process_vkCmdExecuteCommands(
     const PointerDecoder<HandleId>&             pCommandBuffers)
 {
     VkCommandBuffer in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
-    const VkCommandBuffer* in_pCommandBuffers = reinterpret_cast<const VkCommandBuffer*>(pCommandBuffers.GetPointer());
+    VkCommandBuffer* in_pCommandBuffers = pCommandBuffers.IsNull() ? nullptr : AllocateArray<VkCommandBuffer>(commandBufferCount);
+    MapHandles<VkCommandBuffer>(pCommandBuffers.GetPointer(), in_pCommandBuffers, commandBufferCount, &VulkanObjectMapper::MapVkCommandBuffer);
 
     vkCmdExecuteCommands(in_commandBuffer, commandBufferCount, in_pCommandBuffers);
+
+    FreeArray<VkCommandBuffer>(&in_pCommandBuffers);
 }
 
 void VulkanReplayConsumer::Process_vkBindBufferMemory2(
@@ -1854,11 +1928,11 @@ void VulkanReplayConsumer::Process_vkEnumeratePhysicalDeviceGroups(
     VkInstance in_instance = object_mapper_.MapVkInstance(instance);
     uint32_t out_pPhysicalDeviceGroupCount_value = pPhysicalDeviceGroupCount.IsNull() ? static_cast<uint32_t>(0) : *(pPhysicalDeviceGroupCount.GetPointer());
     uint32_t* out_pPhysicalDeviceGroupCount = &out_pPhysicalDeviceGroupCount_value;
-    VkPhysicalDeviceGroupProperties* out_pPhysicalDeviceGroupProperties = pPhysicalDeviceGroupProperties.IsNull() ? nullptr : new VkPhysicalDeviceGroupProperties[out_pPhysicalDeviceGroupCount_value];
+    VkPhysicalDeviceGroupProperties* out_pPhysicalDeviceGroupProperties = pPhysicalDeviceGroupProperties.IsNull() ? nullptr : AllocateArray<VkPhysicalDeviceGroupProperties>(out_pPhysicalDeviceGroupCount_value);
 
     vkEnumeratePhysicalDeviceGroups(in_instance, out_pPhysicalDeviceGroupCount, out_pPhysicalDeviceGroupProperties);
 
-    if (out_pPhysicalDeviceGroupProperties != nullptr) delete [] out_pPhysicalDeviceGroupProperties;
+    FreeArray<VkPhysicalDeviceGroupProperties>(&out_pPhysicalDeviceGroupProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetImageMemoryRequirements2(
@@ -1897,11 +1971,11 @@ void VulkanReplayConsumer::Process_vkGetImageSparseMemoryRequirements2(
     const VkImageSparseMemoryRequirementsInfo2* in_pInfo = reinterpret_cast<const VkImageSparseMemoryRequirementsInfo2*>(pInfo.GetPointer());
     uint32_t out_pSparseMemoryRequirementCount_value = pSparseMemoryRequirementCount.IsNull() ? static_cast<uint32_t>(0) : *(pSparseMemoryRequirementCount.GetPointer());
     uint32_t* out_pSparseMemoryRequirementCount = &out_pSparseMemoryRequirementCount_value;
-    VkSparseImageMemoryRequirements2* out_pSparseMemoryRequirements = pSparseMemoryRequirements.IsNull() ? nullptr : new VkSparseImageMemoryRequirements2[out_pSparseMemoryRequirementCount_value];
+    VkSparseImageMemoryRequirements2* out_pSparseMemoryRequirements = pSparseMemoryRequirements.IsNull() ? nullptr : AllocateArray<VkSparseImageMemoryRequirements2>(out_pSparseMemoryRequirementCount_value);
 
     vkGetImageSparseMemoryRequirements2(in_device, in_pInfo, out_pSparseMemoryRequirementCount, out_pSparseMemoryRequirements);
 
-    if (out_pSparseMemoryRequirements != nullptr) delete [] out_pSparseMemoryRequirements;
+    FreeArray<VkSparseImageMemoryRequirements2>(&out_pSparseMemoryRequirements);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceFeatures2(
@@ -1960,11 +2034,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2(
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
     uint32_t out_pQueueFamilyPropertyCount_value = pQueueFamilyPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pQueueFamilyPropertyCount.GetPointer());
     uint32_t* out_pQueueFamilyPropertyCount = &out_pQueueFamilyPropertyCount_value;
-    VkQueueFamilyProperties2* out_pQueueFamilyProperties = pQueueFamilyProperties.IsNull() ? nullptr : new VkQueueFamilyProperties2[out_pQueueFamilyPropertyCount_value];
+    VkQueueFamilyProperties2* out_pQueueFamilyProperties = pQueueFamilyProperties.IsNull() ? nullptr : AllocateArray<VkQueueFamilyProperties2>(out_pQueueFamilyPropertyCount_value);
 
     vkGetPhysicalDeviceQueueFamilyProperties2(in_physicalDevice, out_pQueueFamilyPropertyCount, out_pQueueFamilyProperties);
 
-    if (out_pQueueFamilyProperties != nullptr) delete [] out_pQueueFamilyProperties;
+    FreeArray<VkQueueFamilyProperties2>(&out_pQueueFamilyProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceMemoryProperties2(
@@ -1988,11 +2062,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSparseImageFormatPropertie
     const VkPhysicalDeviceSparseImageFormatInfo2* in_pFormatInfo = reinterpret_cast<const VkPhysicalDeviceSparseImageFormatInfo2*>(pFormatInfo.GetPointer());
     uint32_t out_pPropertyCount_value = pPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pPropertyCount.GetPointer());
     uint32_t* out_pPropertyCount = &out_pPropertyCount_value;
-    VkSparseImageFormatProperties2* out_pProperties = pProperties.IsNull() ? nullptr : new VkSparseImageFormatProperties2[out_pPropertyCount_value];
+    VkSparseImageFormatProperties2* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkSparseImageFormatProperties2>(out_pPropertyCount_value);
 
     vkGetPhysicalDeviceSparseImageFormatProperties2(in_physicalDevice, in_pFormatInfo, out_pPropertyCount, out_pProperties);
 
-    if (out_pProperties != nullptr) delete [] out_pProperties;
+    FreeArray<VkSparseImageFormatProperties2>(&out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkTrimCommandPool(
@@ -2017,6 +2091,8 @@ void VulkanReplayConsumer::Process_vkGetDeviceQueue2(
     VkQueue* out_pQueue = &out_pQueue_value;
 
     vkGetDeviceQueue2(in_device, in_pQueueInfo, out_pQueue);
+
+    AddHandles<VkQueue>(pQueue.GetPointer(), out_pQueue, 1, &VulkanObjectMapper::AddVkQueue);
 }
 
 void VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversion(
@@ -2033,6 +2109,8 @@ void VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversion(
     VkSamplerYcbcrConversion* out_pYcbcrConversion = &out_pYcbcrConversion_value;
 
     vkCreateSamplerYcbcrConversion(in_device, in_pCreateInfo, in_pAllocator, out_pYcbcrConversion);
+
+    AddHandles<VkSamplerYcbcrConversion>(pYcbcrConversion.GetPointer(), out_pYcbcrConversion, 1, &VulkanObjectMapper::AddVkSamplerYcbcrConversion);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversion(
@@ -2061,6 +2139,8 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplate(
     VkDescriptorUpdateTemplate* out_pDescriptorUpdateTemplate = &out_pDescriptorUpdateTemplate_value;
 
     vkCreateDescriptorUpdateTemplate(in_device, in_pCreateInfo, in_pAllocator, out_pDescriptorUpdateTemplate);
+
+    AddHandles<VkDescriptorUpdateTemplate>(pDescriptorUpdateTemplate.GetPointer(), out_pDescriptorUpdateTemplate, 1, &VulkanObjectMapper::AddVkDescriptorUpdateTemplate);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(
@@ -2193,11 +2273,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceFormatsKHR(
     VkSurfaceKHR in_surface = object_mapper_.MapVkSurfaceKHR(surface);
     uint32_t out_pSurfaceFormatCount_value = pSurfaceFormatCount.IsNull() ? static_cast<uint32_t>(0) : *(pSurfaceFormatCount.GetPointer());
     uint32_t* out_pSurfaceFormatCount = &out_pSurfaceFormatCount_value;
-    VkSurfaceFormatKHR* out_pSurfaceFormats = pSurfaceFormats.IsNull() ? nullptr : new VkSurfaceFormatKHR[out_pSurfaceFormatCount_value];
+    VkSurfaceFormatKHR* out_pSurfaceFormats = pSurfaceFormats.IsNull() ? nullptr : AllocateArray<VkSurfaceFormatKHR>(out_pSurfaceFormatCount_value);
 
     vkGetPhysicalDeviceSurfaceFormatsKHR(in_physicalDevice, in_surface, out_pSurfaceFormatCount, out_pSurfaceFormats);
 
-    if (out_pSurfaceFormats != nullptr) delete [] out_pSurfaceFormats;
+    FreeArray<VkSurfaceFormatKHR>(&out_pSurfaceFormats);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfacePresentModesKHR(
@@ -2211,11 +2291,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfacePresentModesKHR(
     VkSurfaceKHR in_surface = object_mapper_.MapVkSurfaceKHR(surface);
     uint32_t out_pPresentModeCount_value = pPresentModeCount.IsNull() ? static_cast<uint32_t>(0) : *(pPresentModeCount.GetPointer());
     uint32_t* out_pPresentModeCount = &out_pPresentModeCount_value;
-    VkPresentModeKHR* out_pPresentModes = pPresentModes.IsNull() ? nullptr : new VkPresentModeKHR[out_pPresentModeCount_value];
+    VkPresentModeKHR* out_pPresentModes = pPresentModes.IsNull() ? nullptr : AllocateArray<VkPresentModeKHR>(out_pPresentModeCount_value);
 
     vkGetPhysicalDeviceSurfacePresentModesKHR(in_physicalDevice, in_surface, out_pPresentModeCount, out_pPresentModes);
 
-    if (out_pPresentModes != nullptr) delete [] out_pPresentModes;
+    FreeArray<VkPresentModeKHR>(&out_pPresentModes);
 }
 
 void VulkanReplayConsumer::Process_vkCreateSwapchainKHR(
@@ -2232,6 +2312,8 @@ void VulkanReplayConsumer::Process_vkCreateSwapchainKHR(
     VkSwapchainKHR* out_pSwapchain = &out_pSwapchain_value;
 
     vkCreateSwapchainKHR(in_device, in_pCreateInfo, in_pAllocator, out_pSwapchain);
+
+    AddHandles<VkSwapchainKHR>(pSwapchain.GetPointer(), out_pSwapchain, 1, &VulkanObjectMapper::AddVkSwapchainKHR);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySwapchainKHR(
@@ -2257,11 +2339,12 @@ void VulkanReplayConsumer::Process_vkGetSwapchainImagesKHR(
     VkSwapchainKHR in_swapchain = object_mapper_.MapVkSwapchainKHR(swapchain);
     uint32_t out_pSwapchainImageCount_value = pSwapchainImageCount.IsNull() ? static_cast<uint32_t>(0) : *(pSwapchainImageCount.GetPointer());
     uint32_t* out_pSwapchainImageCount = &out_pSwapchainImageCount_value;
-    VkImage* out_pSwapchainImages = pSwapchainImages.IsNull() ? nullptr : new VkImage[out_pSwapchainImageCount_value];
+    VkImage* out_pSwapchainImages = pSwapchainImages.IsNull() ? nullptr : AllocateArray<VkImage>(out_pSwapchainImageCount_value);
 
     vkGetSwapchainImagesKHR(in_device, in_swapchain, out_pSwapchainImageCount, out_pSwapchainImages);
 
-    if (out_pSwapchainImages != nullptr) delete [] out_pSwapchainImages;
+    AddHandles<VkImage>(pSwapchainImages.GetPointer(), out_pSwapchainImages, out_pSwapchainImageCount_value, &VulkanObjectMapper::AddVkImage);
+    FreeArray<VkImage>(&out_pSwapchainImages);
 }
 
 void VulkanReplayConsumer::Process_vkAcquireNextImageKHR(
@@ -2331,11 +2414,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDevicePresentRectanglesKHR(
     VkSurfaceKHR in_surface = object_mapper_.MapVkSurfaceKHR(surface);
     uint32_t out_pRectCount_value = pRectCount.IsNull() ? static_cast<uint32_t>(0) : *(pRectCount.GetPointer());
     uint32_t* out_pRectCount = &out_pRectCount_value;
-    VkRect2D* out_pRects = pRects.IsNull() ? nullptr : new VkRect2D[out_pRectCount_value];
+    VkRect2D* out_pRects = pRects.IsNull() ? nullptr : AllocateArray<VkRect2D>(out_pRectCount_value);
 
     vkGetPhysicalDevicePresentRectanglesKHR(in_physicalDevice, in_surface, out_pRectCount, out_pRects);
 
-    if (out_pRects != nullptr) delete [] out_pRects;
+    FreeArray<VkRect2D>(&out_pRects);
 }
 
 void VulkanReplayConsumer::Process_vkAcquireNextImage2KHR(
@@ -2361,11 +2444,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayPropertiesKHR(
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
     uint32_t out_pPropertyCount_value = pPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pPropertyCount.GetPointer());
     uint32_t* out_pPropertyCount = &out_pPropertyCount_value;
-    VkDisplayPropertiesKHR* out_pProperties = pProperties.IsNull() ? nullptr : new VkDisplayPropertiesKHR[out_pPropertyCount_value];
+    VkDisplayPropertiesKHR* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkDisplayPropertiesKHR>(out_pPropertyCount_value);
 
     vkGetPhysicalDeviceDisplayPropertiesKHR(in_physicalDevice, out_pPropertyCount, out_pProperties);
 
-    if (out_pProperties != nullptr) delete [] out_pProperties;
+    FreeArray<VkDisplayPropertiesKHR>(&out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
@@ -2377,11 +2460,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
     uint32_t out_pPropertyCount_value = pPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pPropertyCount.GetPointer());
     uint32_t* out_pPropertyCount = &out_pPropertyCount_value;
-    VkDisplayPlanePropertiesKHR* out_pProperties = pProperties.IsNull() ? nullptr : new VkDisplayPlanePropertiesKHR[out_pPropertyCount_value];
+    VkDisplayPlanePropertiesKHR* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkDisplayPlanePropertiesKHR>(out_pPropertyCount_value);
 
     vkGetPhysicalDeviceDisplayPlanePropertiesKHR(in_physicalDevice, out_pPropertyCount, out_pProperties);
 
-    if (out_pProperties != nullptr) delete [] out_pProperties;
+    FreeArray<VkDisplayPlanePropertiesKHR>(&out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
@@ -2394,11 +2477,12 @@ void VulkanReplayConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
     uint32_t out_pDisplayCount_value = pDisplayCount.IsNull() ? static_cast<uint32_t>(0) : *(pDisplayCount.GetPointer());
     uint32_t* out_pDisplayCount = &out_pDisplayCount_value;
-    VkDisplayKHR* out_pDisplays = pDisplays.IsNull() ? nullptr : new VkDisplayKHR[out_pDisplayCount_value];
+    VkDisplayKHR* out_pDisplays = pDisplays.IsNull() ? nullptr : AllocateArray<VkDisplayKHR>(out_pDisplayCount_value);
 
     vkGetDisplayPlaneSupportedDisplaysKHR(in_physicalDevice, planeIndex, out_pDisplayCount, out_pDisplays);
 
-    if (out_pDisplays != nullptr) delete [] out_pDisplays;
+    AddHandles<VkDisplayKHR>(pDisplays.GetPointer(), out_pDisplays, out_pDisplayCount_value, &VulkanObjectMapper::AddVkDisplayKHR);
+    FreeArray<VkDisplayKHR>(&out_pDisplays);
 }
 
 void VulkanReplayConsumer::Process_vkGetDisplayModePropertiesKHR(
@@ -2412,11 +2496,11 @@ void VulkanReplayConsumer::Process_vkGetDisplayModePropertiesKHR(
     VkDisplayKHR in_display = object_mapper_.MapVkDisplayKHR(display);
     uint32_t out_pPropertyCount_value = pPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pPropertyCount.GetPointer());
     uint32_t* out_pPropertyCount = &out_pPropertyCount_value;
-    VkDisplayModePropertiesKHR* out_pProperties = pProperties.IsNull() ? nullptr : new VkDisplayModePropertiesKHR[out_pPropertyCount_value];
+    VkDisplayModePropertiesKHR* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkDisplayModePropertiesKHR>(out_pPropertyCount_value);
 
     vkGetDisplayModePropertiesKHR(in_physicalDevice, in_display, out_pPropertyCount, out_pProperties);
 
-    if (out_pProperties != nullptr) delete [] out_pProperties;
+    FreeArray<VkDisplayModePropertiesKHR>(&out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkCreateDisplayModeKHR(
@@ -2435,6 +2519,8 @@ void VulkanReplayConsumer::Process_vkCreateDisplayModeKHR(
     VkDisplayModeKHR* out_pMode = &out_pMode_value;
 
     vkCreateDisplayModeKHR(in_physicalDevice, in_display, in_pCreateInfo, in_pAllocator, out_pMode);
+
+    AddHandles<VkDisplayModeKHR>(pMode.GetPointer(), out_pMode, 1, &VulkanObjectMapper::AddVkDisplayModeKHR);
 }
 
 void VulkanReplayConsumer::Process_vkGetDisplayPlaneCapabilitiesKHR(
@@ -2466,6 +2552,8 @@ void VulkanReplayConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(
     VkSurfaceKHR* out_pSurface = &out_pSurface_value;
 
     vkCreateDisplayPlaneSurfaceKHR(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 
 void VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(
@@ -2479,11 +2567,12 @@ void VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     const VkSwapchainCreateInfoKHR* in_pCreateInfos = reinterpret_cast<const VkSwapchainCreateInfoKHR*>(pCreateInfos.GetPointer());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-    VkSwapchainKHR* out_pSwapchains = pSwapchains.IsNull() ? nullptr : new VkSwapchainKHR[swapchainCount];
+    VkSwapchainKHR* out_pSwapchains = pSwapchains.IsNull() ? nullptr : AllocateArray<VkSwapchainKHR>(swapchainCount);
 
     vkCreateSharedSwapchainsKHR(in_device, swapchainCount, in_pCreateInfos, in_pAllocator, out_pSwapchains);
 
-    if (out_pSwapchains != nullptr) delete [] out_pSwapchains;
+    AddHandles<VkSwapchainKHR>(pSwapchains.GetPointer(), out_pSwapchains, swapchainCount, &VulkanObjectMapper::AddVkSwapchainKHR);
+    FreeArray<VkSwapchainKHR>(&out_pSwapchains);
 }
 
 #ifdef VK_USE_PLATFORM_XLIB_KHR
@@ -2501,6 +2590,8 @@ void VulkanReplayConsumer::Process_vkCreateXlibSurfaceKHR(
     VkSurfaceKHR* out_pSurface = &out_pSurface_value;
 
     vkCreateXlibSurfaceKHR(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR(
@@ -2533,6 +2624,8 @@ void VulkanReplayConsumer::Process_vkCreateXcbSurfaceKHR(
     VkSurfaceKHR* out_pSurface = &out_pSurface_value;
 
     vkCreateXcbSurfaceKHR(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
@@ -2565,6 +2658,8 @@ void VulkanReplayConsumer::Process_vkCreateWaylandSurfaceKHR(
     VkSurfaceKHR* out_pSurface = &out_pSurface_value;
 
     vkCreateWaylandSurfaceKHR(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupportKHR(
@@ -2596,6 +2691,8 @@ void VulkanReplayConsumer::Process_vkCreateMirSurfaceKHR(
     VkSurfaceKHR* out_pSurface = &out_pSurface_value;
 
     vkCreateMirSurfaceKHR(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceMirPresentationSupportKHR(
@@ -2627,6 +2724,8 @@ void VulkanReplayConsumer::Process_vkCreateAndroidSurfaceKHR(
     VkSurfaceKHR* out_pSurface = &out_pSurface_value;
 
     vkCreateAndroidSurfaceKHR(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 #endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
@@ -2645,6 +2744,8 @@ void VulkanReplayConsumer::Process_vkCreateWin32SurfaceKHR(
     VkSurfaceKHR* out_pSurface = &out_pSurface_value;
 
     vkCreateWin32SurfaceKHR(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWin32PresentationSupportKHR(
@@ -2714,11 +2815,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
     uint32_t out_pQueueFamilyPropertyCount_value = pQueueFamilyPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pQueueFamilyPropertyCount.GetPointer());
     uint32_t* out_pQueueFamilyPropertyCount = &out_pQueueFamilyPropertyCount_value;
-    VkQueueFamilyProperties2* out_pQueueFamilyProperties = pQueueFamilyProperties.IsNull() ? nullptr : new VkQueueFamilyProperties2[out_pQueueFamilyPropertyCount_value];
+    VkQueueFamilyProperties2* out_pQueueFamilyProperties = pQueueFamilyProperties.IsNull() ? nullptr : AllocateArray<VkQueueFamilyProperties2>(out_pQueueFamilyPropertyCount_value);
 
     vkGetPhysicalDeviceQueueFamilyProperties2KHR(in_physicalDevice, out_pQueueFamilyPropertyCount, out_pQueueFamilyProperties);
 
-    if (out_pQueueFamilyProperties != nullptr) delete [] out_pQueueFamilyProperties;
+    FreeArray<VkQueueFamilyProperties2>(&out_pQueueFamilyProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceMemoryProperties2KHR(
@@ -2742,11 +2843,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSparseImageFormatPropertie
     const VkPhysicalDeviceSparseImageFormatInfo2* in_pFormatInfo = reinterpret_cast<const VkPhysicalDeviceSparseImageFormatInfo2*>(pFormatInfo.GetPointer());
     uint32_t out_pPropertyCount_value = pPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pPropertyCount.GetPointer());
     uint32_t* out_pPropertyCount = &out_pPropertyCount_value;
-    VkSparseImageFormatProperties2* out_pProperties = pProperties.IsNull() ? nullptr : new VkSparseImageFormatProperties2[out_pPropertyCount_value];
+    VkSparseImageFormatProperties2* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkSparseImageFormatProperties2>(out_pPropertyCount_value);
 
     vkGetPhysicalDeviceSparseImageFormatProperties2KHR(in_physicalDevice, in_pFormatInfo, out_pPropertyCount, out_pProperties);
 
-    if (out_pProperties != nullptr) delete [] out_pProperties;
+    FreeArray<VkSparseImageFormatProperties2>(&out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetDeviceGroupPeerMemoryFeaturesKHR(
@@ -2806,11 +2907,11 @@ void VulkanReplayConsumer::Process_vkEnumeratePhysicalDeviceGroupsKHR(
     VkInstance in_instance = object_mapper_.MapVkInstance(instance);
     uint32_t out_pPhysicalDeviceGroupCount_value = pPhysicalDeviceGroupCount.IsNull() ? static_cast<uint32_t>(0) : *(pPhysicalDeviceGroupCount.GetPointer());
     uint32_t* out_pPhysicalDeviceGroupCount = &out_pPhysicalDeviceGroupCount_value;
-    VkPhysicalDeviceGroupProperties* out_pPhysicalDeviceGroupProperties = pPhysicalDeviceGroupProperties.IsNull() ? nullptr : new VkPhysicalDeviceGroupProperties[out_pPhysicalDeviceGroupCount_value];
+    VkPhysicalDeviceGroupProperties* out_pPhysicalDeviceGroupProperties = pPhysicalDeviceGroupProperties.IsNull() ? nullptr : AllocateArray<VkPhysicalDeviceGroupProperties>(out_pPhysicalDeviceGroupCount_value);
 
     vkEnumeratePhysicalDeviceGroupsKHR(in_instance, out_pPhysicalDeviceGroupCount, out_pPhysicalDeviceGroupProperties);
 
-    if (out_pPhysicalDeviceGroupProperties != nullptr) delete [] out_pPhysicalDeviceGroupProperties;
+    FreeArray<VkPhysicalDeviceGroupProperties>(&out_pPhysicalDeviceGroupProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR(
@@ -2993,6 +3094,8 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
     VkDescriptorUpdateTemplate* out_pDescriptorUpdateTemplate = &out_pDescriptorUpdateTemplate_value;
 
     vkCreateDescriptorUpdateTemplateKHR(in_device, in_pCreateInfo, in_pAllocator, out_pDescriptorUpdateTemplate);
+
+    AddHandles<VkDescriptorUpdateTemplate>(pDescriptorUpdateTemplate.GetPointer(), out_pDescriptorUpdateTemplate, 1, &VulkanObjectMapper::AddVkDescriptorUpdateTemplate);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
@@ -3035,6 +3138,8 @@ void VulkanReplayConsumer::Process_vkCreateRenderPass2KHR(
     VkRenderPass* out_pRenderPass = &out_pRenderPass_value;
 
     vkCreateRenderPass2KHR(in_device, in_pCreateInfo, in_pAllocator, out_pRenderPass);
+
+    AddHandles<VkRenderPass>(pRenderPass.GetPointer(), out_pRenderPass, 1, &VulkanObjectMapper::AddVkRenderPass);
 }
 
 void VulkanReplayConsumer::Process_vkCmdBeginRenderPass2KHR(
@@ -3172,11 +3277,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
     const VkPhysicalDeviceSurfaceInfo2KHR* in_pSurfaceInfo = reinterpret_cast<const VkPhysicalDeviceSurfaceInfo2KHR*>(pSurfaceInfo.GetPointer());
     uint32_t out_pSurfaceFormatCount_value = pSurfaceFormatCount.IsNull() ? static_cast<uint32_t>(0) : *(pSurfaceFormatCount.GetPointer());
     uint32_t* out_pSurfaceFormatCount = &out_pSurfaceFormatCount_value;
-    VkSurfaceFormat2KHR* out_pSurfaceFormats = pSurfaceFormats.IsNull() ? nullptr : new VkSurfaceFormat2KHR[out_pSurfaceFormatCount_value];
+    VkSurfaceFormat2KHR* out_pSurfaceFormats = pSurfaceFormats.IsNull() ? nullptr : AllocateArray<VkSurfaceFormat2KHR>(out_pSurfaceFormatCount_value);
 
     vkGetPhysicalDeviceSurfaceFormats2KHR(in_physicalDevice, in_pSurfaceInfo, out_pSurfaceFormatCount, out_pSurfaceFormats);
 
-    if (out_pSurfaceFormats != nullptr) delete [] out_pSurfaceFormats;
+    FreeArray<VkSurfaceFormat2KHR>(&out_pSurfaceFormats);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayProperties2KHR(
@@ -3188,11 +3293,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayProperties2KHR(
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
     uint32_t out_pPropertyCount_value = pPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pPropertyCount.GetPointer());
     uint32_t* out_pPropertyCount = &out_pPropertyCount_value;
-    VkDisplayProperties2KHR* out_pProperties = pProperties.IsNull() ? nullptr : new VkDisplayProperties2KHR[out_pPropertyCount_value];
+    VkDisplayProperties2KHR* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkDisplayProperties2KHR>(out_pPropertyCount_value);
 
     vkGetPhysicalDeviceDisplayProperties2KHR(in_physicalDevice, out_pPropertyCount, out_pProperties);
 
-    if (out_pProperties != nullptr) delete [] out_pProperties;
+    FreeArray<VkDisplayProperties2KHR>(&out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
@@ -3204,11 +3309,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayPlaneProperties2KHR
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
     uint32_t out_pPropertyCount_value = pPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pPropertyCount.GetPointer());
     uint32_t* out_pPropertyCount = &out_pPropertyCount_value;
-    VkDisplayPlaneProperties2KHR* out_pProperties = pProperties.IsNull() ? nullptr : new VkDisplayPlaneProperties2KHR[out_pPropertyCount_value];
+    VkDisplayPlaneProperties2KHR* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkDisplayPlaneProperties2KHR>(out_pPropertyCount_value);
 
     vkGetPhysicalDeviceDisplayPlaneProperties2KHR(in_physicalDevice, out_pPropertyCount, out_pProperties);
 
-    if (out_pProperties != nullptr) delete [] out_pProperties;
+    FreeArray<VkDisplayPlaneProperties2KHR>(&out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetDisplayModeProperties2KHR(
@@ -3222,11 +3327,11 @@ void VulkanReplayConsumer::Process_vkGetDisplayModeProperties2KHR(
     VkDisplayKHR in_display = object_mapper_.MapVkDisplayKHR(display);
     uint32_t out_pPropertyCount_value = pPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pPropertyCount.GetPointer());
     uint32_t* out_pPropertyCount = &out_pPropertyCount_value;
-    VkDisplayModeProperties2KHR* out_pProperties = pProperties.IsNull() ? nullptr : new VkDisplayModeProperties2KHR[out_pPropertyCount_value];
+    VkDisplayModeProperties2KHR* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkDisplayModeProperties2KHR>(out_pPropertyCount_value);
 
     vkGetDisplayModeProperties2KHR(in_physicalDevice, in_display, out_pPropertyCount, out_pProperties);
 
-    if (out_pProperties != nullptr) delete [] out_pProperties;
+    FreeArray<VkDisplayModeProperties2KHR>(&out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetDisplayPlaneCapabilities2KHR(
@@ -3279,11 +3384,11 @@ void VulkanReplayConsumer::Process_vkGetImageSparseMemoryRequirements2KHR(
     const VkImageSparseMemoryRequirementsInfo2* in_pInfo = reinterpret_cast<const VkImageSparseMemoryRequirementsInfo2*>(pInfo.GetPointer());
     uint32_t out_pSparseMemoryRequirementCount_value = pSparseMemoryRequirementCount.IsNull() ? static_cast<uint32_t>(0) : *(pSparseMemoryRequirementCount.GetPointer());
     uint32_t* out_pSparseMemoryRequirementCount = &out_pSparseMemoryRequirementCount_value;
-    VkSparseImageMemoryRequirements2* out_pSparseMemoryRequirements = pSparseMemoryRequirements.IsNull() ? nullptr : new VkSparseImageMemoryRequirements2[out_pSparseMemoryRequirementCount_value];
+    VkSparseImageMemoryRequirements2* out_pSparseMemoryRequirements = pSparseMemoryRequirements.IsNull() ? nullptr : AllocateArray<VkSparseImageMemoryRequirements2>(out_pSparseMemoryRequirementCount_value);
 
     vkGetImageSparseMemoryRequirements2KHR(in_device, in_pInfo, out_pSparseMemoryRequirementCount, out_pSparseMemoryRequirements);
 
-    if (out_pSparseMemoryRequirements != nullptr) delete [] out_pSparseMemoryRequirements;
+    FreeArray<VkSparseImageMemoryRequirements2>(&out_pSparseMemoryRequirements);
 }
 
 void VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
@@ -3300,6 +3405,8 @@ void VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
     VkSamplerYcbcrConversion* out_pYcbcrConversion = &out_pYcbcrConversion_value;
 
     vkCreateSamplerYcbcrConversionKHR(in_device, in_pCreateInfo, in_pAllocator, out_pYcbcrConversion);
+
+    AddHandles<VkSamplerYcbcrConversion>(pYcbcrConversion.GetPointer(), out_pYcbcrConversion, 1, &VulkanObjectMapper::AddVkSamplerYcbcrConversion);
 }
 
 void VulkanReplayConsumer::Process_vkDestroySamplerYcbcrConversionKHR(
@@ -3397,6 +3504,8 @@ void VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(
     VkDebugReportCallbackEXT* out_pCallback = &out_pCallback_value;
 
     vkCreateDebugReportCallbackEXT(in_instance, in_pCreateInfo, in_pAllocator, out_pCallback);
+
+    AddHandles<VkDebugReportCallbackEXT>(pCallback.GetPointer(), out_pCallback, 1, &VulkanObjectMapper::AddVkDebugReportCallbackEXT);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyDebugReportCallbackEXT(
@@ -3523,11 +3632,11 @@ void VulkanReplayConsumer::Process_vkGetShaderInfoAMD(
     VkPipeline in_pipeline = object_mapper_.MapVkPipeline(pipeline);
     size_t out_pInfoSize_value = pInfoSize.IsNull() ? static_cast<size_t>(0) : *(pInfoSize.GetPointer());
     size_t* out_pInfoSize = &out_pInfoSize_value;
-    void* out_pInfo = pInfo.IsNull() ? nullptr : new uint8_t[out_pInfoSize_value];
+    uint8_t* out_pInfo = pInfo.IsNull() ? nullptr : AllocateArray<uint8_t>(out_pInfoSize_value);
 
     vkGetShaderInfoAMD(in_device, in_pipeline, shaderStage, infoType, out_pInfoSize, out_pInfo);
 
-    if (out_pInfo != nullptr) delete [] out_pInfo;
+    FreeArray<uint8_t>(&out_pInfo);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
@@ -3580,6 +3689,8 @@ void VulkanReplayConsumer::Process_vkCreateViSurfaceNN(
     VkSurfaceKHR* out_pSurface = &out_pSurface_value;
 
     vkCreateViSurfaceNN(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 #endif /* VK_USE_PLATFORM_VI_NN */
 
@@ -3635,6 +3746,8 @@ void VulkanReplayConsumer::Process_vkCreateIndirectCommandsLayoutNVX(
     VkIndirectCommandsLayoutNVX* out_pIndirectCommandsLayout = &out_pIndirectCommandsLayout_value;
 
     vkCreateIndirectCommandsLayoutNVX(in_device, in_pCreateInfo, in_pAllocator, out_pIndirectCommandsLayout);
+
+    AddHandles<VkIndirectCommandsLayoutNVX>(pIndirectCommandsLayout.GetPointer(), out_pIndirectCommandsLayout, 1, &VulkanObjectMapper::AddVkIndirectCommandsLayoutNVX);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNVX(
@@ -3663,6 +3776,8 @@ void VulkanReplayConsumer::Process_vkCreateObjectTableNVX(
     VkObjectTableNVX* out_pObjectTable = &out_pObjectTable_value;
 
     vkCreateObjectTableNVX(in_device, in_pCreateInfo, in_pAllocator, out_pObjectTable);
+
+    AddHandles<VkObjectTableNVX>(pObjectTable.GetPointer(), out_pObjectTable, 1, &VulkanObjectMapper::AddVkObjectTableNVX);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyObjectTableNVX(
@@ -3775,6 +3890,8 @@ void VulkanReplayConsumer::Process_vkGetRandROutputDisplayEXT(
     VkDisplayKHR* out_pDisplay = &out_pDisplay_value;
 
     vkGetRandROutputDisplayEXT(in_physicalDevice, out_dpy, rrOutput, out_pDisplay);
+
+    AddHandles<VkDisplayKHR>(pDisplay.GetPointer(), out_pDisplay, 1, &VulkanObjectMapper::AddVkDisplayKHR);
 }
 #endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
 
@@ -3819,6 +3936,8 @@ void VulkanReplayConsumer::Process_vkRegisterDeviceEventEXT(
     VkFence* out_pFence = &out_pFence_value;
 
     vkRegisterDeviceEventEXT(in_device, in_pDeviceEventInfo, in_pAllocator, out_pFence);
+
+    AddHandles<VkFence>(pFence.GetPointer(), out_pFence, 1, &VulkanObjectMapper::AddVkFence);
 }
 
 void VulkanReplayConsumer::Process_vkRegisterDisplayEventEXT(
@@ -3837,6 +3956,8 @@ void VulkanReplayConsumer::Process_vkRegisterDisplayEventEXT(
     VkFence* out_pFence = &out_pFence_value;
 
     vkRegisterDisplayEventEXT(in_device, in_display, in_pDisplayEventInfo, in_pAllocator, out_pFence);
+
+    AddHandles<VkFence>(pFence.GetPointer(), out_pFence, 1, &VulkanObjectMapper::AddVkFence);
 }
 
 void VulkanReplayConsumer::Process_vkGetSwapchainCounterEXT(
@@ -3879,11 +4000,11 @@ void VulkanReplayConsumer::Process_vkGetPastPresentationTimingGOOGLE(
     VkSwapchainKHR in_swapchain = object_mapper_.MapVkSwapchainKHR(swapchain);
     uint32_t out_pPresentationTimingCount_value = pPresentationTimingCount.IsNull() ? static_cast<uint32_t>(0) : *(pPresentationTimingCount.GetPointer());
     uint32_t* out_pPresentationTimingCount = &out_pPresentationTimingCount_value;
-    VkPastPresentationTimingGOOGLE* out_pPresentationTimings = pPresentationTimings.IsNull() ? nullptr : new VkPastPresentationTimingGOOGLE[out_pPresentationTimingCount_value];
+    VkPastPresentationTimingGOOGLE* out_pPresentationTimings = pPresentationTimings.IsNull() ? nullptr : AllocateArray<VkPastPresentationTimingGOOGLE>(out_pPresentationTimingCount_value);
 
     vkGetPastPresentationTimingGOOGLE(in_device, in_swapchain, out_pPresentationTimingCount, out_pPresentationTimings);
 
-    if (out_pPresentationTimings != nullptr) delete [] out_pPresentationTimings;
+    FreeArray<VkPastPresentationTimingGOOGLE>(&out_pPresentationTimings);
 }
 
 void VulkanReplayConsumer::Process_vkCmdSetDiscardRectangleEXT(
@@ -3905,10 +4026,13 @@ void VulkanReplayConsumer::Process_vkSetHdrMetadataEXT(
     const StructPointerDecoder<Decoded_VkHdrMetadataEXT>& pMetadata)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    const VkSwapchainKHR* in_pSwapchains = reinterpret_cast<const VkSwapchainKHR*>(pSwapchains.GetPointer());
+    VkSwapchainKHR* in_pSwapchains = pSwapchains.IsNull() ? nullptr : AllocateArray<VkSwapchainKHR>(swapchainCount);
+    MapHandles<VkSwapchainKHR>(pSwapchains.GetPointer(), in_pSwapchains, swapchainCount, &VulkanObjectMapper::MapVkSwapchainKHR);
     const VkHdrMetadataEXT* in_pMetadata = reinterpret_cast<const VkHdrMetadataEXT*>(pMetadata.GetPointer());
 
     vkSetHdrMetadataEXT(in_device, swapchainCount, in_pSwapchains, in_pMetadata);
+
+    FreeArray<VkSwapchainKHR>(&in_pSwapchains);
 }
 
 #ifdef VK_USE_PLATFORM_IOS_MVK
@@ -3926,6 +4050,8 @@ void VulkanReplayConsumer::Process_vkCreateIOSSurfaceMVK(
     VkSurfaceKHR* out_pSurface = &out_pSurface_value;
 
     vkCreateIOSSurfaceMVK(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 #endif /* VK_USE_PLATFORM_IOS_MVK */
 
@@ -3944,6 +4070,8 @@ void VulkanReplayConsumer::Process_vkCreateMacOSSurfaceMVK(
     VkSurfaceKHR* out_pSurface = &out_pSurface_value;
 
     vkCreateMacOSSurfaceMVK(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 #endif /* VK_USE_PLATFORM_MACOS_MVK */
 
@@ -4039,6 +4167,8 @@ void VulkanReplayConsumer::Process_vkCreateDebugUtilsMessengerEXT(
     VkDebugUtilsMessengerEXT* out_pMessenger = &out_pMessenger_value;
 
     vkCreateDebugUtilsMessengerEXT(in_instance, in_pCreateInfo, in_pAllocator, out_pMessenger);
+
+    AddHandles<VkDebugUtilsMessengerEXT>(pMessenger.GetPointer(), out_pMessenger, 1, &VulkanObjectMapper::AddVkDebugUtilsMessengerEXT);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyDebugUtilsMessengerEXT(
@@ -4131,6 +4261,8 @@ void VulkanReplayConsumer::Process_vkCreateValidationCacheEXT(
     VkValidationCacheEXT* out_pValidationCache = &out_pValidationCache_value;
 
     vkCreateValidationCacheEXT(in_device, in_pCreateInfo, in_pAllocator, out_pValidationCache);
+
+    AddHandles<VkValidationCacheEXT>(pValidationCache.GetPointer(), out_pValidationCache, 1, &VulkanObjectMapper::AddVkValidationCacheEXT);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyValidationCacheEXT(
@@ -4154,9 +4286,12 @@ void VulkanReplayConsumer::Process_vkMergeValidationCachesEXT(
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkValidationCacheEXT in_dstCache = object_mapper_.MapVkValidationCacheEXT(dstCache);
-    const VkValidationCacheEXT* in_pSrcCaches = reinterpret_cast<const VkValidationCacheEXT*>(pSrcCaches.GetPointer());
+    VkValidationCacheEXT* in_pSrcCaches = pSrcCaches.IsNull() ? nullptr : AllocateArray<VkValidationCacheEXT>(srcCacheCount);
+    MapHandles<VkValidationCacheEXT>(pSrcCaches.GetPointer(), in_pSrcCaches, srcCacheCount, &VulkanObjectMapper::MapVkValidationCacheEXT);
 
     vkMergeValidationCachesEXT(in_device, in_dstCache, srcCacheCount, in_pSrcCaches);
+
+    FreeArray<VkValidationCacheEXT>(&in_pSrcCaches);
 }
 
 void VulkanReplayConsumer::Process_vkGetValidationCacheDataEXT(
@@ -4170,11 +4305,11 @@ void VulkanReplayConsumer::Process_vkGetValidationCacheDataEXT(
     VkValidationCacheEXT in_validationCache = object_mapper_.MapVkValidationCacheEXT(validationCache);
     size_t out_pDataSize_value = pDataSize.IsNull() ? static_cast<size_t>(0) : *(pDataSize.GetPointer());
     size_t* out_pDataSize = &out_pDataSize_value;
-    void* out_pData = pData.IsNull() ? nullptr : new uint8_t[out_pDataSize_value];
+    uint8_t* out_pData = pData.IsNull() ? nullptr : AllocateArray<uint8_t>(out_pDataSize_value);
 
     vkGetValidationCacheDataEXT(in_device, in_validationCache, out_pDataSize, out_pData);
 
-    if (out_pData != nullptr) delete [] out_pData;
+    FreeArray<uint8_t>(&out_pData);
 }
 
 void VulkanReplayConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(

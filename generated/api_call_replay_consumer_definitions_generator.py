@@ -492,6 +492,22 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
                 expr = '{} {} = '.format(paramtype, argname)
 
                 arraylen = self.getArrayLen(param)
+                if arraylen:
+                    lenname = arraylen
+                    if arraylen in arraylengths:
+                        # Array lengths with pointer types are received by the consumer as PointerDecoder<T> objects, so
+                        # an intermediate value of type T is created to hold the value that will be provided to the Vulkan
+                        # API call.  The 'arraylengths' dictionary contains a mapping of the original parameter name to the
+                        # intermediate value name.  For this case, we need to use the intermediate value for array allocations.
+                        lenname = arraylengths[arraylen] if arraylen in arraylengths else arraylen
+                    elif '->' in arraylen:
+                        # Some counts are members of an allocate info struct.  Similar to the above PointerDecoder<T> case,
+                        # Pointers to structures are received in a StructPointerDecoder<T> object and an intermediate value is
+                        # created to store the pointer encapsulated by the object.  This case also requires using the intermediate
+                        # value to access the array length.  Prepending 'in_' to the 'arraylen' value is currently sufficient to
+                        # handle this case.
+                        lenname = 'in_' + lenname
+
                 if isinput:
                     if basetype == 'void' and not arraylen:
                         # If this was an array with the 'void*' type, it was encoded as an array of bytes.
@@ -504,31 +520,26 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
                     elif basetype == 'VkAllocationCallbacks':
                         # The replay consumer needs to override the allocation callbacks used by the captured application.
                         expr += 'GetAllocationCallbacks({});'.format(paramname)
+                    elif basetype in self.handleTypes:
+                        # We received an array of 64-bit integer IDs from the decoder.
+                        # We now need to allocate memory to hold handles, which we map from the IDs.
+                        expr = expr.replace('const', '').lstrip() + '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(paramname, basetype, lenname)
+                        preexpr.append(expr)
+                        expr = 'MapHandles<{basetype}>({}.GetPointer(), {}, {}, &VulkanObjectMapper::Map{basetype});'.format(paramname, argname, lenname, basetype=basetype)
+                        postexpr.append('FreeArray<{}>(&{});'.format(basetype, argname))
                     else:
                         expr += 'reinterpret_cast<{}>({}.GetPointer());'.format(paramtype, paramname)
                 else:
                     if arraylen:
-                        lenname = arraylen
-                        if arraylen in arraylengths:
-                            # Array lengths with pointer types are received by the consumer as PointerDecoder<T> objects, so
-                            # an intermediate value of type T is created to hold the value that will be provided to the Vulkan
-                            # API call.  The 'arraylengths' dictionary contains a mapping of the original parameter name to the
-                            # intermediate value name.  For this case, we need to use the intermediate value for array allocations.
-                            lenname = arraylengths[arraylen] if arraylen in arraylengths else arraylen
-                        elif '->' in arraylen:
-                            # Some counts are members of an allocate info struct.  Similar to the above PointerDecoder<T> case,
-                            # Pointers to structures are received in a StructPointerDecoder<T> object and an intermediate value is
-                            # created to store the pointer encapsulated by the object.  This case also requires using the intermediate
-                            # value to access the array length.  Prepending 'in_' to the 'arraylen' value is currently sufficient to
-                            # handle this case.
-                            lenname = 'in_' + lenname
-                        #
                         if basetype == 'void':
-                            expr += '{}.IsNull() ? nullptr : new uint8_t[{}];'.format(paramname, lenname)
-                            postexpr.append('if ({argname} != nullptr) delete [] {argname};'.format(argname = argname))
+                            expr = 'uint8_t* {} = {}.IsNull() ? nullptr : AllocateArray<uint8_t>({});'.format(argname, paramname, lenname)
+                            postexpr.append('FreeArray<uint8_t>(&{});'.format(argname))
                         else:
-                            expr += '{}.IsNull() ? nullptr : new {}[{}];'.format(paramname, basetype, lenname)
-                            postexpr.append('if ({argname} != nullptr) delete [] {argname};'.format(argname = argname))
+                            expr += '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(paramname, basetype, lenname)
+                            if basetype in self.handleTypes:
+                                # Add mappings for the newly created handles
+                                postexpr.append('AddHandles<{basetype}>({}.GetPointer(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(paramname, argname, lenname, basetype=basetype))
+                            postexpr.append('FreeArray<{}>(&{});'.format(basetype, argname))
                     else:
                         if basetype == 'void':
                             # TODO: Handle mapped memory pointer case.
@@ -548,6 +559,9 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
                             else:
                                 preexpr.append('{basetype} {} = static_cast<{basetype}>(0);'.format(outval, basetype = basetype))
                             expr += '&{};'.format(outval)
+                            if basetype in self.handleTypes:
+                                # Add mapping for the newly created handle
+                                postexpr.append('AddHandles<{basetype}>({}.GetPointer(), {}, 1, &VulkanObjectMapper::Add{basetype});'.format(paramname, argname, basetype=basetype))
                 preexpr.append(expr)
             elif basetype in self.handleTypes:
                 # Handles need to be mapped.
