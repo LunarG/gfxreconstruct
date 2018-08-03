@@ -1,4 +1,4 @@
-add_library(brimstone_util "")
+add_library(brimstone_util STATIC)
 
 target_sources(brimstone_util
                PRIVATE
@@ -12,12 +12,8 @@ target_sources(brimstone_util
                    memory_output_stream.cpp
               )
 
-if (WIN32)
-    target_compile_definitions(brimstone_util PRIVATE -DWIN32_LEAN_AND_MEAN)
-endif (WIN32)
-
 target_include_directories(brimstone_util
                            PUBLIC
-                               ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include
-                               ${CMAKE_SOURCE_DIR}
-                          )
+                               $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
+
+target_link_libraries(brimstone_util platform_specific)
