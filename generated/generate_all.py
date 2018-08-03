@@ -36,7 +36,8 @@ generate_targets = [
     'generated_decode_pnext_struct.inc',
     'generated_api_call_consumer_declarations.inc',
     'generated_api_call_consumer_override_declarations.inc',
-    'generated_api_call_ascii_consumer_definitions.inc'
+    'generated_api_call_ascii_consumer_definitions.inc',
+    'generated_api_call_replay_consumer_definitions.inc'
 ]
 
 if __name__ == '__main__':
