@@ -89,7 +89,7 @@ class VulkanReplayConsumer : public VulkanConsumer
         if ((ids != nullptr) && (handles != nullptr))
         {
             // TODO: Improved handling of array size mismatch.
-            size_t len = std::min<size_t>(ids_len, handles_len);
+            size_t len = std::min(ids_len, handles_len);
             for (size_t i = 0; i < len; ++i)
             {
                 (object_mapper_.*AddFunc)(ids[i], handles[i]);

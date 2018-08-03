@@ -1,4 +1,4 @@
-add_library(brimstone_format "")
+add_library(brimstone_format STATIC)
 
 target_sources(brimstone_format
                PRIVATE
@@ -34,7 +34,6 @@ target_sources(brimstone_format
 
 target_include_directories(brimstone_format
                            PUBLIC
-                               ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include
-                               ${CMAKE_SOURCE_DIR}
-                          )
-target_link_libraries(brimstone_format brimstone_util)
+                               $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
+
+target_link_libraries(brimstone_format brimstone_util vulkan_registry platform_specific)
