@@ -554,7 +554,7 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
                         # We now need to allocate memory to hold handles, which we map from the IDs.
                         expr = expr.replace('const', '').lstrip() + '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(paramname, basetype, lenname)
                         preexpr.append(expr)
-                        expr = 'MapHandles<{basetype}>({}.GetPointer(), {}, {}, &VulkanObjectMapper::Map{basetype});'.format(paramname, argname, lenname, basetype=basetype)
+                        expr = 'MapHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Map{basetype});'.format(argname, lenname, paramname=paramname, basetype=basetype)
                         postexpr.append('FreeArray<{}>(&{});'.format(basetype, argname))
                     else:
                         # TODO: We should be able to remove the reinterpret_cast when we handle VkObjectTableEntryNVX** correctly
@@ -611,7 +611,7 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
                                        preexpr.append(allocation_expr)
 
                                     # Mapping an array of handles.
-                                    preexpr.append(indent + 'MapHandles<{handletype}>({}{}.GetPointer(), {}, {argname}{}, &VulkanObjectMapper::Map{handletype});'.format(srcname, handleinfo.name, allocation_name, handleinfo.arraylen, argname=dstname, handletype=handleinfo.type))
+                                    preexpr.append(indent + 'MapHandles<{handletype}>({srcname}{handlename}.GetPointer(), {srcname}{handlename}.GetLength(), {}, {argname}{}, &VulkanObjectMapper::Map{handletype});'.format(allocation_name, handleinfo.arraylen, srcname=srcname, handlename=handleinfo.name, argname=dstname, handletype=handleinfo.type))
                                 else:
                                     # Mapping a single handle.
                                     preexpr.append(indent + '{}{membername} = object_mapper_.Map{}({}{membername});'.format(dstname, handleinfo.type, srcname, membername=handleinfo.name))
@@ -654,7 +654,7 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
                             expr += '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(paramname, basetype, lenname)
                             if basetype in self.handleTypes:
                                 # Add mappings for the newly created handles
-                                postexpr.append('AddHandles<{basetype}>({}.GetPointer(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(paramname, argname, lenname, basetype=basetype))
+                                postexpr.append('AddHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(argname, lenname, paramname=paramname, basetype=basetype))
                             postexpr.append('FreeArray<{}>(&{});'.format(basetype, argname))
                     else:
                         if basetype == 'void':
@@ -677,7 +677,7 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
                             expr += '&{};'.format(outval)
                             if basetype in self.handleTypes:
                                 # Add mapping for the newly created handle
-                                postexpr.append('AddHandles<{basetype}>({}.GetPointer(), {}, 1, &VulkanObjectMapper::Add{basetype});'.format(paramname, argname, basetype=basetype))
+                                postexpr.append('AddHandles<{basetype}>({}.GetPointer(), 1, {}, 1, &VulkanObjectMapper::Add{basetype});'.format(paramname, argname, basetype=basetype))
                 if expr:
                     preexpr.append(expr)
             elif basetype in self.handleTypes:
