@@ -57,6 +57,18 @@ class VulkanReplayConsumer : public VulkanConsumer
     }
 
     template <typename T>
+    void FreeArray(const T** arr) const
+    {
+        assert(arr != nullptr);
+
+        if ((*arr) != nullptr)
+        {
+            delete[](*arr);
+            *arr = nullptr;
+        }
+    }
+
+    template <typename T>
     void MapHandles(const HandleId* ids, T* handles, size_t len, T (VulkanObjectMapper::*MapFunc)(HandleId) const) const
     {
         if ((ids != nullptr) && (handles != nullptr))
