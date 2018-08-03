@@ -17,6 +17,7 @@
 #ifndef BRIMSTONE_VULKAN_REPLAY_CONSUMER_H
 #define BRIMSTONE_VULKAN_REPLAY_CONSUMER_H
 
+#include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <string>
@@ -69,11 +70,13 @@ class VulkanReplayConsumer : public VulkanConsumer
     }
 
     template <typename T>
-    void MapHandles(const HandleId* ids, T* handles, size_t len, T (VulkanObjectMapper::*MapFunc)(HandleId) const) const
+    void MapHandles(const HandleId* ids, size_t ids_len, T* handles, size_t handles_len, T (VulkanObjectMapper::*MapFunc)(HandleId) const) const
     {
         if ((ids != nullptr) && (handles != nullptr))
         {
-            for (size_t i = 0; i < len; ++i)
+            // The array sizes are expected to be the same for mapping operations.
+            assert(ids_len == handles_len);
+            for (size_t i = 0; i < handles_len; ++i)
             {
                 handles[i] = (object_mapper_.*MapFunc)(ids[i]);
             }
@@ -81,10 +84,12 @@ class VulkanReplayConsumer : public VulkanConsumer
     }
 
     template <typename T>
-    void AddHandles(const HandleId* ids, const T* handles, size_t len, void (VulkanObjectMapper::*AddFunc)(HandleId, T))
+    void AddHandles(const HandleId* ids, size_t ids_len, const T* handles, size_t handles_len, void (VulkanObjectMapper::*AddFunc)(HandleId, T))
     {
         if ((ids != nullptr) && (handles != nullptr))
         {
+            // TODO: Improved handling of array size mismatch.
+            size_t len = std::min<size_t>(ids_len, handles_len);
             for (size_t i = 0; i < len; ++i)
             {
                 (object_mapper_.*AddFunc)(ids[i], handles[i]);
