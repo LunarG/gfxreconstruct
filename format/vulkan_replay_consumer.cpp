@@ -14,6 +14,8 @@
 ** limitations under the License.
 */
 
+#include "volk.h"
+
 #include "util/platform.h"
 #include "format/vulkan_replay_consumer.h"
 
