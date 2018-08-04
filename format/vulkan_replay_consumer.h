@@ -25,6 +25,7 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
+#include "format/api_call_id.h"
 #include "format/vulkan_consumer.h"
 #include "format/vulkan_object_mapper.h"
 
@@ -41,6 +42,9 @@ class VulkanReplayConsumer : public VulkanConsumer
 #include "generated/generated_api_call_consumer_override_declarations.inc"
 
   private:
+    const VkAllocationCallbacks*
+    GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
+
     template <typename T>
     T* AllocateArray(size_t len) const
     {
@@ -72,7 +76,11 @@ class VulkanReplayConsumer : public VulkanConsumer
     }
 
     template <typename T>
-    void MapHandles(const HandleId* ids, size_t ids_len, T* handles, size_t handles_len, T (VulkanObjectMapper::*MapFunc)(HandleId) const) const
+    void MapHandles(const HandleId* ids,
+                    size_t          ids_len,
+                    T*              handles,
+                    size_t          handles_len,
+                    T (VulkanObjectMapper::*MapFunc)(HandleId) const) const
     {
         if ((ids != nullptr) && (handles != nullptr))
         {
@@ -86,7 +94,11 @@ class VulkanReplayConsumer : public VulkanConsumer
     }
 
     template <typename T>
-    void AddHandles(const HandleId* ids, size_t ids_len, const T* handles, size_t handles_len, void (VulkanObjectMapper::*AddFunc)(HandleId, T))
+    void AddHandles(const HandleId* ids,
+                    size_t          ids_len,
+                    const T*        handles,
+                    size_t          handles_len,
+                    void (VulkanObjectMapper::*AddFunc)(HandleId, T))
     {
         if ((ids != nullptr) && (handles != nullptr))
         {
@@ -99,8 +111,16 @@ class VulkanReplayConsumer : public VulkanConsumer
         }
     }
 
-    const VkAllocationCallbacks*
-    GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
+    template <ApiCallId Id, typename Ret, typename Pfn>
+    struct Dispatcher
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer* consumer, Pfn func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(consumer);
+            return func(args...);
+        }
+    };
 
   private:
     VulkanObjectMapper object_mapper_;

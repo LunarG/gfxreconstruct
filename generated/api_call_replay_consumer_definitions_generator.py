@@ -265,7 +265,7 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
         #
         if not name in self.APICALL_BLACKLIST:
             cmddef = self.makeConsumerDecl(cmdinfo.elem, 'VulkanReplayConsumer::Process_') + '\n'
-            cmddef += self.makeConsumerBody(cmdinfo.elem, cmdinfo.elem.findall('param'))
+            cmddef += self.makeConsumerBody(cmdinfo.elem, name, cmdinfo.elem.findall('param'))
             self.appendSection('command', cmddef)
     #
     # makeConsumerDecl - return VulkanConsumer class member declaration
@@ -484,9 +484,9 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
 
         return typename
     #
-    # makeBodyExpressions - 
-    # name - the command name
-    # params - 
+    # makeBodyExpressions - Generating expressions for mapping decoded parameters to arguments used in the API call
+    # name - The command name; used for error reporting
+    # params - List of elements containing <param> tag info for each parameter to process
     def makeBodyExpressions(self, name, params):
         # For array lengths that are stored in pointers, this will map the original parameter name
         # to the temporary parameter name that was created to store the value to be provided to the Vulkan API call.
@@ -697,19 +697,23 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
         return args, preexpr, postexpr
     #
     # makeConsumerBody - return VulkanConsumer class member definition
-    # cmd - Element containing a <command> tag
-    def makeConsumerBody(self, cmd, params):
-        proto = cmd.find('proto')
-        protoname = noneStr(proto.find('name').text)
+    # cmdinfo - Element containing a <command> tag
+    # name - Command name
+    # params - List of elements containing <param> tag info for the command's parameters
+    def makeConsumerBody(self, cmdinfo, name, params):
+        proto = cmdinfo.find('proto')
+        returntype = noneStr(proto.text) + noneStr(proto.find('type').text)
 
-        args, preexpr, postexpr = self.makeBodyExpressions(protoname, params)
+        args, preexpr, postexpr = self.makeBodyExpressions(name, params)
+
+        arglist = ', '.join(args)
 
         body = '{\n'
         if preexpr:
             body += '\n'.join(['    ' + val for val in preexpr])
             body += '\n'
             body += '\n'
-        body += '    {}({});\n'.format(protoname, ', '.join(args))
+        body += '    Dispatcher<ApiCallId_{name}, {}, PFN_{name}>::Dispatch(this, {name}, {});\n'.format(returntype, arglist, name=name)
         if postexpr:
             body += '\n'
             body += '\n'.join(['    ' + val for val in postexpr])
