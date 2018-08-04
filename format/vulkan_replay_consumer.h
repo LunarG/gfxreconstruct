@@ -38,6 +38,8 @@ class VulkanReplayConsumer : public VulkanConsumer
 
     virtual ~VulkanReplayConsumer();
 
+#include "generated/generated_api_call_consumer_override_declarations.inc"
+
   private:
     template <typename T>
     T* AllocateArray(size_t len) const
@@ -99,8 +101,6 @@ class VulkanReplayConsumer : public VulkanConsumer
 
     const VkAllocationCallbacks*
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
-
-#include "generated/generated_api_call_consumer_override_declarations.inc"
 
   private:
     VulkanObjectMapper object_mapper_;
