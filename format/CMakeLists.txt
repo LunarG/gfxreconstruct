@@ -36,4 +36,4 @@ target_include_directories(brimstone_format
                            PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
 
-target_link_libraries(brimstone_format brimstone_util vulkan_registry platform_specific)
+target_link_libraries(brimstone_format brimstone_util volk vulkan_registry platform_specific)
