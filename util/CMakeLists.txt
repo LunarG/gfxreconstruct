@@ -8,10 +8,8 @@ target_sources(brimstone_util
                    output_stream.h
                    platform.h
                    logging.h
-                   metadata.h
                    file_output_stream.cpp
                    memory_output_stream.cpp
-                   metadata.cpp
               )
 
 if (WIN32)
