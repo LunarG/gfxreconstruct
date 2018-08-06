@@ -132,22 +132,22 @@ class VulkanReplayConsumer : public VulkanConsumer
         }
     };
 
-    template <>
-    struct Dispatcher<ApiCallId_vkCreateInstance, VkResult, PFN_vkCreateInstance>
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkCreateInstance, Ret, Pfn>
     {
         template <typename... Args>
-        static VkResult Dispatch(VulkanReplayConsumer* consumer, PFN_vkCreateInstance func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkCreateInstance func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideCreateInstance(args...);
         }
     };
 
-    template <>
-    struct Dispatcher<ApiCallId_vkCreateDevice, VkResult, PFN_vkCreateDevice>
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkCreateDevice, Ret, Pfn>
     {
         template <typename... Args>
-        static VkResult Dispatch(VulkanReplayConsumer* consumer, PFN_vkCreateDevice func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkCreateDevice func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideCreateDevice(args...);
