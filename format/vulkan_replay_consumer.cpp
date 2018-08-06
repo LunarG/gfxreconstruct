@@ -32,11 +32,49 @@ VulkanReplayConsumer::~VulkanReplayConsumer()
 {
 }
 
-const VkAllocationCallbacks* VulkanReplayConsumer::GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks)
+const VkAllocationCallbacks* VulkanReplayConsumer::GetAllocationCallbacks(
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks)
 {
     // Replay does not currently attempt emulate the captured application's use of VkAllocationCallbacks.
     BRIMSTONE_UNREFERENCED_PARAMETER(original_callbacks);
     return nullptr;
+}
+
+VkResult VulkanReplayConsumer::OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                                      const VkAllocationCallbacks* pAllocator,
+                                                      VkInstance*                  pInstance)
+{
+    static bool initialized = false;
+    if (!initialized)
+    {
+        volkInitialize();
+        initialized = true;
+    }
+
+    VkResult result = vkCreateInstance(pCreateInfo, pAllocator, pInstance);
+
+    if ((pInstance != nullptr) && (result == VK_SUCCESS))
+    {
+        volkLoadInstance(*pInstance);
+    }
+
+    return result;
+}
+
+VkResult VulkanReplayConsumer::OverrideCreateDevice(VkPhysicalDevice             physicalDevice,
+                                                    const VkDeviceCreateInfo*    pCreateInfo,
+                                                    const VkAllocationCallbacks* pAllocator,
+                                                    VkDevice*                    pDevice)
+{
+    VkResult result = vkCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
+
+    if ((pDevice != nullptr) && (result == VK_SUCCESS))
+    {
+        // TODO: Per-device dispatch tables.
+        volkLoadDevice(*pDevice);
+    }
+
+    return result;
 }
 
 #include "generated/generated_api_call_replay_consumer_definitions.inc"
