@@ -45,6 +45,16 @@ class VulkanReplayConsumer : public VulkanConsumer
     const VkAllocationCallbacks*
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
 
+    VkResult OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                    const VkAllocationCallbacks* pAllocator,
+                                    VkInstance*                  pInstance);
+
+    VkResult OverrideCreateDevice(VkPhysicalDevice             physicalDevice,
+                                  const VkDeviceCreateInfo*    pCreateInfo,
+                                  const VkAllocationCallbacks* pAllocator,
+                                  VkDevice*                    pDevice);
+
+
     template <typename T>
     T* AllocateArray(size_t len) const
     {
@@ -119,6 +129,28 @@ class VulkanReplayConsumer : public VulkanConsumer
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(consumer);
             return func(args...);
+        }
+    };
+
+    template <>
+    struct Dispatcher<ApiCallId_vkCreateInstance, VkResult, PFN_vkCreateInstance>
+    {
+        template <typename... Args>
+        static VkResult Dispatch(VulkanReplayConsumer* consumer, PFN_vkCreateInstance func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideCreateInstance(args...);
+        }
+    };
+
+    template <>
+    struct Dispatcher<ApiCallId_vkCreateDevice, VkResult, PFN_vkCreateDevice>
+    {
+        template <typename... Args>
+        static VkResult Dispatch(VulkanReplayConsumer* consumer, PFN_vkCreateDevice func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideCreateDevice(args...);
         }
     };
 
