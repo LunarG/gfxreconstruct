@@ -93,6 +93,20 @@ bool WaylandWindow::GetNativeHandle(uint32_t id, void ** handle)
     }
 }
 
+VkResult WaylandWindow::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
+{
+    VkWaylandSurfaceCreateInfoKHR create_info
+    {
+        .sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        .flags = flags,
+        .display = wayland_application_->display,
+        .surface = surface
+    };
+
+    return vkCreateWaylandSurfaceKHR(instance, &create_info, nullptr, pSurface);
+}
+
 struct wl_shell_surface_listener WaylandWindow::shell_surface_listener;
 
 void WaylandWindow::handle_ping(void *data, wl_shell_surface *shell_surface, uint32_t serial)

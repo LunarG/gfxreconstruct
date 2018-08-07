@@ -112,6 +112,20 @@ bool XcbWindow::GetNativeHandle(uint32_t id, void ** handle)
     }
 }
 
+VkResult XcbWindow::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
+{
+    VkXcbSurfaceCreateInfoKHR create_info
+    {
+        .sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        .flags = flags,
+        .connection = xcb_application_->connection,
+        .window = window_
+    };
+
+    return vkCreateXcbSurfaceKHR(instance, &create_info, nullptr, pSurface);
+}
+
 XcbWindowFactory::XcbWindowFactory(XcbApplication* application) : WindowFactory(application)
 {
     xcb_application_ = application;
