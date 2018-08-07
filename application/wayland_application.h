@@ -14,17 +14,21 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_WAYLAND_APPLICATION_H
-#define BRIMSTONE_UTIL_WAYLAND_APPLICATION_H
+#ifndef BRIMSTONE_APPLICATION_WAYLAND_APPLICATION_H
+#define BRIMSTONE_APPLICATION_WAYLAND_APPLICATION_H
 
 #include <wayland-client.h>
+// TEMP //
+#include "vulkan/vulkan.h"
+#include "vulkan/vulkan_wayland.h"
+//////////
 
-#include "util/application.h"
+#include "application/application.h"
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
 class WaylandApplication : public Application
 {
@@ -73,7 +77,7 @@ private:
     static void registry_handle_global_remove(void *data, wl_registry *registry, uint32_t name);
 };
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_UTIL_WAYLAND_APPLICATION_H
+#endif // BRIMSTONE_APPLICATION_WAYLAND_APPLICATION_H

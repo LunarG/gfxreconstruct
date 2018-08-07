@@ -16,14 +16,26 @@
 
 #include <cstdlib>
 
-#include "util/win32_window.h"
+#include "application/win32_window.h"
+
+// TEMP //
+#define VK_KHR_win32_surface
+#include "volk.h"
+#undef VK_KHR_win32_surface
+//////////
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
-Win32Window::Win32Window(Win32Application* application) : Window(application)
+Win32Window::Win32Window(Win32Application* application)
 {
     win32_application_ = application;
+    win32_application_->RegisterWindow(this);
+}
+
+Win32Window::~Win32Window()
+{
+    win32_application_->UnregisterWindow(this);
 }
 
 bool Win32Window::Create(const uint32_t width, const uint32_t height)
@@ -124,27 +136,27 @@ VkResult Win32Window::CreateSurface(VkInstance instance, VkFlags flags, VkSurfac
 {
     VkWin32SurfaceCreateInfoKHR create_info
     {
-        .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
-        .pNext = nullptr,
-        .flags = flags,
-        .hinstance = hinstance_,
-        .hwnd = hwnd_
+        VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+        nullptr,
+        flags,
+        hinstance_,
+        hwnd_
     };
 
     return vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, pSurface);
 }
 
-Win32WindowFactory::Win32WindowFactory(Win32Application* application) : WindowFactory(application)
+Win32WindowFactory::Win32WindowFactory(Win32Application* application)
 {
     win32_application_ = application;
 }
 
-Window* Win32WindowFactory::Create(const uint32_t width, const uint32_t height)
+format::Window* Win32WindowFactory::Create(const uint32_t width, const uint32_t height)
 {
     auto window = new Win32Window(win32_application_);
     window->Create(width, height);
     return window;
 }
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)

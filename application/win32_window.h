@@ -14,30 +14,34 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_WAYLAND_WINDOW_H
-#define BRIMSTONE_UTIL_WAYLAND_WINDOW_H
+#ifndef BRIMSTONE_APPLICATION_WIN32_WINDOW_H
+#define BRIMSTONE_APPLICATION_WIN32_WINDOW_H
 
-#include <wayland-client.h>
+#include <windows.h>
 
-#include "util/window.h"
-#include "util/wayland_application.h"
+#include "format/window.h"
+#include "application/win32_application.h"
+
+#define IDI_ICON 101
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
-class WaylandWindow : public Window
+class Win32Window : public format::Window
 {
 public:
     enum HandleId : uint32_t
     {
-        kDisplay = 0,
-        kSurface = 1
+        kHInstance = 0,
+        kHWnd = 1
     };
 
 public:
-    WaylandWindow(WaylandApplication* application);
+    Win32Window(Win32Application* application);
+
+    virtual ~Win32Window();
 
     bool Create(const uint32_t width, const uint32_t height) override;
 
@@ -56,33 +60,27 @@ public:
     VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
 
 public:
-    struct wl_surface*          surface;
-    struct wl_shell_surface*    shell_surface;
+    HWND                        hwnd_;
 
 private:
-    WaylandApplication*             wayland_application_;
+    Win32Application *          win32_application_;
     uint32_t                    width_;
     uint32_t                    height_;
-
-    static struct wl_shell_surface_listener shell_surface_listener;
-
-    static void handle_ping(void *data, wl_shell_surface *shell_surface, uint32_t serial);
-    static void handle_configure(void *data, wl_shell_surface *shell_surface, uint32_t edges, int32_t width, int32_t height);
-    static void handle_popup_done(void *data, wl_shell_surface *shell_surface);
+    HINSTANCE                   hinstance_;
 };
 
-class WaylandWindowFactory : public WindowFactory
+class Win32WindowFactory : public format::WindowFactory
 {
 public:
-    WaylandWindowFactory(WaylandApplication* application);
+    Win32WindowFactory(Win32Application* application);
 
-    Window* Create(const uint32_t width, const uint32_t height) override;
+    format::Window* Create(const uint32_t width, const uint32_t height) override;
 
 private:
-    WaylandApplication*            wayland_application_;
+    Win32Application * win32_application_;
 };
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_UTIL_WAYLAND_WINDOW_H
+#endif // BRIMSTONE_APPLICATION_WIN32_WINDOW_H

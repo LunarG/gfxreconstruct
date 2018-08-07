@@ -16,14 +16,22 @@
 
 #include <cstdlib>
 
-#include "util/xcb_window.h"
+#include "application/xcb_window.h"
+
+#include "volk.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
-XcbWindow::XcbWindow(XcbApplication* application) : Window(application)
+XcbWindow::XcbWindow(XcbApplication* application)
 {
     xcb_application_ = application;
+    xcb_application_->RegisterWindow(this);
+}
+
+XcbWindow::~XcbWindow()
+{
+    xcb_application_->UnregisterWindow(this);
 }
 
 bool XcbWindow::Create(const uint32_t width, const uint32_t height)
@@ -126,17 +134,17 @@ VkResult XcbWindow::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceK
     return vkCreateXcbSurfaceKHR(instance, &create_info, nullptr, pSurface);
 }
 
-XcbWindowFactory::XcbWindowFactory(XcbApplication* application) : WindowFactory(application)
+XcbWindowFactory::XcbWindowFactory(XcbApplication* application)
 {
     xcb_application_ = application;
 }
 
-Window* XcbWindowFactory::Create(const uint32_t width, const uint32_t height)
+format::Window* XcbWindowFactory::Create(const uint32_t width, const uint32_t height)
 {
     auto window = new XcbWindow(xcb_application_);
     window->Create(width, height);
     return window;
 }
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)
