@@ -9,4 +9,4 @@ target_include_directories(grecplay
                            PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
 
-target_link_libraries(grecplay brimstone_format platform_specific)
+target_link_libraries(grecplay brimstone_util brimstone_format platform_specific)
