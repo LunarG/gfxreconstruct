@@ -713,7 +713,11 @@ class APICallReplayConsumerDefinitionsOutputGenerator(OutputGenerator):
             body += '\n'.join(['    ' + val for val in preexpr])
             body += '\n'
             body += '\n'
-        body += '    Dispatcher<ApiCallId_{name}, {}, PFN_{name}>::Dispatch(this, {name}, {});\n'.format(returntype, arglist, name=name)
+        if returntype == 'VkResult':
+            body += '    VkResult replay_result = Dispatcher<ApiCallId_{name}, {}, PFN_{name}>::Dispatch(this, {name}, {});\n'.format(returntype, arglist, name=name)
+            body += '    CheckResult("{}", returnValue, replay_result);\n'.format(name)
+        else:
+            body += '    Dispatcher<ApiCallId_{name}, {}, PFN_{name}>::Dispatch(this, {name}, {});\n'.format(returntype, arglist, name=name)
         if postexpr:
             body += '\n'
             body += '\n'.join(['    ' + val for val in postexpr])
