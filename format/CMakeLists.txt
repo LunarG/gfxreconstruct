@@ -22,6 +22,7 @@ target_sources(brimstone_format
                    vulkan_replay_consumer.h
                    vulkan_consumer.h
                    vulkan_decoder.h
+                   vulkan_enum_util.h
                    vulkan_object_mapper.h
                    file_processor.cpp
                    string_array_decoder.cpp
