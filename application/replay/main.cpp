@@ -6,7 +6,13 @@ int main(int argc, char** argv)
 {
     brimstone::format::FileProcessor file_processor;
 
-    if (file_processor.Initialize("D:\\temp\\brimstone_test.bin"))
+    std::string bin_file_name = "D:\\temp\\brimstone_test.bin";
+    if (argc > 1)
+    {
+        bin_file_name = argv[1];
+    }
+
+    if (file_processor.Initialize(bin_file_name))
     {
         brimstone::format::VulkanDecoder decoder;
         brimstone::format::VulkanReplayConsumer ascii_consumer;
