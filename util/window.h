@@ -44,6 +44,8 @@ public:
 
     virtual bool GetNativeHandle(uint32_t id, void ** handle) = 0;
 
+    virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) = 0;
+
 public:
     std::string name = "Brimstone";
 

@@ -53,6 +53,8 @@ public:
 
     bool GetNativeHandle(uint32_t id, void ** handle) override;
 
+    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
+
 public:
     xcb_intern_atom_reply_t*    atom_wm_delete_window;
 

@@ -120,6 +120,20 @@ bool Win32Window::GetNativeHandle(uint32_t id, void ** handle)
     }
 }
 
+VkResult Win32Window::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
+{
+    VkWin32SurfaceCreateInfoKHR create_info
+    {
+        .sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        .flags = flags,
+        .hinstance = hinstance_,
+        .hwnd = hwnd_
+    };
+
+    return vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, pSurface);
+}
+
 Win32WindowFactory::Win32WindowFactory(Win32Application* application) : WindowFactory(application)
 {
     win32_application_ = application;

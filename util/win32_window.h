@@ -55,6 +55,8 @@ public:
 
     bool GetNativeHandle(uint32_t id, void ** handle) override;
 
+    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
+
 public:
     HWND                        hwnd_;
 

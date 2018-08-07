@@ -53,6 +53,8 @@ public:
 
     bool GetNativeHandle(uint32_t id, void ** handle) override;
 
+    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
+
 public:
     struct wl_surface*          surface;
     struct wl_shell_surface*    shell_surface;
