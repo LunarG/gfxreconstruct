@@ -14,21 +14,22 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_WINDOW_H
-#define BRIMSTONE_UTIL_WINDOW_H
+#ifndef BRIMSTONE_FORMAT_WINDOW_H
+#define BRIMSTONE_FORMAT_WINDOW_H
 
-#include "util/application.h"
+#include <string>
+
+#include "vulkan/vulkan.h"
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(format)
 
 class Window
 {
 public:
-    Window(Application* application);
-    virtual ~Window();
+    Window() {}
 
     virtual bool Create(const uint32_t width, const uint32_t height) = 0;
 
@@ -47,22 +48,19 @@ public:
     virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) = 0;
 
 public:
-    std::string name = "Brimstone";
-
-protected:
-    Application* application_;
+    std::string name;
 };
 
 class WindowFactory
 {
 public:
-    WindowFactory(Application* application) {};
+    WindowFactory() {};
     virtual ~WindowFactory() {};
 
     virtual Window* Create(const uint32_t width, const uint32_t height) = 0;
 };
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_UTIL_WINDOW_H
+#endif // BRIMSTONE_FORMAT_WINDOW_H

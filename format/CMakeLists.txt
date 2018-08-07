@@ -24,6 +24,7 @@ target_sources(brimstone_format
                    vulkan_decoder.h
                    vulkan_enum_util.h
                    vulkan_object_mapper.h
+                   window.h
                    file_processor.cpp
                    string_array_decoder.cpp
                    string_decoder.cpp

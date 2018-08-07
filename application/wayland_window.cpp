@@ -16,19 +16,27 @@
 
 #include <stdexcept>
 
-#include "util/wayland_window.h"
+#include "application/wayland_window.h"
+
+#include "volk.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
-WaylandWindow::WaylandWindow(WaylandApplication* application) : Window(application)
+WaylandWindow::WaylandWindow(WaylandApplication* application)
 {
     wayland_application_ = application;
+    wayland_application_->RegisterWindow(this);
 
     // Populate callback structs
     shell_surface_listener.ping = handle_ping;
     shell_surface_listener.configure = handle_configure;
     shell_surface_listener.popup_done = handle_popup_done;
+}
+
+WaylandWindow::~WaylandWindow()
+{
+    wayland_application_->UnregisterWindow(this);
 }
 
 bool WaylandWindow::Create(const uint32_t width, const uint32_t height)
@@ -119,17 +127,17 @@ void WaylandWindow::handle_configure(void *data, wl_shell_surface *shell_surface
 
 void WaylandWindow::handle_popup_done(void *data, wl_shell_surface *shell_surface) {}
 
-WaylandWindowFactory::WaylandWindowFactory(WaylandApplication* application) : WindowFactory(application)
+WaylandWindowFactory::WaylandWindowFactory(WaylandApplication* application)
 {
     wayland_application_ = application;
 }
 
-Window* WaylandWindowFactory::Create(const uint32_t width, const uint32_t height)
+format::Window* WaylandWindowFactory::Create(const uint32_t width, const uint32_t height)
 {
     auto window = new WaylandWindow(wayland_application_);
     window->Create(width, height);
     return window;
 }
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)

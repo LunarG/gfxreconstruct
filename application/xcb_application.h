@@ -14,23 +14,35 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_WIN32_SURFACE_FACTORY_H
-#define BRIMSTONE_UTIL_WIN32_SURFACE_FACTORY_H
+#ifndef BRIMSTONE_APPLICATION_XCB_APPLICATION_H
+#define BRIMSTONE_APPLICATION_XCB_APPLICATION_H
 
-#include "util/surface_factory.h"
+#include <xcb/xcb.h>
+// TEMP //
+#include "vulkan/vulkan.h"
+#include "vulkan/vulkan_xcb.h"
+//////////
+
+#include "application/application.h"
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
-class XcbSurfaceFactory : public SurfaceFactory
+class XcbApplication : public Application
 {
 public:
-    VkSurfaceKHR Create(Window* window, VkFlags flags, void ** pHandles) override;
+    XcbApplication();
+
+    void ProcessEvents(bool wait_for_input) override;
+
+public:
+    xcb_connection_t*           connection;
+    xcb_screen_t*               screen;
 };
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_UTIL_WIN32_SURFACE_FACTORY_H
+#endif // BRIMSTONE_APPLICATION_XCB_APPLICATION_H

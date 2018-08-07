@@ -14,32 +14,32 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_WIN32_WINDOW_H
-#define BRIMSTONE_UTIL_WIN32_WINDOW_H
+#ifndef BRIMSTONE_APPLICATION_XCB_WINDOW_H
+#define BRIMSTONE_APPLICATION_XCB_WINDOW_H
 
-#include <windows.h>
+#include <xcb/xcb.h>
 
-#include "util/window.h"
-#include "util/win32_application.h"
-
-#define IDI_ICON 101
+#include "format/window.h"
+#include "application/xcb_application.h"
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
-class Win32Window : public Window
+class XcbWindow : public format::Window
 {
 public:
     enum HandleId : uint32_t
     {
-        kHInstance = 0,
-        kHWnd = 1
+        kConnection = 0,
+        kWindow = 1
     };
 
 public:
-    Win32Window(Win32Application* application);
+    XcbWindow(XcbApplication* application);
+
+    virtual ~XcbWindow();
 
     bool Create(const uint32_t width, const uint32_t height) override;
 
@@ -58,27 +58,27 @@ public:
     VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
 
 public:
-    HWND                        hwnd_;
+    xcb_intern_atom_reply_t*    atom_wm_delete_window;
 
 private:
-    Win32Application *          win32_application_;
+    XcbApplication*             xcb_application_;
     uint32_t                    width_;
     uint32_t                    height_;
-    HINSTANCE                   hinstance_;
+    xcb_window_t                window_;
 };
 
-class Win32WindowFactory : public WindowFactory
+class XcbWindowFactory : public format::WindowFactory
 {
 public:
-    Win32WindowFactory(Win32Application* application);
+    XcbWindowFactory(XcbApplication* application);
 
-    Window* Create(const uint32_t width, const uint32_t height) override;
+    format::Window* Create(const uint32_t width, const uint32_t height) override;
 
 private:
-    Win32Application * win32_application_;
+    XcbApplication*            xcb_application_;
 };
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_UTIL_WIN32_WINDOW_H
+#endif // BRIMSTONE_APPLICATION_XCB_WINDOW_H

@@ -18,11 +18,11 @@
 #include <cstring>
 #include <linux/input.h>
 
-#include "util/wayland_application.h"
-#include "util/wayland_window.h"
+#include "application/wayland_application.h"
+#include "application/wayland_window.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
 WaylandApplication::WaylandApplication()
 {
@@ -216,5 +216,5 @@ void WaylandApplication::pointer_handle_axis(void *data, struct wl_pointer *wl_p
                                            wl_fixed_t value) {}
 
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)

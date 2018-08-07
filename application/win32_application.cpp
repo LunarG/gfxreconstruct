@@ -14,11 +14,11 @@
 ** limitations under the License.
 */
 
-#include "util/win32_application.h"
-#include "util/win32_window.h"
+#include "application/win32_application.h"
+#include "application/win32_window.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
 Win32Application::Win32Application()
 {
@@ -27,7 +27,7 @@ Win32Application::Win32Application()
 
 LRESULT WINAPI Win32Application::WindowProcVk(HWND window, unsigned int msg, WPARAM wp, LPARAM lp) {
     auto *const app = (Win32Application *)GetWindowLongPtr(window, GWLP_USERDATA);
-    std::vector<Window*> windows_copy;
+    std::vector<format::Window*> windows_copy;
     switch (msg)
     {
         case WM_KEYUP:
@@ -97,5 +97,5 @@ void Win32Application::ProcessEvents(bool wait_for_input)
     }
 }
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)

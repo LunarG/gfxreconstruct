@@ -16,11 +16,11 @@
 
 #include <cstdlib>
 
-#include "util/xcb_application.h"
-#include "util/xcb_window.h"
+#include "application/xcb_application.h"
+#include "application/xcb_window.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
 XcbApplication::XcbApplication()
 {
@@ -94,5 +94,5 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
     }
 }
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)

@@ -14,21 +14,35 @@
 ** limitations under the License.
 */
 
-#include "util/window.h"
+#ifndef BRIMSTONE_APPLICATION_WIN32_APPLICATION_H
+#define BRIMSTONE_APPLICATION_WIN32_APPLICATION_H
+
+#include <windows.h>
+// TEMP //
+#include "vulkan/vulkan.h"
+#include "vulkan/vulkan_win32.h"
+//////////
+
+#include "application/application.h"
+
+#include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
-Window::Window(Application* application)
+class Win32Application : public Application
 {
-    application_ = application;
-    application_->RegisterWindow(this);
-}
+public:
+    Win32Application();
 
-Window::~Window()
-{
-    application_->UnregisterWindow(this);
-}
+    void ProcessEvents(bool wait_for_input) override;
 
-BRIMSTONE_END_NAMESPACE(util)
+    static LRESULT WINAPI WindowProcVk(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
+
+public:
+};
+
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)
+
+#endif // BRIMSTONE_APPLICATION_WIN32_APPLICATION_H

@@ -14,30 +14,32 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_XCB_WINDOW_H
-#define BRIMSTONE_UTIL_XCB_WINDOW_H
+#ifndef BRIMSTONE_APPLICATION_WAYLAND_WINDOW_H
+#define BRIMSTONE_APPLICATION_WAYLAND_WINDOW_H
 
-#include <xcb/xcb.h>
+#include <wayland-client.h>
 
-#include "util/window.h"
-#include "util/xcb_application.h"
+#include "format/window.h"
+#include "application/wayland_application.h"
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
-class XcbWindow : public Window
+class WaylandWindow : public format::Window
 {
 public:
     enum HandleId : uint32_t
     {
-        kConnection = 0,
-        kWindow = 1
+        kDisplay = 0,
+        kSurface = 1
     };
 
 public:
-    XcbWindow(XcbApplication* application);
+    WaylandWindow(WaylandApplication* application);
+
+    virtual ~WaylandWindow();
 
     bool Create(const uint32_t width, const uint32_t height) override;
 
@@ -56,27 +58,33 @@ public:
     VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
 
 public:
-    xcb_intern_atom_reply_t*    atom_wm_delete_window;
+    struct wl_surface*          surface;
+    struct wl_shell_surface*    shell_surface;
 
 private:
-    XcbApplication*             xcb_application_;
+    WaylandApplication*             wayland_application_;
     uint32_t                    width_;
     uint32_t                    height_;
-    xcb_window_t                window_;
+
+    static struct wl_shell_surface_listener shell_surface_listener;
+
+    static void handle_ping(void *data, wl_shell_surface *shell_surface, uint32_t serial);
+    static void handle_configure(void *data, wl_shell_surface *shell_surface, uint32_t edges, int32_t width, int32_t height);
+    static void handle_popup_done(void *data, wl_shell_surface *shell_surface);
 };
 
-class XcbWindowFactory : public WindowFactory
+class WaylandWindowFactory : public format::WindowFactory
 {
 public:
-    XcbWindowFactory(XcbApplication* application);
+    WaylandWindowFactory(WaylandApplication* application);
 
-    Window* Create(const uint32_t width, const uint32_t height) override;
+    format::Window* Create(const uint32_t width, const uint32_t height) override;
 
 private:
-    XcbApplication*            xcb_application_;
+    WaylandApplication*            wayland_application_;
 };
 
 BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_UTIL_XCB_WINDOW_H
+#endif // BRIMSTONE_APPLICATION_WAYLAND_WINDOW_H

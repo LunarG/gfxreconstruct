@@ -14,18 +14,19 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_APPLICATION_H
-#define BRIMSTONE_UTIL_APPLICATION_H
+#ifndef BRIMSTONE_APPLICATION_APPLICATION_H
+#define BRIMSTONE_APPLICATION_APPLICATION_H
 
 #include <vector>
 #include <algorithm>
 
 #include "format/file_processor.h"
+#include "format/window.h"
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
 
 class Application
@@ -44,12 +45,12 @@ public:
 
     void PlaySingleFrame();
 
-    bool RegisterWindow(class Window* window);
+    bool RegisterWindow(format::Window* window);
 
-    bool UnregisterWindow(class Window* window);
+    bool UnregisterWindow(format::Window* window);
 
 public:
-    std::vector<class Window*> windows;
+    std::vector<format::Window*> windows;
 
 protected:
     virtual void ProcessEvents(bool wait_for_input) = 0;
@@ -59,7 +60,7 @@ private:
     bool paused_;
 };
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_UTIL_APPLICATION_H
+#endif // BRIMSTONE_APPLICATION_APPLICATION_H

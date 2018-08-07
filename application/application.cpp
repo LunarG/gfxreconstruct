@@ -14,10 +14,10 @@
 ** limitations under the License.
 */
 
-#include "util/application.h"
+#include "application/application.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+BRIMSTONE_BEGIN_NAMESPACE(application)
 
 Application::Application() : paused_(false)
 {
@@ -60,7 +60,7 @@ void Application::PlaySingleFrame()
     }
 }
 
-bool Application::RegisterWindow(class Window* window)
+bool Application::RegisterWindow(format::Window* window)
 {
     if (std::find(windows.begin(), windows.end(), window) != windows.end())
     {
@@ -70,7 +70,7 @@ bool Application::RegisterWindow(class Window* window)
     return true;
 }
 
-bool Application::UnregisterWindow(class Window* window)
+bool Application::UnregisterWindow(format::Window* window)
 {
     auto pos = std::find(windows.begin(), windows.end(), window);
     if (pos == windows.end()) {
@@ -80,5 +80,5 @@ bool Application::UnregisterWindow(class Window* window)
     return true;
 }
 
-BRIMSTONE_END_NAMESPACE(util)
+BRIMSTONE_END_NAMESPACE(application)
 BRIMSTONE_END_NAMESPACE(brimstone)
