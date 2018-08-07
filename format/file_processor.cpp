@@ -16,6 +16,7 @@
 
 #include <cassert>
 
+#include "util/platform.h"
 #include "format/file_processor.h"
 #include "util/compressor.h"
 
@@ -46,9 +47,9 @@ bool FileProcessor::Initialize(const std::string& file_name)
 {
     bool success = false;
 
-    file_descriptor_ = fopen(file_name.c_str(), "rb");
+    int32_t result = util::platform::FileOpen(&file_descriptor_, file_name.c_str(), "rb");
 
-    if (file_descriptor_)
+    if ((result == 0) && (file_descriptor_ != nullptr))
     {
         success = ReadFileHeader();
 
@@ -315,7 +316,7 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
 size_t FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    size_t bytes_read = fread(buffer, 1, buffer_size, file_descriptor_);
+    size_t bytes_read = util::platform::FileRead(buffer, 1, buffer_size, file_descriptor_);
     bytes_read_ += bytes_read;
     return bytes_read;
 }
