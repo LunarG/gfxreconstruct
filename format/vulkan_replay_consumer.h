@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
+#include <functional>
 #include <string>
 
 #include "vulkan/vulkan.h"
@@ -39,11 +40,17 @@ class VulkanReplayConsumer : public VulkanConsumer
 
     virtual ~VulkanReplayConsumer();
 
+    void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
+
 #include "generated/generated_api_call_consumer_override_declarations.inc"
 
   private:
+    void RaiseFatalError(const char* message) const;
+
     const VkAllocationCallbacks*
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
+
+    void CheckResult(const char* func_name, VkResult original, VkResult replay);
 
     VkResult OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                     const VkAllocationCallbacks* pAllocator,
@@ -53,7 +60,6 @@ class VulkanReplayConsumer : public VulkanConsumer
                                   const VkDeviceCreateInfo*    pCreateInfo,
                                   const VkAllocationCallbacks* pAllocator,
                                   VkDevice*                    pDevice);
-
 
     template <typename T>
     T* AllocateArray(size_t len) const
@@ -155,7 +161,8 @@ class VulkanReplayConsumer : public VulkanConsumer
     };
 
   private:
-    VulkanObjectMapper object_mapper_;
+    VulkanObjectMapper               object_mapper_;
+    std::function<void(const char*)> fatal_error_handler_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
