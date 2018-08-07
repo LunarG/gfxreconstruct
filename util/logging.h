@@ -17,6 +17,7 @@
 #ifndef BRIMSTONE_UTIL_LOGGING_H
 #define BRIMSTONE_UTIL_LOGGING_H
 
+#include "util/defines.h"
 #include "util/platform.h"
 
 #include <cstdarg>
@@ -30,7 +31,7 @@ BRIMSTONE_BEGIN_NAMESPACE(logging)
 // Logging types
 enum Severity : uint32_t
 {
-    kCommandsSeverity = 0,
+    kCommandSeverity = 0,
     kDebugSeverity,
     kInfoSeverity,
     kWarningSeverity,
@@ -92,7 +93,7 @@ inline std::string SeverityToString(Severity severity)
     }
 }
 
-inline void Init(Severity min_severity = SEVERITY_ERROR, const char* log_file_name = NULL, bool leave_file_open = true,
+inline void Init(Severity min_severity = kErrorSeverity, const char* log_file_name = NULL, bool leave_file_open = true,
                  bool create_new_file_on_open = true, bool flush_after_write = false, bool break_on_error = false,
                  bool output_detailed_log_info = false, bool write_to_console = true, bool errors_to_stderr = true,
                  bool use_indent = false)
@@ -274,29 +275,29 @@ BRIMSTONE_END_NAMESPACE(brimstone)
 
 // Functions defined outside of the namespace for easier use
 #define BRIMSTONE_LOG_FATAL(message, ...) do { \
-        brimstone::utils::logging::LogMessage(brimstone::utils::logging::kFatalSeverity, \
-                                              __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__); \
+        brimstone::util::logging::LogMessage(brimstone::util::logging::kFatalSeverity, \
+                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__); \
     } while (0)
 #define BRIMSTONE_LOG_ERROR(message, ...) do { \
-        brimstone::utils::logging::LogMessage(brimstone::utils::logging::kErrorSeverity, \
-                                              __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__); \
+        brimstone::util::logging::LogMessage(brimstone::util::logging::kErrorSeverity, \
+                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__); \
     } while (0)
 #define BRIMSTONE_LOG_WARNING(message, ...) do { \
-        brimstone::utils::logging::LogMessage(brimstone::utils::logging::kWarningSeverity, \
-                                              __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__); \
+        brimstone::util::logging::LogMessage(brimstone::util::logging::kWarningSeverity, \
+                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__); \
     } while (0)
 #define BRIMSTONE_LOG_INFO(message, ...) do { \
-        brimstone::utils::logging::LogMessage(brimstone::utils::logging::kInfoSeverity, \
-                                              __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__); \
+        brimstone::util::logging::LogMessage(brimstone::util::logging::kInfoSeverity, \
+                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__); \
     } while (0)
 #define BRIMSTONE_LOG_DEBUG(message, ...) do { \
-        brimstone::utils::logging::LogMessage(brimstone::utils::logging::kDebugSeverity, \
-                                              __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__); \
+        brimstone::util::logging::LogMessage(brimstone::util::logging::kDebugSeverity, \
+                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__); \
     } while (0)
 
 #ifdef BRIMSTONE_ENABLE_COMMAND_TRACE
 
-#define BRIMSTONE_LOG_COMMAND() brimstone::utils::logging CommandTrace command_trace(__FILE__, __FUNCTION__);
+#define BRIMSTONE_LOG_COMMAND() brimstone::util::logging CommandTrace command_trace(__FILE__, __FUNCTION__);
 
 #else
 
@@ -304,6 +305,6 @@ BRIMSTONE_END_NAMESPACE(brimstone)
 // creating/destroying a class we don't care about.
 #define BRIMSTONE_LOG_COMMAND()
 
-#endif 
+#endif
 
 #endif // BRIMSTONE_UTIL_LOGGING_H

@@ -22,6 +22,10 @@
 
 #define BRIMSTONE_UNREFERENCED_PARAMETER(x) ((void)x)
 
+// Use two macros for the x is a macro case, to ensure macro expansion is applied to x prior to string conversion.
+#define BRIMSTONE_STR_EXPAND(x) #x
+#define BRIMSTONE_STR(x) BRIMSTONE_STR_EXPAND(x)
+
 #define BRIMSTONE_MAKE_FOURCC(c0, c1, c2, c3) (static_cast<uint32_t>(c0) | (static_cast<uint32_t>(c1) << 8) | (static_cast<uint32_t>(c2) << 16) | (static_cast<uint32_t>(c3) << 24))
 
 #define BRIMSTONE_FOURCC BRIMSTONE_MAKE_FOURCC('G', 'R', 'E', 'C')
