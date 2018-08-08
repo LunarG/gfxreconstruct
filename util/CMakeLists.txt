@@ -1,4 +1,4 @@
-add_library(brimstone_util STATIC)
+add_library(brimstone_util STATIC "")
 
 target_sources(brimstone_util
                PRIVATE

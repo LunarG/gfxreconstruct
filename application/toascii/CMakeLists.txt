@@ -1,4 +1,4 @@
-add_executable(grectoascii)
+add_executable(grectoascii "")
 
 target_sources(grectoascii
                PRIVATE
