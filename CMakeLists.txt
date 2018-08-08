@@ -14,7 +14,7 @@ target_link_libraries(platform_specific INTERFACE $<$<BOOL:${WIN32}>:windows_spe
 add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
 
-add_library(volk STATIC)
+add_library(volk STATIC "")
 target_include_directories(volk PUBLIC ${CMAKE_SOURCE_DIR}/external/volk)
 target_sources(volk PRIVATE ${CMAKE_SOURCE_DIR}/external/volk/volk.c)
 target_compile_definitions(volk PUBLIC VK_NO_PROTOTYPES)

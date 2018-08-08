@@ -1,4 +1,4 @@
-add_executable(grecplay)
+add_executable(grecplay "")
 
 target_sources(grecplay
                PRIVATE

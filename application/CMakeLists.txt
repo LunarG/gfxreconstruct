@@ -1,7 +1,7 @@
 add_subdirectory(replay)
 add_subdirectory(toascii)
 
-add_library(brimstone_application STATIC)
+add_library(brimstone_application STATIC "")
 
 target_sources(brimstone_application
                PRIVATE
