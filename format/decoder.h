@@ -28,12 +28,13 @@ BRIMSTONE_BEGIN_NAMESPACE(format)
 
 class Decoder
 {
-public:
-    virtual ~Decoder() { }
+  public:
+    virtual ~Decoder() {}
 
     virtual bool SupportsApiCall(ApiCallId id) = 0;
 
-    virtual void DecodeFunctionCall(ApiCallId id, const uint8_t* buffer, size_t buffer_size) = 0;
+    virtual void
+    DecodeFunctionCall(ApiCallId id, const ApiCallOptions& call_options, const uint8_t* buffer, size_t buffer_size) = 0;
 };
 
 BRIMSTONE_END_NAMESPACE(format)

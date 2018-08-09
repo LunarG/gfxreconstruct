@@ -25,6 +25,7 @@ target_sources(brimstone_format
                    vulkan_enum_util.h
                    vulkan_object_mapper.h
                    window.h
+                   decompress_decoder.h
                    file_processor.cpp
                    string_array_decoder.cpp
                    string_decoder.cpp
@@ -32,6 +33,7 @@ target_sources(brimstone_format
                    vulkan_ascii_consumer.cpp
                    vulkan_replay_consumer.cpp
                    vulkan_decoder.cpp
+                   decompress_decoder.cpp
               )
 
 target_include_directories(brimstone_format
