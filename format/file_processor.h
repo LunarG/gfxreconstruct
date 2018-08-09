@@ -49,6 +49,12 @@ public:
 
     bool ProcessAllFrames();
 
+    FileHeader GetFileHeader() const { return file_header_; }
+
+    const std::vector<FileOptionPair>& GetFileOptions() const { return file_options_; }
+
+    size_t NumBytesRead() { return bytes_read_; }
+
 private:
     bool ReadFileHeader();
 
@@ -62,7 +68,7 @@ private:
 
     size_t ReadBytes(void* buffer, size_t buffer_size);
 
-    void ProcessFunctionCall(ApiCallId call_id, const uint8_t* parameter_buffer, size_t buffer_size);
+    void ProcessFunctionCall(ApiCallId call_id, ApiCallOptions call_options, const uint8_t* parameter_buffer, size_t buffer_size);
 
     bool IsFrameDelimiter(ApiCallId call_id) const;
 
@@ -74,7 +80,8 @@ private:
     FILE*                       file_descriptor_;
     std::string                 file_name_;
     FileHeader                  file_header_;
-    EnabledOptions              file_options_;
+    std::vector<FileOptionPair> file_options_;
+    EnabledOptions              enabled_options_;
     uint64_t                    bytes_read_;
     std::vector<Decoder*>       decoders_;
     std::vector<uint8_t>        parameter_buffer_;

@@ -118,6 +118,13 @@ struct BlockHeader
     BlockType type;
 };
 
+struct ApiCallOptions
+{
+    uint32_t thread_id;
+    uint32_t begin_time;
+    uint32_t end_time;
+};
+
 struct FunctionCallHeader
 {
     BlockHeader block_header;

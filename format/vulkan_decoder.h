@@ -43,9 +43,12 @@ public:
 
     virtual bool SupportsApiCall(ApiCallId call_id) override { return ((call_id >= 0x1000) && (call_id <= 0x112b)) ? true : false; }
 
-    virtual void DecodeFunctionCall(ApiCallId call_id, const uint8_t* parameter_buffer, size_t buffer_size) override;
+    virtual void DecodeFunctionCall(ApiCallId             call_id,
+                                    const ApiCallOptions& call_options,
+                                    const uint8_t*        parameter_buffer,
+                                    size_t                buffer_size) override;
 
-private:
+  private:
 #include "generated/generated_api_call_decoder_declarations.inc"
 
 private:

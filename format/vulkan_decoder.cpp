@@ -21,13 +21,19 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-void VulkanDecoder::DecodeFunctionCall(ApiCallId call_id, const uint8_t* parameter_buffer, size_t buffer_size)
+void VulkanDecoder::DecodeFunctionCall(ApiCallId             call_id,
+                                       const ApiCallOptions& call_options,
+                                       const uint8_t*        parameter_buffer,
+                                       size_t                buffer_size)
 {
+    // Unused items
+    (void)call_options;
+
     switch (call_id)
     {
 #include "generated/generated_api_call_decode_cases.inc"
-    default:
-        break;
+        default:
+            break;
     }
 }
 

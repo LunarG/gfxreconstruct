@@ -84,7 +84,12 @@ bool TraceManager::Initialize(std::string filename, EnabledOptions file_options)
 
 void TraceManager::Destroy()
 {
-    // TODO: Any finalization required for trace file.
+    // Perform any finalization required for trace file.
+    if (nullptr != compressor_)
+    {
+        delete compressor_;
+        compressor_ = nullptr;
+    }
 }
 
 ParameterEncoder* TraceManager::BeginApiCallTrace(ApiCallId call_id)
@@ -163,10 +168,10 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
     {
         std::lock_guard<std::mutex> lock(file_lock_);
 
-        // Write standard function call block header.
+        // Write appropriate function call block header.
         bytes_written_ += file_stream_->Write(header_pointer, header_size);
 
-        // Add optional header items.
+        // Add optional call items.
         if (file_options_.record_thread_id)
         {
             bytes_written_ += file_stream_->Write(&thread_data_.thread_id_, sizeof(thread_data_.thread_id_));
