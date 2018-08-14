@@ -62,6 +62,7 @@ size_t Lz4Compressor::Compress(const size_t          uncompressed_size,
 
 size_t Lz4Compressor::Decompress(const size_t                compressed_size,
                                  const std::vector<uint8_t>& compressed_data,
+                                 const size_t                expected_uncompressed_size,
                                  std::vector<uint8_t>*       uncompressed_data)
 {
     size_t copy_size = 0;
@@ -75,20 +76,12 @@ size_t Lz4Compressor::Decompress(const size_t                compressed_size,
             }
             LZ4_streamDecode_t lz4_stream_decode;
             LZ4_setStreamDecode(&lz4_stream_decode, NULL, 0);
-            // NOTE: The best-case compression is 255 to 1, so multiply size by 255 for now.
-            //       This is really unfortunate, but LZ4 doesn't have a LZ4_DECOMPRESSBOUND()
-            //       macro.
-            size_t uncompressed_buffer_size_estimate = compressed_size * 255;
-            if (uncompressed_data->size() < uncompressed_buffer_size_estimate)
-            {
-                uncompressed_data->resize(uncompressed_buffer_size_estimate);
-            }
             const int uncompressed_size_generated =
                 LZ4_decompress_safe_continue(&lz4_stream_decode,
                                              reinterpret_cast<const char*>(compressed_data.data()),
                                              reinterpret_cast<char*>(uncompressed_data->data()),
                                              compressed_size,
-                                             uncompressed_buffer_size_estimate);
+                                             expected_uncompressed_size);
             if (uncompressed_size_generated > 0)
             {
                 copy_size = static_cast<size_t>(uncompressed_size_generated);

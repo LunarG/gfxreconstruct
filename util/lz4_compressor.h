@@ -32,6 +32,7 @@ class Lz4Compressor : public Compressor
                    Compress(const size_t uncompressed_size, const uint8_t* uncompressed_data, std::vector<uint8_t>* compressed_data);
     virtual size_t Decompress(const size_t                compressed_size,
                               const std::vector<uint8_t>& compressed_data,
+                              const size_t                expected_uncompressed_size,
                               std::vector<uint8_t>*       uncompressed_data);
 };
 

@@ -319,8 +319,13 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
     if (ReadBytes(compressed_parameter_buffer_.data(), compressed_buffer_size) == compressed_buffer_size)
     {
-        size_t uncompressed_size =
-            compressor_->Decompress(compressed_buffer_size, compressed_parameter_buffer_, &parameter_buffer_);
+        if (parameter_buffer_.size() < expected_uncompressed_size)
+        {
+            parameter_buffer_.resize(expected_uncompressed_size);
+        }
+
+        size_t uncompressed_size = compressor_->Decompress(
+            compressed_buffer_size, compressed_parameter_buffer_, expected_uncompressed_size, &parameter_buffer_);
         if ((0 < uncompressed_size) && (uncompressed_size == expected_uncompressed_size))
         {
             *uncompressed_buffer_size = uncompressed_size;

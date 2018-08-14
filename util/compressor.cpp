@@ -13,20 +13,37 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
+#include <iostream>
+#include <cassert>
 
 #include "util/compressor.h"
 #include "util/lz4_compressor.h"
+#include "util/lz77_compressor.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
 Compressor* Compressor::CreateCompressor(CompressionType type)
 {
-    if (type == kLz4)
+    switch (type)
     {
+        case kLz4:
 #ifdef ENABLE_LZ4_COMPRESSION
-        return new Lz4Compressor(type);
+            return new Lz4Compressor(type);
 #endif // ENABLE_LZ4_COMPRESSION
+            break;
+        case kLz77:
+#ifdef ENABLE_LZ77_COMPRESSION
+            return new Lz77Compressor(type);
+#endif // ENABLE_LZ77_COMPRESSION
+            break;
+        case kNone:
+            // Nothing to do here.
+            break;
+        default:
+            assert(false);
+            std::cout << "ERROR: Unsupported compression format!\n";
+            break;
     }
 
     // No supported compression, so return nullptr.
