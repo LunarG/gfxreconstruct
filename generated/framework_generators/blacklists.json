@@ -1,0 +1,12 @@
+{ "functions" : [
+    "vkGetInstanceProcAddr",
+    "vkGetDeviceProcAddr",
+    "vkEnumerateInstanceLayerProperties",
+    "vkEnumerateDeviceLayerProperties",
+    "vkEnumerateInstanceExtensionProperties",
+    "vkEnumerateDeviceExtensionProperties",
+    "vkEnumerateInstanceVersion"
+  ],
+  "structures" : [
+  ]
+}
