@@ -1,0 +1,14 @@
+{ "windows" : {
+    "types" : {
+      "HANDLE"    : { "basetype" : "void",     "fulltype" : "void*" },
+      "HINSTANCE" : { "basetype" : "void",     "fulltype" : "void*" },
+      "HWND"      : { "basetype" : "void",     "fulltype" : "void*" },
+      "LPCWSTR"   : { "basetype" : "char",     "fulltype" : "const char*" },
+      "DWORD"     : { "basetype" : "uint32_t", "fulltype" : "uint32_t" }
+    },
+    "structs" : [
+      "SECURITY_ATTRIBUTES"
+    ]
+  }
+}
+
