@@ -26,6 +26,11 @@ int main(int argc, char** argv)
             compression_type       = brimstone::util::kLz4;
             dst_compression_string = argv[3];
         }
+        else if (!strcmp("LZ77", argv[3]))
+        {
+            compression_type       = brimstone::util::kLz77;
+            dst_compression_string = argv[3];
+        }
         else
         {
             print_usage = true;
@@ -38,9 +43,25 @@ int main(int argc, char** argv)
 
     if (print_usage)
     {
-        printf(
-            "%s <input_bin> <output_bin> <output_compression>\n\t<output_compression> may be \"LZ4\" or \"NONE\"\n\n",
-            argv[0]);
+        std::string exe_name     = argv[0];
+        size_t      dir_location = exe_name.find_last_of("/\\");
+        if (dir_location >= 0)
+        {
+            exe_name.replace(0, dir_location + 1, "");
+        }
+        printf("\n%s\tis a compression/decompression tool for working with\n", exe_name.c_str());
+        printf("\t\ttrace binary files.\n\n");
+        printf("Usage:\n");
+        printf("\t%s <input_bin> <output_bin> <output_compression>\n\n", exe_name.c_str());
+        printf("\t<input_bin>\t\tThe filename (including path if necessary) of the \n");
+        printf("\t\t\t\tincoming binary file to manipulate\n");
+        printf("\t<output_bin>\t\tThe filename (including path if necessary) of the \n");
+        printf("\t\t\t\tresulting binary file to generate\n");
+        printf("\t<output_compression>\tThe compression to use when generating the\n");
+        printf("\t\t\t\toutput file.  Possible values are: \n");
+        printf("\t\t\t\t\tLZ4  - To output using LZ4 compression\n");
+        printf("\t\t\t\t\tLZ77 - To output using LZ77 compression\n");
+        printf("\t\t\t\t\tNONE - To output without using compression\n");
         exit(-1);
     }
 
@@ -68,6 +89,9 @@ int main(int argc, char** argv)
                             break;
                         case brimstone::util::kLz4:
                             src_compression = "LZ4";
+                            break;
+                        case brimstone::util::kLz77:
+                            src_compression = "LZ77";
                             break;
                         default:
                             printf("ERROR: Unknown source compression type %d", option.value);

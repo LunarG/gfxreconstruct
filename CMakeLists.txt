@@ -21,6 +21,7 @@ target_compile_definitions(volk PUBLIC VK_NO_PROTOTYPES)
 target_link_libraries(volk PUBLIC vulkan_registry $<$<NOT:$<BOOL:${WIN32}>>:dl>)
 
 find_package(LZ4)
+find_package(ZLIB)
 find_package(XCB)
 find_package(WAYLAND)
 

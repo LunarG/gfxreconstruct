@@ -14,46 +14,29 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_COMPRESSOR_H
-#define BRIMSTONE_FORMAT_COMPRESSOR_H
+#ifndef BRIMSTONE_FORMAT_LZ77_COMPRESSOR_H
+#define BRIMSTONE_FORMAT_LZ77_COMPRESSOR_H
 
-#include <inttypes.h>
-#include <vector>
-
-#include "util/defines.h"
+#include "util/compressor.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
-enum CompressionType : uint32_t
-{
-    kNone = 0,
-    kLz4  = 1,
-    kLz77 = 2,
-    kNumCompressionTypes
-};
-
-class Compressor
+class Lz77Compressor : public Compressor
 {
   public:
-    static Compressor* CreateCompressor(CompressionType type);
+    Lz77Compressor(CompressionType type) : Compressor(type) {}
+    ~Lz77Compressor() {}
 
-    Compressor(CompressionType type) : compression_type_(type) {}
-    ~Compressor() {}
-
-    virtual size_t Compress(const size_t          uncompressed_size,
-                            const uint8_t*        uncompressed_data,
-                            std::vector<uint8_t>* compressed_data)     = 0;
+    virtual size_t
+                   Compress(const size_t uncompressed_size, const uint8_t* uncompressed_data, std::vector<uint8_t>* compressed_data);
     virtual size_t Decompress(const size_t                compressed_size,
                               const std::vector<uint8_t>& compressed_data,
                               const size_t                expected_uncompressed_size,
-                              std::vector<uint8_t>*       uncompressed_data) = 0;
-
-  protected:
-    CompressionType compression_type_;
+                              std::vector<uint8_t>*       uncompressed_data);
 };
 
 BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_COMPRESSOR_H
+#endif // BRIMSTONE_FORMAT_LZ77_COMPRESSOR_H
