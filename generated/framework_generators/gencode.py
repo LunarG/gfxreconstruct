@@ -18,7 +18,7 @@ import argparse, cProfile, pdb, string, sys, time
 from reg import *
 from generator import write
 
-from base_generator import BaseGenerator,BaseGeneratorOptions
+from api_call_decoders_generator import ApiCallDecodersGenerator,ApiCallDecodersGeneratorOptions
 
 # Simple timer functions
 startTime = None
@@ -80,15 +80,16 @@ def makeGenOpts(args):
     ]
 
     # vktrace utility function to select struct encoding function based on struct's sType field.
-    genOpts['generated_base_object.inc'] = [
-          BaseGenerator,
-          BaseGeneratorOptions(
-            filename          = 'generated_base_object.inc',
+    genOpts['generated_api_call_decoders.inc'] = [
+          ApiCallDecodersGenerator,
+          ApiCallDecodersGeneratorOptions(
+            filename          = 'generated_api_call_decoders.inc',
             directory         = directory,
             blacklists        = defaultBlacklists,
             platformTypes     = defaultPlatformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
+            protectFeature    = True,
             alignFuncParam    = 48)
         ]
 
