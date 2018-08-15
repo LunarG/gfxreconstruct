@@ -283,7 +283,9 @@ class BaseGenerator(OutputGenerator):
     # tags - they are a declaration of a struct or union member.
     def genStruct(self, typeinfo, typename, alias):
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
-        if typename not in self.STRUCT_BLACKLIST:
+        # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
+        # would produce multiple definition errors for functions with struct parameters.
+        if (typename not in self.STRUCT_BLACKLIST) and not alias:
             self.featureStructMembers[typename] = self.makeValueInfo(typeinfo.elem.findall('.//member'))
 
     #
