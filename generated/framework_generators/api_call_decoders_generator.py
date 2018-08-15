@@ -41,7 +41,7 @@ class ApiCallDecodersGeneratorOptions(BaseGeneratorOptions):
 # Generates C++ member functions for the VulkanDecoder class responsible for decoding
 # Vulkan API call parameter data.
 class ApiCallDecodersGenerator(BaseGenerator):
-    """Gnerate API parameter decoding C++ code"""
+    """Generate API parameter decoding C++ code"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -70,7 +70,6 @@ class ApiCallDecodersGenerator(BaseGenerator):
 
     # Method override
     def endFile(self):
-        # Finish C++ wrapper and multiple inclusion protection
         self.newline()
         write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
@@ -80,7 +79,6 @@ class ApiCallDecodersGenerator(BaseGenerator):
 
     #
     # Indicates that the current feature has C++ code to generate.
-    # The subclass should override this method.
     def needFeatureGeneration(self):
         if self.featureCmdParams:
             return True
@@ -88,7 +86,6 @@ class ApiCallDecodersGenerator(BaseGenerator):
 
     #
     # Performs C++ code generation for the feature.
-    # The subclass should override this method.
     def generateFeature(self):
         first = True
         for cmd in self.featureCmdParams:

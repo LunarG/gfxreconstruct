@@ -1,0 +1,184 @@
+#!/usr/bin/python3 -i
+#
+# Copyright (c) 2018 LunarG, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import os,re,sys
+from base_generator import *
+
+class StructDecodersGeneratorOptions(BaseGeneratorOptions):
+    """Options for Vulkan API structure decoding C++ code generation"""
+    def __init__(self,
+                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
+                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
+                 filename = None,
+                 directory = '.',
+                 prefixText = '',
+                 protectFile = False,
+                 protectFeature = True):
+        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
+                                      filename, directory, prefixText,
+                                      protectFile, protectFeature)
+
+# StructDecodersGenerator - subclass of BaseGenerator.
+# Generates C++ functions for decoding Vulkan API structures.
+class StructDecodersGenerator(BaseGenerator):
+    """Generate structure decoding C++ code"""
+    def __init__(self,
+                 errFile = sys.stderr,
+                 warnFile = sys.stderr,
+                 diagFile = sys.stdout):
+        BaseGenerator.__init__(self, errFile, warnFile, diagFile)
+
+    # Method override
+    def beginFile(self, genOpts):
+        BaseGenerator.beginFile(self, genOpts)
+
+        write('#include <cassert>', file=self.outFile)
+        write('#include <memory>', file=self.outFile)
+        self.newline()
+        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.newline()
+        write('#include "util/defines.h"', file=self.outFile)
+        write('#include "format/pnext_node.h"', file=self.outFile)
+        write('#include "format/pointer_decoder.h"', file=self.outFile)
+        write('#include "format/string_array_decoder.h"', file=self.outFile)
+        write('#include "format/string_decoder.h"', file=self.outFile)
+        write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
+        write('#include "format/value_decoder.h"', file=self.outFile)
+        self.newline()
+        write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+        self.newline()
+        write('size_t decode_pnext_struct(const uint8_t* buffer, size_t buffer_size, std::unique_ptr<PNextNode>* pNext);', file=self.outFile)
+
+    # Method override
+    def endFile(self):
+        self.newline()
+        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
+
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)
+
+    #
+    # Indicates that the current feature has C++ code to generate.
+    def needFeatureGeneration(self):
+        if self.featureStructMembers:
+            return True
+        return False
+
+    #
+    # Performs C++ code generation for the feature.
+    def generateFeature(self):
+        first = True
+        for struct in self.featureStructMembers:
+            body = '' if first else '\n'
+            body += 'size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(struct)
+            body += '{\n'
+            body += '    assert((wrapper != nullptr) && (wrapper->value != nullptr));\n'
+            body += '\n'
+            body += '    size_t bytes_read = 0;\n'
+            body += '    {}* value = wrapper->value;\n'.format(struct)
+            body += '\n'
+            body += self.makeStructBody(struct, self.featureStructMembers[struct])
+            body += '\n'
+            body += '    return bytes_read;\n'
+            body += '}'
+
+            write(body, file=self.outFile)
+            first = False
+
+    #
+    # Generate C++ code for the decoder method body.
+    def makeStructBody(self, name, values):
+        body = ''
+
+        for value in values:
+            # pNext fields require special treatment and are not processed by type name
+            if 'pNext' in value.name:
+                body += '    bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(value.name)
+                body += '    value->pNext = wrapper->pNext->GetPointer();\n'
+            else:
+                body += self.makeDecodeInvocation(value)
+
+        return body
+
+    #
+    # Generate the struct member decoder function call invocation.
+    def makeDecodeInvocation(self, value):
+        bufferArgs = '(buffer + bytes_read), (buffer_size - bytes_read)'
+
+        body = ''
+
+        isStruct = False
+        isString = False
+        isFuncp = False
+        isHandle = False
+
+        typeName = self.makeInvocationTypeName(value.baseType)
+
+        if self.isStruct(typeName):
+            isStruct = True
+        elif typeName == 'String':
+            isString = True
+        elif typeName == 'FunctionPtr':
+            isFuncp = True
+        elif typeName == 'HandleId':
+            isHandle = True
+
+        # isPointer will be False for static arrays.
+        if value.isPointer or value.isArray:
+            if typeName in self.EXTERNAL_OBJECT_TYPES and not value.isArray:
+                # Pointer to an unknown object type, encoded as a 64-bit integer ID.
+                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+                body += '    value->{} = nullptr;\n'.format(value.name)
+            else:
+                isStaticArray = True if (value.isArray and not value.isDynamic) else False
+
+                if isStaticArray and not isHandle:
+                    # The pointer decoder will write directly to the struct member's memory.
+                    # Handles are a special case that decode as 64-bit integer IDs into a separate allocation.
+                    body += '    wrapper->{name}.SetExternalMemory(value->{name}, {arraylen});\n'.format(name=value.name, arraylen=value.arrayCapacity)
+
+                if isStruct:
+                    body += '    bytes_read += wrapper->{}.Decode({});\n'.format(value.name, bufferArgs)
+                elif isString:
+                    body += '    bytes_read += wrapper->{}.Decode({});\n'.format(value.name, bufferArgs)
+                else:
+                    body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(value.name, typeName, bufferArgs)
+
+                if not isStaticArray:
+                    if isHandle:
+                        # The handle pointers are initialized as NULL.
+                        # The consumer is responisble for mapping the decoded handle ID to a usable object handle on replay.
+                        body += '    value->{} = nullptr;\n'.format(value.name)
+                    else:
+                        # Point the real struct's member pointer to the pointer decoder's memory.
+                        body += '    value->{name} = wrapper->{name}.GetPointer();\n'.format(name=value.name)
+        else:
+            if isStruct:
+                body += '    wrapper->{name}.value = &(value->{name});\n'.format(name=value.name)
+                body += '    bytes_read += decode_struct({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+            elif isFuncp:
+                body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+                body += '    value->{} = nullptr;\n'.format(value.name)
+            elif isHandle:
+                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+                body += '    value->{} = nullptr;\n'.format(value.name)
+            else:
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(typeName, bufferArgs, value.name)
+
+        return body
+

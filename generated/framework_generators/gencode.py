@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
 # Copyright (c) 2013-2016 The Khronos Group Inc.
+# Copyright (c) 2018 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +20,7 @@ from reg import *
 from generator import write
 
 from api_call_decoders_generator import ApiCallDecodersGenerator,ApiCallDecodersGeneratorOptions
+from struct_decoders_generator import StructDecodersGenerator,StructDecodersGeneratorOptions
 
 # Simple timer functions
 startTime = None
@@ -79,7 +81,6 @@ def makeGenOpts(args):
         ''
     ]
 
-    # vktrace utility function to select struct encoding function based on struct's sType field.
     genOpts['generated_api_call_decoders.inc'] = [
           ApiCallDecodersGenerator,
           ApiCallDecodersGeneratorOptions(
@@ -91,6 +92,18 @@ def makeGenOpts(args):
             protectFile       = False,
             protectFeature    = True,
             alignFuncParam    = 48)
+        ]
+
+    genOpts['generated_struct_decoders.inc'] = [
+          StructDecodersGenerator,
+          StructDecodersGeneratorOptions(
+            filename          = 'generated_struct_decoders.inc',
+            directory         = directory,
+            blacklists        = defaultBlacklists,
+            platformTypes     = defaultPlatformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = True)
         ]
 
 # Generate a target based on the options in the matching genOpts{} object.

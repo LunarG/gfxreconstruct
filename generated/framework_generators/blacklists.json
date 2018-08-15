@@ -7,6 +7,8 @@
     "vkEnumerateDeviceExtensionProperties",
     "vkEnumerateInstanceVersion"
   ],
-  "structures" : [
+  "structures": [
+    "VkBaseOutStructure",
+    "VkBaseInStructure"
   ]
 }
