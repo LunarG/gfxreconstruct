@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>-registry ..\..\external\Vulkan-Headers\registry\vk.xml generated_base_object.inc</CommandLineArguments>
+    <CommandLineArguments>-registry ..\..\external\Vulkan-Headers\registry\vk.xml generated_api_call_decoders.inc</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
     <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="api_call_decoders_generator.py" />
     <Compile Include="base_generator.py" />
     <Compile Include="gencode.py" />
   </ItemGroup>

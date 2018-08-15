@@ -473,6 +473,43 @@ class BaseGenerator(OutputGenerator):
         return '\n'.join([prefix + v for v in value.split('\n')])
 
     #
+    # Create a string containing a comma separated argument list from a list of ValueInfo values.
+    #  values - List of ValueInfo objects providing the parameter names for the argument list.
+    def makeArgList(self, values):
+        return ', '.join([value.name for value in values])
+
+    #
+    # Convert a type name to a string to be used as part of an encoder/decoder function/method name.
+    def makeInvocationTypeName(self, baseType):
+        if self.isStruct(baseType):
+            return baseType
+        elif self.isHandle(baseType):
+            return 'HandleId'
+        elif self.isFlags(baseType):
+            return 'Flags'
+        elif self.isEnum(baseType):
+            return 'Enum'
+        elif baseType == 'char':
+            return 'String'
+        elif self.isFunctionPtr(baseType):
+            return 'FunctionPtr'
+        elif baseType == 'size_t':
+            return 'SizeT'
+        elif baseType == 'int':
+            # Extensions use the int type when dealing with file descriptors
+            return 'Int32'
+        elif baseType.endswith('_t'):
+            if baseType[0] == 'u':
+                # For unsigned types, capitalize the first two characters.
+                return baseType[0].upper() + baseType[1].upper() + baseType[2:-2]
+            else:
+                return baseType[:-2].title()
+        elif baseType[0].islower():
+            return baseType.title()
+
+        return baseType
+
+    #
     # Return appropriate feature protect string from 'platform' tag on feature.
     # From Vulkan-ValidationLayers common_codegen.py
     def __getFeatureProtect(self, interface):
