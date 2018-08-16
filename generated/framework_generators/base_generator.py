@@ -512,6 +512,52 @@ class BaseGenerator(OutputGenerator):
         return baseType
 
     #
+    # Create a type to use for a decoded parameter, using the decoder wrapper types for pointers.
+    def makeDecodedParamType(self, value):
+        typeName = value.baseType
+
+        # isPointer will be False for static arrays.
+        if value.isPointer or value.isArray:
+            count = value.pointerCount
+
+            # We currently only expect the '*' count to be greater than one for the char** case
+            if (count > 1) and (typeName != 'char') and (not typeName in self.EXTERNAL_OBJECT_TYPES):
+                print("WARNING: Processing a multi-dimensional array that is not an array of strings ({})".format(typeName + ('*' * count)))
+
+            if self.isStruct(typeName):
+                typeName = 'StructPointerDecoder<Decoded_{}>'.format(typeName)
+            elif typeName == 'char':
+                if count > 1:
+                    typeName = 'StringArrayDecoder'
+                else:
+                    typeName = 'StringDecoder'
+            elif typeName == 'void':
+                if value.isArray:
+                    # If this was an array (void*) it was encoded as an array of bytes.
+                    typeName = 'PointerDecoder<uint8_t>'
+                elif count > 1:
+                    # If this was a pointer to a pointer to an unknown object (void**), it was encoded as a pointer to a 64-bit address value.
+                    typeName = 'PointerDecoder<uint64_t>'
+                else:
+                    # If this was a pointer to an unknown object (void*), it was encoded as a 64-bit address value.
+                    typeName = 'uint64_t'
+            elif self.isHandle(typeName):
+                typeName = 'PointerDecoder<HandleId>'
+            else:
+                typeName = 'PointerDecoder<{}>'.format(typeName)
+        elif self.isFunctionPtr(typeName):
+            # Function pointers are encoded as a 64-bit address value.
+            typeName ='uint64_t'
+        elif self.isStruct(typeName):
+            typeName = 'Decoded_{}'.format(typeName)
+        elif self.isHandle(typeName):
+            typeName = 'HandleId'
+        else:
+            typeName = '{}'.format(typeName)
+
+        return typeName
+
+    #
     # Return appropriate feature protect string from 'platform' tag on feature.
     # From Vulkan-ValidationLayers common_codegen.py
     def __getFeatureProtect(self, interface):
