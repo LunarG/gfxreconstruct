@@ -26,6 +26,7 @@ from api_call_decode_cases_generator import ApiCallDecodeCasesGenerator,ApiCallD
 from struct_decoders_generator import StructDecodersGenerator,StructDecodersGeneratorOptions
 from struct_decoder_declarations_generator import StructDecoderDeclarationsGenerator,StructDecoderDeclarationsGeneratorOptions
 from decoded_struct_types_generator import DecodedStructTypesGenerator,DecodedStructTypesGeneratorOptions
+from decode_pnext_struct_generator import DecodePNextStructGenerator,DecodePNextStructGeneratorOptions
 
 # Simple timer functions
 startTime = None
@@ -155,6 +156,18 @@ def makeGenOpts(args):
           DecodedStructTypesGenerator,
           DecodedStructTypesGeneratorOptions(
             filename          = 'generated_decoded_struct_types.inc',
+            directory         = directory,
+            blacklists        = defaultBlacklists,
+            platformTypes     = defaultPlatformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = True)
+        ]
+
+    genOpts['generated_decode_pnext_struct.inc'] = [
+          DecodePNextStructGenerator,
+          DecodePNextStructGeneratorOptions(
+            filename          = 'generated_decode_pnext_struct.inc',
             directory         = directory,
             blacklists        = defaultBlacklists,
             platformTypes     = defaultPlatformTypes,
