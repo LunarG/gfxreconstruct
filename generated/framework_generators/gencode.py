@@ -20,7 +20,11 @@ from reg import *
 from generator import write
 
 from api_call_decoders_generator import ApiCallDecodersGenerator,ApiCallDecodersGeneratorOptions
+from api_call_decoder_declarations_generator import ApiCallDecoderDeclarationsGenerator,ApiCallDecoderDeclarationsGeneratorOptions
+from api_call_decode_cases_generator import ApiCallDecodeCasesGenerator,ApiCallDecodeCasesGeneratorOptions
+
 from struct_decoders_generator import StructDecodersGenerator,StructDecodersGeneratorOptions
+from struct_decoder_declarations_generator import StructDecoderDeclarationsGenerator,StructDecoderDeclarationsGeneratorOptions
 
 # Simple timer functions
 startTime = None
@@ -81,6 +85,8 @@ def makeGenOpts(args):
         ''
     ]
 
+    #
+    # API call decoder generators
     genOpts['generated_api_call_decoders.inc'] = [
           ApiCallDecodersGenerator,
           ApiCallDecodersGeneratorOptions(
@@ -94,10 +100,48 @@ def makeGenOpts(args):
             alignFuncParam    = 48)
         ]
 
+    genOpts['generated_api_call_decoder_declarations.inc'] = [
+          ApiCallDecoderDeclarationsGenerator,
+          ApiCallDecoderDeclarationsGeneratorOptions(
+            filename          = 'generated_api_call_decoder_declarations.inc',
+            directory         = directory,
+            blacklists        = defaultBlacklists,
+            platformTypes     = defaultPlatformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = True)
+        ]
+
+    genOpts['generated_api_call_decode_cases.inc'] = [
+          ApiCallDecodeCasesGenerator,
+          ApiCallDecodeCasesGeneratorOptions(
+            filename          = 'generated_api_call_decode_cases.inc',
+            directory         = directory,
+            blacklists        = defaultBlacklists,
+            platformTypes     = defaultPlatformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = True)
+        ]
+
+    #
+    # Struct decoder generators
     genOpts['generated_struct_decoders.inc'] = [
           StructDecodersGenerator,
           StructDecodersGeneratorOptions(
             filename          = 'generated_struct_decoders.inc',
+            directory         = directory,
+            blacklists        = defaultBlacklists,
+            platformTypes     = defaultPlatformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = True)
+        ]
+
+    genOpts['generated_struct_decoder_declarations.inc'] = [
+          StructDecoderDeclarationsGenerator,
+          StructDecoderDeclarationsGeneratorOptions(
+            filename          = 'generated_struct_decoder_declarations.inc',
             directory         = directory,
             blacklists        = defaultBlacklists,
             platformTypes     = defaultPlatformTypes,
