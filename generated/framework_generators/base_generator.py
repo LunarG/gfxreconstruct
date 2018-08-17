@@ -52,6 +52,8 @@ _featuresPat          = _makeREstring(_features, '.*')
 #   pointerCount - Number of '*' characters in the type declaration.
 #   arrayLength - The parameter that specifies the number of elements in an array, or None if the value is not an array.
 #   arrayCapacity - The max size of a statically allocated array, or None for a dynamically allocated array.
+#   platformBaseType - For platform specific type definitions, stores the original baseType declaration before platform to trace type substitution.
+#   platformFullType - For platform specific type definitions, stores the original fullType declaration before platform to trace type substitution.
 #   isPointer - True if the value is a pointer.
 #   isArray - True if the member is an array.
 #   isDynamic - True if the memory for the member is an array and it is dynamically allocated.
@@ -63,13 +65,17 @@ class ValueInfo():
                  fullType,
                  pointerCount = 0,
                  arrayLength = None,
-                 arrayCapacity = None):
+                 arrayCapacity = None,
+                 platformBaseType = None,
+                 platformFullType = None):
         self.name = name
         self.baseType = baseType
         self.fullType = fullType
         self.pointerCount = pointerCount
         self.arrayLength = arrayLength
         self.arrayCapacity = arrayCapacity
+        self.platformBaseType = platformBaseType
+        self.platformFullType = platformFullType
 
         self.isPointer = True if pointerCount > 0 else False
         self.isArray = True if arrayLength else False
@@ -342,10 +348,15 @@ class BaseGenerator(OutputGenerator):
             baseType = noneStr(elem.text)
             fullType = (noneStr(param.text) + baseType + noneStr(elem.tail)).strip()
 
+            # Check for platform specific type definitions that need to be converted to a recognized trace format type.
+            platformBaseType = None
+            platformFullType = None
             if baseType in self.PLATFORM_TYPES:
-                platformType = self.PLATFORM_TYPES[baseType]
-                fullType = fullType.replace(baseType, platformType['replaceWith'])
-                baseType = platformType['baseType']
+                typeInfo = self.PLATFORM_TYPES[baseType]
+                platformBaseType = baseType
+                platformFullType = fullType
+                fullType = fullType.replace(baseType, typeInfo['replaceWith'])
+                baseType = typeInfo['baseType']
 
             # Get array length
             arrayLength = self.getArrayLen(param)
@@ -360,7 +371,9 @@ class BaseGenerator(OutputGenerator):
                 fullType = fullType,
                 pointerCount = self.getPointerCount(fullType),
                 arrayLength = arrayLength,
-                arrayCapacity = arrayCapacity))
+                arrayCapacity = arrayCapacity,
+                platformBaseType = platformBaseType,
+                platformFullType = platformFullType))
 
         return values
 
@@ -406,10 +419,18 @@ class BaseGenerator(OutputGenerator):
 
     #
     # Determine if a pointer parameter is an input parameter
-    def isInputPointer(self, fullType):
-        # TODO: Need to determine if this is sufficient (eg. this was generally true for GLES, but some extensions
-        #       did not adhere to this pattern of 'const = input, non-const = output'; may be a similar issue for Vulkan).
-        return True if 'const' in fullType else False
+    def isInputPointer(self, value):
+        if 'const' in value.fullType:
+            # Vulkan seems to follow a pattern where input pointers will be const and output pointers will not be const.
+            return True
+        elif value.platformFullType and (self.getPointerCount(value.platformFullType) == 0):
+            # The code generator converted platform defined types to a recognized trace file type.
+            # We need to ensure that opaque types such as HANDLE, which were converted to void*, are not
+            # incorrectly treated as pointers.  If there is no '*' in the original type declaration, the
+            # type is treated as an input.
+                return True
+        return False
+
 
     #
     # Determine if a parameter provides the lenfgth for an array
