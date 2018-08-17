@@ -439,15 +439,6 @@ class BaseGenerator(OutputGenerator):
                 return True
         return False
 
-
-    #
-    # Determine if a parameter provides the lenfgth for an array
-    def isArrayLen(self, name, values):
-        for value in values:
-            if name == value.arrayLength:
-                return True
-        return False
-
     #
     # Retrieve the length of an array defined by a <param> or <member> element
     def getArrayLen(self, param):
