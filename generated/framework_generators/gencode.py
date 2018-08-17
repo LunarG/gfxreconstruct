@@ -32,6 +32,7 @@ from decode_pnext_struct_generator import DecodePNextStructGenerator,DecodePNext
 
 # Consumers
 from api_call_consumer_declarations_generator import ApiCallConsumerDeclarationsGenerator,ApiCallConsumerDeclarationsGeneratorOptions
+from api_call_ascii_consumer_definitions_generator import ApiCallAsciiConsumerDefinitionsGenerator,ApiCallAsciiConsumerDefinitionsGeneratorOptions
 
 # Simple timer functions
 startTime = None
@@ -201,6 +202,18 @@ def makeGenOpts(args):
         ApiCallConsumerDeclarationsGeneratorOptions(
         isOverride        = True,
         filename          = 'generated_api_call_consumer_override_declarations.inc',
+        directory         = directory,
+        blacklists        = defaultBlacklists,
+        platformTypes     = defaultPlatformTypes,
+        prefixText        = prefixStrings + vkPrefixStrings,
+        protectFile       = False,
+        protectFeature    = True)
+    ]
+
+    genOpts['generated_api_call_ascii_consumer_definitions.inc'] = [
+        ApiCallAsciiConsumerDefinitionsGenerator,
+        ApiCallAsciiConsumerDefinitionsGeneratorOptions(
+        filename          = 'generated_api_call_ascii_consumer_definitions.inc',
         directory         = directory,
         blacklists        = defaultBlacklists,
         platformTypes     = defaultPlatformTypes,

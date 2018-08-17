@@ -17,13 +17,9 @@
 import os,re,sys
 from base_generator import *
 
-# Adds the following new option:
-#  isOverride - Specify whether the member function declarations are
-#               virtual function overrides or pure virtual functions.
-class ApiCallConsumerDeclarationsGeneratorOptions(BaseGeneratorOptions):
+class ApiCallAsciiConsumerDefinitionsGeneratorOptions(BaseGeneratorOptions):
     """Options for Vulkan API parameter processing C++ code generation"""
     def __init__(self,
-                 isOverride,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
@@ -34,13 +30,12 @@ class ApiCallConsumerDeclarationsGeneratorOptions(BaseGeneratorOptions):
         BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
-        self.isOverride = isOverride
 
-# ApiCallDecoderDeclarationsGenerator - subclass of BaseGenerator.
-# Generates C++ member declarations for the VulkanConsumer class responsible for processing
-# Vulkan API call parameter data.
-class ApiCallConsumerDeclarationsGenerator(BaseGenerator):
-    """Generate API parameter processing C++ member declarations"""
+# ApiCallAsciiConsumerDefinitionsGenerator - subclass of BaseGenerator.
+# Generates C++ member definitions for the VulkanAsciiConsumer class responsible for
+# generating a textfile containing decoded Vulkan API call parameter data.
+class ApiCallAsciiConsumerDefinitionsGenerator(BaseGenerator):
+    """Generate API parameter processing C++ member definitions"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -63,13 +58,17 @@ class ApiCallConsumerDeclarationsGenerator(BaseGenerator):
             returnType = info[0]
             values = info[2]
 
-            decl = self.makeConsumerFuncDecl(returnType, 'Process_' + cmd, values)
-
             cmddef = '' if first else '\n'
-            if self.genOpts.isOverride:
-                cmddef += self.indent('virtual ' + decl + ' override;', self.INDENT_SIZE)
-            else:
-                cmddef += self.indent('virtual ' + decl + ' = 0;', self.INDENT_SIZE)
+            cmddef += self.makeConsumerFuncDecl(returnType, 'VulkanAsciiConsumer::Process_' + cmd, values) + '\n'
+            cmddef += '{\n'
+            cmddef += self.makeConsumerFuncBody(returnType, cmd, values)
+            cmddef += '}'
 
             write(cmddef, file=self.outFile)
             first = False
+
+    #
+    # Return VulkanAsciiConsumer class member function definition.
+    def makeConsumerFuncBody(self, returnType, name, values):
+        body = '    fprintf(m_file, "%s\\n", "' + name + '");\n'
+        return body

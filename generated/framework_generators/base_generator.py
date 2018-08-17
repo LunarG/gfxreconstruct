@@ -576,6 +576,31 @@ class BaseGenerator(OutputGenerator):
         return typeName
 
     #
+    # makeConsumerDecl - return VulkanConsumer class member function declaration
+    def makeConsumerFuncDecl(self, returnType, name, values):
+        """Generate VulkanConsumer class member function declaration"""
+        paramDecls = []
+
+        if returnType != 'void':
+            paramDecl = self.makeAlignedParamDecl(returnType, 'returnValue', self.INDENT_SIZE, self.genOpts.alignFuncParam)
+            paramDecls.append(paramDecl)
+
+        for value in values:
+            paramType = self.makeDecodedParamType(value)
+
+            # Pass pointer and struct wrappers by const reference
+            if 'Decoder' in paramType or 'Decoded_' in paramType:
+                paramType = 'const {}&'.format(paramType)
+
+            paramDecl = self.makeAlignedParamDecl(paramType, value.name, self.INDENT_SIZE, self.genOpts.alignFuncParam)
+            paramDecls.append(paramDecl)
+
+        if paramDecls:
+            return 'void {}(\n{})'.format(name, ',\n'.join(paramDecls))
+
+        return 'void {}()'.format(name)
+
+    #
     # Return appropriate feature protect string from 'platform' tag on feature.
     # From Vulkan-ValidationLayers common_codegen.py
     def __getFeatureProtect(self, interface):
