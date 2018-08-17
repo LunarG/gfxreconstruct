@@ -166,6 +166,9 @@ class BaseGenerator(OutputGenerator):
     # These types represent pointers to non-Vulkan objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void', 'AHardwareBuffer']
 
+    # Default C++ code indentation size.
+    INDENT_SIZE = 4
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -479,6 +482,21 @@ class BaseGenerator(OutputGenerator):
     #  values - List of ValueInfo objects providing the parameter names for the argument list.
     def makeArgList(self, values):
         return ', '.join([value.name for value in values])
+
+    #
+    # makeAlignedParamDecl - return an indented parameter declaration string with the parameter
+    #  name aligned to the specified column.
+    def makeAlignedParamDecl(self, paramType, paramName, indentColumn, alignColumn):
+        paramDecl = ' ' * indentColumn
+        paramDecl += paramType
+
+        if alignColumn:
+            paramDecl = paramDecl.ljust(alignColumn - 1)
+
+        paramDecl += ' '
+        paramDecl += paramName
+
+        return paramDecl
 
     #
     # Convert a type name to a string to be used as part of an encoder/decoder function/method name.
