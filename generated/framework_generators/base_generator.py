@@ -337,12 +337,12 @@ class BaseGenerator(OutputGenerator):
             # Get type info
             elem = param.find('type')
             baseType = noneStr(elem.text)
+            fullType = (noneStr(param.text) + baseType + noneStr(elem.tail)).strip()
+
             if baseType in self.PLATFORM_TYPES:
                 platformType = self.PLATFORM_TYPES[baseType]
-                baseType = platformType['basetype']
-                fullType = platformType['fulltype']
-            else:
-                fullType = noneStr(param.text) + baseType + noneStr(elem.tail)
+                fullType = fullType.replace(baseType, platformType['replaceWith'])
+                baseType = platformType['baseType']
 
             # Get array length
             arrayLength = self.getArrayLen(param)
