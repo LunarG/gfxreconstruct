@@ -19,14 +19,19 @@ import argparse, cProfile, pdb, string, sys, time
 from reg import *
 from generator import write
 
+# API Call Decoders
 from api_call_decoders_generator import ApiCallDecodersGenerator,ApiCallDecodersGeneratorOptions
 from api_call_decoder_declarations_generator import ApiCallDecoderDeclarationsGenerator,ApiCallDecoderDeclarationsGeneratorOptions
 from api_call_decode_cases_generator import ApiCallDecodeCasesGenerator,ApiCallDecodeCasesGeneratorOptions
 
+# Struct Decoders
 from struct_decoders_generator import StructDecodersGenerator,StructDecodersGeneratorOptions
 from struct_decoder_declarations_generator import StructDecoderDeclarationsGenerator,StructDecoderDeclarationsGeneratorOptions
 from decoded_struct_types_generator import DecodedStructTypesGenerator,DecodedStructTypesGeneratorOptions
 from decode_pnext_struct_generator import DecodePNextStructGenerator,DecodePNextStructGeneratorOptions
+
+# Consumers
+from api_call_consumer_declarations_generator import ApiCallConsumerDeclarationsGenerator,ApiCallConsumerDeclarationsGeneratorOptions
 
 # Simple timer functions
 startTime = None
@@ -175,6 +180,34 @@ def makeGenOpts(args):
             protectFile       = False,
             protectFeature    = True)
         ]
+
+    #
+    # Consumer generation
+    genOpts['generated_api_call_consumer_declarations.inc'] = [
+        ApiCallConsumerDeclarationsGenerator,
+        ApiCallConsumerDeclarationsGeneratorOptions(
+        isOverride        = False,
+        filename          = 'generated_api_call_consumer_declarations.inc',
+        directory         = directory,
+        blacklists        = defaultBlacklists,
+        platformTypes     = defaultPlatformTypes,
+        prefixText        = prefixStrings + vkPrefixStrings,
+        protectFile       = False,
+        protectFeature    = True)
+    ]
+
+    genOpts['generated_api_call_consumer_override_declarations.inc'] = [
+        ApiCallConsumerDeclarationsGenerator,
+        ApiCallConsumerDeclarationsGeneratorOptions(
+        isOverride        = True,
+        filename          = 'generated_api_call_consumer_override_declarations.inc',
+        directory         = directory,
+        blacklists        = defaultBlacklists,
+        platformTypes     = defaultPlatformTypes,
+        prefixText        = prefixStrings + vkPrefixStrings,
+        protectFile       = False,
+        protectFeature    = True)
+    ]
 
 # Generate a target based on the options in the matching genOpts{} object.
 # This is encapsulated in a function so it can be profiled and/or timed.
