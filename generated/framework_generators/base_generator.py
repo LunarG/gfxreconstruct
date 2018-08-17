@@ -413,6 +413,14 @@ class BaseGenerator(OutputGenerator):
         return False
 
     #
+    # Determine if the value name specifies an array length
+    def isArrayLen(self, name, values):
+        for value in values:
+            if name == value.arrayLength:
+                return True
+        return False
+
+    #
     # Return the number of '*' in a type declaration
     def getPointerCount(self, fullType):
         return fullType.count('*')
