@@ -1,10 +1,10 @@
 { "windows" : {
     "types" : {
-      "HANDLE"    : { "basetype" : "void",     "fulltype" : "void*" },
-      "HINSTANCE" : { "basetype" : "void",     "fulltype" : "void*" },
-      "HWND"      : { "basetype" : "void",     "fulltype" : "void*" },
-      "LPCWSTR"   : { "basetype" : "char",     "fulltype" : "const char*" },
-      "DWORD"     : { "basetype" : "uint32_t", "fulltype" : "uint32_t" }
+      "HANDLE"    : { "baseType" : "void",     "replaceWith" : "void*" },
+      "HINSTANCE" : { "baseType" : "void",     "replaceWith" : "void*" },
+      "HWND"      : { "baseType" : "void",     "replaceWith" : "void*" },
+      "LPCWSTR"   : { "baseType" : "char",     "replaceWith" : "const char*" },
+      "DWORD"     : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" }
     },
     "structs" : [
       "SECURITY_ATTRIBUTES"
