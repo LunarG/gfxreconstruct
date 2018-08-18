@@ -26,18 +26,12 @@ class ApiCallDecodersGeneratorOptions(BaseGeneratorOptions):
                  directory = '.',
                  prefixText = '',
                  protectFile = False,
-                 protectFeature = True,
-                 apicall = 'VKAPI_ATTR ',
-                 apientry = 'VK_API_CALL ',
-                 apientryp = 'VKAPI_PTR *',
-                 indentFuncProto = True,
-                 alignFuncParam = 48):
+                 protectFeature = True):
         BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
-                                      filename, directory, prefixText, protectFile,
-                                      protectFeature, apicall, apientry, apientryp,
-                                      indentFuncProto, alignFuncParam)
+                                      filename, directory, prefixText,
+                                      protectFile, protectFeature)
 
-# APICallDecodersGenerator - subclass of BaseGenerator.
+# ApiCallDecodersGenerator - subclass of BaseGenerator.
 # Generates C++ member functions for the VulkanDecoder class responsible for decoding
 # Vulkan API call parameter data.
 class ApiCallDecodersGenerator(BaseGenerator):
@@ -89,17 +83,16 @@ class ApiCallDecodersGenerator(BaseGenerator):
     def generateFeature(self):
         first = True
         for cmd in self.featureCmdParams:
-            name = cmd
             info = self.featureCmdParams[cmd]
             returnType = info[0]
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += 'size_t VulkanDecoder::Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size)\n'.format(name)
+            cmddef += 'size_t VulkanDecoder::Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size)\n'.format(cmd)
             cmddef += '{\n'
             cmddef += '    size_t bytes_read = 0;\n'
             cmddef += '\n'
-            cmddef += self.makeCmdBody(name, returnType, values)
+            cmddef += self.makeCmdBody(returnType, cmd, values)
             cmddef += '\n'
             cmddef += '    return bytes_read;\n'
             cmddef += '}'
@@ -109,7 +102,7 @@ class ApiCallDecodersGenerator(BaseGenerator):
 
     #
     # Generate C++ code for the decoder method body.
-    def makeCmdBody(self, name, returnType, values):
+    def makeCmdBody(self, returnType, name, values):
         body = ''
 
         # Declarations for decoded types.

@@ -35,6 +35,9 @@ from api_call_consumer_declarations_generator import ApiCallConsumerDeclarations
 from api_call_ascii_consumer_definitions_generator import ApiCallAsciiConsumerDefinitionsGenerator,ApiCallAsciiConsumerDefinitionsGeneratorOptions
 from api_call_replay_consumer_definitions_generator import ApiCallReplayConsumerDefinitionsGenerator,ApiCallReplayConsumerDefinitionsGeneratorOptions
 
+# API Call Encoders
+from api_call_encoders_generator import ApiCallEncodersGenerator,ApiCallEncodersGeneratorOptions
+
 # Struct Encoders
 from encode_pnext_struct_generator import EncodePNextStructGenerator,EncodePNextStructGeneratorOptions
 
@@ -108,8 +111,7 @@ def makeGenOpts(args):
             platformTypes     = defaultPlatformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True,
-            alignFuncParam    = 48)
+            protectFeature    = True)
         ]
 
     genOpts['generated_api_call_decoder_declarations.inc'] = [
@@ -237,6 +239,20 @@ def makeGenOpts(args):
         protectFile       = False,
         protectFeature    = True)
     ]
+
+    #
+    # API call encoder generators
+    genOpts['generated_api_call_encoders.inc'] = [
+          ApiCallEncodersGenerator,
+          ApiCallEncodersGeneratorOptions(
+            filename          = 'generated_api_call_encoders.inc',
+            directory         = directory,
+            blacklists        = defaultBlacklists,
+            platformTypes     = defaultPlatformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = True)
+        ]
 
     #
     # Struct encoder generators
