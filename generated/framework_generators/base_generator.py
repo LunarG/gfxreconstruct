@@ -121,7 +121,7 @@ class BaseGeneratorOptions(GeneratorOptions):
                  protectFile = False,
                  protectFeature = True,
                  apicall = 'VKAPI_ATTR ',
-                 apientry = 'VK_API_CALL ',
+                 apientry = 'VKAPI_CALL ',
                  apientryp = 'VKAPI_PTR *',
                  indentFuncProto = True,
                  alignFuncParam = 48,
