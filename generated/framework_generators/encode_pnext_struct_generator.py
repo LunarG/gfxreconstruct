@@ -17,8 +17,8 @@
 import os,re,sys
 from base_generator import *
 
-class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API pNext structure decoding C++ code generation"""
+class EncodePNextStructGeneratorOptions(BaseGeneratorOptions):
+    """Options for Vulkan API pNext structure encoding C++ code generation"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -31,10 +31,10 @@ class DecodePNextStructGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# DecodePNextStructGenerator - subclass of BaseGenerator.
-# Generates C++ code for Vulkan API pNext structure decoding.
-class DecodePNextStructGenerator(BaseGenerator):
-    """Generate pNext structure decoding C++ code"""
+# EncodePNextStructGenerator - subclass of BaseGenerator.
+# Generates C++ code for Vulkan API pNext structure encoding.
+class EncodePNextStructGenerator(BaseGenerator):
+    """Generate pNext structure encoding C++ code"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -49,63 +49,49 @@ class DecodePNextStructGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include <cassert>', file=self.outFile)
-        write('#include <memory>', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/pnext_node.h"', file=self.outFile)
-        write('#include "format/pnext_null_node.h"', file=self.outFile)
-        write('#include "format/pnext_typed_node.h"', file=self.outFile)
+        write('#include "format/parameter_encoder.h"', file=self.outFile)
         write('#include "format/trace_pnext_util.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
         self.newline()
-        write('size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size,  std::unique_ptr<PNextNode>* pNext)', file=self.outFile)
+        write('size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)', file=self.outFile)
         write('{', file=self.outFile)
-        write('    assert(pNext != nullptr);', file=self.outFile)
+        write('    assert(encoder != nullptr);', file=self.outFile)
         self.newline()
-        write('    size_t bytes_read = 0;', file=self.outFile)
-        write('    uint32_t attrib = 0;', file=self.outFile)
+        write('    size_t result = 0;', file=self.outFile)
         self.newline()
-        write('    if ((parameter_buffer != nullptr) && (buffer_size >= sizeof(uint32_t)))', file=self.outFile)
+        write('    const format::VulkanStructHeader* header = reinterpret_cast<const format::VulkanStructHeader*>(value);', file=self.outFile)
+        self.newline()
+        write('    // Ignore the structures added to the pnext chain by the loader.', file=self.outFile)
+        write('    if ((header != nullptr) &&', file=self.outFile)
+        write('        (header->sType != VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) &&', file=self.outFile)
+        write('        (header->sType != VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO))', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        // Peek at the pointer attribute mask to make sure we have a non-NULL value that can be decoded.', file=self.outFile)
-        write('        attrib = *(reinterpret_cast<const uint32_t*>(parameter_buffer));', file=self.outFile)
-        self.newline()
-        write('        if (((attrib & PointerAttributes::kIsNull) != PointerAttributes::kIsNull) && (buffer_size - sizeof(uint32_t) >= sizeof(VkStructureType)))', file=self.outFile)
+        write('        switch (header->sType)', file=self.outFile)
         write('        {', file=self.outFile)
-        write('            const VkStructureType* sType = reinterpret_cast<const VkStructureType*>(parameter_buffer);', file=self.outFile)
-        self.newline()
-        write('            switch (*sType)', file=self.outFile)
-        write('            {', file=self.outFile)
-        write('            default:', file=self.outFile)
-        write('                // TODO: Report or raise fatal error for unrecongized sType?', file=self.outFile)
-        write('                break;', file=self.outFile)
+        write('        default:', file=self.outFile)
+        write('            // TODO: Write metadata message with unrecongized sType?', file=self.outFile)
+        write('            break;', file=self.outFile)
 
     # Method override
     def endFile(self):
-        write('            }', file=self.outFile)
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
-        write('    if (bytes_read == 0)', file=self.outFile)
+        write('    if (result == 0)', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        // The buffer was too small, the encoded pointer attribute mask included kIsNull, or the sType was unrecognized.', file=self.outFile)
-        write('        // We will report that we read the attribute mask and return a PNextNullNode.', file=self.outFile)
-        write('        if (attrib != 0)', file=self.outFile)
-        write('        {', file=self.outFile)
-        write('            bytes_read = sizeof(uint32_t);', file=self.outFile)
-        write('        }', file=self.outFile)
-        self.newline()
-        write('        (*pNext) = std::make_unique<PNextNullNode>();', file=self.outFile)
+        write('        // pNext was either NULL, an ignored loader specific struct, or was unrecongized and no data was written.', file=self.outFile)
+        write('        // Write an encoding for a NULL pointer.', file=self.outFile)
+        write('        result = encoder->EncodeStructPtrPreamble(nullptr);', file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
-        write('    return bytes_read;', file=self.outFile)
+        write('    return result;', file=self.outFile)
         write('}', file=self.outFile)
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass
@@ -132,8 +118,7 @@ class DecodePNextStructGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         for struct in self.sTypeValues:
-            write('            case {}:'.format(self.sTypeValues[struct]), file=self.outFile)
-            write('                (*pNext) = std::make_unique<PNextTypedNode<Decoded_{}>>();'.format(struct), file=self.outFile)
-            write('                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);'.format(struct), file=self.outFile)
-            write('                break;', file=self.outFile)
+            write('        case {}:'.format(self.sTypeValues[struct]), file=self.outFile)
+            write('            result = encode_struct_ptr(encoder, reinterpret_cast<const {}*>(value));'.format(struct), file=self.outFile)
+            write('            break;', file=self.outFile)
         self.sTypeValues = dict()

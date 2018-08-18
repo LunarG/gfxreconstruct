@@ -621,6 +621,30 @@ class BaseGenerator(OutputGenerator):
         return 'void {}()'.format(name)
 
     #
+    # Generate the VkStructreType enumeration value for the specified structure type
+    def makeStructureTypeEnum(self, typeinfo, typename):
+        members = typeinfo.elem.findall('.//member')
+
+        for member in members:
+            membername = noneStr(member.find('name').text)
+
+            # We only care about structures with an sType, which can be included in a pNext chain.
+            if membername == 'sType':
+                # Check for value in the XML element.
+                values = member.attrib.get('values')
+
+                if values:
+                    return values
+                else:
+                    # If the value was not specified by the XML element, process the struct type to create it.
+                    stype = re.sub('([a-z0-9])([A-Z])', r'\1_\2', typename)
+                    stype = stype.replace('D3_D12', 'D3D12')
+                    stype = stype.replace('Device_IDProp', 'Device_ID_Prop')
+                    stype = stype.upper()
+                    return re.sub('VK_', 'VK_STRUCTURE_TYPE_', stype)
+        return None
+
+    #
     # Return appropriate feature protect string from 'platform' tag on feature.
     # From Vulkan-ValidationLayers common_codegen.py
     def __getFeatureProtect(self, interface):

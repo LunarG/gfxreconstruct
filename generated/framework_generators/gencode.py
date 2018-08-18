@@ -35,6 +35,9 @@ from api_call_consumer_declarations_generator import ApiCallConsumerDeclarations
 from api_call_ascii_consumer_definitions_generator import ApiCallAsciiConsumerDefinitionsGenerator,ApiCallAsciiConsumerDefinitionsGeneratorOptions
 from api_call_replay_consumer_definitions_generator import ApiCallReplayConsumerDefinitionsGenerator,ApiCallReplayConsumerDefinitionsGeneratorOptions
 
+# Struct Encoders
+from encode_pnext_struct_generator import EncodePNextStructGenerator,EncodePNextStructGeneratorOptions
+
 # Simple timer functions
 startTime = None
 
@@ -234,6 +237,20 @@ def makeGenOpts(args):
         protectFile       = False,
         protectFeature    = True)
     ]
+
+    #
+    # Struct encoder generators
+    genOpts['generated_encode_pnext_struct.inc'] = [
+          EncodePNextStructGenerator,
+          EncodePNextStructGeneratorOptions(
+            filename          = 'generated_encode_pnext_struct.inc',
+            directory         = directory,
+            blacklists        = defaultBlacklists,
+            platformTypes     = defaultPlatformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = True)
+        ]
 
 # Generate a target based on the options in the matching genOpts{} object.
 # This is encapsulated in a function so it can be profiled and/or timed.
