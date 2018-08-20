@@ -84,7 +84,7 @@ size_t Lz4Compressor::Decompress(const size_t                compressed_size,
                                              expected_uncompressed_size);
             if (uncompressed_size_generated > 0)
             {
-                copy_size = static_cast<size_t>(uncompressed_size_generated);
+                copy_size = uncompressed_size_generated;
             }
         }
         catch (...)

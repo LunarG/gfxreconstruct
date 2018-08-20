@@ -103,26 +103,28 @@ int main(int argc, char** argv)
 
             if (brimstone::util::kNone != compression_type)
             {
-                size_t bytes_read    = file_processor.NumBytesRead();
-                size_t bytes_written = decoder.NumBytesWritten();
-                float  percent_reduction =
+                uint64_t bytes_read    = file_processor.NumBytesRead();
+                uint64_t bytes_written = decoder.NumBytesWritten();
+                float    percent_reduction =
                     100.f * (1.f - (static_cast<float>(bytes_written) / static_cast<float>(bytes_read)));
                 printf("Compression Results:\n");
-                printf("  Original Size   [Compression: %5s] = %lu bytes\n", src_compression.c_str(), bytes_read);
-                printf("  Compressed Size [Compression: %5s] = %lu bytes\n",
+                printf(
+                    "  Original Size   [Compression: %5s] = %" PRIu64 " bytes\n", src_compression.c_str(), bytes_read);
+                printf("  Compressed Size [Compression: %5s] = %" PRIu64 " bytes\n",
                        dst_compression_string.c_str(),
                        bytes_written);
                 printf("  Percent Reduction                    = %.2f%%\n", percent_reduction);
             }
             else
             {
-                size_t bytes_read    = file_processor.NumBytesRead();
-                size_t bytes_written = decoder.NumBytesWritten();
-                float  percent_increase =
+                uint64_t bytes_read    = file_processor.NumBytesRead();
+                uint64_t bytes_written = decoder.NumBytesWritten();
+                float    percent_increase =
                     100.f * ((static_cast<float>(bytes_written) / static_cast<float>(bytes_read)) - 1.f);
                 printf("Uncompression Results:\n");
-                printf("  Original Size   [Compression: %5s] = %lu bytes\n", src_compression.c_str(), bytes_read);
-                printf("  Uncompressed Size                    = %lu bytes\n", bytes_written);
+                printf(
+                    "  Original Size   [Compression: %5s] = %" PRIu64 " bytes\n", src_compression.c_str(), bytes_read);
+                printf("  Uncompressed Size                    = %" PRIu64 " bytes\n", bytes_written);
                 printf("  Percent Increase                     = %.2f%%\n", percent_increase);
             }
         }
