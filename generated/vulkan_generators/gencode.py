@@ -57,7 +57,7 @@ def endTimer(timeit, msg):
         write(msg, endTime - startTime, file=sys.stderr)
         startTime = None
 
-# JSON files for cusomizing code generation
+# JSON files for customizing code generation
 defaultBlacklists = 'blacklists.json'
 defaultPlatformTypes = 'platform_types.json'
 
@@ -72,6 +72,10 @@ def makeGenOpts(args):
 
     # Output target directory
     directory = args.directory
+
+    # JSON configuration files
+    blacklists = os.path.join(args.configs, defaultBlacklists)
+    platformTypes = os.path.join(args.configs, defaultPlatformTypes)
 
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
@@ -109,8 +113,8 @@ def makeGenOpts(args):
           ApiCallDecodersGeneratorOptions(
             filename          = 'generated_api_call_decoders.inc',
             directory         = directory,
-            blacklists        = defaultBlacklists,
-            platformTypes     = defaultPlatformTypes,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -121,8 +125,8 @@ def makeGenOpts(args):
           ApiCallDecoderDeclarationsGeneratorOptions(
             filename          = 'generated_api_call_decoder_declarations.inc',
             directory         = directory,
-            blacklists        = defaultBlacklists,
-            platformTypes     = defaultPlatformTypes,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -133,8 +137,8 @@ def makeGenOpts(args):
           ApiCallDecodeCasesGeneratorOptions(
             filename          = 'generated_api_call_decode_cases.inc',
             directory         = directory,
-            blacklists        = defaultBlacklists,
-            platformTypes     = defaultPlatformTypes,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -147,8 +151,8 @@ def makeGenOpts(args):
           StructDecodersGeneratorOptions(
             filename          = 'generated_struct_decoders.inc',
             directory         = directory,
-            blacklists        = defaultBlacklists,
-            platformTypes     = defaultPlatformTypes,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -159,8 +163,8 @@ def makeGenOpts(args):
           StructDecoderDeclarationsGeneratorOptions(
             filename          = 'generated_struct_decoder_declarations.inc',
             directory         = directory,
-            blacklists        = defaultBlacklists,
-            platformTypes     = defaultPlatformTypes,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -171,8 +175,8 @@ def makeGenOpts(args):
           DecodedStructTypesGeneratorOptions(
             filename          = 'generated_decoded_struct_types.inc',
             directory         = directory,
-            blacklists        = defaultBlacklists,
-            platformTypes     = defaultPlatformTypes,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -183,8 +187,8 @@ def makeGenOpts(args):
           DecodePNextStructGeneratorOptions(
             filename          = 'generated_decode_pnext_struct.inc',
             directory         = directory,
-            blacklists        = defaultBlacklists,
-            platformTypes     = defaultPlatformTypes,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -198,8 +202,8 @@ def makeGenOpts(args):
         isOverride        = False,
         filename          = 'generated_api_call_consumer_declarations.inc',
         directory         = directory,
-        blacklists        = defaultBlacklists,
-        platformTypes     = defaultPlatformTypes,
+        blacklists        = blacklists,
+        platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
         protectFeature    = True)
@@ -211,8 +215,8 @@ def makeGenOpts(args):
         isOverride        = True,
         filename          = 'generated_api_call_consumer_override_declarations.inc',
         directory         = directory,
-        blacklists        = defaultBlacklists,
-        platformTypes     = defaultPlatformTypes,
+        blacklists        = blacklists,
+        platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
         protectFeature    = True)
@@ -223,8 +227,8 @@ def makeGenOpts(args):
         ApiCallAsciiConsumerDefinitionsGeneratorOptions(
         filename          = 'generated_api_call_ascii_consumer_definitions.inc',
         directory         = directory,
-        blacklists        = defaultBlacklists,
-        platformTypes     = defaultPlatformTypes,
+        blacklists        = blacklists,
+        platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
         protectFeature    = True)
@@ -235,8 +239,8 @@ def makeGenOpts(args):
         ApiCallReplayConsumerDefinitionsGeneratorOptions(
         filename          = 'generated_api_call_replay_consumer_definitions.inc',
         directory         = directory,
-        blacklists        = defaultBlacklists,
-        platformTypes     = defaultPlatformTypes,
+        blacklists        = blacklists,
+        platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
         protectFeature    = True)
@@ -249,8 +253,8 @@ def makeGenOpts(args):
           ApiCallEncodersGeneratorOptions(
             filename          = 'generated_api_call_encoders.inc',
             directory         = directory,
-            blacklists        = defaultBlacklists,
-            platformTypes     = defaultPlatformTypes,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -273,8 +277,8 @@ def makeGenOpts(args):
           StructEncodersGeneratorOptions(
             filename          = 'generated_struct_encoders.inc',
             directory         = directory,
-            blacklists        = defaultBlacklists,
-            platformTypes     = defaultPlatformTypes,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -285,8 +289,8 @@ def makeGenOpts(args):
           EncodePNextStructGeneratorOptions(
             filename          = 'generated_encode_pnext_struct.inc',
             directory         = directory,
-            blacklists        = defaultBlacklists,
-            platformTypes     = defaultPlatformTypes,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -371,6 +375,9 @@ if __name__ == '__main__':
                         help='Suppress script output during normal execution.')
     parser.add_argument('-verbose', action='store_false', dest='quiet', default=True,
                         help='Enable script output during normal execution.')
+    parser.add_argument('-configs', action='store', dest='configs',
+                        default='.',
+                        help='Specify directory containing JSON configuration files for generators')
 
     args = parser.parse_args()
 

@@ -21,6 +21,9 @@ import subprocess
 # Relative path from code generators to directory containing the Vulkan XML Registry.
 registry_path = '../external/Vulkan-Headers/registry'
 
+# Relative path to vulkan code generators for trace encode/decode.
+generator_path = './vulkan_generators'
+
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
     'generated_encode_pnext_struct.inc',
@@ -41,10 +44,11 @@ generate_targets = [
 ]
 
 if __name__ == '__main__':
-    script_path = os.path.abspath(sys.argv[0])
-    script_dir = os.path.dirname(script_path)
-    registry_dir = os.path.normpath(os.path.join(script_dir, registry_path))
+    current_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+    generator_dir = os.path.normpath(os.path.join(current_dir, generator_path))
+    registry_dir = os.path.normpath(os.path.join(current_dir, registry_path))
 
+    sys.path.append(generator_dir)
     sys.path.append(registry_dir)
 
     env = os.environ
@@ -52,4 +56,4 @@ if __name__ == '__main__':
 
     for target in generate_targets:
         print('\nGenerating', target)
-        subprocess.call([sys.executable, os.path.join(script_dir, 'genlayer.py'), '-registry', os.path.join(registry_dir, 'vk.xml'), target], shell=False, env=env)
+        subprocess.call([sys.executable, os.path.join(generator_dir, 'gencode.py'), '-o', current_dir, '-configs', generator_dir, '-registry', os.path.join(registry_dir, 'vk.xml'), target], shell=False, env=env)
