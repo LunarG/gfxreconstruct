@@ -40,7 +40,9 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
-        BaseGenerator.__init__(self, errFile, warnFile, diagFile)
+        BaseGenerator.__init__(self,
+                               processCmds=True, processStructs=True, featureBreak=True,
+                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
         self.structsWithHandles = dict()                   # Map of Vulkan structs containing handles to a list of handle member names.
 
     #

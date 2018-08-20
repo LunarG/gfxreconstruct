@@ -40,7 +40,9 @@ class LayerFuncTableGenerator(BaseGenerator):
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
-        BaseGenerator.__init__(self, errFile, warnFile, diagFile)
+        BaseGenerator.__init__(self,
+                               processCmds=True, processStructs=False, featureBreak=False,
+                               errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
         # The trace layer does not currently implement or export the instance version query
         self.APICALL_BLACKLIST = ['vkEnumerateInstanceVersion']
