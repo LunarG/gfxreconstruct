@@ -37,6 +37,7 @@ from api_call_replay_consumer_definitions_generator import ApiCallReplayConsumer
 
 # API Call Encoders
 from api_call_encoders_generator import ApiCallEncodersGenerator,ApiCallEncodersGeneratorOptions
+from layer_func_table_generator import LayerFuncTableGenerator,LayerFuncTableGeneratorOptions
 
 # Struct Encoders
 from struct_encoders_generator import StructEncodersGenerator,StructEncodersGeneratorOptions
@@ -250,6 +251,16 @@ def makeGenOpts(args):
             directory         = directory,
             blacklists        = defaultBlacklists,
             platformTypes     = defaultPlatformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = True)
+        ]
+
+    genOpts['generated_layer_func_table.inc'] = [
+          LayerFuncTableGenerator,
+          LayerFuncTableGeneratorOptions(
+            filename          = 'generated_layer_func_table.inc',
+            directory         = directory,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
