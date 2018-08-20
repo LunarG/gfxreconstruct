@@ -1292,13 +1292,13 @@
         VkResult                                    returnValue,
         HandleId                                    device,
         const StructPointerDecoder<Decoded_VkMemoryGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
-        const PointerDecoder<HANDLE>&               pHandle) override;
+        const PointerDecoder<uint64_t>&             pHandle) override;
 
     virtual void Process_vkGetMemoryWin32HandlePropertiesKHR(
         VkResult                                    returnValue,
         HandleId                                    device,
         VkExternalMemoryHandleTypeFlagBits          handleType,
-        HANDLE                                      handle,
+        uint64_t                                    handle,
         const StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>& pMemoryWin32HandleProperties) override;
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
@@ -1330,7 +1330,7 @@
         VkResult                                    returnValue,
         HandleId                                    device,
         const StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
-        const PointerDecoder<HANDLE>&               pHandle) override;
+        const PointerDecoder<uint64_t>&             pHandle) override;
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     virtual void Process_vkImportSemaphoreFdKHR(
@@ -1418,7 +1418,7 @@
         VkResult                                    returnValue,
         HandleId                                    device,
         const StructPointerDecoder<Decoded_VkFenceGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
-        const PointerDecoder<HANDLE>&               pHandle) override;
+        const PointerDecoder<uint64_t>&             pHandle) override;
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     virtual void Process_vkImportFenceFdKHR(
@@ -1620,7 +1620,7 @@
         HandleId                                    device,
         HandleId                                    memory,
         VkExternalMemoryHandleTypeFlagsNV           handleType,
-        const PointerDecoder<HANDLE>&               pHandle) override;
+        const PointerDecoder<uint64_t>&             pHandle) override;
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 #ifdef VK_USE_PLATFORM_VI_NN

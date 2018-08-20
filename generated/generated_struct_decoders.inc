@@ -3773,8 +3773,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32S
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += ValueDecoder::DecodeHINSTANCEValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->hinstance));
-    bytes_read += ValueDecoder::DecodeHWNDValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->hwnd));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->hinstance));
+    value->hinstance = nullptr;
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->hwnd));
+    value->hwnd = nullptr;
 
     return bytes_read;
 }
@@ -3792,8 +3794,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImport
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
-    bytes_read += ValueDecoder::DecodeHANDLEValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handle));
-    bytes_read += ValueDecoder::DecodeLPCWSTRValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->name));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->handle));
+    value->handle = nullptr;
+    bytes_read += wrapper->name.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->name = wrapper->name.GetPointer();
 
     return bytes_read;
 }
@@ -3808,10 +3812,11 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExport
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += wrapper->pAttributes.DecodeSECURITY_ATTRIBUTES((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += wrapper->pAttributes.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttributes = wrapper->pAttributes.GetPointer();
-    bytes_read += ValueDecoder::DecodeDWORDValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
-    bytes_read += ValueDecoder::DecodeLPCWSTRValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->name));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
+    bytes_read += wrapper->name.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->name = wrapper->name.GetPointer();
 
     return bytes_read;
 }
@@ -3940,8 +3945,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImport
     value->semaphore = nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
-    bytes_read += ValueDecoder::DecodeHANDLEValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handle));
-    bytes_read += ValueDecoder::DecodeLPCWSTRValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->name));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->handle));
+    value->handle = nullptr;
+    bytes_read += wrapper->name.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->name = wrapper->name.GetPointer();
 
     return bytes_read;
 }
@@ -3956,10 +3963,11 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExport
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += wrapper->pAttributes.DecodeSECURITY_ATTRIBUTES((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += wrapper->pAttributes.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttributes = wrapper->pAttributes.GetPointer();
-    bytes_read += ValueDecoder::DecodeDWORDValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
-    bytes_read += ValueDecoder::DecodeLPCWSTRValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->name));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
+    bytes_read += wrapper->name.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->name = wrapper->name.GetPointer();
 
     return bytes_read;
 }
@@ -4278,8 +4286,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImport
     value->fence = nullptr;
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
-    bytes_read += ValueDecoder::DecodeHANDLEValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handle));
-    bytes_read += ValueDecoder::DecodeLPCWSTRValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->name));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->handle));
+    value->handle = nullptr;
+    bytes_read += wrapper->name.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->name = wrapper->name.GetPointer();
 
     return bytes_read;
 }
@@ -4294,10 +4304,11 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExport
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += wrapper->pAttributes.DecodeSECURITY_ATTRIBUTES((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += wrapper->pAttributes.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttributes = wrapper->pAttributes.GetPointer();
-    bytes_read += ValueDecoder::DecodeDWORDValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
-    bytes_read += ValueDecoder::DecodeLPCWSTRValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->name));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
+    bytes_read += wrapper->name.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->name = wrapper->name.GetPointer();
 
     return bytes_read;
 }
@@ -4766,7 +4777,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImport
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handleType));
-    bytes_read += ValueDecoder::DecodeHANDLEValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->handle));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->handle));
+    value->handle = nullptr;
 
     return bytes_read;
 }
@@ -4781,9 +4793,9 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExport
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += wrapper->pAttributes.DecodeSECURITY_ATTRIBUTES((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += wrapper->pAttributes.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAttributes = wrapper->pAttributes.GetPointer();
-    bytes_read += ValueDecoder::DecodeDWORDValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dwAccess));
 
     return bytes_read;
 }
@@ -5699,8 +5711,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImport
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
-    bytes_read += wrapper->buffer.DecodeAHardwareBuffer((buffer + bytes_read), (buffer_size - bytes_read));
-    value->buffer = wrapper->buffer.GetPointer();
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->buffer));
+    value->buffer = nullptr;
 
     return bytes_read;
 }

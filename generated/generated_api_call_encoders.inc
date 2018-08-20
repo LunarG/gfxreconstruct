@@ -4080,7 +4080,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(
     {
         encoder->EncodeHandleValue(device);
         encode_struct_ptr(encoder, pGetWin32HandleInfo);
-        encoder->EncodeHANDLEPtr(pHandle);
+        encoder->EncodeVoidPtrPtr(pHandle);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4101,7 +4101,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(
     {
         encoder->EncodeHandleValue(device);
         encoder->EncodeEnumValue(handleType);
-        encoder->EncodeHANDLEValue(handle);
+        encoder->EncodeVoidPtr(handle);
         encode_struct_ptr(encoder, pMemoryWin32HandleProperties);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4201,7 +4201,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(
     {
         encoder->EncodeHandleValue(device);
         encode_struct_ptr(encoder, pGetWin32HandleInfo);
-        encoder->EncodeHANDLEPtr(pHandle);
+        encoder->EncodeVoidPtrPtr(pHandle);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4487,7 +4487,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(
     {
         encoder->EncodeHandleValue(device);
         encode_struct_ptr(encoder, pGetWin32HandleInfo);
-        encoder->EncodeHANDLEPtr(pHandle);
+        encoder->EncodeVoidPtrPtr(pHandle);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5123,7 +5123,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(memory);
         encoder->EncodeFlagsValue(handleType);
-        encoder->EncodeHANDLEPtr(pHandle);
+        encoder->EncodeVoidPtrPtr(pHandle);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
