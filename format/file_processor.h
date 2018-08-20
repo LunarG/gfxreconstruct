@@ -53,7 +53,7 @@ public:
 
     const std::vector<FileOptionPair>& GetFileOptions() const { return file_options_; }
 
-    size_t NumBytesRead() { return bytes_read_; }
+    uint64_t NumBytesRead() { return bytes_read_; }
 
 private:
     bool ReadFileHeader();

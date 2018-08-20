@@ -80,7 +80,7 @@ bool FileProcessor::ProcessNextFrame()
             {
                 ApiCallId api_call_id;
 
-                size_t parameter_buffer_size = block_header.size - sizeof(api_call_id);
+                size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(api_call_id);
 
                 success = (ReadBytes(&api_call_id, sizeof(api_call_id)) == sizeof(api_call_id)) ? true : false;
 
@@ -136,7 +136,7 @@ bool FileProcessor::ProcessNextFrame()
                 }
 
                 ApiCallId api_call_id;
-                uint64_t  expected_uncompressed_size = 0;
+                size_t    expected_uncompressed_size = 0;
 
                 success = (ReadBytes(&api_call_id, sizeof(api_call_id)) == sizeof(api_call_id)) ? true : false;
                 success = (ReadBytes(&expected_uncompressed_size, sizeof(expected_uncompressed_size)) ==
@@ -145,7 +145,7 @@ bool FileProcessor::ProcessNextFrame()
                               : false;
 
                 size_t compressed_buffer_size =
-                    block_header.size - sizeof(api_call_id) - sizeof(expected_uncompressed_size);
+                    static_cast<size_t>(block_header.size) - sizeof(api_call_id) - sizeof(expected_uncompressed_size);
 
                 ApiCallOptions call_options = {};
                 if (success && enabled_options_.record_thread_id)
@@ -176,8 +176,8 @@ bool FileProcessor::ProcessNextFrame()
 
                 if (success)
                 {
-                    uint64_t uncompressed_size = 0;
-                    success                    = ReadCompressedParameterBuffer(
+                    size_t uncompressed_size = 0;
+                    success                  = ReadCompressedParameterBuffer(
                         compressed_buffer_size, expected_uncompressed_size, &uncompressed_size);
                 }
 

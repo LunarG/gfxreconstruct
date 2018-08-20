@@ -54,14 +54,14 @@ class DecompressDecoder : public Decoder
     virtual void
     DecodeFunctionCall(ApiCallId call_id, const ApiCallOptions& call_options, const uint8_t* buffer, size_t buffer_size);
 
-    size_t NumBytesWritten() { return bytes_written_; }
+    uint64_t NumBytesWritten() { return bytes_written_; }
 
   private:
     DecompressMode                          decompress_mode_;
     std::unique_ptr<util::FileOutputStream> file_stream_;
     std::string                             filename_;
     std::mutex                              file_lock_;
-    size_t                                  bytes_written_;
+    uint64_t                                bytes_written_;
     std::vector<uint8_t>                    compressed_buffer_;
     util::Compressor*                       compressor_;
     bool                                    write_thread_id_;

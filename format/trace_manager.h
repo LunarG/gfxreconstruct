@@ -84,7 +84,7 @@ private:
     std::unique_ptr<util::FileOutputStream>                 file_stream_;
     std::string                                             filename_;
     std::mutex                                              file_lock_;
-    size_t                                                  bytes_written_;
+    uint64_t                                                bytes_written_;
     std::vector<uint8_t>                                    compressed_buffer_;
     util::Compressor*                                       compressor_;
 };
