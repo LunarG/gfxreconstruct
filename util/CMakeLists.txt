@@ -11,11 +11,13 @@ target_sources(brimstone_util
                    compressor.h
                    lz4_compressor.h
                    lz77_compressor.h
+                   argument_parser.h
                    file_output_stream.cpp
                    memory_output_stream.cpp
                    compressor.cpp
                    lz4_compressor.cpp
                    lz77_compressor.cpp
+                   argument_parser.cpp
               )
 
 target_compile_definitions(brimstone_util
