@@ -17,17 +17,17 @@
 import os,re,sys
 from base_generator import *
 
+# Eliminates JSON blackLists and platformTypes files, which are not necessary for
+# pNext switch statement generation.
 class EncodePNextStructGeneratorOptions(BaseGeneratorOptions):
     """Options for Vulkan API pNext structure encoding C++ code generation"""
     def __init__(self,
-                 blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
-                 platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
                  directory = '.',
                  prefixText = '',
                  protectFile = False,
                  protectFeature = True):
-        BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
+        BaseGeneratorOptions.__init__(self, None, None,
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
@@ -40,7 +40,7 @@ class EncodePNextStructGenerator(BaseGenerator):
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=False,
+                               processCmds=False, processStructs=False, featureBreak=False,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
         # Map to store VkStructureType enum values.
@@ -101,13 +101,13 @@ class EncodePNextStructGenerator(BaseGenerator):
 
     # Method override
     def genStruct(self, typeinfo, typename, alias):
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        # Ignore the "base" structures
-        if (typename not in self.STRUCT_BLACKLIST) and not alias:
-            sType = self.makeStructureTypeEnum(typeinfo, typename)
-            if sType:
-                self.sTypeValues[typename] = sType
+        if not alias:
+            # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
+            parentStructs = typeinfo.elem.get('structextends')
+            if parentStructs:
+                sType = self.makeStructureTypeEnum(typeinfo, typename)
+                if sType:
+                    self.sTypeValues[typename] = sType
 
     #
     # Indicates that the current feature has C++ code to generate.

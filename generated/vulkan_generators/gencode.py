@@ -187,8 +187,6 @@ def makeGenOpts(args):
           DecodePNextStructGeneratorOptions(
             filename          = 'generated_decode_pnext_struct.inc',
             directory         = directory,
-            blacklists        = blacklists,
-            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
@@ -289,8 +287,6 @@ def makeGenOpts(args):
           EncodePNextStructGeneratorOptions(
             filename          = 'generated_encode_pnext_struct.inc',
             directory         = directory,
-            blacklists        = blacklists,
-            platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = True)
