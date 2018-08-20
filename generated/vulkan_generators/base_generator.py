@@ -176,6 +176,9 @@ class BaseGenerator(OutputGenerator):
     INDENT_SIZE = 4
 
     def __init__(self,
+                 processCmds,
+                 processStructs,
+                 featureBreak = True,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
@@ -187,9 +190,16 @@ class BaseGenerator(OutputGenerator):
         self.flagsNames = set()                           # Set of bitmask (flags) typenames
         self.enumNames = set()                            # Set of Vulkan enumeration typenames
 
+        # Type processing options
+        self.processCmds = processCmds                    # Populate the featureCmdParams map
+        self.processStructs = processStructs              # Populate the featureStructMembers map
+        self.featureBreak = featureBreak                  # Insert a line break between features
+
         # Command parameter and struct member data for the current feature
-        self.featureStructMembers = dict()                # Map of struct names to lists of per-member ValueInfo
-        self.featureCmdParams = dict()                    # Map of cmd names to lists of per-parameter ValueInfo
+        if self.processStructs:
+            self.featureStructMembers = dict()            # Map of struct names to lists of per-member ValueInfo
+        if self.processCmds:
+            self.featureCmdParams = dict()                # Map of cmd names to lists of per-parameter ValueInfo
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -244,8 +254,10 @@ class BaseGenerator(OutputGenerator):
         OutputGenerator.beginFeature(self, interface, emit)
 
         # Reset feature specific data sets
-        self.featureStructMembers = dict()
-        self.featureCmdParams = dict()
+        if self.processStructs:
+            self.featureStructMembers = dict()
+        if self.processCmds:
+            self.featureCmdParams = dict()
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protectFeature:
@@ -255,7 +267,8 @@ class BaseGenerator(OutputGenerator):
     def endFeature(self):
         # Generate code for the feature
         if self.emit and self.needFeatureGeneration():
-            self.newline()
+            if self.featureBreak:
+                self.newline()
 
             if (self.featureExtraProtect != None):
                 write('#ifdef', self.featureExtraProtect, file=self.outFile)
@@ -294,7 +307,7 @@ class BaseGenerator(OutputGenerator):
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
-        if (typename not in self.STRUCT_BLACKLIST) and not alias:
+        if self.processStructs and (typename not in self.STRUCT_BLACKLIST) and not alias:
             self.featureStructMembers[typename] = self.makeValueInfo(typeinfo.elem.findall('.//member'))
 
     #
@@ -314,7 +327,7 @@ class BaseGenerator(OutputGenerator):
     # Command generation
     def genCmd(self, cmdinfo, name, alias):
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
-        if not name in self.APICALL_BLACKLIST:
+        if self.processCmds and (name not in self.APICALL_BLACKLIST):
             # Create the declaration for the function prototype
             proto = cmdinfo.elem.find('proto')
             protoDecl = self.genOpts.apicall + noneStr(proto.text)
