@@ -35,6 +35,7 @@
     <Compile Include="gencode.py" />
     <Compile Include="struct_decoders_generator.py" />
     <Compile Include="struct_decoder_declarations_generator.py" />
+    <Compile Include="struct_encoders_generator.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

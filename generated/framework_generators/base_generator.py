@@ -490,6 +490,27 @@ class BaseGenerator(OutputGenerator):
         return capacity
 
     #
+    # Extract length values from latexmath.  Currently an inflexible solution that looks for specific
+    # patterns that are found in vk.xml.  Will need to be updated when new patterns are introduced.
+    def parseLateXMath(self, source):
+        name = 'ERROR'
+        decoratedName = 'ERROR'
+        if 'mathit' in source:
+            # Matches expressions similar to 'latexmath:[\lceil{\mathit{rasterizationSamples} \over 32}\rceil]'
+            match = re.match(r'latexmath\s*\:\s*\[\s*\\l(\w+)\s*\{\s*\\mathit\s*\{\s*(\w+)\s*\}\s*\\over\s*(\d+)\s*\}\s*\\r(\w+)\s*\]', source)
+            if not match or match.group(1) != match.group(4):
+                raise 'Unrecognized latexmath expression'
+            name = match.group(2)
+            # TODO: More flexible typecasting support
+            nameExpr = 'static_cast<size_t>({}({}/{}))'.format(*match.group(1, 2, 3))
+        else:
+            # Matches expressions similar to 'latexmath : [dataSize \over 4]'
+            match = re.match(r'latexmath\s*\:\s*\[\s*(\w+)\s*\\over\s*(\d+)\s*\]', source)
+            name = match.group(1)
+            nameExpr = '{}/{}'.format(*match.group(1, 2))
+        return name, nameExpr
+
+    #
     # Indent all lines in a string.
     #  value - String to indent.
     #  spaces - Number of spaces to indent.
@@ -643,6 +664,72 @@ class BaseGenerator(OutputGenerator):
                     stype = stype.upper()
                     return re.sub('VK_', 'VK_STRUCTURE_TYPE_', stype)
         return None
+
+    #
+    # Generate a parameter encoder method call invocation.
+    def makeEncoderMethodCall(self, value, values, prefix):
+        args = [prefix + value.name]
+
+        isStruct = False
+        isString = False
+        isFuncp = False
+
+        typeName = self.makeInvocationTypeName(value.baseType)
+
+        if self.isStruct(typeName):
+            args = ['encoder'] + args
+            isStruct = True
+            methodCall = 'encode_struct'
+        else:
+            if typeName == 'String':
+                isString = True
+            elif typeName == 'FunctionPtr':
+                isFuncp = True
+            elif typeName == 'HandleId':
+                # TODO: Address Handle/HandleId inconsistency between decode and encode
+                typeName = 'Handle'
+
+            methodCall = 'encoder->Encode' + typeName
+
+        if value.isArray and not (isString and not value.isDynamic):  # Make sure strings delcared as 'char s[N]' are not treated as string arrays
+            # Some length parameters are specified as mathmatical expressions, which we need to parse to extract the parameter name from the expression.
+            lengthName = value.arrayLength         # The parameter name that appears in the length expression
+            lengthExpr = value.arrayLength         # The expression that produces the array length (needed for the latexmath case where param name != param expr)
+            if 'latexmath' in value.arrayLength:
+                lengthName, lengthExpr = self.parseLateXMath(value.arrayLength)
+
+            if isStruct:
+                methodCall += '_array'
+            else:
+                methodCall += 'Array'
+
+            # Build a list of parameter names and search for the array length value.
+            lengthValue = None
+            paramNames = []
+            for v in values:
+                if v.name == lengthName:
+                    lengthValue = v
+                paramNames.append(v.name)
+
+            prefixedName = lengthExpr.replace(lengthName, prefix + lengthName)
+
+            if lengthValue and lengthValue.isPointer:
+                args.append('({name} != nullptr) ? (*{name}) : 0'.format(name=prefixedName))
+            elif lengthName in paramNames:
+                args.append(prefixedName)
+            else:
+                args.append(lengthExpr)     # Length is a constant value, not a parameter
+        elif isStruct:
+            if value.isPointer:
+                methodCall += '_ptr'
+        elif not (isString or isFuncp):
+            # Ignore string and function names, which do not use the Ptr/Value suffix
+            if value.isPointer:
+                methodCall += 'Ptr' * value.pointerCount
+            else:
+                methodCall += 'Value'
+
+        return '{}({})'.format(methodCall, ', '.join(args))
 
     #
     # Return appropriate feature protect string from 'platform' tag on feature.

@@ -39,6 +39,7 @@ from api_call_replay_consumer_definitions_generator import ApiCallReplayConsumer
 from api_call_encoders_generator import ApiCallEncodersGenerator,ApiCallEncodersGeneratorOptions
 
 # Struct Encoders
+from struct_encoders_generator import StructEncodersGenerator,StructEncodersGeneratorOptions
 from encode_pnext_struct_generator import EncodePNextStructGenerator,EncodePNextStructGeneratorOptions
 
 # Simple timer functions
@@ -256,6 +257,18 @@ def makeGenOpts(args):
 
     #
     # Struct encoder generators
+    genOpts['generated_struct_encoders.inc'] = [
+          StructEncodersGenerator,
+          StructEncodersGeneratorOptions(
+            filename          = 'generated_struct_encoders.inc',
+            directory         = directory,
+            blacklists        = defaultBlacklists,
+            platformTypes     = defaultPlatformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = True)
+        ]
+
     genOpts['generated_encode_pnext_struct.inc'] = [
           EncodePNextStructGenerator,
           EncodePNextStructGeneratorOptions(
