@@ -131,54 +131,6 @@ class ApiCallEncodersGenerator(BaseGenerator):
         return '{}({})->{}({})'.format(dispatchfunc, values[0].name, name[2:], argList)
 
     #
-    # Generate the parameter encoder method call invocation
-    def makeEncoderMethodCall(self, value, values):
-        args = [value.name]
-
-        isStruct = False
-        isString = False
-
-        typeName = self.makeInvocationTypeName(value.baseType)
-
-        if self.isStruct(typeName):
-            methodCall = 'encode_struct'
-            args = ['encoder'] + args
-            isStruct = True
-        else:
-            methodCall = 'encoder->Encode' + typeName
-            if typeName == 'String':
-                isString = True
-            elif typeName == 'HandleId':
-                # TODO: Address Handle/HandleId inconsistency between decode and encode
-                typeName = 'Handle'
-
-        methodCall = 'encode_struct' if self.isStruct(value.baseType) else 'encoder->Encode' + typeName
-
-        if value.isArray:
-            if isStruct:
-                methodCall += '_array'
-            else:
-                methodCall += 'Array'
-
-            # Find the array length value in the list.
-            lengthValue = next((v for v in values if v.name == value.arrayLength), None)
-
-            if lengthValue and lengthValue.isPointer:
-                args.append('({name} != nullptr) ? (*{name}) : 0'.format(name=lengthValue.name))
-            else:
-                args.append(value.arrayLength)
-        elif isStruct:
-            methodCall += '_ptr'
-        elif not isString:
-            # String function names do not have the Ptr/Value suffix
-            if value.isPointer:
-                methodCall += 'Ptr' * value.pointerCount
-            else:
-                methodCall += 'Value'
-
-        return '{}({})'.format(methodCall, ', '.join(args))
-
-    #
     # Command definition
     def makeCmdBody(self, returnType, name, values):
         body = ''
@@ -197,7 +149,7 @@ class ApiCallEncodersGenerator(BaseGenerator):
         body += '    {\n'
 
         for value in values:
-            methodCall = self.makeEncoderMethodCall(value, values)
+            methodCall = self.makeEncoderMethodCall(value, values, '')
             body += '        {};\n'.format(methodCall)
 
         if returnType and returnType != 'void':
