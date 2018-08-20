@@ -1201,7 +1201,7 @@ struct Decoded_VkPhysicalDeviceGroupProperties
     VkPhysicalDeviceGroupProperties* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<VkPhysicalDevice> physicalDevices;
+    PointerDecoder<HandleId> physicalDevices;
 };
 
 struct Decoded_VkDeviceGroupDeviceCreateInfo
@@ -1974,6 +1974,8 @@ struct Decoded_VkWin32SurfaceCreateInfoKHR
     VkWin32SurfaceCreateInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
+    uint64_t hinstance;
+    uint64_t hwnd;
 };
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
@@ -1985,6 +1987,8 @@ struct Decoded_VkImportMemoryWin32HandleInfoKHR
     VkImportMemoryWin32HandleInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
+    uint64_t handle;
+    StringDecoder name;
 };
 
 struct Decoded_VkExportMemoryWin32HandleInfoKHR
@@ -1994,7 +1998,8 @@ struct Decoded_VkExportMemoryWin32HandleInfoKHR
     VkExportMemoryWin32HandleInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<SECURITY_ATTRIBUTES> pAttributes;
+    StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES> pAttributes;
+    StringDecoder name;
 };
 
 struct Decoded_VkMemoryWin32HandlePropertiesKHR
@@ -2070,6 +2075,8 @@ struct Decoded_VkImportSemaphoreWin32HandleInfoKHR
 
     std::unique_ptr<PNextNode> pNext;
     HandleId semaphore;
+    uint64_t handle;
+    StringDecoder name;
 };
 
 struct Decoded_VkExportSemaphoreWin32HandleInfoKHR
@@ -2079,7 +2086,8 @@ struct Decoded_VkExportSemaphoreWin32HandleInfoKHR
     VkExportSemaphoreWin32HandleInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<SECURITY_ATTRIBUTES> pAttributes;
+    StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES> pAttributes;
+    StringDecoder name;
 };
 
 struct Decoded_VkD3D12FenceSubmitInfoKHR
@@ -2252,6 +2260,8 @@ struct Decoded_VkImportFenceWin32HandleInfoKHR
 
     std::unique_ptr<PNextNode> pNext;
     HandleId fence;
+    uint64_t handle;
+    StringDecoder name;
 };
 
 struct Decoded_VkExportFenceWin32HandleInfoKHR
@@ -2261,7 +2271,8 @@ struct Decoded_VkExportFenceWin32HandleInfoKHR
     VkExportFenceWin32HandleInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<SECURITY_ATTRIBUTES> pAttributes;
+    StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES> pAttributes;
+    StringDecoder name;
 };
 
 struct Decoded_VkFenceGetWin32HandleInfoKHR
@@ -2535,6 +2546,7 @@ struct Decoded_VkImportMemoryWin32HandleInfoNV
     VkImportMemoryWin32HandleInfoNV* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
+    uint64_t handle;
 };
 
 struct Decoded_VkExportMemoryWin32HandleInfoNV
@@ -2544,7 +2556,7 @@ struct Decoded_VkExportMemoryWin32HandleInfoNV
     VkExportMemoryWin32HandleInfoNV* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<SECURITY_ATTRIBUTES> pAttributes;
+    StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES> pAttributes;
 };
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 

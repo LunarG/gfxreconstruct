@@ -626,9 +626,9 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceMe
 {
     size_t result = 0;
     result += encoder->EncodeUInt32Value(value.memoryTypeCount);
-    result += encode_struct_array(encoder, value.memoryTypes, VK_MAX_MEMORY_TYPES);
+    result += encode_struct_array(encoder, value.memoryTypes, value.memoryTypeCount);
     result += encoder->EncodeUInt32Value(value.memoryHeapCount);
-    result += encode_struct_array(encoder, value.memoryHeaps, VK_MAX_MEMORY_HEAPS);
+    result += encode_struct_array(encoder, value.memoryHeaps, value.memoryHeapCount);
     return result;
 }
 
@@ -4334,7 +4334,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceGr
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeUInt32Value(value.physicalDeviceCount);
-    result += encoder->EncodeHandleArray(value.physicalDevices, VK_MAX_DEVICE_GROUP_SIZE);
+    result += encoder->EncodeHandleArray(value.physicalDevices, value.physicalDeviceCount);
     result += encoder->EncodeVkBool32Value(value.subsetAllocation);
     return result;
 }
@@ -6952,8 +6952,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkWin32SurfaceCrea
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHINSTANCEValue(value.hinstance);
-    result += encoder->EncodeHWNDValue(value.hwnd);
+    result += encoder->EncodeVoidPtr(value.hinstance);
+    result += encoder->EncodeVoidPtr(value.hwnd);
     return result;
 }
 
@@ -6988,8 +6988,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportMemoryWin3
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeEnumValue(value.handleType);
-    result += encoder->EncodeHANDLEValue(value.handle);
-    result += encoder->EncodeLPCWSTRValue(value.name);
+    result += encoder->EncodeVoidPtr(value.handle);
+    result += encoder->EncodeString(value.name);
     return result;
 }
 
@@ -7021,9 +7021,9 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkExportMemoryWin3
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeSECURITY_ATTRIBUTESPtr(value.pAttributes);
-    result += encoder->EncodeDWORDValue(value.dwAccess);
-    result += encoder->EncodeLPCWSTRValue(value.name);
+    result += encode_struct_ptr(encoder, value.pAttributes);
+    result += encoder->EncodeUInt32Value(value.dwAccess);
+    result += encoder->EncodeString(value.name);
     return result;
 }
 
@@ -7263,8 +7263,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportSemaphoreW
     result += encoder->EncodeHandleValue(value.semaphore);
     result += encoder->EncodeFlagsValue(value.flags);
     result += encoder->EncodeEnumValue(value.handleType);
-    result += encoder->EncodeHANDLEValue(value.handle);
-    result += encoder->EncodeLPCWSTRValue(value.name);
+    result += encoder->EncodeVoidPtr(value.handle);
+    result += encoder->EncodeString(value.name);
     return result;
 }
 
@@ -7296,9 +7296,9 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkExportSemaphoreW
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeSECURITY_ATTRIBUTESPtr(value.pAttributes);
-    result += encoder->EncodeDWORDValue(value.dwAccess);
-    result += encoder->EncodeLPCWSTRValue(value.name);
+    result += encode_struct_ptr(encoder, value.pAttributes);
+    result += encoder->EncodeUInt32Value(value.dwAccess);
+    result += encoder->EncodeString(value.name);
     return result;
 }
 
@@ -7889,8 +7889,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportFenceWin32
     result += encoder->EncodeHandleValue(value.fence);
     result += encoder->EncodeFlagsValue(value.flags);
     result += encoder->EncodeEnumValue(value.handleType);
-    result += encoder->EncodeHANDLEValue(value.handle);
-    result += encoder->EncodeLPCWSTRValue(value.name);
+    result += encoder->EncodeVoidPtr(value.handle);
+    result += encoder->EncodeString(value.name);
     return result;
 }
 
@@ -7922,9 +7922,9 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkExportFenceWin32
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeSECURITY_ATTRIBUTESPtr(value.pAttributes);
-    result += encoder->EncodeDWORDValue(value.dwAccess);
-    result += encoder->EncodeLPCWSTRValue(value.name);
+    result += encode_struct_ptr(encoder, value.pAttributes);
+    result += encoder->EncodeUInt32Value(value.dwAccess);
+    result += encoder->EncodeString(value.name);
     return result;
 }
 
@@ -8849,7 +8849,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportMemoryWin3
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.handleType);
-    result += encoder->EncodeHANDLEValue(value.handle);
+    result += encoder->EncodeVoidPtr(value.handle);
     return result;
 }
 
@@ -8881,8 +8881,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkExportMemoryWin3
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeSECURITY_ATTRIBUTESPtr(value.pAttributes);
-    result += encoder->EncodeDWORDValue(value.dwAccess);
+    result += encode_struct_ptr(encoder, value.pAttributes);
+    result += encoder->EncodeUInt32Value(value.dwAccess);
     return result;
 }
 

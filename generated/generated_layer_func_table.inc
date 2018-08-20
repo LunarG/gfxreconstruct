@@ -256,8 +256,6 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
     { "vkGetMemoryFdKHR",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(GetMemoryFdKHR) },
     { "vkGetMemoryFdPropertiesKHR",                                                                          reinterpret_cast<PFN_vkVoidFunction>(GetMemoryFdPropertiesKHR) },
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
     { "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR",                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceExternalSemaphorePropertiesKHR) },
 #ifdef VK_USE_PLATFORM_WIN32_KHR
     { "vkImportSemaphoreWin32HandleKHR",                                                                     reinterpret_cast<PFN_vkVoidFunction>(ImportSemaphoreWin32HandleKHR) },
@@ -312,8 +310,6 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetPhysicalDeviceExternalImageFormatPropertiesNV",                                                  reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceExternalImageFormatPropertiesNV) },
 #ifdef VK_USE_PLATFORM_WIN32_KHR
     { "vkGetMemoryWin32HandleNV",                                                                            reinterpret_cast<PFN_vkVoidFunction>(GetMemoryWin32HandleNV) },
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 #ifdef VK_USE_PLATFORM_VI_NN
     { "vkCreateViSurfaceNN",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(CreateViSurfaceNN) },

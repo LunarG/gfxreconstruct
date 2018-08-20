@@ -1904,7 +1904,7 @@ void VulkanAsciiConsumer::Process_vkGetMemoryWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
     const StructPointerDecoder<Decoded_VkMemoryGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
-    const PointerDecoder<HANDLE>&               pHandle)
+    const PointerDecoder<uint64_t>&             pHandle)
 {
     fprintf(m_file, "%s\n", "vkGetMemoryWin32HandleKHR");
 }
@@ -1913,7 +1913,7 @@ void VulkanAsciiConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
     VkExternalMemoryHandleTypeFlagBits          handleType,
-    HANDLE                                      handle,
+    uint64_t                                    handle,
     const StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>& pMemoryWin32HandleProperties)
 {
     fprintf(m_file, "%s\n", "vkGetMemoryWin32HandlePropertiesKHR");
@@ -1960,7 +1960,7 @@ void VulkanAsciiConsumer::Process_vkGetSemaphoreWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
     const StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
-    const PointerDecoder<HANDLE>&               pHandle)
+    const PointerDecoder<uint64_t>&             pHandle)
 {
     fprintf(m_file, "%s\n", "vkGetSemaphoreWin32HandleKHR");
 }
@@ -2093,7 +2093,7 @@ void VulkanAsciiConsumer::Process_vkGetFenceWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
     const StructPointerDecoder<Decoded_VkFenceGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
-    const PointerDecoder<HANDLE>&               pHandle)
+    const PointerDecoder<uint64_t>&             pHandle)
 {
     fprintf(m_file, "%s\n", "vkGetFenceWin32HandleKHR");
 }
@@ -2388,7 +2388,7 @@ void VulkanAsciiConsumer::Process_vkGetMemoryWin32HandleNV(
     HandleId                                    device,
     HandleId                                    memory,
     VkExternalMemoryHandleTypeFlagsNV           handleType,
-    const PointerDecoder<HANDLE>&               pHandle)
+    const PointerDecoder<uint64_t>&             pHandle)
 {
     fprintf(m_file, "%s\n", "vkGetMemoryWin32HandleNV");
 }

@@ -4604,12 +4604,12 @@ size_t VulkanDecoder::Decode_vkGetMemoryWin32HandleKHR(const uint8_t* parameter_
 
     HandleId device;
     StructPointerDecoder<Decoded_VkMemoryGetWin32HandleInfoKHR> pGetWin32HandleInfo;
-    PointerDecoder<HANDLE> pHandle;
+    PointerDecoder<uint64_t> pHandle;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += pGetWin32HandleInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pHandle.DecodeHANDLE((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -4626,13 +4626,13 @@ size_t VulkanDecoder::Decode_vkGetMemoryWin32HandlePropertiesKHR(const uint8_t* 
 
     HandleId device;
     VkExternalMemoryHandleTypeFlagBits handleType;
-    HANDLE handle;
+    uint64_t handle;
     StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR> pMemoryWin32HandleProperties;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &handleType);
-    bytes_read += ValueDecoder::DecodeHANDLEValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &handle);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &handle);
     bytes_read += pMemoryWin32HandleProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4738,12 +4738,12 @@ size_t VulkanDecoder::Decode_vkGetSemaphoreWin32HandleKHR(const uint8_t* paramet
 
     HandleId device;
     StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR> pGetWin32HandleInfo;
-    PointerDecoder<HANDLE> pHandle;
+    PointerDecoder<uint64_t> pHandle;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += pGetWin32HandleInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pHandle.DecodeHANDLE((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5062,12 +5062,12 @@ size_t VulkanDecoder::Decode_vkGetFenceWin32HandleKHR(const uint8_t* parameter_b
 
     HandleId device;
     StructPointerDecoder<Decoded_VkFenceGetWin32HandleInfoKHR> pGetWin32HandleInfo;
-    PointerDecoder<HANDLE> pHandle;
+    PointerDecoder<uint64_t> pHandle;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += pGetWin32HandleInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pHandle.DecodeHANDLE((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -5773,13 +5773,13 @@ size_t VulkanDecoder::Decode_vkGetMemoryWin32HandleNV(const uint8_t* parameter_b
     HandleId device;
     HandleId memory;
     VkExternalMemoryHandleTypeFlagsNV handleType;
-    PointerDecoder<HANDLE> pHandle;
+    PointerDecoder<uint64_t> pHandle;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &memory);
     bytes_read += ValueDecoder::DecodeFlagsValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &handleType);
-    bytes_read += pHandle.DecodeHANDLE((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHandle.DecodeVoidPtr((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)

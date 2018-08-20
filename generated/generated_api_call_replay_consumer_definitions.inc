@@ -3312,7 +3312,7 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
     const StructPointerDecoder<Decoded_VkMemoryGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
-    const PointerDecoder<HANDLE>&               pHandle)
+    const PointerDecoder<uint64_t>&             pHandle)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkMemoryGetWin32HandleInfoKHR* in_pGetWin32HandleInfo = reinterpret_cast<VkMemoryGetWin32HandleInfoKHR*>(pGetWin32HandleInfo.GetPointer());
@@ -3321,8 +3321,8 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandleKHR(
         const Decoded_VkMemoryGetWin32HandleInfoKHR* in_pGetWin32HandleInfo_wrapper = pGetWin32HandleInfo.GetMetaStructPointer();
         in_pGetWin32HandleInfo->memory = object_mapper_.MapVkDeviceMemory(in_pGetWin32HandleInfo_wrapper->memory);
     }
-    HANDLE out_pHandle_value = static_cast<HANDLE>(0);
-    HANDLE* out_pHandle = &out_pHandle_value;
+    void* out_pHandle_value = nullptr;
+    void** out_pHandle = &out_pHandle_value;
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryWin32HandleKHR, VkResult, PFN_vkGetMemoryWin32HandleKHR>::Dispatch(this, vkGetMemoryWin32HandleKHR, in_device, in_pGetWin32HandleInfo, out_pHandle);
     CheckResult("vkGetMemoryWin32HandleKHR", returnValue, replay_result);
@@ -3332,14 +3332,15 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
     VkExternalMemoryHandleTypeFlagBits          handleType,
-    HANDLE                                      handle,
+    uint64_t                                    handle,
     const StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>& pMemoryWin32HandleProperties)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
+    void* in_handle = nullptr;
     VkMemoryWin32HandlePropertiesKHR out_pMemoryWin32HandleProperties_value = {};
     VkMemoryWin32HandlePropertiesKHR* out_pMemoryWin32HandleProperties = &out_pMemoryWin32HandleProperties_value;
 
-    VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryWin32HandlePropertiesKHR, VkResult, PFN_vkGetMemoryWin32HandlePropertiesKHR>::Dispatch(this, vkGetMemoryWin32HandlePropertiesKHR, in_device, handleType, handle, out_pMemoryWin32HandleProperties);
+    VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryWin32HandlePropertiesKHR, VkResult, PFN_vkGetMemoryWin32HandlePropertiesKHR>::Dispatch(this, vkGetMemoryWin32HandlePropertiesKHR, in_device, handleType, in_handle, out_pMemoryWin32HandleProperties);
     CheckResult("vkGetMemoryWin32HandlePropertiesKHR", returnValue, replay_result);
 }
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
@@ -3414,7 +3415,7 @@ void VulkanReplayConsumer::Process_vkGetSemaphoreWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
     const StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
-    const PointerDecoder<HANDLE>&               pHandle)
+    const PointerDecoder<uint64_t>&             pHandle)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkSemaphoreGetWin32HandleInfoKHR* in_pGetWin32HandleInfo = reinterpret_cast<VkSemaphoreGetWin32HandleInfoKHR*>(pGetWin32HandleInfo.GetPointer());
@@ -3423,8 +3424,8 @@ void VulkanReplayConsumer::Process_vkGetSemaphoreWin32HandleKHR(
         const Decoded_VkSemaphoreGetWin32HandleInfoKHR* in_pGetWin32HandleInfo_wrapper = pGetWin32HandleInfo.GetMetaStructPointer();
         in_pGetWin32HandleInfo->semaphore = object_mapper_.MapVkSemaphore(in_pGetWin32HandleInfo_wrapper->semaphore);
     }
-    HANDLE out_pHandle_value = static_cast<HANDLE>(0);
-    HANDLE* out_pHandle = &out_pHandle_value;
+    void* out_pHandle_value = nullptr;
+    void** out_pHandle = &out_pHandle_value;
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetSemaphoreWin32HandleKHR, VkResult, PFN_vkGetSemaphoreWin32HandleKHR>::Dispatch(this, vkGetSemaphoreWin32HandleKHR, in_device, in_pGetWin32HandleInfo, out_pHandle);
     CheckResult("vkGetSemaphoreWin32HandleKHR", returnValue, replay_result);
@@ -3594,14 +3595,14 @@ void VulkanReplayConsumer::Process_vkCmdBeginRenderPass2KHR(
     const StructPointerDecoder<Decoded_VkSubpassBeginInfoKHR>& pSubpassBeginInfo)
 {
     VkCommandBuffer in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
-    VkRenderPassBeginInfo*      in_pRenderPassBegin = reinterpret_cast<VkRenderPassBeginInfo*     >(pRenderPassBegin.GetPointer());
+    VkRenderPassBeginInfo* in_pRenderPassBegin = reinterpret_cast<VkRenderPassBeginInfo*>(pRenderPassBegin.GetPointer());
     if (!pRenderPassBegin.IsNull())
     {
         const Decoded_VkRenderPassBeginInfo* in_pRenderPassBegin_wrapper = pRenderPassBegin.GetMetaStructPointer();
         in_pRenderPassBegin->renderPass = object_mapper_.MapVkRenderPass(in_pRenderPassBegin_wrapper->renderPass);
         in_pRenderPassBegin->framebuffer = object_mapper_.MapVkFramebuffer(in_pRenderPassBegin_wrapper->framebuffer);
     }
-    const VkSubpassBeginInfoKHR*      in_pSubpassBeginInfo = reinterpret_cast<const VkSubpassBeginInfoKHR*     >(pSubpassBeginInfo.GetPointer());
+    const VkSubpassBeginInfoKHR* in_pSubpassBeginInfo = reinterpret_cast<const VkSubpassBeginInfoKHR*>(pSubpassBeginInfo.GetPointer());
 
     Dispatcher<ApiCallId_vkCmdBeginRenderPass2KHR, void, PFN_vkCmdBeginRenderPass2KHR>::Dispatch(this, vkCmdBeginRenderPass2KHR, in_commandBuffer, in_pRenderPassBegin, in_pSubpassBeginInfo);
 }
@@ -3612,8 +3613,8 @@ void VulkanReplayConsumer::Process_vkCmdNextSubpass2KHR(
     const StructPointerDecoder<Decoded_VkSubpassEndInfoKHR>& pSubpassEndInfo)
 {
     VkCommandBuffer in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
-    const VkSubpassBeginInfoKHR*      in_pSubpassBeginInfo = reinterpret_cast<const VkSubpassBeginInfoKHR*     >(pSubpassBeginInfo.GetPointer());
-    const VkSubpassEndInfoKHR*        in_pSubpassEndInfo = reinterpret_cast<const VkSubpassEndInfoKHR*       >(pSubpassEndInfo.GetPointer());
+    const VkSubpassBeginInfoKHR* in_pSubpassBeginInfo = reinterpret_cast<const VkSubpassBeginInfoKHR*>(pSubpassBeginInfo.GetPointer());
+    const VkSubpassEndInfoKHR* in_pSubpassEndInfo = reinterpret_cast<const VkSubpassEndInfoKHR*>(pSubpassEndInfo.GetPointer());
 
     Dispatcher<ApiCallId_vkCmdNextSubpass2KHR, void, PFN_vkCmdNextSubpass2KHR>::Dispatch(this, vkCmdNextSubpass2KHR, in_commandBuffer, in_pSubpassBeginInfo, in_pSubpassEndInfo);
 }
@@ -3623,7 +3624,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderPass2KHR(
     const StructPointerDecoder<Decoded_VkSubpassEndInfoKHR>& pSubpassEndInfo)
 {
     VkCommandBuffer in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
-    const VkSubpassEndInfoKHR*        in_pSubpassEndInfo = reinterpret_cast<const VkSubpassEndInfoKHR*       >(pSubpassEndInfo.GetPointer());
+    const VkSubpassEndInfoKHR* in_pSubpassEndInfo = reinterpret_cast<const VkSubpassEndInfoKHR*>(pSubpassEndInfo.GetPointer());
 
     Dispatcher<ApiCallId_vkCmdEndRenderPass2KHR, void, PFN_vkCmdEndRenderPass2KHR>::Dispatch(this, vkCmdEndRenderPass2KHR, in_commandBuffer, in_pSubpassEndInfo);
 }
@@ -3675,7 +3676,7 @@ void VulkanReplayConsumer::Process_vkGetFenceWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
     const StructPointerDecoder<Decoded_VkFenceGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
-    const PointerDecoder<HANDLE>&               pHandle)
+    const PointerDecoder<uint64_t>&             pHandle)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkFenceGetWin32HandleInfoKHR* in_pGetWin32HandleInfo = reinterpret_cast<VkFenceGetWin32HandleInfoKHR*>(pGetWin32HandleInfo.GetPointer());
@@ -3684,8 +3685,8 @@ void VulkanReplayConsumer::Process_vkGetFenceWin32HandleKHR(
         const Decoded_VkFenceGetWin32HandleInfoKHR* in_pGetWin32HandleInfo_wrapper = pGetWin32HandleInfo.GetMetaStructPointer();
         in_pGetWin32HandleInfo->fence = object_mapper_.MapVkFence(in_pGetWin32HandleInfo_wrapper->fence);
     }
-    HANDLE out_pHandle_value = static_cast<HANDLE>(0);
-    HANDLE* out_pHandle = &out_pHandle_value;
+    void* out_pHandle_value = nullptr;
+    void** out_pHandle = &out_pHandle_value;
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetFenceWin32HandleKHR, VkResult, PFN_vkGetFenceWin32HandleKHR>::Dispatch(this, vkGetFenceWin32HandleKHR, in_device, in_pGetWin32HandleInfo, out_pHandle);
     CheckResult("vkGetFenceWin32HandleKHR", returnValue, replay_result);
@@ -4204,12 +4205,12 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandleNV(
     HandleId                                    device,
     HandleId                                    memory,
     VkExternalMemoryHandleTypeFlagsNV           handleType,
-    const PointerDecoder<HANDLE>&               pHandle)
+    const PointerDecoder<uint64_t>&             pHandle)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkDeviceMemory in_memory = object_mapper_.MapVkDeviceMemory(memory);
-    HANDLE out_pHandle_value = static_cast<HANDLE>(0);
-    HANDLE* out_pHandle = &out_pHandle_value;
+    void* out_pHandle_value = nullptr;
+    void** out_pHandle = &out_pHandle_value;
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryWin32HandleNV, VkResult, PFN_vkGetMemoryWin32HandleNV>::Dispatch(this, vkGetMemoryWin32HandleNV, in_device, in_memory, handleType, out_pHandle);
     CheckResult("vkGetMemoryWin32HandleNV", returnValue, replay_result);
@@ -4367,7 +4368,7 @@ void VulkanReplayConsumer::Process_vkRegisterObjectsNVX(
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkObjectTableNVX in_objectTable = object_mapper_.MapVkObjectTableNVX(objectTable);
-    const VkObjectTableEntryNVX* const*    in_ppObjectTableEntries = reinterpret_cast<const VkObjectTableEntryNVX* const*   >(ppObjectTableEntries.GetPointer());
+    const VkObjectTableEntryNVX* const* in_ppObjectTableEntries = reinterpret_cast<const VkObjectTableEntryNVX* const*>(ppObjectTableEntries.GetPointer());
     const uint32_t* in_pObjectIndices = reinterpret_cast<const uint32_t*>(pObjectIndices.GetPointer());
 
     VkResult replay_result = Dispatcher<ApiCallId_vkRegisterObjectsNVX, VkResult, PFN_vkRegisterObjectsNVX>::Dispatch(this, vkRegisterObjectsNVX, in_device, in_objectTable, objectCount, in_ppObjectTableEntries, in_pObjectIndices);
@@ -4785,7 +4786,7 @@ void VulkanReplayConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     const StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>& pProperties)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    const struct AHardwareBuffer* in_buffer = reinterpret_cast<const struct AHardwareBuffer*>(buffer.GetPointer());
+    const struct AHardwareBuffer* in_buffer = nullptr;
     VkAndroidHardwareBufferPropertiesANDROID out_pProperties_value = {};
     VkAndroidHardwareBufferPropertiesANDROID* out_pProperties = &out_pProperties_value;
 
@@ -4806,7 +4807,7 @@ void VulkanReplayConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
         const Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* in_pInfo_wrapper = pInfo.GetMetaStructPointer();
         in_pInfo->memory = object_mapper_.MapVkDeviceMemory(in_pInfo_wrapper->memory);
     }
-    AHardwareBuffer out_pBuffer_value = static_cast<AHardwareBuffer>(0);
+    void* out_pBuffer_value = nullptr;
     struct AHardwareBuffer** out_pBuffer = &out_pBuffer_value;
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryAndroidHardwareBufferANDROID, VkResult, PFN_vkGetMemoryAndroidHardwareBufferANDROID>::Dispatch(this, vkGetMemoryAndroidHardwareBufferANDROID, in_device, in_pInfo, out_pBuffer);
