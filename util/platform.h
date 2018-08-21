@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <cwchar>
 #include <thread>
 
 #if defined(WIN32)
@@ -106,9 +107,9 @@ inline int32_t StringCopy(char* destination, size_t destination_size, const char
     return strncpy_s(destination, destination_size, source, source_size);
 }
 
-inline int32_t StringCompare(const char* string_1, const char* string_2, size_t compare_size)
+inline int32_t StringCopy(wchar_t* destination, size_t destination_size, const wchar_t* source, size_t source_size)
 {
-    return strncmp(string_1, string_2, compare_size);
+    return wcsncpy_s(destination, destination_size, source, source_size);
 }
 
 inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
@@ -190,9 +191,18 @@ inline int32_t StringCopy(char* destination, size_t destination_size, const char
     }
 }
 
-inline int32_t StringCompare(const char* string_1, const char* string_2, size_t compare_size)
+inline int32_t StringCopy(wchar_t* destination, size_t destination_size, const wchar_t* source, size_t source_size)
 {
-    return strncmp(string_1, string_2, compare_size);
+    if (source_size > destination_size)
+    {
+        wcsncpy(destination, source, destination_size);
+        return STRUNCATE;
+    }
+    else
+    {
+        wcsncpy(destination, source, source_size);
+        return 0;
+    }
 }
 
 inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
@@ -217,6 +227,26 @@ inline int32_t FileVprintf(FILE* stream, const char* format, va_list vlist)
 }
 
 #endif // WIN32
+
+inline size_t StringLength(const char* s)
+{
+    return strlen(s);
+}
+
+inline size_t StringLength(const wchar_t* s)
+{
+    return wcslen(s);
+}
+
+inline int32_t StringCompare(const char* string_1, const char* string_2, size_t compare_size)
+{
+    return strncmp(string_1, string_2, compare_size);
+}
+
+inline int32_t StringCompare(const wchar_t* string_1, const wchar_t* string_2, size_t compare_size)
+{
+    return wcsncmp(string_1, string_2, compare_size);
+}
 
 inline int32_t FilePuts(const char* char_string, FILE* stream)
 {
