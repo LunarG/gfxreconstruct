@@ -799,12 +799,12 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkSubmitInfo& valu
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeUInt32Value(value.waitSemaphoreCount);
-    result += encoder->EncodeHandleArray(value.pWaitSemaphores, value.waitSemaphoreCount);
+    result += encoder->EncodeHandleIdArray(value.pWaitSemaphores, value.waitSemaphoreCount);
     result += encoder->EncodeFlagsArray(value.pWaitDstStageMask, value.waitSemaphoreCount);
     result += encoder->EncodeUInt32Value(value.commandBufferCount);
-    result += encoder->EncodeHandleArray(value.pCommandBuffers, value.commandBufferCount);
+    result += encoder->EncodeHandleIdArray(value.pCommandBuffers, value.commandBufferCount);
     result += encoder->EncodeUInt32Value(value.signalSemaphoreCount);
-    result += encoder->EncodeHandleArray(value.pSignalSemaphores, value.signalSemaphoreCount);
+    result += encoder->EncodeHandleIdArray(value.pSignalSemaphores, value.signalSemaphoreCount);
     return result;
 }
 
@@ -869,7 +869,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkMappedMemoryRang
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.memory);
+    result += encoder->EncodeHandleIdValue(value.memory);
     result += encoder->EncodeVkDeviceSizeValue(value.offset);
     result += encoder->EncodeVkDeviceSizeValue(value.size);
     return result;
@@ -1001,7 +1001,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkSparseMemoryBind
     size_t result = 0;
     result += encoder->EncodeVkDeviceSizeValue(value.resourceOffset);
     result += encoder->EncodeVkDeviceSizeValue(value.size);
-    result += encoder->EncodeHandleValue(value.memory);
+    result += encoder->EncodeHandleIdValue(value.memory);
     result += encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
     result += encoder->EncodeFlagsValue(value.flags);
     return result;
@@ -1033,7 +1033,7 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSparseMemo
 size_t encode_struct(format::ParameterEncoder* encoder, const VkSparseBufferMemoryBindInfo& value)
 {
     size_t result = 0;
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     result += encoder->EncodeUInt32Value(value.bindCount);
     result += encode_struct_array(encoder, value.pBinds, value.bindCount);
     return result;
@@ -1065,7 +1065,7 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSparseBuff
 size_t encode_struct(format::ParameterEncoder* encoder, const VkSparseImageOpaqueMemoryBindInfo& value)
 {
     size_t result = 0;
-    result += encoder->EncodeHandleValue(value.image);
+    result += encoder->EncodeHandleIdValue(value.image);
     result += encoder->EncodeUInt32Value(value.bindCount);
     result += encode_struct_array(encoder, value.pBinds, value.bindCount);
     return result;
@@ -1164,7 +1164,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkSparseImageMemor
     result += encode_struct(encoder, value.subresource);
     result += encode_struct(encoder, value.offset);
     result += encode_struct(encoder, value.extent);
-    result += encoder->EncodeHandleValue(value.memory);
+    result += encoder->EncodeHandleIdValue(value.memory);
     result += encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
     result += encoder->EncodeFlagsValue(value.flags);
     return result;
@@ -1196,7 +1196,7 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkSparseImag
 size_t encode_struct(format::ParameterEncoder* encoder, const VkSparseImageMemoryBindInfo& value)
 {
     size_t result = 0;
-    result += encoder->EncodeHandleValue(value.image);
+    result += encoder->EncodeHandleIdValue(value.image);
     result += encoder->EncodeUInt32Value(value.bindCount);
     result += encode_struct_array(encoder, value.pBinds, value.bindCount);
     return result;
@@ -1231,7 +1231,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkBindSparseInfo& 
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeUInt32Value(value.waitSemaphoreCount);
-    result += encoder->EncodeHandleArray(value.pWaitSemaphores, value.waitSemaphoreCount);
+    result += encoder->EncodeHandleIdArray(value.pWaitSemaphores, value.waitSemaphoreCount);
     result += encoder->EncodeUInt32Value(value.bufferBindCount);
     result += encode_struct_array(encoder, value.pBufferBinds, value.bufferBindCount);
     result += encoder->EncodeUInt32Value(value.imageOpaqueBindCount);
@@ -1239,7 +1239,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkBindSparseInfo& 
     result += encoder->EncodeUInt32Value(value.imageBindCount);
     result += encode_struct_array(encoder, value.pImageBinds, value.imageBindCount);
     result += encoder->EncodeUInt32Value(value.signalSemaphoreCount);
-    result += encoder->EncodeHandleArray(value.pSignalSemaphores, value.signalSemaphoreCount);
+    result += encoder->EncodeHandleIdArray(value.pSignalSemaphores, value.signalSemaphoreCount);
     return result;
 }
 
@@ -1440,7 +1440,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkBufferViewCreate
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     result += encoder->EncodeEnumValue(value.format);
     result += encoder->EncodeVkDeviceSizeValue(value.offset);
     result += encoder->EncodeVkDeviceSizeValue(value.range);
@@ -1621,7 +1621,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImageViewCreateI
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHandleValue(value.image);
+    result += encoder->EncodeHandleIdValue(value.image);
     result += encoder->EncodeEnumValue(value.viewType);
     result += encoder->EncodeEnumValue(value.format);
     result += encode_struct(encoder, value.components);
@@ -1792,7 +1792,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkPipelineShaderSt
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
     result += encoder->EncodeEnumValue(value.stage);
-    result += encoder->EncodeHandleValue(value.module);
+    result += encoder->EncodeHandleIdValue(value.module);
     result += encoder->EncodeString(value.pName);
     result += encode_struct_ptr(encoder, value.pSpecializationInfo);
     return result;
@@ -2435,10 +2435,10 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkGraphicsPipeline
     result += encode_struct_ptr(encoder, value.pDepthStencilState);
     result += encode_struct_ptr(encoder, value.pColorBlendState);
     result += encode_struct_ptr(encoder, value.pDynamicState);
-    result += encoder->EncodeHandleValue(value.layout);
-    result += encoder->EncodeHandleValue(value.renderPass);
+    result += encoder->EncodeHandleIdValue(value.layout);
+    result += encoder->EncodeHandleIdValue(value.renderPass);
     result += encoder->EncodeUInt32Value(value.subpass);
-    result += encoder->EncodeHandleValue(value.basePipelineHandle);
+    result += encoder->EncodeHandleIdValue(value.basePipelineHandle);
     result += encoder->EncodeInt32Value(value.basePipelineIndex);
     return result;
 }
@@ -2473,8 +2473,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkComputePipelineC
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
     result += encode_struct(encoder, value.stage);
-    result += encoder->EncodeHandleValue(value.layout);
-    result += encoder->EncodeHandleValue(value.basePipelineHandle);
+    result += encoder->EncodeHandleIdValue(value.layout);
+    result += encoder->EncodeHandleIdValue(value.basePipelineHandle);
     result += encoder->EncodeInt32Value(value.basePipelineIndex);
     return result;
 }
@@ -2541,7 +2541,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkPipelineLayoutCr
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
     result += encoder->EncodeUInt32Value(value.setLayoutCount);
-    result += encoder->EncodeHandleArray(value.pSetLayouts, value.setLayoutCount);
+    result += encoder->EncodeHandleIdArray(value.pSetLayouts, value.setLayoutCount);
     result += encoder->EncodeUInt32Value(value.pushConstantRangeCount);
     result += encode_struct_array(encoder, value.pPushConstantRanges, value.pushConstantRangeCount);
     return result;
@@ -2624,7 +2624,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorSetLay
     result += encoder->EncodeEnumValue(value.descriptorType);
     result += encoder->EncodeUInt32Value(value.descriptorCount);
     result += encoder->EncodeFlagsValue(value.stageFlags);
-    result += encoder->EncodeHandleArray(value.pImmutableSamplers, value.descriptorCount);
+    result += encoder->EncodeHandleIdArray(value.pImmutableSamplers, value.descriptorCount);
     return result;
 }
 
@@ -2756,9 +2756,9 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorSetAll
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.descriptorPool);
+    result += encoder->EncodeHandleIdValue(value.descriptorPool);
     result += encoder->EncodeUInt32Value(value.descriptorSetCount);
-    result += encoder->EncodeHandleArray(value.pSetLayouts, value.descriptorSetCount);
+    result += encoder->EncodeHandleIdArray(value.pSetLayouts, value.descriptorSetCount);
     return result;
 }
 
@@ -2788,8 +2788,8 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDescriptor
 size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorImageInfo& value)
 {
     size_t result = 0;
-    result += encoder->EncodeHandleValue(value.sampler);
-    result += encoder->EncodeHandleValue(value.imageView);
+    result += encoder->EncodeHandleIdValue(value.sampler);
+    result += encoder->EncodeHandleIdValue(value.imageView);
     result += encoder->EncodeEnumValue(value.imageLayout);
     return result;
 }
@@ -2820,7 +2820,7 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDescriptor
 size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorBufferInfo& value)
 {
     size_t result = 0;
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     result += encoder->EncodeVkDeviceSizeValue(value.offset);
     result += encoder->EncodeVkDeviceSizeValue(value.range);
     return result;
@@ -2854,14 +2854,14 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkWriteDescriptorS
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.dstSet);
+    result += encoder->EncodeHandleIdValue(value.dstSet);
     result += encoder->EncodeUInt32Value(value.dstBinding);
     result += encoder->EncodeUInt32Value(value.dstArrayElement);
     result += encoder->EncodeUInt32Value(value.descriptorCount);
     result += encoder->EncodeEnumValue(value.descriptorType);
     result += encode_struct_array(encoder, value.pImageInfo, value.descriptorCount);
     result += encode_struct_array(encoder, value.pBufferInfo, value.descriptorCount);
-    result += encoder->EncodeHandleArray(value.pTexelBufferView, value.descriptorCount);
+    result += encoder->EncodeHandleIdArray(value.pTexelBufferView, value.descriptorCount);
     return result;
 }
 
@@ -2893,10 +2893,10 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkCopyDescriptorSe
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.srcSet);
+    result += encoder->EncodeHandleIdValue(value.srcSet);
     result += encoder->EncodeUInt32Value(value.srcBinding);
     result += encoder->EncodeUInt32Value(value.srcArrayElement);
-    result += encoder->EncodeHandleValue(value.dstSet);
+    result += encoder->EncodeHandleIdValue(value.dstSet);
     result += encoder->EncodeUInt32Value(value.dstBinding);
     result += encoder->EncodeUInt32Value(value.dstArrayElement);
     result += encoder->EncodeUInt32Value(value.descriptorCount);
@@ -2932,9 +2932,9 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkFramebufferCreat
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHandleValue(value.renderPass);
+    result += encoder->EncodeHandleIdValue(value.renderPass);
     result += encoder->EncodeUInt32Value(value.attachmentCount);
-    result += encoder->EncodeHandleArray(value.pAttachments, value.attachmentCount);
+    result += encoder->EncodeHandleIdArray(value.pAttachments, value.attachmentCount);
     result += encoder->EncodeUInt32Value(value.width);
     result += encoder->EncodeUInt32Value(value.height);
     result += encoder->EncodeUInt32Value(value.layers);
@@ -3184,7 +3184,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkCommandBufferAll
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.commandPool);
+    result += encoder->EncodeHandleIdValue(value.commandPool);
     result += encoder->EncodeEnumValue(value.level);
     result += encoder->EncodeUInt32Value(value.commandBufferCount);
     return result;
@@ -3218,9 +3218,9 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkCommandBufferInh
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.renderPass);
+    result += encoder->EncodeHandleIdValue(value.renderPass);
     result += encoder->EncodeUInt32Value(value.subpass);
-    result += encoder->EncodeHandleValue(value.framebuffer);
+    result += encoder->EncodeHandleIdValue(value.framebuffer);
     result += encoder->EncodeVkBool32Value(value.occlusionQueryEnable);
     result += encoder->EncodeFlagsValue(value.queryFlags);
     result += encoder->EncodeFlagsValue(value.pipelineStatistics);
@@ -3684,7 +3684,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkBufferMemoryBarr
     result += encoder->EncodeFlagsValue(value.dstAccessMask);
     result += encoder->EncodeUInt32Value(value.srcQueueFamilyIndex);
     result += encoder->EncodeUInt32Value(value.dstQueueFamilyIndex);
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     result += encoder->EncodeVkDeviceSizeValue(value.offset);
     result += encoder->EncodeVkDeviceSizeValue(value.size);
     return result;
@@ -3724,7 +3724,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImageMemoryBarri
     result += encoder->EncodeEnumValue(value.newLayout);
     result += encoder->EncodeUInt32Value(value.srcQueueFamilyIndex);
     result += encoder->EncodeUInt32Value(value.dstQueueFamilyIndex);
-    result += encoder->EncodeHandleValue(value.image);
+    result += encoder->EncodeHandleIdValue(value.image);
     result += encode_struct(encoder, value.subresourceRange);
     return result;
 }
@@ -3757,8 +3757,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkRenderPassBeginI
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.renderPass);
-    result += encoder->EncodeHandleValue(value.framebuffer);
+    result += encoder->EncodeHandleIdValue(value.renderPass);
+    result += encoder->EncodeHandleIdValue(value.framebuffer);
     result += encode_struct(encoder, value.renderArea);
     result += encoder->EncodeUInt32Value(value.clearValueCount);
     result += encode_struct_array(encoder, value.pClearValues, value.clearValueCount);
@@ -3927,8 +3927,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkBindBufferMemory
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.buffer);
-    result += encoder->EncodeHandleValue(value.memory);
+    result += encoder->EncodeHandleIdValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.memory);
     result += encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
     return result;
 }
@@ -3961,8 +3961,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkBindImageMemoryI
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.image);
-    result += encoder->EncodeHandleValue(value.memory);
+    result += encoder->EncodeHandleIdValue(value.image);
+    result += encoder->EncodeHandleIdValue(value.memory);
     result += encoder->EncodeVkDeviceSizeValue(value.memoryOffset);
     return result;
 }
@@ -4063,8 +4063,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryDedicatedA
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.image);
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.image);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     return result;
 }
 
@@ -4334,7 +4334,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceGr
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeUInt32Value(value.physicalDeviceCount);
-    result += encoder->EncodeHandleArray(value.physicalDevices, value.physicalDeviceCount);
+    result += encoder->EncodeHandleIdArray(value.physicalDevices, value.physicalDeviceCount);
     result += encoder->EncodeVkBool32Value(value.subsetAllocation);
     return result;
 }
@@ -4368,7 +4368,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkDeviceGroupDevic
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeUInt32Value(value.physicalDeviceCount);
-    result += encoder->EncodeHandleArray(value.pPhysicalDevices, value.physicalDeviceCount);
+    result += encoder->EncodeHandleIdArray(value.pPhysicalDevices, value.physicalDeviceCount);
     return result;
 }
 
@@ -4400,7 +4400,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkBufferMemoryRequ
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     return result;
 }
 
@@ -4432,7 +4432,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImageMemoryRequi
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.image);
+    result += encoder->EncodeHandleIdValue(value.image);
     return result;
 }
 
@@ -4464,7 +4464,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImageSparseMemor
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.image);
+    result += encoder->EncodeHandleIdValue(value.image);
     return result;
 }
 
@@ -5323,7 +5323,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkSamplerYcbcrConv
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.conversion);
+    result += encoder->EncodeHandleIdValue(value.conversion);
     return result;
 }
 
@@ -5522,9 +5522,9 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkDescriptorUpdate
     result += encoder->EncodeUInt32Value(value.descriptorUpdateEntryCount);
     result += encode_struct_array(encoder, value.pDescriptorUpdateEntries, value.descriptorUpdateEntryCount);
     result += encoder->EncodeEnumValue(value.templateType);
-    result += encoder->EncodeHandleValue(value.descriptorSetLayout);
+    result += encoder->EncodeHandleIdValue(value.descriptorSetLayout);
     result += encoder->EncodeEnumValue(value.pipelineBindPoint);
-    result += encoder->EncodeHandleValue(value.pipelineLayout);
+    result += encoder->EncodeHandleIdValue(value.pipelineLayout);
     result += encoder->EncodeUInt32Value(value.set);
     return result;
 }
@@ -6215,7 +6215,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkSwapchainCreateI
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHandleValue(value.surface);
+    result += encoder->EncodeHandleIdValue(value.surface);
     result += encoder->EncodeUInt32Value(value.minImageCount);
     result += encoder->EncodeEnumValue(value.imageFormat);
     result += encoder->EncodeEnumValue(value.imageColorSpace);
@@ -6229,7 +6229,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkSwapchainCreateI
     result += encoder->EncodeEnumValue(value.compositeAlpha);
     result += encoder->EncodeEnumValue(value.presentMode);
     result += encoder->EncodeVkBool32Value(value.clipped);
-    result += encoder->EncodeHandleValue(value.oldSwapchain);
+    result += encoder->EncodeHandleIdValue(value.oldSwapchain);
     return result;
 }
 
@@ -6262,9 +6262,9 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkPresentInfoKHR& 
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeUInt32Value(value.waitSemaphoreCount);
-    result += encoder->EncodeHandleArray(value.pWaitSemaphores, value.waitSemaphoreCount);
+    result += encoder->EncodeHandleIdArray(value.pWaitSemaphores, value.waitSemaphoreCount);
     result += encoder->EncodeUInt32Value(value.swapchainCount);
-    result += encoder->EncodeHandleArray(value.pSwapchains, value.swapchainCount);
+    result += encoder->EncodeHandleIdArray(value.pSwapchains, value.swapchainCount);
     result += encoder->EncodeUInt32Array(value.pImageIndices, value.swapchainCount);
     result += encoder->EncodeEnumArray(value.pResults, value.swapchainCount);
     return result;
@@ -6298,7 +6298,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImageSwapchainCr
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.swapchain);
+    result += encoder->EncodeHandleIdValue(value.swapchain);
     return result;
 }
 
@@ -6330,7 +6330,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkBindImageMemoryS
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.swapchain);
+    result += encoder->EncodeHandleIdValue(value.swapchain);
     result += encoder->EncodeUInt32Value(value.imageIndex);
     return result;
 }
@@ -6363,10 +6363,10 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkAcquireNextImage
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.swapchain);
+    result += encoder->EncodeHandleIdValue(value.swapchain);
     result += encoder->EncodeUInt64Value(value.timeout);
-    result += encoder->EncodeHandleValue(value.semaphore);
-    result += encoder->EncodeHandleValue(value.fence);
+    result += encoder->EncodeHandleIdValue(value.semaphore);
+    result += encoder->EncodeHandleIdValue(value.fence);
     result += encoder->EncodeUInt32Value(value.deviceMask);
     return result;
 }
@@ -6496,7 +6496,7 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDeviceGrou
 size_t encode_struct(format::ParameterEncoder* encoder, const VkDisplayPropertiesKHR& value)
 {
     size_t result = 0;
-    result += encoder->EncodeHandleValue(value.display);
+    result += encoder->EncodeHandleIdValue(value.display);
     result += encoder->EncodeString(value.displayName);
     result += encode_struct(encoder, value.physicalDimensions);
     result += encode_struct(encoder, value.physicalResolution);
@@ -6563,7 +6563,7 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDisplayMod
 size_t encode_struct(format::ParameterEncoder* encoder, const VkDisplayModePropertiesKHR& value)
 {
     size_t result = 0;
-    result += encoder->EncodeHandleValue(value.displayMode);
+    result += encoder->EncodeHandleIdValue(value.displayMode);
     result += encode_struct(encoder, value.parameters);
     return result;
 }
@@ -6665,7 +6665,7 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const VkDisplayPla
 size_t encode_struct(format::ParameterEncoder* encoder, const VkDisplayPlanePropertiesKHR& value)
 {
     size_t result = 0;
-    result += encoder->EncodeHandleValue(value.currentDisplay);
+    result += encoder->EncodeHandleIdValue(value.currentDisplay);
     result += encoder->EncodeUInt32Value(value.currentStackIndex);
     return result;
 }
@@ -6699,7 +6699,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkDisplaySurfaceCr
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHandleValue(value.displayMode);
+    result += encoder->EncodeHandleIdValue(value.displayMode);
     result += encoder->EncodeUInt32Value(value.planeIndex);
     result += encoder->EncodeUInt32Value(value.planeStackIndex);
     result += encoder->EncodeEnumValue(value.transform);
@@ -7087,7 +7087,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryGetWin32Ha
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.memory);
+    result += encoder->EncodeHandleIdValue(value.memory);
     result += encoder->EncodeEnumValue(value.handleType);
     return result;
 }
@@ -7186,7 +7186,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryGetFdInfoK
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.memory);
+    result += encoder->EncodeHandleIdValue(value.memory);
     result += encoder->EncodeEnumValue(value.handleType);
     return result;
 }
@@ -7221,11 +7221,11 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkWin32KeyedMutexA
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeUInt32Value(value.acquireCount);
-    result += encoder->EncodeHandleArray(value.pAcquireSyncs, value.acquireCount);
+    result += encoder->EncodeHandleIdArray(value.pAcquireSyncs, value.acquireCount);
     result += encoder->EncodeUInt64Array(value.pAcquireKeys, value.acquireCount);
     result += encoder->EncodeUInt32Array(value.pAcquireTimeouts, value.acquireCount);
     result += encoder->EncodeUInt32Value(value.releaseCount);
-    result += encoder->EncodeHandleArray(value.pReleaseSyncs, value.releaseCount);
+    result += encoder->EncodeHandleIdArray(value.pReleaseSyncs, value.releaseCount);
     result += encoder->EncodeUInt64Array(value.pReleaseKeys, value.releaseCount);
     return result;
 }
@@ -7260,7 +7260,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportSemaphoreW
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.semaphore);
+    result += encoder->EncodeHandleIdValue(value.semaphore);
     result += encoder->EncodeFlagsValue(value.flags);
     result += encoder->EncodeEnumValue(value.handleType);
     result += encoder->EncodeVoidPtr(value.handle);
@@ -7365,7 +7365,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkSemaphoreGetWin3
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.semaphore);
+    result += encoder->EncodeHandleIdValue(value.semaphore);
     result += encoder->EncodeEnumValue(value.handleType);
     return result;
 }
@@ -7399,7 +7399,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportSemaphoreF
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.semaphore);
+    result += encoder->EncodeHandleIdValue(value.semaphore);
     result += encoder->EncodeFlagsValue(value.flags);
     result += encoder->EncodeEnumValue(value.handleType);
     result += encoder->EncodeInt32Value(value.fd);
@@ -7434,7 +7434,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkSemaphoreGetFdIn
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.semaphore);
+    result += encoder->EncodeHandleIdValue(value.semaphore);
     result += encoder->EncodeEnumValue(value.handleType);
     return result;
 }
@@ -7886,7 +7886,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportFenceWin32
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.fence);
+    result += encoder->EncodeHandleIdValue(value.fence);
     result += encoder->EncodeFlagsValue(value.flags);
     result += encoder->EncodeEnumValue(value.handleType);
     result += encoder->EncodeVoidPtr(value.handle);
@@ -7956,7 +7956,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkFenceGetWin32Han
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.fence);
+    result += encoder->EncodeHandleIdValue(value.fence);
     result += encoder->EncodeEnumValue(value.handleType);
     return result;
 }
@@ -7990,7 +7990,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportFenceFdInf
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.fence);
+    result += encoder->EncodeHandleIdValue(value.fence);
     result += encoder->EncodeFlagsValue(value.flags);
     result += encoder->EncodeEnumValue(value.handleType);
     result += encoder->EncodeInt32Value(value.fd);
@@ -8025,7 +8025,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkFenceGetFdInfoKH
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.fence);
+    result += encoder->EncodeHandleIdValue(value.fence);
     result += encoder->EncodeEnumValue(value.handleType);
     return result;
 }
@@ -8058,7 +8058,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkPhysicalDeviceSu
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.surface);
+    result += encoder->EncodeHandleIdValue(value.surface);
     return result;
 }
 
@@ -8250,7 +8250,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkDisplayPlaneInfo
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.mode);
+    result += encoder->EncodeHandleIdValue(value.mode);
     result += encoder->EncodeUInt32Value(value.planeIndex);
     return result;
 }
@@ -8615,8 +8615,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkDedicatedAllocat
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.image);
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.image);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     return result;
 }
 
@@ -8917,11 +8917,11 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkWin32KeyedMutexA
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeUInt32Value(value.acquireCount);
-    result += encoder->EncodeHandleArray(value.pAcquireSyncs, value.acquireCount);
+    result += encoder->EncodeHandleIdArray(value.pAcquireSyncs, value.acquireCount);
     result += encoder->EncodeUInt64Array(value.pAcquireKeys, value.acquireCount);
     result += encoder->EncodeUInt32Array(value.pAcquireTimeoutMilliseconds, value.acquireCount);
     result += encoder->EncodeUInt32Value(value.releaseCount);
-    result += encoder->EncodeHandleArray(value.pReleaseSyncs, value.releaseCount);
+    result += encoder->EncodeHandleIdArray(value.pReleaseSyncs, value.releaseCount);
     result += encoder->EncodeUInt64Array(value.pReleaseKeys, value.releaseCount);
     return result;
 }
@@ -9023,7 +9023,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkConditionalRende
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     result += encoder->EncodeVkDeviceSizeValue(value.offset);
     result += encoder->EncodeFlagsValue(value.flags);
     return result;
@@ -9189,7 +9189,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkIndirectCommands
 {
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.tokenType);
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     result += encoder->EncodeVkDeviceSizeValue(value.offset);
     return result;
 }
@@ -9290,15 +9290,15 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkCmdProcessComman
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.objectTable);
-    result += encoder->EncodeHandleValue(value.indirectCommandsLayout);
+    result += encoder->EncodeHandleIdValue(value.objectTable);
+    result += encoder->EncodeHandleIdValue(value.indirectCommandsLayout);
     result += encoder->EncodeUInt32Value(value.indirectCommandsTokenCount);
     result += encode_struct_array(encoder, value.pIndirectCommandsTokens, value.indirectCommandsTokenCount);
     result += encoder->EncodeUInt32Value(value.maxSequencesCount);
-    result += encoder->EncodeHandleValue(value.targetCommandBuffer);
-    result += encoder->EncodeHandleValue(value.sequencesCountBuffer);
+    result += encoder->EncodeHandleIdValue(value.targetCommandBuffer);
+    result += encoder->EncodeHandleIdValue(value.sequencesCountBuffer);
     result += encoder->EncodeVkDeviceSizeValue(value.sequencesCountOffset);
-    result += encoder->EncodeHandleValue(value.sequencesIndexBuffer);
+    result += encoder->EncodeHandleIdValue(value.sequencesIndexBuffer);
     result += encoder->EncodeVkDeviceSizeValue(value.sequencesIndexOffset);
     return result;
 }
@@ -9331,8 +9331,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkCmdReserveSpaceF
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.objectTable);
-    result += encoder->EncodeHandleValue(value.indirectCommandsLayout);
+    result += encoder->EncodeHandleIdValue(value.objectTable);
+    result += encoder->EncodeHandleIdValue(value.indirectCommandsLayout);
     result += encoder->EncodeUInt32Value(value.maxSequencesCount);
     return result;
 }
@@ -9436,7 +9436,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTablePipel
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.type);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHandleValue(value.pipeline);
+    result += encoder->EncodeHandleIdValue(value.pipeline);
     return result;
 }
 
@@ -9468,8 +9468,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableDescr
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.type);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHandleValue(value.pipelineLayout);
-    result += encoder->EncodeHandleValue(value.descriptorSet);
+    result += encoder->EncodeHandleIdValue(value.pipelineLayout);
+    result += encoder->EncodeHandleIdValue(value.descriptorSet);
     return result;
 }
 
@@ -9501,7 +9501,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableVerte
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.type);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     return result;
 }
 
@@ -9533,7 +9533,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableIndex
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.type);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHandleValue(value.buffer);
+    result += encoder->EncodeHandleIdValue(value.buffer);
     result += encoder->EncodeEnumValue(value.indexType);
     return result;
 }
@@ -9566,7 +9566,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTablePushC
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.type);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeHandleValue(value.pipelineLayout);
+    result += encoder->EncodeHandleIdValue(value.pipelineLayout);
     result += encoder->EncodeFlagsValue(value.stageFlags);
     return result;
 }
@@ -10659,7 +10659,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkMemoryGetAndroid
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.memory);
+    result += encoder->EncodeHandleIdValue(value.memory);
     return result;
 }
 
@@ -11260,7 +11260,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkShaderModuleVali
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeHandleValue(value.validationCache);
+    result += encoder->EncodeHandleIdValue(value.validationCache);
     return result;
 }
 

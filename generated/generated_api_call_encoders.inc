@@ -40,7 +40,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(
     {
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pInstance);
+        encoder->EncodeHandleIdPtr(pInstance);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -57,7 +57,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyInstance);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -73,9 +73,9 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkEnumeratePhysicalDevices);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encoder->EncodeUInt32Ptr(pPhysicalDeviceCount);
-        encoder->EncodeHandleArray(pPhysicalDevices, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0);
+        encoder->EncodeHandleIdArray(pPhysicalDevices, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -92,7 +92,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceFeatures);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pFeatures);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -108,7 +108,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceFormatProperties);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeEnumValue(format);
         encode_struct_ptr(encoder, pFormatProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -129,7 +129,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceImageFormatProperties);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeEnumValue(format);
         encoder->EncodeEnumValue(type);
         encoder->EncodeEnumValue(tiling);
@@ -152,7 +152,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceProperties);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -168,7 +168,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceQueueFamilyProperties);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pQueueFamilyPropertyCount);
         encode_struct_array(encoder, pQueueFamilyProperties, (pQueueFamilyPropertyCount != nullptr) ? (*pQueueFamilyPropertyCount) : 0);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -184,7 +184,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceMemoryProperties);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pMemoryProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -201,10 +201,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateDevice);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pDevice);
+        encoder->EncodeHandleIdPtr(pDevice);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -221,7 +221,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyDevice);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -238,10 +238,10 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDeviceQueue);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeUInt32Value(queueIndex);
-        encoder->EncodeHandlePtr(pQueue);
+        encoder->EncodeHandleIdPtr(pQueue);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -257,10 +257,10 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkQueueSubmit);
     if (encoder)
     {
-        encoder->EncodeHandleValue(queue);
+        encoder->EncodeHandleIdValue(queue);
         encoder->EncodeUInt32Value(submitCount);
         encode_struct_array(encoder, pSubmits, submitCount);
-        encoder->EncodeHandleValue(fence);
+        encoder->EncodeHandleIdValue(fence);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -276,7 +276,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkQueueWaitIdle);
     if (encoder)
     {
-        encoder->EncodeHandleValue(queue);
+        encoder->EncodeHandleIdValue(queue);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -292,7 +292,7 @@ VKAPI_ATTR VkResult VKAPI_CALL DeviceWaitIdle(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDeviceWaitIdle);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -311,10 +311,10 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkAllocateMemory);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pAllocateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pMemory);
+        encoder->EncodeHandleIdPtr(pMemory);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -332,8 +332,8 @@ VKAPI_ATTR void VKAPI_CALL FreeMemory(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkFreeMemory);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(memory);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(memory);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -352,8 +352,8 @@ VKAPI_ATTR VkResult VKAPI_CALL MapMemory(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkMapMemory);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(memory);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(memory);
         encoder->EncodeVkDeviceSizeValue(offset);
         encoder->EncodeVkDeviceSizeValue(size);
         encoder->EncodeFlagsValue(flags);
@@ -374,8 +374,8 @@ VKAPI_ATTR void VKAPI_CALL UnmapMemory(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkUnmapMemory);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(memory);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(memory);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -390,7 +390,7 @@ VKAPI_ATTR VkResult VKAPI_CALL FlushMappedMemoryRanges(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkFlushMappedMemoryRanges);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(memoryRangeCount);
         encode_struct_array(encoder, pMemoryRanges, memoryRangeCount);
         encoder->EncodeEnumValue(result);
@@ -410,7 +410,7 @@ VKAPI_ATTR VkResult VKAPI_CALL InvalidateMappedMemoryRanges(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkInvalidateMappedMemoryRanges);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(memoryRangeCount);
         encode_struct_array(encoder, pMemoryRanges, memoryRangeCount);
         encoder->EncodeEnumValue(result);
@@ -430,8 +430,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceMemoryCommitment(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDeviceMemoryCommitment);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(memory);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(memory);
         encoder->EncodeVkDeviceSizePtr(pCommittedMemoryInBytes);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -448,9 +448,9 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkBindBufferMemory);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(buffer);
-        encoder->EncodeHandleValue(memory);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(buffer);
+        encoder->EncodeHandleIdValue(memory);
         encoder->EncodeVkDeviceSizeValue(memoryOffset);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -470,9 +470,9 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkBindImageMemory);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(image);
-        encoder->EncodeHandleValue(memory);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(image);
+        encoder->EncodeHandleIdValue(memory);
         encoder->EncodeVkDeviceSizeValue(memoryOffset);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -491,8 +491,8 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetBufferMemoryRequirements);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(buffer);
         encode_struct_ptr(encoder, pMemoryRequirements);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -508,8 +508,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetImageMemoryRequirements);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(image);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(image);
         encode_struct_ptr(encoder, pMemoryRequirements);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -526,8 +526,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetImageSparseMemoryRequirements);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(image);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(image);
         encoder->EncodeUInt32Ptr(pSparseMemoryRequirementCount);
         encode_struct_array(encoder, pSparseMemoryRequirements, (pSparseMemoryRequirementCount != nullptr) ? (*pSparseMemoryRequirementCount) : 0);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -549,7 +549,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceSparseImageFormatProperties);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeEnumValue(format);
         encoder->EncodeEnumValue(type);
         encoder->EncodeEnumValue(samples);
@@ -572,10 +572,10 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkQueueBindSparse);
     if (encoder)
     {
-        encoder->EncodeHandleValue(queue);
+        encoder->EncodeHandleIdValue(queue);
         encoder->EncodeUInt32Value(bindInfoCount);
         encode_struct_array(encoder, pBindInfo, bindInfoCount);
-        encoder->EncodeHandleValue(fence);
+        encoder->EncodeHandleIdValue(fence);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -594,10 +594,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFence(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateFence);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pFence);
+        encoder->EncodeHandleIdPtr(pFence);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -615,8 +615,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyFence(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyFence);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(fence);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(fence);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -632,9 +632,9 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetFences(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkResetFences);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(fenceCount);
-        encoder->EncodeHandleArray(pFences, fenceCount);
+        encoder->EncodeHandleIdArray(pFences, fenceCount);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -651,8 +651,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetFenceStatus);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(fence);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(fence);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -672,9 +672,9 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitForFences(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkWaitForFences);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(fenceCount);
-        encoder->EncodeHandleArray(pFences, fenceCount);
+        encoder->EncodeHandleIdArray(pFences, fenceCount);
         encoder->EncodeVkBool32Value(waitAll);
         encoder->EncodeUInt64Value(timeout);
         encoder->EncodeEnumValue(result);
@@ -695,10 +695,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateSemaphore);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSemaphore);
+        encoder->EncodeHandleIdPtr(pSemaphore);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -716,8 +716,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySemaphore(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroySemaphore);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(semaphore);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(semaphore);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -734,10 +734,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateEvent);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pEvent);
+        encoder->EncodeHandleIdPtr(pEvent);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -755,8 +755,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyEvent(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyEvent);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(event);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(event);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -771,8 +771,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetEventStatus(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetEventStatus);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(event);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(event);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -789,8 +789,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetEvent(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkSetEvent);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(event);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(event);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -807,8 +807,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetEvent(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkResetEvent);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(event);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(event);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -827,10 +827,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateQueryPool);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pQueryPool);
+        encoder->EncodeHandleIdPtr(pQueryPool);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -848,8 +848,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyQueryPool);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(queryPool);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(queryPool);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -870,8 +870,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetQueryPoolResults);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(queryPool);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(queryPool);
         encoder->EncodeUInt32Value(firstQuery);
         encoder->EncodeUInt32Value(queryCount);
         encoder->EncodeSizeTValue(dataSize);
@@ -896,10 +896,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateBuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pBuffer);
+        encoder->EncodeHandleIdPtr(pBuffer);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -917,8 +917,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyBuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyBuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(buffer);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -935,10 +935,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateBufferView);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pView);
+        encoder->EncodeHandleIdPtr(pView);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -956,8 +956,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyBufferView(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyBufferView);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(bufferView);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(bufferView);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -974,10 +974,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateImage);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pImage);
+        encoder->EncodeHandleIdPtr(pImage);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -995,8 +995,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyImage(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyImage);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(image);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(image);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1013,8 +1013,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetImageSubresourceLayout);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(image);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(image);
         encode_struct_ptr(encoder, pSubresource);
         encode_struct_ptr(encoder, pLayout);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1032,10 +1032,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateImageView);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pView);
+        encoder->EncodeHandleIdPtr(pView);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1053,8 +1053,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyImageView(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyImageView);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(imageView);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(imageView);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1071,10 +1071,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateShaderModule);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pShaderModule);
+        encoder->EncodeHandleIdPtr(pShaderModule);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1092,8 +1092,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyShaderModule);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(shaderModule);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(shaderModule);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1110,10 +1110,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreatePipelineCache);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pPipelineCache);
+        encoder->EncodeHandleIdPtr(pPipelineCache);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1131,8 +1131,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyPipelineCache);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(pipelineCache);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(pipelineCache);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1149,8 +1149,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPipelineCacheData);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(pipelineCache);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(pipelineCache);
         encoder->EncodeSizeTPtr(pDataSize);
         encoder->EncodeVoidArray(pData, (pDataSize != nullptr) ? (*pDataSize) : 0);
         encoder->EncodeEnumValue(result);
@@ -1171,10 +1171,10 @@ VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkMergePipelineCaches);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(dstCache);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(dstCache);
         encoder->EncodeUInt32Value(srcCacheCount);
-        encoder->EncodeHandleArray(pSrcCaches, srcCacheCount);
+        encoder->EncodeHandleIdArray(pSrcCaches, srcCacheCount);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1195,12 +1195,12 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateGraphicsPipelines);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(pipelineCache);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(pipelineCache);
         encoder->EncodeUInt32Value(createInfoCount);
         encode_struct_array(encoder, pCreateInfos, createInfoCount);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandleArray(pPipelines, createInfoCount);
+        encoder->EncodeHandleIdArray(pPipelines, createInfoCount);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1221,12 +1221,12 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateComputePipelines);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(pipelineCache);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(pipelineCache);
         encoder->EncodeUInt32Value(createInfoCount);
         encode_struct_array(encoder, pCreateInfos, createInfoCount);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandleArray(pPipelines, createInfoCount);
+        encoder->EncodeHandleIdArray(pPipelines, createInfoCount);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1244,8 +1244,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipeline(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyPipeline);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(pipeline);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(pipeline);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1262,10 +1262,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreatePipelineLayout);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pPipelineLayout);
+        encoder->EncodeHandleIdPtr(pPipelineLayout);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1283,8 +1283,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyPipelineLayout);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(pipelineLayout);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(pipelineLayout);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1301,10 +1301,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateSampler);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSampler);
+        encoder->EncodeHandleIdPtr(pSampler);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1322,8 +1322,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySampler(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroySampler);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(sampler);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(sampler);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1340,10 +1340,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateDescriptorSetLayout);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSetLayout);
+        encoder->EncodeHandleIdPtr(pSetLayout);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1361,8 +1361,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyDescriptorSetLayout);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorSetLayout);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(descriptorSetLayout);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1379,10 +1379,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateDescriptorPool);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pDescriptorPool);
+        encoder->EncodeHandleIdPtr(pDescriptorPool);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1400,8 +1400,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyDescriptorPool);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorPool);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(descriptorPool);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1417,8 +1417,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkResetDescriptorPool);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorPool);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(descriptorPool);
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1437,9 +1437,9 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkAllocateDescriptorSets);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pAllocateInfo);
-        encoder->EncodeHandleArray(pDescriptorSets, pAllocateInfo->descriptorSetCount);
+        encoder->EncodeHandleIdArray(pDescriptorSets, pAllocateInfo->descriptorSetCount);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1458,10 +1458,10 @@ VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkFreeDescriptorSets);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorPool);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(descriptorPool);
         encoder->EncodeUInt32Value(descriptorSetCount);
-        encoder->EncodeHandleArray(pDescriptorSets, descriptorSetCount);
+        encoder->EncodeHandleIdArray(pDescriptorSets, descriptorSetCount);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1481,7 +1481,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSets(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkUpdateDescriptorSets);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(descriptorWriteCount);
         encode_struct_array(encoder, pDescriptorWrites, descriptorWriteCount);
         encoder->EncodeUInt32Value(descriptorCopyCount);
@@ -1501,10 +1501,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateFramebuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pFramebuffer);
+        encoder->EncodeHandleIdPtr(pFramebuffer);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1522,8 +1522,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyFramebuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(framebuffer);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(framebuffer);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1540,10 +1540,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateRenderPass);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pRenderPass);
+        encoder->EncodeHandleIdPtr(pRenderPass);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1561,8 +1561,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyRenderPass);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(renderPass);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(renderPass);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1578,8 +1578,8 @@ VKAPI_ATTR void VKAPI_CALL GetRenderAreaGranularity(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetRenderAreaGranularity);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(renderPass);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(renderPass);
         encode_struct_ptr(encoder, pGranularity);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1596,10 +1596,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateCommandPool);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pCommandPool);
+        encoder->EncodeHandleIdPtr(pCommandPool);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1617,8 +1617,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyCommandPool);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(commandPool);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(commandPool);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1634,8 +1634,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandPool(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkResetCommandPool);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(commandPool);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(commandPool);
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1654,9 +1654,9 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateCommandBuffers(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkAllocateCommandBuffers);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pAllocateInfo);
-        encoder->EncodeHandleArray(pCommandBuffers, pAllocateInfo->commandBufferCount);
+        encoder->EncodeHandleIdArray(pCommandBuffers, pAllocateInfo->commandBufferCount);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1675,10 +1675,10 @@ VKAPI_ATTR void VKAPI_CALL FreeCommandBuffers(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkFreeCommandBuffers);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(commandPool);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(commandPool);
         encoder->EncodeUInt32Value(commandBufferCount);
-        encoder->EncodeHandleArray(pCommandBuffers, commandBufferCount);
+        encoder->EncodeHandleIdArray(pCommandBuffers, commandBufferCount);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -1692,7 +1692,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkBeginCommandBuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pBeginInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1709,7 +1709,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EndCommandBuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkEndCommandBuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1726,7 +1726,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandBuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkResetCommandBuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1745,9 +1745,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdBindPipeline);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeEnumValue(pipelineBindPoint);
-        encoder->EncodeHandleValue(pipeline);
+        encoder->EncodeHandleIdValue(pipeline);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -1763,7 +1763,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewport(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetViewport);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(firstViewport);
         encoder->EncodeUInt32Value(viewportCount);
         encode_struct_array(encoder, pViewports, viewportCount);
@@ -1782,7 +1782,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissor(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetScissor);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(firstScissor);
         encoder->EncodeUInt32Value(scissorCount);
         encode_struct_array(encoder, pScissors, scissorCount);
@@ -1799,7 +1799,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineWidth(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetLineWidth);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeFloatValue(lineWidth);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1816,7 +1816,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetDepthBias);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeFloatValue(depthBiasConstantFactor);
         encoder->EncodeFloatValue(depthBiasClamp);
         encoder->EncodeFloatValue(depthBiasSlopeFactor);
@@ -1833,7 +1833,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetBlendConstants(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetBlendConstants);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeFloatArray(blendConstants, 4);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1849,7 +1849,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBounds(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetDepthBounds);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeFloatValue(minDepthBounds);
         encoder->EncodeFloatValue(maxDepthBounds);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1866,7 +1866,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilCompareMask(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetStencilCompareMask);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeFlagsValue(faceMask);
         encoder->EncodeUInt32Value(compareMask);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1883,7 +1883,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilWriteMask(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetStencilWriteMask);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeFlagsValue(faceMask);
         encoder->EncodeUInt32Value(writeMask);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1900,7 +1900,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetStencilReference);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeFlagsValue(faceMask);
         encoder->EncodeUInt32Value(reference);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1922,12 +1922,12 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdBindDescriptorSets);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeEnumValue(pipelineBindPoint);
-        encoder->EncodeHandleValue(layout);
+        encoder->EncodeHandleIdValue(layout);
         encoder->EncodeUInt32Value(firstSet);
         encoder->EncodeUInt32Value(descriptorSetCount);
-        encoder->EncodeHandleArray(pDescriptorSets, descriptorSetCount);
+        encoder->EncodeHandleIdArray(pDescriptorSets, descriptorSetCount);
         encoder->EncodeUInt32Value(dynamicOffsetCount);
         encoder->EncodeUInt32Array(pDynamicOffsets, dynamicOffsetCount);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1945,8 +1945,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdBindIndexBuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(buffer);
         encoder->EncodeVkDeviceSizeValue(offset);
         encoder->EncodeEnumValue(indexType);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -1965,10 +1965,10 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdBindVertexBuffers);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(firstBinding);
         encoder->EncodeUInt32Value(bindingCount);
-        encoder->EncodeHandleArray(pBuffers, bindingCount);
+        encoder->EncodeHandleIdArray(pBuffers, bindingCount);
         encoder->EncodeVkDeviceSizeArray(pOffsets, bindingCount);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -1986,7 +1986,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDraw(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDraw);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(vertexCount);
         encoder->EncodeUInt32Value(instanceCount);
         encoder->EncodeUInt32Value(firstVertex);
@@ -2008,7 +2008,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexed(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDrawIndexed);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(indexCount);
         encoder->EncodeUInt32Value(instanceCount);
         encoder->EncodeUInt32Value(firstIndex);
@@ -2030,8 +2030,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDrawIndirect);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(buffer);
         encoder->EncodeVkDeviceSizeValue(offset);
         encoder->EncodeUInt32Value(drawCount);
         encoder->EncodeUInt32Value(stride);
@@ -2051,8 +2051,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDrawIndexedIndirect);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(buffer);
         encoder->EncodeVkDeviceSizeValue(offset);
         encoder->EncodeUInt32Value(drawCount);
         encoder->EncodeUInt32Value(stride);
@@ -2071,7 +2071,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatch(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDispatch);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(groupCountX);
         encoder->EncodeUInt32Value(groupCountY);
         encoder->EncodeUInt32Value(groupCountZ);
@@ -2089,8 +2089,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchIndirect(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDispatchIndirect);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(buffer);
         encoder->EncodeVkDeviceSizeValue(offset);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2108,9 +2108,9 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdCopyBuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(srcBuffer);
-        encoder->EncodeHandleValue(dstBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(srcBuffer);
+        encoder->EncodeHandleIdValue(dstBuffer);
         encoder->EncodeUInt32Value(regionCount);
         encode_struct_array(encoder, pRegions, regionCount);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -2131,10 +2131,10 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdCopyImage);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(srcImage);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(srcImage);
         encoder->EncodeEnumValue(srcImageLayout);
-        encoder->EncodeHandleValue(dstImage);
+        encoder->EncodeHandleIdValue(dstImage);
         encoder->EncodeEnumValue(dstImageLayout);
         encoder->EncodeUInt32Value(regionCount);
         encode_struct_array(encoder, pRegions, regionCount);
@@ -2157,10 +2157,10 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdBlitImage);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(srcImage);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(srcImage);
         encoder->EncodeEnumValue(srcImageLayout);
-        encoder->EncodeHandleValue(dstImage);
+        encoder->EncodeHandleIdValue(dstImage);
         encoder->EncodeEnumValue(dstImageLayout);
         encoder->EncodeUInt32Value(regionCount);
         encode_struct_array(encoder, pRegions, regionCount);
@@ -2182,9 +2182,9 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdCopyBufferToImage);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(srcBuffer);
-        encoder->EncodeHandleValue(dstImage);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(srcBuffer);
+        encoder->EncodeHandleIdValue(dstImage);
         encoder->EncodeEnumValue(dstImageLayout);
         encoder->EncodeUInt32Value(regionCount);
         encode_struct_array(encoder, pRegions, regionCount);
@@ -2205,10 +2205,10 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdCopyImageToBuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(srcImage);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(srcImage);
         encoder->EncodeEnumValue(srcImageLayout);
-        encoder->EncodeHandleValue(dstBuffer);
+        encoder->EncodeHandleIdValue(dstBuffer);
         encoder->EncodeUInt32Value(regionCount);
         encode_struct_array(encoder, pRegions, regionCount);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -2227,8 +2227,8 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdUpdateBuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(dstBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(dstBuffer);
         encoder->EncodeVkDeviceSizeValue(dstOffset);
         encoder->EncodeVkDeviceSizeValue(dataSize);
         encoder->EncodeVoidArray(pData, dataSize);
@@ -2248,8 +2248,8 @@ VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdFillBuffer);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(dstBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(dstBuffer);
         encoder->EncodeVkDeviceSizeValue(dstOffset);
         encoder->EncodeVkDeviceSizeValue(size);
         encoder->EncodeUInt32Value(data);
@@ -2270,8 +2270,8 @@ VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdClearColorImage);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(image);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(image);
         encoder->EncodeEnumValue(imageLayout);
         encode_struct_ptr(encoder, pColor);
         encoder->EncodeUInt32Value(rangeCount);
@@ -2293,8 +2293,8 @@ VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdClearDepthStencilImage);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(image);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(image);
         encoder->EncodeEnumValue(imageLayout);
         encode_struct_ptr(encoder, pDepthStencil);
         encoder->EncodeUInt32Value(rangeCount);
@@ -2315,7 +2315,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdClearAttachments);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(attachmentCount);
         encode_struct_array(encoder, pAttachments, attachmentCount);
         encoder->EncodeUInt32Value(rectCount);
@@ -2338,10 +2338,10 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdResolveImage);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(srcImage);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(srcImage);
         encoder->EncodeEnumValue(srcImageLayout);
-        encoder->EncodeHandleValue(dstImage);
+        encoder->EncodeHandleIdValue(dstImage);
         encoder->EncodeEnumValue(dstImageLayout);
         encoder->EncodeUInt32Value(regionCount);
         encode_struct_array(encoder, pRegions, regionCount);
@@ -2359,8 +2359,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetEvent(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetEvent);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(event);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(event);
         encoder->EncodeFlagsValue(stageMask);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2376,8 +2376,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResetEvent(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdResetEvent);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(event);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(event);
         encoder->EncodeFlagsValue(stageMask);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2401,9 +2401,9 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdWaitEvents);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(eventCount);
-        encoder->EncodeHandleArray(pEvents, eventCount);
+        encoder->EncodeHandleIdArray(pEvents, eventCount);
         encoder->EncodeFlagsValue(srcStageMask);
         encoder->EncodeFlagsValue(dstStageMask);
         encoder->EncodeUInt32Value(memoryBarrierCount);
@@ -2433,7 +2433,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdPipelineBarrier);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeFlagsValue(srcStageMask);
         encoder->EncodeFlagsValue(dstStageMask);
         encoder->EncodeFlagsValue(dependencyFlags);
@@ -2458,8 +2458,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQuery(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdBeginQuery);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(queryPool);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(queryPool);
         encoder->EncodeUInt32Value(query);
         encoder->EncodeFlagsValue(flags);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -2476,8 +2476,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQuery(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdEndQuery);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(queryPool);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(queryPool);
         encoder->EncodeUInt32Value(query);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2494,8 +2494,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResetQueryPool(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdResetQueryPool);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(queryPool);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(queryPool);
         encoder->EncodeUInt32Value(firstQuery);
         encoder->EncodeUInt32Value(queryCount);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -2513,9 +2513,9 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdWriteTimestamp);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeEnumValue(pipelineStage);
-        encoder->EncodeHandleValue(queryPool);
+        encoder->EncodeHandleIdValue(queryPool);
         encoder->EncodeUInt32Value(query);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2536,11 +2536,11 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdCopyQueryPoolResults);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(queryPool);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(queryPool);
         encoder->EncodeUInt32Value(firstQuery);
         encoder->EncodeUInt32Value(queryCount);
-        encoder->EncodeHandleValue(dstBuffer);
+        encoder->EncodeHandleIdValue(dstBuffer);
         encoder->EncodeVkDeviceSizeValue(dstOffset);
         encoder->EncodeVkDeviceSizeValue(stride);
         encoder->EncodeFlagsValue(flags);
@@ -2561,8 +2561,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushConstants(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdPushConstants);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(layout);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(layout);
         encoder->EncodeFlagsValue(stageFlags);
         encoder->EncodeUInt32Value(offset);
         encoder->EncodeUInt32Value(size);
@@ -2581,7 +2581,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdBeginRenderPass);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pRenderPassBegin);
         encoder->EncodeEnumValue(contents);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -2597,7 +2597,7 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdNextSubpass);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeEnumValue(contents);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2611,7 +2611,7 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdEndRenderPass);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -2626,9 +2626,9 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdExecuteCommands);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(commandBufferCount);
-        encoder->EncodeHandleArray(pCommandBuffers, commandBufferCount);
+        encoder->EncodeHandleIdArray(pCommandBuffers, commandBufferCount);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -2643,7 +2643,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkBindBufferMemory2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(bindInfoCount);
         encode_struct_array(encoder, pBindInfos, bindInfoCount);
         encoder->EncodeEnumValue(result);
@@ -2663,7 +2663,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkBindImageMemory2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(bindInfoCount);
         encode_struct_array(encoder, pBindInfos, bindInfoCount);
         encoder->EncodeEnumValue(result);
@@ -2685,7 +2685,7 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDeviceGroupPeerMemoryFeatures);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(heapIndex);
         encoder->EncodeUInt32Value(localDeviceIndex);
         encoder->EncodeUInt32Value(remoteDeviceIndex);
@@ -2703,7 +2703,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMask(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetDeviceMask);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(deviceMask);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2723,7 +2723,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBase(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDispatchBase);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(baseGroupX);
         encoder->EncodeUInt32Value(baseGroupY);
         encoder->EncodeUInt32Value(baseGroupZ);
@@ -2744,7 +2744,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkEnumeratePhysicalDeviceGroups);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encoder->EncodeUInt32Ptr(pPhysicalDeviceGroupCount);
         encode_struct_array(encoder, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -2764,7 +2764,7 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetImageMemoryRequirements2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pInfo);
         encode_struct_ptr(encoder, pMemoryRequirements);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -2781,7 +2781,7 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetBufferMemoryRequirements2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pInfo);
         encode_struct_ptr(encoder, pMemoryRequirements);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -2799,7 +2799,7 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetImageSparseMemoryRequirements2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pInfo);
         encoder->EncodeUInt32Ptr(pSparseMemoryRequirementCount);
         encode_struct_array(encoder, pSparseMemoryRequirements, (pSparseMemoryRequirementCount != nullptr) ? (*pSparseMemoryRequirementCount) : 0);
@@ -2816,7 +2816,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceFeatures2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pFeatures);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2831,7 +2831,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceProperties2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2847,7 +2847,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceFormatProperties2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeEnumValue(format);
         encode_struct_ptr(encoder, pFormatProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -2864,7 +2864,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceImageFormatProperties2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pImageFormatInfo);
         encode_struct_ptr(encoder, pImageFormatProperties);
         encoder->EncodeEnumValue(result);
@@ -2884,7 +2884,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceQueueFamilyProperties2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pQueueFamilyPropertyCount);
         encode_struct_array(encoder, pQueueFamilyProperties, (pQueueFamilyPropertyCount != nullptr) ? (*pQueueFamilyPropertyCount) : 0);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -2900,7 +2900,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceMemoryProperties2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pMemoryProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2917,7 +2917,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceSparseImageFormatProperties2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pFormatInfo);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         encode_struct_array(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
@@ -2935,8 +2935,8 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPool(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkTrimCommandPool);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(commandPool);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(commandPool);
         encoder->EncodeFlagsValue(flags);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2952,9 +2952,9 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue2(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDeviceQueue2);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pQueueInfo);
-        encoder->EncodeHandlePtr(pQueue);
+        encoder->EncodeHandleIdPtr(pQueue);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -2970,10 +2970,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateSamplerYcbcrConversion);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pYcbcrConversion);
+        encoder->EncodeHandleIdPtr(pYcbcrConversion);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -2991,8 +2991,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroySamplerYcbcrConversion);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(ycbcrConversion);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(ycbcrConversion);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3009,10 +3009,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateDescriptorUpdateTemplate);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pDescriptorUpdateTemplate);
+        encoder->EncodeHandleIdPtr(pDescriptorUpdateTemplate);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3030,8 +3030,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyDescriptorUpdateTemplate);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(descriptorUpdateTemplate);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3048,9 +3048,9 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkUpdateDescriptorSetWithTemplate);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorSet);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(descriptorSet);
+        encoder->EncodeHandleIdValue(descriptorUpdateTemplate);
         encoder->EncodeVoidPtr(pData);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3066,7 +3066,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferProperties(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceExternalBufferProperties);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pExternalBufferInfo);
         encode_struct_ptr(encoder, pExternalBufferProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3083,7 +3083,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFenceProperties(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceExternalFenceProperties);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pExternalFenceInfo);
         encode_struct_ptr(encoder, pExternalFenceProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3100,7 +3100,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphoreProperties(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceExternalSemaphoreProperties);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pExternalSemaphoreInfo);
         encode_struct_ptr(encoder, pExternalSemaphoreProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3117,7 +3117,7 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupport(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDescriptorSetLayoutSupport);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pSupport);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3134,8 +3134,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroySurfaceKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
-        encoder->EncodeHandleValue(surface);
+        encoder->EncodeHandleIdValue(instance);
+        encoder->EncodeHandleIdValue(surface);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3152,9 +3152,9 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceSurfaceSupportKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
-        encoder->EncodeHandleValue(surface);
+        encoder->EncodeHandleIdValue(surface);
         encoder->EncodeVkBool32Ptr(pSupported);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3173,8 +3173,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
-        encoder->EncodeHandleValue(surface);
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeHandleIdValue(surface);
         encode_struct_ptr(encoder, pSurfaceCapabilities);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3194,8 +3194,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceSurfaceFormatsKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
-        encoder->EncodeHandleValue(surface);
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeHandleIdValue(surface);
         encoder->EncodeUInt32Ptr(pSurfaceFormatCount);
         encode_struct_array(encoder, pSurfaceFormats, (pSurfaceFormatCount != nullptr) ? (*pSurfaceFormatCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -3216,8 +3216,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceSurfacePresentModesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
-        encoder->EncodeHandleValue(surface);
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeHandleIdValue(surface);
         encoder->EncodeUInt32Ptr(pPresentModeCount);
         encoder->EncodeEnumArray(pPresentModes, (pPresentModeCount != nullptr) ? (*pPresentModeCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -3238,10 +3238,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateSwapchainKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSwapchain);
+        encoder->EncodeHandleIdPtr(pSwapchain);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3259,8 +3259,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroySwapchainKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(swapchain);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(swapchain);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3277,10 +3277,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetSwapchainImagesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(swapchain);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(swapchain);
         encoder->EncodeUInt32Ptr(pSwapchainImageCount);
-        encoder->EncodeHandleArray(pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0);
+        encoder->EncodeHandleIdArray(pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3301,11 +3301,11 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkAcquireNextImageKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(swapchain);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(swapchain);
         encoder->EncodeUInt64Value(timeout);
-        encoder->EncodeHandleValue(semaphore);
-        encoder->EncodeHandleValue(fence);
+        encoder->EncodeHandleIdValue(semaphore);
+        encoder->EncodeHandleIdValue(fence);
         encoder->EncodeUInt32Ptr(pImageIndex);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3323,7 +3323,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkQueuePresentKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(queue);
+        encoder->EncodeHandleIdValue(queue);
         encode_struct_ptr(encoder, pPresentInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3341,7 +3341,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupPresentCapabilitiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDeviceGroupPresentCapabilitiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pDeviceGroupPresentCapabilities);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3360,8 +3360,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDeviceGroupSurfacePresentModesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(surface);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(surface);
         encoder->EncodeFlagsPtr(pModes);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3381,8 +3381,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDevicePresentRectanglesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDevicePresentRectanglesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
-        encoder->EncodeHandleValue(surface);
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeHandleIdValue(surface);
         encoder->EncodeUInt32Ptr(pRectCount);
         encode_struct_array(encoder, pRects, (pRectCount != nullptr) ? (*pRectCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -3402,7 +3402,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImage2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkAcquireNextImage2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pAcquireInfo);
         encoder->EncodeUInt32Ptr(pImageIndex);
         encoder->EncodeEnumValue(result);
@@ -3422,7 +3422,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPropertiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceDisplayPropertiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         encode_struct_array(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -3442,7 +3442,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlanePropertiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceDisplayPlanePropertiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         encode_struct_array(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -3463,10 +3463,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDisplayPlaneSupportedDisplaysKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(planeIndex);
         encoder->EncodeUInt32Ptr(pDisplayCount);
-        encoder->EncodeHandleArray(pDisplays, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0);
+        encoder->EncodeHandleIdArray(pDisplays, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3485,8 +3485,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDisplayModePropertiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
-        encoder->EncodeHandleValue(display);
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeHandleIdValue(display);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         encode_struct_array(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -3508,11 +3508,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateDisplayModeKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
-        encoder->EncodeHandleValue(display);
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeHandleIdValue(display);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pMode);
+        encoder->EncodeHandleIdPtr(pMode);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3531,8 +3531,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilitiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDisplayPlaneCapabilitiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
-        encoder->EncodeHandleValue(mode);
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeHandleIdValue(mode);
         encoder->EncodeUInt32Value(planeIndex);
         encode_struct_ptr(encoder, pCapabilities);
         encoder->EncodeEnumValue(result);
@@ -3553,10 +3553,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateDisplayPlaneSurfaceKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSurface);
+        encoder->EncodeHandleIdPtr(pSurface);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3576,11 +3576,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateSharedSwapchainsKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(swapchainCount);
         encode_struct_array(encoder, pCreateInfos, swapchainCount);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandleArray(pSwapchains, swapchainCount);
+        encoder->EncodeHandleIdArray(pSwapchains, swapchainCount);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3600,10 +3600,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateXlibSurfaceKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSurface);
+        encoder->EncodeHandleIdPtr(pSurface);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3622,7 +3622,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceXlibPresentationSupportKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeDisplayPtr(dpy);
         encoder->EncodeVisualIDValue(visualID);
@@ -3646,10 +3646,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateXcbSurfaceKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSurface);
+        encoder->EncodeHandleIdPtr(pSurface);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3668,7 +3668,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXcbPresentationSupportKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeXcb_ConnectionPtr(connection);
         encoder->EncodeXcb_VisualidValue(visual_id);
@@ -3692,10 +3692,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateWaylandSurfaceKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSurface);
+        encoder->EncodeHandleIdPtr(pSurface);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3713,7 +3713,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWaylandPresentationSupportKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeWl_DisplayPtr(display);
         encoder->EncodeEnumValue(result);
@@ -3736,10 +3736,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMirSurfaceKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateMirSurfaceKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSurface);
+        encoder->EncodeHandleIdPtr(pSurface);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3757,7 +3757,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceMirPresentationSupportKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceMirPresentationSupportKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeMirConnectionPtr(connection);
         encoder->EncodeEnumValue(result);
@@ -3780,10 +3780,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateAndroidSurfaceKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSurface);
+        encoder->EncodeHandleIdPtr(pSurface);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3804,10 +3804,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateWin32SurfaceKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSurface);
+        encoder->EncodeHandleIdPtr(pSurface);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3824,7 +3824,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWin32PresentationSupportKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceWin32PresentationSupportKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3843,7 +3843,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceFeatures2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pFeatures);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3858,7 +3858,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceProperties2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3874,7 +3874,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceFormatProperties2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeEnumValue(format);
         encode_struct_ptr(encoder, pFormatProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3891,7 +3891,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceImageFormatProperties2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pImageFormatInfo);
         encode_struct_ptr(encoder, pImageFormatProperties);
         encoder->EncodeEnumValue(result);
@@ -3911,7 +3911,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceQueueFamilyProperties2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pQueueFamilyPropertyCount);
         encode_struct_array(encoder, pQueueFamilyProperties, (pQueueFamilyPropertyCount != nullptr) ? (*pQueueFamilyPropertyCount) : 0);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -3927,7 +3927,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceMemoryProperties2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pMemoryProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -3944,7 +3944,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceSparseImageFormatProperties2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pFormatInfo);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         encode_struct_array(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
@@ -3964,7 +3964,7 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDeviceGroupPeerMemoryFeaturesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(heapIndex);
         encoder->EncodeUInt32Value(localDeviceIndex);
         encoder->EncodeUInt32Value(remoteDeviceIndex);
@@ -3982,7 +3982,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMaskKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetDeviceMaskKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(deviceMask);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4002,7 +4002,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBaseKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDispatchBaseKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(baseGroupX);
         encoder->EncodeUInt32Value(baseGroupY);
         encoder->EncodeUInt32Value(baseGroupZ);
@@ -4023,8 +4023,8 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPoolKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkTrimCommandPoolKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(commandPool);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(commandPool);
         encoder->EncodeFlagsValue(flags);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4040,7 +4040,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkEnumeratePhysicalDeviceGroupsKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encoder->EncodeUInt32Ptr(pPhysicalDeviceGroupCount);
         encode_struct_array(encoder, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -4060,7 +4060,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferPropertiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceExternalBufferPropertiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pExternalBufferInfo);
         encode_struct_ptr(encoder, pExternalBufferProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4078,7 +4078,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetMemoryWin32HandleKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pGetWin32HandleInfo);
         encoder->EncodeVoidPtrPtr(pHandle);
         encoder->EncodeEnumValue(result);
@@ -4099,7 +4099,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetMemoryWin32HandlePropertiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeEnumValue(handleType);
         encoder->EncodeVoidPtr(handle);
         encode_struct_ptr(encoder, pMemoryWin32HandleProperties);
@@ -4121,7 +4121,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetMemoryFdKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pGetFdInfo);
         encoder->EncodeInt32Ptr(pFd);
         encoder->EncodeEnumValue(result);
@@ -4142,7 +4142,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdPropertiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetMemoryFdPropertiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeEnumValue(handleType);
         encoder->EncodeInt32Value(fd);
         encode_struct_ptr(encoder, pMemoryFdProperties);
@@ -4163,7 +4163,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphorePropertiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pExternalSemaphoreInfo);
         encode_struct_ptr(encoder, pExternalSemaphoreProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4180,7 +4180,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreWin32HandleKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkImportSemaphoreWin32HandleKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pImportSemaphoreWin32HandleInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4199,7 +4199,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetSemaphoreWin32HandleKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pGetWin32HandleInfo);
         encoder->EncodeVoidPtrPtr(pHandle);
         encoder->EncodeEnumValue(result);
@@ -4219,7 +4219,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreFdKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkImportSemaphoreFdKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pImportSemaphoreFdInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4238,7 +4238,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreFdKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetSemaphoreFdKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pGetFdInfo);
         encoder->EncodeInt32Ptr(pFd);
         encoder->EncodeEnumValue(result);
@@ -4261,9 +4261,9 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdPushDescriptorSetKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeEnumValue(pipelineBindPoint);
-        encoder->EncodeHandleValue(layout);
+        encoder->EncodeHandleIdValue(layout);
         encoder->EncodeUInt32Value(set);
         encoder->EncodeUInt32Value(descriptorWriteCount);
         encode_struct_array(encoder, pDescriptorWrites, descriptorWriteCount);
@@ -4283,9 +4283,9 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
-        encoder->EncodeHandleValue(layout);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleIdValue(layout);
         encoder->EncodeUInt32Value(set);
         encoder->EncodeVoidPtr(pData);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4303,10 +4303,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateDescriptorUpdateTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pDescriptorUpdateTemplate);
+        encoder->EncodeHandleIdPtr(pDescriptorUpdateTemplate);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4324,8 +4324,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyDescriptorUpdateTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(descriptorUpdateTemplate);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4342,9 +4342,9 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkUpdateDescriptorSetWithTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(descriptorSet);
-        encoder->EncodeHandleValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(descriptorSet);
+        encoder->EncodeHandleIdValue(descriptorUpdateTemplate);
         encoder->EncodeVoidPtr(pData);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4361,10 +4361,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateRenderPass2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pRenderPass);
+        encoder->EncodeHandleIdPtr(pRenderPass);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4382,7 +4382,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdBeginRenderPass2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pRenderPassBegin);
         encode_struct_ptr(encoder, pSubpassBeginInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4399,7 +4399,7 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdNextSubpass2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pSubpassBeginInfo);
         encode_struct_ptr(encoder, pSubpassEndInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4415,7 +4415,7 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdEndRenderPass2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pSubpassEndInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4430,8 +4430,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainStatusKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetSwapchainStatusKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(swapchain);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(swapchain);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4449,7 +4449,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFencePropertiesKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceExternalFencePropertiesKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pExternalFenceInfo);
         encode_struct_ptr(encoder, pExternalFenceProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4466,7 +4466,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportFenceWin32HandleKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkImportFenceWin32HandleKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pImportFenceWin32HandleInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4485,7 +4485,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetFenceWin32HandleKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pGetWin32HandleInfo);
         encoder->EncodeVoidPtrPtr(pHandle);
         encoder->EncodeEnumValue(result);
@@ -4505,7 +4505,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkImportFenceFdKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pImportFenceFdInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4524,7 +4524,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetFenceFdKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pGetFdInfo);
         encoder->EncodeInt32Ptr(pFd);
         encoder->EncodeEnumValue(result);
@@ -4544,7 +4544,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceSurfaceCapabilities2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pSurfaceInfo);
         encode_struct_ptr(encoder, pSurfaceCapabilities);
         encoder->EncodeEnumValue(result);
@@ -4565,7 +4565,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceSurfaceFormats2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pSurfaceInfo);
         encoder->EncodeUInt32Ptr(pSurfaceFormatCount);
         encode_struct_array(encoder, pSurfaceFormats, (pSurfaceFormatCount != nullptr) ? (*pSurfaceFormatCount) : 0);
@@ -4586,7 +4586,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceDisplayProperties2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         encode_struct_array(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -4606,7 +4606,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceDisplayPlaneProperties2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         encode_struct_array(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -4627,8 +4627,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDisplayModeProperties2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
-        encoder->EncodeHandleValue(display);
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeHandleIdValue(display);
         encoder->EncodeUInt32Ptr(pPropertyCount);
         encode_struct_array(encoder, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -4648,7 +4648,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDisplayPlaneCapabilities2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pDisplayPlaneInfo);
         encode_struct_ptr(encoder, pCapabilities);
         encoder->EncodeEnumValue(result);
@@ -4668,7 +4668,7 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetImageMemoryRequirements2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pInfo);
         encode_struct_ptr(encoder, pMemoryRequirements);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4685,7 +4685,7 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetBufferMemoryRequirements2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pInfo);
         encode_struct_ptr(encoder, pMemoryRequirements);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4703,7 +4703,7 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetImageSparseMemoryRequirements2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pInfo);
         encoder->EncodeUInt32Ptr(pSparseMemoryRequirementCount);
         encode_struct_array(encoder, pSparseMemoryRequirements, (pSparseMemoryRequirementCount != nullptr) ? (*pSparseMemoryRequirementCount) : 0);
@@ -4722,10 +4722,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateSamplerYcbcrConversionKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pYcbcrConversion);
+        encoder->EncodeHandleIdPtr(pYcbcrConversion);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4743,8 +4743,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroySamplerYcbcrConversionKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(ycbcrConversion);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(ycbcrConversion);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4760,7 +4760,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkBindBufferMemory2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(bindInfoCount);
         encode_struct_array(encoder, pBindInfos, bindInfoCount);
         encoder->EncodeEnumValue(result);
@@ -4780,7 +4780,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2KHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkBindImageMemory2KHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(bindInfoCount);
         encode_struct_array(encoder, pBindInfos, bindInfoCount);
         encoder->EncodeEnumValue(result);
@@ -4800,7 +4800,7 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupportKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetDescriptorSetLayoutSupportKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pSupport);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4821,10 +4821,10 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDrawIndirectCountKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(buffer);
         encoder->EncodeVkDeviceSizeValue(offset);
-        encoder->EncodeHandleValue(countBuffer);
+        encoder->EncodeHandleIdValue(countBuffer);
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
@@ -4846,10 +4846,10 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDrawIndexedIndirectCountKHR);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(buffer);
         encoder->EncodeVkDeviceSizeValue(offset);
-        encoder->EncodeHandleValue(countBuffer);
+        encoder->EncodeHandleIdValue(countBuffer);
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
@@ -4868,10 +4868,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateDebugReportCallbackEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pCallback);
+        encoder->EncodeHandleIdPtr(pCallback);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4889,8 +4889,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyDebugReportCallbackEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
-        encoder->EncodeHandleValue(callback);
+        encoder->EncodeHandleIdValue(instance);
+        encoder->EncodeHandleIdValue(callback);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4911,7 +4911,7 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDebugReportMessageEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encoder->EncodeFlagsValue(flags);
         encoder->EncodeEnumValue(objectType);
         encoder->EncodeUInt64Value(object);
@@ -4932,7 +4932,7 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDebugMarkerSetObjectTagEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pTagInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4950,7 +4950,7 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDebugMarkerSetObjectNameEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pNameInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -4968,7 +4968,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDebugMarkerBeginEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pMarkerInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4982,7 +4982,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerEndEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDebugMarkerEndEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -4996,7 +4996,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerInsertEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDebugMarkerInsertEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pMarkerInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5016,10 +5016,10 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDrawIndirectCountAMD);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(buffer);
         encoder->EncodeVkDeviceSizeValue(offset);
-        encoder->EncodeHandleValue(countBuffer);
+        encoder->EncodeHandleIdValue(countBuffer);
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
@@ -5041,10 +5041,10 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdDrawIndexedIndirectCountAMD);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
-        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
+        encoder->EncodeHandleIdValue(buffer);
         encoder->EncodeVkDeviceSizeValue(offset);
-        encoder->EncodeHandleValue(countBuffer);
+        encoder->EncodeHandleIdValue(countBuffer);
         encoder->EncodeVkDeviceSizeValue(countBufferOffset);
         encoder->EncodeUInt32Value(maxDrawCount);
         encoder->EncodeUInt32Value(stride);
@@ -5065,8 +5065,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetShaderInfoAMD);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(pipeline);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(pipeline);
         encoder->EncodeEnumValue(shaderStage);
         encoder->EncodeEnumValue(infoType);
         encoder->EncodeSizeTPtr(pInfoSize);
@@ -5093,7 +5093,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceExternalImageFormatPropertiesNV);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeEnumValue(format);
         encoder->EncodeEnumValue(type);
         encoder->EncodeEnumValue(tiling);
@@ -5120,8 +5120,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetMemoryWin32HandleNV);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(memory);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(memory);
         encoder->EncodeFlagsValue(handleType);
         encoder->EncodeVoidPtrPtr(pHandle);
         encoder->EncodeEnumValue(result);
@@ -5144,10 +5144,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateViSurfaceNN);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSurface);
+        encoder->EncodeHandleIdPtr(pSurface);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5165,7 +5165,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginConditionalRenderingEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdBeginConditionalRenderingEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pConditionalRenderingBegin);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5179,7 +5179,7 @@ VKAPI_ATTR void VKAPI_CALL CmdEndConditionalRenderingEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdEndConditionalRenderingEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -5193,7 +5193,7 @@ VKAPI_ATTR void VKAPI_CALL CmdProcessCommandsNVX(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdProcessCommandsNVX);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pProcessCommandsInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5208,7 +5208,7 @@ VKAPI_ATTR void VKAPI_CALL CmdReserveSpaceForCommandsNVX(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdReserveSpaceForCommandsNVX);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pReserveSpaceInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5225,10 +5225,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNVX(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateIndirectCommandsLayoutNVX);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pIndirectCommandsLayout);
+        encoder->EncodeHandleIdPtr(pIndirectCommandsLayout);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5246,8 +5246,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNVX(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyIndirectCommandsLayoutNVX);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(indirectCommandsLayout);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(indirectCommandsLayout);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5264,10 +5264,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateObjectTableNVX(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateObjectTableNVX);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pObjectTable);
+        encoder->EncodeHandleIdPtr(pObjectTable);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5285,8 +5285,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyObjectTableNVX(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyObjectTableNVX);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(objectTable);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(objectTable);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5304,8 +5304,8 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkRegisterObjectsNVX);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(objectTable);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(objectTable);
         encoder->EncodeUInt32Value(objectCount);
         encode_struct_array(encoder, ppObjectTableEntries, objectCount);
         encoder->EncodeUInt32Array(pObjectIndices, objectCount);
@@ -5328,8 +5328,8 @@ VKAPI_ATTR VkResult VKAPI_CALL UnregisterObjectsNVX(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkUnregisterObjectsNVX);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(objectTable);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(objectTable);
         encoder->EncodeUInt32Value(objectCount);
         encoder->EncodeEnumArray(pObjectEntryTypes, objectCount);
         encoder->EncodeUInt32Array(pObjectIndices, objectCount);
@@ -5350,7 +5350,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceGeneratedCommandsPropertiesNVX(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encode_struct_ptr(encoder, pFeatures);
         encode_struct_ptr(encoder, pLimits);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -5368,7 +5368,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingNV(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetViewportWScalingNV);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(firstViewport);
         encoder->EncodeUInt32Value(viewportCount);
         encode_struct_array(encoder, pViewportWScalings, viewportCount);
@@ -5385,8 +5385,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleaseDisplayEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkReleaseDisplayEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
-        encoder->EncodeHandleValue(display);
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeHandleIdValue(display);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5405,9 +5405,9 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkAcquireXlibDisplayEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeDisplayPtr(dpy);
-        encoder->EncodeHandleValue(display);
+        encoder->EncodeHandleIdValue(display);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5426,10 +5426,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetRandROutputDisplayEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeDisplayPtr(dpy);
         encoder->EncodeRROutputValue(rrOutput);
-        encoder->EncodeHandlePtr(pDisplay);
+        encoder->EncodeHandleIdPtr(pDisplay);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5448,8 +5448,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceSurfaceCapabilities2EXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
-        encoder->EncodeHandleValue(surface);
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeHandleIdValue(surface);
         encode_struct_ptr(encoder, pSurfaceCapabilities);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -5468,8 +5468,8 @@ VKAPI_ATTR VkResult VKAPI_CALL DisplayPowerControlEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDisplayPowerControlEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(display);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(display);
         encode_struct_ptr(encoder, pDisplayPowerInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -5489,10 +5489,10 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkRegisterDeviceEventEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pDeviceEventInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pFence);
+        encoder->EncodeHandleIdPtr(pFence);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5512,11 +5512,11 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkRegisterDisplayEventEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(display);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(display);
         encode_struct_ptr(encoder, pDisplayEventInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pFence);
+        encoder->EncodeHandleIdPtr(pFence);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5535,8 +5535,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainCounterEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetSwapchainCounterEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(swapchain);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(swapchain);
         encoder->EncodeEnumValue(counter);
         encoder->EncodeUInt64Ptr(pCounterValue);
         encoder->EncodeEnumValue(result);
@@ -5556,8 +5556,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRefreshCycleDurationGOOGLE(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetRefreshCycleDurationGOOGLE);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(swapchain);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(swapchain);
         encode_struct_ptr(encoder, pDisplayTimingProperties);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -5577,8 +5577,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPastPresentationTimingGOOGLE);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(swapchain);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(swapchain);
         encoder->EncodeUInt32Ptr(pPresentationTimingCount);
         encode_struct_array(encoder, pPresentationTimings, (pPresentationTimingCount != nullptr) ? (*pPresentationTimingCount) : 0);
         encoder->EncodeEnumValue(result);
@@ -5599,7 +5599,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDiscardRectangleEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetDiscardRectangleEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeUInt32Value(firstDiscardRectangle);
         encoder->EncodeUInt32Value(discardRectangleCount);
         encode_struct_array(encoder, pDiscardRectangles, discardRectangleCount);
@@ -5618,9 +5618,9 @@ VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkSetHdrMetadataEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeUInt32Value(swapchainCount);
-        encoder->EncodeHandleArray(pSwapchains, swapchainCount);
+        encoder->EncodeHandleIdArray(pSwapchains, swapchainCount);
         encode_struct_array(encoder, pMetadata, swapchainCount);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5638,10 +5638,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateIOSSurfaceMVK);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSurface);
+        encoder->EncodeHandleIdPtr(pSurface);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5662,10 +5662,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateMacOSSurfaceMVK);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pSurface);
+        encoder->EncodeHandleIdPtr(pSurface);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5683,7 +5683,7 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkSetDebugUtilsObjectNameEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pNameInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -5701,7 +5701,7 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectTagEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkSetDebugUtilsObjectTagEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pTagInfo);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -5719,7 +5719,7 @@ VKAPI_ATTR void VKAPI_CALL QueueBeginDebugUtilsLabelEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkQueueBeginDebugUtilsLabelEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(queue);
+        encoder->EncodeHandleIdValue(queue);
         encode_struct_ptr(encoder, pLabelInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5733,7 +5733,7 @@ VKAPI_ATTR void VKAPI_CALL QueueEndDebugUtilsLabelEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkQueueEndDebugUtilsLabelEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(queue);
+        encoder->EncodeHandleIdValue(queue);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -5747,7 +5747,7 @@ VKAPI_ATTR void VKAPI_CALL QueueInsertDebugUtilsLabelEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkQueueInsertDebugUtilsLabelEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(queue);
+        encoder->EncodeHandleIdValue(queue);
         encode_struct_ptr(encoder, pLabelInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5762,7 +5762,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginDebugUtilsLabelEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdBeginDebugUtilsLabelEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pLabelInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5776,7 +5776,7 @@ VKAPI_ATTR void VKAPI_CALL CmdEndDebugUtilsLabelEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdEndDebugUtilsLabelEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
 }
@@ -5790,7 +5790,7 @@ VKAPI_ATTR void VKAPI_CALL CmdInsertDebugUtilsLabelEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdInsertDebugUtilsLabelEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pLabelInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5807,10 +5807,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateDebugUtilsMessengerEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pMessenger);
+        encoder->EncodeHandleIdPtr(pMessenger);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5828,8 +5828,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyDebugUtilsMessengerEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
-        encoder->EncodeHandleValue(messenger);
+        encoder->EncodeHandleIdValue(instance);
+        encoder->EncodeHandleIdValue(messenger);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5846,7 +5846,7 @@ VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkSubmitDebugUtilsMessageEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(instance);
+        encoder->EncodeHandleIdValue(instance);
         encoder->EncodeEnumValue(messageSeverity);
         encoder->EncodeFlagsValue(messageTypes);
         encode_struct_ptr(encoder, pCallbackData);
@@ -5865,7 +5865,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetAndroidHardwareBufferPropertiesANDROID);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeAHardwareBufferPtr(buffer);
         encode_struct_ptr(encoder, pProperties);
         encoder->EncodeEnumValue(result);
@@ -5885,7 +5885,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryAndroidHardwareBufferANDROID(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetMemoryAndroidHardwareBufferANDROID);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pInfo);
         encoder->EncodeAHardwareBufferPtrPtr(pBuffer);
         encoder->EncodeEnumValue(result);
@@ -5905,7 +5905,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetSampleLocationsEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdSetSampleLocationsEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encode_struct_ptr(encoder, pSampleLocationsInfo);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5921,7 +5921,7 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMultisamplePropertiesEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetPhysicalDeviceMultisamplePropertiesEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeEnumValue(samples);
         encode_struct_ptr(encoder, pMultisampleProperties);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -5939,10 +5939,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCreateValidationCacheEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pCreateInfo);
         encode_struct_ptr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pValidationCache);
+        encoder->EncodeHandleIdPtr(pValidationCache);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5960,8 +5960,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkDestroyValidationCacheEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(validationCache);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(validationCache);
         encode_struct_ptr(encoder, pAllocator);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -5978,10 +5978,10 @@ VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkMergeValidationCachesEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(dstCache);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(dstCache);
         encoder->EncodeUInt32Value(srcCacheCount);
-        encoder->EncodeHandleArray(pSrcCaches, srcCacheCount);
+        encoder->EncodeHandleIdArray(pSrcCaches, srcCacheCount);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -6000,8 +6000,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetValidationCacheDataEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetValidationCacheDataEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(validationCache);
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(validationCache);
         encoder->EncodeSizeTPtr(pDataSize);
         encoder->EncodeVoidArray(pData, (pDataSize != nullptr) ? (*pDataSize) : 0);
         encoder->EncodeEnumValue(result);
@@ -6022,7 +6022,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkGetMemoryHostPointerPropertiesEXT);
     if (encoder)
     {
-        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleIdValue(device);
         encoder->EncodeEnumValue(handleType);
         encoder->EncodeVoidPtr(pHostPointer);
         encode_struct_ptr(encoder, pMemoryHostPointerProperties);
@@ -6045,9 +6045,9 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(
     auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkCmdWriteBufferMarkerAMD);
     if (encoder)
     {
-        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleIdValue(commandBuffer);
         encoder->EncodeEnumValue(pipelineStage);
-        encoder->EncodeHandleValue(dstBuffer);
+        encoder->EncodeHandleIdValue(dstBuffer);
         encoder->EncodeVkDeviceSizeValue(dstOffset);
         encoder->EncodeUInt32Value(marker);
         get_trace_manager()->EndApiCallTrace(encoder);
