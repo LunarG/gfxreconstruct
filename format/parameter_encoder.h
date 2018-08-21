@@ -57,7 +57,7 @@ public:
     size_t EncodeFunctionPtr(T value)                                                                                    { return EncodeValue(reinterpret_cast<AddressEncodeType>(value)); }
 
     template<typename T>
-    size_t EncodeHandleValue(T value)                                                                                    { return EncodeValue(TypeCast<HandleEncodeType>(value)); }
+    size_t EncodeHandleIdValue(T value)                                                                                  { return EncodeValue(TypeCast<HandleEncodeType>(value)); }
     template<typename T>
     size_t EncodeEnumValue(T value)                                                                                      { return EncodeValue(static_cast<EnumEncodeType>(value)); }
     template<typename T>
@@ -78,7 +78,7 @@ public:
     size_t EncodeVoidPtrPtr(const void* const* ptr, bool omit_addr = false, bool omit_data = false)                      { return EncodePointerConverted<AddressEncodeType>(ptr, omit_addr, omit_data); }
 
     template<typename T>
-    size_t EncodeHandlePtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                 { return EncodePointerConverted<HandleEncodeType>(ptr, omit_addr, omit_data); }
+    size_t EncodeHandleIdPtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                               { return EncodePointerConverted<HandleEncodeType>(ptr, omit_addr, omit_data); }
     template<typename T>
     size_t EncodeEnumPtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                                   { return EncodePointerConverted<EnumEncodeType>(ptr, omit_addr, omit_data); }
     template<typename T>
@@ -100,7 +100,7 @@ public:
     size_t EncodeVoidArray(const void* arr, size_t len, bool omit_addr = false, bool omit_data = false)                  { return EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_addr, omit_data); }
 
     template<typename T>
-    size_t EncodeHandleArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                   { return EncodeArrayConverted<HandleEncodeType>(arr, len, omit_addr, omit_data); }
+    size_t EncodeHandleIdArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                 { return EncodeArrayConverted<HandleEncodeType>(arr, len, omit_addr, omit_data); }
     template<typename T>
     size_t EncodeEnumArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                     { return EncodeArrayConverted<EnumEncodeType>(arr, len, omit_addr, omit_data); }
     template<typename T>

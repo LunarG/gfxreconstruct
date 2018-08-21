@@ -698,9 +698,6 @@ class BaseGenerator(OutputGenerator):
                 isString = True
             elif typeName == 'FunctionPtr':
                 isFuncp = True
-            elif typeName == 'HandleId':
-                # TODO: Address Handle/HandleId inconsistency between decode and encode
-                typeName = 'Handle'
 
             methodCall = 'encoder->Encode' + typeName
 
