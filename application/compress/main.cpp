@@ -3,65 +3,74 @@
 #include "format/file_processor.h"
 #include "format/decompress_decoder.h"
 #include "util/compressor.h"
+#include "util/argument_parser.h"
 
-int main(int argc, char** argv)
+void PrintUsage(const char* exe_name)
+{
+    std::string app_name     = exe_name;
+    size_t      dir_location = app_name.find_last_of("/\\");
+    if (dir_location >= 0)
+    {
+        app_name.replace(0, dir_location + 1, "");
+    }
+    printf("\n\n%s\tis a compression/decompression tool for working with\n", app_name.c_str());
+    printf("\t\ttrace binary files.\n\n");
+    printf("Usage:\n");
+    printf("\t%s <input_bin> <output_bin> <output_compression>\n\n", app_name.c_str());
+    printf("\t<input_bin>\t\tThe filename (including path if necessary) of the \n");
+    printf("\t\t\t\tincoming binary file to manipulate\n");
+    printf("\t<output_bin>\t\tThe filename (including path if necessary) of the \n");
+    printf("\t\t\t\tresulting binary file to generate\n");
+    printf("\t<output_compression>\tThe compression to use when generating the\n");
+    printf("\t\t\t\toutput file.  Possible values are: \n");
+    printf("\t\t\t\t\tLZ4  - To output using LZ4 compression\n");
+    printf("\t\t\t\t\tLZ77 - To output using LZ77 compression\n");
+    printf("\t\t\t\t\tNONE - To output without using compression\n");
+}
+
+int main(int argc, const char** argv)
 {
     brimstone::format::FileProcessor file_processor;
-    std::string                      input_bin_file_name    = "D:\\temp\\brimstone_test.bin";
-    std::string                      output_bin_file_name   = "D:\\temp\\brimstone_test_out.bin";
+    std::string                      input_bin_file_name    = "brimstone_test.bin";
+    std::string                      output_bin_file_name   = "brimstone_test_out.bin";
     brimstone::util::CompressionType compression_type       = brimstone::util::kNone;
     std::string                      dst_compression_string = "NONE";
     bool                             print_usage            = false;
 
-    if (argc > 3)
+    brimstone::util::ArgumentParser arg_parser(argc, argv, "", "", 3);
+    const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
+    if (arg_parser.IsInvalid() || non_optional_arguments.size() != 3)
     {
-        input_bin_file_name  = argv[1];
-        output_bin_file_name = argv[2];
-        if (!strcmp("NONE", argv[3]))
-        {
-            // Nothing to do here.
-        }
-        else if (!strcmp("LZ4", argv[3]))
-        {
-            compression_type       = brimstone::util::kLz4;
-            dst_compression_string = argv[3];
-        }
-        else if (!strcmp("LZ77", argv[3]))
-        {
-            compression_type       = brimstone::util::kLz77;
-            dst_compression_string = argv[3];
-        }
-        else
-        {
-            print_usage = true;
-        }
+        print_usage = true;
     }
     else
     {
-        print_usage = true;
+        input_bin_file_name  = non_optional_arguments[0];
+        output_bin_file_name = non_optional_arguments[1];
+        if (non_optional_arguments[2] == "NONE")
+        {
+            // Nothing to do here.
+        }
+        else if (non_optional_arguments[2] == "LZ4")
+        {
+            compression_type       = brimstone::util::kLz4;
+            dst_compression_string = non_optional_arguments[2];
+        }
+        else if (non_optional_arguments[2] == "LZ77")
+        {
+            compression_type       = brimstone::util::kLz77;
+            dst_compression_string = non_optional_arguments[2];
+        }
+        else
+        {
+            printf("ERROR: Unsupported compression format \'%s\'\n", non_optional_arguments[2].c_str());
+            print_usage = true;
+        }
     }
 
     if (print_usage)
     {
-        std::string exe_name     = argv[0];
-        size_t      dir_location = exe_name.find_last_of("/\\");
-        if (dir_location >= 0)
-        {
-            exe_name.replace(0, dir_location + 1, "");
-        }
-        printf("\n%s\tis a compression/decompression tool for working with\n", exe_name.c_str());
-        printf("\t\ttrace binary files.\n\n");
-        printf("Usage:\n");
-        printf("\t%s <input_bin> <output_bin> <output_compression>\n\n", exe_name.c_str());
-        printf("\t<input_bin>\t\tThe filename (including path if necessary) of the \n");
-        printf("\t\t\t\tincoming binary file to manipulate\n");
-        printf("\t<output_bin>\t\tThe filename (including path if necessary) of the \n");
-        printf("\t\t\t\tresulting binary file to generate\n");
-        printf("\t<output_compression>\tThe compression to use when generating the\n");
-        printf("\t\t\t\toutput file.  Possible values are: \n");
-        printf("\t\t\t\t\tLZ4  - To output using LZ4 compression\n");
-        printf("\t\t\t\t\tLZ77 - To output using LZ77 compression\n");
-        printf("\t\t\t\t\tNONE - To output without using compression\n");
+        PrintUsage(argv[0]);
         exit(-1);
     }
 
