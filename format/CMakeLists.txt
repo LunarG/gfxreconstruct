@@ -3,10 +3,13 @@ add_library(brimstone_format STATIC "")
 target_sources(brimstone_format
                PRIVATE
                    api_call_id.h
+                   custom_struct_decoders.h
+                   custom_struct_decoders_forward.h
                    decoder.h
                    file_processor.h
                    format.h
                    parameter_encoder.h
+                   platform_types.h
                    pnext_node.h
                    pnext_null_node.h
                    pnext_typed_node.h
@@ -26,6 +29,7 @@ target_sources(brimstone_format
                    vulkan_object_mapper.h
                    window.h
                    decompress_decoder.h
+                   custom_struct_decoders.cpp
                    file_processor.cpp
                    trace_manager.cpp
                    vulkan_ascii_consumer.cpp
