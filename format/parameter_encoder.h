@@ -18,6 +18,7 @@
 #define BRIMSTONE_FORMAT_PARAMETER_ENCODER_H
 
 #include <cstring>
+#include <cwchar>
 #include <memory>
 #include <type_traits>
 
@@ -25,6 +26,7 @@
 
 #include "util/defines.h"
 #include "util/output_stream.h"
+#include "util/platform.h"
 #include "format/format.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
@@ -106,60 +108,10 @@ public:
     template<typename T>
     size_t EncodeFlagsArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                    { return EncodeArrayConverted<FlagsEncodeType>(arr, len, omit_addr, omit_data); }
 
-    size_t EncodeString(const char* str, bool omit_addr = false, bool omit_data = false)
-    {
-        uint32_t pointer_attrib = kIsString | kIsSingle | GetPointerAttributeMask(str, omit_addr, omit_data);
-
-        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
-
-        if (str != nullptr)
-        {
-            if ((pointer_attrib & kHasAddress) == kHasAddress)
-            {
-                total += EncodeAddress(str);
-            }
-
-            // Always write the string length.
-            size_t len = strlen(str);
-
-            total += EncodeSizeTValue(len);
-
-            if ((pointer_attrib & kHasData) == kHasData)
-            {
-                total += output_stream_->Write(str, len);
-            }
-        }
-
-        return total;
-    }
-
-    size_t EncodeStringArray(const char* const* str, size_t len, bool omit_addr = false, bool omit_data = false)
-    {
-        uint32_t pointer_attrib = kIsString | kIsArray | GetPointerAttributeMask(str, omit_addr, omit_data);
-
-        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
-
-        if (str != nullptr)
-        {
-            if ((pointer_attrib & kHasAddress) == kHasAddress)
-            {
-                total += EncodeAddress(str);
-            }
-
-            // Always write the array size.
-            total += EncodeSizeTValue(len);
-
-            if ((pointer_attrib & kHasData) == kHasData)
-            {
-                for (size_t i = 0; i < len; ++i)
-                {
-                    total += EncodeString(str[i], omit_addr, omit_data);
-                }
-            }
-        }
-
-        return total;
-    }
+    size_t EncodeString(const char* str, bool omit_addr = false, bool omit_data = false)                                 { return EncodeBasicString<char, PointerAttributes::kIsString>(str, omit_addr, omit_data); }
+    size_t EncodeWString(const wchar_t* str, bool omit_addr = false, bool omit_data = false)                             { return EncodeBasicString<wchar_t, PointerAttributes::kIsString>(str, omit_addr, omit_data); }
+    size_t EncodeStringArray(const char* const* str, size_t len, bool omit_addr = false, bool omit_data = false)         { return EncodeBasicStringArray<char, PointerAttributes::kIsWString>(str, len, omit_addr, omit_data); }
+    size_t EncodeWStringArray(const wchar_t* const* str, size_t len, bool omit_addr = false, bool omit_data = false)     { return EncodeBasicStringArray<wchar_t, PointerAttributes::kIsWString>(str, len, omit_addr, omit_data); }
 
     size_t EncodeStructPtrPreamble(const void* ptr, bool omit_addr = false, bool omit_data = false)
     {
@@ -347,6 +299,63 @@ private:
     typename std::enable_if<sizeof(SrcT) == sizeof(DstT), size_t>::type EncodeArrayConverted(const SrcT* arr, size_t len, bool omit_addr = false, bool omit_data = false)
     {
         return EncodeArray(arr, len, omit_addr, omit_data);
+    }
+
+    template <typename CharT, PointerAttributes EncodeAttrib>
+    size_t EncodeBasicString(const CharT* str, bool omit_addr, bool omit_data)
+    {
+        uint32_t pointer_attrib = EncodeAttrib | kIsSingle | GetPointerAttributeMask(str, omit_addr, omit_data);
+
+        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (str != nullptr)
+        {
+            if ((pointer_attrib & kHasAddress) == kHasAddress)
+            {
+                total += EncodeAddress(str);
+            }
+
+            // Always write the string length.
+            size_t len = util::platform::StringLength(str);
+
+            total += EncodeSizeTValue(len);
+
+            if ((pointer_attrib & kHasData) == kHasData)
+            {
+                total += output_stream_->Write(str, len);
+            }
+        }
+
+        return total;
+    }
+
+    template <typename CharT, PointerAttributes EncodeAttrib>
+    size_t EncodeBasicStringArray(const CharT* const* str, size_t len, bool omit_addr, bool omit_data)
+    {
+        uint32_t pointer_attrib = EncodeAttrib | kIsArray | GetPointerAttributeMask(str, omit_addr, omit_data);
+
+        size_t total = output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (str != nullptr)
+        {
+            if ((pointer_attrib & kHasAddress) == kHasAddress)
+            {
+                total += EncodeAddress(str);
+            }
+
+            // Always write the array size.
+            total += EncodeSizeTValue(len);
+
+            if ((pointer_attrib & kHasData) == kHasData)
+            {
+                for (size_t i = 0; i < len; ++i)
+                {
+                    total += EncodeBasicString<CharT, EncodeAttrib>(str[i], omit_addr, omit_data);
+                }
+            }
+        }
+
+        return total;
     }
 
 private:

@@ -27,8 +27,6 @@ target_sources(brimstone_format
                    window.h
                    decompress_decoder.h
                    file_processor.cpp
-                   string_array_decoder.cpp
-                   string_decoder.cpp
                    trace_manager.cpp
                    vulkan_ascii_consumer.cpp
                    vulkan_replay_consumer.cpp

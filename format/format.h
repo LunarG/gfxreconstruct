@@ -78,12 +78,13 @@ enum PointerAttributes : uint32_t
     kIsArray        = 0x04,     // Pointer to an array of values (can be combined with kIsString or kIsStruct).
 
     // Type modifiers for pointers to aggregate data types
-    kIsString       = 0x08,     // Pointer to a string.
-    kIsStruct       = 0x10,     // Pointer to a struct.
+    kIsString       = 0x08, // Pointer to a string.
+    kIsWString      = 0x10, // Pointer to a wide character string.
+    kIsStruct       = 0x20, // Pointer to a struct.
 
     // What was encoded
-    kHasAddress     = 0x20,     // The address of the pointer was encoded (always comes before data).
-    kHasData        = 0x40,     // The data pointed to was encoded.
+    kHasAddress     = 0x40,     // The address of the pointer was encoded (always comes before data).
+    kHasData        = 0x80,     // The data pointed to was encoded.
 };
 
 struct EnabledOptions

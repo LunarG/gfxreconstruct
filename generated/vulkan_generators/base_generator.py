@@ -563,6 +563,8 @@ class BaseGenerator(OutputGenerator):
             return 'Flags'
         elif self.isEnum(baseType):
             return 'Enum'
+        elif baseType == 'wchar_t':
+            return 'WString'
         elif baseType == 'char':
             return 'String'
         elif self.isFunctionPtr(baseType):
@@ -598,6 +600,11 @@ class BaseGenerator(OutputGenerator):
 
             if self.isStruct(typeName):
                 typeName = 'StructPointerDecoder<Decoded_{}>'.format(typeName)
+            elif typeName == 'wchar_t':
+                if count > 1:
+                    typeName = 'WStringArrayDecoder'
+                else:
+                    typeName = 'WStringDecoder'
             elif typeName == 'char':
                 if count > 1:
                     typeName = 'StringArrayDecoder'
@@ -694,7 +701,7 @@ class BaseGenerator(OutputGenerator):
             isStruct = True
             methodCall = 'encode_struct'
         else:
-            if typeName == 'String':
+            if typeName in ['String', 'WString']:
                 isString = True
             elif typeName == 'FunctionPtr':
                 isFuncp = True
