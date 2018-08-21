@@ -5,17 +5,40 @@
 #include "format/file_processor.h"
 #include "format/vulkan_replay_consumer.h"
 #include "format/vulkan_decoder.h"
+#include "util/argument_parser.h"
 
-int main(int argc, char** argv)
+void PrintUsage(const char* exe_name)
+{
+    std::string app_name     = exe_name;
+    size_t      dir_location = app_name.find_last_of("/\\");
+    if (dir_location >= 0)
+    {
+        app_name.replace(0, dir_location + 1, "");
+    }
+    printf("\n\n%s\tis a trace replay tool designed to playback trace binary files.\n\n", app_name.c_str());
+    printf("Usage:\n");
+    printf("\t%s <binary_file>\n\n", app_name.c_str());
+    printf("\t<binary_file>\t\tThe filename (including path if necessary) of the \n");
+    printf("\t\t\t\ttrace binary file to replay\n");
+}
+
+int main(int argc, const char** argv)
 {
     brimstone::util::logging::Init();
 
     brimstone::format::FileProcessor file_processor;
+    std::string                      bin_file_name = "brimstone_test.bin";
 
-    std::string bin_file_name = "D:\\temp\\brimstone_test.bin";
-    if (argc > 1)
+    brimstone::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
+    const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
+    if (arg_parser.IsInvalid() || non_optional_arguments.size() != 1)
     {
-        bin_file_name = argv[1];
+        PrintUsage(argv[0]);
+        exit(-1);
+    }
+    else
+    {
+        bin_file_name = non_optional_arguments[0];
     }
 
     if (file_processor.Initialize(bin_file_name))
