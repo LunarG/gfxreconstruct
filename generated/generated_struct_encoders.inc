@@ -6989,7 +6989,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportMemoryWin3
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeEnumValue(value.handleType);
     result += encoder->EncodeVoidPtr(value.handle);
-    result += encoder->EncodeString(value.name);
+    result += encoder->EncodeWString(value.name);
     return result;
 }
 
@@ -7023,7 +7023,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkExportMemoryWin3
     result += encode_pnext_struct(encoder, value.pNext);
     result += encode_struct_ptr(encoder, value.pAttributes);
     result += encoder->EncodeUInt32Value(value.dwAccess);
-    result += encoder->EncodeString(value.name);
+    result += encoder->EncodeWString(value.name);
     return result;
 }
 
@@ -7264,7 +7264,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportSemaphoreW
     result += encoder->EncodeFlagsValue(value.flags);
     result += encoder->EncodeEnumValue(value.handleType);
     result += encoder->EncodeVoidPtr(value.handle);
-    result += encoder->EncodeString(value.name);
+    result += encoder->EncodeWString(value.name);
     return result;
 }
 
@@ -7298,7 +7298,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkExportSemaphoreW
     result += encode_pnext_struct(encoder, value.pNext);
     result += encode_struct_ptr(encoder, value.pAttributes);
     result += encoder->EncodeUInt32Value(value.dwAccess);
-    result += encoder->EncodeString(value.name);
+    result += encoder->EncodeWString(value.name);
     return result;
 }
 
@@ -7890,7 +7890,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportFenceWin32
     result += encoder->EncodeFlagsValue(value.flags);
     result += encoder->EncodeEnumValue(value.handleType);
     result += encoder->EncodeVoidPtr(value.handle);
-    result += encoder->EncodeString(value.name);
+    result += encoder->EncodeWString(value.name);
     return result;
 }
 
@@ -7924,7 +7924,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkExportFenceWin32
     result += encode_pnext_struct(encoder, value.pNext);
     result += encode_struct_ptr(encoder, value.pAttributes);
     result += encoder->EncodeUInt32Value(value.dwAccess);
-    result += encoder->EncodeString(value.name);
+    result += encoder->EncodeWString(value.name);
     return result;
 }
 

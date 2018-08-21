@@ -1988,7 +1988,7 @@ struct Decoded_VkImportMemoryWin32HandleInfoKHR
 
     std::unique_ptr<PNextNode> pNext;
     uint64_t handle;
-    StringDecoder name;
+    WStringDecoder name;
 };
 
 struct Decoded_VkExportMemoryWin32HandleInfoKHR
@@ -1999,7 +1999,7 @@ struct Decoded_VkExportMemoryWin32HandleInfoKHR
 
     std::unique_ptr<PNextNode> pNext;
     StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES> pAttributes;
-    StringDecoder name;
+    WStringDecoder name;
 };
 
 struct Decoded_VkMemoryWin32HandlePropertiesKHR
@@ -2076,7 +2076,7 @@ struct Decoded_VkImportSemaphoreWin32HandleInfoKHR
     std::unique_ptr<PNextNode> pNext;
     HandleId semaphore;
     uint64_t handle;
-    StringDecoder name;
+    WStringDecoder name;
 };
 
 struct Decoded_VkExportSemaphoreWin32HandleInfoKHR
@@ -2087,7 +2087,7 @@ struct Decoded_VkExportSemaphoreWin32HandleInfoKHR
 
     std::unique_ptr<PNextNode> pNext;
     StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES> pAttributes;
-    StringDecoder name;
+    WStringDecoder name;
 };
 
 struct Decoded_VkD3D12FenceSubmitInfoKHR
@@ -2261,7 +2261,7 @@ struct Decoded_VkImportFenceWin32HandleInfoKHR
     std::unique_ptr<PNextNode> pNext;
     HandleId fence;
     uint64_t handle;
-    StringDecoder name;
+    WStringDecoder name;
 };
 
 struct Decoded_VkExportFenceWin32HandleInfoKHR
@@ -2272,7 +2272,7 @@ struct Decoded_VkExportFenceWin32HandleInfoKHR
 
     std::unique_ptr<PNextNode> pNext;
     StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES> pAttributes;
-    StringDecoder name;
+    WStringDecoder name;
 };
 
 struct Decoded_VkFenceGetWin32HandleInfoKHR

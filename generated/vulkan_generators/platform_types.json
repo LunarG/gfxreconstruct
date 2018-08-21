@@ -3,7 +3,7 @@
       "HANDLE"    : { "baseType" : "void",     "replaceWith" : "void*" },
       "HINSTANCE" : { "baseType" : "void",     "replaceWith" : "void*" },
       "HWND"      : { "baseType" : "void",     "replaceWith" : "void*" },
-      "LPCWSTR"   : { "baseType" : "char",     "replaceWith" : "const char*" },
+      "LPCWSTR"   : { "baseType" : "wchar_t",  "replaceWith" : "const wchar_t*" },
       "DWORD"     : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" }
     },
     "structs" : [

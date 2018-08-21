@@ -154,7 +154,7 @@ class ApiCallDecodersGenerator(BaseGenerator):
 
         if self.isStruct(typeName):
             isStruct = True
-        elif typeName == 'String':
+        elif typeName in ['String', 'WString']:
             isString = True
         elif typeName == 'FunctionPtr':
             isFuncp = True
