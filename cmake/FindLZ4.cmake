@@ -14,5 +14,3 @@ include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(LZ4 DEFAULT_MSG
                                   LZ4_LIBRARY
                                   LZ4_INCLUDE_DIR)
-
-MARK_AS_ADVANCED(LZ4_INCLUDE_DIR LZ4_LIBRARY)
