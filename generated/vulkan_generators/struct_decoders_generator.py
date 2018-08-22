@@ -178,7 +178,7 @@ class StructDecodersGenerator(BaseGenerator):
                 body += '    value->{} = nullptr;\n'.format(value.name)
             elif isHandle:
                 body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
-                body += '    value->{} = nullptr;\n'.format(value.name)
+                body += '    value->{} = VK_NULL_HANDLE;\n'.format(value.name)
             else:
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(typeName, bufferArgs, value.name)
 
