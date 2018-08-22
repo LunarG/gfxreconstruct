@@ -41,6 +41,7 @@ from layer_func_table_generator import LayerFuncTableGenerator,LayerFuncTableGen
 
 # Struct Encoders
 from struct_encoders_generator import StructEncodersGenerator,StructEncodersGeneratorOptions
+from struct_encoder_declarations_generator import StructEncoderDeclarationsGenerator,StructEncoderDeclarationsGeneratorOptions
 from encode_pnext_struct_generator import EncodePNextStructGenerator,EncodePNextStructGeneratorOptions
 
 # Simple timer functions
@@ -274,6 +275,18 @@ def makeGenOpts(args):
           StructEncodersGenerator,
           StructEncodersGeneratorOptions(
             filename          = 'generated_struct_encoders.inc',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = True)
+        ]
+
+    genOpts['generated_struct_encoder_declarations.inc'] = [
+          StructEncoderDeclarationsGenerator,
+          StructEncoderDeclarationsGeneratorOptions(
+            filename          = 'generated_struct_encoder_declarations.inc',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,

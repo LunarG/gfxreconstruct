@@ -17,9 +17,12 @@
 #ifndef BRIMSTONE_STRUCT_POINTER_ENCODER_H
 #define BRIMSTONE_STRUCT_POINTER_ENCODER_H
 
+#include "format/custom_struct_encoders.h"
 #include "format/parameter_encoder.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
+
+#include "generated/generated_struct_encoder_declarations.inc"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
@@ -54,7 +57,8 @@ inline size_t encode_struct_ptr(format::ParameterEncoder* encoder, const void* v
     return 0;
 }
 
-inline size_t encode_struct_array(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* const* value, size_t len)
+inline size_t
+encode_struct_array(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* const* value, size_t len)
 {
     return 0;
 }

@@ -28,6 +28,8 @@
 #include "format/parameter_encoder.h"
 #include "format/struct_pointer_encoder.h"
 
+#include "generated/generated_struct_encoder_declarations.inc"
+
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
 size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value);

@@ -17,7 +17,7 @@
 import os,re,sys
 from base_generator import *
 
-class StructEncodersGeneratorOptions(BaseGeneratorOptions):
+class StructEncoderDeclarationsGeneratorOptions(BaseGeneratorOptions):
     """Options for Vulkan API structure encoding C++ code generation"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
@@ -31,10 +31,10 @@ class StructEncodersGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# StructEncodersGenerator - subclass of BaseGenerator.
-# Generates C++ functions for encoding Vulkan API structures.
-class StructEncodersGenerator(BaseGenerator):
-    """Generate structure encoding C++ code"""
+# StructEncoderDeclarationsGenerator - subclass of BaseGenerator.
+# Generates C++ type and function declarations for encoding Vulkan API structures.
+class StructEncoderDeclarationsGenerator(BaseGenerator):
+    """Generate structure encoding C++ type and function declarations"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -47,20 +47,14 @@ class StructEncodersGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include <cmath>', file=self.outFile)
+        write('#include <cstdint>', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/custom_struct_encoders.h"', file=self.outFile)
         write('#include "format/parameter_encoder.h"', file=self.outFile)
-        write('#include "format/struct_pointer_encoder.h"', file=self.outFile)
-        self.newline()
-        write('#include "generated/generated_struct_encoder_declarations.inc"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        self.newline()
-        write('size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value);', file=self.outFile)
 
     # Method override
     def endFile(self):
@@ -80,31 +74,5 @@ class StructEncodersGenerator(BaseGenerator):
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        first = True
         for struct in self.featureStructMembers:
-            body = '' if first else '\n'
-            body += 'size_t encode_struct(format::ParameterEncoder* encoder, const {}& value)\n'.format(struct)
-            body += '{\n'
-            body += '    size_t result = 0;\n'
-            body += self.makeStructBody(self.featureStructMembers[struct], 'value.')
-            body += '    return result;\n'
-            body += '}\n'
-            write(body, file=self.outFile)
-
-            first = False
-
-    #
-    # Command definition
-    def makeStructBody(self, values, prefix):
-        # Build array of lines for function body
-        body = ''
-
-        for value in values:
-            # pNext fields require special treatment and are not processed by typename
-            if 'pNext' in value.name:
-                body += '    result += encode_pnext_struct(encoder, {});\n'.format(prefix + value.name)
-            else:
-                methodCall = self.makeEncoderMethodCall(value, values, prefix)
-                body += '    result += {};\n'.format(methodCall)
-
-        return body
+            write('size_t encode_struct(format::ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)

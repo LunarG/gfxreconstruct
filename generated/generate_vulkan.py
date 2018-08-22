@@ -28,6 +28,7 @@ generator_path = './vulkan_generators'
 generate_targets = [
     'generated_encode_pnext_struct.inc',
     'generated_struct_encoders.inc',
+    'generated_struct_encoder_declarations.inc',
     'generated_api_call_encoders.inc',
     'generated_layer_func_table.inc',
     'generated_decoded_struct_types.inc',
