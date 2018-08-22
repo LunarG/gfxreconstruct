@@ -33,18 +33,18 @@ class ArgumentParser
     // "-c,-b|--binary" where the list is comma-delimited.  If an option/argument
     // can be defined using two different string values (such as "-b" and "--binary")
     // they are further delimited by the pipe "|" symbol.
-    ArgumentParser(int                argc,
+    ArgumentParser(int32_t            argc,
                    const char** const argv,
                    const std::string& options,
                    const std::string& arguments,
-                   const uint32_t     expected_non_opt_args);
+                   const int32_t      expected_non_opt_args);
     ~ArgumentParser() {}
 
     bool                            IsInvalid() { return is_invalid_; }
     const std::vector<std::string>& GetInvalidArgumentOrOptions() { return invalid_values_present_; };
     bool                            IsOptionSet(const std::string& option);
     const std::string&              GetArgumentValue(const std::string& argument);
-    uint32_t                        GetNonOptionArgumentsCount() { return non_option_arguments_present_.size(); }
+    size_t                          GetNonOptionArgumentsCount() { return non_option_arguments_present_.size(); }
     const std::vector<std::string>& GetNonOptionalArguments() { return non_option_arguments_present_; }
 
   private:

@@ -22,11 +22,11 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 
-ArgumentParser::ArgumentParser(int                argc,
+ArgumentParser::ArgumentParser(int32_t            argc,
                                const char** const argv,
                                const std::string& options,
                                const std::string& arguments,
-                               const uint32_t     expected_non_opt_args)
+                               const int32_t      expected_non_opt_args)
 {
     if (argc > 1 && nullptr != argv)
     {
@@ -96,7 +96,7 @@ ArgumentParser::ArgumentParser(int                argc,
         }
         argument_values_.resize(argument_index);
 
-        for (uint32_t cur_arg = 1; cur_arg < argc; ++cur_arg)
+        for (int32_t cur_arg = 1; cur_arg < argc; ++cur_arg)
         {
             bool is_option   = false;
             bool is_argument = false;
@@ -147,7 +147,7 @@ ArgumentParser::ArgumentParser(int                argc,
             }
             else
             {
-                if (non_option_arguments_present_.size() < expected_non_opt_args)
+                if (non_option_arguments_present_.size() < static_cast<size_t>(expected_non_opt_args))
                 {
                     non_option_arguments_present_.push_back(argv[cur_arg]);
                 }
