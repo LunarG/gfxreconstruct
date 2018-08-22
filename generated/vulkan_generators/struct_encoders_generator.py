@@ -53,6 +53,7 @@ class StructEncodersGenerator(BaseGenerator):
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
         write('#include "format/parameter_encoder.h"', file=self.outFile)
+        write('#include "format/struct_pointer_encoder.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         self.newline()
@@ -85,32 +86,6 @@ class StructEncodersGenerator(BaseGenerator):
             body += self.makeStructBody(self.featureStructMembers[struct], 'value.')
             body += '    return result;\n'
             body += '}\n'
-            write(body, file=self.outFile)
-
-            # TODO: The following can be templated in the hand written code.
-            body = 'size_t encode_struct_ptr(format::ParameterEncoder* encoder, const {}* value)\n'.format(struct)
-            body += '{\n'
-            body += '    size_t result = encoder->EncodeStructPtrPreamble(value);\n'
-            body += '    if (value != nullptr)\n'
-            body += '    {\n'
-            body += '        result += encode_struct(encoder, *value);\n'
-            body += '    }\n'
-            body += '    return result;\n'
-            body += '}\n'
-            write(body, file=self.outFile)
-
-            body = 'size_t encode_struct_array(format::ParameterEncoder* encoder, const {}* value, size_t len)\n'.format(struct)
-            body += '{\n'
-            body += '    size_t result = encoder->EncodeStructArrayPreamble(value, len);\n'
-            body += '    if ((value != nullptr) && (len > 0))\n'
-            body += '    {\n'
-            body += '        for(size_t i = 0; i < len; ++i)\n'
-            body += '        {\n'
-            body += '            result = encode_struct(encoder, value[i]);\n'
-            body += '        }\n'
-            body += '    }\n'
-            body += '    return result;\n'
-            body += '}'
             write(body, file=self.outFile)
 
             first = False

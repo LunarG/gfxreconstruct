@@ -18,6 +18,7 @@ target_sources(brimstone_format
                    string_array_decoder.h
                    string_decoder.h
                    struct_pointer_decoder.h
+                   struct_pointer_encoder.h
                    trace_manager.h
                    trace_pnext_util.h
                    value_decoder.h
