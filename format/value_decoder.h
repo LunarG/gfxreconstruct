@@ -36,6 +36,10 @@ public:
     static size_t DecodeUInt16Value(const uint8_t* buffer, size_t buffer_size, uint16_t* value) { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeInt32Value(const uint8_t* buffer, size_t buffer_size, int32_t* value) { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt32Value(const uint8_t* buffer, size_t buffer_size, uint32_t* value) { return DecodeValue(buffer, buffer_size, value); }
+#if defined(WIN32)
+    // Oveload for WIN32 DWORD type.  Pointers from the DWORD typedef of unsigned long are not compatible with uint32_t pointers.
+    static size_t DecodeUInt32Value(const uint8_t* buffer, size_t buffer_size, unsigned long* value) { return DecodeValue(buffer, buffer_size, value); }
+#endif
     static size_t DecodeInt64Value(const uint8_t* buffer, size_t buffer_size, int64_t* value) { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt64Value(const uint8_t* buffer, size_t buffer_size, uint64_t* value) { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeFloatValue(const uint8_t* buffer, size_t buffer_size, float* value) { return DecodeValue(buffer, buffer_size, value); }
