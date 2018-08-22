@@ -61,6 +61,8 @@ class StructDecodersGenerator(BaseGenerator):
         write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "format/value_decoder.h"', file=self.outFile)
         self.newline()
+        write('#include "generated/generated_struct_decoder_declarations.inc"', file=self.outFile)
+        self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
         self.newline()

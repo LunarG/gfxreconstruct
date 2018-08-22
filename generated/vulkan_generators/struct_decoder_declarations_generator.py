@@ -52,7 +52,6 @@ class StructDecoderDeclarationsGenerator(BaseGenerator):
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/custom_struct_decoders_forward.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
