@@ -14,5 +14,3 @@ include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(XCB DEFAULT_MSG
                                   XCB_LIBRARY
                                   XCB_INCLUDE_DIR)
-
-MARK_AS_ADVANCED(XCB_INCLUDE_DIR XCB_LIBRARY)

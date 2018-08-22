@@ -14,5 +14,3 @@ include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(WAYLAND DEFAULT_MSG
                                   WAYLAND_LIBRARY
                                   WAYLAND_INCLUDE_DIR)
-
-MARK_AS_ADVANCED(WAYLAND_INCLUDE_DIR WAYLAND_LIBRARY)
