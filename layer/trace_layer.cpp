@@ -194,16 +194,6 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCr
     return result;
 }
 
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const void* value)
-{
-    return 0;
-}
-
-size_t encode_struct_array(format::ParameterEncoder* encoder, const void* value, size_t len)
-{
-    return 0;
-}
-
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;

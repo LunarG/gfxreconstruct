@@ -56,9 +56,6 @@ VkLayerDispatchTable* get_device_table(const void* device);
 VkResult dispatch_CreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance);
 VkResult dispatch_CreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice);
 
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const void* value);
-size_t encode_struct_array(format::ParameterEncoder* encoder, const void* value, size_t len);
-
 BRIMSTONE_END_NAMESPACE(brimstone)
 
 #endif // BRIMSTONE_TRACE_LAYER_H
