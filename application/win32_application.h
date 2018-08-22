@@ -18,10 +18,6 @@
 #define BRIMSTONE_APPLICATION_WIN32_APPLICATION_H
 
 #include <windows.h>
-// TEMP //
-#include "vulkan/vulkan.h"
-#include "vulkan/vulkan_win32.h"
-//////////
 
 #include "application/application.h"
 

@@ -18,11 +18,7 @@
 
 #include "application/win32_window.h"
 
-// TEMP //
-#define VK_KHR_win32_surface
 #include "volk.h"
-#undef VK_KHR_win32_surface
-//////////
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)

@@ -18,10 +18,6 @@
 #define BRIMSTONE_APPLICATION_WAYLAND_APPLICATION_H
 
 #include <wayland-client.h>
-// TEMP //
-#include "vulkan/vulkan.h"
-#include "vulkan/vulkan_wayland.h"
-//////////
 
 #include "application/application.h"
 

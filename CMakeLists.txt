@@ -5,11 +5,23 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include("FindVulkanVersion")
 
+find_package(LZ4)
+find_package(ZLIB)
+find_package(XCB)
+find_package(WAYLAND)
+
 add_library(windows_specific INTERFACE)
-target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX)
+target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX VK_USE_PLATFORM_WIN32_KHR)
+
+add_library(linux_specific INTERFACE)
+target_compile_definitions(linux_specific INTERFACE
+    $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
+    $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>)
 
 add_library(platform_specific INTERFACE)
-target_link_libraries(platform_specific INTERFACE $<$<BOOL:${WIN32}>:windows_specific>)
+target_link_libraries(platform_specific INTERFACE
+    $<$<BOOL:${WIN32}>:windows_specific>
+    $<$<NOT:$<BOOL:${WIN32}>>:linux_specific>)
 
 add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
@@ -18,12 +30,7 @@ add_library(volk STATIC "")
 target_include_directories(volk PUBLIC ${CMAKE_SOURCE_DIR}/external/volk)
 target_sources(volk PRIVATE ${CMAKE_SOURCE_DIR}/external/volk/volk.c)
 target_compile_definitions(volk PUBLIC VK_NO_PROTOTYPES)
-target_link_libraries(volk PUBLIC vulkan_registry $<$<NOT:$<BOOL:${WIN32}>>:dl>)
-
-find_package(LZ4)
-find_package(ZLIB)
-find_package(XCB)
-find_package(WAYLAND)
+target_link_libraries(volk PUBLIC vulkan_registry platform_specific $<$<NOT:$<BOOL:${WIN32}>>:dl>)
 
 add_subdirectory(util)
 add_subdirectory(format)
