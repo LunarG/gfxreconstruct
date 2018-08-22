@@ -24,7 +24,6 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
-#include "format/custom_struct_decoders_forward.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
