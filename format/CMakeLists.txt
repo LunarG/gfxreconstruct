@@ -5,6 +5,7 @@ target_sources(brimstone_format
                    api_call_id.h
                    custom_struct_decoders.h
                    custom_struct_decoders_forward.h
+                   custom_struct_encoders.h
                    decoder.h
                    file_processor.h
                    format.h
@@ -31,6 +32,7 @@ target_sources(brimstone_format
                    window.h
                    decompress_decoder.h
                    custom_struct_decoders.cpp
+                   custom_struct_encoders.cpp
                    file_processor.cpp
                    trace_manager.cpp
                    vulkan_ascii_consumer.cpp

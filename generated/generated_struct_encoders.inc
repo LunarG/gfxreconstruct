@@ -24,6 +24,7 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
+#include "format/custom_struct_encoders.h"
 #include "format/parameter_encoder.h"
 #include "format/struct_pointer_encoder.h"
 

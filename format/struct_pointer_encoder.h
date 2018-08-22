@@ -54,11 +54,6 @@ inline size_t encode_struct_ptr(format::ParameterEncoder* encoder, const void* v
     return 0;
 }
 
-inline size_t encode_struct_ptr(format::ParameterEncoder* encoder, const void* SECURITY_ATTRIBUTES)
-{
-    return 0;
-}
-
 inline size_t encode_struct_array(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* const* value, size_t len)
 {
     return 0;

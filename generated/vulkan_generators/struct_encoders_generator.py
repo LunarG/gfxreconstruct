@@ -52,6 +52,7 @@ class StructEncodersGenerator(BaseGenerator):
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
+        write('#include "format/custom_struct_encoders.h"', file=self.outFile)
         write('#include "format/parameter_encoder.h"', file=self.outFile)
         write('#include "format/struct_pointer_encoder.h"', file=self.outFile)
         self.newline()

@@ -42,6 +42,8 @@ public:
     void Reset() { output_stream_->Reset(); }
 
     // Values
+    size_t EncodeUInt8Value(uint8_t value)                                                                               { return EncodeValue(value); }
+    size_t EncodeUInt16Value(uint16_t value)                                                                             { return EncodeValue(value); }
     size_t EncodeInt32Value(int32_t value)                                                                               { return EncodeValue(value); }
     size_t EncodeUInt32Value(uint32_t value)                                                                             { return EncodeValue(value); }
     size_t EncodeInt64Value(int64_t value)                                                                               { return EncodeValue(value); }
