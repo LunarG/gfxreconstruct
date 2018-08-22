@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "format/custom_struct_encoders.h"
+#include "format/struct_pointer_encoder.h"
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)

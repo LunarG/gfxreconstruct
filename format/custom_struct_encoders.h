@@ -19,7 +19,6 @@
 
 #include "format/parameter_encoder.h"
 #include "format/platform_types.h"
-#include "format/struct_pointer_encoder.h"
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
