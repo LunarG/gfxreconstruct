@@ -18,10 +18,6 @@
 #define BRIMSTONE_APPLICATION_XCB_APPLICATION_H
 
 #include <xcb/xcb.h>
-// TEMP //
-#include "vulkan/vulkan.h"
-#include "vulkan/vulkan_xcb.h"
-//////////
 
 #include "application/application.h"
 
