@@ -14,6 +14,7 @@
 ** limitations under the License.
 */
 
+#include <cassert>
 #include <cstdlib>
 
 #include "application/xcb_window.h"
@@ -25,6 +26,7 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 
 XcbWindow::XcbWindow(XcbApplication* application)
 {
+    assert(application != nullptr);
     xcb_application_ = application;
     xcb_application_->RegisterWindow(this);
 }
@@ -108,6 +110,7 @@ void XcbWindow::SetFocus()
 
 bool XcbWindow::GetNativeHandle(uint32_t id, void ** handle)
 {
+    assert(handle != nullptr);
     switch (id) {
         case XcbWindow::kConnection:
             *handle = reinterpret_cast<void*>(xcb_application_->connection);
@@ -136,6 +139,7 @@ VkResult XcbWindow::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceK
 
 XcbWindowFactory::XcbWindowFactory(XcbApplication* application)
 {
+    assert(application != nullptr);
     xcb_application_ = application;
 }
 
@@ -144,6 +148,14 @@ format::Window* XcbWindowFactory::Create(const uint32_t width, const uint32_t he
     auto window = new XcbWindow(xcb_application_);
     window->Create(width, height);
     return window;
+}
+
+VkBool32 XcbWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
+                                                                uint32_t         queue_family_index)
+{
+    assert((xcb_application_->connection != nullptr) && (xcb_application_->screen != nullptr));
+    return vkGetPhysicalDeviceXcbPresentationSupportKHR(
+        physical_device, queue_family_index, xcb_application_->connection, xcb_application_->screen->root_visual);
 }
 
 BRIMSTONE_END_NAMESPACE(application)

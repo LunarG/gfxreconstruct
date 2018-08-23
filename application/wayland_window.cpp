@@ -14,6 +14,7 @@
 ** limitations under the License.
 */
 
+#include <cassert>
 #include <stdexcept>
 
 #include "application/wayland_window.h"
@@ -25,6 +26,8 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 
 WaylandWindow::WaylandWindow(WaylandApplication* application)
 {
+    assert(application != nullptr);
+
     wayland_application_ = application;
     wayland_application_->RegisterWindow(this);
 
@@ -89,6 +92,7 @@ void WaylandWindow::SetFocus()
 
 bool WaylandWindow::GetNativeHandle(uint32_t id, void ** handle)
 {
+    assert(handle != nullptr);
     switch (id) {
         case WaylandWindow::kDisplay:
             *handle = reinterpret_cast<void*>(wayland_application_->display);
@@ -129,6 +133,7 @@ void WaylandWindow::handle_popup_done(void *data, wl_shell_surface *shell_surfac
 
 WaylandWindowFactory::WaylandWindowFactory(WaylandApplication* application)
 {
+    assert(application != nullptr);
     wayland_application_ = application;
 }
 
@@ -137,6 +142,14 @@ format::Window* WaylandWindowFactory::Create(const uint32_t width, const uint32_
     auto window = new WaylandWindow(wayland_application_);
     window->Create(width, height);
     return window;
+}
+
+VkBool32 WaylandWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
+                                                                    uint32_t         queue_family_index)
+{
+    assert(wayland_application_->display != nullptr);
+    return vkGetPhysicalDeviceWaylandPresentationSupportKHR(
+        physical_device, queue_family_index, wayland_application_->display);
 }
 
 BRIMSTONE_END_NAMESPACE(application)
