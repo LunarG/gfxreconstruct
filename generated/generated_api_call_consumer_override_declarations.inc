@@ -1160,8 +1160,8 @@
         VkBool32                                    returnValue,
         HandleId                                    physicalDevice,
         uint32_t                                    queueFamilyIndex,
-        const PointerDecoder<xcb_connection_t>&     connection,
-        xcb_visualid_t                              visual_id) override;
+        uint64_t                                    connection,
+        uint32_t                                    visual_id) override;
 #endif /* VK_USE_PLATFORM_XCB_KHR */
 
 #ifdef VK_USE_PLATFORM_WAYLAND_KHR
@@ -1176,7 +1176,7 @@
         VkBool32                                    returnValue,
         HandleId                                    physicalDevice,
         uint32_t                                    queueFamilyIndex,
-        const PointerDecoder<wl_display>&           display) override;
+        uint64_t                                    display) override;
 #endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
 #ifdef VK_USE_PLATFORM_MIR_KHR
