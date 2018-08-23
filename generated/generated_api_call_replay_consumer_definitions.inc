@@ -3010,7 +3010,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
     uint32_t                                    visual_id)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    void* in_connection = nullptr;
+    xcb_connection_t* in_connection = nullptr;
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceXcbPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_connection, visual_id);
 }
@@ -3043,7 +3043,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupport
     uint64_t                                    display)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    struct void* in_display = nullptr;
+    struct wl_display* in_display = nullptr;
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceWaylandPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_display);
 }
@@ -3319,8 +3319,8 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandleKHR(
         const Decoded_VkMemoryGetWin32HandleInfoKHR* in_pGetWin32HandleInfo_wrapper = pGetWin32HandleInfo.GetMetaStructPointer();
         in_pGetWin32HandleInfo->memory = object_mapper_.MapVkDeviceMemory(in_pGetWin32HandleInfo_wrapper->memory);
     }
-    void* out_pHandle_value = nullptr;
-    void** out_pHandle = &out_pHandle_value;
+    HANDLE out_pHandle_value = nullptr;
+    HANDLE* out_pHandle = &out_pHandle_value;
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryWin32HandleKHR, VkResult, PFN_vkGetMemoryWin32HandleKHR>::Dispatch(this, vkGetMemoryWin32HandleKHR, in_device, in_pGetWin32HandleInfo, out_pHandle);
     CheckResult("vkGetMemoryWin32HandleKHR", returnValue, replay_result);
@@ -3334,7 +3334,7 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
     const StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>& pMemoryWin32HandleProperties)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    void* in_handle = nullptr;
+    HANDLE in_handle = nullptr;
     VkMemoryWin32HandlePropertiesKHR out_pMemoryWin32HandleProperties_value = {};
     VkMemoryWin32HandlePropertiesKHR* out_pMemoryWin32HandleProperties = &out_pMemoryWin32HandleProperties_value;
 
@@ -3422,8 +3422,8 @@ void VulkanReplayConsumer::Process_vkGetSemaphoreWin32HandleKHR(
         const Decoded_VkSemaphoreGetWin32HandleInfoKHR* in_pGetWin32HandleInfo_wrapper = pGetWin32HandleInfo.GetMetaStructPointer();
         in_pGetWin32HandleInfo->semaphore = object_mapper_.MapVkSemaphore(in_pGetWin32HandleInfo_wrapper->semaphore);
     }
-    void* out_pHandle_value = nullptr;
-    void** out_pHandle = &out_pHandle_value;
+    HANDLE out_pHandle_value = nullptr;
+    HANDLE* out_pHandle = &out_pHandle_value;
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetSemaphoreWin32HandleKHR, VkResult, PFN_vkGetSemaphoreWin32HandleKHR>::Dispatch(this, vkGetSemaphoreWin32HandleKHR, in_device, in_pGetWin32HandleInfo, out_pHandle);
     CheckResult("vkGetSemaphoreWin32HandleKHR", returnValue, replay_result);
@@ -3683,8 +3683,8 @@ void VulkanReplayConsumer::Process_vkGetFenceWin32HandleKHR(
         const Decoded_VkFenceGetWin32HandleInfoKHR* in_pGetWin32HandleInfo_wrapper = pGetWin32HandleInfo.GetMetaStructPointer();
         in_pGetWin32HandleInfo->fence = object_mapper_.MapVkFence(in_pGetWin32HandleInfo_wrapper->fence);
     }
-    void* out_pHandle_value = nullptr;
-    void** out_pHandle = &out_pHandle_value;
+    HANDLE out_pHandle_value = nullptr;
+    HANDLE* out_pHandle = &out_pHandle_value;
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetFenceWin32HandleKHR, VkResult, PFN_vkGetFenceWin32HandleKHR>::Dispatch(this, vkGetFenceWin32HandleKHR, in_device, in_pGetWin32HandleInfo, out_pHandle);
     CheckResult("vkGetFenceWin32HandleKHR", returnValue, replay_result);
@@ -4207,8 +4207,8 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandleNV(
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkDeviceMemory in_memory = object_mapper_.MapVkDeviceMemory(memory);
-    void* out_pHandle_value = nullptr;
-    void** out_pHandle = &out_pHandle_value;
+    HANDLE out_pHandle_value = nullptr;
+    HANDLE* out_pHandle = &out_pHandle_value;
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryWin32HandleNV, VkResult, PFN_vkGetMemoryWin32HandleNV>::Dispatch(this, vkGetMemoryWin32HandleNV, in_device, in_memory, handleType, out_pHandle);
     CheckResult("vkGetMemoryWin32HandleNV", returnValue, replay_result);
