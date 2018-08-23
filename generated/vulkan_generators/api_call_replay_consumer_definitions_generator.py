@@ -119,7 +119,7 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
 
         for value in values:
             if value.isPointer or value.isArray:
-                fullType = value.fullType
+                fullType = value.fullType if not value.platformFullType else value.platformFullType
                 pointerCount = value.pointerCount
                 isInput = self.isInputPointer(value)
 
@@ -277,22 +277,24 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
                         if value.baseType in self.EXTERNAL_OBJECT_TYPES:
                             # TODO: Handle mapped memory pointer case.
                             print("WARNING: Generating replay code for function {} with an unrecognized void* parameter.".format(name))
-                            outval = 'out_{}_value'.format(value.name)
-                            preexpr.append('void{} {} = nullptr;'.format('*' * (value.pointerCount - 1), outval))
-                            expr += '&{};'.format(outval)
+                            outName = 'out_{}_value'.format(value.name)
+                            outType = 'void' if not value.platformBaseType else value.platformBaseType
+                            outCount = value.pointerCount if not value.platformFullType else self.getPointerCount(value.platformFullType)
+                            preexpr.append('{}{} {} = nullptr;'.format(outType, '*' * (outCount - 1), outName))
+                            expr += '&{};'.format(outName)
                         else:
-                            outval = 'out_{}_value'.format(value.name)
+                            outName = 'out_{}_value'.format(value.name)
                             if self.isArrayLen(value.name, values):
                                 # If this is an array length, it is an in/out parameter and we need to assign the input value.
-                                preexpr.append('{basetype} {} = {paramname}.IsNull() ? static_cast<{basetype}>(0) : *({paramname}.GetPointer());'.format(outval, basetype = value.baseType, paramname = value.name))
+                                preexpr.append('{basetype} {} = {paramname}.IsNull() ? static_cast<{basetype}>(0) : *({paramname}.GetPointer());'.format(outName, basetype = value.baseType, paramname = value.name))
                                 # Need to store the name of the intermediate value for use with allocating the array associated with this length.
-                                arrayLengths[value.name] = outval
+                                arrayLengths[value.name] = outName
                             elif self.isStruct(value.baseType):
-                                preexpr.append('{basetype} {} = {{}};'.format(outval, basetype=value.baseType))
+                                preexpr.append('{basetype} {} = {{}};'.format(outName, basetype=value.baseType))
                             else:
-                                preexpr.append('{basetype} {} = static_cast<{basetype}>(0);'.format(outval, basetype=value.baseType))
+                                preexpr.append('{basetype} {} = static_cast<{basetype}>(0);'.format(outName, basetype=value.baseType))
 
-                            expr += '&{};'.format(outval)
+                            expr += '&{};'.format(outName)
 
                             if self.isHandle(value.baseType):
                                 # Add mapping for the newly created handle
