@@ -72,7 +72,10 @@ class XcbWindowFactory : public format::WindowFactory
 public:
     XcbWindowFactory(XcbApplication* application);
 
-    format::Window* Create(const uint32_t width, const uint32_t height) override;
+    virtual format::Window* Create(const uint32_t width, const uint32_t height) override;
+
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
+                                                          uint32_t         queue_family_index) override;
 
 private:
     XcbApplication*            xcb_application_;

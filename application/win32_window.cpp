@@ -14,6 +14,7 @@
 ** limitations under the License.
 */
 
+#include <cassert>
 #include <cstdlib>
 
 #include "application/win32_window.h"
@@ -25,6 +26,7 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 
 Win32Window::Win32Window(Win32Application* application)
 {
+    assert(application != nullptr);
     win32_application_ = application;
     win32_application_->RegisterWindow(this);
 }
@@ -116,6 +118,7 @@ void Win32Window::SetFocus()
 
 bool Win32Window::GetNativeHandle(uint32_t id, void ** handle)
 {
+    assert(handle != nullptr);
     switch (id) {
     case Win32Window::kHInstance:
         *handle = reinterpret_cast<void*>(hinstance_);
@@ -144,6 +147,7 @@ VkResult Win32Window::CreateSurface(VkInstance instance, VkFlags flags, VkSurfac
 
 Win32WindowFactory::Win32WindowFactory(Win32Application* application)
 {
+    assert(application != nullptr);
     win32_application_ = application;
 }
 
@@ -152,6 +156,12 @@ format::Window* Win32WindowFactory::Create(const uint32_t width, const uint32_t 
     auto window = new Win32Window(win32_application_);
     window->Create(width, height);
     return window;
+}
+
+VkBool32 Win32WindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
+                                                                  uint32_t         queue_family_index)
+{
+    return vkGetPhysicalDeviceWin32PresentationSupportKHR(physical_device, queue_family_index);
 }
 
 BRIMSTONE_END_NAMESPACE(application)

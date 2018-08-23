@@ -58,6 +58,9 @@ public:
     virtual ~WindowFactory() {};
 
     virtual Window* Create(const uint32_t width, const uint32_t height) = 0;
+
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
+                                                          uint32_t         queue_family_index) = 0;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
