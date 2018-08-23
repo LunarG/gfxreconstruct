@@ -1709,8 +1709,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
     VkBool32                                    returnValue,
     HandleId                                    physicalDevice,
     uint32_t                                    queueFamilyIndex,
-    const PointerDecoder<xcb_connection_t>&     connection,
-    xcb_visualid_t                              visual_id)
+    uint64_t                                    connection,
+    uint32_t                                    visual_id)
 {
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceXcbPresentationSupportKHR");
 }
@@ -1731,7 +1731,7 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupportK
     VkBool32                                    returnValue,
     HandleId                                    physicalDevice,
     uint32_t                                    queueFamilyIndex,
-    const PointerDecoder<wl_display>&           display)
+    uint64_t                                    display)
 {
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceWaylandPresentationSupportKHR");
 }

@@ -1925,7 +1925,7 @@ struct Decoded_VkXcbSurfaceCreateInfoKHR
     VkXcbSurfaceCreateInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<xcb_connection_t> connection;
+    uint64_t connection;
 };
 #endif /* VK_USE_PLATFORM_XCB_KHR */
 
@@ -1937,8 +1937,8 @@ struct Decoded_VkWaylandSurfaceCreateInfoKHR
     VkWaylandSurfaceCreateInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<wl_display> display;
-    PointerDecoder<wl_surface> surface;
+    uint64_t display;
+    uint64_t surface;
 };
 #endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 

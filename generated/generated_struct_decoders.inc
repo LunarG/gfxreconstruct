@@ -3695,9 +3695,9 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkXcbSur
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += wrapper->connection.DecodeXcb_Connection((buffer + bytes_read), (buffer_size - bytes_read));
-    value->connection = wrapper->connection.GetPointer();
-    bytes_read += ValueDecoder::DecodeXcb_WindowValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->window));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->connection));
+    value->connection = nullptr;
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->window));
 
     return bytes_read;
 }
@@ -3715,10 +3715,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWaylan
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += wrapper->display.DecodeWl_Display((buffer + bytes_read), (buffer_size - bytes_read));
-    value->display = wrapper->display.GetPointer();
-    bytes_read += wrapper->surface.DecodeWl_Surface((buffer + bytes_read), (buffer_size - bytes_read));
-    value->surface = wrapper->surface.GetPointer();
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->display));
+    value->display = nullptr;
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->surface));
+    value->surface = nullptr;
 
     return bytes_read;
 }

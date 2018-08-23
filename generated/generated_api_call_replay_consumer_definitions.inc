@@ -3006,12 +3006,12 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
     VkBool32                                    returnValue,
     HandleId                                    physicalDevice,
     uint32_t                                    queueFamilyIndex,
-    const PointerDecoder<xcb_connection_t>&     connection,
-    xcb_visualid_t                              visual_id)
+    uint64_t                                    connection,
+    uint32_t                                    visual_id)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    xcb_connection_t out_connection_value = static_cast<xcb_connection_t>(0);
-    xcb_connection_t* out_connection = &out_connection_value;
+    void out_connection_value = nullptr;
+    void* out_connection = &out_connection_value;
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceXcbPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, out_connection, visual_id);
 }
@@ -3041,11 +3041,11 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupport
     VkBool32                                    returnValue,
     HandleId                                    physicalDevice,
     uint32_t                                    queueFamilyIndex,
-    const PointerDecoder<wl_display>&           display)
+    uint64_t                                    display)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    wl_display out_display_value = static_cast<wl_display>(0);
-    struct wl_display* out_display = &out_display_value;
+    void out_display_value = nullptr;
+    struct void* out_display = &out_display_value;
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceWaylandPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, out_display);
 }

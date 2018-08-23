@@ -2545,8 +2545,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkXcbSurfaceCreate
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeXcb_ConnectionPtr(value.connection);
-    result += encoder->EncodeXcb_WindowValue(value.window);
+    result += encoder->EncodeVoidPtr(value.connection);
+    result += encoder->EncodeUInt32Value(value.window);
     return result;
 }
 
@@ -2559,8 +2559,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkWaylandSurfaceCr
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeWl_DisplayPtr(value.display);
-    result += encoder->EncodeWl_SurfacePtr(value.surface);
+    result += encoder->EncodeVoidPtr(value.display);
+    result += encoder->EncodeVoidPtr(value.surface);
     return result;
 }
 
