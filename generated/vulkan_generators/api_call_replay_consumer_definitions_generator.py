@@ -166,9 +166,10 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
                         # If not (this case), it is a pointer to an unknown object type that was encoded as a uint64_t ID value.
                         # If possible, we will map the ID to an object previously created during replay.  Otherwise, we will
                         # need to report a warning that we may have a case that replay cannot handle.
-                        # TODO: Handle mapped memory pointer case (no warning needed for this case).
-                        print("WARNING: Generating replay code for function {} with an unrecognized void* parameter.".format(name))
-                        expr += 'nullptr;'
+                        if value.platformFullType:
+                            expr += 'static_cast<{}>(ProcessExternalObject({}, ApiCallId_{name}, "{name}"));'.format(value.platformFullType, value.name, name=name)
+                        else:
+                            expr += 'ProcessExternalObject({}, ApiCallId_{name}, "{name}");'.format(value.name, name=name)
                     elif value.baseType == 'VkAllocationCallbacks':
                         # The replay consumer needs to override the allocation callbacks used by the captured application.
                         expr += 'GetAllocationCallbacks({});'.format(value.name)

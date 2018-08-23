@@ -47,6 +47,8 @@ class VulkanReplayConsumer : public VulkanConsumer
   private:
     void RaiseFatalError(const char* message) const;
 
+    void* ProcessExternalObject(uint64_t object_id, ApiCallId call_id, const char* call_name);
+
     const VkAllocationCallbacks*
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
 

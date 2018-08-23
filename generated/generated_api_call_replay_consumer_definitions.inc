@@ -2662,7 +2662,7 @@ void VulkanReplayConsumer::Process_vkUpdateDescriptorSetWithTemplate(
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkDescriptorSet in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
-    const void* in_pData = nullptr;
+    const void* in_pData = ProcessExternalObject(pData, ApiCallId_vkUpdateDescriptorSetWithTemplate, "vkUpdateDescriptorSetWithTemplate");
 
     Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplate, void, PFN_vkUpdateDescriptorSetWithTemplate>::Dispatch(this, vkUpdateDescriptorSetWithTemplate, in_device, in_descriptorSet, in_descriptorUpdateTemplate, in_pData);
 }
@@ -3235,7 +3235,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
     uint32_t                                    visual_id)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    xcb_connection_t* in_connection = nullptr;
+    xcb_connection_t* in_connection = static_cast<xcb_connection_t*>(ProcessExternalObject(connection, ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, "vkGetPhysicalDeviceXcbPresentationSupportKHR"));
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceXcbPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_connection, visual_id);
 }
@@ -3268,7 +3268,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupport
     uint64_t                                    display)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    struct wl_display* in_display = nullptr;
+    struct wl_display* in_display = static_cast<struct wl_display*>(ProcessExternalObject(display, ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, "vkGetPhysicalDeviceWaylandPresentationSupportKHR"));
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceWaylandPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_display);
 }
@@ -3559,7 +3559,7 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
     const StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>& pMemoryWin32HandleProperties)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    HANDLE in_handle = nullptr;
+    HANDLE in_handle = static_cast<HANDLE>(ProcessExternalObject(handle, ApiCallId_vkGetMemoryWin32HandlePropertiesKHR, "vkGetMemoryWin32HandlePropertiesKHR"));
     VkMemoryWin32HandlePropertiesKHR out_pMemoryWin32HandleProperties_value = {};
     VkMemoryWin32HandlePropertiesKHR* out_pMemoryWin32HandleProperties = &out_pMemoryWin32HandleProperties_value;
 
@@ -3767,7 +3767,7 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     VkCommandBuffer in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
     VkPipelineLayout in_layout = object_mapper_.MapVkPipelineLayout(layout);
-    const void* in_pData = nullptr;
+    const void* in_pData = ProcessExternalObject(pData, ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR, "vkCmdPushDescriptorSetWithTemplateKHR");
 
     Dispatcher<ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR, void, PFN_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(this, vkCmdPushDescriptorSetWithTemplateKHR, in_commandBuffer, in_descriptorUpdateTemplate, in_layout, set, in_pData);
 }
@@ -3819,7 +3819,7 @@ void VulkanReplayConsumer::Process_vkUpdateDescriptorSetWithTemplateKHR(
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkDescriptorSet in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
-    const void* in_pData = nullptr;
+    const void* in_pData = ProcessExternalObject(pData, ApiCallId_vkUpdateDescriptorSetWithTemplateKHR, "vkUpdateDescriptorSetWithTemplateKHR");
 
     Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplateKHR, void, PFN_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(this, vkUpdateDescriptorSetWithTemplateKHR, in_device, in_descriptorSet, in_descriptorUpdateTemplate, in_pData);
 }
@@ -5092,7 +5092,7 @@ void VulkanReplayConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     const StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>& pProperties)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    const struct AHardwareBuffer* in_buffer = nullptr;
+    const struct AHardwareBuffer* in_buffer = ProcessExternalObject(buffer, ApiCallId_vkGetAndroidHardwareBufferPropertiesANDROID, "vkGetAndroidHardwareBufferPropertiesANDROID");
     VkAndroidHardwareBufferPropertiesANDROID out_pProperties_value = {};
     VkAndroidHardwareBufferPropertiesANDROID* out_pProperties = &out_pProperties_value;
 
@@ -5219,7 +5219,7 @@ void VulkanReplayConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(
     const StructPointerDecoder<Decoded_VkMemoryHostPointerPropertiesEXT>& pMemoryHostPointerProperties)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    const void* in_pHostPointer = nullptr;
+    const void* in_pHostPointer = ProcessExternalObject(pHostPointer, ApiCallId_vkGetMemoryHostPointerPropertiesEXT, "vkGetMemoryHostPointerPropertiesEXT");
     VkMemoryHostPointerPropertiesEXT out_pMemoryHostPointerProperties_value = {};
     VkMemoryHostPointerPropertiesEXT* out_pMemoryHostPointerProperties = &out_pMemoryHostPointerProperties_value;
 

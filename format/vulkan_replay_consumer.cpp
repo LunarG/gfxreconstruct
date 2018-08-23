@@ -32,11 +32,32 @@ VulkanReplayConsumer::~VulkanReplayConsumer() {}
 
 void VulkanReplayConsumer::RaiseFatalError(const char* message) const
 {
-    // TODO: Should there be a default action if no error handler has been provided.
+    // TODO: Should there be a default action if no error handler has been provided?
     if (fatal_error_handler_ != nullptr)
     {
         fatal_error_handler_(message);
     }
+}
+
+void* VulkanReplayConsumer::ProcessExternalObject(uint64_t object_id, ApiCallId call_id, const char* call_name)
+{
+    void* object = nullptr;
+
+    if ((call_id == ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR) ||
+        (call_id == ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR))
+    {
+        // For window system related handles, we put the object ID into the pointer.
+        // The dispatch override for the API call will use this ID as a key to the window map.
+        // TODO: For x86 builds, we should map the object_id to a 32-bit sequence number that won't be truncated by the cast.
+        object = reinterpret_cast<void*>(object_id);
+    }
+    else
+    {
+        BRIMSTONE_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
+                              call_name);
+    }
+
+    return object;
 }
 
 const VkAllocationCallbacks* VulkanReplayConsumer::GetAllocationCallbacks(
