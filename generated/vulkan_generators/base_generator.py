@@ -444,12 +444,10 @@ class BaseGenerator(OutputGenerator):
         if 'const' in value.fullType:
             # Vulkan seems to follow a pattern where input pointers will be const and output pointers will not be const.
             return True
-        elif value.platformFullType and (self.getPointerCount(value.platformFullType) == 0):
-            # The code generator converted platform defined types to a recognized trace file type.
-            # We need to ensure that opaque types such as HANDLE, which were converted to void*, are not
-            # incorrectly treated as pointers.  If there is no '*' in the original type declaration, the
-            # type is treated as an input.
-                return True
+        elif value.platformBaseType and value.baseType == 'void' and value.pointerCount == 1:
+            # For some extensions, platform specific handles are mapped to the 'void*' type without a const qualifier,
+            # but need to be treated as an input (eg. if HANDLE is mapped to void*, it should not be treated as an output).
+            return True
         return False
 
     #
