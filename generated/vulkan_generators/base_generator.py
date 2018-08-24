@@ -527,7 +527,7 @@ class BaseGenerator(OutputGenerator):
     #  spaces - Number of spaces to indent.
     def indent(self, value, spaces):
         prefix = ' ' * spaces
-        return '\n'.join([prefix + v for v in value.split('\n')])
+        return '\n'.join([prefix + v if v else v for v in value.split('\n')])
 
     #
     # Create a string containing a comma separated argument list from a list of ValueInfo values.

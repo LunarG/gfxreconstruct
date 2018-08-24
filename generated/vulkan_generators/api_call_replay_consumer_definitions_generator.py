@@ -43,7 +43,11 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
         BaseGenerator.__init__(self,
                                processCmds=True, processStructs=True, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
-        self.structsWithHandles = dict()                   # Map of Vulkan structs containing handles to a list of handle member names.
+
+        # Map of Vulkan structs containing handles to a list values for handle members or struct members
+        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
+        # member that contains handles).
+        self.structsWithHandles = dict()
 
     #
     # Method override
@@ -54,6 +58,10 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
         if (typename not in self.STRUCT_BLACKLIST) and not alias:
             for value in self.featureStructMembers[typename]:
                 if self.isHandle(value.baseType):
+                    # The member is a handle.
+                    handles.append(value)
+                elif self.isStruct(value.baseType) and value.baseType in self.structsWithHandles:
+                    # The member is a struct that contains a handle.
                     handles.append(value)
             if handles:
                 self.structsWithHandles[typename] = handles
@@ -91,7 +99,7 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
         arglist = ', '.join(args)
 
         if preexpr:
-            body += '\n'.join(['    ' + val for val in preexpr])
+            body += '\n'.join(['    ' + val if val else val for val in preexpr])
             body += '\n'
             body += '\n'
         if returnType == 'VkResult':
@@ -101,7 +109,7 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
             body += '    Dispatcher<ApiCallId_{name}, {}, PFN_{name}>::Dispatch(this, {name}, {});\n'.format(returnType, arglist, name=name)
         if postexpr:
             body += '\n'
-            body += '\n'.join(['    ' + val for val in postexpr])
+            body += '\n'.join(['    ' + val if val else val for val in postexpr])
             body += '\n'
 
         return body
@@ -120,12 +128,10 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
         for value in values:
             if value.isPointer or value.isArray:
                 fullType = value.fullType if not value.platformFullType else value.platformFullType
-                pointerCount = value.pointerCount
                 isInput = self.isInputPointer(value)
 
                 if (value.isArray and not value.isDynamic):
                     # Use dynamic pointer syntax for static arrays.
-                    pointerCount = 1;
                     fullType += '*'
 
                 # Generate temporary variable to reference a pointer value that is encapsulated within a PointerDecoder object.
@@ -177,87 +183,14 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
                         # TODO: We should be able to remove the reinterpret_cast when we handle VkObjectTableEntryNVX** correctly
                         expr += 'reinterpret_cast<{}>({}.GetPointer());'.format(fullType, value.name)
                         if value.baseType in self.structsWithHandles:
-                            # We need to map the handles.
-                            handleValues = self.structsWithHandles[value.baseType]
-                            wrapperName = argName + '_wrapper'
-                            deallocations = []
-
                             # Strip the const from the type declaration.
                             expr = expr.replace('const ', '').lstrip()
                             preexpr.append(expr)
                             expr = ''
-
-                            # Allocate memory for handles and perform mapping when the struct array is not NULL.
-                            preexpr.append('if (!{}.IsNull())'.format(value.name))
-                            preexpr.append('{')
-                            indent = ' ' * self.INDENT_SIZE
-
-                            preexpr.append(indent + 'const Decoded_{}* {} = {}.GetMetaStructPointer();'.format(value.baseType, wrapperName, value.name))
-
-                            if value.isArray:
-                                # Start a for loop to process all of the structures in the array.
-                                preexpr.append(indent + 'assert({} == {}.GetLength());'.format(lengthName, value.name))
-                                preexpr.append(indent + 'for (size_t i = 0; i < {}; ++i)'.format(lengthName))
-                                preexpr.append(indent + '{')
-                                indent += ' ' * self.INDENT_SIZE
-
-                            for handleValue in handleValues:
-                                srcname = wrapperName
-                                dstname = argName
-                                if value.isArray:
-                                    # Index the array
-                                    srcname += '[i].'
-                                    dstname += '[i].'
-                                else:
-                                    # Dereference the pointer
-                                    srcname += '->'
-                                    dstname += '->'
-
-                                if handleValue.isArray:
-                                    # Allocate memory for the handles.
-                                    allocation_name = handleValue.name + '_memory'
-                                    allocation_expr = indent + '{}* {} = '.format(handleValue.baseType, allocation_name)
-                                    if handleValue.isDynamic:
-                                       allocation_expr += 'AllocateArray<{}>({}{});'.format(handleValue.baseType, dstname, handleValue.arrayLength)
-                                       preexpr.append(allocation_expr)
-                                       preexpr.append(indent + '{}{} = {};'.format(dstname, handleValue.name, allocation_name))
-                                       deallocations.append('FreeArray<{}>(&{}{});'.format(handleValue.baseType, dstname, handleValue.name))
-                                    else:
-                                       allocation_expr += 'const_cast<{}*>({}{});'.format(handleValue.baseType, dstname, handleValue.name)
-                                       preexpr.append(allocation_expr)
-
-                                    # Mapping an array of handles.
-                                    preexpr.append(indent + 'MapHandles<{handletype}>({srcname}{handlename}.GetPointer(), {srcname}{handlename}.GetLength(), {}, {argname}{}, &VulkanObjectMapper::Map{handletype});'.format(allocation_name, handleValue.arrayLength, srcname=srcname, handlename=handleValue.name, argname=dstname, handletype=handleValue.baseType))
-                                else:
-                                    # Mapping a single handle.
-                                    preexpr.append(indent + '{}{membername} = object_mapper_.Map{}({}{membername});'.format(dstname, handleValue.baseType, srcname, membername=handleValue.name))
-
-                            if value.isArray:
-                                # End the for loop.
-                                indent = ' ' * self.INDENT_SIZE
-                                preexpr.append(indent + '}')
-
-                            preexpr.append('}')
-
-                            # Free any temporary allocations that were made.
-                            if deallocations:
-                                postexpr.append('if ({} != nullptr)'.format(argName))
-                                postexpr.append('{')
-                                indent = ' ' * self.INDENT_SIZE
-
-                                if value.isArray:
-                                    postexpr.append(indent + 'for (size_t i = 0; i < {}; ++i)'.format(lengthName))
-                                    postexpr.append(indent + '{')
-                                    indent += ' ' * self.INDENT_SIZE
-
-                                for deallocation in deallocations:
-                                    postexpr.append(indent + deallocation)
-
-                                if value.isArray:
-                                    indent = ' ' * self.INDENT_SIZE
-                                    postexpr.append(indent + '}')
-
-                                postexpr.append('}')
+                            # We need to map the handles.  The current expr will be modified and appended to the appropriate pre and post lists.
+                            newdecls, newpreexpr, newpostexpr = self.makeStructHandleMappings(value, argName, lengthName, [], [], [], '', '', '', '')
+                            preexpr += newdecls + newpreexpr
+                            postexpr += newpostexpr
                 else:
                     # Initialize output pointer.
                     # Note on output structures with handles: These strucutres are used in queries such as
@@ -316,3 +249,123 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
                 # Only need to append the parameter name to the args list; no other expressions are necessary.
                 args.append(value.name)
         return args, preexpr, postexpr
+
+    #
+    #
+    def makeStructHandleMappings(self, value, argName, lengthName, predecls = [], preexpr = [], postexpr = [], srcPrefix = '', dstPrefix = '', initIndent = '', initCounter = ''):
+        handleValues = self.structsWithHandles[value.baseType]
+        wrapperName = argName + '_wrapper'
+        deallocations = []
+        indent = initIndent
+        counter = ''
+
+        valueName = srcPrefix + value.name
+
+        # Allocate memory for handles and perform mapping when the struct array is not NULL.
+        preexpr.append(indent + 'if ({} != nullptr)'.format(argName))
+        preexpr.append(indent + '{')
+        indent = initIndent + ' ' * self.INDENT_SIZE
+
+        preexpr.append(indent + 'const Decoded_{}* {} = {}.GetMetaStructPointer();'.format(value.baseType, wrapperName, valueName))
+
+        if value.isArray:
+            # Start a for loop to process all of the structures in the array.
+            counter = initCounter + 'i'
+            preexpr.append(indent + 'assert({} == {}.GetLength());'.format(lengthName, valueName))
+            preexpr.append('')
+            preexpr.append(indent + 'for (size_t {counter} = 0; {counter} < {}; ++{counter})'.format(lengthName, counter=counter))
+            preexpr.append(indent + '{')
+            indent += ' ' * self.INDENT_SIZE
+
+        first = True
+        for handleValue in handleValues:
+            if not first:
+                preexpr.append('')
+            else:
+                first = False
+
+            srcName = wrapperName
+            dstName = argName
+
+            if value.isArray:
+                # Index the array
+                srcName += '[{}].'.format(counter)
+                dstName += '[{}].'.format(counter)
+            else:
+                # Dereference the pointer
+                srcName += '->'
+                dstName += '->'
+
+            if self.isStruct(handleValue.baseType):
+                nextName = argName + '_' + handleValue.name
+
+                if handleValue.isPointer or handleValue.isArray:
+                    fullType = handleValue.fullType.replace('const ', '').lstrip()
+
+                    nextDecl = '{} {} = nullptr;'.format(fullType, nextName)
+                    predecls.append(nextDecl)
+
+                    nextExpr = indent + '{} = {}.GetPointer();'.format(nextName, srcName + handleValue.name)
+                    preexpr.append(nextExpr)
+
+                    nextLength = dstName + handleValue.arrayLength if handleValue.arrayLength else None
+                    predecls, preexpr, postexpr = self.makeStructHandleMappings(handleValue, nextName, nextLength, predecls, preexpr, postexpr, srcName, dstName, indent, counter)
+                else:
+                    nextValues = self.structsWithHandles[handleValue.baseType]
+                    for nextValue in nextValues:
+                        if not self.isStruct(nextValue.baseType):
+                            self.makeStructHandleMappingExpr(value, nextValue, srcName + handleValue.name + '.', dstName + handleValue.name + '.', preexpr, postexpr, deallocations, indent)
+                        else:
+                            print('WARNING: Skipping unexpected nested structure case in replay consumer handle mapping.')
+            else:
+                self.makeStructHandleMappingExpr(value, handleValue, srcName, dstName, preexpr, postexpr, deallocations, indent)
+
+        if value.isArray:
+            # End the for loop.
+            indent = initIndent + ' ' * self.INDENT_SIZE
+            preexpr.append(indent + '}')
+
+        indent = initIndent
+        preexpr.append(indent + '}')
+
+        # Free any temporary allocations that were made.
+        if postexpr or deallocations:
+            postexpr = [indent + 'if ({} != nullptr)'.format(argName), indent + '{'] + postexpr
+            indent = initIndent + ' ' * self.INDENT_SIZE
+
+            if value.isArray:
+                postexpr.append(indent + 'for (size_t {counter} = 0; {counter} < {}; ++{counter})'.format(lengthName, counter=counter))
+                postexpr.append(indent + '{')
+                indent += ' ' * self.INDENT_SIZE
+
+            for deallocation in deallocations:
+                postexpr.append(indent + deallocation)
+
+            if value.isArray:
+                indent = initIndent + ' ' * self.INDENT_SIZE
+                postexpr.append(indent + '}')
+
+            indent = initIndent
+            postexpr.append(indent + '}')
+
+        return predecls, preexpr, postexpr
+
+    def makeStructHandleMappingExpr(self, parentValue, value, srcname, dstname, preexpr, postexpr, deallocations, indent):
+        if value.isArray:
+            # Allocate memory for the handles.
+            allocation_name = value.name + '_memory'
+            allocation_expr = indent + '{}* {} = '.format(value.baseType, allocation_name)
+            if value.isDynamic:
+                allocation_expr += 'AllocateArray<{}>({}{});'.format(value.baseType, dstname, value.arrayLength)
+                preexpr.append(allocation_expr)
+                preexpr.append(indent + '{}{} = {};'.format(dstname, value.name, allocation_name))
+                deallocations.append('FreeArray<{}>(&{}{});'.format(value.baseType, dstname, value.name))
+            else:
+                allocation_expr += 'const_cast<{}*>({}{});'.format(value.baseType, dstname, value.name)
+                preexpr.append(allocation_expr)
+
+            # Mapping an array of handles.
+            preexpr.append(indent + 'MapHandles<{handletype}>({srcname}{handlename}.GetPointer(), {srcname}{handlename}.GetLength(), {}, {argname}{}, &VulkanObjectMapper::Map{handletype});'.format(allocation_name, value.arrayLength, srcname=srcname, handlename=value.name, argname=dstname, handletype=value.baseType))
+        else:
+            # Mapping a single handle.
+            preexpr.append(indent + '{}{membername} = object_mapper_.Map{}({}{membername});'.format(dstname, value.baseType, srcname, membername=value.name))
