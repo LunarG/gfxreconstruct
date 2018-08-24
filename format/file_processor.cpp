@@ -66,10 +66,10 @@ bool FileProcessor::Initialize(const std::string& file_name)
 bool FileProcessor::ProcessNextFrame()
 {
     // TODO: Frame blocks in trace file.
-    bool success = true;
+    bool        success = IsFileValid();
     BlockHeader block_header;
 
-    while (IsFileValid() && success)
+    while (success)
     {
         success = ReadBlockHeader(&block_header);
 
@@ -197,6 +197,12 @@ bool FileProcessor::ProcessNextFrame()
             {
                 // TODO
             }
+
+            if (success)
+            {
+                // Check for EOF.
+                success = IsFileValid();
+            }
         }
     }
 
@@ -205,9 +211,9 @@ bool FileProcessor::ProcessNextFrame()
 
 bool FileProcessor::ProcessAllFrames()
 {
-    bool success = true;
+    bool success = IsFileValid();
 
-    while (IsFileValid() && success)
+    while (success)
     {
         success = ProcessNextFrame();
     }

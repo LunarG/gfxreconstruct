@@ -43,7 +43,7 @@ public:
 
     void SetPaused(bool paused);
 
-    void PlaySingleFrame();
+    bool PlaySingleFrame();
 
     bool RegisterWindow(format::Window* window);
 
