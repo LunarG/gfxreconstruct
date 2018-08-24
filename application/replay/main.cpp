@@ -1,11 +1,30 @@
 #include <cstdio>
 #include <exception>
+#include <memory>
 
-#include "util/logging.h"
+#include "application/application.h"
 #include "format/file_processor.h"
 #include "format/vulkan_replay_consumer.h"
 #include "format/vulkan_decoder.h"
+#include "format/window.h"
 #include "util/argument_parser.h"
+#include "util/logging.h"
+
+#if defined(WIN32)
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+#include "application/win32_application.h"
+#include "application/win32_window.h"
+#endif
+#else
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+#include "application/xcb_application.h"
+#include "application/xcb_window.h"
+#endif
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+#include "application/wayland_application.h"
+#include "application/wayland_window.h"
+#endif
+#endif
 
 void PrintUsage(const char* exe_name)
 {
@@ -27,10 +46,10 @@ int main(int argc, const char** argv)
     brimstone::util::logging::Init();
 
     brimstone::format::FileProcessor file_processor;
-    std::string                      bin_file_name = "brimstone_test.bin";
+    std::string                      bin_file_name;
 
     brimstone::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
-    const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
+    const std::vector<std::string>  non_optional_arguments = arg_parser.GetNonOptionalArguments();
     if (arg_parser.IsInvalid() || non_optional_arguments.size() != 1)
     {
         PrintUsage(argv[0]);
@@ -43,8 +62,38 @@ int main(int argc, const char** argv)
 
     if (file_processor.Initialize(bin_file_name))
     {
-        brimstone::format::VulkanDecoder        decoder;
-        brimstone::format::VulkanReplayConsumer replay_consumer;
+        // Setup platform specific application and window factory.
+        std::unique_ptr<brimstone::application::Application> application;
+        std::unique_ptr<brimstone::format::WindowFactory>    window_factory;
+
+#if defined(WIN32)
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+        brimstone::application::Win32Application* win32_application = new brimstone::application::Win32Application();
+        application    = std::unique_ptr<brimstone::application::Application>(win32_application);
+        window_factory = std::make_unique<brimstone::application::Win32WindowFactory>(win32_application);
+#else
+#error "Missing support for window management (need to define VK_USE_PLATFORM_WIN32_KHR)"
+#endif
+#else
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+        brimstone::application::XcbApplication* xcb_application = new brimstone::application::XcbApplication();
+        application    = std::unique_ptr<brimstone::application::Application>(xcb_application);
+        window_factory = std::make_unique<brimstone::application::XcbWindowFactory>(xcb_application);
+#endif
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+        brimstone::application::WaylandApplication* wayland_application =
+            new brimstone::application::WaylandApplication();
+        application    = std::unique_ptr<brimstone::application::Application>(wayland_application);
+        window_factory = std::make_unique<brimstone::application::WaylandWindowFactory>(wayland_application);
+#else
+#error "Missing support for window management (need to define VK_USE_PLATFORM_XCB_KHR or VK_USE_PLATFORM_WAYLAND_KHR)"
+#endif
+#endif
+
+        application->SetFileProcessor(&file_processor);
+
+        brimstone::format::VulkanDecoder    decoder;
+        brimstone::format::VulkanReplayConsumer replay_consumer(window_factory.get());
 
         replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 
@@ -53,7 +102,7 @@ int main(int argc, const char** argv)
 
         try
         {
-            file_processor.ProcessAllFrames();
+            application->Run();
         }
         catch (std::runtime_error error)
         {
