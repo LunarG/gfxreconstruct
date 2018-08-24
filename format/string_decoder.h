@@ -73,6 +73,7 @@ public:
                 capacity_ = alloc_len;
                 bytes_read +=
                     ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
+                data_[string_len] = '\0';
             }
             else
             {
