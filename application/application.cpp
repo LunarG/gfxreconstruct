@@ -31,13 +31,14 @@ void Application::SetFileProcessor(format::FileProcessor* file_processor)
 
 void Application::Run()
 {
-    while (true)
+    bool keep_playing = true;
+    while (keep_playing)
     {
         ProcessEvents(paused_);
 
         if (!paused_)
         {
-            PlaySingleFrame();
+            keep_playing = PlaySingleFrame();
         }
     }
 }
@@ -52,12 +53,16 @@ void Application::SetPaused(bool paused)
     paused_ = paused;
 }
 
-void Application::PlaySingleFrame()
+bool Application::PlaySingleFrame()
 {
+    bool success = false;
+
     if (file_processor_)
     {
-        file_processor_->ProcessNextFrame();
+        success = file_processor_->ProcessNextFrame();
     }
+
+    return success;
 }
 
 bool Application::RegisterWindow(format::Window* window)
