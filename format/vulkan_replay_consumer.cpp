@@ -26,9 +26,17 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-VulkanReplayConsumer::VulkanReplayConsumer() {}
+const uint32_t kDefaultWindowWidth = 500;
+const uint32_t kDefaultWindowHeight = 500;
 
-VulkanReplayConsumer::~VulkanReplayConsumer() {}
+VulkanReplayConsumer::VulkanReplayConsumer(WindowFactory* window_factory) : window_factory_(window_factory)
+{
+    assert(window_factory != nullptr);
+}
+
+VulkanReplayConsumer::~VulkanReplayConsumer()
+{
+}
 
 void VulkanReplayConsumer::RaiseFatalError(const char* message) const
 {
@@ -136,6 +144,42 @@ VkResult VulkanReplayConsumer::OverrideCreateDevice(VkPhysicalDevice            
 
     return result;
 }
+
+VkResult VulkanReplayConsumer::OverrideCreateWin32SurfaceKHR(VkInstance                         instance,
+                                                             const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
+                                                             const VkAllocationCallbacks*       pAllocator,
+                                                             VkSurfaceKHR*                      pSurface)
+{
+    // Create a window for our surface.
+    Window* window = window_factory_->Create(kDefaultWindowWidth, kDefaultWindowWidth);
+
+    if (window == nullptr)
+    {
+        // Failure to create a window is a fatal error.
+        BRIMSTONE_LOG_FATAL("Failed to create a window for use with vkCreateWin32SurfaceKHR.  Replay cannot continue.");
+        RaiseFatalError("Replay has encountered a fatal error and cannot continue (window creation failed)");
+    }
+
+    VkResult result = window->CreateSurface(instance, pCreateInfo->flags, pSurface);
+
+    if ((result == VK_SUCCESS) && (pSurface != nullptr))
+    {
+        VkSurfaceKHR key = (*pSurface);
+
+        assert(window_map_.find(key) == window_map_.end());
+
+        window_map_.insert(std::make_pair(key, window));
+    }
+
+    return result;
+}
+
+VkBool32 VulkanReplayConsumer::OverrideGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physicalDevice,
+                                                                                    uint32_t         queueFamilyIndex)
+{
+    return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
+}
+
 
 #include "generated/generated_api_call_replay_consumer_definitions.inc"
 

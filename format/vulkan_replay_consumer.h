@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <functional>
 #include <string>
+#include <unordered_map>
 
 #include "vulkan/vulkan.h"
 
@@ -29,6 +30,7 @@
 #include "format/api_call_id.h"
 #include "format/vulkan_consumer.h"
 #include "format/vulkan_object_mapper.h"
+#include "format/window.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
@@ -36,7 +38,7 @@ BRIMSTONE_BEGIN_NAMESPACE(format)
 class VulkanReplayConsumer : public VulkanConsumer
 {
   public:
-    VulkanReplayConsumer();
+    VulkanReplayConsumer(WindowFactory* window_factory);
 
     virtual ~VulkanReplayConsumer();
 
@@ -62,6 +64,16 @@ class VulkanReplayConsumer : public VulkanConsumer
                                   const VkDeviceCreateInfo*    pCreateInfo,
                                   const VkAllocationCallbacks* pAllocator,
                                   VkDevice*                    pDevice);
+
+    // Window/Surface related overrides, which can transform the window/surface type from the platform
+    // specific type found in the trace file to the platform specific type used for replay.
+    VkResult OverrideCreateWin32SurfaceKHR(VkInstance                         instance,
+                                           const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
+                                           const VkAllocationCallbacks*       pAllocator,
+                                           VkSurfaceKHR*                      pSurface);
+
+    VkBool32 OverrideGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physicalDevice,
+                                                                  uint32_t         queueFamilyIndex);
 
     template <typename T>
     T* AllocateArray(size_t len) const
@@ -158,9 +170,37 @@ class VulkanReplayConsumer : public VulkanConsumer
         }
     };
 
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkCreateWin32SurfaceKHR, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkCreateWin32SurfaceKHR func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideCreateWin32SurfaceKHR(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkGetPhysicalDeviceWin32PresentationSupportKHR, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret
+        Dispatch(VulkanReplayConsumer* consumer, PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideGetPhysicalDeviceWin32PresentationSupportKHR(args...);
+        }
+    };
+
   private:
-    VulkanObjectMapper               object_mapper_;
+    typedef std::unordered_map<VkSurfaceKHR, Window*> WindowMap;
+
+  private:
     std::function<void(const char*)> fatal_error_handler_;
+    WindowFactory*                   window_factory_;
+    VulkanObjectMapper               object_mapper_;
+    WindowMap                        window_map_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
