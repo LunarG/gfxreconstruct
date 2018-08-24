@@ -111,8 +111,8 @@ public:
     size_t EncodeFlagsArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)                    { return EncodeArrayConverted<FlagsEncodeType>(arr, len, omit_addr, omit_data); }
 
     size_t EncodeString(const char* str, bool omit_addr = false, bool omit_data = false)                                 { return EncodeBasicString<char, PointerAttributes::kIsString>(str, omit_addr, omit_data); }
-    size_t EncodeWString(const wchar_t* str, bool omit_addr = false, bool omit_data = false)                             { return EncodeBasicString<wchar_t, PointerAttributes::kIsString>(str, omit_addr, omit_data); }
-    size_t EncodeStringArray(const char* const* str, size_t len, bool omit_addr = false, bool omit_data = false)         { return EncodeBasicStringArray<char, PointerAttributes::kIsWString>(str, len, omit_addr, omit_data); }
+    size_t EncodeWString(const wchar_t* str, bool omit_addr = false, bool omit_data = false)                             { return EncodeBasicString<wchar_t, PointerAttributes::kIsWString>(str, omit_addr, omit_data); }
+    size_t EncodeStringArray(const char* const* str, size_t len, bool omit_addr = false, bool omit_data = false)         { return EncodeBasicStringArray<char, PointerAttributes::kIsString>(str, len, omit_addr, omit_data); }
     size_t EncodeWStringArray(const wchar_t* const* str, size_t len, bool omit_addr = false, bool omit_data = false)     { return EncodeBasicStringArray<wchar_t, PointerAttributes::kIsWString>(str, len, omit_addr, omit_data); }
 
     size_t EncodeStructPtrPreamble(const void* ptr, bool omit_addr = false, bool omit_data = false)
