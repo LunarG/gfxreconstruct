@@ -38,7 +38,7 @@ Win32Window::~Win32Window()
 
 bool Win32Window::Create(const uint32_t width, const uint32_t height)
 {
-    auto appname = name.c_str();
+    const char class_name[] = "Replay Window";
 
     // Register Window class
     WNDCLASSEX wcex = {};
@@ -53,7 +53,7 @@ bool Win32Window::Create(const uint32_t width, const uint32_t height)
     wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = nullptr;
-    wcex.lpszClassName = appname;
+    wcex.lpszClassName = class_name;
     wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ICON));
     if (!RegisterClassEx(&wcex)) {
         //log("Failed to register windows class");
@@ -63,7 +63,7 @@ bool Win32Window::Create(const uint32_t width, const uint32_t height)
     // create the window
     RECT wr = { 0, 0, (LONG)width, (LONG)height };
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
-    hwnd_ = CreateWindow(appname, appname, WS_OVERLAPPEDWINDOW, 0, 0, wr.right - wr.left, wr.bottom - wr.top, nullptr, nullptr,
+    hwnd_ = CreateWindow(class_name, name.c_str(), WS_OVERLAPPEDWINDOW, 0, 0, wr.right - wr.left, wr.bottom - wr.top, nullptr, nullptr,
         wcex.hInstance, win32_application_);
 
     if (hwnd_) {
