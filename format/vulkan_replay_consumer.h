@@ -70,8 +70,6 @@ class VulkanReplayConsumer : public VulkanConsumer
     template <typename T>
     void FreeArray(T** arr) const
     {
-        assert(arr != nullptr);
-
         if ((*arr) != nullptr)
         {
             delete[](*arr);
@@ -82,8 +80,6 @@ class VulkanReplayConsumer : public VulkanConsumer
     template <typename T>
     void FreeArray(const T** arr) const
     {
-        assert(arr != nullptr);
-
         if ((*arr) != nullptr)
         {
             delete[](*arr);

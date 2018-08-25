@@ -203,15 +203,15 @@ void VulkanReplayConsumer::Process_vkQueueSubmit(
 
         for (size_t i = 0; i < submitCount; ++i)
         {
-            VkSemaphore* pWaitSemaphores_memory = AllocateArray<VkSemaphore>(in_pSubmits[i].waitSemaphoreCount);
+            VkSemaphore* pWaitSemaphores_memory = in_pSubmits_wrapper[i].pWaitSemaphores.IsNull() ? nullptr : AllocateArray<VkSemaphore>(in_pSubmits[i].waitSemaphoreCount);
             in_pSubmits[i].pWaitSemaphores = pWaitSemaphores_memory;
             MapHandles<VkSemaphore>(in_pSubmits_wrapper[i].pWaitSemaphores.GetPointer(), in_pSubmits_wrapper[i].pWaitSemaphores.GetLength(), pWaitSemaphores_memory, in_pSubmits[i].waitSemaphoreCount, &VulkanObjectMapper::MapVkSemaphore);
 
-            VkCommandBuffer* pCommandBuffers_memory = AllocateArray<VkCommandBuffer>(in_pSubmits[i].commandBufferCount);
+            VkCommandBuffer* pCommandBuffers_memory = in_pSubmits_wrapper[i].pCommandBuffers.IsNull() ? nullptr : AllocateArray<VkCommandBuffer>(in_pSubmits[i].commandBufferCount);
             in_pSubmits[i].pCommandBuffers = pCommandBuffers_memory;
             MapHandles<VkCommandBuffer>(in_pSubmits_wrapper[i].pCommandBuffers.GetPointer(), in_pSubmits_wrapper[i].pCommandBuffers.GetLength(), pCommandBuffers_memory, in_pSubmits[i].commandBufferCount, &VulkanObjectMapper::MapVkCommandBuffer);
 
-            VkSemaphore* pSignalSemaphores_memory = AllocateArray<VkSemaphore>(in_pSubmits[i].signalSemaphoreCount);
+            VkSemaphore* pSignalSemaphores_memory = in_pSubmits_wrapper[i].pSignalSemaphores.IsNull() ? nullptr : AllocateArray<VkSemaphore>(in_pSubmits[i].signalSemaphoreCount);
             in_pSubmits[i].pSignalSemaphores = pSignalSemaphores_memory;
             MapHandles<VkSemaphore>(in_pSubmits_wrapper[i].pSignalSemaphores.GetPointer(), in_pSubmits_wrapper[i].pSignalSemaphores.GetLength(), pSignalSemaphores_memory, in_pSubmits[i].signalSemaphoreCount, &VulkanObjectMapper::MapVkSemaphore);
         }
@@ -485,7 +485,7 @@ void VulkanReplayConsumer::Process_vkQueueBindSparse(
 
         for (size_t i = 0; i < bindInfoCount; ++i)
         {
-            VkSemaphore* pWaitSemaphores_memory = AllocateArray<VkSemaphore>(in_pBindInfo[i].waitSemaphoreCount);
+            VkSemaphore* pWaitSemaphores_memory = in_pBindInfo_wrapper[i].pWaitSemaphores.IsNull() ? nullptr : AllocateArray<VkSemaphore>(in_pBindInfo[i].waitSemaphoreCount);
             in_pBindInfo[i].pWaitSemaphores = pWaitSemaphores_memory;
             MapHandles<VkSemaphore>(in_pBindInfo_wrapper[i].pWaitSemaphores.GetPointer(), in_pBindInfo_wrapper[i].pWaitSemaphores.GetLength(), pWaitSemaphores_memory, in_pBindInfo[i].waitSemaphoreCount, &VulkanObjectMapper::MapVkSemaphore);
 
@@ -561,7 +561,7 @@ void VulkanReplayConsumer::Process_vkQueueBindSparse(
                 }
             }
 
-            VkSemaphore* pSignalSemaphores_memory = AllocateArray<VkSemaphore>(in_pBindInfo[i].signalSemaphoreCount);
+            VkSemaphore* pSignalSemaphores_memory = in_pBindInfo_wrapper[i].pSignalSemaphores.IsNull() ? nullptr : AllocateArray<VkSemaphore>(in_pBindInfo[i].signalSemaphoreCount);
             in_pBindInfo[i].pSignalSemaphores = pSignalSemaphores_memory;
             MapHandles<VkSemaphore>(in_pBindInfo_wrapper[i].pSignalSemaphores.GetPointer(), in_pBindInfo_wrapper[i].pSignalSemaphores.GetLength(), pSignalSemaphores_memory, in_pBindInfo[i].signalSemaphoreCount, &VulkanObjectMapper::MapVkSemaphore);
         }
@@ -1165,7 +1165,7 @@ void VulkanReplayConsumer::Process_vkCreatePipelineLayout(
     if (in_pCreateInfo != nullptr)
     {
         const Decoded_VkPipelineLayoutCreateInfo* in_pCreateInfo_wrapper = pCreateInfo.GetMetaStructPointer();
-        VkDescriptorSetLayout* pSetLayouts_memory = AllocateArray<VkDescriptorSetLayout>(in_pCreateInfo->setLayoutCount);
+        VkDescriptorSetLayout* pSetLayouts_memory = in_pCreateInfo_wrapper->pSetLayouts.IsNull() ? nullptr : AllocateArray<VkDescriptorSetLayout>(in_pCreateInfo->setLayoutCount);
         in_pCreateInfo->pSetLayouts = pSetLayouts_memory;
         MapHandles<VkDescriptorSetLayout>(in_pCreateInfo_wrapper->pSetLayouts.GetPointer(), in_pCreateInfo_wrapper->pSetLayouts.GetLength(), pSetLayouts_memory, in_pCreateInfo->setLayoutCount, &VulkanObjectMapper::MapVkDescriptorSetLayout);
     }
@@ -1247,7 +1247,7 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorSetLayout(
 
             for (size_t i = 0; i < in_pCreateInfo->bindingCount; ++i)
             {
-                VkSampler* pImmutableSamplers_memory = AllocateArray<VkSampler>(in_pCreateInfo_pBindings[i].descriptorCount);
+                VkSampler* pImmutableSamplers_memory = in_pCreateInfo_pBindings_wrapper[i].pImmutableSamplers.IsNull() ? nullptr : AllocateArray<VkSampler>(in_pCreateInfo_pBindings[i].descriptorCount);
                 in_pCreateInfo_pBindings[i].pImmutableSamplers = pImmutableSamplers_memory;
                 MapHandles<VkSampler>(in_pCreateInfo_pBindings_wrapper[i].pImmutableSamplers.GetPointer(), in_pCreateInfo_pBindings_wrapper[i].pImmutableSamplers.GetLength(), pImmutableSamplers_memory, in_pCreateInfo_pBindings[i].descriptorCount, &VulkanObjectMapper::MapVkSampler);
             }
@@ -1342,7 +1342,7 @@ void VulkanReplayConsumer::Process_vkAllocateDescriptorSets(
         const Decoded_VkDescriptorSetAllocateInfo* in_pAllocateInfo_wrapper = pAllocateInfo.GetMetaStructPointer();
         in_pAllocateInfo->descriptorPool = object_mapper_.MapVkDescriptorPool(in_pAllocateInfo_wrapper->descriptorPool);
 
-        VkDescriptorSetLayout* pSetLayouts_memory = AllocateArray<VkDescriptorSetLayout>(in_pAllocateInfo->descriptorSetCount);
+        VkDescriptorSetLayout* pSetLayouts_memory = in_pAllocateInfo_wrapper->pSetLayouts.IsNull() ? nullptr : AllocateArray<VkDescriptorSetLayout>(in_pAllocateInfo->descriptorSetCount);
         in_pAllocateInfo->pSetLayouts = pSetLayouts_memory;
         MapHandles<VkDescriptorSetLayout>(in_pAllocateInfo_wrapper->pSetLayouts.GetPointer(), in_pAllocateInfo_wrapper->pSetLayouts.GetLength(), pSetLayouts_memory, in_pAllocateInfo->descriptorSetCount, &VulkanObjectMapper::MapVkDescriptorSetLayout);
     }
@@ -1423,7 +1423,7 @@ void VulkanReplayConsumer::Process_vkUpdateDescriptorSets(
                 }
             }
 
-            VkBufferView* pTexelBufferView_memory = AllocateArray<VkBufferView>(in_pDescriptorWrites[i].descriptorCount);
+            VkBufferView* pTexelBufferView_memory = in_pDescriptorWrites_wrapper[i].pTexelBufferView.IsNull() ? nullptr : AllocateArray<VkBufferView>(in_pDescriptorWrites[i].descriptorCount);
             in_pDescriptorWrites[i].pTexelBufferView = pTexelBufferView_memory;
             MapHandles<VkBufferView>(in_pDescriptorWrites_wrapper[i].pTexelBufferView.GetPointer(), in_pDescriptorWrites_wrapper[i].pTexelBufferView.GetLength(), pTexelBufferView_memory, in_pDescriptorWrites[i].descriptorCount, &VulkanObjectMapper::MapVkBufferView);
         }
@@ -1467,7 +1467,7 @@ void VulkanReplayConsumer::Process_vkCreateFramebuffer(
         const Decoded_VkFramebufferCreateInfo* in_pCreateInfo_wrapper = pCreateInfo.GetMetaStructPointer();
         in_pCreateInfo->renderPass = object_mapper_.MapVkRenderPass(in_pCreateInfo_wrapper->renderPass);
 
-        VkImageView* pAttachments_memory = AllocateArray<VkImageView>(in_pCreateInfo->attachmentCount);
+        VkImageView* pAttachments_memory = in_pCreateInfo_wrapper->pAttachments.IsNull() ? nullptr : AllocateArray<VkImageView>(in_pCreateInfo->attachmentCount);
         in_pCreateInfo->pAttachments = pAttachments_memory;
         MapHandles<VkImageView>(in_pCreateInfo_wrapper->pAttachments.GetPointer(), in_pCreateInfo_wrapper->pAttachments.GetLength(), pAttachments_memory, in_pCreateInfo->attachmentCount, &VulkanObjectMapper::MapVkImageView);
     }
@@ -2725,7 +2725,7 @@ void VulkanReplayConsumer::Process_vkGetDescriptorSetLayoutSupport(
 
             for (size_t i = 0; i < in_pCreateInfo->bindingCount; ++i)
             {
-                VkSampler* pImmutableSamplers_memory = AllocateArray<VkSampler>(in_pCreateInfo_pBindings[i].descriptorCount);
+                VkSampler* pImmutableSamplers_memory = in_pCreateInfo_pBindings_wrapper[i].pImmutableSamplers.IsNull() ? nullptr : AllocateArray<VkSampler>(in_pCreateInfo_pBindings[i].descriptorCount);
                 in_pCreateInfo_pBindings[i].pImmutableSamplers = pImmutableSamplers_memory;
                 MapHandles<VkSampler>(in_pCreateInfo_pBindings_wrapper[i].pImmutableSamplers.GetPointer(), in_pCreateInfo_pBindings_wrapper[i].pImmutableSamplers.GetLength(), pImmutableSamplers_memory, in_pCreateInfo_pBindings[i].descriptorCount, &VulkanObjectMapper::MapVkSampler);
             }
@@ -2917,11 +2917,11 @@ void VulkanReplayConsumer::Process_vkQueuePresentKHR(
     if (in_pPresentInfo != nullptr)
     {
         const Decoded_VkPresentInfoKHR* in_pPresentInfo_wrapper = pPresentInfo.GetMetaStructPointer();
-        VkSemaphore* pWaitSemaphores_memory = AllocateArray<VkSemaphore>(in_pPresentInfo->waitSemaphoreCount);
+        VkSemaphore* pWaitSemaphores_memory = in_pPresentInfo_wrapper->pWaitSemaphores.IsNull() ? nullptr : AllocateArray<VkSemaphore>(in_pPresentInfo->waitSemaphoreCount);
         in_pPresentInfo->pWaitSemaphores = pWaitSemaphores_memory;
         MapHandles<VkSemaphore>(in_pPresentInfo_wrapper->pWaitSemaphores.GetPointer(), in_pPresentInfo_wrapper->pWaitSemaphores.GetLength(), pWaitSemaphores_memory, in_pPresentInfo->waitSemaphoreCount, &VulkanObjectMapper::MapVkSemaphore);
 
-        VkSwapchainKHR* pSwapchains_memory = AllocateArray<VkSwapchainKHR>(in_pPresentInfo->swapchainCount);
+        VkSwapchainKHR* pSwapchains_memory = in_pPresentInfo_wrapper->pSwapchains.IsNull() ? nullptr : AllocateArray<VkSwapchainKHR>(in_pPresentInfo->swapchainCount);
         in_pPresentInfo->pSwapchains = pSwapchains_memory;
         MapHandles<VkSwapchainKHR>(in_pPresentInfo_wrapper->pSwapchains.GetPointer(), in_pPresentInfo_wrapper->pSwapchains.GetLength(), pSwapchains_memory, in_pPresentInfo->swapchainCount, &VulkanObjectMapper::MapVkSwapchainKHR);
     }
@@ -3740,7 +3740,7 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetKHR(
                 }
             }
 
-            VkBufferView* pTexelBufferView_memory = AllocateArray<VkBufferView>(in_pDescriptorWrites[i].descriptorCount);
+            VkBufferView* pTexelBufferView_memory = in_pDescriptorWrites_wrapper[i].pTexelBufferView.IsNull() ? nullptr : AllocateArray<VkBufferView>(in_pDescriptorWrites[i].descriptorCount);
             in_pDescriptorWrites[i].pTexelBufferView = pTexelBufferView_memory;
             MapHandles<VkBufferView>(in_pDescriptorWrites_wrapper[i].pTexelBufferView.GetPointer(), in_pDescriptorWrites_wrapper[i].pTexelBufferView.GetLength(), pTexelBufferView_memory, in_pDescriptorWrites[i].descriptorCount, &VulkanObjectMapper::MapVkBufferView);
         }
@@ -4260,7 +4260,7 @@ void VulkanReplayConsumer::Process_vkGetDescriptorSetLayoutSupportKHR(
 
             for (size_t i = 0; i < in_pCreateInfo->bindingCount; ++i)
             {
-                VkSampler* pImmutableSamplers_memory = AllocateArray<VkSampler>(in_pCreateInfo_pBindings[i].descriptorCount);
+                VkSampler* pImmutableSamplers_memory = in_pCreateInfo_pBindings_wrapper[i].pImmutableSamplers.IsNull() ? nullptr : AllocateArray<VkSampler>(in_pCreateInfo_pBindings[i].descriptorCount);
                 in_pCreateInfo_pBindings[i].pImmutableSamplers = pImmutableSamplers_memory;
                 MapHandles<VkSampler>(in_pCreateInfo_pBindings_wrapper[i].pImmutableSamplers.GetPointer(), in_pCreateInfo_pBindings_wrapper[i].pImmutableSamplers.GetLength(), pImmutableSamplers_memory, in_pCreateInfo_pBindings[i].descriptorCount, &VulkanObjectMapper::MapVkSampler);
             }
