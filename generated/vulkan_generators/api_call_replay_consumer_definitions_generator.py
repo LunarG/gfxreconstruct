@@ -356,7 +356,7 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
             allocation_name = value.name + '_memory'
             allocation_expr = indent + '{}* {} = '.format(value.baseType, allocation_name)
             if value.isDynamic:
-                allocation_expr += 'AllocateArray<{}>({}{});'.format(value.baseType, dstname, value.arrayLength)
+                allocation_expr += '{}{}.IsNull() ? nullptr : AllocateArray<{}>({}{});'.format(srcname, value.name, value.baseType, dstname, value.arrayLength)
                 preexpr.append(allocation_expr)
                 preexpr.append(indent + '{}{} = {};'.format(dstname, value.name, allocation_name))
                 deallocations.append('FreeArray<{}>(&{}{});'.format(value.baseType, dstname, value.name))
