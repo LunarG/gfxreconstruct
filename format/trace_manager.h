@@ -22,6 +22,8 @@
 #include <mutex>
 #include <string>
 
+#include "vulkan/vulkan.h"
+
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/memory_output_stream.h"
@@ -32,7 +34,6 @@
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
-
 
 class TraceManager
 {
@@ -48,6 +49,8 @@ public:
     ParameterEncoder* BeginApiCallTrace(ApiCallId call_id);
 
     void EndApiCallTrace(ParameterEncoder* encoder);
+
+    void WriteDisplayMessageCmd(const char* message);
 
 private:
     class ThreadData
@@ -77,6 +80,9 @@ private:
 private:
     void WriteFileHeader();
     void BuildOptionList(const EnabledOptions& enabled_options, std::vector<FileOptionPair>* option_list);
+
+    void WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height);
+    void WriteFillMemoryCmd(const void* memory, VkDeviceSize offset, VkDeviceSize size);
 
 private:
     static thread_local ThreadData                          thread_data_;

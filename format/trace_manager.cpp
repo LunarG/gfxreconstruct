@@ -219,5 +219,63 @@ void TraceManager::BuildOptionList(const EnabledOptions& enabled_options, std::v
     option_list->push_back({ FileOption::kOmitBuffers, enabled_options.omit_buffers ? 1u : 0u });
 }
 
+void TraceManager::WriteDisplayMessageCmd(const char* message)
+{
+    size_t                      message_length = util::platform::StringLength(message);
+    DisplayMessageCommandHeader message_cmd;
+
+    message_cmd.meta_header.block_header.type = kMetaDataBlock;
+    message_cmd.meta_header.block_header.size = sizeof(message_cmd.meta_header.meta_data_type) +
+                                                sizeof(message_cmd.message_size) + message_length;
+    message_cmd.meta_header.meta_data_type    = kDisplayMessageCommand;
+    message_cmd.message_size                  = message_length;
+
+    {
+        std::lock_guard<std::mutex> lock(file_lock_);
+
+        bytes_written_ += file_stream_->Write(&message_cmd, sizeof(message_cmd));
+        bytes_written_ += file_stream_->Write(message, message_length);
+    }
+}
+
+void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height)
+{
+    ResizeWindowCommand resize_cmd;
+    resize_cmd.meta_header.block_header.type = kMetaDataBlock;
+    resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
+                                               sizeof(resize_cmd.surface_id) + sizeof(resize_cmd.width) +
+                                               sizeof(resize_cmd.height);
+    resize_cmd.meta_header.meta_data_type = kResizeWindowCommand;
+
+    resize_cmd.surface_id = reinterpret_cast<HandleId>(surface);
+    resize_cmd.width      = width;
+    resize_cmd.height     = height;
+
+    {
+        std::lock_guard<std::mutex> lock(file_lock_);
+        bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+    }
+}
+
+void TraceManager::WriteFillMemoryCmd(const void* memory, VkDeviceSize offset, VkDeviceSize size)
+{
+    FillMemoryCommandHeader fill_cmd;
+
+    fill_cmd.meta_header.block_header.type = kMetaDataBlock;
+    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.memory_id) +
+                                             sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + size;
+    fill_cmd.meta_header.meta_data_type = kFillMemoryCommand;
+    fill_cmd.memory_id                  = reinterpret_cast<uint64_t>(memory);
+    fill_cmd.memory_offset              = offset;
+    fill_cmd.memory_size                = size;
+
+    {
+        std::lock_guard<std::mutex> lock(file_lock_);
+
+        bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
+        bytes_written_ += file_stream_->Write((static_cast<const uint8_t*>(memory) + offset), size);
+    }
+}
+
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
