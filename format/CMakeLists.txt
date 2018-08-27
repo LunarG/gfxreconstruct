@@ -6,6 +6,7 @@ target_sources(brimstone_format
                    custom_struct_decoders.h
                    custom_struct_decoders_forward.h
                    custom_struct_encoders.h
+                   custom_encoder_commands.h
                    decoder.h
                    file_processor.h
                    format.h

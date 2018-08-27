@@ -277,5 +277,22 @@ void TraceManager::WriteFillMemoryCmd(const void* memory, VkDeviceSize offset, V
     }
 }
 
+void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
+                                                const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                                const VkAllocationCallbacks*    pAllocator,
+                                                VkSwapchainKHR*                 pSwapchain)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pSwapchain);
+
+    assert(pCreateInfo != nullptr);
+
+    if (pCreateInfo)
+    {
+        WriteResizeWindowCmd(pCreateInfo->surface, pCreateInfo->imageExtent.width, pCreateInfo->imageExtent.height);
+    }
+}
+
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
