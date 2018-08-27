@@ -52,6 +52,11 @@ public:
 
     void WriteDisplayMessageCmd(const char* message);
 
+    void PreProcess_vkCreateSwapchain(VkDevice                        device,
+                                      const VkSwapchainCreateInfoKHR* pCreateInfo,
+                                      const VkAllocationCallbacks*    pAllocator,
+                                      VkSwapchainKHR*                 pSwapchain);
+
 private:
     class ThreadData
     {
