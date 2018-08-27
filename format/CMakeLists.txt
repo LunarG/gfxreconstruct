@@ -10,6 +10,7 @@ target_sources(brimstone_format
                    decoder.h
                    file_processor.h
                    format.h
+                   memory_tracker.h
                    parameter_encoder.h
                    platform_types.h
                    pnext_node.h
@@ -35,6 +36,7 @@ target_sources(brimstone_format
                    custom_struct_decoders.cpp
                    custom_struct_encoders.cpp
                    file_processor.cpp
+                   memory_tracker.cpp
                    trace_manager.cpp
                    vulkan_ascii_consumer.cpp
                    vulkan_replay_consumer.cpp
