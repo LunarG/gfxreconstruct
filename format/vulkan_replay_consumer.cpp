@@ -93,7 +93,7 @@ void VulkanReplayConsumer::RaiseFatalError(const char* message) const
     }
 }
 
-void* VulkanReplayConsumer::ProcessExternalObject(uint64_t object_id, ApiCallId call_id, const char* call_name)
+void* VulkanReplayConsumer::PreProcessExternalObject(uint64_t object_id, ApiCallId call_id, const char* call_name)
 {
     void* object = nullptr;
 
@@ -112,6 +112,26 @@ void* VulkanReplayConsumer::ProcessExternalObject(uint64_t object_id, ApiCallId 
     }
 
     return object;
+}
+
+void VulkanReplayConsumer::PostProcessExternalObject(const PointerDecoder<uint64_t>& object_id,
+                                                     void*                           object,
+                                                     ApiCallId                       call_id,
+                                                     const char*                     call_name)
+{
+    if (call_id == ApiCallId_vkMapMemory)
+    {
+        if (!object_id.IsNull() && (object != nullptr))
+        {
+            uint64_t* key = object_id.GetPointer();
+            pointer_map_.insert(std::make_pair((*key), object));
+        }
+    }
+    else
+    {
+        BRIMSTONE_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
+                              call_name);
+    }
 }
 
 const VkAllocationCallbacks* VulkanReplayConsumer::GetAllocationCallbacks(

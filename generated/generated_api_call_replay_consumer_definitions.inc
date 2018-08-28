@@ -299,6 +299,8 @@ void VulkanReplayConsumer::Process_vkMapMemory(
 
     VkResult replay_result = Dispatcher<ApiCallId_vkMapMemory, VkResult, PFN_vkMapMemory>::Dispatch(this, vkMapMemory, in_device, in_memory, offset, size, flags, out_ppData);
     CheckResult("vkMapMemory", returnValue, replay_result);
+
+    PostProcessExternalObject(ppData, out_ppData_value, ApiCallId_vkMapMemory, "vkMapMemory");
 }
 
 void VulkanReplayConsumer::Process_vkUnmapMemory(
@@ -2662,7 +2664,7 @@ void VulkanReplayConsumer::Process_vkUpdateDescriptorSetWithTemplate(
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkDescriptorSet in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
-    const void* in_pData = ProcessExternalObject(pData, ApiCallId_vkUpdateDescriptorSetWithTemplate, "vkUpdateDescriptorSetWithTemplate");
+    const void* in_pData = PreProcessExternalObject(pData, ApiCallId_vkUpdateDescriptorSetWithTemplate, "vkUpdateDescriptorSetWithTemplate");
 
     Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplate, void, PFN_vkUpdateDescriptorSetWithTemplate>::Dispatch(this, vkUpdateDescriptorSetWithTemplate, in_device, in_descriptorSet, in_descriptorUpdateTemplate, in_pData);
 }
@@ -3235,7 +3237,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
     uint32_t                                    visual_id)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    xcb_connection_t* in_connection = static_cast<xcb_connection_t*>(ProcessExternalObject(connection, ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, "vkGetPhysicalDeviceXcbPresentationSupportKHR"));
+    xcb_connection_t* in_connection = static_cast<xcb_connection_t*>(PreProcessExternalObject(connection, ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, "vkGetPhysicalDeviceXcbPresentationSupportKHR"));
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceXcbPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_connection, visual_id);
 }
@@ -3268,7 +3270,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupport
     uint64_t                                    display)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    struct wl_display* in_display = static_cast<struct wl_display*>(ProcessExternalObject(display, ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, "vkGetPhysicalDeviceWaylandPresentationSupportKHR"));
+    struct wl_display* in_display = static_cast<struct wl_display*>(PreProcessExternalObject(display, ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, "vkGetPhysicalDeviceWaylandPresentationSupportKHR"));
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceWaylandPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_display);
 }
@@ -3549,6 +3551,8 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandleKHR(
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryWin32HandleKHR, VkResult, PFN_vkGetMemoryWin32HandleKHR>::Dispatch(this, vkGetMemoryWin32HandleKHR, in_device, in_pGetWin32HandleInfo, out_pHandle);
     CheckResult("vkGetMemoryWin32HandleKHR", returnValue, replay_result);
+
+    PostProcessExternalObject(pHandle, static_cast<void*>(out_pHandle_value), ApiCallId_vkGetMemoryWin32HandleKHR, "vkGetMemoryWin32HandleKHR");
 }
 
 void VulkanReplayConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
@@ -3559,7 +3563,7 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
     const StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>& pMemoryWin32HandleProperties)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    HANDLE in_handle = static_cast<HANDLE>(ProcessExternalObject(handle, ApiCallId_vkGetMemoryWin32HandlePropertiesKHR, "vkGetMemoryWin32HandlePropertiesKHR"));
+    HANDLE in_handle = static_cast<HANDLE>(PreProcessExternalObject(handle, ApiCallId_vkGetMemoryWin32HandlePropertiesKHR, "vkGetMemoryWin32HandlePropertiesKHR"));
     VkMemoryWin32HandlePropertiesKHR out_pMemoryWin32HandleProperties_value = {};
     VkMemoryWin32HandlePropertiesKHR* out_pMemoryWin32HandleProperties = &out_pMemoryWin32HandleProperties_value;
 
@@ -3652,6 +3656,8 @@ void VulkanReplayConsumer::Process_vkGetSemaphoreWin32HandleKHR(
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetSemaphoreWin32HandleKHR, VkResult, PFN_vkGetSemaphoreWin32HandleKHR>::Dispatch(this, vkGetSemaphoreWin32HandleKHR, in_device, in_pGetWin32HandleInfo, out_pHandle);
     CheckResult("vkGetSemaphoreWin32HandleKHR", returnValue, replay_result);
+
+    PostProcessExternalObject(pHandle, static_cast<void*>(out_pHandle_value), ApiCallId_vkGetSemaphoreWin32HandleKHR, "vkGetSemaphoreWin32HandleKHR");
 }
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
@@ -3767,7 +3773,7 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     VkCommandBuffer in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
     VkPipelineLayout in_layout = object_mapper_.MapVkPipelineLayout(layout);
-    const void* in_pData = ProcessExternalObject(pData, ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR, "vkCmdPushDescriptorSetWithTemplateKHR");
+    const void* in_pData = PreProcessExternalObject(pData, ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR, "vkCmdPushDescriptorSetWithTemplateKHR");
 
     Dispatcher<ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR, void, PFN_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(this, vkCmdPushDescriptorSetWithTemplateKHR, in_commandBuffer, in_descriptorUpdateTemplate, in_layout, set, in_pData);
 }
@@ -3819,7 +3825,7 @@ void VulkanReplayConsumer::Process_vkUpdateDescriptorSetWithTemplateKHR(
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkDescriptorSet in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
-    const void* in_pData = ProcessExternalObject(pData, ApiCallId_vkUpdateDescriptorSetWithTemplateKHR, "vkUpdateDescriptorSetWithTemplateKHR");
+    const void* in_pData = PreProcessExternalObject(pData, ApiCallId_vkUpdateDescriptorSetWithTemplateKHR, "vkUpdateDescriptorSetWithTemplateKHR");
 
     Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplateKHR, void, PFN_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(this, vkUpdateDescriptorSetWithTemplateKHR, in_device, in_descriptorSet, in_descriptorUpdateTemplate, in_pData);
 }
@@ -3945,6 +3951,8 @@ void VulkanReplayConsumer::Process_vkGetFenceWin32HandleKHR(
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetFenceWin32HandleKHR, VkResult, PFN_vkGetFenceWin32HandleKHR>::Dispatch(this, vkGetFenceWin32HandleKHR, in_device, in_pGetWin32HandleInfo, out_pHandle);
     CheckResult("vkGetFenceWin32HandleKHR", returnValue, replay_result);
+
+    PostProcessExternalObject(pHandle, static_cast<void*>(out_pHandle_value), ApiCallId_vkGetFenceWin32HandleKHR, "vkGetFenceWin32HandleKHR");
 }
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
@@ -4502,6 +4510,8 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandleNV(
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryWin32HandleNV, VkResult, PFN_vkGetMemoryWin32HandleNV>::Dispatch(this, vkGetMemoryWin32HandleNV, in_device, in_memory, handleType, out_pHandle);
     CheckResult("vkGetMemoryWin32HandleNV", returnValue, replay_result);
+
+    PostProcessExternalObject(pHandle, static_cast<void*>(out_pHandle_value), ApiCallId_vkGetMemoryWin32HandleNV, "vkGetMemoryWin32HandleNV");
 }
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
@@ -5092,7 +5102,7 @@ void VulkanReplayConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     const StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>& pProperties)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    const struct AHardwareBuffer* in_buffer = ProcessExternalObject(buffer, ApiCallId_vkGetAndroidHardwareBufferPropertiesANDROID, "vkGetAndroidHardwareBufferPropertiesANDROID");
+    const struct AHardwareBuffer* in_buffer = PreProcessExternalObject(buffer, ApiCallId_vkGetAndroidHardwareBufferPropertiesANDROID, "vkGetAndroidHardwareBufferPropertiesANDROID");
     VkAndroidHardwareBufferPropertiesANDROID out_pProperties_value = {};
     VkAndroidHardwareBufferPropertiesANDROID* out_pProperties = &out_pProperties_value;
 
@@ -5118,6 +5128,8 @@ void VulkanReplayConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryAndroidHardwareBufferANDROID, VkResult, PFN_vkGetMemoryAndroidHardwareBufferANDROID>::Dispatch(this, vkGetMemoryAndroidHardwareBufferANDROID, in_device, in_pInfo, out_pBuffer);
     CheckResult("vkGetMemoryAndroidHardwareBufferANDROID", returnValue, replay_result);
+
+    PostProcessExternalObject(pBuffer, out_pBuffer_value, ApiCallId_vkGetMemoryAndroidHardwareBufferANDROID, "vkGetMemoryAndroidHardwareBufferANDROID");
 }
 #endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
@@ -5219,7 +5231,7 @@ void VulkanReplayConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(
     const StructPointerDecoder<Decoded_VkMemoryHostPointerPropertiesEXT>& pMemoryHostPointerProperties)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    const void* in_pHostPointer = ProcessExternalObject(pHostPointer, ApiCallId_vkGetMemoryHostPointerPropertiesEXT, "vkGetMemoryHostPointerPropertiesEXT");
+    const void* in_pHostPointer = PreProcessExternalObject(pHostPointer, ApiCallId_vkGetMemoryHostPointerPropertiesEXT, "vkGetMemoryHostPointerPropertiesEXT");
     VkMemoryHostPointerPropertiesEXT out_pMemoryHostPointerProperties_value = {};
     VkMemoryHostPointerPropertiesEXT* out_pMemoryHostPointerProperties = &out_pMemoryHostPointerProperties_value;
 
