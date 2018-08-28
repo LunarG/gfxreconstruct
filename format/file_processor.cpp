@@ -195,7 +195,122 @@ bool FileProcessor::ProcessNextFrame()
             }
             else if (block_header.type == BlockType::kMetaDataBlock)
             {
+                MetaDataType meta_type;
+
+                size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_type);
+
+                success = (ReadBytes(&meta_type, sizeof(meta_type)) == sizeof(meta_type)) ? true : false;
+
+                if (success)
+                {
+                    if (meta_type == kDisplayMessageCommand)
+                    {
+                        DisplayMessageCommandHeader header;
+
+                        success = (ReadBytes(&header.message_size, sizeof(header.message_size)) ==
+                                   sizeof(header.message_size))
+                                      ? true
+                                      : false;
+
+                        if (success)
+                        {
+                            success = ReadParameterBuffer(header.message_size);
+                        }
+
+                        if (success)
+                        {
+                            std::string message(parameter_buffer_.begin(), parameter_buffer_.end());
+
+                            for (auto decoder : decoders_)
+                            {
+                                decoder->DispatchDisplayMessageCommand(message);
+                            }
+                        }
+                    }
+                    else if (meta_type == kFillMemoryCommand)
+                    {
+                        FillMemoryCommandHeader header;
+
+                        success =
+                            (ReadBytes(&header.memory_id, sizeof(header.memory_id)) == sizeof(header.memory_id)) ? true : false;
+
+                        if (success)
+                        {
+                            success = (ReadBytes(&header.memory_offset, sizeof(header.memory_offset)) == sizeof(header.memory_offset))
+                                          ? true
+                                          : false;
+                        }
+
+                        if (success)
+                        {
+                            success =
+                                (ReadBytes(&header.memory_size, sizeof(header.memory_size)) == sizeof(header.memory_size))
+                                    ? true
+                                    : false;
+                        }
+
+                        if (success)
+                        {
+                            success = ReadParameterBuffer(header.memory_size);
+                        }
+
+                        if (success)
+                        {
+                            for (auto decoder : decoders_)
+                            {
+                                decoder->DispatchFillMemoryCommand(header.memory_id,
+                                                                   header.memory_offset,
+                                                                   header.memory_size,
+                                                                   parameter_buffer_.data());
+                            }
+                        }
+                    }
+                    else if (meta_type == kResizeWindowCommand)
+                    {
+                        ResizeWindowCommand command;
+
+                        success =
+                            (ReadBytes(&command.surface_id, sizeof(command.surface_id)) == sizeof(command.surface_id))
+                                ? true
+                                : false;
+
+                        if (success)
+                        {
+                            success = (ReadBytes(&command.width, sizeof(command.width)) == sizeof(command.width))
+                                          ? true
+                                          : false;
+                        }
+
+                        if (success)
+                        {
+                            success = (ReadBytes(&command.height, sizeof(command.height)) == sizeof(command.height))
+                                          ? true
+                                          : false;
+                        }
+
+                        if (success)
+                        {
+                            for (auto decoder : decoders_)
+                            {
+                                decoder->DispatchResizeWindowCommand(command.surface_id, command.width, command.height);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Unrecognized metadata type.
+                        // TODO: Skip unrecognized block.
+                    }
+                }
+            }
+            else if (block_header.type == BlockType::kCompressedMetaDataBlock)
+            {
                 // TODO
+            }
+            else
+            {
+                // Unrecognized block type.
+                // TODO: Skip unrecognized block.
             }
 
             if (success)
