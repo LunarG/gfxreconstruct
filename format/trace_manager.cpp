@@ -257,7 +257,7 @@ void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, ui
     }
 }
 
-void TraceManager::WriteFillMemoryCmd(const void* memory, VkDeviceSize offset, VkDeviceSize size)
+void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
     FillMemoryCommandHeader fill_cmd;
 
@@ -273,7 +273,7 @@ void TraceManager::WriteFillMemoryCmd(const void* memory, VkDeviceSize offset, V
         std::lock_guard<std::mutex> lock(file_lock_);
 
         bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
-        bytes_written_ += file_stream_->Write((static_cast<const uint8_t*>(memory) + offset), size);
+        bytes_written_ += file_stream_->Write((static_cast<const uint8_t*>(data) + offset), size);
     }
 }
 
@@ -355,7 +355,7 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
                     size = info->allocation_size - (pMemoryRanges[i].offset - info->mapped_offset);
                 }
 
-                WriteFillMemoryCmd(info->data, pMemoryRanges[i].offset, size);
+                WriteFillMemoryCmd(pMemoryRanges[i].memory, pMemoryRanges[i].offset, size, info->data);
             }
         }
     }
@@ -369,9 +369,10 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
     if ((info != nullptr) && (info->data != nullptr))
     {
         // Write the full mapped memory range for now.
-        WriteFillMemoryCmd(info->data,
+        WriteFillMemoryCmd(memory,
                            info->mapped_offset,
-                           (info->mapped_size == VK_WHOLE_SIZE) ? info->allocation_size : info->mapped_size);
+                           (info->mapped_size == VK_WHOLE_SIZE) ? info->allocation_size : info->mapped_size,
+                           info->data);
 
         memory_tracker_.UnmapEntry(memory);
     }

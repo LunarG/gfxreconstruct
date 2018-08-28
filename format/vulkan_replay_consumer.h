@@ -47,7 +47,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     virtual void ProcessDisplayMessageCommand(const std::string& message) override;
 
     virtual void
-    ProcessFillMemoryCommand(uint64_t pointer_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
+    ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
     virtual void ProcessResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) override;
 
@@ -76,6 +76,17 @@ class VulkanReplayConsumer : public VulkanConsumer
                                   const VkDeviceCreateInfo*    pCreateInfo,
                                   const VkAllocationCallbacks* pAllocator,
                                   VkDevice*                    pDevice);
+
+    VkResult OverrideMapMemory(VkDevice         device,
+                               VkDeviceMemory   memory,
+                               VkDeviceSize     offset,
+                               VkDeviceSize     size,
+                               VkMemoryMapFlags flags,
+                               void**           ppData);
+
+    void OverrideUnmapMemory(VkDevice device, VkDeviceMemory memory);
+
+    void OverrideFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
 
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
@@ -183,6 +194,39 @@ class VulkanReplayConsumer : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkMapMemory, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkMapMemory func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideMapMemory(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkUnmapMemory, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkUnmapMemory func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideUnmapMemory(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkFreeMemory, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkFreeMemory func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideFreeMemory(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
     struct Dispatcher<ApiCallId_vkCreateWin32SurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
@@ -207,14 +251,14 @@ class VulkanReplayConsumer : public VulkanConsumer
 
   private:
     typedef std::unordered_map<VkSurfaceKHR, Window*> WindowMap;
-    typedef std::unordered_map<uint64_t, void*> MappedPointerMap;
+    typedef std::unordered_map<VkDeviceMemory, void*> MappedMemoryMap;
 
   private:
     std::function<void(const char*)> fatal_error_handler_;
     WindowFactory*                   window_factory_;
     VulkanObjectMapper               object_mapper_;
     WindowMap                        window_map_;
-    MappedPointerMap                 pointer_map_;
+    MappedMemoryMap                  memory_map_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)

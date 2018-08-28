@@ -45,20 +45,30 @@ void VulkanReplayConsumer::ProcessDisplayMessageCommand(const std::string& messa
     BRIMSTONE_LOG_INFO("Trace Message: %s", message.c_str());
 }
 
-void VulkanReplayConsumer::ProcessFillMemoryCommand(uint64_t       pointer_id,
+void VulkanReplayConsumer::ProcessFillMemoryCommand(uint64_t       memory_id,
                                                     uint64_t       offset,
                                                     uint64_t       size,
                                                     const uint8_t* data)
 {
-    auto entry = pointer_map_.find(pointer_id);
+    // We need to find the device memory associated with this ID, and then lookup its mapped pointer.
+    VkDeviceMemory memory = object_mapper_.MapVkDeviceMemory(memory_id);
 
-    if ((entry != pointer_map_.end()) && (entry->second != nullptr))
+    if (memory != VK_NULL_HANDLE)
     {
-        memcpy(static_cast<uint8_t*>(entry->second) + offset, data, size);
+        auto entry = memory_map_.find(memory);
+
+        if ((entry != memory_map_.end()) && (entry->second != nullptr))
+        {
+            memcpy(static_cast<uint8_t*>(entry->second) + offset, data, size);
+        }
+        else
+        {
+            BRIMSTONE_LOG_WARNING("Skipping memory fill for VkDeviceMemory object that is not mapped (%" PRIx64 ")", memory_id);
+        }
     }
     else
     {
-        BRIMSTONE_LOG_WARNING("Skipping memory fill for unrecognized mapped pointer (%" PRIx64 ")", pointer_id);
+        BRIMSTONE_LOG_WARNING("Skipping memory fill for unrecognized VkDeviceMemory object (%" PRIx64 ")", memory_id);
     }
 }
 
@@ -81,6 +91,10 @@ void VulkanReplayConsumer::ProcessResizeWindowCommand(HandleId surface_id, uint3
             BRIMSTONE_LOG_WARNING(
                 "Skipping window resize for VkSurface object (%" PRIx64 ") without an associated window", surface_id);
         }
+    }
+    else
+    {
+        BRIMSTONE_LOG_WARNING("Skipping window resize for unrecognized VkSurface object (%" PRIx64 ")", surface_id);
     }
 }
 
@@ -121,11 +135,9 @@ void VulkanReplayConsumer::PostProcessExternalObject(const PointerDecoder<uint64
 {
     if (call_id == ApiCallId_vkMapMemory)
     {
-        if (!object_id.IsNull() && (object != nullptr))
-        {
-            uint64_t* key = object_id.GetPointer();
-            pointer_map_.insert(std::make_pair((*key), object));
-        }
+        // Mapped memory tracking is handled by mapping the VkDeviceMemory handle to the mapped pointer, rather than
+        // mapping the traced pointer address to the mapped pointer.  The memory needs to be tracked by handle so that
+        // it can be removed from the unordered_map when memory is unmapped or freed.
     }
     else
     {
@@ -209,6 +221,39 @@ VkResult VulkanReplayConsumer::OverrideCreateDevice(VkPhysicalDevice            
     }
 
     return result;
+}
+
+VkResult VulkanReplayConsumer::OverrideMapMemory(VkDevice         device,
+                                                 VkDeviceMemory   memory,
+                                                 VkDeviceSize     offset,
+                                                 VkDeviceSize     size,
+                                                 VkMemoryMapFlags flags,
+                                                 void**           ppData)
+{
+    VkResult result = vkMapMemory(device, memory, offset, size, flags, ppData);
+
+    if ((result == VK_SUCCESS) && (ppData != nullptr) && (*ppData != nullptr))
+    {
+        memory_map_.insert(std::make_pair(memory, (*ppData)));
+    }
+
+    return result;
+}
+
+void VulkanReplayConsumer::OverrideUnmapMemory(VkDevice device, VkDeviceMemory memory)
+{
+    memory_map_.erase(memory);
+
+    vkUnmapMemory(device, memory);
+}
+
+void VulkanReplayConsumer::OverrideFreeMemory(VkDevice                     device,
+                                              VkDeviceMemory               memory,
+                                              const VkAllocationCallbacks* pAllocator)
+{
+    memory_map_.erase(memory);
+
+    vkFreeMemory(device, memory, pAllocator);
 }
 
 VkResult VulkanReplayConsumer::OverrideCreateWin32SurfaceKHR(VkInstance                         instance,

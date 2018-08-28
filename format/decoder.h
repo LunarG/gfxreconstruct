@@ -40,7 +40,7 @@ class Decoder
 
     virtual void DispatchDisplayMessageCommand(const std::string& message) {}
 
-    virtual void DispatchFillMemoryCommand(uint64_t pointer_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
+    virtual void DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
 
     virtual void DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) {}
 };
