@@ -167,9 +167,9 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
                         # If possible, we will map the ID to an object previously created during replay.  Otherwise, we will
                         # need to report a warning that we may have a case that replay cannot handle.
                         if value.platformFullType:
-                            expr += 'static_cast<{}>(ProcessExternalObject({}, ApiCallId_{name}, "{name}"));'.format(value.platformFullType, value.name, name=name)
+                            expr += 'static_cast<{}>(PreProcessExternalObject({}, ApiCallId_{name}, "{name}"));'.format(value.platformFullType, value.name, name=name)
                         else:
-                            expr += 'ProcessExternalObject({}, ApiCallId_{name}, "{name}");'.format(value.name, name=name)
+                            expr += 'PreProcessExternalObject({}, ApiCallId_{name}, "{name}");'.format(value.name, name=name)
                     elif value.baseType == 'VkAllocationCallbacks':
                         # The replay consumer needs to override the allocation callbacks used by the captured application.
                         expr += 'GetAllocationCallbacks({});'.format(value.name)
@@ -209,13 +209,17 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
                             postexpr.append('FreeArray<{}>(&{});'.format(value.baseType, argName))
                     else:
                         if value.baseType in self.EXTERNAL_OBJECT_TYPES:
-                            # TODO: Handle mapped memory pointer case.
-                            print("WARNING: Generating replay code for function {} with an unrecognized void* parameter.".format(name))
                             outName = 'out_{}_value'.format(value.name)
                             outType = 'void' if not value.platformBaseType else value.platformBaseType
                             outCount = value.pointerCount if not value.platformFullType else self.getPointerCount(value.platformFullType)
                             preexpr.append('{}{} {} = nullptr;'.format(outType, '*' * (outCount - 1), outName))
                             expr += '&{};'.format(outName)
+
+                            # Map the object ID to the new object
+                            if value.platformFullType:
+                                postexpr.append('PostProcessExternalObject({}, static_cast<void*>({}), ApiCallId_{name}, "{name}");'.format(value.name, outName, name=name))
+                            else:
+                                postexpr.append('PostProcessExternalObject({}, {}, ApiCallId_{name}, "{name}");'.format(value.name, outName, name=name))
                         else:
                             outName = 'out_{}_value'.format(value.name)
                             if self.isArrayLen(value.name, values):

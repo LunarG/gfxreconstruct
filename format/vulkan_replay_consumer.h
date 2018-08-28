@@ -27,6 +27,7 @@
 
 #include "util/defines.h"
 #include "format/api_call_id.h"
+#include "format/pointer_decoder.h"
 #include "format/vulkan_consumer.h"
 #include "format/vulkan_object_mapper.h"
 #include "format/window.h"
@@ -55,7 +56,12 @@ class VulkanReplayConsumer : public VulkanConsumer
   private:
     void RaiseFatalError(const char* message) const;
 
-    void* ProcessExternalObject(uint64_t object_id, ApiCallId call_id, const char* call_name);
+    void* PreProcessExternalObject(uint64_t object_id, ApiCallId call_id, const char* call_name);
+
+    void  PostProcessExternalObject(const PointerDecoder<uint64_t>& object_id,
+                                    void*                           object,
+                                    ApiCallId                       call_id,
+                                    const char*                     call_name);
 
     const VkAllocationCallbacks*
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
