@@ -111,7 +111,7 @@ private:
     void BuildOptionList(const EnabledOptions& enabled_options, std::vector<FileOptionPair>* option_list);
 
     void WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height);
-    void WriteFillMemoryCmd(const void* memory, VkDeviceSize offset, VkDeviceSize size);
+    void WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data);
 
 private:
     static thread_local ThreadData                          thread_data_;

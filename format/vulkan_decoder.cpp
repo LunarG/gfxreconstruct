@@ -46,11 +46,11 @@ void VulkanDecoder::DispatchDisplayMessageCommand(const std::string& message)
     }
 }
 
-void VulkanDecoder::DispatchFillMemoryCommand(uint64_t pointer_id, uint64_t offset, uint64_t size, const uint8_t* data)
+void VulkanDecoder::DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data)
 {
     for (auto consumer : consumers_)
     {
-        consumer->ProcessFillMemoryCommand(pointer_id, offset, size, data);
+        consumer->ProcessFillMemoryCommand(memory_id, offset, size, data);
     }
 }
 
