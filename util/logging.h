@@ -23,6 +23,7 @@
 #include <cstdarg>
 #include <string>
 #include <cstring>
+#include <cstdio>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
@@ -36,7 +37,8 @@ enum Severity : uint32_t
     kInfoSeverity,
     kWarningSeverity,
     kErrorSeverity,
-    kFatalSeverity
+    kFatalSeverity,
+    kNoWritePrefix = 0xFFFFFFFF
 };
 
 struct Settings
@@ -59,13 +61,14 @@ struct Settings
     // Console settings
     bool write_to_console;          // Write info out to the console
     bool output_errors_to_stderr;   // Output errors to stderr versus stdout
+    bool output_to_win_debug_string; // Windows-specific output messages to OutputDebugString
 
     // Constructor used for default initialization
     Settings() : min_severity(kErrorSeverity), output_detailed_log_info(false),
                  flush_after_write(false), use_indent(false), indent(0),
                  indent_spaces(std::string("   ")), break_on_error(false), write_to_file(false),
                  leave_file_open(true), file_name(std::string("")), file_pointer(nullptr),
-                 write_to_console(true), output_errors_to_stderr(true)
+                 write_to_console(true), output_errors_to_stderr(true), output_to_win_debug_string(false)
     {
     }
 };
@@ -88,15 +91,41 @@ inline std::string SeverityToString(Severity severity)
             return "ERROR";
         case kFatalSeverity:
             return "FATAL";
+        case kNoWritePrefix:
+            // Don't write any severity string for "Always"
+            return "";
         default:
             return "UNKNOWN";
+    }
+}
+
+static std::string ConvertFormatVaListToString(const std::string& format_string, va_list& var_args)
+{
+    va_list var_args_copy;
+    va_copy(var_args_copy, var_args);
+    try
+    {
+        // Determine how much space is needed in the new string
+        const int32_t sz = std::vsnprintf(nullptr, 0, format_string.c_str(), var_args) + 1;
+
+        // Create a result string and clear it with spaces and then copy the formatted
+        // string results into it.
+        std::string result_string(sz, ' ');
+        std::vsnprintf(&result_string.front(), sz, format_string.c_str(), var_args_copy);
+        va_end(var_args_copy);
+        return result_string;
+    }
+    catch (...)
+    {
+        va_end(var_args_copy);
+        return "";
     }
 }
 
 inline void Init(Severity min_severity = kErrorSeverity, const char* log_file_name = NULL, bool leave_file_open = true,
                  bool create_new_file_on_open = true, bool flush_after_write = false, bool break_on_error = false,
                  bool output_detailed_log_info = false, bool write_to_console = true, bool errors_to_stderr = true,
-                 bool use_indent = false)
+                 bool output_to_win_debug_string = false, bool use_indent = false)
 {
     g_settings.min_severity = min_severity;
     if (NULL != log_file_name && strlen(log_file_name) > 0)
@@ -123,6 +152,7 @@ inline void Init(Severity min_severity = kErrorSeverity, const char* log_file_na
     g_settings.output_detailed_log_info = output_detailed_log_info;
     g_settings.write_to_console = write_to_console;
     g_settings.output_errors_to_stderr = errors_to_stderr;
+    g_settings.output_to_win_debug_string = output_to_win_debug_string;
     g_settings.use_indent = use_indent;
 }
 
@@ -143,19 +173,26 @@ inline void LogMessage(Severity severity, const char* file, const char* function
     FILE* log_file_ptr;
 
     // Log message prefix
-    std::string prefix = "[Brimstone] ";
-    prefix += SeverityToString(severity);
-    if (g_settings.output_detailed_log_info)
+    std::string prefix = "";
+
+    // If this is a "console write" always output style string, we don't want any
+    // decorations before the string.
+    if (severity != kNoWritePrefix)
     {
-        prefix += " | ";
-        prefix += file;
-        prefix += ",";
-        prefix += function;
-        prefix += "(";
-        prefix += line;
-        prefix += ")";
+        prefix += "[Brimstone] ";
+        prefix += SeverityToString(severity);
+        if (g_settings.output_detailed_log_info)
+        {
+            prefix += " | ";
+            prefix += file;
+            prefix += ",";
+            prefix += function;
+            prefix += "(";
+            prefix += line;
+            prefix += ")";
+        }
+        prefix += " - ";
     }
-    prefix += " - ";
 
     for (uint32_t output_target = 0; output_target < 2; ++output_target)
     {
@@ -204,19 +241,33 @@ inline void LogMessage(Severity severity, const char* file, const char* function
             continue;
         }
 
-        platform::FilePuts(prefix.c_str(), log_file_ptr);
-        if (write_indent)
+        // Again, if this is a "console write" always output style string, we don't want any
+        // decorations beforehand.  Including index spaces.
+        if (severity != kNoWritePrefix)
         {
-            for (uint32_t iii = 0; iii < g_settings.indent; ++iii)
+            platform::FilePuts(prefix.c_str(), log_file_ptr);
+            if (write_indent)
             {
-                platform::FilePuts(g_settings.indent_spaces.c_str(), log_file_ptr);
+                for (uint32_t iii = 0; iii < g_settings.indent; ++iii)
+                {
+                    platform::FilePuts(g_settings.indent_spaces.c_str(), log_file_ptr);
+                }
             }
         }
 
         va_list valist;
         va_start(valist, message);
-        platform::FileVprintf(log_file_ptr, message, valist);
+        std::string generated_string = ConvertFormatVaListToString(message, valist);
         va_end(valist);
+
+#ifdef WIN32
+        if (g_settings.output_to_win_debug_string)
+        {
+            OutputDebugStringA(generated_string.c_str());
+        }
+#endif // WIN32
+
+        platform::FilePuts(generated_string.c_str(), log_file_ptr);
         platform::FilePuts("\n", log_file_ptr);
 
         if (g_settings.flush_after_write)
@@ -231,7 +282,7 @@ inline void LogMessage(Severity severity, const char* file, const char* function
 
     // Break on error if necessary, failing message should be this one
     // (also the last one written).
-    if (kErrorSeverity <= severity && g_settings.break_on_error)
+    if (severity != kNoWritePrefix && kErrorSeverity <= severity && g_settings.break_on_error)
     {
         platform::TriggerDebugBreak();
     }
@@ -274,30 +325,28 @@ BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
 // Functions defined outside of the namespace for easier use
-#define BRIMSTONE_LOG_FATAL(message, ...) do { \
+#define BRIMSTONE_WRITE_CONSOLE(message, ...) \
+        brimstone::util::logging::LogMessage(brimstone::util::logging::kNoWritePrefix, \
+                                             __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__)
+#define BRIMSTONE_LOG_FATAL(message, ...) \
         brimstone::util::logging::LogMessage(brimstone::util::logging::kFatalSeverity, \
-                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__); \
-    } while (0)
-#define BRIMSTONE_LOG_ERROR(message, ...) do { \
+                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__)
+#define BRIMSTONE_LOG_ERROR(message, ...) \
         brimstone::util::logging::LogMessage(brimstone::util::logging::kErrorSeverity, \
-                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__); \
-    } while (0)
-#define BRIMSTONE_LOG_WARNING(message, ...) do { \
+                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__)
+#define BRIMSTONE_LOG_WARNING(message, ...) \
         brimstone::util::logging::LogMessage(brimstone::util::logging::kWarningSeverity, \
-                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__); \
-    } while (0)
-#define BRIMSTONE_LOG_INFO(message, ...) do { \
+                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__)
+#define BRIMSTONE_LOG_INFO(message, ...) \
         brimstone::util::logging::LogMessage(brimstone::util::logging::kInfoSeverity, \
-                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__); \
-    } while (0)
-#define BRIMSTONE_LOG_DEBUG(message, ...) do { \
+                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__)
+#define BRIMSTONE_LOG_DEBUG(message, ...) \
         brimstone::util::logging::LogMessage(brimstone::util::logging::kDebugSeverity, \
-                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__); \
-    } while (0)
+                                              __FILE__, __FUNCTION__, BRIMSTONE_STR(__LINE__), message, ##__VA_ARGS__)
 
 #ifdef BRIMSTONE_ENABLE_COMMAND_TRACE
 
-#define BRIMSTONE_LOG_COMMAND() brimstone::util::logging CommandTrace command_trace(__FILE__, __FUNCTION__);
+#define BRIMSTONE_LOG_COMMAND() brimstone::util::logging CommandTrace command_trace(__FILE__, __FUNCTION__)
 
 #else
 
