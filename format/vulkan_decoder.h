@@ -48,6 +48,13 @@ public:
                                     const uint8_t*        parameter_buffer,
                                     size_t                buffer_size) override;
 
+    virtual void DispatchDisplayMessageCommand(const std::string& message) override;
+
+    virtual void
+    DispatchFillMemoryCommand(uint64_t pointer_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
+
+    virtual void DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) override;
+
   private:
 #include "generated/generated_api_call_decoder_declarations.inc"
 

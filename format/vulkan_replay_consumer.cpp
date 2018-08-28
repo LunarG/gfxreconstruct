@@ -14,6 +14,8 @@
 ** limitations under the License.
 */
 
+#include <cstdint>
+
 #include "volk.h"
 
 #include "util/logging.h"
@@ -26,8 +28,8 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-const uint32_t kDefaultWindowWidth = 500;
-const uint32_t kDefaultWindowHeight = 500;
+const uint32_t kDefaultWindowWidth = 320;
+const uint32_t kDefaultWindowHeight = 240;
 
 VulkanReplayConsumer::VulkanReplayConsumer(WindowFactory* window_factory) : window_factory_(window_factory)
 {
@@ -36,6 +38,50 @@ VulkanReplayConsumer::VulkanReplayConsumer(WindowFactory* window_factory) : wind
 
 VulkanReplayConsumer::~VulkanReplayConsumer()
 {
+}
+
+void VulkanReplayConsumer::ProcessDisplayMessageCommand(const std::string& message)
+{
+    BRIMSTONE_LOG_INFO("Trace Message: %s", message.c_str());
+}
+
+void VulkanReplayConsumer::ProcessFillMemoryCommand(uint64_t       pointer_id,
+                                                    uint64_t       offset,
+                                                    uint64_t       size,
+                                                    const uint8_t* data)
+{
+    auto entry = pointer_map_.find(pointer_id);
+
+    if ((entry != pointer_map_.end()) && (entry->second != nullptr))
+    {
+        memcpy(static_cast<uint8_t*>(entry->second) + offset, data, size);
+    }
+    else
+    {
+        BRIMSTONE_LOG_WARNING("Skipping memory fill for unrecognized mapped pointer (%" PRIx64 ")", pointer_id);
+    }
+}
+
+void VulkanReplayConsumer::ProcessResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height)
+{
+    // We need to find the surface associated with this ID, and then lookup its window.
+    VkSurfaceKHR surface = object_mapper_.MapVkSurfaceKHR(surface_id);
+
+    if (surface != VK_NULL_HANDLE)
+    {
+        auto entry = window_map_.find(surface);
+
+        if ((entry != window_map_.end()) && (entry->second != nullptr))
+        {
+            Window* window = entry->second;
+            window->SetSize(width, height);
+        }
+        else
+        {
+            BRIMSTONE_LOG_WARNING(
+                "Skipping window resize for VkSurface object (%" PRIx64 ") without an associated window", surface_id);
+        }
+    }
 }
 
 void VulkanReplayConsumer::RaiseFatalError(const char* message) const
