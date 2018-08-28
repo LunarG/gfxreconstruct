@@ -51,6 +51,7 @@ class ApiCallEncodersGenerator(BaseGenerator):
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
         write('#include "format/api_call_id.h"', file=self.outFile)
+        write('#include "format/custom_encoder_commands.h"', file=self.outFile)
         write('#include "format/trace_manager.h"', file=self.outFile)
         write('#include "format/parameter_encoder.h"', file=self.outFile)
         self.newline()
@@ -119,9 +120,7 @@ class ApiCallEncodersGenerator(BaseGenerator):
 
     #
     # Generate the layer dispatch call invocation.
-    def makeLayerDispatchCall(self, name, values):
-        argList =  self.makeArgList(values)
-
+    def makeLayerDispatchCall(self, name, values, argList):
         if name == 'vkCreateInstance':
             # CreateInstance requires special processing for VkLayerInstanceCreateInfo.
             return 'dispatch_CreateInstance({})'.format(argList)
@@ -135,11 +134,15 @@ class ApiCallEncodersGenerator(BaseGenerator):
     #
     # Command definition
     def makeCmdBody(self, returnType, name, values):
+        argList = self.makeArgList(values)
+
         body = ''
 
-        # Get parameters and construct the function call to dispatch to the next layer.
-        callExpr = self.makeLayerDispatchCall(name, values)
+        body += '    format::CustomEncoderPreCall<format::ApiCallId_{}>::Dispatch(get_trace_manager(), {});\n'.format(name, argList)
+        body += '\n'
 
+        # Construct the function call to dispatch to the next layer.
+        callExpr = self.makeLayerDispatchCall(name, values, argList)
         if returnType and returnType != 'void':
             body += '    {} result = {};\n'.format(returnType, callExpr)
         else:
@@ -160,9 +163,13 @@ class ApiCallEncodersGenerator(BaseGenerator):
         body += '        get_trace_manager()->EndApiCallTrace(encoder);\n'
         body += '    }\n'
 
+        body += '\n'
         if returnType and returnType != 'void':
+            body += '    format::CustomEncoderPostCall<format::ApiCallId_{}>::Dispatch(get_trace_manager(), result, {});\n'.format(name, argList)
             body += '\n'
             body += '    return result;\n'
+        else:
+            body += '    format::CustomEncoderPostCall<format::ApiCallId_{}>::Dispatch(get_trace_manager(), {});\n'.format(name, argList)
 
         return body
 
