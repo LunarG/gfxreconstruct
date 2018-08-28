@@ -294,5 +294,98 @@ void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        
     }
 }
 
+void TraceManager::PostProcess_vkAllocateMemory(VkResult                     result,
+                                                VkDevice                     device,
+                                                const VkMemoryAllocateInfo*  pAllocateInfo,
+                                                const VkAllocationCallbacks* pAllocator,
+                                                VkDeviceMemory*              pMemory)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+
+    if ((result == VK_SUCCESS) && (pAllocateInfo != nullptr) && (pMemory != nullptr))
+    {
+        // TODO: Get property flags for type index (for pageguard).
+        // TODO: Key memory tracker by VkDevice + VkDeviceMemory for multi-device support.
+        memory_tracker_.AddEntry((*pMemory), 0, pAllocateInfo->allocationSize);
+    }
+}
+
+void TraceManager::PostProcess_vkMapMemory(VkResult         result,
+                                           VkDevice         device,
+                                           VkDeviceMemory   memory,
+                                           VkDeviceSize     offset,
+                                           VkDeviceSize     size,
+                                           VkMemoryMapFlags flags,
+                                           void**           ppData)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(flags);
+
+    if ((result == VK_SUCCESS) && (ppData != nullptr))
+    {
+        memory_tracker_.MapEntry(memory, offset, size, (*ppData));
+    }
+}
+
+void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                   device,
+                                                        uint32_t                   memoryRangeCount,
+                                                        const VkMappedMemoryRange* pMemoryRanges)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+
+    if (pMemoryRanges != nullptr)
+    {
+        VkDeviceMemory                  current_memory = VK_NULL_HANDLE;
+        const MemoryTracker::EntryInfo* info           = nullptr;
+
+        for (uint32_t i = 0; i < memoryRangeCount; ++i)
+        {
+            if (current_memory != pMemoryRanges[i].memory)
+            {
+                current_memory = pMemoryRanges[i].memory;
+                info           = memory_tracker_.GetEntryInfo(current_memory);
+            }
+
+            if ((info != nullptr) && (info->data != nullptr))
+            {
+                VkDeviceSize size = pMemoryRanges[i].size;
+                if (size == VK_WHOLE_SIZE)
+                {
+                    size = info->allocation_size - (pMemoryRanges[i].offset - info->mapped_offset);
+                }
+
+                WriteFillMemoryCmd(info->data, pMemoryRanges[i].offset, size);
+            }
+        }
+    }
+}
+
+void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+
+    auto info = memory_tracker_.GetEntryInfo(memory);
+    if ((info != nullptr) && (info->data != nullptr))
+    {
+        // Write the full mapped memory range for now.
+        WriteFillMemoryCmd(info->data,
+                           info->mapped_offset,
+                           (info->mapped_size == VK_WHOLE_SIZE) ? info->allocation_size : info->mapped_size);
+
+        memory_tracker_.UnmapEntry(memory);
+    }
+}
+
+void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
+                                           VkDeviceMemory               memory,
+                                           const VkAllocationCallbacks* pAllocator)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+
+    memory_tracker_.RemoveEntry(memory);
+}
+
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)

@@ -57,6 +57,56 @@ struct CustomEncoderPreCall<ApiCallId_vkCreateSwapchainKHR>
     }
 };
 
+template <>
+struct CustomEncoderPostCall<ApiCallId_vkAllocateMemory>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkAllocateMemory(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<ApiCallId_vkMapMemory>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkMapMemory(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<ApiCallId_vkFlushMappedMemoryRanges>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkFlushMappedMemoryRanges(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<ApiCallId_vkUnmapMemory>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkUnmapMemory(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<ApiCallId_vkFreeMemory>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkFreeMemory(args...);
+    }
+};
+
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
 

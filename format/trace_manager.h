@@ -21,6 +21,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <vector>
 
 #include "vulkan/vulkan.h"
 
@@ -30,6 +31,7 @@
 #include "util/compressor.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
+#include "format/memory_tracker.h"
 #include "format/parameter_encoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
@@ -57,7 +59,29 @@ public:
                                       const VkAllocationCallbacks*    pAllocator,
                                       VkSwapchainKHR*                 pSwapchain);
 
-private:
+    void PostProcess_vkAllocateMemory(VkResult                     result,
+                                      VkDevice                     device,
+                                      const VkMemoryAllocateInfo*  pAllocateInfo,
+                                      const VkAllocationCallbacks* pAllocator,
+                                      VkDeviceMemory*              pMemory);
+
+    void PostProcess_vkMapMemory(VkResult         result,
+                                 VkDevice         device,
+                                 VkDeviceMemory   memory,
+                                 VkDeviceSize     offset,
+                                 VkDeviceSize     size,
+                                 VkMemoryMapFlags flags,
+                                 void**           ppData);
+
+    void PreProcess_vkFlushMappedMemoryRanges(VkDevice                   device,
+                                              uint32_t                   memoryRangeCount,
+                                              const VkMappedMemoryRange* pMemoryRanges);
+
+    void PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory);
+
+    void PreProcess_vkFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
+
+  private:
     class ThreadData
     {
     public:
@@ -98,6 +122,7 @@ private:
     uint64_t                                                bytes_written_;
     std::vector<uint8_t>                                    compressed_buffer_;
     util::Compressor*                                       compressor_;
+    MemoryTracker                                           memory_tracker_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
