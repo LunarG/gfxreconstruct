@@ -35,6 +35,12 @@ class VulkanConsumer
 public:
     virtual ~VulkanConsumer() { }
 
+    virtual void ProcessDisplayMessageCommand(const std::string& message) {}
+
+    virtual void ProcessFillMemoryCommand(uint64_t pointer_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
+
+    virtual void ProcessResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) {}
+
 #include "generated/generated_api_call_consumer_declarations.inc"
 };
 

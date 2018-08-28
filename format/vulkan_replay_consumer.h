@@ -19,7 +19,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstdio>
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -43,6 +42,13 @@ class VulkanReplayConsumer : public VulkanConsumer
     virtual ~VulkanReplayConsumer();
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
+
+    virtual void ProcessDisplayMessageCommand(const std::string& message) override;
+
+    virtual void
+    ProcessFillMemoryCommand(uint64_t pointer_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
+
+    virtual void ProcessResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) override;
 
 #include "generated/generated_api_call_consumer_override_declarations.inc"
 
@@ -195,12 +201,14 @@ class VulkanReplayConsumer : public VulkanConsumer
 
   private:
     typedef std::unordered_map<VkSurfaceKHR, Window*> WindowMap;
+    typedef std::unordered_map<uint64_t, void*> MappedPointerMap;
 
   private:
     std::function<void(const char*)> fatal_error_handler_;
     WindowFactory*                   window_factory_;
     VulkanObjectMapper               object_mapper_;
     WindowMap                        window_map_;
+    MappedPointerMap                 pointer_map_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)

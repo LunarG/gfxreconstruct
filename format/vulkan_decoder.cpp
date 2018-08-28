@@ -15,6 +15,7 @@
 */
 
 #include "format/pointer_decoder.h"
+#include "format/vulkan_consumer.h"
 #include "format/vulkan_decoder.h"
 #include "format/value_decoder.h"
 
@@ -36,6 +37,31 @@ void VulkanDecoder::DecodeFunctionCall(ApiCallId             call_id,
             break;
     }
 }
+
+void VulkanDecoder::DispatchDisplayMessageCommand(const std::string& message)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessDisplayMessageCommand(message);
+    }
+}
+
+void VulkanDecoder::DispatchFillMemoryCommand(uint64_t pointer_id, uint64_t offset, uint64_t size, const uint8_t* data)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessFillMemoryCommand(pointer_id, offset, size, data);
+    }
+}
+
+void VulkanDecoder::DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessResizeWindowCommand(surface_id, width, height);
+    }
+}
+
 
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
