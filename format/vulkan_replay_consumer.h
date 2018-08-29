@@ -77,6 +77,13 @@ class VulkanReplayConsumer : public VulkanConsumer
                                   const VkAllocationCallbacks* pAllocator,
                                   VkDevice*                    pDevice);
 
+    VkResult OverrideWaitForFences(VkResult       original_result,
+                                   VkDevice       device,
+                                   uint32_t       fenceCount,
+                                   const VkFence* pFences,
+                                   VkBool32       waitAll,
+                                   uint64_t       timeout);
+
     VkResult OverrideMapMemory(VkDevice         device,
                                VkDeviceMemory   memory,
                                VkDeviceSize     offset,
@@ -201,6 +208,17 @@ class VulkanReplayConsumer : public VulkanConsumer
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateDevice(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkWaitForFences, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkWaitForFences func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideWaitForFences(original_result, args...);
         }
     };
 

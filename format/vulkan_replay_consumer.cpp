@@ -15,6 +15,7 @@
 */
 
 #include <cstdint>
+#include <limits>
 
 #include "volk.h"
 
@@ -223,6 +224,34 @@ VkResult VulkanReplayConsumer::OverrideCreateDevice(VkPhysicalDevice            
     return result;
 }
 
+VkResult VulkanReplayConsumer::OverrideWaitForFences(VkResult       original_result,
+                                                     VkDevice       device,
+                                                     uint32_t       fenceCount,
+                                                     const VkFence* pFences,
+                                                     VkBool32       waitAll,
+                                                     uint64_t       timeout)
+{
+    VkResult result;
+
+    if (original_result == VK_SUCCESS)
+    {
+        // Ensure that wait for fences waits until the fences have been signaled (or error occurs) by changing the
+        // timeout to UINT64_MAX.
+        result = vkWaitForFences(device, fenceCount, pFences, waitAll, std::numeric_limits<uint64_t>::max());
+    }
+    else if (original_result == VK_TIMEOUT)
+    {
+        // Try to get a timeout result with a 0 timeout.
+        result = vkWaitForFences(device, fenceCount, pFences, waitAll, 0);
+    }
+    else
+    {
+        result = vkWaitForFences(device, fenceCount, pFences, waitAll, timeout);
+    }
+
+    return result;
+}
+
 VkResult VulkanReplayConsumer::OverrideMapMemory(VkDevice         device,
                                                  VkDeviceMemory   memory,
                                                  VkDeviceSize     offset,
@@ -290,7 +319,6 @@ VkBool32 VulkanReplayConsumer::OverrideGetPhysicalDeviceWin32PresentationSupport
 {
     return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
 }
-
 
 #include "generated/generated_api_call_replay_consumer_definitions.inc"
 
