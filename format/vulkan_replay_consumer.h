@@ -68,6 +68,8 @@ class VulkanReplayConsumer : public VulkanConsumer
 
     void CheckResult(const char* func_name, VkResult original, VkResult replay);
 
+    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
+
     VkResult OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                     const VkAllocationCallbacks* pAllocator,
                                     VkInstance*                  pInstance);
@@ -104,6 +106,25 @@ class VulkanReplayConsumer : public VulkanConsumer
 
     VkBool32 OverrideGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physicalDevice,
                                                                   uint32_t         queueFamilyIndex);
+
+    VkResult OverrideCreateXcbSurfaceKHR(VkInstance                       instance,
+                                         const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
+                                         const VkAllocationCallbacks*     pAllocator,
+                                         VkSurfaceKHR*                    pSurface);
+
+    VkBool32 OverrideGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice  physicalDevice,
+                                                                uint32_t          queueFamilyIndex,
+                                                                xcb_connection_t* connection,
+                                                                xcb_visualid_t    visual_id);
+
+    VkResult OverrideCreateWaylandSurfaceKHR(VkInstance                           instance,
+                                             const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
+                                             const VkAllocationCallbacks*         pAllocator,
+                                             VkSurfaceKHR*                        pSurface);
+
+    VkBool32 OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice   physicalDevice,
+                                                                    uint32_t           queueFamilyIndex,
+                                                                    struct wl_display* display);
 
     template <typename T>
     T* AllocateArray(size_t len) const
@@ -281,6 +302,59 @@ class VulkanReplayConsumer : public VulkanConsumer
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetPhysicalDeviceWin32PresentationSupportKHR(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkCreateXcbSurfaceKHR, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret
+        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkCreateXcbSurfaceKHR func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            return consumer->OverrideCreateXcbSurfaceKHR(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret
+        Dispatch(VulkanReplayConsumer* consumer, PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideGetPhysicalDeviceXcbPresentationSupportKHR(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkCreateWaylandSurfaceKHR, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer*         consumer,
+                            VkResult                      original_result,
+                            PFN_vkCreateWaylandSurfaceKHR func,
+                            Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            return consumer->OverrideCreateWaylandSurfaceKHR(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer*                                consumer,
+                            PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,
+                            Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(args...);
         }
     };
 

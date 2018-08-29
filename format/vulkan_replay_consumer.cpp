@@ -187,6 +187,32 @@ void VulkanReplayConsumer::CheckResult(const char* func_name, VkResult original,
     }
 }
 
+VkResult VulkanReplayConsumer::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface)
+{
+    // Create a window for our surface.
+    Window* window = window_factory_->Create(kDefaultWindowWidth, kDefaultWindowWidth);
+
+    if (window == nullptr)
+    {
+        // Failure to create a window is a fatal error.
+        BRIMSTONE_LOG_FATAL("Failed to create a window for use with surface creation.  Replay cannot continue.");
+        RaiseFatalError("Replay has encountered a fatal error and cannot continue (window creation failed)");
+    }
+
+    VkResult result = window->CreateSurface(instance, flags, surface);
+
+    if ((result == VK_SUCCESS) && (surface != nullptr))
+    {
+        VkSurfaceKHR key = (*surface);
+
+        assert(window_map_.find(key) == window_map_.end());
+
+        window_map_.insert(std::make_pair(key, window));
+    }
+
+    return result;
+}
+
 VkResult VulkanReplayConsumer::OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                                       const VkAllocationCallbacks* pAllocator,
                                                       VkInstance*                  pInstance)
@@ -290,33 +316,49 @@ VkResult VulkanReplayConsumer::OverrideCreateWin32SurfaceKHR(VkInstance         
                                                              const VkAllocationCallbacks*       pAllocator,
                                                              VkSurfaceKHR*                      pSurface)
 {
-    // Create a window for our surface.
-    Window* window = window_factory_->Create(kDefaultWindowWidth, kDefaultWindowWidth);
-
-    if (window == nullptr)
-    {
-        // Failure to create a window is a fatal error.
-        BRIMSTONE_LOG_FATAL("Failed to create a window for use with vkCreateWin32SurfaceKHR.  Replay cannot continue.");
-        RaiseFatalError("Replay has encountered a fatal error and cannot continue (window creation failed)");
-    }
-
-    VkResult result = window->CreateSurface(instance, pCreateInfo->flags, pSurface);
-
-    if ((result == VK_SUCCESS) && (pSurface != nullptr))
-    {
-        VkSurfaceKHR key = (*pSurface);
-
-        assert(window_map_.find(key) == window_map_.end());
-
-        window_map_.insert(std::make_pair(key, window));
-    }
-
-    return result;
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
 VkBool32 VulkanReplayConsumer::OverrideGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physicalDevice,
                                                                                     uint32_t         queueFamilyIndex)
 {
+    return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
+}
+
+VkResult VulkanReplayConsumer::OverrideCreateXcbSurfaceKHR(VkInstance                       instance,
+                                                           const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
+                                                           const VkAllocationCallbacks*     pAllocator,
+                                                           VkSurfaceKHR*                    pSurface)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    return CreateSurface(instance, pCreateInfo->flags, pSurface);
+}
+
+VkBool32 VulkanReplayConsumer::OverrideGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice  physicalDevice,
+                                                                                  uint32_t          queueFamilyIndex,
+                                                                                  xcb_connection_t* connection,
+                                                                                  xcb_visualid_t    visual_id)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(connection);
+    BRIMSTONE_UNREFERENCED_PARAMETER(visual_id);
+    return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
+}
+
+VkResult VulkanReplayConsumer::OverrideCreateWaylandSurfaceKHR(VkInstance                           instance,
+                                                               const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
+                                                               const VkAllocationCallbacks*         pAllocator,
+                                                               VkSurfaceKHR*                        pSurface)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    return CreateSurface(instance, pCreateInfo->flags, pSurface);
+}
+
+VkBool32 VulkanReplayConsumer::OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice physicalDevice,
+                                                                                      uint32_t         queueFamilyIndex,
+                                                                                      struct wl_display* display)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(display);
     return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
 }
 
