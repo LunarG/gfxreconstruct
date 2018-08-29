@@ -103,7 +103,7 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
             body += '\n'
             body += '\n'
         if returnType == 'VkResult':
-            body += '    VkResult replay_result = Dispatcher<ApiCallId_{name}, {}, PFN_{name}>::Dispatch(this, {name}, {});\n'.format(returnType, arglist, name=name)
+            body += '    VkResult replay_result = Dispatcher<ApiCallId_{name}, {}, PFN_{name}>::Dispatch(this, returnValue, {name}, {});\n'.format(returnType, arglist, name=name)
             body += '    CheckResult("{}", returnValue, replay_result);\n'.format(name)
         else:
             body += '    Dispatcher<ApiCallId_{name}, {}, PFN_{name}>::Dispatch(this, {name}, {});\n'.format(returnType, arglist, name=name)

@@ -169,15 +169,24 @@ class VulkanReplayConsumer : public VulkanConsumer
             BRIMSTONE_UNREFERENCED_PARAMETER(consumer);
             return func(args...);
         }
+
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, Pfn func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(consumer);
+            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            return func(args...);
+        }
     };
 
     template <typename Ret, typename Pfn>
     struct Dispatcher<ApiCallId_vkCreateInstance, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkCreateInstance func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkCreateInstance func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateInstance(args...);
         }
     };
@@ -186,9 +195,11 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkCreateDevice, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkCreateDevice func, Args... args)
+        static Ret
+        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkCreateDevice func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateDevice(args...);
         }
     };
@@ -197,9 +208,11 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkMapMemory, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkMapMemory func, Args... args)
+        static Ret
+        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkMapMemory func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideMapMemory(args...);
         }
     };
@@ -230,9 +243,13 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkCreateWin32SurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkCreateWin32SurfaceKHR func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumer*       consumer,
+                            VkResult                    original_result,
+                            PFN_vkCreateWin32SurfaceKHR func,
+                            Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateWin32SurfaceKHR(args...);
         }
     };
