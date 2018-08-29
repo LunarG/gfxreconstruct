@@ -80,6 +80,7 @@ int main(int argc, const char** argv)
                 application    = std::unique_ptr<brimstone::application::Application>(win32_application);
                 window_factory = std::make_unique<brimstone::application::Win32WindowFactory>(win32_application);
 #endif
+#else
 #if defined(VK_USE_PLATFORM_XCB_KHR)
                 brimstone::application::XcbApplication* xcb_application = new brimstone::application::XcbApplication();
                 application    = std::unique_ptr<brimstone::application::Application>(xcb_application);
