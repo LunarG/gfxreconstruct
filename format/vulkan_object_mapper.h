@@ -233,7 +233,7 @@ class VulkanObjectMapper
 
         if ((id != 0) && (handle != VK_NULL_HANDLE))
         {
-            map->insert(std::make_pair(id, handle));
+            (*map)[id] = handle;
         }
     }
 
