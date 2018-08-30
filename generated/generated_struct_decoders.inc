@@ -3664,7 +3664,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDispla
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkXlibSurfaceCreateInfoKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -3682,9 +3681,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkXlibSu
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkXcbSurfaceCreateInfoKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -3702,9 +3699,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkXcbSur
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWaylandSurfaceCreateInfoKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -3723,9 +3718,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWaylan
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMirSurfaceCreateInfoKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -3744,9 +3737,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMirSur
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAndroidSurfaceCreateInfoKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -3763,9 +3754,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAndroi
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32SurfaceCreateInfoKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -3784,9 +3773,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32S
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImportMemoryWin32HandleInfoKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -3856,7 +3843,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMemory
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImportMemoryFdInfoKHR* wrapper)
 {
@@ -3906,7 +3892,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMemory
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -3932,9 +3917,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32K
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImportSemaphoreWin32HandleInfoKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -4012,7 +3995,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSemaph
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImportSemaphoreFdInfoKHR* wrapper)
 {
@@ -4275,7 +4257,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkShared
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImportFenceWin32HandleInfoKHR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -4333,7 +4314,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkFenceG
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImportFenceFdInfoKHR* wrapper)
 {
@@ -4769,7 +4749,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExport
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImportMemoryWin32HandleInfoNV* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -4803,9 +4782,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExport
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -4831,7 +4808,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32K
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkValidationFlagsEXT* wrapper)
 {
@@ -4850,7 +4826,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkValida
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_VI_NN
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkViSurfaceCreateInfoNN* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -4867,7 +4842,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkViSurf
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_VI_NN */
 
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkConditionalRenderingBeginInfoEXT* wrapper)
 {
@@ -5506,7 +5480,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkHdrMet
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIOSSurfaceCreateInfoMVK* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -5523,9 +5496,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIOSSur
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMacOSSurfaceCreateInfoMVK* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -5542,7 +5513,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMacOSS
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDebugUtilsObjectNameInfoEXT* wrapper)
 {
@@ -5650,7 +5620,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDebugU
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAndroidHardwareBufferUsageANDROID* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -5751,7 +5720,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkExtern
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSamplerReductionModeCreateInfoEXT* wrapper)
 {

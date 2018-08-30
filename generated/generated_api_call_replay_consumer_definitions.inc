@@ -3174,7 +3174,6 @@ void VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(
     FreeArray<VkSwapchainKHR>(&out_pSwapchains);
 }
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
 void VulkanReplayConsumer::Process_vkCreateXlibSurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -3206,9 +3205,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceXlibPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceXlibPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_dpy, visualID);
 }
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
 void VulkanReplayConsumer::Process_vkCreateXcbSurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -3240,9 +3237,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceXcbPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_connection, visual_id);
 }
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
 void VulkanReplayConsumer::Process_vkCreateWaylandSurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -3273,9 +3268,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupport
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceWaylandPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_display);
 }
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
 void VulkanReplayConsumer::Process_vkCreateMirSurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -3306,9 +3299,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceMirPresentationSupportKHR(
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceMirPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceMirPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceMirPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_connection);
 }
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 void VulkanReplayConsumer::Process_vkCreateAndroidSurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -3327,9 +3318,7 @@ void VulkanReplayConsumer::Process_vkCreateAndroidSurfaceKHR(
 
     AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), 1, out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void VulkanReplayConsumer::Process_vkCreateWin32SurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -3358,7 +3347,6 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWin32PresentationSupportKH
 
     Dispatcher<ApiCallId_vkGetPhysicalDeviceWin32PresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceWin32PresentationSupportKHR, in_physicalDevice, queueFamilyIndex);
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceFeatures2KHR(
     HandleId                                    physicalDevice,
@@ -3530,7 +3518,6 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKH
     Dispatcher<ApiCallId_vkGetPhysicalDeviceExternalBufferPropertiesKHR, void, PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHR>::Dispatch(this, vkGetPhysicalDeviceExternalBufferPropertiesKHR, in_physicalDevice, in_pExternalBufferInfo, out_pExternalBufferProperties);
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void VulkanReplayConsumer::Process_vkGetMemoryWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -3568,7 +3555,6 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
     VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryWin32HandlePropertiesKHR, VkResult, PFN_vkGetMemoryWin32HandlePropertiesKHR>::Dispatch(this, returnValue, vkGetMemoryWin32HandlePropertiesKHR, in_device, handleType, in_handle, out_pMemoryWin32HandleProperties);
     CheckResult("vkGetMemoryWin32HandlePropertiesKHR", returnValue, replay_result);
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void VulkanReplayConsumer::Process_vkGetMemoryFdKHR(
     VkResult                                    returnValue,
@@ -3618,7 +3604,6 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePropertie
     Dispatcher<ApiCallId_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR, void, PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR>::Dispatch(this, vkGetPhysicalDeviceExternalSemaphorePropertiesKHR, in_physicalDevice, in_pExternalSemaphoreInfo, out_pExternalSemaphoreProperties);
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void VulkanReplayConsumer::Process_vkImportSemaphoreWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -3657,7 +3642,6 @@ void VulkanReplayConsumer::Process_vkGetSemaphoreWin32HandleKHR(
 
     PostProcessExternalObject(pHandle, static_cast<void*>(out_pHandle_value), ApiCallId_vkGetSemaphoreWin32HandleKHR, "vkGetSemaphoreWin32HandleKHR");
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void VulkanReplayConsumer::Process_vkImportSemaphoreFdKHR(
     VkResult                                    returnValue,
@@ -3913,7 +3897,6 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalFencePropertiesKHR
     Dispatcher<ApiCallId_vkGetPhysicalDeviceExternalFencePropertiesKHR, void, PFN_vkGetPhysicalDeviceExternalFencePropertiesKHR>::Dispatch(this, vkGetPhysicalDeviceExternalFencePropertiesKHR, in_physicalDevice, in_pExternalFenceInfo, out_pExternalFenceProperties);
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void VulkanReplayConsumer::Process_vkImportFenceWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -3952,7 +3935,6 @@ void VulkanReplayConsumer::Process_vkGetFenceWin32HandleKHR(
 
     PostProcessExternalObject(pHandle, static_cast<void*>(out_pHandle_value), ApiCallId_vkGetFenceWin32HandleKHR, "vkGetFenceWin32HandleKHR");
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void VulkanReplayConsumer::Process_vkImportFenceFdKHR(
     VkResult                                    returnValue,
@@ -4493,7 +4475,6 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalImageFormatPropert
     CheckResult("vkGetPhysicalDeviceExternalImageFormatPropertiesNV", returnValue, replay_result);
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void VulkanReplayConsumer::Process_vkGetMemoryWin32HandleNV(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -4511,9 +4492,7 @@ void VulkanReplayConsumer::Process_vkGetMemoryWin32HandleNV(
 
     PostProcessExternalObject(pHandle, static_cast<void*>(out_pHandle_value), ApiCallId_vkGetMemoryWin32HandleNV, "vkGetMemoryWin32HandleNV");
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_VI_NN
 void VulkanReplayConsumer::Process_vkCreateViSurfaceNN(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -4532,7 +4511,6 @@ void VulkanReplayConsumer::Process_vkCreateViSurfaceNN(
 
     AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), 1, out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
-#endif /* VK_USE_PLATFORM_VI_NN */
 
 void VulkanReplayConsumer::Process_vkCmdBeginConditionalRenderingEXT(
     HandleId                                    commandBuffer,
@@ -4744,7 +4722,6 @@ void VulkanReplayConsumer::Process_vkReleaseDisplayEXT(
     CheckResult("vkReleaseDisplayEXT", returnValue, replay_result);
 }
 
-#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
 void VulkanReplayConsumer::Process_vkAcquireXlibDisplayEXT(
     VkResult                                    returnValue,
     HandleId                                    physicalDevice,
@@ -4776,7 +4753,6 @@ void VulkanReplayConsumer::Process_vkGetRandROutputDisplayEXT(
 
     AddHandles<VkDisplayKHR>(pDisplay.GetPointer(), 1, out_pDisplay, 1, &VulkanObjectMapper::AddVkDisplayKHR);
 }
-#endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
     VkResult                                    returnValue,
@@ -4925,7 +4901,6 @@ void VulkanReplayConsumer::Process_vkSetHdrMetadataEXT(
     FreeArray<VkSwapchainKHR>(&in_pSwapchains);
 }
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
 void VulkanReplayConsumer::Process_vkCreateIOSSurfaceMVK(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -4944,9 +4919,7 @@ void VulkanReplayConsumer::Process_vkCreateIOSSurfaceMVK(
 
     AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), 1, out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
 void VulkanReplayConsumer::Process_vkCreateMacOSSurfaceMVK(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -4965,7 +4938,6 @@ void VulkanReplayConsumer::Process_vkCreateMacOSSurfaceMVK(
 
     AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), 1, out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
 void VulkanReplayConsumer::Process_vkSetDebugUtilsObjectNameEXT(
     VkResult                                    returnValue,
@@ -5090,7 +5062,6 @@ void VulkanReplayConsumer::Process_vkSubmitDebugUtilsMessageEXT(
     Dispatcher<ApiCallId_vkSubmitDebugUtilsMessageEXT, void, PFN_vkSubmitDebugUtilsMessageEXT>::Dispatch(this, vkSubmitDebugUtilsMessageEXT, in_instance, messageSeverity, messageTypes, in_pCallbackData);
 }
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 void VulkanReplayConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -5127,7 +5098,6 @@ void VulkanReplayConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
 
     PostProcessExternalObject(pBuffer, static_cast<void*>(out_pBuffer_value), ApiCallId_vkGetMemoryAndroidHardwareBufferANDROID, "vkGetMemoryAndroidHardwareBufferANDROID");
 }
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
 void VulkanReplayConsumer::Process_vkCmdSetSampleLocationsEXT(
     HandleId                                    commandBuffer,

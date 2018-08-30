@@ -1132,7 +1132,6 @@
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const PointerDecoder<HandleId>&             pSwapchains) override;
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
     virtual void Process_vkCreateXlibSurfaceKHR(
         VkResult                                    returnValue,
         HandleId                                    instance,
@@ -1146,9 +1145,7 @@
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    dpy,
         uint32_t                                    visualID) override;
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
     virtual void Process_vkCreateXcbSurfaceKHR(
         VkResult                                    returnValue,
         HandleId                                    instance,
@@ -1162,9 +1159,7 @@
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    connection,
         uint32_t                                    visual_id) override;
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
     virtual void Process_vkCreateWaylandSurfaceKHR(
         VkResult                                    returnValue,
         HandleId                                    instance,
@@ -1177,9 +1172,7 @@
         HandleId                                    physicalDevice,
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    display) override;
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
     virtual void Process_vkCreateMirSurfaceKHR(
         VkResult                                    returnValue,
         HandleId                                    instance,
@@ -1192,18 +1185,14 @@
         HandleId                                    physicalDevice,
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    connection) override;
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
     virtual void Process_vkCreateAndroidSurfaceKHR(
         VkResult                                    returnValue,
         HandleId                                    instance,
         const StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const PointerDecoder<HandleId>&             pSurface) override;
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     virtual void Process_vkCreateWin32SurfaceKHR(
         VkResult                                    returnValue,
         HandleId                                    instance,
@@ -1215,7 +1204,6 @@
         VkBool32                                    returnValue,
         HandleId                                    physicalDevice,
         uint32_t                                    queueFamilyIndex) override;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     virtual void Process_vkGetPhysicalDeviceFeatures2KHR(
         HandleId                                    physicalDevice,
@@ -1287,7 +1275,6 @@
         const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo>& pExternalBufferInfo,
         const StructPointerDecoder<Decoded_VkExternalBufferProperties>& pExternalBufferProperties) override;
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     virtual void Process_vkGetMemoryWin32HandleKHR(
         VkResult                                    returnValue,
         HandleId                                    device,
@@ -1300,7 +1287,6 @@
         VkExternalMemoryHandleTypeFlagBits          handleType,
         uint64_t                                    handle,
         const StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>& pMemoryWin32HandleProperties) override;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     virtual void Process_vkGetMemoryFdKHR(
         VkResult                                    returnValue,
@@ -1320,7 +1306,6 @@
         const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalSemaphoreInfo>& pExternalSemaphoreInfo,
         const StructPointerDecoder<Decoded_VkExternalSemaphoreProperties>& pExternalSemaphoreProperties) override;
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     virtual void Process_vkImportSemaphoreWin32HandleKHR(
         VkResult                                    returnValue,
         HandleId                                    device,
@@ -1331,7 +1316,6 @@
         HandleId                                    device,
         const StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
         const PointerDecoder<uint64_t>&             pHandle) override;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     virtual void Process_vkImportSemaphoreFdKHR(
         VkResult                                    returnValue,
@@ -1408,7 +1392,6 @@
         const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalFenceInfo>& pExternalFenceInfo,
         const StructPointerDecoder<Decoded_VkExternalFenceProperties>& pExternalFenceProperties) override;
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     virtual void Process_vkImportFenceWin32HandleKHR(
         VkResult                                    returnValue,
         HandleId                                    device,
@@ -1419,7 +1402,6 @@
         HandleId                                    device,
         const StructPointerDecoder<Decoded_VkFenceGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
         const PointerDecoder<uint64_t>&             pHandle) override;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     virtual void Process_vkImportFenceFdKHR(
         VkResult                                    returnValue,
@@ -1614,23 +1596,19 @@
         VkExternalMemoryHandleTypeFlagsNV           externalHandleType,
         const StructPointerDecoder<Decoded_VkExternalImageFormatPropertiesNV>& pExternalImageFormatProperties) override;
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     virtual void Process_vkGetMemoryWin32HandleNV(
         VkResult                                    returnValue,
         HandleId                                    device,
         HandleId                                    memory,
         VkExternalMemoryHandleTypeFlagsNV           handleType,
         const PointerDecoder<uint64_t>&             pHandle) override;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_VI_NN
     virtual void Process_vkCreateViSurfaceNN(
         VkResult                                    returnValue,
         HandleId                                    instance,
         const StructPointerDecoder<Decoded_VkViSurfaceCreateInfoNN>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const PointerDecoder<HandleId>&             pSurface) override;
-#endif /* VK_USE_PLATFORM_VI_NN */
 
     virtual void Process_vkCmdBeginConditionalRenderingEXT(
         HandleId                                    commandBuffer,
@@ -1703,7 +1681,6 @@
         HandleId                                    physicalDevice,
         HandleId                                    display) override;
 
-#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
     virtual void Process_vkAcquireXlibDisplayEXT(
         VkResult                                    returnValue,
         HandleId                                    physicalDevice,
@@ -1716,7 +1693,6 @@
         uint64_t                                    dpy,
         uint32_t                                    rrOutput,
         const PointerDecoder<HandleId>&             pDisplay) override;
-#endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
 
     virtual void Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
         VkResult                                    returnValue,
@@ -1777,23 +1753,19 @@
         const PointerDecoder<HandleId>&             pSwapchains,
         const StructPointerDecoder<Decoded_VkHdrMetadataEXT>& pMetadata) override;
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
     virtual void Process_vkCreateIOSSurfaceMVK(
         VkResult                                    returnValue,
         HandleId                                    instance,
         const StructPointerDecoder<Decoded_VkIOSSurfaceCreateInfoMVK>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const PointerDecoder<HandleId>&             pSurface) override;
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
     virtual void Process_vkCreateMacOSSurfaceMVK(
         VkResult                                    returnValue,
         HandleId                                    instance,
         const StructPointerDecoder<Decoded_VkMacOSSurfaceCreateInfoMVK>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const PointerDecoder<HandleId>&             pSurface) override;
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
     virtual void Process_vkSetDebugUtilsObjectNameEXT(
         VkResult                                    returnValue,
@@ -1845,7 +1817,6 @@
         VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
         const StructPointerDecoder<Decoded_VkDebugUtilsMessengerCallbackDataEXT>& pCallbackData) override;
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
     virtual void Process_vkGetAndroidHardwareBufferPropertiesANDROID(
         VkResult                                    returnValue,
         HandleId                                    device,
@@ -1857,7 +1828,6 @@
         HandleId                                    device,
         const StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>& pInfo,
         const PointerDecoder<uint64_t>&             pBuffer) override;
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
     virtual void Process_vkCmdSetSampleLocationsEXT(
         HandleId                                    commandBuffer,

@@ -566,56 +566,44 @@
         Decode_vkCreateSharedSwapchainsKHR(parameter_buffer, buffer_size);
         break;
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
     case ApiCallId_vkCreateXlibSurfaceKHR:
         Decode_vkCreateXlibSurfaceKHR(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkGetPhysicalDeviceXlibPresentationSupportKHR:
         Decode_vkGetPhysicalDeviceXlibPresentationSupportKHR(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
     case ApiCallId_vkCreateXcbSurfaceKHR:
         Decode_vkCreateXcbSurfaceKHR(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR:
         Decode_vkGetPhysicalDeviceXcbPresentationSupportKHR(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
     case ApiCallId_vkCreateWaylandSurfaceKHR:
         Decode_vkCreateWaylandSurfaceKHR(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR:
         Decode_vkGetPhysicalDeviceWaylandPresentationSupportKHR(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
     case ApiCallId_vkCreateMirSurfaceKHR:
         Decode_vkCreateMirSurfaceKHR(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkGetPhysicalDeviceMirPresentationSupportKHR:
         Decode_vkGetPhysicalDeviceMirPresentationSupportKHR(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
     case ApiCallId_vkCreateAndroidSurfaceKHR:
         Decode_vkCreateAndroidSurfaceKHR(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     case ApiCallId_vkCreateWin32SurfaceKHR:
         Decode_vkCreateWin32SurfaceKHR(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkGetPhysicalDeviceWin32PresentationSupportKHR:
         Decode_vkGetPhysicalDeviceWin32PresentationSupportKHR(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     case ApiCallId_vkGetPhysicalDeviceFeatures2KHR:
         Decode_vkGetPhysicalDeviceFeatures2KHR(parameter_buffer, buffer_size);
@@ -661,14 +649,12 @@
         Decode_vkGetPhysicalDeviceExternalBufferPropertiesKHR(parameter_buffer, buffer_size);
         break;
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     case ApiCallId_vkGetMemoryWin32HandleKHR:
         Decode_vkGetMemoryWin32HandleKHR(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkGetMemoryWin32HandlePropertiesKHR:
         Decode_vkGetMemoryWin32HandlePropertiesKHR(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     case ApiCallId_vkGetMemoryFdKHR:
         Decode_vkGetMemoryFdKHR(parameter_buffer, buffer_size);
@@ -681,14 +667,12 @@
         Decode_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(parameter_buffer, buffer_size);
         break;
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     case ApiCallId_vkImportSemaphoreWin32HandleKHR:
         Decode_vkImportSemaphoreWin32HandleKHR(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkGetSemaphoreWin32HandleKHR:
         Decode_vkGetSemaphoreWin32HandleKHR(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     case ApiCallId_vkImportSemaphoreFdKHR:
         Decode_vkImportSemaphoreFdKHR(parameter_buffer, buffer_size);
@@ -735,14 +719,12 @@
         Decode_vkGetPhysicalDeviceExternalFencePropertiesKHR(parameter_buffer, buffer_size);
         break;
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     case ApiCallId_vkImportFenceWin32HandleKHR:
         Decode_vkImportFenceWin32HandleKHR(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkGetFenceWin32HandleKHR:
         Decode_vkGetFenceWin32HandleKHR(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     case ApiCallId_vkImportFenceFdKHR:
         Decode_vkImportFenceFdKHR(parameter_buffer, buffer_size);
@@ -847,17 +829,13 @@
         Decode_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(parameter_buffer, buffer_size);
         break;
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     case ApiCallId_vkGetMemoryWin32HandleNV:
         Decode_vkGetMemoryWin32HandleNV(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_VI_NN
     case ApiCallId_vkCreateViSurfaceNN:
         Decode_vkCreateViSurfaceNN(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_VI_NN */
 
     case ApiCallId_vkCmdBeginConditionalRenderingEXT:
         Decode_vkCmdBeginConditionalRenderingEXT(parameter_buffer, buffer_size);
@@ -902,14 +880,12 @@
         Decode_vkReleaseDisplayEXT(parameter_buffer, buffer_size);
         break;
 
-#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
     case ApiCallId_vkAcquireXlibDisplayEXT:
         Decode_vkAcquireXlibDisplayEXT(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkGetRandROutputDisplayEXT:
         Decode_vkGetRandROutputDisplayEXT(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
 
     case ApiCallId_vkGetPhysicalDeviceSurfaceCapabilities2EXT:
         Decode_vkGetPhysicalDeviceSurfaceCapabilities2EXT(parameter_buffer, buffer_size);
@@ -943,17 +919,13 @@
         Decode_vkSetHdrMetadataEXT(parameter_buffer, buffer_size);
         break;
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
     case ApiCallId_vkCreateIOSSurfaceMVK:
         Decode_vkCreateIOSSurfaceMVK(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
     case ApiCallId_vkCreateMacOSSurfaceMVK:
         Decode_vkCreateMacOSSurfaceMVK(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
     case ApiCallId_vkSetDebugUtilsObjectNameEXT:
         Decode_vkSetDebugUtilsObjectNameEXT(parameter_buffer, buffer_size);
@@ -989,14 +961,12 @@
         Decode_vkSubmitDebugUtilsMessageEXT(parameter_buffer, buffer_size);
         break;
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
     case ApiCallId_vkGetAndroidHardwareBufferPropertiesANDROID:
         Decode_vkGetAndroidHardwareBufferPropertiesANDROID(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkGetMemoryAndroidHardwareBufferANDROID:
         Decode_vkGetMemoryAndroidHardwareBufferANDROID(parameter_buffer, buffer_size);
         break;
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
     case ApiCallId_vkCmdSetSampleLocationsEXT:
         Decode_vkCmdSetSampleLocationsEXT(parameter_buffer, buffer_size);

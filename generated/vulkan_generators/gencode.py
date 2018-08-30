@@ -118,7 +118,7 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     genOpts['generated_api_call_decoder_declarations.inc'] = [
@@ -130,7 +130,7 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     genOpts['generated_api_call_decode_cases.inc'] = [
@@ -142,7 +142,7 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     #
@@ -156,7 +156,7 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     genOpts['generated_struct_decoder_declarations.inc'] = [
@@ -168,7 +168,7 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     genOpts['generated_decoded_struct_types.inc'] = [
@@ -180,7 +180,7 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     genOpts['generated_decode_pnext_struct.inc'] = [
@@ -190,7 +190,7 @@ def makeGenOpts(args):
             directory         = directory,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     #
@@ -205,7 +205,7 @@ def makeGenOpts(args):
         platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
-        protectFeature    = True)
+        protectFeature    = False)
     ]
 
     genOpts['generated_api_call_consumer_override_declarations.inc'] = [
@@ -218,7 +218,7 @@ def makeGenOpts(args):
         platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
-        protectFeature    = True)
+        protectFeature    = False)
     ]
 
     genOpts['generated_api_call_ascii_consumer_definitions.inc'] = [
@@ -230,7 +230,7 @@ def makeGenOpts(args):
         platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
-        protectFeature    = True)
+        protectFeature    = False)
     ]
 
     genOpts['generated_api_call_replay_consumer_definitions.inc'] = [
@@ -242,7 +242,7 @@ def makeGenOpts(args):
         platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
-        protectFeature    = True)
+        protectFeature    = False)
     ]
 
     #

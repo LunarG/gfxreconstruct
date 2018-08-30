@@ -426,43 +426,30 @@ struct Decoded_VkDisplayPresentInfoKHR;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDisplayPresentInfoKHR* wrapper);
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
 struct Decoded_VkXlibSurfaceCreateInfoKHR;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkXlibSurfaceCreateInfoKHR* wrapper);
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
 struct Decoded_VkXcbSurfaceCreateInfoKHR;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkXcbSurfaceCreateInfoKHR* wrapper);
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
 struct Decoded_VkWaylandSurfaceCreateInfoKHR;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWaylandSurfaceCreateInfoKHR* wrapper);
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
 struct Decoded_VkMirSurfaceCreateInfoKHR;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMirSurfaceCreateInfoKHR* wrapper);
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 struct Decoded_VkAndroidSurfaceCreateInfoKHR;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAndroidSurfaceCreateInfoKHR* wrapper);
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkWin32SurfaceCreateInfoKHR;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWin32SurfaceCreateInfoKHR* wrapper);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkImportMemoryWin32HandleInfoKHR;
 struct Decoded_VkExportMemoryWin32HandleInfoKHR;
 struct Decoded_VkMemoryWin32HandlePropertiesKHR;
@@ -472,7 +459,6 @@ size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decode
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkExportMemoryWin32HandleInfoKHR* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryWin32HandlePropertiesKHR* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryGetWin32HandleInfoKHR* wrapper);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 struct Decoded_VkImportMemoryFdInfoKHR;
 struct Decoded_VkMemoryFdPropertiesKHR;
@@ -482,13 +468,10 @@ size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decode
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryFdPropertiesKHR* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryGetFdInfoKHR* wrapper);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR* wrapper);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkImportSemaphoreWin32HandleInfoKHR;
 struct Decoded_VkExportSemaphoreWin32HandleInfoKHR;
 struct Decoded_VkD3D12FenceSubmitInfoKHR;
@@ -498,7 +481,6 @@ size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decode
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkExportSemaphoreWin32HandleInfoKHR* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkD3D12FenceSubmitInfoKHR* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreGetWin32HandleInfoKHR* wrapper);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 struct Decoded_VkImportSemaphoreFdInfoKHR;
 struct Decoded_VkSemaphoreGetFdInfoKHR;
@@ -538,7 +520,6 @@ struct Decoded_VkSharedPresentSurfaceCapabilitiesKHR;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSharedPresentSurfaceCapabilitiesKHR* wrapper);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkImportFenceWin32HandleInfoKHR;
 struct Decoded_VkExportFenceWin32HandleInfoKHR;
 struct Decoded_VkFenceGetWin32HandleInfoKHR;
@@ -546,7 +527,6 @@ struct Decoded_VkFenceGetWin32HandleInfoKHR;
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImportFenceWin32HandleInfoKHR* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkExportFenceWin32HandleInfoKHR* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkFenceGetWin32HandleInfoKHR* wrapper);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 struct Decoded_VkImportFenceFdInfoKHR;
 struct Decoded_VkFenceGetFdInfoKHR;
@@ -626,29 +606,23 @@ struct Decoded_VkExportMemoryAllocateInfoNV;
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkExternalMemoryImageCreateInfoNV* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkExportMemoryAllocateInfoNV* wrapper);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkImportMemoryWin32HandleInfoNV;
 struct Decoded_VkExportMemoryWin32HandleInfoNV;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImportMemoryWin32HandleInfoNV* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkExportMemoryWin32HandleInfoNV* wrapper);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV* wrapper);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 struct Decoded_VkValidationFlagsEXT;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkValidationFlagsEXT* wrapper);
 
-#ifdef VK_USE_PLATFORM_VI_NN
 struct Decoded_VkViSurfaceCreateInfoNN;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkViSurfaceCreateInfoNN* wrapper);
-#endif /* VK_USE_PLATFORM_VI_NN */
 
 struct Decoded_VkConditionalRenderingBeginInfoEXT;
 struct Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT;
@@ -746,17 +720,13 @@ struct Decoded_VkHdrMetadataEXT;
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkXYColorEXT* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkHdrMetadataEXT* wrapper);
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
 struct Decoded_VkIOSSurfaceCreateInfoMVK;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkIOSSurfaceCreateInfoMVK* wrapper);
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
 struct Decoded_VkMacOSSurfaceCreateInfoMVK;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMacOSSurfaceCreateInfoMVK* wrapper);
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
 struct Decoded_VkDebugUtilsObjectNameInfoEXT;
 struct Decoded_VkDebugUtilsObjectTagInfoEXT;
@@ -770,7 +740,6 @@ size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decode
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDebugUtilsMessengerCallbackDataEXT* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDebugUtilsMessengerCreateInfoEXT* wrapper);
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 struct Decoded_VkAndroidHardwareBufferUsageANDROID;
 struct Decoded_VkAndroidHardwareBufferPropertiesANDROID;
 struct Decoded_VkAndroidHardwareBufferFormatPropertiesANDROID;
@@ -784,7 +753,6 @@ size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decode
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImportAndroidHardwareBufferInfoANDROID* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkExternalFormatANDROID* wrapper);
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
 struct Decoded_VkSamplerReductionModeCreateInfoEXT;
 struct Decoded_VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT;

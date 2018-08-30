@@ -231,7 +231,6 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkDisplayPresentInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#ifdef VK_USE_PLATFORM_WIN32_KHR
             case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkImportMemoryWin32HandleInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -240,18 +239,14 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkExportMemoryWin32HandleInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
             case VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkImportMemoryFdInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#ifdef VK_USE_PLATFORM_WIN32_KHR
             case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
-#ifdef VK_USE_PLATFORM_WIN32_KHR
             case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkExportSemaphoreWin32HandleInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -260,7 +255,6 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkD3D12FenceSubmitInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES_KHR:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDevicePushDescriptorPropertiesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -273,12 +267,10 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkSharedPresentSurfaceCapabilitiesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#ifdef VK_USE_PLATFORM_WIN32_KHR
             case VK_STRUCTURE_TYPE_EXPORT_FENCE_WIN32_HANDLE_INFO_KHR:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkExportFenceWin32HandleInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
             case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkImageFormatListCreateInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -319,7 +311,6 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkExportMemoryAllocateInfoNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#ifdef VK_USE_PLATFORM_WIN32_KHR
             case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkImportMemoryWin32HandleInfoNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -328,13 +319,10 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkExportMemoryWin32HandleInfoNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
-#ifdef VK_USE_PLATFORM_WIN32_KHR
             case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
             case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkValidationFlagsEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -387,7 +375,6 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkDebugUtilsMessengerCreateInfoEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
             case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkAndroidHardwareBufferUsageANDROID>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -404,7 +391,6 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkExternalFormatANDROID>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
             case VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO_EXT:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkSamplerReductionModeCreateInfoEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
