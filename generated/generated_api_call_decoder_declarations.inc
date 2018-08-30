@@ -380,39 +380,27 @@
 
     size_t Decode_vkCreateSharedSwapchainsKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
     size_t Decode_vkCreateXlibSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceXlibPresentationSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
     size_t Decode_vkCreateXcbSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceXcbPresentationSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
     size_t Decode_vkCreateWaylandSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceWaylandPresentationSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
     size_t Decode_vkCreateMirSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceMirPresentationSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
     size_t Decode_vkCreateAndroidSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     size_t Decode_vkCreateWin32SurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceWin32PresentationSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     size_t Decode_vkGetPhysicalDeviceFeatures2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -440,11 +428,9 @@
 
     size_t Decode_vkGetPhysicalDeviceExternalBufferPropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     size_t Decode_vkGetMemoryWin32HandleKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetMemoryWin32HandlePropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     size_t Decode_vkGetMemoryFdKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -452,11 +438,9 @@
 
     size_t Decode_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     size_t Decode_vkImportSemaphoreWin32HandleKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetSemaphoreWin32HandleKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     size_t Decode_vkImportSemaphoreFdKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -484,11 +468,9 @@
 
     size_t Decode_vkGetPhysicalDeviceExternalFencePropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     size_t Decode_vkImportFenceWin32HandleKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetFenceWin32HandleKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
     size_t Decode_vkImportFenceFdKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -550,13 +532,9 @@
 
     size_t Decode_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     size_t Decode_vkGetMemoryWin32HandleNV(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_VI_NN
     size_t Decode_vkCreateViSurfaceNN(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_VI_NN */
 
     size_t Decode_vkCmdBeginConditionalRenderingEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -584,11 +562,9 @@
 
     size_t Decode_vkReleaseDisplayEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
-#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
     size_t Decode_vkAcquireXlibDisplayEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetRandROutputDisplayEXT(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
 
     size_t Decode_vkGetPhysicalDeviceSurfaceCapabilities2EXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -608,13 +584,9 @@
 
     size_t Decode_vkSetHdrMetadataEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
     size_t Decode_vkCreateIOSSurfaceMVK(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
     size_t Decode_vkCreateMacOSSurfaceMVK(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
     size_t Decode_vkSetDebugUtilsObjectNameEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -638,11 +610,9 @@
 
     size_t Decode_vkSubmitDebugUtilsMessageEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
     size_t Decode_vkGetAndroidHardwareBufferPropertiesANDROID(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetMemoryAndroidHardwareBufferANDROID(const uint8_t* parameter_buffer, size_t buffer_size);
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
     size_t Decode_vkCmdSetSampleLocationsEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 

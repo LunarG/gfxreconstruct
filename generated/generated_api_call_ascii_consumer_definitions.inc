@@ -1672,7 +1672,6 @@ void VulkanAsciiConsumer::Process_vkCreateSharedSwapchainsKHR(
     fprintf(m_file, "%s\n", "vkCreateSharedSwapchainsKHR");
 }
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
 void VulkanAsciiConsumer::Process_vkCreateXlibSurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -1692,9 +1691,7 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR(
 {
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceXlibPresentationSupportKHR");
 }
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
 void VulkanAsciiConsumer::Process_vkCreateXcbSurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -1714,9 +1711,7 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
 {
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceXcbPresentationSupportKHR");
 }
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
 void VulkanAsciiConsumer::Process_vkCreateWaylandSurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -1735,9 +1730,7 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupportK
 {
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceWaylandPresentationSupportKHR");
 }
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
 void VulkanAsciiConsumer::Process_vkCreateMirSurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -1756,9 +1749,7 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceMirPresentationSupportKHR(
 {
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceMirPresentationSupportKHR");
 }
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 void VulkanAsciiConsumer::Process_vkCreateAndroidSurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -1768,9 +1759,7 @@ void VulkanAsciiConsumer::Process_vkCreateAndroidSurfaceKHR(
 {
     fprintf(m_file, "%s\n", "vkCreateAndroidSurfaceKHR");
 }
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void VulkanAsciiConsumer::Process_vkCreateWin32SurfaceKHR(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -1788,7 +1777,6 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceWin32PresentationSupportKHR
 {
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceWin32PresentationSupportKHR");
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceFeatures2KHR(
     HandleId                                    physicalDevice,
@@ -1899,7 +1887,6 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceExternalBufferPropertiesKHR");
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void VulkanAsciiConsumer::Process_vkGetMemoryWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -1918,7 +1905,6 @@ void VulkanAsciiConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
 {
     fprintf(m_file, "%s\n", "vkGetMemoryWin32HandlePropertiesKHR");
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void VulkanAsciiConsumer::Process_vkGetMemoryFdKHR(
     VkResult                                    returnValue,
@@ -1947,7 +1933,6 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalSemaphoreProperties
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR");
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void VulkanAsciiConsumer::Process_vkImportSemaphoreWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -1964,7 +1949,6 @@ void VulkanAsciiConsumer::Process_vkGetSemaphoreWin32HandleKHR(
 {
     fprintf(m_file, "%s\n", "vkGetSemaphoreWin32HandleKHR");
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void VulkanAsciiConsumer::Process_vkImportSemaphoreFdKHR(
     VkResult                                    returnValue,
@@ -2080,7 +2064,6 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalFencePropertiesKHR(
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceExternalFencePropertiesKHR");
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void VulkanAsciiConsumer::Process_vkImportFenceWin32HandleKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -2097,7 +2080,6 @@ void VulkanAsciiConsumer::Process_vkGetFenceWin32HandleKHR(
 {
     fprintf(m_file, "%s\n", "vkGetFenceWin32HandleKHR");
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void VulkanAsciiConsumer::Process_vkImportFenceFdKHR(
     VkResult                                    returnValue,
@@ -2382,7 +2364,6 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalImageFormatProperti
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceExternalImageFormatPropertiesNV");
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void VulkanAsciiConsumer::Process_vkGetMemoryWin32HandleNV(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -2392,9 +2373,7 @@ void VulkanAsciiConsumer::Process_vkGetMemoryWin32HandleNV(
 {
     fprintf(m_file, "%s\n", "vkGetMemoryWin32HandleNV");
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_VI_NN
 void VulkanAsciiConsumer::Process_vkCreateViSurfaceNN(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -2404,7 +2383,6 @@ void VulkanAsciiConsumer::Process_vkCreateViSurfaceNN(
 {
     fprintf(m_file, "%s\n", "vkCreateViSurfaceNN");
 }
-#endif /* VK_USE_PLATFORM_VI_NN */
 
 void VulkanAsciiConsumer::Process_vkCmdBeginConditionalRenderingEXT(
     HandleId                                    commandBuffer,
@@ -2516,7 +2494,6 @@ void VulkanAsciiConsumer::Process_vkReleaseDisplayEXT(
     fprintf(m_file, "%s\n", "vkReleaseDisplayEXT");
 }
 
-#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
 void VulkanAsciiConsumer::Process_vkAcquireXlibDisplayEXT(
     VkResult                                    returnValue,
     HandleId                                    physicalDevice,
@@ -2535,7 +2512,6 @@ void VulkanAsciiConsumer::Process_vkGetRandROutputDisplayEXT(
 {
     fprintf(m_file, "%s\n", "vkGetRandROutputDisplayEXT");
 }
-#endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
 
 void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
     VkResult                                    returnValue,
@@ -2623,7 +2599,6 @@ void VulkanAsciiConsumer::Process_vkSetHdrMetadataEXT(
     fprintf(m_file, "%s\n", "vkSetHdrMetadataEXT");
 }
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
 void VulkanAsciiConsumer::Process_vkCreateIOSSurfaceMVK(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -2633,9 +2608,7 @@ void VulkanAsciiConsumer::Process_vkCreateIOSSurfaceMVK(
 {
     fprintf(m_file, "%s\n", "vkCreateIOSSurfaceMVK");
 }
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
 void VulkanAsciiConsumer::Process_vkCreateMacOSSurfaceMVK(
     VkResult                                    returnValue,
     HandleId                                    instance,
@@ -2645,7 +2618,6 @@ void VulkanAsciiConsumer::Process_vkCreateMacOSSurfaceMVK(
 {
     fprintf(m_file, "%s\n", "vkCreateMacOSSurfaceMVK");
 }
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
 void VulkanAsciiConsumer::Process_vkSetDebugUtilsObjectNameEXT(
     VkResult                                    returnValue,
@@ -2730,7 +2702,6 @@ void VulkanAsciiConsumer::Process_vkSubmitDebugUtilsMessageEXT(
     fprintf(m_file, "%s\n", "vkSubmitDebugUtilsMessageEXT");
 }
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 void VulkanAsciiConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -2748,7 +2719,6 @@ void VulkanAsciiConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
 {
     fprintf(m_file, "%s\n", "vkGetMemoryAndroidHardwareBufferANDROID");
 }
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
 void VulkanAsciiConsumer::Process_vkCmdSetSampleLocationsEXT(
     HandleId                                    commandBuffer,

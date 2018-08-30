@@ -1906,7 +1906,6 @@ struct Decoded_VkDisplayPresentInfoKHR
     Decoded_VkRect2D dstRect;
 };
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
 struct Decoded_VkXlibSurfaceCreateInfoKHR
 {
     using struct_type = VkXlibSurfaceCreateInfoKHR;
@@ -1916,9 +1915,7 @@ struct Decoded_VkXlibSurfaceCreateInfoKHR
     std::unique_ptr<PNextNode> pNext;
     uint64_t dpy;
 };
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
 struct Decoded_VkXcbSurfaceCreateInfoKHR
 {
     using struct_type = VkXcbSurfaceCreateInfoKHR;
@@ -1928,9 +1925,7 @@ struct Decoded_VkXcbSurfaceCreateInfoKHR
     std::unique_ptr<PNextNode> pNext;
     uint64_t connection;
 };
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
 struct Decoded_VkWaylandSurfaceCreateInfoKHR
 {
     using struct_type = VkWaylandSurfaceCreateInfoKHR;
@@ -1941,9 +1936,7 @@ struct Decoded_VkWaylandSurfaceCreateInfoKHR
     uint64_t display;
     uint64_t surface;
 };
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
 struct Decoded_VkMirSurfaceCreateInfoKHR
 {
     using struct_type = VkMirSurfaceCreateInfoKHR;
@@ -1954,9 +1947,7 @@ struct Decoded_VkMirSurfaceCreateInfoKHR
     uint64_t connection;
     uint64_t mirSurface;
 };
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 struct Decoded_VkAndroidSurfaceCreateInfoKHR
 {
     using struct_type = VkAndroidSurfaceCreateInfoKHR;
@@ -1966,9 +1957,7 @@ struct Decoded_VkAndroidSurfaceCreateInfoKHR
     std::unique_ptr<PNextNode> pNext;
     uint64_t window;
 };
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkWin32SurfaceCreateInfoKHR
 {
     using struct_type = VkWin32SurfaceCreateInfoKHR;
@@ -1979,9 +1968,7 @@ struct Decoded_VkWin32SurfaceCreateInfoKHR
     uint64_t hinstance;
     uint64_t hwnd;
 };
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkImportMemoryWin32HandleInfoKHR
 {
     using struct_type = VkImportMemoryWin32HandleInfoKHR;
@@ -2022,7 +2009,6 @@ struct Decoded_VkMemoryGetWin32HandleInfoKHR
     std::unique_ptr<PNextNode> pNext;
     HandleId memory;
 };
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 struct Decoded_VkImportMemoryFdInfoKHR
 {
@@ -2052,7 +2038,6 @@ struct Decoded_VkMemoryGetFdInfoKHR
     HandleId memory;
 };
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR
 {
     using struct_type = VkWin32KeyedMutexAcquireReleaseInfoKHR;
@@ -2066,9 +2051,7 @@ struct Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR
     PointerDecoder<HandleId> pReleaseSyncs;
     PointerDecoder<uint64_t> pReleaseKeys;
 };
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkImportSemaphoreWin32HandleInfoKHR
 {
     using struct_type = VkImportSemaphoreWin32HandleInfoKHR;
@@ -2112,7 +2095,6 @@ struct Decoded_VkSemaphoreGetWin32HandleInfoKHR
     std::unique_ptr<PNextNode> pNext;
     HandleId semaphore;
 };
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 struct Decoded_VkImportSemaphoreFdInfoKHR
 {
@@ -2253,7 +2235,6 @@ struct Decoded_VkSharedPresentSurfaceCapabilitiesKHR
     std::unique_ptr<PNextNode> pNext;
 };
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkImportFenceWin32HandleInfoKHR
 {
     using struct_type = VkImportFenceWin32HandleInfoKHR;
@@ -2286,7 +2267,6 @@ struct Decoded_VkFenceGetWin32HandleInfoKHR
     std::unique_ptr<PNextNode> pNext;
     HandleId fence;
 };
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 struct Decoded_VkImportFenceFdInfoKHR
 {
@@ -2540,7 +2520,6 @@ struct Decoded_VkExportMemoryAllocateInfoNV
     std::unique_ptr<PNextNode> pNext;
 };
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkImportMemoryWin32HandleInfoNV
 {
     using struct_type = VkImportMemoryWin32HandleInfoNV;
@@ -2560,9 +2539,7 @@ struct Decoded_VkExportMemoryWin32HandleInfoNV
     std::unique_ptr<PNextNode> pNext;
     StructPointerDecoder<Decoded_SECURITY_ATTRIBUTES> pAttributes;
 };
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 struct Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV
 {
     using struct_type = VkWin32KeyedMutexAcquireReleaseInfoNV;
@@ -2576,7 +2553,6 @@ struct Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV
     PointerDecoder<HandleId> pReleaseSyncs;
     PointerDecoder<uint64_t> pReleaseKeys;
 };
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 struct Decoded_VkValidationFlagsEXT
 {
@@ -2588,7 +2564,6 @@ struct Decoded_VkValidationFlagsEXT
     PointerDecoder<VkValidationCheckEXT> pDisabledValidationChecks;
 };
 
-#ifdef VK_USE_PLATFORM_VI_NN
 struct Decoded_VkViSurfaceCreateInfoNN
 {
     using struct_type = VkViSurfaceCreateInfoNN;
@@ -2598,7 +2573,6 @@ struct Decoded_VkViSurfaceCreateInfoNN
     std::unique_ptr<PNextNode> pNext;
     uint64_t window;
 };
-#endif /* VK_USE_PLATFORM_VI_NN */
 
 struct Decoded_VkConditionalRenderingBeginInfoEXT
 {
@@ -2942,7 +2916,6 @@ struct Decoded_VkHdrMetadataEXT
     Decoded_VkXYColorEXT whitePoint;
 };
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
 struct Decoded_VkIOSSurfaceCreateInfoMVK
 {
     using struct_type = VkIOSSurfaceCreateInfoMVK;
@@ -2952,9 +2925,7 @@ struct Decoded_VkIOSSurfaceCreateInfoMVK
     std::unique_ptr<PNextNode> pNext;
     uint64_t pView;
 };
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
 struct Decoded_VkMacOSSurfaceCreateInfoMVK
 {
     using struct_type = VkMacOSSurfaceCreateInfoMVK;
@@ -2964,7 +2935,6 @@ struct Decoded_VkMacOSSurfaceCreateInfoMVK
     std::unique_ptr<PNextNode> pNext;
     uint64_t pView;
 };
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
 struct Decoded_VkDebugUtilsObjectNameInfoEXT
 {
@@ -3022,7 +2992,6 @@ struct Decoded_VkDebugUtilsMessengerCreateInfoEXT
     uint64_t pUserData;
 };
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 struct Decoded_VkAndroidHardwareBufferUsageANDROID
 {
     using struct_type = VkAndroidHardwareBufferUsageANDROID;
@@ -3079,7 +3048,6 @@ struct Decoded_VkExternalFormatANDROID
 
     std::unique_ptr<PNextNode> pNext;
 };
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
 struct Decoded_VkSamplerReductionModeCreateInfoEXT
 {

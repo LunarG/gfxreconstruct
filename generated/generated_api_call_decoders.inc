@@ -4059,7 +4059,6 @@ size_t VulkanDecoder::Decode_vkCreateSharedSwapchainsKHR(const uint8_t* paramete
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
 size_t VulkanDecoder::Decode_vkCreateXlibSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -4107,9 +4106,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceXlibPresentationSupportKHR(const
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
 size_t VulkanDecoder::Decode_vkCreateXcbSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -4157,9 +4154,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceXcbPresentationSupportKHR(const 
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
 size_t VulkanDecoder::Decode_vkCreateWaylandSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -4205,9 +4200,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceWaylandPresentationSupportKHR(co
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
 size_t VulkanDecoder::Decode_vkCreateMirSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -4253,9 +4246,7 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceMirPresentationSupportKHR(const 
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 size_t VulkanDecoder::Decode_vkCreateAndroidSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -4279,9 +4270,7 @@ size_t VulkanDecoder::Decode_vkCreateAndroidSurfaceKHR(const uint8_t* parameter_
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t VulkanDecoder::Decode_vkCreateWin32SurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -4325,7 +4314,6 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceWin32PresentationSupportKHR(cons
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 size_t VulkanDecoder::Decode_vkGetPhysicalDeviceFeatures2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
@@ -4597,7 +4585,6 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalBufferPropertiesKHR(cons
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t VulkanDecoder::Decode_vkGetMemoryWin32HandleKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -4643,7 +4630,6 @@ size_t VulkanDecoder::Decode_vkGetMemoryWin32HandlePropertiesKHR(const uint8_t* 
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 size_t VulkanDecoder::Decode_vkGetMemoryFdKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
@@ -4711,7 +4697,6 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(c
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t VulkanDecoder::Decode_vkImportSemaphoreWin32HandleKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -4753,7 +4738,6 @@ size_t VulkanDecoder::Decode_vkGetSemaphoreWin32HandleKHR(const uint8_t* paramet
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 size_t VulkanDecoder::Decode_vkImportSemaphoreFdKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
@@ -5035,7 +5019,6 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalFencePropertiesKHR(const
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t VulkanDecoder::Decode_vkImportFenceWin32HandleKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -5077,7 +5060,6 @@ size_t VulkanDecoder::Decode_vkGetFenceWin32HandleKHR(const uint8_t* parameter_b
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 size_t VulkanDecoder::Decode_vkImportFenceFdKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
@@ -5765,7 +5747,6 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 size_t VulkanDecoder::Decode_vkGetMemoryWin32HandleNV(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -5789,9 +5770,7 @@ size_t VulkanDecoder::Decode_vkGetMemoryWin32HandleNV(const uint8_t* parameter_b
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_VI_NN
 size_t VulkanDecoder::Decode_vkCreateViSurfaceNN(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -5815,7 +5794,6 @@ size_t VulkanDecoder::Decode_vkCreateViSurfaceNN(const uint8_t* parameter_buffer
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_VI_NN */
 
 size_t VulkanDecoder::Decode_vkCmdBeginConditionalRenderingEXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
@@ -6089,7 +6067,6 @@ size_t VulkanDecoder::Decode_vkReleaseDisplayEXT(const uint8_t* parameter_buffer
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
 size_t VulkanDecoder::Decode_vkAcquireXlibDisplayEXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -6135,7 +6112,6 @@ size_t VulkanDecoder::Decode_vkGetRandROutputDisplayEXT(const uint8_t* parameter
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
 
 size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSurfaceCapabilities2EXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
@@ -6345,7 +6321,6 @@ size_t VulkanDecoder::Decode_vkSetHdrMetadataEXT(const uint8_t* parameter_buffer
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
 size_t VulkanDecoder::Decode_vkCreateIOSSurfaceMVK(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -6369,9 +6344,7 @@ size_t VulkanDecoder::Decode_vkCreateIOSSurfaceMVK(const uint8_t* parameter_buff
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
 size_t VulkanDecoder::Decode_vkCreateMacOSSurfaceMVK(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -6395,7 +6368,6 @@ size_t VulkanDecoder::Decode_vkCreateMacOSSurfaceMVK(const uint8_t* parameter_bu
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
 size_t VulkanDecoder::Decode_vkSetDebugUtilsObjectNameEXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
@@ -6607,7 +6579,6 @@ size_t VulkanDecoder::Decode_vkSubmitDebugUtilsMessageEXT(const uint8_t* paramet
     return bytes_read;
 }
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 size_t VulkanDecoder::Decode_vkGetAndroidHardwareBufferPropertiesANDROID(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -6651,7 +6622,6 @@ size_t VulkanDecoder::Decode_vkGetMemoryAndroidHardwareBufferANDROID(const uint8
 
     return bytes_read;
 }
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
 size_t VulkanDecoder::Decode_vkCmdSetSampleLocationsEXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
