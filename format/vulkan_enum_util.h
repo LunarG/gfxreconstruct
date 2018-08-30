@@ -31,6 +31,7 @@ const char* GetResultValueString(VkResult result)
     switch (result)
     {
         case VK_SUCCESS:                        return BRIMSTONE_STR(VK_SUCCESS);
+        case VK_NOT_READY:                      return BRIMSTONE_STR(VK_NOT_READY);
         case VK_TIMEOUT:                        return BRIMSTONE_STR(VK_TIMEOUT);
         case VK_EVENT_SET:                      return BRIMSTONE_STR(VK_EVENT_SET);
         case VK_EVENT_RESET:                    return BRIMSTONE_STR(VK_EVENT_RESET);
