@@ -26,6 +26,7 @@
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "format/decoder.h"
+#include "format/platform_types.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)

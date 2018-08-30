@@ -23,6 +23,7 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
+#include "format/platform_types.h"
 #include "format/pointer_decoder.h"
 #include "format/string_decoder.h"
 #include "format/struct_pointer_decoder.h"

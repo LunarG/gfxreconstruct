@@ -26,6 +26,7 @@
 
 #include "util/defines.h"
 #include "format/custom_struct_decoders.h"
+#include "format/platform_types.h"
 #include "format/pnext_node.h"
 #include "format/pointer_decoder.h"
 #include "format/string_array_decoder.h"
