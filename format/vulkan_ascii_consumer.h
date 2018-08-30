@@ -23,6 +23,7 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
+#include "format/platform_types.h"
 #include "format/vulkan_consumer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)

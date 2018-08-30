@@ -27,6 +27,7 @@
 
 #include "util/defines.h"
 #include "format/api_call_id.h"
+#include "format/platform_types.h"
 #include "format/pointer_decoder.h"
 #include "format/vulkan_consumer.h"
 #include "format/vulkan_object_mapper.h"

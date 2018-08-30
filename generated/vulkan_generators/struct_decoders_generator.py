@@ -54,6 +54,7 @@ class StructDecodersGenerator(BaseGenerator):
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
         write('#include "format/custom_struct_decoders.h"', file=self.outFile)
+        write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "format/pnext_node.h"', file=self.outFile)
         write('#include "format/pointer_decoder.h"', file=self.outFile)
         write('#include "format/string_array_decoder.h"', file=self.outFile)

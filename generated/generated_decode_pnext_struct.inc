@@ -25,6 +25,7 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
+#include "format/platform_types.h"
 #include "format/pnext_node.h"
 #include "format/pnext_null_node.h"
 #include "format/pnext_typed_node.h"
