@@ -291,7 +291,9 @@ class BaseGenerator(OutputGenerator):
         category = typeElem.get('category')
         if (category == 'struct' or category == 'union'):
             self.structNames.add(name)
-            self.genStruct(typeinfo, name, alias)
+            # Skip code generation for union encode/decode functions.
+            if category == 'struct':
+                self.genStruct(typeinfo, name, alias)
         elif (category == 'handle'):
             self.handleNames.add(name)
         elif (category == 'bitmask'):

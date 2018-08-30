@@ -23,6 +23,32 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
+size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t             bytes_read = 0;
+    VkClearColorValue* value      = wrapper->value;
+
+    wrapper->uint32.SetExternalMemory(value->uint32, 4);
+    bytes_read += wrapper->uint32.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t        bytes_read = 0;
+    VkClearValue* value      = wrapper->value;
+
+    wrapper->color.value = &(value->color);
+    bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->color));
+
+    return bytes_read;
+}
+
 // The WIN32 SID structure has a variable size, so was encoded as an array of bytes instead of a struct.
 static std::unique_ptr<uint8_t[]> unpack_sid_struct(const PointerDecoder<uint8_t>& packed_value)
 {

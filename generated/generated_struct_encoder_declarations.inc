@@ -122,9 +122,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImageSubresource
 size_t encode_struct(format::ParameterEncoder* encoder, const VkImageCopy& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkImageBlit& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkBufferImageCopy& value);
-size_t encode_struct(format::ParameterEncoder* encoder, const VkClearColorValue& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkClearDepthStencilValue& value);
-size_t encode_struct(format::ParameterEncoder* encoder, const VkClearValue& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkClearAttachment& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkClearRect& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkImageResolve& value);
