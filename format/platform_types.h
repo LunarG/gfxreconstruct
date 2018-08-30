@@ -87,13 +87,105 @@ struct SECURITY_ATTRIBUTES
 };
 #endif // WIN32
 
-// Types for WSI platform extensions.
+// Types for platform extensions.
+
+#if !defined(VK_USE_PLATFORM_IOS_MVK)
+typedef VkFlags VkIOSSurfaceCreateFlagsMVK;
+
+struct VkIOSSurfaceCreateInfoMVK
+{
+    VkStructureType            sType;
+    const void*                pNext;
+    VkIOSSurfaceCreateFlagsMVK flags;
+    const void*                pView;
+};
+
+extern "C" {
+typedef VkResult(VKAPI_PTR* PFN_vkCreateIOSSurfaceMVK)(VkInstance                       instance,
+                                                       const VkIOSSurfaceCreateInfoMVK* pCreateInfo,
+                                                       const VkAllocationCallbacks*     pAllocator,
+                                                       VkSurfaceKHR*                    pSurface);
+}
+#endif // VK_USE_PLATFORM_IOS_MVK
+
+#if !defined(VK_USE_PLATFORM_MACOS_MVK)
+typedef VkFlags VkMacOSSurfaceCreateFlagsMVK;
+
+struct VkMacOSSurfaceCreateInfoMVK
+{
+    VkStructureType              sType;
+    const void*                  pNext;
+    VkMacOSSurfaceCreateFlagsMVK flags;
+    const void*                  pView;
+};
+
+extern "C" {
+typedef VkResult(VKAPI_PTR* PFN_vkCreateMacOSSurfaceMVK)(VkInstance                         instance,
+                                                         const VkMacOSSurfaceCreateInfoMVK* pCreateInfo,
+                                                         const VkAllocationCallbacks*       pAllocator,
+                                                         VkSurfaceKHR*                      pSurface);
+}
+#endif // VK_USE_PLATFORM_MACOS_MVK
+
+#if !defined(VK_USE_PLATFORM_MIR_KHR)
+typedef VkFlags          VkMirSurfaceCreateFlagsKHR;
+
+struct MirConnection;
+struct MirSurface;
+
+struct VkMirSurfaceCreateInfoKHR
+{
+    VkStructureType            sType;
+    const void*                pNext;
+    VkMirSurfaceCreateFlagsKHR flags;
+    MirConnection*             connection;
+    MirSurface*                mirSurface;
+};
+
+struct VkIcdSurfaceMir
+{
+    VkIcdSurfaceBase base;
+    MirConnection*   connection;
+    MirSurface*      mirSurface;
+};
+
+extern "C" {
+typedef VkResult(VKAPI_PTR* PFN_vkCreateMirSurfaceKHR)(VkInstance                       instance,
+                                                       const VkMirSurfaceCreateInfoKHR* pCreateInfo,
+                                                       const VkAllocationCallbacks*     pAllocator,
+                                                       VkSurfaceKHR*                    pSurface);
+typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceMirPresentationSupportKHR)(VkPhysicalDevice physicalDevice,
+                                                                              uint32_t         queueFamilyIndex,
+                                                                              MirConnection*   connection);
+}
+#endif // VK_USE_PLATFORM_MIR_KHR
+
+#if !defined(VK_USE_PLATFORM_VI_NN)
+typedef VkFlags VkViSurfaceCreateFlagsNN;
+
+struct VkViSurfaceCreateInfoNN
+{
+    VkStructureType          sType;
+    const void*              pNext;
+    VkViSurfaceCreateFlagsNN flags;
+    void*                    window;
+};
+
+extern "C"{
+typedef VkResult(VKAPI_PTR* PFN_vkCreateViSurfaceNN)(VkInstance                     instance,
+                                                     const VkViSurfaceCreateInfoNN* pCreateInfo,
+                                                     const VkAllocationCallbacks*   pAllocator,
+                                                     VkSurfaceKHR*                  pSurface);
+}
+#endif // VK_USE_PLATFORM_VI_NN
 
 #if !defined(VK_USE_PLATFORM_XCB_KHR)
 typedef VkFlags                 VkXcbSurfaceCreateFlagsKHR;
-typedef struct xcb_connection_t xcb_connection_t;
+
 typedef uint32_t                xcb_window_t;
 typedef uint32_t                xcb_visualid_t;
+
+struct xcb_connection_t;
 
 struct VkXcbSurfaceCreateInfoKHR
 {
@@ -125,12 +217,12 @@ typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)(Vk
 
 #if !defined(VK_USE_PLATFORM_XLIB_KHR)
 typedef VkFlags          VkXlibSurfaceCreateFlagsKHR;
-typedef struct _XDisplay Display;
-typedef uint32_t         CARD32;
-typedef CARD32           XID;
+
+typedef uint32_t         XID;
+typedef uint32_t         VisualID;
 typedef XID              Window;
-typedef CARD32           VisualID;
-typedef XID              RROutput;
+
+struct Display;
 
 struct VkXlibSurfaceCreateInfoKHR
 {
@@ -162,10 +254,21 @@ typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR)(V
 
 #if !defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
 typedef XID RROutput;
+
+typedef VkResult(VKAPI_PTR* PFN_vkAcquireXlibDisplayEXT)(VkPhysicalDevice physicalDevice,
+                                                         Display*         dpy,
+                                                         VkDisplayKHR     display);
+typedef VkResult(VKAPI_PTR* PFN_vkGetRandROutputDisplayEXT)(VkPhysicalDevice physicalDevice,
+                                                            Display*         dpy,
+                                                            RROutput         rrOutput,
+                                                            VkDisplayKHR*    pDisplay);
 #endif // VK_USE_PLATFORM_XLIB_XRANDR_EXT
 
 #if !defined(VK_USE_PLATFORM_WAYLAND_KHR)
 typedef VkFlags VkWaylandSurfaceCreateFlagsKHR;
+
+struct wl_display;
+struct wl_surface;
 
 struct VkWaylandSurfaceCreateInfoKHR
 {
@@ -196,7 +299,9 @@ typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR
 
 #if !defined(VK_USE_PLATFORM_ANDROID_KHR)
 typedef VkFlags   VkAndroidSurfaceCreateFlagsKHR;
-typedef uint32_t* ANativeWindow;
+
+struct ANativeWindow;
+struct AHardwareBuffer;
 
 struct VkAndroidSurfaceCreateInfoKHR
 {
@@ -206,24 +311,60 @@ struct VkAndroidSurfaceCreateInfoKHR
     ANativeWindow*                 window;
 };
 
-struct VkIcdSurfaceAndroid
+struct VkAndroidHardwareBufferUsageANDROID
 {
-    ANativeWindow* window;
-};
-
-struct AHardwareBuffer
-{
-    int notYetImplemented;
+    VkStructureType sType;
+    void*           pNext;
+    uint64_t        androidHardwareBufferUsage;
 };
 
 struct VkAndroidHardwareBufferPropertiesANDROID
 {
-    int notYetImplemented;
+    VkStructureType sType;
+    void*           pNext;
+    VkDeviceSize    allocationSize;
+    uint32_t        memoryTypeBits;
+};
+
+struct VkAndroidHardwareBufferFormatPropertiesANDROID
+{
+    VkStructureType               sType;
+    void*                         pNext;
+    VkFormat                      format;
+    uint64_t                      externalFormat;
+    VkFormatFeatureFlags          formatFeatures;
+    VkComponentMapping            samplerYcbcrConversionComponents;
+    VkSamplerYcbcrModelConversion suggestedYcbcrModel;
+    VkSamplerYcbcrRange           suggestedYcbcrRange;
+    VkChromaLocation              suggestedXChromaOffset;
+    VkChromaLocation              suggestedYChromaOffset;
+};
+
+struct VkImportAndroidHardwareBufferInfoANDROID
+{
+    VkStructureType         sType;
+    const void*             pNext;
+    struct AHardwareBuffer* buffer;
 };
 
 struct VkMemoryGetAndroidHardwareBufferInfoANDROID
 {
-    int notYetImplemented;
+    VkStructureType sType;
+    const void*     pNext;
+    VkDeviceMemory  memory;
+};
+
+struct VkExternalFormatANDROID
+{
+    VkStructureType sType;
+    void*           pNext;
+    uint64_t        externalFormat;
+};
+
+struct VkIcdSurfaceAndroid
+{
+    VkIcdSurfaceBase base;
+    ANativeWindow*   window;
 };
 
 extern "C" {
@@ -247,7 +388,25 @@ struct VkWin32SurfaceCreateInfoKHR
     const void*                  pNext;
     VkWin32SurfaceCreateFlagsKHR flags;
     HINSTANCE                    hinstance;
-    HWND                         window;
+    HWND                         hwnd;
+};
+
+struct VkImportMemoryWin32HandleInfoKHR
+{
+    VkStructureType                    sType;
+    const void*                        pNext;
+    VkExternalMemoryHandleTypeFlagBits handleType;
+    HANDLE                             handle;
+    LPCWSTR                            name;
+};
+
+struct VkExportMemoryWin32HandleInfoKHR
+{
+    VkStructureType            sType;
+    const void*                pNext;
+    const SECURITY_ATTRIBUTES* pAttributes;
+    DWORD                      dwAccess;
+    LPCWSTR                    name;
 };
 
 struct VkMemoryWin32HandlePropertiesKHR
@@ -259,48 +418,118 @@ struct VkMemoryWin32HandlePropertiesKHR
 
 struct VkMemoryGetWin32HandleInfoKHR
 {
-    VkStructureType                       sType;
-    const void*                           pNext;
-    VkDeviceMemory                        memory;
-    VkExternalMemoryHandleTypeFlagBitsKHR handleType;
+    VkStructureType                    sType;
+    const void*                        pNext;
+    VkDeviceMemory                     memory;
+    VkExternalMemoryHandleTypeFlagBits handleType;
+};
+
+struct VkWin32KeyedMutexAcquireReleaseInfoKHR
+{
+    VkStructureType       sType;
+    const void*           pNext;
+    uint32_t              acquireCount;
+    const VkDeviceMemory* pAcquireSyncs;
+    const uint64_t*       pAcquireKeys;
+    const uint32_t*       pAcquireTimeouts;
+    uint32_t              releaseCount;
+    const VkDeviceMemory* pReleaseSyncs;
+    const uint64_t*       pReleaseKeys;
 };
 
 struct VkImportSemaphoreWin32HandleInfoKHR
 {
-    VkStructureType                          sType;
-    const void*                              pNext;
-    VkSemaphore                              semaphore;
-    VkSemaphoreImportFlagsKHR                flags;
-    VkExternalSemaphoreHandleTypeFlagBitsKHR handleType;
-    HANDLE                                   handle;
-    LPCWSTR                                  name;
+    VkStructureType                       sType;
+    const void*                           pNext;
+    VkSemaphore                           semaphore;
+    VkSemaphoreImportFlags                flags;
+    VkExternalSemaphoreHandleTypeFlagBits handleType;
+    HANDLE                                handle;
+    LPCWSTR                               name;
+};
+
+struct VkExportSemaphoreWin32HandleInfoKHR
+{
+    VkStructureType            sType;
+    const void*                pNext;
+    const SECURITY_ATTRIBUTES* pAttributes;
+    DWORD                      dwAccess;
+    LPCWSTR                    name;
+};
+
+struct VkD3D12FenceSubmitInfoKHR
+{
+    VkStructureType sType;
+    const void*     pNext;
+    uint32_t        waitSemaphoreValuesCount;
+    const uint64_t* pWaitSemaphoreValues;
+    uint32_t        signalSemaphoreValuesCount;
+    const uint64_t* pSignalSemaphoreValues;
 };
 
 struct VkSemaphoreGetWin32HandleInfoKHR
 {
-    VkStructureType                          sType;
-    const void*                              pNext;
-    VkSemaphore                              semaphore;
-    VkExternalSemaphoreHandleTypeFlagBitsKHR handleType;
+    VkStructureType                       sType;
+    const void*                           pNext;
+    VkSemaphore                           semaphore;
+    VkExternalSemaphoreHandleTypeFlagBits handleType;
 };
 
 struct VkImportFenceWin32HandleInfoKHR
 {
-    VkStructureType                      sType;
-    const void*                          pNext;
-    VkFence                              fence;
-    VkFenceImportFlagsKHR                flags;
-    VkExternalFenceHandleTypeFlagBitsKHR handleType;
-    HANDLE                               handle;
-    LPCWSTR                              name;
+    VkStructureType                   sType;
+    const void*                       pNext;
+    VkFence                           fence;
+    VkFenceImportFlags                flags;
+    VkExternalFenceHandleTypeFlagBits handleType;
+    HANDLE                            handle;
+    LPCWSTR                           name;
+};
+
+struct VkExportFenceWin32HandleInfoKHR
+{
+    VkStructureType            sType;
+    const void*                pNext;
+    const SECURITY_ATTRIBUTES* pAttributes;
+    DWORD                      dwAccess;
+    LPCWSTR                    name;
 };
 
 struct VkFenceGetWin32HandleInfoKHR
 {
-    VkStructureType                      sType;
-    const void*                          pNext;
-    VkFence                              fence;
-    VkExternalFenceHandleTypeFlagBitsKHR handleType;
+    VkStructureType                   sType;
+    const void*                       pNext;
+    VkFence                           fence;
+    VkExternalFenceHandleTypeFlagBits handleType;
+};
+
+struct VkImportMemoryWin32HandleInfoNV
+{
+    VkStructureType                   sType;
+    const void*                       pNext;
+    VkExternalMemoryHandleTypeFlagsNV handleType;
+    HANDLE                            handle;
+};
+
+struct VkExportMemoryWin32HandleInfoNV
+{
+    VkStructureType            sType;
+    const void*                pNext;
+    const SECURITY_ATTRIBUTES* pAttributes;
+    DWORD                      dwAccess;
+};
+
+struct VkWin32KeyedMutexAcquireReleaseInfoNV
+{
+    VkStructureType       sType;
+    const void*           pNext;
+    uint32_t              acquireCount;
+    const VkDeviceMemory* pAcquireSyncs;
+    const uint64_t*       pAcquireKeys;
+    const uint32_t*       pAcquireTimeoutMilliseconds;
+    uint32_t              releaseCount;
+    const VkDeviceMemory* pReleaseSyncs;
+    const uint64_t*       pReleaseKeys;
 };
 
 extern "C" {
