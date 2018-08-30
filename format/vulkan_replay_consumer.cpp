@@ -16,6 +16,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <unordered_set>
 
 #include "volk.h"
 
@@ -29,17 +30,21 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-const uint32_t kDefaultWindowWidth = 320;
+const uint32_t kDefaultWindowWidth  = 320;
 const uint32_t kDefaultWindowHeight = 240;
+
+static std::unordered_set<std::string> kSurfaceExtensions = {
+    VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, VK_MVK_IOS_SURFACE_EXTENSION_NAME, VK_MVK_MACOS_SURFACE_EXTENSION_NAME,
+    VK_KHR_MIR_SURFACE_EXTENSION_NAME,     VK_NN_VI_SURFACE_EXTENSION_NAME,   VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,   VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+};
 
 VulkanReplayConsumer::VulkanReplayConsumer(WindowFactory* window_factory) : window_factory_(window_factory)
 {
     assert(window_factory != nullptr);
 }
 
-VulkanReplayConsumer::~VulkanReplayConsumer()
-{
-}
+VulkanReplayConsumer::~VulkanReplayConsumer() {}
 
 void VulkanReplayConsumer::ProcessDisplayMessageCommand(const std::string& message)
 {
@@ -64,7 +69,8 @@ void VulkanReplayConsumer::ProcessFillMemoryCommand(uint64_t       memory_id,
         }
         else
         {
-            BRIMSTONE_LOG_WARNING("Skipping memory fill for VkDeviceMemory object that is not mapped (%" PRIx64 ")", memory_id);
+            BRIMSTONE_LOG_WARNING("Skipping memory fill for VkDeviceMemory object that is not mapped (%" PRIx64 ")",
+                                  memory_id);
         }
     }
     else
@@ -117,7 +123,8 @@ void* VulkanReplayConsumer::PreProcessExternalObject(uint64_t object_id, ApiCall
     {
         // For window system related handles, we put the object ID into the pointer.
         // The dispatch override for the API call will use this ID as a key to the window map.
-        // TODO: For x86 builds, we should map the object_id to a 32-bit sequence number that won't be truncated by the cast.
+        // TODO: For x86 builds, we should map the object_id to a 32-bit sequence number that won't be truncated by the
+        // cast.
         object = reinterpret_cast<void*>(object_id);
     }
     else
@@ -176,7 +183,8 @@ void VulkanReplayConsumer::CheckResult(const char* func_name, VkResult original,
                                 enumutil::GetResultValueString(original));
         }
 
-        // Warn when an API call returned a failure, regardless of original result (excluding fromat not supported results).
+        // Warn when an API call returned a failure, regardless of original result (excluding fromat not supported
+        // results).
         if ((replay < 0) && (replay != VK_ERROR_FORMAT_NOT_SUPPORTED))
         {
             BRIMSTONE_LOG_WARNING("API call (%s) returned error result %s: %s",
@@ -224,7 +232,29 @@ VkResult VulkanReplayConsumer::OverrideCreateInstance(const VkInstanceCreateInfo
         initialized = true;
     }
 
-    VkResult result = vkCreateInstance(pCreateInfo, pAllocator, pInstance);
+    // Replace WSI extension in extension list.
+    std::vector<const char*> filtered_extensions;
+    if ((pCreateInfo != nullptr) && (pCreateInfo->ppEnabledExtensionNames))
+    {
+        for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; ++i)
+        {
+            const char* current_extension = pCreateInfo->ppEnabledExtensionNames[i];
+            if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
+            {
+                filtered_extensions.push_back(window_factory_->GetSurfaceExtensionName());
+            }
+            else
+            {
+                filtered_extensions.push_back(current_extension);
+            }
+        }
+    }
+
+    VkInstanceCreateInfo modified_create_info    = (*pCreateInfo);
+    modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(filtered_extensions.size());
+    modified_create_info.ppEnabledExtensionNames = filtered_extensions.data();
+
+    VkResult result = vkCreateInstance(&modified_create_info, pAllocator, pInstance);
 
     if ((pInstance != nullptr) && (result == VK_SUCCESS))
     {
