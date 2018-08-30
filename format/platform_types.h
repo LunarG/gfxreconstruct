@@ -18,7 +18,6 @@
 #define BRIMSTONE_PLATFORM_TYPES_H
 
 #include "vulkan/vulkan.h"
-#include "vulkan/vk_icd.h"
 
 #include "util/logging.h"
 
@@ -155,12 +154,6 @@ struct VkExternalFormatANDROID
     uint64_t        externalFormat;
 };
 
-struct VkIcdSurfaceAndroid
-{
-    VkIcdSurfaceBase base;
-    ANativeWindow*   window;
-};
-
 extern "C" {
 typedef VkResult(VKAPI_PTR* PFN_vkCreateAndroidSurfaceKHR)(VkInstance                           instance,
                                                            const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
@@ -263,13 +256,6 @@ struct VkMirSurfaceCreateInfoKHR
     MirSurface*                mirSurface;
 };
 
-struct VkIcdSurfaceMir
-{
-    VkIcdSurfaceBase base;
-    MirConnection*   connection;
-    MirSurface*      mirSurface;
-};
-
 extern "C" {
 typedef VkResult(VKAPI_PTR* PFN_vkCreateMirSurfaceKHR)(VkInstance                       instance,
                                                        const VkMirSurfaceCreateInfoKHR* pCreateInfo,
@@ -333,13 +319,6 @@ struct VkWaylandSurfaceCreateInfoKHR
     VkWaylandSurfaceCreateFlagsKHR flags;
     struct wl_display*             display;
     struct wl_surface*             surface;
-};
-
-struct VkIcdSurfaceWayland
-{
-    VkIcdSurfaceBase   base;
-    struct wl_display* display;
-    struct wl_surface* surface;
 };
 
 extern "C" {
@@ -626,13 +605,6 @@ struct VkXcbSurfaceCreateInfoKHR
     xcb_window_t               window;
 };
 
-struct VkIcdSurfaceXcb
-{
-    VkIcdSurfaceBase  base;
-    xcb_connection_t* connection;
-    xcb_window_t      window;
-};
-
 extern "C" {
 typedef VkResult(VKAPI_PTR* PFN_vkCreateXcbSurfaceKHR)(VkInstance                       instance,
                                                        const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
@@ -675,13 +647,6 @@ struct VkXlibSurfaceCreateInfoKHR
     VkXlibSurfaceCreateFlagsKHR flags;
     Display*                    dpy;
     Window                      window;
-};
-
-struct VkIcdSurfaceXlib
-{
-    VkIcdSurfaceBase base;
-    Display*         dpy;
-    Window           window;
 };
 
 extern "C" {
