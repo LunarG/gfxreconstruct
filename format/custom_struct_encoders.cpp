@@ -23,6 +23,21 @@
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
+size_t encode_struct(format::ParameterEncoder* encoder, const VkClearColorValue& value)
+{
+    size_t result = 0;
+    result += encoder->EncodeUInt32Array(value.uint32, 4);
+    return result;
+}
+
+size_t encode_struct(format::ParameterEncoder* encoder, const VkClearValue& value)
+{
+    size_t result = 0;
+    // VkClearColorValue is used becaue it is the larger of the two union members.
+    result += encode_struct(encoder, value.color);
+    return result;
+}
+
 // The WIN32 SID structure has a variable size, so will be encoded as an array of bytes instead of a struct.
 static void pack_sid_struct(const SID* sid, std::vector<uint8_t>* buffer)
 {

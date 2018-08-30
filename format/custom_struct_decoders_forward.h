@@ -23,6 +23,13 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
+// Decoded unions.
+struct Decoded_VkClearColorValue;
+struct Decoded_VkClearValue;
+
+size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper);
+size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper);
+
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
 struct Decoded_ACL;
 struct Decoded_SECURITY_DESCRIPTOR;

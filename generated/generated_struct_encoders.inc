@@ -1386,30 +1386,11 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkBufferImageCopy&
 }
 
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkClearColorValue& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeFloatArray(value.float32, 4);
-    result += encoder->EncodeInt32Array(value.int32, 4);
-    result += encoder->EncodeUInt32Array(value.uint32, 4);
-    return result;
-}
-
-
 size_t encode_struct(format::ParameterEncoder* encoder, const VkClearDepthStencilValue& value)
 {
     size_t result = 0;
     result += encoder->EncodeFloatValue(value.depth);
     result += encoder->EncodeUInt32Value(value.stencil);
-    return result;
-}
-
-
-size_t encode_struct(format::ParameterEncoder* encoder, const VkClearValue& value)
-{
-    size_t result = 0;
-    result += encode_struct(encoder, value.color);
-    result += encode_struct(encoder, value.depthStencil);
     return result;
 }
 

@@ -1952,23 +1952,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBuffer
     return bytes_read;
 }
 
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->value != nullptr));
-
-    size_t bytes_read = 0;
-    VkClearColorValue* value = wrapper->value;
-
-    wrapper->float32.SetExternalMemory(value->float32, 4);
-    bytes_read += wrapper->float32.DecodeFloat((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->int32.SetExternalMemory(value->int32, 4);
-    bytes_read += wrapper->int32.DecodeInt32((buffer + bytes_read), (buffer_size - bytes_read));
-    wrapper->uint32.SetExternalMemory(value->uint32, 4);
-    bytes_read += wrapper->uint32.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
-
-    return bytes_read;
-}
-
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearDepthStencilValue* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -1978,21 +1961,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearD
 
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->depth));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->stencil));
-
-    return bytes_read;
-}
-
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->value != nullptr));
-
-    size_t bytes_read = 0;
-    VkClearValue* value = wrapper->value;
-
-    wrapper->color.value = &(value->color);
-    bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->color));
-    wrapper->depthStencil.value = &(value->depthStencil);
-    bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->depthStencil));
 
     return bytes_read;
 }

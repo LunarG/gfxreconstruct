@@ -23,6 +23,11 @@
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
+// Unions.
+size_t encode_struct(format::ParameterEncoder* encoder, const VkClearColorValue& value);
+size_t encode_struct(format::ParameterEncoder* encoder, const VkClearValue& value);
+
+// Platform defined structures that are external to Vulkan.
 size_t encode_struct(format::ParameterEncoder* encoder, const ACL& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value);

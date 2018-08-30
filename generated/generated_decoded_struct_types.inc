@@ -943,32 +943,11 @@ struct Decoded_VkBufferImageCopy
     Decoded_VkExtent3D imageExtent;
 };
 
-struct Decoded_VkClearColorValue
-{
-    using struct_type = VkClearColorValue;
-
-    VkClearColorValue* value{ nullptr };
-
-    PointerDecoder<float> float32;
-    PointerDecoder<int32_t> int32;
-    PointerDecoder<uint32_t> uint32;
-};
-
 struct Decoded_VkClearDepthStencilValue
 {
     using struct_type = VkClearDepthStencilValue;
 
     VkClearDepthStencilValue* value{ nullptr };
-};
-
-struct Decoded_VkClearValue
-{
-    using struct_type = VkClearValue;
-
-    VkClearValue* value{ nullptr };
-
-    Decoded_VkClearColorValue color;
-    Decoded_VkClearDepthStencilValue depthStencil;
 };
 
 struct Decoded_VkClearAttachment
