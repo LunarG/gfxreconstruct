@@ -74,6 +74,8 @@ class Win32WindowFactory : public format::WindowFactory
 public:
     Win32WindowFactory(Win32Application* application);
 
+    virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_WIN32_SURFACE_EXTENSION_NAME; }
+
     virtual format::Window* Create(const uint32_t width, const uint32_t height) override;
 
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,

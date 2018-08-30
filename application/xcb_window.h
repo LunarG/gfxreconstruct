@@ -72,6 +72,8 @@ class XcbWindowFactory : public format::WindowFactory
 public:
     XcbWindowFactory(XcbApplication* application);
 
+    virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_XCB_SURFACE_EXTENSION_NAME; }
+
     virtual format::Window* Create(const uint32_t width, const uint32_t height) override;
 
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
