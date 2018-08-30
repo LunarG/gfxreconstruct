@@ -1144,8 +1144,8 @@
         VkBool32                                    returnValue,
         HandleId                                    physicalDevice,
         uint32_t                                    queueFamilyIndex,
-        const PointerDecoder<Display>&              dpy,
-        VisualID                                    visualID) = 0;
+        uint64_t                                    dpy,
+        uint32_t                                    visualID) = 0;
 #endif /* VK_USE_PLATFORM_XLIB_KHR */
 
 #ifdef VK_USE_PLATFORM_XCB_KHR
@@ -1191,7 +1191,7 @@
         VkBool32                                    returnValue,
         HandleId                                    physicalDevice,
         uint32_t                                    queueFamilyIndex,
-        const PointerDecoder<MirConnection>&        connection) = 0;
+        uint64_t                                    connection) = 0;
 #endif /* VK_USE_PLATFORM_MIR_KHR */
 
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
@@ -1707,14 +1707,14 @@
     virtual void Process_vkAcquireXlibDisplayEXT(
         VkResult                                    returnValue,
         HandleId                                    physicalDevice,
-        const PointerDecoder<Display>&              dpy,
+        uint64_t                                    dpy,
         HandleId                                    display) = 0;
 
     virtual void Process_vkGetRandROutputDisplayEXT(
         VkResult                                    returnValue,
         HandleId                                    physicalDevice,
-        const PointerDecoder<Display>&              dpy,
-        RROutput                                    rrOutput,
+        uint64_t                                    dpy,
+        uint32_t                                    rrOutput,
         const PointerDecoder<HandleId>&             pDisplay) = 0;
 #endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
 
@@ -1849,14 +1849,14 @@
     virtual void Process_vkGetAndroidHardwareBufferPropertiesANDROID(
         VkResult                                    returnValue,
         HandleId                                    device,
-        const PointerDecoder<AHardwareBuffer>&      buffer,
+        uint64_t                                    buffer,
         const StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>& pProperties) = 0;
 
     virtual void Process_vkGetMemoryAndroidHardwareBufferANDROID(
         VkResult                                    returnValue,
         HandleId                                    device,
         const StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>& pInfo,
-        const PointerDecoder<AHardwareBuffer>&      pBuffer) = 0;
+        const PointerDecoder<uint64_t>&             pBuffer) = 0;
 #endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
     virtual void Process_vkCmdSetSampleLocationsEXT(

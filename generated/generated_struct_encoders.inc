@@ -2531,8 +2531,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkXlibSurfaceCreat
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeDisplayPtr(value.dpy);
-    result += encoder->EncodeWindowValue(value.window);
+    result += encoder->EncodeVoidPtr(value.dpy);
+    result += encoder->EncodeUInt32Value(value.window);
     return result;
 }
 
@@ -2573,8 +2573,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkMirSurfaceCreate
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeMirConnectionPtr(value.connection);
-    result += encoder->EncodeMirSurfacePtr(value.mirSurface);
+    result += encoder->EncodeVoidPtr(value.connection);
+    result += encoder->EncodeVoidPtr(value.mirSurface);
     return result;
 }
 
@@ -2587,7 +2587,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkAndroidSurfaceCr
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
     result += encoder->EncodeFlagsValue(value.flags);
-    result += encoder->EncodeANativeWindowPtr(value.window);
+    result += encoder->EncodeVoidPtr(value.window);
     return result;
 }
 
@@ -3899,7 +3899,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkImportAndroidHar
     size_t result = 0;
     result += encoder->EncodeEnumValue(value.sType);
     result += encode_pnext_struct(encoder, value.pNext);
-    result += encoder->EncodeAHardwareBufferPtr(value.buffer);
+    result += encoder->EncodeVoidPtr(value.buffer);
     return result;
 }
 

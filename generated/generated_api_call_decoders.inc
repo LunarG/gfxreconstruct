@@ -4090,14 +4090,14 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceXlibPresentationSupportKHR(const
 
     HandleId physicalDevice;
     uint32_t queueFamilyIndex;
-    PointerDecoder<Display> dpy;
-    VisualID visualID;
+    uint64_t dpy;
+    uint32_t visualID;
     VkBool32 return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queueFamilyIndex);
-    bytes_read += dpy.DecodeDisplay((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeVisualIDValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &visualID);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dpy);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &visualID);
     bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -4238,12 +4238,12 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceMirPresentationSupportKHR(const 
 
     HandleId physicalDevice;
     uint32_t queueFamilyIndex;
-    PointerDecoder<MirConnection> connection;
+    uint64_t connection;
     VkBool32 return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queueFamilyIndex);
-    bytes_read += connection.DecodeMirConnection((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &connection);
     bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : consumers_)
@@ -6095,12 +6095,12 @@ size_t VulkanDecoder::Decode_vkAcquireXlibDisplayEXT(const uint8_t* parameter_bu
     size_t bytes_read = 0;
 
     HandleId physicalDevice;
-    PointerDecoder<Display> dpy;
+    uint64_t dpy;
     HandleId display;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += dpy.DecodeDisplay((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dpy);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &display);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -6117,14 +6117,14 @@ size_t VulkanDecoder::Decode_vkGetRandROutputDisplayEXT(const uint8_t* parameter
     size_t bytes_read = 0;
 
     HandleId physicalDevice;
-    PointerDecoder<Display> dpy;
-    RROutput rrOutput;
+    uint64_t dpy;
+    uint32_t rrOutput;
     PointerDecoder<HandleId> pDisplay;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += dpy.DecodeDisplay((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeRROutputValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rrOutput);
+    bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dpy);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rrOutput);
     bytes_read += pDisplay.DecodeHandleId((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -6613,7 +6613,7 @@ size_t VulkanDecoder::Decode_vkGetAndroidHardwareBufferPropertiesANDROID(const u
     size_t bytes_read = 0;
 
     HandleId device;
-    PointerDecoder<AHardwareBuffer> buffer;
+    uint64_t buffer;
     StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID> pProperties;
     VkResult return_value;
 
@@ -6636,7 +6636,7 @@ size_t VulkanDecoder::Decode_vkGetMemoryAndroidHardwareBufferANDROID(const uint8
 
     HandleId device;
     StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID> pInfo;
-    PointerDecoder<AHardwareBuffer> pBuffer;
+    PointerDecoder<uint64_t> pBuffer;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
