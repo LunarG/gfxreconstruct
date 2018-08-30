@@ -12,11 +12,24 @@
   },
   "linux" : {
     "types" : {
+      "MirConnection"    : { "baseType" : "void",     "replaceWith" : "void" },
+      "MirSurface"       : { "baseType" : "void",     "replaceWith" : "void" },
+      "wl_display"       : { "baseType" : "void",     "replaceWith" : "void" },
+      "wl_surface"       : { "baseType" : "void",     "replaceWith" : "void" },
+      "Display"          : { "baseType" : "void",     "replaceWith" : "void" },
+      "VisualID"         : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
+      "Window"           : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
+      "RROutput"         : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
       "xcb_connection_t" : { "baseType" : "void",     "replaceWith" : "void" },
       "xcb_visualid_t"   : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
-      "xcb_window_t"     : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
-      "wl_display"       : { "baseType" : "void",     "replaceWith" : "void" },
-      "wl_surface"       : { "baseType" : "void",     "replaceWith" : "void" }
+      "xcb_window_t"     : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" }
+    },
+    "structs" : []
+  },
+  "android" : {
+    "types" : {
+      "ANativeWindow"   : { "baseType" : "void", "replaceWith" : "void" },
+      "AHardwareBuffer" : { "baseType" : "void", "replaceWith" : "void" }
     },
     "structs" : []
   }

@@ -1913,7 +1913,7 @@ struct Decoded_VkXlibSurfaceCreateInfoKHR
     VkXlibSurfaceCreateInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<Display> dpy;
+    uint64_t dpy;
 };
 #endif /* VK_USE_PLATFORM_XLIB_KHR */
 
@@ -1950,8 +1950,8 @@ struct Decoded_VkMirSurfaceCreateInfoKHR
     VkMirSurfaceCreateInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<MirConnection> connection;
-    PointerDecoder<MirSurface> mirSurface;
+    uint64_t connection;
+    uint64_t mirSurface;
 };
 #endif /* VK_USE_PLATFORM_MIR_KHR */
 
@@ -1963,7 +1963,7 @@ struct Decoded_VkAndroidSurfaceCreateInfoKHR
     VkAndroidSurfaceCreateInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<ANativeWindow> window;
+    uint64_t window;
 };
 #endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
@@ -3057,7 +3057,7 @@ struct Decoded_VkImportAndroidHardwareBufferInfoANDROID
     VkImportAndroidHardwareBufferInfoANDROID* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<AHardwareBuffer> buffer;
+    uint64_t buffer;
 };
 
 struct Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID

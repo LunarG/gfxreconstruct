@@ -3198,14 +3198,13 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR
     VkBool32                                    returnValue,
     HandleId                                    physicalDevice,
     uint32_t                                    queueFamilyIndex,
-    const PointerDecoder<Display>&              dpy,
-    VisualID                                    visualID)
+    uint64_t                                    dpy,
+    uint32_t                                    visualID)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    Display out_dpy_value = static_cast<Display>(0);
-    Display* out_dpy = &out_dpy_value;
+    Display* in_dpy = static_cast<Display*>(PreProcessExternalObject(dpy, ApiCallId_vkGetPhysicalDeviceXlibPresentationSupportKHR, "vkGetPhysicalDeviceXlibPresentationSupportKHR"));
 
-    Dispatcher<ApiCallId_vkGetPhysicalDeviceXlibPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceXlibPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, out_dpy, visualID);
+    Dispatcher<ApiCallId_vkGetPhysicalDeviceXlibPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceXlibPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_dpy, visualID);
 }
 #endif /* VK_USE_PLATFORM_XLIB_KHR */
 
@@ -3300,13 +3299,12 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceMirPresentationSupportKHR(
     VkBool32                                    returnValue,
     HandleId                                    physicalDevice,
     uint32_t                                    queueFamilyIndex,
-    const PointerDecoder<MirConnection>&        connection)
+    uint64_t                                    connection)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    MirConnection out_connection_value = static_cast<MirConnection>(0);
-    MirConnection* out_connection = &out_connection_value;
+    MirConnection* in_connection = static_cast<MirConnection*>(PreProcessExternalObject(connection, ApiCallId_vkGetPhysicalDeviceMirPresentationSupportKHR, "vkGetPhysicalDeviceMirPresentationSupportKHR"));
 
-    Dispatcher<ApiCallId_vkGetPhysicalDeviceMirPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceMirPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceMirPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, out_connection);
+    Dispatcher<ApiCallId_vkGetPhysicalDeviceMirPresentationSupportKHR, VkBool32, PFN_vkGetPhysicalDeviceMirPresentationSupportKHR>::Dispatch(this, vkGetPhysicalDeviceMirPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_connection);
 }
 #endif /* VK_USE_PLATFORM_MIR_KHR */
 
@@ -4750,32 +4748,30 @@ void VulkanReplayConsumer::Process_vkReleaseDisplayEXT(
 void VulkanReplayConsumer::Process_vkAcquireXlibDisplayEXT(
     VkResult                                    returnValue,
     HandleId                                    physicalDevice,
-    const PointerDecoder<Display>&              dpy,
+    uint64_t                                    dpy,
     HandleId                                    display)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    Display out_dpy_value = static_cast<Display>(0);
-    Display* out_dpy = &out_dpy_value;
+    Display* in_dpy = static_cast<Display*>(PreProcessExternalObject(dpy, ApiCallId_vkAcquireXlibDisplayEXT, "vkAcquireXlibDisplayEXT"));
     VkDisplayKHR in_display = object_mapper_.MapVkDisplayKHR(display);
 
-    VkResult replay_result = Dispatcher<ApiCallId_vkAcquireXlibDisplayEXT, VkResult, PFN_vkAcquireXlibDisplayEXT>::Dispatch(this, returnValue, vkAcquireXlibDisplayEXT, in_physicalDevice, out_dpy, in_display);
+    VkResult replay_result = Dispatcher<ApiCallId_vkAcquireXlibDisplayEXT, VkResult, PFN_vkAcquireXlibDisplayEXT>::Dispatch(this, returnValue, vkAcquireXlibDisplayEXT, in_physicalDevice, in_dpy, in_display);
     CheckResult("vkAcquireXlibDisplayEXT", returnValue, replay_result);
 }
 
 void VulkanReplayConsumer::Process_vkGetRandROutputDisplayEXT(
     VkResult                                    returnValue,
     HandleId                                    physicalDevice,
-    const PointerDecoder<Display>&              dpy,
-    RROutput                                    rrOutput,
+    uint64_t                                    dpy,
+    uint32_t                                    rrOutput,
     const PointerDecoder<HandleId>&             pDisplay)
 {
     VkPhysicalDevice in_physicalDevice = object_mapper_.MapVkPhysicalDevice(physicalDevice);
-    Display out_dpy_value = static_cast<Display>(0);
-    Display* out_dpy = &out_dpy_value;
+    Display* in_dpy = static_cast<Display*>(PreProcessExternalObject(dpy, ApiCallId_vkGetRandROutputDisplayEXT, "vkGetRandROutputDisplayEXT"));
     VkDisplayKHR out_pDisplay_value = static_cast<VkDisplayKHR>(0);
     VkDisplayKHR* out_pDisplay = &out_pDisplay_value;
 
-    VkResult replay_result = Dispatcher<ApiCallId_vkGetRandROutputDisplayEXT, VkResult, PFN_vkGetRandROutputDisplayEXT>::Dispatch(this, returnValue, vkGetRandROutputDisplayEXT, in_physicalDevice, out_dpy, rrOutput, out_pDisplay);
+    VkResult replay_result = Dispatcher<ApiCallId_vkGetRandROutputDisplayEXT, VkResult, PFN_vkGetRandROutputDisplayEXT>::Dispatch(this, returnValue, vkGetRandROutputDisplayEXT, in_physicalDevice, in_dpy, rrOutput, out_pDisplay);
     CheckResult("vkGetRandROutputDisplayEXT", returnValue, replay_result);
 
     AddHandles<VkDisplayKHR>(pDisplay.GetPointer(), 1, out_pDisplay, 1, &VulkanObjectMapper::AddVkDisplayKHR);
@@ -5098,11 +5094,11 @@ void VulkanReplayConsumer::Process_vkSubmitDebugUtilsMessageEXT(
 void VulkanReplayConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     VkResult                                    returnValue,
     HandleId                                    device,
-    const PointerDecoder<AHardwareBuffer>&      buffer,
+    uint64_t                                    buffer,
     const StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>& pProperties)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
-    const struct AHardwareBuffer* in_buffer = PreProcessExternalObject(buffer, ApiCallId_vkGetAndroidHardwareBufferPropertiesANDROID, "vkGetAndroidHardwareBufferPropertiesANDROID");
+    const struct AHardwareBuffer* in_buffer = static_cast<const struct AHardwareBuffer*>(PreProcessExternalObject(buffer, ApiCallId_vkGetAndroidHardwareBufferPropertiesANDROID, "vkGetAndroidHardwareBufferPropertiesANDROID"));
     VkAndroidHardwareBufferPropertiesANDROID out_pProperties_value = {};
     VkAndroidHardwareBufferPropertiesANDROID* out_pProperties = &out_pProperties_value;
 
@@ -5114,7 +5110,7 @@ void VulkanReplayConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
     VkResult                                    returnValue,
     HandleId                                    device,
     const StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>& pInfo,
-    const PointerDecoder<AHardwareBuffer>&      pBuffer)
+    const PointerDecoder<uint64_t>&             pBuffer)
 {
     VkDevice in_device = object_mapper_.MapVkDevice(device);
     VkMemoryGetAndroidHardwareBufferInfoANDROID* in_pInfo = reinterpret_cast<VkMemoryGetAndroidHardwareBufferInfoANDROID*>(pInfo.GetPointer());
@@ -5123,13 +5119,13 @@ void VulkanReplayConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
         const Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* in_pInfo_wrapper = pInfo.GetMetaStructPointer();
         in_pInfo->memory = object_mapper_.MapVkDeviceMemory(in_pInfo_wrapper->memory);
     }
-    void* out_pBuffer_value = nullptr;
+    AHardwareBuffer* out_pBuffer_value = nullptr;
     struct AHardwareBuffer** out_pBuffer = &out_pBuffer_value;
 
     VkResult replay_result = Dispatcher<ApiCallId_vkGetMemoryAndroidHardwareBufferANDROID, VkResult, PFN_vkGetMemoryAndroidHardwareBufferANDROID>::Dispatch(this, returnValue, vkGetMemoryAndroidHardwareBufferANDROID, in_device, in_pInfo, out_pBuffer);
     CheckResult("vkGetMemoryAndroidHardwareBufferANDROID", returnValue, replay_result);
 
-    PostProcessExternalObject(pBuffer, out_pBuffer_value, ApiCallId_vkGetMemoryAndroidHardwareBufferANDROID, "vkGetMemoryAndroidHardwareBufferANDROID");
+    PostProcessExternalObject(pBuffer, static_cast<void*>(out_pBuffer_value), ApiCallId_vkGetMemoryAndroidHardwareBufferANDROID, "vkGetMemoryAndroidHardwareBufferANDROID");
 }
 #endif /* VK_USE_PLATFORM_ANDROID_KHR */
 

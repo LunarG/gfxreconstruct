@@ -1687,8 +1687,8 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR(
     VkBool32                                    returnValue,
     HandleId                                    physicalDevice,
     uint32_t                                    queueFamilyIndex,
-    const PointerDecoder<Display>&              dpy,
-    VisualID                                    visualID)
+    uint64_t                                    dpy,
+    uint32_t                                    visualID)
 {
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceXlibPresentationSupportKHR");
 }
@@ -1752,7 +1752,7 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceMirPresentationSupportKHR(
     VkBool32                                    returnValue,
     HandleId                                    physicalDevice,
     uint32_t                                    queueFamilyIndex,
-    const PointerDecoder<MirConnection>&        connection)
+    uint64_t                                    connection)
 {
     fprintf(m_file, "%s\n", "vkGetPhysicalDeviceMirPresentationSupportKHR");
 }
@@ -2520,7 +2520,7 @@ void VulkanAsciiConsumer::Process_vkReleaseDisplayEXT(
 void VulkanAsciiConsumer::Process_vkAcquireXlibDisplayEXT(
     VkResult                                    returnValue,
     HandleId                                    physicalDevice,
-    const PointerDecoder<Display>&              dpy,
+    uint64_t                                    dpy,
     HandleId                                    display)
 {
     fprintf(m_file, "%s\n", "vkAcquireXlibDisplayEXT");
@@ -2529,8 +2529,8 @@ void VulkanAsciiConsumer::Process_vkAcquireXlibDisplayEXT(
 void VulkanAsciiConsumer::Process_vkGetRandROutputDisplayEXT(
     VkResult                                    returnValue,
     HandleId                                    physicalDevice,
-    const PointerDecoder<Display>&              dpy,
-    RROutput                                    rrOutput,
+    uint64_t                                    dpy,
+    uint32_t                                    rrOutput,
     const PointerDecoder<HandleId>&             pDisplay)
 {
     fprintf(m_file, "%s\n", "vkGetRandROutputDisplayEXT");
@@ -2734,7 +2734,7 @@ void VulkanAsciiConsumer::Process_vkSubmitDebugUtilsMessageEXT(
 void VulkanAsciiConsumer::Process_vkGetAndroidHardwareBufferPropertiesANDROID(
     VkResult                                    returnValue,
     HandleId                                    device,
-    const PointerDecoder<AHardwareBuffer>&      buffer,
+    uint64_t                                    buffer,
     const StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>& pProperties)
 {
     fprintf(m_file, "%s\n", "vkGetAndroidHardwareBufferPropertiesANDROID");
@@ -2744,7 +2744,7 @@ void VulkanAsciiConsumer::Process_vkGetMemoryAndroidHardwareBufferANDROID(
     VkResult                                    returnValue,
     HandleId                                    device,
     const StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>& pInfo,
-    const PointerDecoder<AHardwareBuffer>&      pBuffer)
+    const PointerDecoder<uint64_t>&             pBuffer)
 {
     fprintf(m_file, "%s\n", "vkGetMemoryAndroidHardwareBufferANDROID");
 }

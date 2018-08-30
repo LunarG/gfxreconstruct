@@ -3675,9 +3675,9 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkXlibSu
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += wrapper->dpy.DecodeDisplay((buffer + bytes_read), (buffer_size - bytes_read));
-    value->dpy = wrapper->dpy.GetPointer();
-    bytes_read += ValueDecoder::DecodeWindowValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->window));
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->dpy));
+    value->dpy = nullptr;
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->window));
 
     return bytes_read;
 }
@@ -3736,10 +3736,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkMirSur
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += wrapper->connection.DecodeMirConnection((buffer + bytes_read), (buffer_size - bytes_read));
-    value->connection = wrapper->connection.GetPointer();
-    bytes_read += wrapper->mirSurface.DecodeMirSurface((buffer + bytes_read), (buffer_size - bytes_read));
-    value->mirSurface = wrapper->mirSurface.GetPointer();
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->connection));
+    value->connection = nullptr;
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->mirSurface));
+    value->mirSurface = nullptr;
 
     return bytes_read;
 }
@@ -3757,8 +3757,8 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAndroi
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-    bytes_read += wrapper->window.DecodeANativeWindow((buffer + bytes_read), (buffer_size - bytes_read));
-    value->window = wrapper->window.GetPointer();
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->window));
+    value->window = nullptr;
 
     return bytes_read;
 }

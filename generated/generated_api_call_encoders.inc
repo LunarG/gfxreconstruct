@@ -4351,8 +4351,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(
     {
         encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
-        encoder->EncodeDisplayPtr(dpy);
-        encoder->EncodeVisualIDValue(visualID);
+        encoder->EncodeVoidPtr(dpy);
+        encoder->EncodeUInt32Value(visualID);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -4510,7 +4510,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceMirPresentationSupportKHR(
     {
         encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
-        encoder->EncodeMirConnectionPtr(connection);
+        encoder->EncodeVoidPtr(connection);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }
@@ -6493,7 +6493,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(
     if (encoder)
     {
         encoder->EncodeHandleIdValue(physicalDevice);
-        encoder->EncodeDisplayPtr(dpy);
+        encoder->EncodeVoidPtr(dpy);
         encoder->EncodeHandleIdValue(display);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -6518,8 +6518,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
     if (encoder)
     {
         encoder->EncodeHandleIdValue(physicalDevice);
-        encoder->EncodeDisplayPtr(dpy);
-        encoder->EncodeRROutputValue(rrOutput);
+        encoder->EncodeVoidPtr(dpy);
+        encoder->EncodeUInt32Value(rrOutput);
         encoder->EncodeHandleIdPtr(pDisplay);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -7049,7 +7049,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(
     if (encoder)
     {
         encoder->EncodeHandleIdValue(device);
-        encoder->EncodeAHardwareBufferPtr(buffer);
+        encoder->EncodeVoidPtr(buffer);
         encode_struct_ptr(encoder, pProperties);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
@@ -7074,7 +7074,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryAndroidHardwareBufferANDROID(
     {
         encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pInfo);
-        encoder->EncodeAHardwareBufferPtrPtr(pBuffer);
+        encoder->EncodeVoidPtrPtr(pBuffer);
         encoder->EncodeEnumValue(result);
         get_trace_manager()->EndApiCallTrace(encoder);
     }

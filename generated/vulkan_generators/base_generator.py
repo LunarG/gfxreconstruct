@@ -170,7 +170,7 @@ class BaseGenerator(OutputGenerator):
 
     # TODO: AHardware buffer probably becomes a PLATFORM_TYPE entry.
     # These types represent pointers to non-Vulkan objects that were written as 64-bit address IDs.
-    EXTERNAL_OBJECT_TYPES = ['void', 'Void', 'AHardwareBuffer']
+    EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
     # Default C++ code indentation size.
     INDENT_SIZE = 4
