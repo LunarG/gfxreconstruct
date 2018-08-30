@@ -20,6 +20,8 @@
 #include "vulkan/vulkan.h"
 #include "vulkan/vk_icd.h"
 
+#include "util/logging.h"
+
 // System types for WIN32 platform extensions.
 #if defined(WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
@@ -36,12 +38,12 @@ typedef void*          HANDLE;
 
 // Define a version of the WIN32 SECURITY_ATTRIBUTES struct that
 // is suitable for decoding on non-WIN32 platforms.
-typedef uint32_t       DWORD;
-typedef int32_t        BOOL;
-typedef void*          LPVOID;
-typedef uint8_t        BYTE;
-typedef uint16_t       WORD;
-typedef WORD           SECURITY_DESCRIPTOR_CONTROL;
+typedef uint32_t DWORD;
+typedef int32_t  BOOL;
+typedef void*    LPVOID;
+typedef uint8_t  BYTE;
+typedef uint16_t WORD;
+typedef WORD     SECURITY_DESCRIPTOR_CONTROL;
 
 struct SID_IDENTIFIER_AUTHORITY
 {
@@ -168,6 +170,29 @@ typedef VkResult(VKAPI_PTR* PFN_vkGetAndroidHardwareBufferPropertiesANDROID)(
     VkDevice device, const struct AHardwareBuffer* buffer, VkAndroidHardwareBufferPropertiesANDROID* pProperties);
 typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryAndroidHardwareBufferANDROID)(
     VkDevice device, const VkMemoryGetAndroidHardwareBufferInfoANDROID* pInfo, struct AHardwareBuffer** pBuffer);
+
+static VkResult
+vkCreateAndroidSurfaceKHR(VkInstance, const VkAndroidSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateAndroidSurfaceKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkResult vkGetAndroidHardwareBufferPropertiesANDROID(VkDevice,
+                                                            const struct AHardwareBuffer*,
+                                                            VkAndroidHardwareBufferPropertiesANDROID*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetAndroidHardwareBufferPropertiesANDROID");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkResult vkGetMemoryAndroidHardwareBufferANDROID(VkDevice,
+                                                        const VkMemoryGetAndroidHardwareBufferInfoANDROID*,
+                                                        struct AHardwareBuffer**)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryAndroidHardwareBufferANDROID");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
 }
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 
@@ -187,6 +212,13 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateIOSSurfaceMVK)(VkInstance               
                                                        const VkIOSSurfaceCreateInfoMVK* pCreateInfo,
                                                        const VkAllocationCallbacks*     pAllocator,
                                                        VkSurfaceKHR*                    pSurface);
+
+static VkResult
+vkCreateIOSSurfaceMVK(VkInstance, const VkIOSSurfaceCreateInfoMVK*, const VkAllocationCallbacks*, VkSurfaceKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateIOSSurfaceMVK");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
 }
 #endif // VK_USE_PLATFORM_IOS_MVK
 
@@ -206,11 +238,18 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateMacOSSurfaceMVK)(VkInstance             
                                                          const VkMacOSSurfaceCreateInfoMVK* pCreateInfo,
                                                          const VkAllocationCallbacks*       pAllocator,
                                                          VkSurfaceKHR*                      pSurface);
+
+static VkResult
+vkCreateMacOSSurfaceMVK(VkInstance, const VkMacOSSurfaceCreateInfoMVK*, const VkAllocationCallbacks*, VkSurfaceKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateMacOSSurfaceMVK");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
 }
 #endif // VK_USE_PLATFORM_MACOS_MVK
 
 #if !defined(VK_USE_PLATFORM_MIR_KHR)
-typedef VkFlags          VkMirSurfaceCreateFlagsKHR;
+typedef VkFlags VkMirSurfaceCreateFlagsKHR;
 
 struct MirConnection;
 struct MirSurface;
@@ -239,6 +278,19 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateMirSurfaceKHR)(VkInstance               
 typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceMirPresentationSupportKHR)(VkPhysicalDevice physicalDevice,
                                                                               uint32_t         queueFamilyIndex,
                                                                               MirConnection*   connection);
+
+static VkResult
+vkCreateMirSurfaceKHR(VkInstance, const VkMirSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateMirSurfaceKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkBool32 vkGetPhysicalDeviceMirPresentationSupportKHR(VkPhysicalDevice, uint32_t, MirConnection*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceMirPresentationSupportKHR");
+    return VK_FALSE;
+}
 }
 #endif // VK_USE_PLATFORM_MIR_KHR
 
@@ -253,11 +305,18 @@ struct VkViSurfaceCreateInfoNN
     void*                    window;
 };
 
-extern "C"{
+extern "C" {
 typedef VkResult(VKAPI_PTR* PFN_vkCreateViSurfaceNN)(VkInstance                     instance,
                                                      const VkViSurfaceCreateInfoNN* pCreateInfo,
                                                      const VkAllocationCallbacks*   pAllocator,
                                                      VkSurfaceKHR*                  pSurface);
+
+static VkResult
+vkCreateViSurfaceNN(VkInstance, const VkViSurfaceCreateInfoNN*, const VkAllocationCallbacks*, VkSurfaceKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateViSurfaceNN");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
 }
 #endif // VK_USE_PLATFORM_VI_NN
 
@@ -291,6 +350,19 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateWaylandSurfaceKHR)(VkInstance           
 typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR)(VkPhysicalDevice   physicalDevice,
                                                                                   uint32_t           queueFamilyIndex,
                                                                                   struct wl_display* display);
+static VkResult
+vkCreateWaylandSurfaceKHR(VkInstance, const VkWaylandSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateWaylandSurfaceKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkBool32 vkGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice, uint32_t, struct wl_display*)
+{
+    BRIMSTONE_LOG_ERROR(
+        "Calling unsupported platform extension function vkGetPhysicalDeviceWaylandPresentationSupportKHR");
+    return VK_FALSE;
+}
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 
@@ -475,14 +547,73 @@ typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandleNV)(VkDevice              
                                                           VkDeviceMemory                    memory,
                                                           VkExternalMemoryHandleTypeFlagsNV handleType,
                                                           HANDLE*                           pHandle);
+
+static VkResult
+vkCreateWin32SurfaceKHR(VkInstance, const VkWin32SurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateWin32SurfaceKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkBool32 vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice, uint32_t)
+{
+    BRIMSTONE_LOG_ERROR(
+        "Calling unsupported platform extension function vkGetPhysicalDeviceWin32PresentationSupportKHR");
+    return VK_FALSE;
+}
+
+static VkResult vkGetMemoryWin32HandleKHR(VkDevice, const VkMemoryGetWin32HandleInfoKHR*, HANDLE*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkResult vkGetMemoryWin32HandlePropertiesKHR(VkDevice,
+                                                    VkExternalMemoryHandleTypeFlagBits,
+                                                    HANDLE,
+                                                    VkMemoryWin32HandlePropertiesKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandlePropertiesKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkResult vkImportSemaphoreWin32HandleKHR(VkDevice, const VkImportSemaphoreWin32HandleInfoKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkImportSemaphoreWin32HandleKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkResult vkGetSemaphoreWin32HandleKHR(VkDevice, const VkSemaphoreGetWin32HandleInfoKHR*, HANDLE*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetSemaphoreWin32HandleKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkResult vkImportFenceWin32HandleKHR(VkDevice, const VkImportFenceWin32HandleInfoKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkImportFenceWin32HandleKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkResult vkGetFenceWin32HandleKHR(VkDevice, const VkFenceGetWin32HandleInfoKHR*, HANDLE*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetFenceWin32HandleKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkResult vkGetMemoryWin32HandleNV(VkDevice, VkDeviceMemory, VkExternalMemoryHandleTypeFlagsNV, HANDLE*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleNV");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 
 #if !defined(VK_USE_PLATFORM_XCB_KHR)
-typedef VkFlags                 VkXcbSurfaceCreateFlagsKHR;
+typedef VkFlags VkXcbSurfaceCreateFlagsKHR;
 
-typedef uint32_t                xcb_window_t;
-typedef uint32_t                xcb_visualid_t;
+typedef uint32_t xcb_window_t;
+typedef uint32_t xcb_visualid_t;
 
 struct xcb_connection_t;
 
@@ -511,15 +642,29 @@ typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)(Vk
                                                                               uint32_t          queueFamilyIndex,
                                                                               xcb_connection_t* connection,
                                                                               xcb_visualid_t    visual_id);
+
+static VkResult
+vkCreateXcbSurfaceKHR(VkInstance, const VkXcbSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateXcbSurfaceKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkBool32
+vkGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice, uint32_t, xcb_connection_t*, xcb_visualid_t)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceXcbPresentationSupportKHR");
+    return VK_FALSE;
+}
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 
 #if !defined(VK_USE_PLATFORM_XLIB_KHR)
-typedef VkFlags          VkXlibSurfaceCreateFlagsKHR;
+typedef VkFlags VkXlibSurfaceCreateFlagsKHR;
 
-typedef uint32_t         XID;
-typedef uint32_t         VisualID;
-typedef XID              Window;
+typedef uint32_t XID;
+typedef uint32_t VisualID;
+typedef XID      Window;
 
 struct Display;
 
@@ -548,6 +693,19 @@ typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR)(V
                                                                                uint32_t         queueFamilyIndex,
                                                                                Display*         dpy,
                                                                                VisualID         visualID);
+static VkResult
+vkCreateXlibSurfaceKHR(VkInstance, const VkXlibSurfaceCreateInfoKHR*, const VkAllocationCallbacks*, VkSurfaceKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateXlibSurfaceKHR");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkBool32 vkGetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice, uint32_t, Display*, VisualID)
+{
+    BRIMSTONE_LOG_ERROR(
+        "Calling unsupported platform extension function vkGetPhysicalDeviceXlibPresentationSupportKHR");
+    return VK_FALSE;
+}
 }
 #endif // VK_USE_PLATFORM_XLIB_KHR
 
@@ -561,6 +719,20 @@ typedef VkResult(VKAPI_PTR* PFN_vkGetRandROutputDisplayEXT)(VkPhysicalDevice phy
                                                             Display*         dpy,
                                                             RROutput         rrOutput,
                                                             VkDisplayKHR*    pDisplay);
+
+extern "C" {
+static VkResult vkAcquireXlibDisplayEXT(VkPhysicalDevice, Display*, VkDisplayKHR)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkAcquireXlibDisplayEXT");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VkResult vkGetRandROutputDisplayEXT(VkPhysicalDevice, Display*, RROutput, VkDisplayKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetRandROutputDisplayEXT");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+}
 #endif // VK_USE_PLATFORM_XLIB_XRANDR_EXT
 
 #endif // BRIMSTONE_PLATFORM_TYPES_H
