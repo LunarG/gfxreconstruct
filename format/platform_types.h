@@ -91,6 +91,8 @@ struct SECURITY_ATTRIBUTES
 // Types for platform extensions.
 
 #if !defined(VK_USE_PLATFORM_ANDROID_KHR)
+#define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
+
 typedef VkFlags VkAndroidSurfaceCreateFlagsKHR;
 
 struct ANativeWindow;
@@ -190,6 +192,8 @@ static VkResult vkGetMemoryAndroidHardwareBufferANDROID(VkDevice,
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 
 #if !defined(VK_USE_PLATFORM_IOS_MVK)
+#define VK_MVK_IOS_SURFACE_EXTENSION_NAME "VK_MVK_ios_surface"
+
 typedef VkFlags VkIOSSurfaceCreateFlagsMVK;
 
 struct VkIOSSurfaceCreateInfoMVK
@@ -216,6 +220,8 @@ vkCreateIOSSurfaceMVK(VkInstance, const VkIOSSurfaceCreateInfoMVK*, const VkAllo
 #endif // VK_USE_PLATFORM_IOS_MVK
 
 #if !defined(VK_USE_PLATFORM_MACOS_MVK)
+#define VK_MVK_MACOS_SURFACE_EXTENSION_NAME "VK_MVK_macos_surface"
+
 typedef VkFlags VkMacOSSurfaceCreateFlagsMVK;
 
 struct VkMacOSSurfaceCreateInfoMVK
@@ -242,6 +248,8 @@ vkCreateMacOSSurfaceMVK(VkInstance, const VkMacOSSurfaceCreateInfoMVK*, const Vk
 #endif // VK_USE_PLATFORM_MACOS_MVK
 
 #if !defined(VK_USE_PLATFORM_MIR_KHR)
+#define VK_KHR_MIR_SURFACE_EXTENSION_NAME "VK_KHR_mir_surface"
+
 typedef VkFlags VkMirSurfaceCreateFlagsKHR;
 
 struct MirConnection;
@@ -281,6 +289,8 @@ static VkBool32 vkGetPhysicalDeviceMirPresentationSupportKHR(VkPhysicalDevice, u
 #endif // VK_USE_PLATFORM_MIR_KHR
 
 #if !defined(VK_USE_PLATFORM_VI_NN)
+#define VK_NN_VI_SURFACE_EXTENSION_NAME "VK_NN_vi_surface"
+
 typedef VkFlags VkViSurfaceCreateFlagsNN;
 
 struct VkViSurfaceCreateInfoNN
@@ -307,6 +317,8 @@ vkCreateViSurfaceNN(VkInstance, const VkViSurfaceCreateInfoNN*, const VkAllocati
 #endif // VK_USE_PLATFORM_VI_NN
 
 #if !defined(VK_USE_PLATFORM_WAYLAND_KHR)
+#define VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME "VK_KHR_wayland_surface"
+
 typedef VkFlags VkWaylandSurfaceCreateFlagsKHR;
 
 struct wl_display;
@@ -346,6 +358,8 @@ static VkBool32 vkGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevic
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 
 #if !defined(VK_USE_PLATFORM_WIN32_KHR)
+#define VK_KHR_WIN32_SURFACE_EXTENSION_NAME "VK_KHR_win32_surface"
+
 typedef VkFlags VkWin32SurfaceCreateFlagsKHR;
 
 struct VkWin32SurfaceCreateInfoKHR
@@ -589,6 +603,8 @@ static VkResult vkGetMemoryWin32HandleNV(VkDevice, VkDeviceMemory, VkExternalMem
 #endif // VK_USE_PLATFORM_WIN32_KHR
 
 #if !defined(VK_USE_PLATFORM_XCB_KHR)
+#define VK_KHR_XCB_SURFACE_EXTENSION_NAME "VK_KHR_xcb_surface"
+
 typedef VkFlags VkXcbSurfaceCreateFlagsKHR;
 
 typedef uint32_t xcb_window_t;
@@ -632,6 +648,8 @@ vkGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice, uint32_t, xcb_con
 #endif // VK_USE_PLATFORM_XCB_KHR
 
 #if !defined(VK_USE_PLATFORM_XLIB_KHR)
+#define VK_KHR_XLIB_SURFACE_EXTENSION_NAME "VK_KHR_xlib_surface"
+
 typedef VkFlags VkXlibSurfaceCreateFlagsKHR;
 
 typedef uint32_t XID;
