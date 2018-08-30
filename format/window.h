@@ -57,6 +57,8 @@ public:
     WindowFactory() {};
     virtual ~WindowFactory() {};
 
+    virtual const char* GetSurfaceExtensionName() const = 0;
+
     virtual Window* Create(const uint32_t width, const uint32_t height) = 0;
 
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
