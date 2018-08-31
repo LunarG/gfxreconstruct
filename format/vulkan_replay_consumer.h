@@ -52,6 +52,22 @@ class VulkanReplayConsumer : public VulkanConsumer
 
     virtual void ProcessResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) override;
 
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(HandleId device,
+                                                           HandleId descriptorSet,
+                                                           HandleId descriptorUpdateTemplate,
+                                                           const DescriptorUpdateTemplateDecoder& pData) override;
+
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
+                                                               HandleId descriptorUpdateTemplate,
+                                                               HandleId layout,
+                                                               uint32_t set,
+                                                               const DescriptorUpdateTemplateDecoder& pData) override;
+
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId device,
+                                                              HandleId descriptorSet,
+                                                              HandleId descriptorUpdateTemplate,
+                                                              const DescriptorUpdateTemplateDecoder& pData) override;
+
 #include "generated/generated_api_call_consumer_override_declarations.inc"
 
   private:
@@ -133,6 +149,8 @@ class VulkanReplayConsumer : public VulkanConsumer
     VkBool32 OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice   physicalDevice,
                                                                     uint32_t           queueFamilyIndex,
                                                                     struct wl_display* display);
+
+    void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder);
 
     template <typename T>
     T* AllocateArray(size_t len) const

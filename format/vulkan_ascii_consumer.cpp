@@ -57,6 +57,44 @@ void VulkanAsciiConsumer::Destroy()
     }
 }
 
+void VulkanAsciiConsumer::Process_vkUpdateDescriptorSetWithTemplate(HandleId device,
+                                                                    HandleId descriptorSet,
+                                                                    HandleId descriptorUpdateTemplate,
+                                                                    const DescriptorUpdateTemplateDecoder& pData)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(descriptorSet);
+    BRIMSTONE_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pData);
+    fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplate");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
+                                                                        HandleId descriptorUpdateTemplate,
+                                                                        HandleId layout,
+                                                                        uint32_t set,
+                                                                        const DescriptorUpdateTemplateDecoder& pData)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(commandBuffer);
+    BRIMSTONE_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
+    BRIMSTONE_UNREFERENCED_PARAMETER(layout);
+    BRIMSTONE_UNREFERENCED_PARAMETER(set);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pData);
+    fprintf(m_file, "%s\n", "vkCmdPushDescriptorSetWithTemplateKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId device,
+                                                                       HandleId descriptorSet,
+                                                                       HandleId descriptorUpdateTemplate,
+                                                                       const DescriptorUpdateTemplateDecoder& pData)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(descriptorSet);
+    BRIMSTONE_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pData);
+    fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplateKHR");
+}
+
 #include "generated/generated_api_call_ascii_consumer_definitions.inc"
 
 BRIMSTONE_END_NAMESPACE(format)

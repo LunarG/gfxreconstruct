@@ -22,6 +22,7 @@
 
 #include "util/logging.h"
 #include "util/platform.h"
+#include "format/descriptor_update_template_decoder.h"
 #include "format/vulkan_enum_util.h"
 #include "format/vulkan_replay_consumer.h"
 
@@ -488,6 +489,113 @@ VkBool32 VulkanReplayConsumer::OverrideGetPhysicalDeviceWaylandPresentationSuppo
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(display);
     return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
+}
+
+void VulkanReplayConsumer::MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder)
+{
+    size_t image_info_count        = decoder.GetImageInfoCount();
+    size_t buffer_info_count       = decoder.GetBufferInfoCount();
+    size_t texel_buffer_view_count = decoder.GetTexelBufferViewCount();
+
+    if (image_info_count > 0)
+    {
+        VkDescriptorImageInfo*         image_info         = decoder.GetImageInfoPointer();
+        const Decoded_VkDescriptorImageInfo* decoded_image_info = decoder.GetImageInfoMetaStructPointer();
+
+        assert((image_info != nullptr) && (decoded_image_info != nullptr));
+        for (size_t i = 0; i < image_info_count; ++i)
+        {
+            image_info[i].sampler   = object_mapper_.MapVkSampler(decoded_image_info[i].sampler);
+            image_info[i].imageView = object_mapper_.MapVkImageView(decoded_image_info[i].imageView);
+        }
+    }
+
+    if (buffer_info_count > 0)
+    {
+        VkDescriptorBufferInfo*         buffer_info         = decoder.GetBufferInfoPointer();
+        const Decoded_VkDescriptorBufferInfo* decoded_buffer_info = decoder.GetBufferInfoMetaStructPointer();
+
+        assert((buffer_info != nullptr) && (decoded_buffer_info != nullptr));
+
+        for (size_t i = 0; i < buffer_info_count; ++i)
+        {
+            buffer_info[i].buffer = object_mapper_.MapVkBuffer(decoded_buffer_info[i].buffer);
+        }
+    }
+
+    if (texel_buffer_view_count > 0)
+    {
+        VkBufferView* texel_buffer_views = decoder.GetTexelBufferViewPointer();
+        const HandleId*     handle_ids         = decoder.GetTexelBufferViewHandleIdsPointer();
+
+        assert((texel_buffer_views != nullptr) && (handle_ids != nullptr));
+
+        MapHandles<VkBufferView>(handle_ids,
+                                 texel_buffer_view_count,
+                                 texel_buffer_views,
+                                 texel_buffer_view_count,
+                                 &VulkanObjectMapper::MapVkBufferView);
+    }
+}
+
+void VulkanReplayConsumer::Process_vkUpdateDescriptorSetWithTemplate(HandleId device,
+                                                                     HandleId descriptorSet,
+                                                                     HandleId descriptorUpdateTemplate,
+                                                                     const DescriptorUpdateTemplateDecoder& pData)
+{
+    VkDevice                   in_device        = object_mapper_.MapVkDevice(device);
+    VkDescriptorSet            in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
+    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate =
+        object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
+
+    MapDescriptorUpdateTemplateHandles(pData);
+
+    Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplate, void, PFN_vkUpdateDescriptorSetWithTemplate>::Dispatch(
+        this, vkUpdateDescriptorSetWithTemplate, in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData.GetPointer());
+}
+
+void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
+                                                                         HandleId descriptorUpdateTemplate,
+                                                                         HandleId layout,
+                                                                         uint32_t set,
+                                                                         const DescriptorUpdateTemplateDecoder& pData)
+{
+    VkCommandBuffer            in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
+    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate =
+        object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
+    VkPipelineLayout in_layout = object_mapper_.MapVkPipelineLayout(layout);
+
+    MapDescriptorUpdateTemplateHandles(pData);
+
+    Dispatcher<ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR, void, PFN_vkCmdPushDescriptorSetWithTemplateKHR>::
+        Dispatch(this,
+                 vkCmdPushDescriptorSetWithTemplateKHR,
+                 in_commandBuffer,
+                 in_descriptorUpdateTemplate,
+                 in_layout,
+                 set,
+                 pData.GetPointer());
+}
+
+void VulkanReplayConsumer::Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId device,
+                                                                        HandleId descriptorSet,
+                                                                        HandleId descriptorUpdateTemplate,
+                                                                        const DescriptorUpdateTemplateDecoder& pData)
+{
+    VkDevice                   in_device        = object_mapper_.MapVkDevice(device);
+    VkDescriptorSet            in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
+    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate =
+        object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
+
+    MapDescriptorUpdateTemplateHandles(pData);
+
+    Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplateKHR, void, PFN_vkUpdateDescriptorSetWithTemplateKHR>::
+        Dispatch(this,
+                 vkUpdateDescriptorSetWithTemplateKHR,
+                 in_device,
+                 in_descriptorSet,
+                 in_descriptorUpdateTemplate,
+                 pData.GetPointer());
 }
 
 #include "generated/generated_api_call_replay_consumer_definitions.inc"
