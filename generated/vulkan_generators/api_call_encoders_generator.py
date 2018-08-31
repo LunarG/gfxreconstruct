@@ -54,6 +54,7 @@ class ApiCallEncodersGenerator(BaseGenerator):
         write('#include "format/custom_encoder_commands.h"', file=self.outFile)
         write('#include "format/trace_manager.h"', file=self.outFile)
         write('#include "format/parameter_encoder.h"', file=self.outFile)
+        write('#include "layer/custom_api_call_encoders.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
 

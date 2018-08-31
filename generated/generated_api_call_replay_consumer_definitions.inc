@@ -2655,20 +2655,6 @@ void VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(
     Dispatcher<ApiCallId_vkDestroyDescriptorUpdateTemplate, void, PFN_vkDestroyDescriptorUpdateTemplate>::Dispatch(this, vkDestroyDescriptorUpdateTemplate, in_device, in_descriptorUpdateTemplate, in_pAllocator);
 }
 
-void VulkanReplayConsumer::Process_vkUpdateDescriptorSetWithTemplate(
-    HandleId                                    device,
-    HandleId                                    descriptorSet,
-    HandleId                                    descriptorUpdateTemplate,
-    uint64_t                                    pData)
-{
-    VkDevice in_device = object_mapper_.MapVkDevice(device);
-    VkDescriptorSet in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
-    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
-    const void* in_pData = PreProcessExternalObject(pData, ApiCallId_vkUpdateDescriptorSetWithTemplate, "vkUpdateDescriptorSetWithTemplate");
-
-    Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplate, void, PFN_vkUpdateDescriptorSetWithTemplate>::Dispatch(this, vkUpdateDescriptorSetWithTemplate, in_device, in_descriptorSet, in_descriptorUpdateTemplate, in_pData);
-}
-
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
     HandleId                                    physicalDevice,
     const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo>& pExternalBufferInfo,
@@ -3745,21 +3731,6 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetKHR(
     }
 }
 
-void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetWithTemplateKHR(
-    HandleId                                    commandBuffer,
-    HandleId                                    descriptorUpdateTemplate,
-    HandleId                                    layout,
-    uint32_t                                    set,
-    uint64_t                                    pData)
-{
-    VkCommandBuffer in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
-    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
-    VkPipelineLayout in_layout = object_mapper_.MapVkPipelineLayout(layout);
-    const void* in_pData = PreProcessExternalObject(pData, ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR, "vkCmdPushDescriptorSetWithTemplateKHR");
-
-    Dispatcher<ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR, void, PFN_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(this, vkCmdPushDescriptorSetWithTemplateKHR, in_commandBuffer, in_descriptorUpdateTemplate, in_layout, set, in_pData);
-}
-
 void VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -3796,20 +3767,6 @@ void VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
     Dispatcher<ApiCallId_vkDestroyDescriptorUpdateTemplateKHR, void, PFN_vkDestroyDescriptorUpdateTemplateKHR>::Dispatch(this, vkDestroyDescriptorUpdateTemplateKHR, in_device, in_descriptorUpdateTemplate, in_pAllocator);
-}
-
-void VulkanReplayConsumer::Process_vkUpdateDescriptorSetWithTemplateKHR(
-    HandleId                                    device,
-    HandleId                                    descriptorSet,
-    HandleId                                    descriptorUpdateTemplate,
-    uint64_t                                    pData)
-{
-    VkDevice in_device = object_mapper_.MapVkDevice(device);
-    VkDescriptorSet in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
-    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
-    const void* in_pData = PreProcessExternalObject(pData, ApiCallId_vkUpdateDescriptorSetWithTemplateKHR, "vkUpdateDescriptorSetWithTemplateKHR");
-
-    Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplateKHR, void, PFN_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(this, vkUpdateDescriptorSetWithTemplateKHR, in_device, in_descriptorSet, in_descriptorUpdateTemplate, in_pData);
 }
 
 void VulkanReplayConsumer::Process_vkCreateRenderPass2KHR(

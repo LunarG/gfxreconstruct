@@ -961,12 +961,6 @@
         HandleId                                    descriptorUpdateTemplate,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(
-        HandleId                                    device,
-        HandleId                                    descriptorSet,
-        HandleId                                    descriptorUpdateTemplate,
-        uint64_t                                    pData) override;
-
     virtual void Process_vkGetPhysicalDeviceExternalBufferProperties(
         HandleId                                    physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo>& pExternalBufferInfo,
@@ -1336,13 +1330,6 @@
         uint32_t                                    descriptorWriteCount,
         const StructPointerDecoder<Decoded_VkWriteDescriptorSet>& pDescriptorWrites) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(
-        HandleId                                    commandBuffer,
-        HandleId                                    descriptorUpdateTemplate,
-        HandleId                                    layout,
-        uint32_t                                    set,
-        uint64_t                                    pData) override;
-
     virtual void Process_vkCreateDescriptorUpdateTemplateKHR(
         VkResult                                    returnValue,
         HandleId                                    device,
@@ -1354,12 +1341,6 @@
         HandleId                                    device,
         HandleId                                    descriptorUpdateTemplate,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) override;
-
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(
-        HandleId                                    device,
-        HandleId                                    descriptorSet,
-        HandleId                                    descriptorUpdateTemplate,
-        uint64_t                                    pData) override;
 
     virtual void Process_vkCreateRenderPass2KHR(
         VkResult                                    returnValue,
