@@ -44,6 +44,22 @@ public:
 
     const std::string& GetFilename() const { return m_filename; }
 
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(HandleId device,
+                                                           HandleId descriptorSet,
+                                                           HandleId descriptorUpdateTemplate,
+                                                           const DescriptorUpdateTemplateDecoder& pData) override;
+
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
+                                                               HandleId descriptorUpdateTemplate,
+                                                               HandleId layout,
+                                                               uint32_t set,
+                                                               const DescriptorUpdateTemplateDecoder& pData) override;
+
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId device,
+                                                              HandleId descriptorSet,
+                                                              HandleId descriptorUpdateTemplate,
+                                                              const DescriptorUpdateTemplateDecoder& pData) override;
+
 #include "generated/generated_api_call_consumer_override_declarations.inc"
 
 private:
