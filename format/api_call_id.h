@@ -23,6 +23,8 @@
 #ifndef BRIMSTONE_FORMAT_API_CALL_ID_H
 #define BRIMSTONE_FORMAT_API_CALL_ID_H
 
+#include <cstdint>
+
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
@@ -30,6 +32,7 @@ BRIMSTONE_BEGIN_NAMESPACE(format)
 
 enum ApiCallId : uint32_t
 {
+    // clang-format off
     ApiCallId_Unknown                                                                               = 0x0000,
 
     // Vulkan API (range 0x1000..0x1fff)
@@ -345,6 +348,7 @@ enum ApiCallId : uint32_t
     ApiCallId_vkGetValidationCacheDataEXT                                                           = 0x1135,
     ApiCallId_vkGetMemoryHostPointerPropertiesEXT                                                   = 0x1136,
     ApiCallId_vkCmdWriteBufferMarkerAMD                                                             = 0x1137,
+    // clang-format on
 };
 
 BRIMSTONE_END_NAMESPACE(brimstone)

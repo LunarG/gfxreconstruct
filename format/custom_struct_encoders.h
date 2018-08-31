@@ -17,6 +17,8 @@
 #ifndef BRIMSTONE_CUSTOM_STRUCT_ENCODERS_H
 #define BRIMSTONE_CUSTOM_STRUCT_ENCODERS_H
 
+#include "vulkan/vulkan.h"
+
 #include "format/parameter_encoder.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
