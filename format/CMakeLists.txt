@@ -8,6 +8,7 @@ target_sources(brimstone_format
                    custom_struct_encoders.h
                    custom_encoder_commands.h
                    decoder.h
+                   descriptor_update_template_decoder.h
                    file_processor.h
                    format.h
                    memory_tracker.h
@@ -35,6 +36,7 @@ target_sources(brimstone_format
                    decompress_decoder.h
                    custom_struct_decoders.cpp
                    custom_struct_encoders.cpp
+                   descriptor_update_template_decoder.cpp
                    file_processor.cpp
                    memory_tracker.cpp
                    trace_manager.cpp
