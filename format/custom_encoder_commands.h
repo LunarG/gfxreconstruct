@@ -47,6 +47,7 @@ struct CustomEncoderPostCall
     }
 };
 
+// Dispatch custom command for window resize command generation.
 template <>
 struct CustomEncoderPreCall<ApiCallId_vkCreateSwapchainKHR>
 {
@@ -57,6 +58,7 @@ struct CustomEncoderPreCall<ApiCallId_vkCreateSwapchainKHR>
     }
 };
 
+// Dispatch custom commands for fill memory command generation.
 template <>
 struct CustomEncoderPostCall<ApiCallId_vkAllocateMemory>
 {
@@ -114,6 +116,46 @@ struct CustomEncoderPreCall<ApiCallId_vkQueueSubmit>
     static void Dispatch(TraceManager* manager, Args... args)
     {
         manager->PreProcess_vkQueueSubmit(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<ApiCallId_vkCreateDescriptorUpdateTemplate>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkCreateDescriptorUpdateTemplate(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<ApiCallId_vkCreateDescriptorUpdateTemplateKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkCreateDescriptorUpdateTemplateKHR(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<ApiCallId_vkDestroyDescriptorUpdateTemplate>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkDestroyDescriptorUpdateTemplate(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<ApiCallId_vkDestroyDescriptorUpdateTemplateKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkDestroyDescriptorUpdateTemplateKHR(args...);
     }
 };
 
