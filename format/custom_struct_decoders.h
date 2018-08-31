@@ -19,6 +19,8 @@
 
 #include <memory>
 
+#include "vulkan/vulkan.h"
+
 #include "format/custom_struct_decoders_forward.h"
 #include "format/platform_types.h"
 #include "format/pointer_decoder.h"
