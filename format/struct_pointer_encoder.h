@@ -45,7 +45,7 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const T* value, si
     {
         for (size_t i = 0; i < len; ++i)
         {
-            result = encode_struct(encoder, value[i]);
+            result += encode_struct(encoder, value[i]);
         }
     }
     return result;
