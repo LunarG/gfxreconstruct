@@ -480,9 +480,6 @@
     case ApiCallId_vkDestroyDescriptorUpdateTemplate:
         Decode_vkDestroyDescriptorUpdateTemplate(parameter_buffer, buffer_size);
         break;
-    case ApiCallId_vkUpdateDescriptorSetWithTemplate:
-        Decode_vkUpdateDescriptorSetWithTemplate(parameter_buffer, buffer_size);
-        break;
     case ApiCallId_vkGetPhysicalDeviceExternalBufferProperties:
         Decode_vkGetPhysicalDeviceExternalBufferProperties(parameter_buffer, buffer_size);
         break;
@@ -684,18 +681,12 @@
     case ApiCallId_vkCmdPushDescriptorSetKHR:
         Decode_vkCmdPushDescriptorSetKHR(parameter_buffer, buffer_size);
         break;
-    case ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR:
-        Decode_vkCmdPushDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
-        break;
 
     case ApiCallId_vkCreateDescriptorUpdateTemplateKHR:
         Decode_vkCreateDescriptorUpdateTemplateKHR(parameter_buffer, buffer_size);
         break;
     case ApiCallId_vkDestroyDescriptorUpdateTemplateKHR:
         Decode_vkDestroyDescriptorUpdateTemplateKHR(parameter_buffer, buffer_size);
-        break;
-    case ApiCallId_vkUpdateDescriptorSetWithTemplateKHR:
-        Decode_vkUpdateDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
         break;
 
     case ApiCallId_vkCreateRenderPass2KHR:

@@ -1420,15 +1420,6 @@ void VulkanAsciiConsumer::Process_vkDestroyDescriptorUpdateTemplate(
     fprintf(m_file, "%s\n", "vkDestroyDescriptorUpdateTemplate");
 }
 
-void VulkanAsciiConsumer::Process_vkUpdateDescriptorSetWithTemplate(
-    HandleId                                    device,
-    HandleId                                    descriptorSet,
-    HandleId                                    descriptorUpdateTemplate,
-    uint64_t                                    pData)
-{
-    fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplate");
-}
-
 void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
     HandleId                                    physicalDevice,
     const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo>& pExternalBufferInfo,
@@ -1978,16 +1969,6 @@ void VulkanAsciiConsumer::Process_vkCmdPushDescriptorSetKHR(
     fprintf(m_file, "%s\n", "vkCmdPushDescriptorSetKHR");
 }
 
-void VulkanAsciiConsumer::Process_vkCmdPushDescriptorSetWithTemplateKHR(
-    HandleId                                    commandBuffer,
-    HandleId                                    descriptorUpdateTemplate,
-    HandleId                                    layout,
-    uint32_t                                    set,
-    uint64_t                                    pData)
-{
-    fprintf(m_file, "%s\n", "vkCmdPushDescriptorSetWithTemplateKHR");
-}
-
 void VulkanAsciiConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
     VkResult                                    returnValue,
     HandleId                                    device,
@@ -2004,15 +1985,6 @@ void VulkanAsciiConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
 {
     fprintf(m_file, "%s\n", "vkDestroyDescriptorUpdateTemplateKHR");
-}
-
-void VulkanAsciiConsumer::Process_vkUpdateDescriptorSetWithTemplateKHR(
-    HandleId                                    device,
-    HandleId                                    descriptorSet,
-    HandleId                                    descriptorUpdateTemplate,
-    uint64_t                                    pData)
-{
-    fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplateKHR");
 }
 
 void VulkanAsciiConsumer::Process_vkCreateRenderPass2KHR(

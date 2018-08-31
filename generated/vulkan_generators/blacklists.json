@@ -1,11 +1,14 @@
-{ "functions" : [
+{ "functions": [
     "vkGetInstanceProcAddr",
     "vkGetDeviceProcAddr",
     "vkEnumerateInstanceLayerProperties",
     "vkEnumerateDeviceLayerProperties",
     "vkEnumerateInstanceExtensionProperties",
     "vkEnumerateDeviceExtensionProperties",
-    "vkEnumerateInstanceVersion"
+    "vkEnumerateInstanceVersion",
+    "vkUpdateDescriptorSetWithTemplate",
+    "vkUpdateDescriptorSetWithTemplateKHR",
+    "vkCmdPushDescriptorSetWithTemplateKHR"
   ],
   "structures": [
     "VkBaseOutStructure",
