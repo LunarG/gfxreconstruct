@@ -2,7 +2,9 @@ add_library(brimstone_layer SHARED "")
 
 target_sources(brimstone_layer
                PRIVATE
+                   custom_api_call_encoders.h
                    trace_layer.h
+                   custom_api_call_encoders.cpp
                    dll_main.cpp
                    trace_layer.cpp
                    $<$<BOOL:WIN32>:trace_layer.def>
