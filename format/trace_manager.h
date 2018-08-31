@@ -17,10 +17,10 @@
 #ifndef BRIMSTONE_FORMAT_TRACE_MANAGER_H
 #define BRIMSTONE_FORMAT_TRACE_MANAGER_H
 
-#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "vulkan/vulkan.h"
@@ -39,7 +39,7 @@ BRIMSTONE_BEGIN_NAMESPACE(format)
 
 class TraceManager
 {
-public:
+  public:
     enum MemoryTrackingMode
     {
         // Assume the application does not flush, so write all mapped data on unmap and queue submit.
@@ -51,10 +51,29 @@ public:
         kPageGuard = 2
     };
 
-public:
-    TraceManager() : memory_tracking_mode_(MemoryTrackingMode::kUnassisted) { }
+    struct UpdateTemplateEntryInfo
+    {
+        UpdateTemplateEntryInfo(uint32_t c, size_t o, size_t s) : count(c), offset(o), stride(s) {}
+        uint32_t count;
+        size_t   offset;
+        size_t   stride;
+    };
 
-    ~TraceManager() { }
+    struct UpdateTemplateInfo
+    {
+        // The counts are the sum of the total descriptorCount for each update template entry type.
+        size_t                               image_info_count{ 0 };
+        size_t                               buffer_info_count{ 0 };
+        size_t                               texel_buffer_view_count{ 0 };
+        std::vector<UpdateTemplateEntryInfo> image_info;
+        std::vector<UpdateTemplateEntryInfo> buffer_info;
+        std::vector<UpdateTemplateEntryInfo> texel_buffer_view;
+    };
+
+  public:
+    TraceManager() : memory_tracking_mode_(MemoryTrackingMode::kUnassisted) {}
+
+    ~TraceManager() {}
 
     bool Initialize(std::string filename, EnabledOptions file_options);
 
@@ -65,6 +84,9 @@ public:
     void EndApiCallTrace(ParameterEncoder* encoder);
 
     void WriteDisplayMessageCmd(const char* message);
+
+    bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
+                                         const UpdateTemplateInfo** info) const;
 
     void PreProcess_vkCreateSwapchain(VkDevice                        device,
                                       const VkSwapchainCreateInfoKHR* pCreateInfo,
@@ -95,32 +117,54 @@ public:
 
     void PreProcess_vkQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence);
 
+    void PreProcess_vkCreateDescriptorUpdateTemplate(VkResult                                    result,
+                                                     VkDevice                                    device,
+                                                     const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+                                                     const VkAllocationCallbacks*                pAllocator,
+                                                     VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
+
+    void PreProcess_vkCreateDescriptorUpdateTemplateKHR(VkResult                                    result,
+                                                        VkDevice                                    device,
+                                                        const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+                                                        const VkAllocationCallbacks*                pAllocator,
+                                                        VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
+
+    void PreProcess_vkDestroyDescriptorUpdateTemplate(VkDevice                     device,
+                                                      VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
+                                                      const VkAllocationCallbacks* pAllocator);
+
+    void PreProcess_vkDestroyDescriptorUpdateTemplateKHR(VkDevice                     device,
+                                                         VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
+                                                         const VkAllocationCallbacks* pAllocator);
+
   private:
     class ThreadData
     {
-    public:
+      public:
         ThreadData();
 
-        ~ThreadData() { }
+        ~ThreadData() {}
 
-    public:
-        const uint32_t                                      thread_id_;
-        ApiCallId                                           call_id_;
-        uint32_t                                            call_begin_time_;
-        uint32_t                                            call_end_time_;
-        std::unique_ptr<util::MemoryOutputStream>           parameter_buffer_;
-        std::unique_ptr<ParameterEncoder>                   parameter_encoder_;
+      public:
+        const uint32_t                            thread_id_;
+        ApiCallId                                 call_id_;
+        uint32_t                                  call_begin_time_;
+        uint32_t                                  call_end_time_;
+        std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
+        std::unique_ptr<ParameterEncoder>         parameter_encoder_;
 
-    private:
+      private:
         static uint32_t GetThreadId();
 
-    private:
-        static std::mutex                                   count_lock_;
-        static uint32_t                                     thread_count_;
-        static std::map<uint64_t, uint32_t>                 id_map_;
+      private:
+        static std::mutex                             count_lock_;
+        static uint32_t                               thread_count_;
+        static std::unordered_map<uint64_t, uint32_t> id_map_;
     };
 
-private:
+    typedef std::unordered_map<VkDescriptorUpdateTemplate, UpdateTemplateInfo> UpdateTemplateMap;
+
+  private:
     ThreadData* GetThreadData()
     {
         if (!thread_data_)
@@ -136,18 +180,24 @@ private:
     void WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height);
     void WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data);
 
-private:
-    static thread_local std::unique_ptr<ThreadData>         thread_data_;
-    EnabledOptions                                          file_options_;
-    std::unique_ptr<util::FileOutputStream>                 file_stream_;
-    std::string                                             filename_;
-    std::mutex                                              file_lock_;
-    uint64_t                                                bytes_written_;
-    std::vector<uint8_t>                                    compressed_buffer_;
-    util::Compressor*                                       compressor_;
-    MemoryTrackingMode                                      memory_tracking_mode_;
-    MemoryTracker                                           memory_tracker_;
-    mutable std::mutex                                      memory_tracker_lock_;
+    void AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate                  update_template,
+                                     const VkDescriptorUpdateTemplateCreateInfo* create_info);
+    void RemoveDescriptorUpdateTemplate(VkDescriptorUpdateTemplate update_template);
+
+  private:
+    static thread_local std::unique_ptr<ThreadData> thread_data_;
+    EnabledOptions                                  file_options_;
+    std::unique_ptr<util::FileOutputStream>         file_stream_;
+    std::string                                     filename_;
+    std::mutex                                      file_lock_;
+    uint64_t                                        bytes_written_;
+    std::vector<uint8_t>                            compressed_buffer_;
+    util::Compressor*                               compressor_;
+    MemoryTrackingMode                              memory_tracking_mode_;
+    MemoryTracker                                   memory_tracker_;
+    mutable std::mutex                              memory_tracker_lock_;
+    UpdateTemplateMap                               update_template_map_;
+    mutable std::mutex                              update_template_map_lock_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)

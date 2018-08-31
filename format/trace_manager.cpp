@@ -25,7 +25,7 @@ BRIMSTONE_BEGIN_NAMESPACE(format)
 
 std::mutex                                             TraceManager::ThreadData::count_lock_;
 uint32_t                                               TraceManager::ThreadData::thread_count_ = 0;
-std::map<uint64_t, uint32_t>                           TraceManager::ThreadData::id_map_;
+std::unordered_map<uint64_t, uint32_t>                 TraceManager::ThreadData::id_map_;
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 
 TraceManager::ThreadData::ThreadData() :
@@ -94,14 +94,14 @@ void TraceManager::Destroy()
 
 ParameterEncoder* TraceManager::BeginApiCallTrace(ApiCallId call_id)
 {
-    auto thread_data = GetThreadData();
+    auto thread_data      = GetThreadData();
     thread_data->call_id_ = call_id;
     return thread_data->parameter_encoder_.get();
 }
 
 void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 {
-    auto thread_data       = GetThreadData();
+    auto thread_data = GetThreadData();
     assert(thread_data != nullptr);
 
     auto parameter_buffer  = thread_data->parameter_buffer_.get();
@@ -233,10 +233,10 @@ void TraceManager::WriteDisplayMessageCmd(const char* message)
     DisplayMessageCommandHeader message_cmd;
 
     message_cmd.meta_header.block_header.type = kMetaDataBlock;
-    message_cmd.meta_header.block_header.size = sizeof(message_cmd.meta_header.meta_data_type) +
-                                                sizeof(message_cmd.message_size) + message_length;
-    message_cmd.meta_header.meta_data_type    = kDisplayMessageCommand;
-    message_cmd.message_size                  = message_length;
+    message_cmd.meta_header.block_header.size =
+        sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.message_size) + message_length;
+    message_cmd.meta_header.meta_data_type = kDisplayMessageCommand;
+    message_cmd.message_size               = message_length;
 
     {
         std::lock_guard<std::mutex> lock(file_lock_);
@@ -283,6 +283,82 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
         bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
         bytes_written_ += file_stream_->Write((static_cast<const uint8_t*>(data) + offset), size);
     }
+}
+
+void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate                  update_template,
+                                               const VkDescriptorUpdateTemplateCreateInfo* create_info)
+{
+    // A NULL check should have been performed by the caller.
+    assert((create_info != nullptr));
+
+    if (create_info->descriptorUpdateEntryCount > 0)
+    {
+        UpdateTemplateInfo info;
+
+        for (size_t i = 0; i < create_info->descriptorUpdateEntryCount; ++i)
+        {
+            const VkDescriptorUpdateTemplateEntry* entry = &create_info->pDescriptorUpdateEntries[i];
+            VkDescriptorType                       type  = entry->descriptorType;
+
+            // Sort the descriptor update template info by type, so it can be written to the trace file
+            // as tightly packed arrays of structures.  One array will be written for each descriptor info
+            // structure/textel buffer view.
+            if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) ||
+                (type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
+                (type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
+            {
+                info.image_info_count += entry->descriptorCount;
+                info.image_info.emplace_back(entry->descriptorCount, entry->offset, entry->stride);
+            }
+            else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
+                     (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
+                     (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
+            {
+                info.buffer_info_count += entry->descriptorCount;
+                info.buffer_info.emplace_back(entry->descriptorCount, entry->offset, entry->stride);
+            }
+            else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) ||
+                     (type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
+            {
+                info.texel_buffer_view_count += entry->descriptorCount;
+                info.texel_buffer_view.emplace_back(entry->descriptorCount, entry->offset, entry->stride);
+            }
+            else
+            {
+                assert(false);
+            }
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(update_template_map_lock_);
+            update_template_map_.emplace(std::make_pair(update_template, info));
+        }
+    }
+}
+
+void TraceManager::RemoveDescriptorUpdateTemplate(VkDescriptorUpdateTemplate update_template)
+{
+    std::lock_guard<std::mutex> lock(update_template_map_lock_);
+    update_template_map_.erase(update_template);
+}
+
+bool TraceManager::GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
+                                                   const UpdateTemplateInfo** info) const
+{
+    assert(info != nullptr);
+
+    bool found = false;
+
+    // We assume that the application will not destroy an update template while it is in use, and that we only need
+    // to lock on find for protection from data strcuture changes due to adds and removes of other update templates.
+    auto entry = update_template_map_.find(update_template);
+    if (entry != update_template_map_.end())
+    {
+        found   = true;
+        (*info) = &(entry->second);
+    }
+
+    return found;
 }
 
 void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
@@ -405,7 +481,10 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     memory_tracker_.RemoveEntry(memory);
 }
 
-void TraceManager::PreProcess_vkQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence)
+void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
+                                            uint32_t            submitCount,
+                                            const VkSubmitInfo* pSubmits,
+                                            VkFence             fence)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(queue);
     BRIMSTONE_UNREFERENCED_PARAMETER(submitCount);
@@ -423,6 +502,57 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue queue, uint32_t submitCount,
                                entry.data);
         });
     }
+}
+
+void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplate(VkResult                                    result,
+                                                               VkDevice                                    device,
+                                                               const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+                                                               const VkAllocationCallbacks*                pAllocator,
+                                                               VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+
+    if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pDescriptorUpdateTemplate != nullptr))
+    {
+        AddDescriptorUpdateTemplate((*pDescriptorUpdateTemplate), pCreateInfo);
+    }
+}
+
+void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
+    VkResult                                    result,
+    VkDevice                                    device,
+    const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkDescriptorUpdateTemplate*                 pDescriptorUpdateTemplate)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+
+    if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pDescriptorUpdateTemplate != nullptr))
+    {
+        AddDescriptorUpdateTemplate((*pDescriptorUpdateTemplate), pCreateInfo);
+    }
+}
+
+void TraceManager::PreProcess_vkDestroyDescriptorUpdateTemplate(VkDevice                     device,
+                                                                VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
+                                                                const VkAllocationCallbacks* pAllocator)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+
+    RemoveDescriptorUpdateTemplate(descriptorUpdateTemplate);
+}
+
+void TraceManager::PreProcess_vkDestroyDescriptorUpdateTemplateKHR(VkDevice                   device,
+                                                                   VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                                   const VkAllocationCallbacks* pAllocator)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+
+    RemoveDescriptorUpdateTemplate(descriptorUpdateTemplate);
 }
 
 BRIMSTONE_END_NAMESPACE(format)
