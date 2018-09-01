@@ -41,14 +41,27 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
     size_t bytes_read = 0;
     uint32_t attrib = 0;
 
-    if ((parameter_buffer != nullptr) && (buffer_size >= sizeof(uint32_t)))
+    if ((parameter_buffer != nullptr) && (buffer_size >= sizeof(attrib)))
     {
+        size_t stype_offset = 0;
+
         // Peek at the pointer attribute mask to make sure we have a non-NULL value that can be decoded.
         attrib = *(reinterpret_cast<const uint32_t*>(parameter_buffer));
 
-        if (((attrib & PointerAttributes::kIsNull) != PointerAttributes::kIsNull) && (buffer_size - sizeof(uint32_t) >= sizeof(VkStructureType)))
+        if ((attrib & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
         {
-            const VkStructureType* sType = reinterpret_cast<const VkStructureType*>(parameter_buffer);
+            // Offset to VkStructureType, after the pointer encoding preamble.
+            stype_offset = sizeof(attrib);
+
+            if ((attrib & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
+            {
+                stype_offset += sizeof(AddressEncodeType);
+            }
+        }
+
+        if ((stype_offset != 0) && ((buffer_size - stype_offset) >= sizeof(VkStructureType)))
+        {
+            const VkStructureType* sType = reinterpret_cast<const VkStructureType*>(parameter_buffer + stype_offset);
 
             switch (*sType)
             {
@@ -493,7 +506,7 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
         // We will report that we read the attribute mask and return a PNextNullNode.
         if (attrib != 0)
         {
-            bytes_read = sizeof(uint32_t);
+            bytes_read = sizeof(attrib);
         }
 
         (*pNext) = std::make_unique<PNextNullNode>();
