@@ -40,7 +40,19 @@ BRIMSTONE_BEGIN_NAMESPACE(format)
 class TraceManager
 {
 public:
-    TraceManager() { }
+    enum MemoryTrackingMode
+    {
+        // Assume the application does not flush, so write all mapped data on unmap and queue submit.
+        kUnassisted = 0,
+        // Assume the application will always flush after writing to mapped memory, so only write on flush.
+        kAssisted = 1,
+        // Use pageguard to determine which regions of memory to wrtie on unmap and queue submit.  This
+        // mode shadows uncached memory.
+        kPageGuard = 2
+    };
+
+public:
+    TraceManager() : memory_tracking_mode_(MemoryTrackingMode::kUnassisted) { }
 
     ~TraceManager() { }
 
@@ -80,6 +92,8 @@ public:
     void PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory);
 
     void PreProcess_vkFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
+
+    void PreProcess_vkQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence);
 
   private:
     class ThreadData
@@ -122,6 +136,7 @@ private:
     uint64_t                                                bytes_written_;
     std::vector<uint8_t>                                    compressed_buffer_;
     util::Compressor*                                       compressor_;
+    MemoryTrackingMode                                      memory_tracking_mode_;
     MemoryTracker                                           memory_tracker_;
 };
 

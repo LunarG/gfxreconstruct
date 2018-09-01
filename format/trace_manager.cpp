@@ -334,7 +334,7 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(device);
 
-    if (pMemoryRanges != nullptr)
+    if ((memory_tracking_mode_ == MemoryTrackingMode::kAssisted) && (pMemoryRanges != nullptr))
     {
         VkDeviceMemory                  current_memory = VK_NULL_HANDLE;
         const MemoryTracker::EntryInfo* info           = nullptr;
@@ -365,17 +365,19 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(device);
 
-    auto info = memory_tracker_.GetEntryInfo(memory);
-    if ((info != nullptr) && (info->data != nullptr))
+    if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
     {
-        // Write the full mapped memory range for now.
-        WriteFillMemoryCmd(memory,
-                           info->mapped_offset,
-                           (info->mapped_size == VK_WHOLE_SIZE) ? info->allocation_size : info->mapped_size,
-                           info->data);
-
-        memory_tracker_.UnmapEntry(memory);
+        auto info = memory_tracker_.GetEntryInfo(memory);
+        if ((info != nullptr) && (info->data != nullptr))
+        {
+            WriteFillMemoryCmd(memory,
+                               info->mapped_offset,
+                               (info->mapped_size == VK_WHOLE_SIZE) ? info->allocation_size : info->mapped_size,
+                               info->data);
+        }
     }
+
+    memory_tracker_.UnmapEntry(memory);
 }
 
 void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
@@ -387,6 +389,25 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
 
     memory_tracker_.RemoveEntry(memory);
 }
+
+void TraceManager::PreProcess_vkQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(queue);
+    BRIMSTONE_UNREFERENCED_PARAMETER(submitCount);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pSubmits);
+    BRIMSTONE_UNREFERENCED_PARAMETER(fence);
+
+    if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
+    {
+        memory_tracker_.VisitEntries([this](VkDeviceMemory memory, const MemoryTracker::EntryInfo& entry){
+            WriteFillMemoryCmd(memory,
+                               entry.mapped_offset,
+                               (entry.mapped_size == VK_WHOLE_SIZE) ? entry.allocation_size : entry.mapped_size,
+                               entry.data);
+        });
+    }
+}
+
 
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)

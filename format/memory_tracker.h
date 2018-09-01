@@ -17,6 +17,7 @@
 #ifndef BRIMSTONE_FORMAT_MEMORY_TRACKER_H
 #define BRIMSTONE_FORMAT_MEMORY_TRACKER_H
 
+#include <functional>
 #include <unordered_map>
 
 #include "vulkan/vulkan.h"
@@ -56,8 +57,10 @@ class MemoryTracker
 
     const EntryInfo* GetEntryInfo(VkDeviceMemory memory) const;
 
+    void VisitEntries(std::function<void(VkDeviceMemory, const EntryInfo&)> visit);
+
   private:
-      std::unordered_map<VkDeviceMemory, EntryInfo> mapped_memory_;
+    std::unordered_map<VkDeviceMemory, EntryInfo> mapped_memory_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)

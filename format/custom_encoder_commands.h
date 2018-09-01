@@ -107,6 +107,16 @@ struct CustomEncoderPreCall<ApiCallId_vkFreeMemory>
     }
 };
 
+template <>
+struct CustomEncoderPreCall<ApiCallId_vkQueueSubmit>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkQueueSubmit(args...);
+    }
+};
+
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
 

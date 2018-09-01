@@ -70,6 +70,13 @@ const MemoryTracker::EntryInfo* MemoryTracker::GetEntryInfo(VkDeviceMemory memor
     return (entry != mapped_memory_.end()) ? &(entry->second) : nullptr;
 }
 
+void MemoryTracker::VisitEntries(std::function<void(VkDeviceMemory, const EntryInfo&)> visit)
+{
+    for (auto entry : mapped_memory_)
+    {
+        visit(entry.first, entry.second);
+    }
+}
 
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
