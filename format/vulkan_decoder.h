@@ -56,6 +56,12 @@ public:
 
     virtual void DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) override;
 
+    size_t Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdPushDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
   private:
 #include "generated/generated_api_call_decoder_declarations.inc"
 
