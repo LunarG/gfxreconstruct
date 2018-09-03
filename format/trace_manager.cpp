@@ -23,10 +23,10 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-std::mutex                            TraceManager::ThreadData::count_lock_;
-uint32_t                              TraceManager::ThreadData::thread_count_ = 0;
-std::map<uint64_t, uint32_t>          TraceManager::ThreadData::id_map_;
-thread_local TraceManager::ThreadData TraceManager::thread_data_;
+std::mutex                                             TraceManager::ThreadData::count_lock_;
+uint32_t                                               TraceManager::ThreadData::thread_count_ = 0;
+std::map<uint64_t, uint32_t>                           TraceManager::ThreadData::id_map_;
+thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 
 TraceManager::ThreadData::ThreadData() :
     thread_id_(GetThreadId()), call_id_(ApiCallId_Unknown), call_begin_time_(0), call_end_time_(0)
@@ -94,16 +94,24 @@ void TraceManager::Destroy()
 
 ParameterEncoder* TraceManager::BeginApiCallTrace(ApiCallId call_id)
 {
-    thread_data_.call_id_ = call_id;
-    return thread_data_.parameter_encoder_.get();
+    auto thread_data = GetThreadData();
+    thread_data->call_id_ = call_id;
+    return thread_data->parameter_encoder_.get();
 }
 
 void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 {
+    auto thread_data       = GetThreadData();
+    assert(thread_data != nullptr);
+
+    auto parameter_buffer  = thread_data->parameter_buffer_.get();
+    auto parameter_encoder = thread_data->parameter_encoder_.get();
+    assert((parameter_buffer != nullptr) && (parameter_encoder != nullptr));
+
     bool                         not_compressed      = true;
     CompressedFunctionCallHeader compressed_header   = {};
     FunctionCallHeader           uncompressed_header = {};
-    size_t                       uncompressed_size   = thread_data_.parameter_buffer_->GetDataSize();
+    size_t                       uncompressed_size   = parameter_buffer->GetDataSize();
     size_t                       header_size         = 0;
     const void*                  header_pointer      = nullptr;
     size_t                       data_size           = 0;
@@ -113,7 +121,7 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
     {
         size_t packet_size = 0;
         size_t compressed_size =
-            compressor_->Compress(uncompressed_size, thread_data_.parameter_buffer_->GetData(), &compressed_buffer_);
+            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_buffer_);
         if ((0 < compressed_size) && (compressed_size < uncompressed_size))
         {
             data_pointer   = reinterpret_cast<const void*>(compressed_buffer_.data());
@@ -122,19 +130,19 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
             header_size    = sizeof(CompressedFunctionCallHeader);
 
             compressed_header.block_header.type = BlockType::kCompressedFunctionCallBlock;
-            compressed_header.api_call_id       = thread_data_.call_id_;
+            compressed_header.api_call_id       = thread_data->call_id_;
             compressed_header.uncompressed_size = uncompressed_size;
 
             packet_size +=
                 sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) + compressed_size;
             if (file_options_.record_thread_id)
             {
-                packet_size += sizeof(thread_data_.thread_id_);
+                packet_size += sizeof(thread_data->thread_id_);
             }
 
             if (file_options_.record_begin_end_timestamp)
             {
-                packet_size += sizeof(thread_data_.call_begin_time_) + sizeof(thread_data_.call_end_time_);
+                packet_size += sizeof(thread_data->call_begin_time_) + sizeof(thread_data->call_end_time_);
             }
             compressed_header.block_header.size = packet_size;
             not_compressed                      = false;
@@ -144,23 +152,23 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
     if (not_compressed)
     {
         size_t packet_size = 0;
-        data_pointer       = reinterpret_cast<const void*>(thread_data_.parameter_buffer_->GetData());
+        data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
         data_size          = uncompressed_size;
         header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
         header_size        = sizeof(FunctionCallHeader);
 
         uncompressed_header.block_header.type = BlockType::kFunctionCallBlock;
-        uncompressed_header.api_call_id       = thread_data_.call_id_;
+        uncompressed_header.api_call_id       = thread_data->call_id_;
 
         packet_size += sizeof(uncompressed_header.api_call_id) + data_size;
         if (file_options_.record_thread_id)
         {
-            packet_size += sizeof(thread_data_.thread_id_);
+            packet_size += sizeof(thread_data->thread_id_);
         }
 
         if (file_options_.record_begin_end_timestamp)
         {
-            packet_size += sizeof(thread_data_.call_begin_time_) + sizeof(thread_data_.call_end_time_);
+            packet_size += sizeof(thread_data->call_begin_time_) + sizeof(thread_data->call_end_time_);
         }
         uncompressed_header.block_header.size = packet_size;
     }
@@ -174,21 +182,21 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
         // Add optional call items.
         if (file_options_.record_thread_id)
         {
-            bytes_written_ += file_stream_->Write(&thread_data_.thread_id_, sizeof(thread_data_.thread_id_));
+            bytes_written_ += file_stream_->Write(&thread_data->thread_id_, sizeof(thread_data->thread_id_));
         }
 
         if (file_options_.record_begin_end_timestamp)
         {
             bytes_written_ +=
-                file_stream_->Write(&thread_data_.call_begin_time_, sizeof(thread_data_.call_begin_time_));
-            bytes_written_ += file_stream_->Write(&thread_data_.call_end_time_, sizeof(thread_data_.call_end_time_));
+                file_stream_->Write(&thread_data->call_begin_time_, sizeof(thread_data->call_begin_time_));
+            bytes_written_ += file_stream_->Write(&thread_data->call_end_time_, sizeof(thread_data->call_end_time_));
         }
 
         // Write parameter data.
         bytes_written_ += file_stream_->Write(data_pointer, data_size);
     }
 
-    thread_data_.parameter_encoder_->Reset();
+    parameter_encoder->Reset();
 }
 
 void TraceManager::WriteFileHeader()
