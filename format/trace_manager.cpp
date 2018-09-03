@@ -313,6 +313,7 @@ void TraceManager::PostProcess_vkAllocateMemory(VkResult                     res
 
     if ((result == VK_SUCCESS) && (pAllocateInfo != nullptr) && (pMemory != nullptr))
     {
+        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
         // TODO: Get property flags for type index (for pageguard).
         // TODO: Key memory tracker by VkDevice + VkDeviceMemory for multi-device support.
         memory_tracker_.AddEntry((*pMemory), 0, pAllocateInfo->allocationSize);
@@ -332,6 +333,7 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
 
     if ((result == VK_SUCCESS) && (ppData != nullptr))
     {
+        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
         memory_tracker_.MapEntry(memory, offset, size, (*ppData));
     }
 }
@@ -346,6 +348,8 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
     {
         VkDeviceMemory                  current_memory = VK_NULL_HANDLE;
         const MemoryTracker::EntryInfo* info           = nullptr;
+
+        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
         for (uint32_t i = 0; i < memoryRangeCount; ++i)
         {
@@ -373,6 +377,8 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(device);
 
+    std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+
     if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
     {
         auto info = memory_tracker_.GetEntryInfo(memory);
@@ -395,6 +401,7 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     BRIMSTONE_UNREFERENCED_PARAMETER(device);
     BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
 
+    std::lock_guard<std::mutex> lock(memory_tracker_lock_);
     memory_tracker_.RemoveEntry(memory);
 }
 
@@ -407,7 +414,9 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue queue, uint32_t submitCount,
 
     if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
     {
-        memory_tracker_.VisitEntries([this](VkDeviceMemory memory, const MemoryTracker::EntryInfo& entry){
+        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+
+        memory_tracker_.VisitEntries([this](VkDeviceMemory memory, const MemoryTracker::EntryInfo& entry) {
             WriteFillMemoryCmd(memory,
                                entry.mapped_offset,
                                (entry.mapped_size == VK_WHOLE_SIZE) ? entry.allocation_size : entry.mapped_size,
@@ -415,7 +424,6 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue queue, uint32_t submitCount,
         });
     }
 }
-
 
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)

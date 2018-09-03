@@ -147,6 +147,7 @@ private:
     util::Compressor*                                       compressor_;
     MemoryTrackingMode                                      memory_tracking_mode_;
     MemoryTracker                                           memory_tracker_;
+    mutable std::mutex                                      memory_tracker_lock_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
