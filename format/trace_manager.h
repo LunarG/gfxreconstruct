@@ -121,6 +121,15 @@ public:
     };
 
 private:
+    ThreadData* GetThreadData()
+    {
+        if (!thread_data_)
+        {
+            thread_data_ = std::make_unique<ThreadData>();
+        }
+        return thread_data_.get();
+    }
+
     void WriteFileHeader();
     void BuildOptionList(const EnabledOptions& enabled_options, std::vector<FileOptionPair>* option_list);
 
@@ -128,7 +137,7 @@ private:
     void WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data);
 
 private:
-    static thread_local ThreadData                          thread_data_;
+    static thread_local std::unique_ptr<ThreadData>         thread_data_;
     EnabledOptions                                          file_options_;
     std::unique_ptr<util::FileOutputStream>                 file_stream_;
     std::string                                             filename_;
