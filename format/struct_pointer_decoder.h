@@ -50,7 +50,7 @@ public:
         }
     }
 
-    T* GetMetaStructPointer() const { return decoded_structs_; }
+    const T* GetMetaStructPointer() const { return decoded_structs_; }
 
     typename T::struct_type* GetPointer() const { return struct_memory_; }
 
