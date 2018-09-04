@@ -152,7 +152,6 @@ size_t VulkanDecoder::Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint8_t*
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#include "generated/generated_decoded_struct_types.inc"
 #include "generated/generated_struct_decoders.inc"
 #include "generated/generated_decode_pnext_struct.inc"
 #include "generated/generated_api_call_decoders.inc"

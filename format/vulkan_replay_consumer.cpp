@@ -26,8 +26,6 @@
 #include "format/vulkan_enum_util.h"
 #include "format/vulkan_replay_consumer.h"
 
-#include "generated/generated_decoded_struct_types.inc"
-
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 

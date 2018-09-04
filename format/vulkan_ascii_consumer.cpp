@@ -17,8 +17,6 @@
 #include "util/platform.h"
 #include "format/vulkan_ascii_consumer.h"
 
-#include "generated/generated_decoded_struct_types.inc"
-
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 

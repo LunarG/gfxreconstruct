@@ -45,6 +45,12 @@ struct Decoded_VkClearValue
     Decoded_VkClearColorValue color;
 };
 
+// Decoded struct wrappers for Vulkan structures that require special processing.
+struct Decoded_VkObjectTableEntryNVX
+{
+    VkObjectTableEntryNVX* value{ nullptr };
+};
+
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
 struct Decoded_ACL
 {
