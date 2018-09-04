@@ -101,13 +101,23 @@ ArgumentParser::ArgumentParser(int32_t            argc,
             bool is_option   = false;
             bool is_argument = false;
 
-            // Optional option/argument
-            if (argv[cur_arg][0] == '-')
+            // Strip off any quotes surrounding the whole string
+            std::string current_argument = argv[cur_arg];
+            if (current_argument[0] == '\"')
             {
-                const std::string option_argument_name = std::string(argv[cur_arg]);
+                current_argument.erase(0, 1);
+            }
+            if (current_argument[current_argument.size() - 1] == '\"')
+            {
+                current_argument.erase(current_argument.size() - 1);
+            }
+
+            // Optional option/argument
+            if (current_argument[0] == '-')
+            {
                 for (auto& cur_option : options_indices_)
                 {
-                    if (cur_option.first == option_argument_name)
+                    if (cur_option.first == current_argument)
                     {
                         options_present_[cur_option.second] = true;
                         is_option                           = true;
@@ -118,18 +128,28 @@ ArgumentParser::ArgumentParser(int32_t            argc,
                 {
                     for (auto& cur_argument : arguments_indices_)
                     {
-                        if (cur_argument.first == option_argument_name)
+                        if (cur_argument.first == current_argument)
                         {
                             // Make sure we have room for the argument's value.
                             if (cur_arg == argc - 1)
                             {
                                 // We're on the last argument, so add this to the invalid list.
-                                invalid_values_present_.push_back(argv[cur_arg]);
+                                invalid_values_present_.push_back(current_argument);
                                 is_invalid_ = true;
                             }
                             else
                             {
-                                argument_values_[cur_argument.second] = argv[++cur_arg];
+                                // Get the next value and strip off any quotes surrounding the whole string
+                                std::string argument_value = argv[++cur_arg];
+                                if (argument_value[0] == '\"')
+                                {
+                                    argument_value.erase(0, 1);
+                                }
+                                if (current_argument[argument_value.size() - 1] == '\"')
+                                {
+                                    argument_value.erase(argument_value.size() - 1);
+                                }
+                                argument_values_[cur_argument.second] = argument_value;
                             }
                             is_argument = true;
                             break;
@@ -140,22 +160,22 @@ ArgumentParser::ArgumentParser(int32_t            argc,
                 {
                     // Past the valid number of non-optional arguments, this must
                     // be an invalid value.
-                    invalid_values_present_.push_back(argv[cur_arg]);
+                    invalid_values_present_.push_back(current_argument);
                     is_invalid_ = true;
-                    printf("ERROR: Invalid command-line setting \'%s\'\n", argv[cur_arg]);
+                    printf("ERROR: Invalid command-line setting \'%s\'\n", current_argument);
                 }
             }
             else
             {
                 if (non_option_arguments_present_.size() < static_cast<size_t>(expected_non_opt_args))
                 {
-                    non_option_arguments_present_.push_back(argv[cur_arg]);
+                    non_option_arguments_present_.push_back(current_argument);
                 }
                 else
                 {
                     // Past the valid number of non-optional arguments, this must
                     // be an invalid value.
-                    invalid_values_present_.push_back(argv[cur_arg]);
+                    invalid_values_present_.push_back(current_argument);
                     is_invalid_ = true;
                 }
             }
