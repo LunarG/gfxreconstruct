@@ -51,18 +51,6 @@ size_t encode_struct_array(format::ParameterEncoder* encoder, const T* value, si
     return result;
 }
 
-// TODO: [BRIM-5] handle special encoding cases.
-inline size_t encode_struct_ptr(format::ParameterEncoder* encoder, const void* value)
-{
-    return 0;
-}
-
-inline size_t
-encode_struct_array(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* const* value, size_t len)
-{
-    return 0;
-}
-
 BRIMSTONE_END_NAMESPACE(brimstone)
 
 #endif // BRIMSTONE_STRUCT_POINTER_ENCODER_H

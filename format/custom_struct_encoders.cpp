@@ -38,6 +38,43 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkClearValue& valu
     return result;
 }
 
+size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
+{
+    size_t result = 0;
+
+    if (value != nullptr)
+    {
+        switch (value->type)
+        {
+            case VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX:
+                result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(value));
+                break;
+            case VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX:
+                result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(value));
+                break;
+            case VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX:
+                result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(value));
+                break;
+            case VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX:
+                result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(value));
+                break;
+            case VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX:
+                result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(value));
+                break;
+            default:
+                // TODO:  Log a message.
+                assert(true);
+                break;
+        }
+    }
+    else
+    {
+        result += encoder->EncodeStructPtrPreamble(nullptr);
+    }
+
+    return result;
+}
+
 // The WIN32 SID structure has a variable size, so will be encoded as an array of bytes instead of a struct.
 static void pack_sid_struct(const SID* sid, std::vector<uint8_t>* buffer)
 {
