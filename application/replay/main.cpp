@@ -34,11 +34,12 @@ void PrintUsage(const char* exe_name)
     {
         app_name.replace(0, dir_location + 1, "");
     }
-    printf("\n\n%s\tis a trace replay tool designed to playback trace binary files.\n\n", app_name.c_str());
-    printf("Usage:\n");
-    printf("\t%s <binary_file>\n\n", app_name.c_str());
-    printf("\t<binary_file>\t\tThe filename (including path if necessary) of the \n");
-    printf("\t\t\t\ttrace binary file to replay\n");
+    BRIMSTONE_WRITE_CONSOLE("\n%s\tis a trace replay tool designed to playback trace binary files.\n",
+                            app_name.c_str());
+    BRIMSTONE_WRITE_CONSOLE("Usage:");
+    BRIMSTONE_WRITE_CONSOLE("\t%s <binary_file>\n", app_name.c_str());
+    BRIMSTONE_WRITE_CONSOLE("\t<binary_file>\t\tThe filename (including path if necessary) of the ");
+    BRIMSTONE_WRITE_CONSOLE("\t\t\t\ttrace binary file to replay");
 }
 
 int main(int argc, const char** argv)
@@ -68,7 +69,7 @@ int main(int argc, const char** argv)
 
             if (!file_processor.Initialize(bin_file_name))
             {
-                printf("Failed to load file %s.\n", bin_file_name.c_str());
+                BRIMSTONE_WRITE_CONSOLE("Failed to load file %s.", bin_file_name.c_str());
                 return_code = -1;
             }
             else
@@ -76,7 +77,8 @@ int main(int argc, const char** argv)
                 // Setup platform specific application and window factory.
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-                brimstone::application::Win32Application* win32_application = new brimstone::application::Win32Application();
+                brimstone::application::Win32Application* win32_application =
+                    new brimstone::application::Win32Application();
                 application    = std::unique_ptr<brimstone::application::Application>(win32_application);
                 window_factory = std::make_unique<brimstone::application::Win32WindowFactory>(win32_application);
 #endif
@@ -96,15 +98,16 @@ int main(int argc, const char** argv)
 
             if (!application || !window_factory)
             {
-                printf("Failed to initialize platform sepcific window system management.\nEnsure that the appropriate "
-                       "Vulkan platform extensions have been eneabled.\n");
+                BRIMSTONE_WRITE_CONSOLE(
+                    "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
+                    "Vulkan platform extensions have been enabled.");
                 return_code = -1;
             }
             else
             {
                 application->SetFileProcessor(&file_processor);
 
-                brimstone::format::VulkanDecoder    decoder;
+                brimstone::format::VulkanDecoder        decoder;
                 brimstone::format::VulkanReplayConsumer replay_consumer(window_factory.get());
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
@@ -117,12 +120,12 @@ int main(int argc, const char** argv)
         }
         catch (std::runtime_error error)
         {
-            printf("Replay failed with error message: %s\n", error.what());
+            BRIMSTONE_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
             return_code = -1;
         }
         catch (...)
         {
-            printf("Replay failed due to an unhandled exception\n");
+            BRIMSTONE_WRITE_CONSOLE("Replay failed due to an unhandled exception");
             return_code = -1;
         }
     }

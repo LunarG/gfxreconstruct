@@ -2,6 +2,7 @@
 #include "format/vulkan_ascii_consumer.h"
 #include "format/vulkan_decoder.h"
 #include "util/argument_parser.h"
+#include "util/logging.h"
 
 void PrintUsage(const char* exe_name)
 {
@@ -11,14 +12,14 @@ void PrintUsage(const char* exe_name)
     {
         app_name.replace(0, dir_location + 1, "");
     }
-    printf("\n\n%s\tis a trace replay tool designed to output the API commands\n", app_name.c_str());
-    printf("\t\tfound inside of a trace binary file.\n\n");
-    printf("Usage:\n");
-    printf("\t%s <binary_file>\n\n", app_name.c_str());
-    printf("\t<binary_file>\t\tThe filename (including path if necessary) of the trace\n");
-    printf("\t\t\t\tbinary file whose API command contents should be outputted.\n");
-    printf("\t\t\t\tThe results will be output to a file of the same name but\n");
-    printf("\t\t\t\twith \'.bin\' suffix replaced with \'.txt\'.\n");
+    BRIMSTONE_WRITE_CONSOLE("\n\n%s\tis a trace replay tool designed to output the API commands", app_name.c_str());
+    BRIMSTONE_WRITE_CONSOLE("\t\tfound inside of a trace binary file.\n");
+    BRIMSTONE_WRITE_CONSOLE("Usage:");
+    BRIMSTONE_WRITE_CONSOLE("\t%s <binary_file>\n", app_name.c_str());
+    BRIMSTONE_WRITE_CONSOLE("\t<binary_file>\t\tThe filename (including path if necessary) of the trace");
+    BRIMSTONE_WRITE_CONSOLE("\t\t\t\tbinary file whose API command contents should be outputted.");
+    BRIMSTONE_WRITE_CONSOLE("\t\t\t\tThe results will be output to a file of the same name but");
+    BRIMSTONE_WRITE_CONSOLE("\t\t\t\twith \'.bin\' suffix replaced with \'.txt\'.");
 }
 
 int main(int argc, const char** argv)
@@ -26,6 +27,8 @@ int main(int argc, const char** argv)
     brimstone::format::FileProcessor file_processor;
     std::string                      bin_file_name = "brimstone_test.bin";
     brimstone::util::ArgumentParser  arg_parser(argc, argv, "", "", 1);
+
+    brimstone::util::logging::Init();
 
     const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
     if (arg_parser.IsInvalid() || non_optional_arguments.size() != 1)
