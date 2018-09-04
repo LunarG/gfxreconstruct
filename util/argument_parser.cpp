@@ -17,6 +17,7 @@
 #include <cstring>
 #include <sstream>
 
+#include "util/logging.h"
 #include "util/argument_parser.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
@@ -28,6 +29,9 @@ ArgumentParser::ArgumentParser(int32_t            argc,
                                const std::string& arguments,
                                const int32_t      expected_non_opt_args)
 {
+    // NOTE: Do not initialize the logging functionality here since we rely on the
+    //       main application to do this.
+
     if (argc > 1 && nullptr != argv)
     {
         std::vector<std::string> valid_options;
@@ -162,7 +166,7 @@ ArgumentParser::ArgumentParser(int32_t            argc,
                     // be an invalid value.
                     invalid_values_present_.push_back(current_argument);
                     is_invalid_ = true;
-                    printf("ERROR: Invalid command-line setting \'%s\'\n", current_argument.c_str());
+                    BRIMSTONE_LOG_ERROR("Invalid command-line setting \'%s\'", current_argument.c_str());
                 }
             }
             else
@@ -186,8 +190,10 @@ ArgumentParser::ArgumentParser(int32_t            argc,
     {
         // Expected some number of arguments and didn't get any
         is_invalid_ = true;
-        printf("Error: Different number of non-optional arguments.\n");
-        printf("Error:     Requires %d options, but %d provided\n", expected_non_opt_args, (argc - 1));
+        BRIMSTONE_LOG_ERROR("Error: Different number of non-optional arguments.\n"
+                            "Error:     Requires %d options, but %d provided",
+                            expected_non_opt_args,
+                            (argc - 1));
     }
 }
 
