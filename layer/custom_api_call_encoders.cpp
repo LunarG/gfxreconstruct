@@ -72,7 +72,6 @@ static size_t EncodeDescriptorUpdateTemplateInfo(format::TraceManager*      mana
         }
 
         // Process VkDescriptorBufferInfo
-        bytes_written += encoder->EncodeStructArrayPreamble(data, info->buffer_info.size());
         for (const auto& entry_info : info->buffer_info)
         {
             for (size_t i = 0; i < entry_info.count; ++i)
