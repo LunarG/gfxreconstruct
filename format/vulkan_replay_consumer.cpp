@@ -341,6 +341,104 @@ void VulkanReplayConsumer::OverrideFreeMemory(VkDevice                     devic
     vkFreeMemory(device, memory, pAllocator);
 }
 
+VkResult
+VulkanReplayConsumer::OverrideCreateDescriptorUpdateTemplate(PFN_vkCreateDescriptorUpdateTemplate        func,
+                                                             VkDevice                                    device,
+                                                             const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+                                                             const VkAllocationCallbacks*                pAllocator,
+                                                             VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate)
+{
+    if (pCreateInfo != nullptr)
+    {
+        // Modify the layout of the update template entries to match the tight packing performed by the trace encoding.
+        // The trace encoding wrote the update template entries as a tightly packed array of VkDescriptorImageInfo
+        // values, followed by an array of VkDescriptorBufferInfo values, followed by an array of VkBufferView values.
+        VkDescriptorUpdateTemplateCreateInfo override_create_info = (*pCreateInfo);
+
+        std::vector<VkDescriptorUpdateTemplateEntry> entries(
+            override_create_info.pDescriptorUpdateEntries,
+            (override_create_info.pDescriptorUpdateEntries + override_create_info.descriptorUpdateEntryCount));
+
+        // Count the number of values of each type.
+        size_t image_info_count        = 0;
+        size_t buffer_info_count       = 0;
+        size_t texel_buffer_view_count = 0;
+
+        for (auto entry = entries.begin(); entry != entries.end(); ++entry)
+        {
+            VkDescriptorType type = entry->descriptorType;
+
+            if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) ||
+                (type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
+                (type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
+            {
+                ++image_info_count;
+            }
+            else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
+                     (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
+                     (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
+            {
+                ++buffer_info_count;
+            }
+            else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) ||
+                     (type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
+            {
+                ++texel_buffer_view_count;
+            }
+            else
+            {
+                assert(false);
+            }
+        }
+
+        // Compute start offsets for each type.
+        size_t image_info_offset        = 0;
+        size_t buffer_info_offset       = image_info_count * sizeof(VkDescriptorImageInfo);
+        size_t texel_buffer_view_offset = buffer_info_offset + (buffer_info_count * sizeof(VkDescriptorBufferInfo));
+
+        for (auto entry = entries.begin(); entry != entries.end(); ++entry)
+        {
+            VkDescriptorType type = entry->descriptorType;
+
+            if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) ||
+                (type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
+                (type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
+            {
+                entry->stride = sizeof(VkDescriptorImageInfo);
+                entry->offset = image_info_offset;
+                image_info_offset += entry->descriptorCount * sizeof(VkDescriptorImageInfo);
+            }
+            else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
+                     (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
+                     (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
+            {
+                entry->stride = sizeof(VkDescriptorBufferInfo);
+                entry->offset = buffer_info_offset;
+                buffer_info_offset += entry->descriptorCount * sizeof(VkDescriptorBufferInfo);
+            }
+            else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) ||
+                     (type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
+            {
+                entry->stride = sizeof(VkBufferView);
+                entry->offset = texel_buffer_view_offset;
+                texel_buffer_view_offset += entry->descriptorCount * sizeof(VkBufferView);
+            }
+            else
+            {
+                assert(false);
+            }
+        }
+
+        override_create_info.pDescriptorUpdateEntries = entries.data();
+
+        return func(device, &override_create_info, pAllocator, pDescriptorUpdateTemplate);
+    }
+    else
+    {
+        return func(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    }
+}
+
 VkResult VulkanReplayConsumer::OverrideCreateWin32SurfaceKHR(VkInstance                         instance,
                                                              const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
                                                              const VkAllocationCallbacks*       pAllocator,
