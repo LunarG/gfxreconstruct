@@ -162,7 +162,7 @@ ArgumentParser::ArgumentParser(int32_t            argc,
                     // be an invalid value.
                     invalid_values_present_.push_back(current_argument);
                     is_invalid_ = true;
-                    printf("ERROR: Invalid command-line setting \'%s\'\n", current_argument);
+                    printf("ERROR: Invalid command-line setting \'%s\'\n", current_argument.c_str());
                 }
             }
             else
