@@ -98,6 +98,13 @@ class VulkanReplayConsumer : public VulkanConsumer
 
     void OverrideFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
 
+    VkResult OverrideCreateDescriptorUpdateTemplate(PFN_vkCreateDescriptorUpdateTemplate        func,
+                                                    VkDevice                                    device,
+                                                    const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+                                                    const VkAllocationCallbacks*                pAllocator,
+                                                    VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
+
+
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
     VkResult OverrideCreateWin32SurfaceKHR(VkInstance                         instance,
@@ -276,6 +283,34 @@ class VulkanReplayConsumer : public VulkanConsumer
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideFreeMemory(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkCreateDescriptorUpdateTemplate, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer*                consumer,
+                            VkResult                             original_result,
+                            PFN_vkCreateDescriptorUpdateTemplate func,
+                            Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            return consumer->OverrideCreateDescriptorUpdateTemplate(func, args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkCreateDescriptorUpdateTemplateKHR, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer*                   consumer,
+                            VkResult                                original_result,
+                            PFN_vkCreateDescriptorUpdateTemplateKHR func,
+                            Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            return consumer->OverrideCreateDescriptorUpdateTemplate(func, args...);
         }
     };
 
