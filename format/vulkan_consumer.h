@@ -28,6 +28,7 @@
 #include "format/pointer_decoder.h"
 #include "format/string_decoder.h"
 #include "format/struct_pointer_decoder.h"
+#include "format/struct_pointer_decoder_nvx.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
