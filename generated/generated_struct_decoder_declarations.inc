@@ -636,7 +636,6 @@ struct Decoded_VkIndirectCommandsLayoutCreateInfoNVX;
 struct Decoded_VkCmdProcessCommandsInfoNVX;
 struct Decoded_VkCmdReserveSpaceForCommandsInfoNVX;
 struct Decoded_VkObjectTableCreateInfoNVX;
-struct Decoded_VkObjectTableEntryNVX;
 struct Decoded_VkObjectTablePipelineEntryNVX;
 struct Decoded_VkObjectTableDescriptorSetEntryNVX;
 struct Decoded_VkObjectTableVertexBufferEntryNVX;
@@ -651,7 +650,6 @@ size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decode
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkCmdProcessCommandsInfoNVX* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkCmdReserveSpaceForCommandsInfoNVX* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkObjectTableCreateInfoNVX* wrapper);
-size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkObjectTableEntryNVX* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkObjectTablePipelineEntryNVX* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkObjectTableDescriptorSetEntryNVX* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkObjectTableVertexBufferEntryNVX* wrapper);

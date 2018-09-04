@@ -3445,15 +3445,6 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableCreat
 }
 
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX& value)
-{
-    size_t result = 0;
-    result += encoder->EncodeEnumValue(value.type);
-    result += encoder->EncodeFlagsValue(value.flags);
-    return result;
-}
-
-
 size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTablePipelineEntryNVX& value)
 {
     size_t result = 0;
