@@ -362,7 +362,6 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkIndirectCommands
 size_t encode_struct(format::ParameterEncoder* encoder, const VkCmdProcessCommandsInfoNVX& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkCmdReserveSpaceForCommandsInfoNVX& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableCreateInfoNVX& value);
-size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTablePipelineEntryNVX& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableDescriptorSetEntryNVX& value);
 size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableVertexBufferEntryNVX& value);

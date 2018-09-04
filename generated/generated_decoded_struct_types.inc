@@ -2663,13 +2663,6 @@ struct Decoded_VkObjectTableCreateInfoNVX
     PointerDecoder<VkObjectEntryUsageFlagsNVX> pObjectEntryUsageFlags;
 };
 
-struct Decoded_VkObjectTableEntryNVX
-{
-    using struct_type = VkObjectTableEntryNVX;
-
-    VkObjectTableEntryNVX* value{ nullptr };
-};
-
 struct Decoded_VkObjectTablePipelineEntryNVX
 {
     using struct_type = VkObjectTablePipelineEntryNVX;

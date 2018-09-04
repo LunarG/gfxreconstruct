@@ -5018,19 +5018,6 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkObject
     return bytes_read;
 }
 
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkObjectTableEntryNVX* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->value != nullptr));
-
-    size_t bytes_read = 0;
-    VkObjectTableEntryNVX* value = wrapper->value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
-    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
-
-    return bytes_read;
-}
-
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkObjectTablePipelineEntryNVX* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));

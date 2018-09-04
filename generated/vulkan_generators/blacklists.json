@@ -12,6 +12,7 @@
   ],
   "structures": [
     "VkBaseOutStructure",
-    "VkBaseInStructure"
+    "VkBaseInStructure",
+    "VkObjectTableEntryNVX"
   ]
 }
