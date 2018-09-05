@@ -6,10 +6,23 @@ set(VULKAN_VERSION_PATCH "0")
 # First, determine which header we need to grab the version information from.
 # Starting with Vulkan 1.1, we should use vulkan_core.h, but prior to that,
 # the information was in vulkan.h.
-if (EXISTS "external/Vulkan-Headers/include/vulkan/vulkan_core.h")
-    set(VulkanHeaders_main_header external/Vulkan-Headers/include/vulkan/vulkan_core.h)
+find_file (VULKAN_HEADER
+            vulkan_core.h
+            HINTS
+                external/Vulkan-Headers/include/vulkan
+                ../external/Vulkan-Headers/include/vulkan)
+
+MESSAGE(STATUS "Vulkan Header = ${VULKAN_HEADER}")
+
+if (EXISTS ${VULKAN_HEADER})
+    set(VulkanHeaders_main_header ${VULKAN_HEADER})
 else()
-    set(VulkanHeaders_main_header external/Vulkan-Headers/include/vulkan/vulkan.h)
+    find_file(VULKAN_HEADER
+                vulkan.h
+                HINTS
+                    external/Vulkan-Headers/include/vulkan
+                    ../external/Vulkan-Headers/include/vulkan)
+    set(VulkanHeaders_main_header ${VULKAN_HEADER})
 endif()
 
 # Find all lines in the header file that contain any version we may be interested in
