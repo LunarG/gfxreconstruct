@@ -93,6 +93,23 @@ void VulkanAsciiConsumer::Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId 
     fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplateKHR");
 }
 
+void VulkanAsciiConsumer::Process_vkRegisterObjectsNVX(
+    VkResult                                                   returnValue,
+    HandleId                                                   device,
+    HandleId                                                   objectTable,
+    uint32_t                                                   objectCount,
+    const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
+    const PointerDecoder<uint32_t>&                            pObjectIndices)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(returnValue);
+    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    BRIMSTONE_UNREFERENCED_PARAMETER(objectTable);
+    BRIMSTONE_UNREFERENCED_PARAMETER(objectCount);
+    BRIMSTONE_UNREFERENCED_PARAMETER(ppObjectTableEntries);
+    BRIMSTONE_UNREFERENCED_PARAMETER(pObjectIndices);
+    fprintf(m_file, "%s\n", "vkRegisterObjectsNVX");
+}
+
 #include "generated/generated_api_call_ascii_consumer_definitions.inc"
 
 BRIMSTONE_END_NAMESPACE(format)

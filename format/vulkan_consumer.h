@@ -60,6 +60,14 @@ public:
                                                               HandleId descriptorUpdateTemplate,
                                                               const DescriptorUpdateTemplateDecoder& pData) = 0;
 
+    virtual void
+    Process_vkRegisterObjectsNVX(VkResult                                                   returnValue,
+                                 HandleId                                                   device,
+                                 HandleId                                                   objectTable,
+                                 uint32_t                                                   objectCount,
+                                 const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
+                                 const PointerDecoder<uint32_t>&                            pObjectIndices) = 0;
+
 #include "generated/generated_api_call_consumer_declarations.inc"
 };
 

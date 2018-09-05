@@ -497,7 +497,7 @@ void VulkanReplayConsumer::MapDescriptorUpdateTemplateHandles(const DescriptorUp
 
     if (image_info_count > 0)
     {
-        VkDescriptorImageInfo*         image_info         = decoder.GetImageInfoPointer();
+        VkDescriptorImageInfo*               image_info         = decoder.GetImageInfoPointer();
         const Decoded_VkDescriptorImageInfo* decoded_image_info = decoder.GetImageInfoMetaStructPointer();
 
         assert((image_info != nullptr) && (decoded_image_info != nullptr));
@@ -510,7 +510,7 @@ void VulkanReplayConsumer::MapDescriptorUpdateTemplateHandles(const DescriptorUp
 
     if (buffer_info_count > 0)
     {
-        VkDescriptorBufferInfo*         buffer_info         = decoder.GetBufferInfoPointer();
+        VkDescriptorBufferInfo*               buffer_info         = decoder.GetBufferInfoPointer();
         const Decoded_VkDescriptorBufferInfo* decoded_buffer_info = decoder.GetBufferInfoMetaStructPointer();
 
         assert((buffer_info != nullptr) && (decoded_buffer_info != nullptr));
@@ -523,8 +523,8 @@ void VulkanReplayConsumer::MapDescriptorUpdateTemplateHandles(const DescriptorUp
 
     if (texel_buffer_view_count > 0)
     {
-        VkBufferView* texel_buffer_views = decoder.GetTexelBufferViewPointer();
-        const HandleId*     handle_ids         = decoder.GetTexelBufferViewHandleIdsPointer();
+        VkBufferView*   texel_buffer_views = decoder.GetTexelBufferViewPointer();
+        const HandleId* handle_ids         = decoder.GetTexelBufferViewHandleIdsPointer();
 
         assert((texel_buffer_views != nullptr) && (handle_ids != nullptr));
 
@@ -549,7 +549,12 @@ void VulkanReplayConsumer::Process_vkUpdateDescriptorSetWithTemplate(HandleId de
     MapDescriptorUpdateTemplateHandles(pData);
 
     Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplate, void, PFN_vkUpdateDescriptorSetWithTemplate>::Dispatch(
-        this, vkUpdateDescriptorSetWithTemplate, in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData.GetPointer());
+        this,
+        vkUpdateDescriptorSetWithTemplate,
+        in_device,
+        in_descriptorSet,
+        in_descriptorUpdateTemplate,
+        pData.GetPointer());
 }
 
 void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
@@ -596,7 +601,114 @@ void VulkanReplayConsumer::Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId
                  pData.GetPointer());
 }
 
+void VulkanReplayConsumer::Process_vkRegisterObjectsNVX(
+    VkResult                                                   returnValue,
+    HandleId                                                   device,
+    HandleId                                                   objectTable,
+    uint32_t                                                   objectCount,
+    const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
+    const PointerDecoder<uint32_t>&                            pObjectIndices)
+{
+    VkDevice         in_device         = object_mapper_.MapVkDevice(device);
+    VkObjectTableNVX in_objectTable    = object_mapper_.MapVkObjectTableNVX(objectTable);
+    const uint32_t*  in_pObjectIndices = reinterpret_cast<const uint32_t*>(pObjectIndices.GetPointer());
+
+    assert(objectCount == ppObjectTableEntries.GetLength());
+
+    VkObjectTableEntryNVX**                     in_ppObjectTableEntries = ppObjectTableEntries.GetPointer();
+    const Decoded_VkObjectTableEntryNVX* const* in_ppObjectTableEntries_wrapper =
+        ppObjectTableEntries.GetMetaStructPointer();
+
+    // Map the object table entry handles.
+    if ((in_ppObjectTableEntries != nullptr) && (in_ppObjectTableEntries_wrapper != nullptr))
+    {
+        for (size_t i = 0; i < objectCount; ++i)
+        {
+            if ((in_ppObjectTableEntries[i] != nullptr) && (in_ppObjectTableEntries_wrapper[i] != nullptr))
+            {
+                VkObjectEntryTypeNVX type = in_ppObjectTableEntries[i]->type;
+
+                if (type == VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX)
+                {
+                    const Decoded_VkObjectTableDescriptorSetEntryNVX* wrapper =
+                        reinterpret_cast<const Decoded_VkObjectTableDescriptorSetEntryNVX*>(
+                            in_ppObjectTableEntries_wrapper[i]);
+                    VkObjectTableDescriptorSetEntryNVX* value =
+                        reinterpret_cast<VkObjectTableDescriptorSetEntryNVX*>(in_ppObjectTableEntries[i]);
+
+                    value->pipelineLayout = object_mapper_.MapVkPipelineLayout(wrapper->pipelineLayout);
+                    value->descriptorSet  = object_mapper_.MapVkDescriptorSet(wrapper->descriptorSet);
+                }
+                else if (type == VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX)
+                {
+                    const Decoded_VkObjectTablePipelineEntryNVX* wrapper =
+                        reinterpret_cast<const Decoded_VkObjectTablePipelineEntryNVX*>(
+                            in_ppObjectTableEntries_wrapper[i]);
+                    VkObjectTablePipelineEntryNVX* value =
+                        reinterpret_cast<VkObjectTablePipelineEntryNVX*>(in_ppObjectTableEntries[i]);
+
+                    value->pipeline = object_mapper_.MapVkPipeline(wrapper->pipeline);
+                }
+                else if (type == VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX)
+                {
+                    const Decoded_VkObjectTableIndexBufferEntryNVX* wrapper =
+                        reinterpret_cast<const Decoded_VkObjectTableIndexBufferEntryNVX*>(
+                            in_ppObjectTableEntries_wrapper[i]);
+                    VkObjectTableIndexBufferEntryNVX* value =
+                        reinterpret_cast<VkObjectTableIndexBufferEntryNVX*>(in_ppObjectTableEntries[i]);
+
+                    value->buffer = object_mapper_.MapVkBuffer(wrapper->buffer);
+                }
+                else if (type == VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX)
+                {
+                    const Decoded_VkObjectTableVertexBufferEntryNVX* wrapper =
+                        reinterpret_cast<const Decoded_VkObjectTableVertexBufferEntryNVX*>(
+                            in_ppObjectTableEntries_wrapper[i]);
+                    VkObjectTableVertexBufferEntryNVX* value =
+                        reinterpret_cast<VkObjectTableVertexBufferEntryNVX*>(in_ppObjectTableEntries[i]);
+
+                    value->buffer = object_mapper_.MapVkBuffer(wrapper->buffer);
+                }
+                else if (type == VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX)
+                {
+                    const Decoded_VkObjectTablePushConstantEntryNVX* wrapper =
+                        reinterpret_cast<const Decoded_VkObjectTablePushConstantEntryNVX*>(
+                            in_ppObjectTableEntries_wrapper[i]);
+                    VkObjectTablePushConstantEntryNVX* value =
+                        reinterpret_cast<VkObjectTablePushConstantEntryNVX*>(in_ppObjectTableEntries[i]);
+
+                    value->pipelineLayout = object_mapper_.MapVkPipelineLayout(wrapper->pipelineLayout);
+                }
+                else
+                {
+                    assert(true);
+                    BRIMSTONE_LOG_ERROR("Skipping entry with unrecognized type at ppObjectTableEntries[%d] when "
+                                        "processing vkRegisterObjectsNVX",
+                                        i);
+                }
+            }
+            else
+            {
+                BRIMSTONE_LOG_WARNING(
+                    "Skipping null entry at ppObjectTableEntries[%d] when processing vkRegisterObjectsNVX", i);
+            }
+        }
+    }
+
+    VkResult replay_result = Dispatcher<ApiCallId_vkRegisterObjectsNVX, VkResult, PFN_vkRegisterObjectsNVX>::Dispatch(
+        this,
+        returnValue,
+        vkRegisterObjectsNVX,
+        in_device,
+        in_objectTable,
+        objectCount,
+        in_ppObjectTableEntries,
+        in_pObjectIndices);
+
+    CheckResult("vkRegisterObjectsNVX", returnValue, replay_result);
+}
+
 #include "generated/generated_api_call_replay_consumer_definitions.inc"
 
-BRIMSTONE_END_NAMESPACE(format)
-BRIMSTONE_END_NAMESPACE(brimstone)
+    BRIMSTONE_END_NAMESPACE(format)
+    BRIMSTONE_END_NAMESPACE(brimstone)
