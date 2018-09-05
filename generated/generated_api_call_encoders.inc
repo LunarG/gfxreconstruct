@@ -6287,34 +6287,6 @@ VKAPI_ATTR void VKAPI_CALL DestroyObjectTableNVX(
     format::CustomEncoderPostCall<format::ApiCallId_vkDestroyObjectTableNVX>::Dispatch(get_trace_manager(), device, objectTable, pAllocator);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(
-    VkDevice                                    device,
-    VkObjectTableNVX                            objectTable,
-    uint32_t                                    objectCount,
-    const VkObjectTableEntryNVX* const*         ppObjectTableEntries,
-    const uint32_t*                             pObjectIndices)
-{
-    format::CustomEncoderPreCall<format::ApiCallId_vkRegisterObjectsNVX>::Dispatch(get_trace_manager(), device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
-
-    VkResult result = get_device_table(device)->RegisterObjectsNVX(device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
-
-    auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_vkRegisterObjectsNVX);
-    if (encoder)
-    {
-        encoder->EncodeHandleIdValue(device);
-        encoder->EncodeHandleIdValue(objectTable);
-        encoder->EncodeUInt32Value(objectCount);
-        encode_struct_array(encoder, ppObjectTableEntries, objectCount);
-        encoder->EncodeUInt32Array(pObjectIndices, objectCount);
-        encoder->EncodeEnumValue(result);
-        get_trace_manager()->EndApiCallTrace(encoder);
-    }
-
-    format::CustomEncoderPostCall<format::ApiCallId_vkRegisterObjectsNVX>::Dispatch(get_trace_manager(), result, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
-
-    return result;
-}
-
 VKAPI_ATTR VkResult VKAPI_CALL UnregisterObjectsNVX(
     VkDevice                                    device,
     VkObjectTableNVX                            objectTable,

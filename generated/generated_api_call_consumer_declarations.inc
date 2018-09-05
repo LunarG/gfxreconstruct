@@ -1630,14 +1630,6 @@
         HandleId                                    objectTable,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
-    virtual void Process_vkRegisterObjectsNVX(
-        VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    objectTable,
-        uint32_t                                    objectCount,
-        const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
-        const PointerDecoder<uint32_t>&             pObjectIndices) = 0;
-
     virtual void Process_vkUnregisterObjectsNVX(
         VkResult                                    returnValue,
         HandleId                                    device,

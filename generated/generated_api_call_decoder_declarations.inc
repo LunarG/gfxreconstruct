@@ -546,8 +546,6 @@
 
     size_t Decode_vkDestroyObjectTableNVX(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkRegisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size);
-
     size_t Decode_vkUnregisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX(const uint8_t* parameter_buffer, size_t buffer_size);
