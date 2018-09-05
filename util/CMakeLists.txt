@@ -27,9 +27,11 @@ target_compile_definitions(brimstone_util
 
 target_include_directories(brimstone_util
                            PUBLIC
+                               $<$<BOOL:${LZ4_FOUND}>:${LZ4_INCLUDE_DIRS}>
+                               $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
                                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
 
 target_link_libraries(brimstone_util
                           platform_specific
-                          $<$<BOOL:${LZ4_FOUND}>:${LZ4_LIBRARY}>
+                          $<$<BOOL:${LZ4_FOUND}>:${LZ4_LIBRARIES}>
                           $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_LIBRARIES}>)
