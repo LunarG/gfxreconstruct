@@ -40,7 +40,11 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
                                                               VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                               const void*                pData);
 
-
+VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                            device,
+                                                  VkObjectTableNVX                    objectTable,
+                                                  uint32_t                            objectCount,
+                                                  const VkObjectTableEntryNVX* const* ppObjectTableEntries,
+                                                  const uint32_t*                     pObjectIndices);
 
 BRIMSTONE_END_NAMESPACE(brimstone)
 
