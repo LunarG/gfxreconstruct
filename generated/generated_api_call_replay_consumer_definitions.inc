@@ -4607,23 +4607,6 @@ void VulkanReplayConsumer::Process_vkDestroyObjectTableNVX(
     Dispatcher<ApiCallId_vkDestroyObjectTableNVX, void, PFN_vkDestroyObjectTableNVX>::Dispatch(this, vkDestroyObjectTableNVX, in_device, in_objectTable, in_pAllocator);
 }
 
-void VulkanReplayConsumer::Process_vkRegisterObjectsNVX(
-    VkResult                                    returnValue,
-    HandleId                                    device,
-    HandleId                                    objectTable,
-    uint32_t                                    objectCount,
-    const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
-    const PointerDecoder<uint32_t>&             pObjectIndices)
-{
-    VkDevice in_device = object_mapper_.MapVkDevice(device);
-    VkObjectTableNVX in_objectTable = object_mapper_.MapVkObjectTableNVX(objectTable);
-    const VkObjectTableEntryNVX* const* in_ppObjectTableEntries = reinterpret_cast<const VkObjectTableEntryNVX* const*>(ppObjectTableEntries.GetPointer());
-    const uint32_t* in_pObjectIndices = reinterpret_cast<const uint32_t*>(pObjectIndices.GetPointer());
-
-    VkResult replay_result = Dispatcher<ApiCallId_vkRegisterObjectsNVX, VkResult, PFN_vkRegisterObjectsNVX>::Dispatch(this, returnValue, vkRegisterObjectsNVX, in_device, in_objectTable, objectCount, in_ppObjectTableEntries, in_pObjectIndices);
-    CheckResult("vkRegisterObjectsNVX", returnValue, replay_result);
-}
-
 void VulkanReplayConsumer::Process_vkUnregisterObjectsNVX(
     VkResult                                    returnValue,
     HandleId                                    device,

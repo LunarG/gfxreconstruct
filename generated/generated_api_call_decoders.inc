@@ -5885,32 +5885,6 @@ size_t VulkanDecoder::Decode_vkDestroyObjectTableNVX(const uint8_t* parameter_bu
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_vkRegisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    HandleId device;
-    HandleId objectTable;
-    uint32_t objectCount;
-    StructPointerDecoder<Decoded_VkObjectTableEntryNVX> ppObjectTableEntries;
-    PointerDecoder<uint32_t> pObjectIndices;
-    VkResult return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectTable);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectCount);
-    bytes_read += ppObjectTableEntries.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pObjectIndices.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : consumers_)
-    {
-        consumer->Process_vkRegisterObjectsNVX(return_value, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
-    }
-
-    return bytes_read;
-}
-
 size_t VulkanDecoder::Decode_vkUnregisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;

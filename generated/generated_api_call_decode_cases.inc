@@ -853,9 +853,6 @@
     case ApiCallId_vkDestroyObjectTableNVX:
         Decode_vkDestroyObjectTableNVX(parameter_buffer, buffer_size);
         break;
-    case ApiCallId_vkRegisterObjectsNVX:
-        Decode_vkRegisterObjectsNVX(parameter_buffer, buffer_size);
-        break;
     case ApiCallId_vkUnregisterObjectsNVX:
         Decode_vkUnregisterObjectsNVX(parameter_buffer, buffer_size);
         break;

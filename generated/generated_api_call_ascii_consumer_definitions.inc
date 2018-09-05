@@ -2419,17 +2419,6 @@ void VulkanAsciiConsumer::Process_vkDestroyObjectTableNVX(
     fprintf(m_file, "%s\n", "vkDestroyObjectTableNVX");
 }
 
-void VulkanAsciiConsumer::Process_vkRegisterObjectsNVX(
-    VkResult                                    returnValue,
-    HandleId                                    device,
-    HandleId                                    objectTable,
-    uint32_t                                    objectCount,
-    const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
-    const PointerDecoder<uint32_t>&             pObjectIndices)
-{
-    fprintf(m_file, "%s\n", "vkRegisterObjectsNVX");
-}
-
 void VulkanAsciiConsumer::Process_vkUnregisterObjectsNVX(
     VkResult                                    returnValue,
     HandleId                                    device,
