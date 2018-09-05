@@ -68,6 +68,14 @@ class VulkanReplayConsumer : public VulkanConsumer
                                                               HandleId descriptorUpdateTemplate,
                                                               const DescriptorUpdateTemplateDecoder& pData) override;
 
+    virtual void
+    Process_vkRegisterObjectsNVX(VkResult                                                   returnValue,
+                                 HandleId                                                   device,
+                                 HandleId                                                   objectTable,
+                                 uint32_t                                                   objectCount,
+                                 const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
+                                 const PointerDecoder<uint32_t>&                            pObjectIndices) override;
+
 #include "generated/generated_api_call_consumer_override_declarations.inc"
 
   private:
