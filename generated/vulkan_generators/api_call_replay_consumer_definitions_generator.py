@@ -181,8 +181,7 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
                         expr = 'MapHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Map{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType)
                         postexpr.append('FreeArray<{}>(&{});'.format(value.baseType, argName))
                     else:
-                        # TODO: We should be able to remove the reinterpret_cast when we handle VkObjectTableEntryNVX** correctly
-                        expr += 'reinterpret_cast<{}>({}.GetPointer());'.format(fullType, value.name)
+                        expr += '{}.GetPointer();'.format(value.name)
                         if value.baseType in self.structsWithHandles:
                             # Strip the const from the type declaration.
                             expr = expr.replace('const ', '').lstrip()
