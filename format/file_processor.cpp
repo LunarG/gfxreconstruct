@@ -23,11 +23,7 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-FileProcessor::FileProcessor() :
-    file_descriptor_(nullptr),
-    bytes_read_(0)
-{
-}
+FileProcessor::FileProcessor() : file_descriptor_(nullptr), bytes_read_(0) {}
 
 FileProcessor::~FileProcessor()
 {
@@ -136,7 +132,7 @@ bool FileProcessor::ProcessNextFrame()
                 }
 
                 ApiCallId api_call_id;
-                size_t    expected_uncompressed_size = 0;
+                uint64_t  expected_uncompressed_size = 0;
 
                 success = (ReadBytes(&api_call_id, sizeof(api_call_id)) == sizeof(api_call_id)) ? true : false;
                 success = (ReadBytes(&expected_uncompressed_size, sizeof(expected_uncompressed_size)) ==
@@ -178,13 +174,15 @@ bool FileProcessor::ProcessNextFrame()
                 {
                     size_t uncompressed_size = 0;
                     success                  = ReadCompressedParameterBuffer(
-                        compressed_buffer_size, expected_uncompressed_size, &uncompressed_size);
+                        compressed_buffer_size, static_cast<size_t>(expected_uncompressed_size), &uncompressed_size);
                 }
 
                 if (success)
                 {
-                    ProcessFunctionCall(
-                        api_call_id, call_options, parameter_buffer_.data(), expected_uncompressed_size);
+                    ProcessFunctionCall(api_call_id,
+                                        call_options,
+                                        parameter_buffer_.data(),
+                                        static_cast<size_t>(expected_uncompressed_size));
 
                     // Break from loop on frame delimiter.
                     if (IsFrameDelimiter(api_call_id))
@@ -231,22 +229,24 @@ bool FileProcessor::ProcessNextFrame()
                     {
                         FillMemoryCommandHeader header;
 
-                        success =
-                            (ReadBytes(&header.memory_id, sizeof(header.memory_id)) == sizeof(header.memory_id)) ? true : false;
+                        success = (ReadBytes(&header.memory_id, sizeof(header.memory_id)) == sizeof(header.memory_id))
+                                      ? true
+                                      : false;
 
                         if (success)
                         {
-                            success = (ReadBytes(&header.memory_offset, sizeof(header.memory_offset)) == sizeof(header.memory_offset))
+                            success = (ReadBytes(&header.memory_offset, sizeof(header.memory_offset)) ==
+                                       sizeof(header.memory_offset))
                                           ? true
                                           : false;
                         }
 
                         if (success)
                         {
-                            success =
-                                (ReadBytes(&header.memory_size, sizeof(header.memory_size)) == sizeof(header.memory_size))
-                                    ? true
-                                    : false;
+                            success = (ReadBytes(&header.memory_size, sizeof(header.memory_size)) ==
+                                       sizeof(header.memory_size))
+                                          ? true
+                                          : false;
                         }
 
                         if (success)
@@ -305,7 +305,74 @@ bool FileProcessor::ProcessNextFrame()
             }
             else if (block_header.type == BlockType::kCompressedMetaDataBlock)
             {
-                // TODO
+                MetaDataType meta_type;
+                uint64_t     expected_uncompressed_size = 0;
+
+                success = (ReadBytes(&meta_type, sizeof(meta_type)) == sizeof(meta_type)) ? true : false;
+
+                if (success)
+                {
+                    success = (ReadBytes(&expected_uncompressed_size, sizeof(expected_uncompressed_size)) ==
+                               sizeof(expected_uncompressed_size))
+                                  ? true
+                                  : false;
+                }
+
+                if (success)
+                {
+                    if (meta_type == kFillMemoryCommand)
+                    {
+                        CompressedFillMemoryCommandHeader header;
+
+                        success = (ReadBytes(&header.memory_id, sizeof(header.memory_id)) == sizeof(header.memory_id))
+                                      ? true
+                                      : false;
+
+                        if (success)
+                        {
+                            success = (ReadBytes(&header.memory_offset, sizeof(header.memory_offset)) ==
+                                       sizeof(header.memory_offset))
+                                          ? true
+                                          : false;
+                        }
+
+                        if (success)
+                        {
+                            success = (ReadBytes(&header.memory_size, sizeof(header.memory_size)) ==
+                                       sizeof(header.memory_size))
+                                          ? true
+                                          : false;
+                        }
+
+                        size_t compressed_size = block_header.size - sizeof(meta_type) -
+                                                 sizeof(expected_uncompressed_size) - sizeof(header.memory_id) -
+                                                 sizeof(header.memory_offset) - sizeof(header.memory_size);
+                        size_t uncompressed_size = 0;
+
+                        if (success)
+                        {
+                            success =
+                                ReadCompressedParameterBuffer(compressed_size, header.memory_size, &uncompressed_size);
+                            assert(uncompressed_size == header.memory_size);
+                        }
+
+                        if (success)
+                        {
+                            for (auto decoder : decoders_)
+                            {
+                                decoder->DispatchFillMemoryCommand(header.memory_id,
+                                                                   header.memory_offset,
+                                                                   header.memory_size,
+                                                                   parameter_buffer_.data());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Unrecognized compressed metadata type.
+                        // TODO: Skip unrecognized block.
+                    }
+                }
             }
             else
             {
@@ -354,29 +421,29 @@ bool FileProcessor::ReadFileHeader()
             {
                 switch (option.key)
                 {
-                case kCompressionType:
-                    enabled_options_.compression_type = static_cast<util::CompressionType>(option.value);
-                    break;
-                case kHaveThreadId:
-                    enabled_options_.record_thread_id = option.value ? true : false;
-                    break;
-                case kHaveBeginEndTimestamp:
-                    enabled_options_.record_begin_end_timestamp = option.value ? true : false;
-                    break;
-                case kOmitTextures:
-                    enabled_options_.omit_textures = option.value ? true : false;
-                    break;
-                case kOmitBuffers:
-                    enabled_options_.omit_buffers = option.value ? true : false;
-                    break;
-                case kAddressEncodingSize:
-                case kObjectEncodingSize:
-                case kHandleEncodingSize:
-                    // We currently assume all pointer/address values are encoded as 8 byte values.
-                    break;
-                default:
-                    // TODO: Error logging.
-                    break;
+                    case kCompressionType:
+                        enabled_options_.compression_type = static_cast<util::CompressionType>(option.value);
+                        break;
+                    case kHaveThreadId:
+                        enabled_options_.record_thread_id = option.value ? true : false;
+                        break;
+                    case kHaveBeginEndTimestamp:
+                        enabled_options_.record_begin_end_timestamp = option.value ? true : false;
+                        break;
+                    case kOmitTextures:
+                        enabled_options_.omit_textures = option.value ? true : false;
+                        break;
+                    case kOmitBuffers:
+                        enabled_options_.omit_buffers = option.value ? true : false;
+                        break;
+                    case kAddressEncodingSize:
+                    case kObjectEncodingSize:
+                    case kHandleEncodingSize:
+                        // We currently assume all pointer/address values are encoded as 8 byte values.
+                        break;
+                    default:
+                        // TODO: Error logging.
+                        break;
                 }
             }
         }

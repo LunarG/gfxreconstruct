@@ -267,21 +267,59 @@ void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, ui
 
 void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
-    FillMemoryCommandHeader fill_cmd;
 
-    fill_cmd.meta_header.block_header.type = kMetaDataBlock;
-    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.memory_id) +
-                                             sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + size;
-    fill_cmd.meta_header.meta_data_type = kFillMemoryCommand;
-    fill_cmd.memory_id                  = reinterpret_cast<uint64_t>(memory);
-    fill_cmd.memory_offset              = offset;
-    fill_cmd.memory_size                = size;
+    bool                              not_compressed      = true;
+    CompressedFillMemoryCommandHeader compressed_header   = {};
+    FillMemoryCommandHeader           uncompressed_header = {};
+    size_t                            header_size         = 0;
+    const void*                       header_pointer      = nullptr;
+    size_t                            data_size           = 0;
+    const uint8_t*                    data_pointer        = nullptr;
+
+    if (nullptr != compressor_)
+    {
+        size_t compressed_size =
+            compressor_->Compress(size, (static_cast<const uint8_t*>(data) + offset), &compressed_buffer_);
+        if ((0 < compressed_size) && (compressed_size < size))
+        {
+            compressed_header.meta_header.block_header.type = kCompressedMetaDataBlock;
+            compressed_header.meta_header.block_header.size =
+                sizeof(compressed_header.meta_header.meta_data_type) + sizeof(compressed_header.memory_id) +
+                sizeof(compressed_header.memory_offset) + sizeof(compressed_header.memory_size) + compressed_size;
+            compressed_header.meta_header.meta_data_type    = kFillMemoryCommand;
+            compressed_header.meta_header.uncompressed_size = size;
+            compressed_header.memory_id                     = reinterpret_cast<uint64_t>(memory);
+            compressed_header.memory_offset                 = offset;
+            compressed_header.memory_size                   = size;
+            header_size                                     = sizeof(CompressedFillMemoryCommandHeader);
+            header_pointer                                  = reinterpret_cast<const void*>(&compressed_header);
+            data_size                                       = compressed_size;
+            data_pointer                                    = compressed_buffer_.data();
+            not_compressed                                  = false;
+        }
+    }
+
+    if (not_compressed)
+    {
+        uncompressed_header.meta_header.block_header.type = kMetaDataBlock;
+        uncompressed_header.meta_header.block_header.size =
+            sizeof(uncompressed_header.meta_header.meta_data_type) + sizeof(uncompressed_header.memory_id) +
+            sizeof(uncompressed_header.memory_offset) + sizeof(uncompressed_header.memory_size) + size;
+        uncompressed_header.meta_header.meta_data_type = kFillMemoryCommand;
+        uncompressed_header.memory_id                  = reinterpret_cast<uint64_t>(memory);
+        uncompressed_header.memory_offset              = offset;
+        uncompressed_header.memory_size                = size;
+        header_size                                    = sizeof(FillMemoryCommandHeader);
+        header_pointer                                 = reinterpret_cast<const void*>(&uncompressed_header);
+        data_size                                      = size;
+        data_pointer                                   = (static_cast<const uint8_t*>(data) + offset);
+    }
 
     {
         std::lock_guard<std::mutex> lock(file_lock_);
 
-        bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
-        bytes_written_ += file_stream_->Write((static_cast<const uint8_t*>(data) + offset), size);
+        bytes_written_ += file_stream_->Write(header_pointer, header_size);
+        bytes_written_ += file_stream_->Write(data_pointer, data_size);
     }
 }
 

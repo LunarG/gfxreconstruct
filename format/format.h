@@ -168,12 +168,27 @@ struct MetaDataHeader
     MetaDataType meta_data_type;
 };
 
+struct CompressedMetaDataHeader
+{
+    BlockHeader  block_header;
+    MetaDataType meta_data_type;
+    uint64_t     uncompressed_size;
+};
+
 struct FillMemoryCommandHeader
 {
     MetaDataHeader meta_header;
     uint64_t       memory_id;
     uint64_t       memory_offset;
     uint64_t       memory_size;
+};
+
+struct CompressedFillMemoryCommandHeader
+{
+    CompressedMetaDataHeader meta_header;
+    uint64_t                 memory_id;
+    uint64_t                 memory_offset;
+    uint64_t                 memory_size;
 };
 
 struct DisplayMessageCommandHeader

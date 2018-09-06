@@ -54,6 +54,13 @@ class DecompressDecoder : public Decoder
     virtual void
     DecodeFunctionCall(ApiCallId call_id, const ApiCallOptions& call_options, const uint8_t* buffer, size_t buffer_size);
 
+    virtual void DispatchDisplayMessageCommand(const std::string& message) override;
+
+    virtual void
+    DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
+
+    virtual void DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) override;
+
     uint64_t NumBytesWritten() { return bytes_written_; }
 
   private:
