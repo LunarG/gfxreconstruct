@@ -307,6 +307,26 @@ VkResult VulkanReplayConsumer::OverrideWaitForFences(VkResult       original_res
     return result;
 }
 
+VkResult VulkanReplayConsumer::OverrideGetQueryPoolResults(VkResult           original_result,
+                                                           VkDevice           device,
+                                                           VkQueryPool        queryPool,
+                                                           uint32_t           firstQuery,
+                                                           uint32_t           queryCount,
+                                                           size_t             dataSize,
+                                                           void*              pData,
+                                                           VkDeviceSize       stride,
+                                                           VkQueryResultFlags flags)
+{
+    VkResult result;
+
+    do
+    {
+        result = vkGetQueryPoolResults(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+    } while ((original_result == VK_SUCCESS) && (result == VK_NOT_READY));
+
+    return result;
+}
+
 VkResult VulkanReplayConsumer::OverrideMapMemory(VkDevice         device,
                                                  VkDeviceMemory   memory,
                                                  VkDeviceSize     offset,
