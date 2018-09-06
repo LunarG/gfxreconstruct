@@ -168,7 +168,6 @@ class BaseGenerator(OutputGenerator):
     # Platform specific structure types that have been defined extarnally to the Vulkan header.
     PLATFORM_STRUCTS = []
 
-    # TODO: AHardware buffer probably becomes a PLATFORM_TYPE entry.
     # These types represent pointers to non-Vulkan objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
