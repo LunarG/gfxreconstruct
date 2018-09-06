@@ -371,18 +371,18 @@ VulkanReplayConsumer::OverrideCreateDescriptorUpdateTemplate(PFN_vkCreateDescrip
                 (type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
                 (type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
             {
-                ++image_info_count;
+                image_info_count += entry->descriptorCount;
             }
             else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
                      (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
                      (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
             {
-                ++buffer_info_count;
+                buffer_info_count += entry->descriptorCount;
             }
             else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) ||
                      (type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
             {
-                ++texel_buffer_view_count;
+                texel_buffer_view_count += entry->descriptorCount;
             }
             else
             {
