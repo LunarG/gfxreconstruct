@@ -78,11 +78,22 @@ bool init_layer()
     // TODO: load settings from file.
     format::EnabledOptions options;
     trace_manager = new brimstone::format::TraceManager();
+
 #if defined(WIN32)
-    return trace_manager->Initialize("D:\\temp\\brimstone_test.bin", options);
+    std::string binary_file_name = "D:\\temp\\brimstone_test.bin";
 #else // WIN32
-    return trace_manager->Initialize("./brimstone_test.bin", options);
+    std::string binary_file_name = "./brimstone_test.bin";
 #endif
+
+    // Check to see if there's an environmental variable overriding the default binary location value.
+    std::string env_variable;
+    if (brimstone::util::platform::GetEnv("BRIMSTONE_BINARY_FILE", env_variable) &&
+        env_variable.length() > 0)
+    {
+        binary_file_name = env_variable;
+    }
+
+    return trace_manager->Initialize(binary_file_name, options);
 }
 
 void destroy_layer()
