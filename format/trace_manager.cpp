@@ -437,13 +437,19 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
 
             if ((info != nullptr) && (info->data != nullptr))
             {
+                assert(pMemoryRanges[i].offset >= info->mapped_offset);
+
+                // The mapped pointer already includes the mapped offset.  Because the memory range
+                // offset is realtive to the start of the memory object, we need to adjust it to be
+                // realitve to the start of the mapped pointer.
+                VkDeviceSize relative_offset = pMemoryRanges[i].offset - info->mapped_offset;
                 VkDeviceSize size = pMemoryRanges[i].size;
                 if (size == VK_WHOLE_SIZE)
                 {
-                    size = info->allocation_size - (pMemoryRanges[i].offset - info->mapped_offset);
+                    size = info->allocation_size - pMemoryRanges[i].offset;
                 }
 
-                WriteFillMemoryCmd(pMemoryRanges[i].memory, pMemoryRanges[i].offset, size, info->data);
+                WriteFillMemoryCmd(pMemoryRanges[i].memory, relative_offset, size, info->data);
             }
         }
     }
@@ -457,12 +463,14 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
 
     if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
     {
+        // Write the entire mapped region.
         auto info = memory_tracker_.GetEntryInfo(memory);
         if ((info != nullptr) && (info->data != nullptr))
         {
+            // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
             WriteFillMemoryCmd(memory,
-                               info->mapped_offset,
-                               (info->mapped_size == VK_WHOLE_SIZE) ? info->allocation_size : info->mapped_size,
+                               0,
+                               info->mapped_size,
                                info->data);
         }
     }
@@ -496,10 +504,15 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
         std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
         memory_tracker_.VisitEntries([this](VkDeviceMemory memory, const MemoryTracker::EntryInfo& entry) {
-            WriteFillMemoryCmd(memory,
-                               entry.mapped_offset,
-                               (entry.mapped_size == VK_WHOLE_SIZE) ? entry.allocation_size : entry.mapped_size,
-                               entry.data);
+            // If the memory is mapped, write the entire mapped region.
+            if (entry.data != nullptr)
+            {
+                // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
+                WriteFillMemoryCmd(memory,
+                                   0,
+                                   entry.mapped_size,
+                                   entry.data);
+            }
         });
     }
 }

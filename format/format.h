@@ -172,7 +172,7 @@ struct FillMemoryCommandHeader
 {
     MetaDataHeader meta_header;
     uint64_t       memory_id;
-    uint64_t       memory_offset;
+    uint64_t       memory_offset;       // Offset from the start of the mapped pointer, not the start of the memory object.
     uint64_t       memory_size;
 };
 
