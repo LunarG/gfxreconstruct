@@ -25,14 +25,14 @@
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
-#include "util/file_output_stream.h"
-#include "util/memory_output_stream.h"
-#include "util/compressor.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "format/memory_tracker.h"
 #include "format/parameter_encoder.h"
+#include "util/compressor.h"
+#include "util/defines.h"
+#include "util/file_output_stream.h"
+#include "util/memory_output_stream.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
@@ -75,7 +75,7 @@ class TraceManager
 
     ~TraceManager() {}
 
-    bool Initialize(std::string filename, EnabledOptions file_options);
+    bool Initialize(std::string filename, EnabledOptions file_options, MemoryTrackingMode mode);
 
     void Destroy();
 
@@ -192,7 +192,7 @@ class TraceManager
     std::mutex                                      file_lock_;
     uint64_t                                        bytes_written_;
     std::vector<uint8_t>                            compressed_buffer_;
-    util::Compressor*                               compressor_;
+    std::unique_ptr<util::Compressor>               compressor_;
     MemoryTrackingMode                              memory_tracking_mode_;
     MemoryTracker                                   memory_tracker_;
     mutable std::mutex                              memory_tracker_lock_;
