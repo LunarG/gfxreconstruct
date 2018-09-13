@@ -26,19 +26,16 @@ void MemoryTracker::AddEntry(VkDeviceMemory memory, VkMemoryPropertyFlags proper
 {
     assert(mapped_memory_.find(memory) == mapped_memory_.end());
 
-    // We only need to track host visible memory.
-    // TODO: Get property flags.
-    // if ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-    {
-        mapped_memory_.emplace(std::piecewise_construct,
-                               std::forward_as_tuple(memory),
-                               std::forward_as_tuple(property_flags, allocation_size));
-    }
+    mapped_memory_.emplace(std::piecewise_construct,
+                           std::forward_as_tuple(memory),
+                           std::forward_as_tuple(memory, property_flags, allocation_size));
 }
 
-void MemoryTracker::MapEntry(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, void* data)
+const MemoryTracker::EntryInfo* MemoryTracker::MapEntry(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, void* data)
 {
     assert(mapped_memory_.find(memory) != mapped_memory_.end());
+
+    EntryInfo* result = nullptr;
 
     auto entry = mapped_memory_.find(memory);
     if (entry != mapped_memory_.end())
@@ -46,7 +43,10 @@ void MemoryTracker::MapEntry(VkDeviceMemory memory, VkDeviceSize offset, VkDevic
         entry->second.mapped_offset = offset;
         entry->second.mapped_size   = (size != VK_WHOLE_SIZE) ? size : (entry->second.allocation_size - offset);
         entry->second.data          = data;
+        result                      = &(entry->second);
     }
+
+    return result;
 }
 
 void MemoryTracker::UnmapEntry(VkDeviceMemory memory)
@@ -77,7 +77,7 @@ const MemoryTracker::EntryInfo* MemoryTracker::GetEntryInfo(VkDeviceMemory memor
 
 void MemoryTracker::VisitEntries(std::function<void(VkDeviceMemory, const EntryInfo&)> visit)
 {
-    for (auto entry : mapped_memory_)
+    for (const auto& entry : mapped_memory_)
     {
         visit(entry.first, entry.second);
     }

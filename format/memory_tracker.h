@@ -32,9 +32,11 @@ class MemoryTracker
   public:
     struct EntryInfo
     {
-        EntryInfo(VkMemoryPropertyFlags flags, VkDeviceSize size) :
-            property_flags(flags), allocation_size(size), mapped_offset(0), mapped_size(0), data(nullptr)
+        EntryInfo(VkDeviceMemory memory, VkMemoryPropertyFlags flags, VkDeviceSize size) :
+            memory_handle(memory), property_flags(flags), allocation_size(size), mapped_offset(0), mapped_size(0),
+            data(nullptr)
         {}
+        VkDeviceMemory        memory_handle;
         VkMemoryPropertyFlags property_flags;
         VkDeviceSize          allocation_size;
         VkDeviceSize          mapped_offset;
@@ -49,7 +51,7 @@ class MemoryTracker
 
     void AddEntry(VkDeviceMemory memory, VkMemoryPropertyFlags flags, VkDeviceSize size);
 
-    void MapEntry(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, void* data);
+    const EntryInfo* MapEntry(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, void* data);
 
     void UnmapEntry(VkDeviceMemory memory);
 

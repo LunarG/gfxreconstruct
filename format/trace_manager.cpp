@@ -16,9 +16,10 @@
 
 #include <cassert>
 
-#include "util/platform.h"
 #include "format/trace_manager.h"
 #include "util/compressor.h"
+#include "util/platform.h"
+#include "util/page_guard_manager.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
@@ -56,27 +57,35 @@ uint32_t TraceManager::ThreadData::GetThreadId()
     return id;
 }
 
-bool TraceManager::Initialize(std::string filename, EnabledOptions file_options)
+bool TraceManager::Initialize(std::string filename, EnabledOptions file_options, MemoryTrackingMode mode)
 {
     bool success = false;
 
-    file_options_ = file_options;
-    filename_     = filename;
+    filename_             = filename;
+    file_options_         = file_options;
+    memory_tracking_mode_ = mode;
+
     file_stream_  = std::make_unique<util::FileOutputStream>(filename_);
-
-    // TODO: Perform options related setup (enable compression, etc).
-
-    compressor_ = util::Compressor::CreateCompressor(file_options.compression_type);
-    if ((nullptr == compressor_) && (util::kNone != file_options.compression_type))
-    {
-        return false;
-    }
 
     if (file_stream_->IsValid())
     {
+        success        = true;
         bytes_written_ = 0;
         WriteFileHeader();
-        success = true;
+    }
+
+    if (success)
+    {
+        compressor_ = std::unique_ptr<util::Compressor>(util::Compressor::CreateCompressor(file_options.compression_type));
+        if ((nullptr == compressor_) && (util::kNone != file_options.compression_type))
+        {
+            success = false;
+        }
+    }
+
+    if (success && (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard))
+    {
+        util::PageGuardManager::Create(true, false, true, true, true, true);
     }
 
     return success;
@@ -84,11 +93,9 @@ bool TraceManager::Initialize(std::string filename, EnabledOptions file_options)
 
 void TraceManager::Destroy()
 {
-    // Perform any finalization required for trace file.
-    if (nullptr != compressor_)
+    if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
     {
-        delete compressor_;
-        compressor_ = nullptr;
+        util::PageGuardManager::Destroy();
     }
 }
 
@@ -407,10 +414,21 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
     BRIMSTONE_UNREFERENCED_PARAMETER(device);
     BRIMSTONE_UNREFERENCED_PARAMETER(flags);
 
+    // TODO: Get property flags and skip tracking for memory that is not host visible.
     if ((result == VK_SUCCESS) && (ppData != nullptr))
     {
         std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-        memory_tracker_.MapEntry(memory, offset, size, (*ppData));
+        auto info = memory_tracker_.MapEntry(memory, offset, size, (*ppData));
+
+        if ((info != nullptr) && (info->mapped_size > 0) && (memory_tracking_mode_ == kPageGuard))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+
+            assert(manager != nullptr);
+
+            (*ppData) =
+                manager->AddMemory(reinterpret_cast<uint64_t>(memory), (*ppData), info->mapped_size, false, true);
+        }
     }
 }
 
@@ -461,7 +479,26 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
 
     std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
-    if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
+    if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        assert(manager != nullptr);
+
+        auto info = memory_tracker_.GetEntryInfo(memory);
+
+        if ((info != nullptr) && (info->data != nullptr))
+        {
+            manager->ProcessMemoryEntry(
+                reinterpret_cast<uint64_t>(memory),
+                [this](
+                    uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                    WriteFillMemoryCmd(reinterpret_cast<VkDeviceMemory>(memory_id), offset, size, start_address);
+                });
+
+            manager->RemoveMemory(reinterpret_cast<uint64_t>(memory));
+        }
+    }
+    else if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
     {
         // Write the entire mapped region.
         auto info = memory_tracker_.GetEntryInfo(memory);
@@ -487,6 +524,14 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
 
     std::lock_guard<std::mutex> lock(memory_tracker_lock_);
     memory_tracker_.RemoveEntry(memory);
+
+    if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        assert(manager != nullptr);
+
+        manager->RemoveMemory(reinterpret_cast<uint64_t>(memory));
+    }
 }
 
 void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
@@ -499,7 +544,19 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     BRIMSTONE_UNREFERENCED_PARAMETER(pSubmits);
     BRIMSTONE_UNREFERENCED_PARAMETER(fence);
 
-    if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
+    if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
+    {
+        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+
+        util::PageGuardManager*     manager = util::PageGuardManager::Get();
+        assert(manager != nullptr);
+
+        manager->ProcessMemoryEntries(
+            [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                WriteFillMemoryCmd(reinterpret_cast<VkDeviceMemory>(memory_id), offset, size, start_address);
+            });
+    }
+    else if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
     {
         std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
