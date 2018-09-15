@@ -87,7 +87,7 @@ int main(int argc, const char** argv)
             file_processor.AddDecoder(&decoder);
             file_processor.ProcessAllFrames();
 
-            for (auto& option : file_processor.GetFileOptions())
+            for (const auto& option : file_processor.GetFileOptions())
             {
                 if (option.key == brimstone::format::kCompressionType)
                 {
