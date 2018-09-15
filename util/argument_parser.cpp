@@ -115,7 +115,7 @@ ArgumentParser::ArgumentParser(int32_t            argc,
             // Optional option/argument
             if (current_argument[0] == '-')
             {
-                for (auto& cur_option : options_indices_)
+                for (const auto& cur_option : options_indices_)
                 {
                     if (cur_option.first == current_argument)
                     {
@@ -126,7 +126,7 @@ ArgumentParser::ArgumentParser(int32_t            argc,
                 }
                 if (!is_option)
                 {
-                    for (auto& cur_argument : arguments_indices_)
+                    for (const auto& cur_argument : arguments_indices_)
                     {
                         if (cur_argument.first == current_argument)
                         {
