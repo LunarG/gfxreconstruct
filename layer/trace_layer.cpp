@@ -86,8 +86,8 @@ bool init_layer()
     trace_manager = new brimstone::format::TraceManager();
 
     // Check to see if there's an environment variable overriding the default binary location value.
-    std::string env_variable;
-    if (util::platform::GetEnv("BRIMSTONE_BINARY_FILE", env_variable) && (env_variable.length() > 0))
+    std::string env_variable = brimstone::util::platform::GetEnv("BRIMSTONE_BINARY_FILE");
+    if (!env_variable.empty())
     {
         binary_file_name = env_variable;
     }

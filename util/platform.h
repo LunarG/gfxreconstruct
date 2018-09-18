@@ -63,33 +63,27 @@ inline void TriggerDebugBreak()
     __debugbreak();
 }
 
-inline bool GetEnv(const char* name, std::string& value)
+inline std::string GetEnv(const char* name)
 {
     try
     {
         // value_size DOES include the null terminator, so for any set variable
         // will always be at least 1. If it's 0, the variable wasn't set.
         DWORD value_size = GetEnvironmentVariableA(name, nullptr, 0);
-        if (value_size == 0)
+        if (value_size != 0)
         {
-            return false;
+            // Max environment variable size (including null terminator).
+            const size_t kMaxEnvSize = 8196;
+            char         return_value[kMaxEnvSize];
+            GetEnvironmentVariableA(name, return_value, value_size);
+            return std::string(return_value);
         }
-
-        // Max environment variable size (including null terminator).
-        const size_t kMaxEnvSize = 32767;
-        char         return_value[kMaxEnvSize];
-
-        GetEnvironmentVariableA(name, return_value, value_size);
-
-        value = return_value;
-
-        return true;
     }
     catch (...)
     {
         // Something bad happened during alloc or function call.
-        return false;
     }
+    return std::string("");
 }
 
 inline int32_t MemoryCopy(void* destination, size_t destination_size, const void* source, size_t source_size)
@@ -152,10 +146,14 @@ inline void TriggerDebugBreak()
     raise(SIGTRAP);
 }
 
-inline bool GetEnv(const char* name, std::string& value)
+inline std::string GetEnv(const char* name)
 {
-    value = getenv(name);
-    return (value.size() > 0);
+    const char* ret_value = getenv(name);
+    if (nullptr != ret_value)
+    {
+        return std::string(ret_value);
+    }
+    return std::string("");
 }
 
 inline int32_t MemoryCopy(void* destination, size_t destination_size, const void* source, size_t source_size)
