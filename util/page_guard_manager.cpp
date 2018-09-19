@@ -76,7 +76,20 @@ static void             PageGuardExceptionHandler(int id, siginfo_t* info, void*
     PageGuardManager* manager = PageGuardManager::Get();
     if ((id == SIGSEGV) && (info->si_addr != nullptr) && (manager != nullptr))
     {
-        manager->HandleGuardPageViolation(info->si_addr, true);
+        bool is_write = true;
+#if defined(PAGE_GUARD_ENABLE_X86_64_UCONTEXT)
+#if defined(__x86_64__) || defined(__i386__)
+        if (data != nullptr)
+        {
+            // This is a machine-specific method for detecting read vs. write access, and is not portable.
+            // So far, it does appear to work with both 32-bit and 64-bit builds running on x86-64 Linux systems.
+            ucontext_t* ucontext = reinterpret_cast<ucontext_t*>(data);
+            is_write             = (ucontext->uc_mcontext.gregs[REG_ERR] & 0x2) ? true : false;
+            printf("gregs = %" PRIx64 "\n", ucontext->uc_mcontext.gregs[REG_ERR]);
+        }
+#endif
+#endif
+        manager->HandleGuardPageViolation(info->si_addr, is_write);
     }
 }
 #endif
@@ -687,8 +700,8 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write)
         }
 #endif
 
-        // For POSIX systems, is_write is always true because we are not notified if the exception was raised by a read
-        // or write operation.
+        // For POSIX systems, excluding Linux when compiled with PAGE_GUARD_ENABLE_X86_64_UCONTEXT, is_write is always
+        // true because we are not notified if the exception was raised by a read or write operation.
         if (is_write || !enable_separate_read_tracking_)
         {
             // When shadow memory is used, the content of the mapped memory needs to be copied to the shadow memory if

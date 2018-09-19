@@ -146,7 +146,8 @@ class PageGuardManager
     bool                     enable_copy_on_map_;
     bool                     enable_lazy_copy_;
 
-    // WIN32 only.
+    // These options only apply to WIN32 builds, or to Linux builds generated with the PAGE_GUARD_ENABLE_X86_64_UCONTEXT
+    // pre-processor directive.
     bool enable_separate_read_tracking_;
     bool enable_read_write_same_page_;
 };
