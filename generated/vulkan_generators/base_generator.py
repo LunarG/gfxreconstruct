@@ -514,7 +514,7 @@ class BaseGenerator(OutputGenerator):
                 raise 'Unrecognized latexmath expression'
             name = match.group(2)
             # TODO: More flexible typecasting support
-            nameExpr = 'static_cast<size_t>({}({}/{}))'.format(*match.group(1, 2, 3))
+            nameExpr = 'static_cast<size_t>({}(static_cast<double>({})/static_cast<double>({})))'.format(*match.group(1, 2, 3))
         else:
             # Matches expressions similar to 'latexmath : [dataSize \over 4]'
             match = re.match(r'latexmath\s*\:\s*\[\s*(\w+)\s*\\over\s*(\d+)\s*\]', source)
