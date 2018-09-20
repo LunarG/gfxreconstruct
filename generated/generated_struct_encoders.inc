@@ -910,7 +910,7 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkPipelineMultisam
     result += encoder->EncodeEnumValue(value.rasterizationSamples);
     result += encoder->EncodeVkBool32Value(value.sampleShadingEnable);
     result += encoder->EncodeFloatValue(value.minSampleShading);
-    result += encoder->EncodeVkSampleMaskArray(value.pSampleMask, static_cast<size_t>(ceil(value.rasterizationSamples/32)));
+    result += encoder->EncodeVkSampleMaskArray(value.pSampleMask, static_cast<size_t>(ceil(static_cast<double>(value.rasterizationSamples)/static_cast<double>(32))));
     result += encoder->EncodeVkBool32Value(value.alphaToCoverageEnable);
     result += encoder->EncodeVkBool32Value(value.alphaToOneEnable);
     return result;
