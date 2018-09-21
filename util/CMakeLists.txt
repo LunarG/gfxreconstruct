@@ -21,7 +21,6 @@ target_sources(brimstone_util
                    lz77_compressor.cpp
                    memory_output_stream.cpp
                    page_guard_manager.cpp
-                   page_status_tracker.cpp
               )
 
 target_compile_definitions(brimstone_util

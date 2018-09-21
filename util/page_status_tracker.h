@@ -29,57 +29,27 @@ BRIMSTONE_BEGIN_NAMESPACE(util)
 class PageStatusTracker
 {
   public:
-    PageStatusTracker(size_t page_count);
+    PageStatusTracker(size_t page_count) :
+        active_writes_(page_count, 0), active_reads_(page_count, 0), page_loaded_(page_count, 0)
+    {}
 
-    ~PageStatusTracker();
+    ~PageStatusTracker() {}
 
-    bool IsActiveWriteBlock(size_t index) const { return TestBit(active_writes_, index); }
-    bool IsActiveReadBlock(size_t index) const { return TestBit(active_reads_, index); }
-    bool IsBlockLoaded(size_t index) const { return TestBit(page_loaded_, index); }
+    bool IsActiveWriteBlock(size_t index) const { return (active_writes_[index] == 1); }
+    bool IsActiveReadBlock(size_t index) const { return (active_reads_[index] == 1); }
+    bool IsBlockLoaded(size_t index) const { return (page_loaded_[index] == 1); }
 
-    void SetActiveWriteBlock(size_t index, bool value) { SetBit(&active_writes_, index, value); }
-    void SetActiveReadBlock(size_t index, bool value) { SetBit(&active_reads_, index, value); }
-    void SetBlockLoaded(size_t index, bool value) { SetBit(&page_loaded_, index, value); }
-
-    void ClearAll();
-
-  private:
-    static const size_t          kPageFlagsPerByte = 8;
-    typedef std::vector<uint8_t> PageBits;
+    void SetActiveWriteBlock(size_t index, bool value) { active_writes_[index] = value ? 1 : 0; }
+    void SetActiveReadBlock(size_t index, bool value) { active_reads_[index] = value ? 1 : 0; }
+    void SetBlockLoaded(size_t index, bool value) { page_loaded_[index] = value ? 1 : 0; }
 
   private:
-    bool TestBit(const PageBits& bits, size_t index) const;
-    void SetBit(PageBits* bits, size_t index, bool value);
+    typedef std::vector<uint8_t> PageStatus;
 
   private:
-    size_t   byte_count_;     //< Number of bytes required to track page status, based on #kPageFlagsPerByte.
-    PageBits active_writes_;  //< Track blocks that have been written.
-    PageBits active_reads_;   //< Track blocks that have been read.
-
-    /// the array is used for remove initial memcpy real mapped memory to shadow
-    /// mapped memory in map process. When target app call map/unmap memory,
-    /// some title use large mapped size and only access small part of mapped
-    /// memory, if do memcpy for whole mapped size, that cause target title
-    /// capture speed extremely slow, so we remove the memcpy from map process,
-    /// and put the work in page guard exception handler at first time access to
-    /// the page, and only for those pages which are truly accessed.
-    ///
-    /// we give every page a flag in this array to indicate that page is loaded
-    /// or not. In pageguard handler, if the page hasn't been loaded, we copy
-    /// the page from real mapped memory to shadow memory to finish the work that
-    /// we do in map process previously and set the flag to loaded. The optimization
-    /// significantly improve some title capture time from hours to minutes.
-    ///
-    /// The titles which use big size multiple map/unmap can get capture speed
-    /// improved by this optimization, especially if the title only access small
-    /// part of mapped size during pair of map/unmap.
-    ///
-    /// currently the optimization is only used in Windows because it depend on
-    /// the page memcpy is inserted just before first access to the page
-    /// which is implemented by page guard handler, once we find a way on other
-    /// platforms to capture read/write a page, we can also use it on those
-    /// platforms.
-    PageBits page_loaded_;
+    PageStatus active_writes_; //< Track blocks that have been written.
+    PageStatus active_reads_;  //< Track blocks that have been read.
+    PageStatus page_loaded_;   //< Tracks status of pages that have or have not been previously used.
 };
 
 BRIMSTONE_END_NAMESPACE(util)
