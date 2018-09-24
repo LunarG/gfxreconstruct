@@ -380,6 +380,8 @@ void PageGuardManager::ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info,
     bool   active_range   = false;
     size_t start_index    = 0;
 
+    memory_info->is_modified = false;
+
     for (size_t i = 0; i < memory_info->total_pages; ++i)
     {
         // Concatenate dirty pages to handle as large a range as possible with a single modified memory handler
@@ -534,6 +536,7 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
             {
                 memory_info->status_tracker.SetActiveWriteBlock(i, true);
                 SetMemoryProtection(page_address, segment_size, kGuardNoProtect);
+                memory_info->is_modified = true;
             }
         }
         else
@@ -671,7 +674,7 @@ bool PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, ModifiedMemoryFunc
     bool found = false;
     auto entry = memory_info_.find(memory_id);
 
-    if (entry != memory_info_.end())
+    if ((entry != memory_info_.end()) && (entry->second.is_modified))
     {
         found = true;
         ProcessEntry(entry->first, &entry->second, handle_modified);
@@ -686,7 +689,10 @@ void PageGuardManager::ProcessMemoryEntries(ModifiedMemoryFunc handle_modified)
 
     for (auto entry = memory_info_.begin(); entry != memory_info_.end(); ++entry)
     {
-        ProcessEntry(entry->first, &entry->second, handle_modified);
+        if (entry->second.is_modified)
+        {
+            ProcessEntry(entry->first, &entry->second, handle_modified);
+        }
     }
 }
 
@@ -702,6 +708,8 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
     {
         assert((start_address != nullptr) && (memory_info != nullptr) && (memory_info->aligned_address != nullptr));
         assert(reinterpret_cast<uintptr_t>(address) >= reinterpret_cast<uintptr_t>(memory_info->aligned_address));
+
+        memory_info->is_modified = true;
 
         // Get the offset from the start of the first protected memory page to the current address.
         size_t start_offset = static_cast<uint8_t*>(address) - static_cast<uint8_t*>(memory_info->aligned_address);
