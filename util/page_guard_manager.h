@@ -65,7 +65,7 @@ class PageGuardManager
 
     void ProcessMemoryEntries(ModifiedMemoryFunc handle_modified);
 
-    bool HandleGuardPageViolation(void* address, bool is_write);
+    bool HandleGuardPageViolation(void* address, bool is_write, bool clear_guard);
 
   protected:
     PageGuardManager();
