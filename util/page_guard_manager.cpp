@@ -43,18 +43,33 @@ static LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS exception_point
     {
         PEXCEPTION_RECORD record  = exception_pointers->ExceptionRecord;
         PageGuardManager* manager = PageGuardManager::Get();
-
-        if ((manager != nullptr) && (record->ExceptionCode == STATUS_GUARD_PAGE_VIOLATION) &&
-            (record->ExceptionInformation[1] != 0))
+        if ((manager != nullptr) && (record->ExceptionInformation[1] != 0))
         {
-            // ExceptionInformation[0] indicates a read operation if 0 and write if 1.
-            // ExceptionInformation[1] is the address of the inaccessible data.
-            bool  is_write = (record->ExceptionInformation[0] == 0) ? false : true;
-            void* address  = reinterpret_cast<void*>(record->ExceptionInformation[1]);
-            if (manager->HandleGuardPageViolation(address, is_write))
+
+            if (record->ExceptionCode == STATUS_GUARD_PAGE_VIOLATION)
             {
-                result_code = EXCEPTION_CONTINUE_EXECUTION;
+                // ExceptionInformation[0] indicates a read operation if 0 and write if 1.
+                // ExceptionInformation[1] is the address of the inaccessible data.
+                bool  is_write = (record->ExceptionInformation[0] == 0) ? false : true;
+                void* address  = reinterpret_cast<void*>(record->ExceptionInformation[1]);
+                if (manager->HandleGuardPageViolation(address, is_write, false))
+                {
+                    result_code = EXCEPTION_CONTINUE_EXECUTION;
+                }
             }
+#if !defined(PAGE_GUARD_ENABLE_WRITE_WATCH)
+            else if (record->ExceptionCode == STATUS_ACCESS_VIOLATION)
+            {
+                // ExceptionInformation[0] indicates a read operation if 0 and write if 1.
+                // ExceptionInformation[1] is the address of the inaccessible data.
+                bool  is_write = (record->ExceptionInformation[0] == 0) ? false : true;
+                void* address  = reinterpret_cast<void*>(record->ExceptionInformation[1]);
+                if (manager->HandleGuardPageViolation(address, is_write, true))
+                {
+                    result_code = EXCEPTION_CONTINUE_EXECUTION;
+                }
+            }
+#endif
         }
     }
 
@@ -89,7 +104,7 @@ static void             PageGuardExceptionHandler(int id, siginfo_t* info, void*
         }
 #endif
 #endif
-        manager->HandleGuardPageViolation(info->si_addr, is_write);
+        manager->HandleGuardPageViolation(info->si_addr, is_write, true);
     }
 }
 #endif
@@ -204,7 +219,11 @@ void* PageGuardManager::AllocateShadowMemory(size_t size)
     if (size > 0)
     {
 #if defined(WIN32)
-        memory = VirtualAlloc(nullptr, size, MEM_WRITE_WATCH | MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+        DWORD flags = MEM_RESERVE | MEM_COMMIT;
+#if defined(PAGE_GUARD_ENABLE_WRITE_WATCH)
+        flags |= MEM_WRITE_WATCH;
+#endif
+        memory = VirtualAlloc(nullptr, size, flags, PAGE_READWRITE);
 #else
         memory = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #endif
@@ -437,7 +456,7 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
         page_range -= system_page_size_ - memory_info->last_segment_size;
     }
 
-#if defined(WIN32)
+#if defined(WIN32) && defined(PAGE_GUARD_ENABLE_WRITE_WATCH)
     // Page guard was disabled when these pages were accessed.  We can't enable it now without
     // triggering an exception for the read operation we are about to perform, so we enable a write
     // watch on these pages to determine if they were modified by another thread between the point where
@@ -497,7 +516,7 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
     // Reset page guard.
     SetMemoryProtection(start_address, page_range, kGuardReadWriteProtect);
 
-#if defined(WIN32)
+#if defined(WIN32) && defined(PAGE_GUARD_ENABLE_WRITE_WATCH)
     // Check for writes that occured during copy and update the write tracking state.
     for (size_t i = start_index; i < end_index; ++i)
     {
@@ -671,7 +690,7 @@ void PageGuardManager::ProcessMemoryEntries(ModifiedMemoryFunc handle_modified)
     }
 }
 
-bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write)
+bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bool clear_guard)
 {
     void*       start_address = nullptr;
     MemoryInfo* memory_info   = nullptr;
@@ -691,12 +710,12 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write)
         size_t page_offset  = GetOffsetFromPageStart(address);
         void*  page_address = AlignToPageStart(address);
 
-#if !defined(WIN32)
+#if !defined(WIN32) || !defined(PAGE_GUARD_ENABLE_WRITE_WATCH)
         // Remove protection from page before accessing memory.  Not necessary for Windows, which does this
         // automatically.
-        if (mprotect(page_address, GetMemorySegmentSize(memory_info, page_index), (PROT_READ | PROT_WRITE)) == -1)
+        if (clear_guard)
         {
-            BRIMSTONE_LOG_ERROR("Failed to clear memory protection from page %p", page_address);
+            SetMemoryProtection(page_address, GetMemorySegmentSize(memory_info, page_index), kGuardNoProtect);
         }
 #endif
 
