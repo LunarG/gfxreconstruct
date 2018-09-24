@@ -84,7 +84,8 @@ class PageGuardManager
     {
         MemoryInfo(void* mm, size_t mr, void* sm, size_t sr, void* aa, size_t ao, size_t tp, size_t lss, bool ic) :
             status_tracker(tp), mapped_memory(mm), mapped_range(mr), shadow_memory(sm), shadow_range(sr),
-            aligned_address(aa), aligned_offset(ao), total_pages(tp), last_segment_size(lss), is_cached(ic)
+            aligned_address(aa), aligned_offset(ao), total_pages(tp), last_segment_size(lss), is_cached(ic),
+            is_modified(false)
         {}
 
         PageStatusTracker status_tracker;
@@ -100,6 +101,7 @@ class PageGuardManager
         size_t total_pages;    // Total number of pages contained by the mapped memory.
         size_t last_segment_size; // Size of the last segment of the mapped memory, which may not be a full page.
         bool   is_cached;
+        bool   is_modified;
     };
 
     typedef std::unordered_map<uint64_t, MemoryInfo> MemoryInfoMap;
