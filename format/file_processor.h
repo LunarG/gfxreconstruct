@@ -66,7 +66,7 @@ private:
 
     bool ReadCompressedParameterBuffer(size_t compressed_buffer_size, size_t expected_uncompressed_size, size_t* uncompressed_buffer_size);
 
-    size_t ReadBytes(void* buffer, size_t buffer_size);
+    bool ReadBytes(void* buffer, size_t buffer_size);
 
     void ProcessFunctionCall(ApiCallId call_id, ApiCallOptions call_options, const uint8_t* parameter_buffer, size_t buffer_size);
 
