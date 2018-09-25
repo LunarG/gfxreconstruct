@@ -152,6 +152,7 @@ class TraceManager
         uint32_t                                  call_end_time_;
         std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
         std::unique_ptr<ParameterEncoder>         parameter_encoder_;
+        std::vector<uint8_t>                      compressed_buffer_;
 
       private:
         static uint32_t GetThreadId();
@@ -191,7 +192,6 @@ class TraceManager
     std::string                                     filename_;
     std::mutex                                      file_lock_;
     uint64_t                                        bytes_written_;
-    std::vector<uint8_t>                            compressed_buffer_;
     std::unique_ptr<util::Compressor>               compressor_;
     MemoryTrackingMode                              memory_tracking_mode_;
     MemoryTracker                                   memory_tracker_;

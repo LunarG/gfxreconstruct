@@ -128,10 +128,11 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
     {
         size_t packet_size = 0;
         size_t compressed_size =
-            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &compressed_buffer_);
+            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &thread_data->compressed_buffer_);
+
         if ((0 < compressed_size) && (compressed_size < uncompressed_size))
         {
-            data_pointer   = reinterpret_cast<const void*>(compressed_buffer_.data());
+            data_pointer   = reinterpret_cast<const void*>(thread_data->compressed_buffer_.data());
             data_size      = compressed_size;
             header_pointer = reinterpret_cast<const void*>(&compressed_header);
             header_size    = sizeof(CompressedFunctionCallHeader);
