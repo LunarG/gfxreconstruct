@@ -76,8 +76,12 @@ bool init_layer()
     }
 
     // TODO: load settings from file.
-    format::EnabledOptions options;
     std::string            binary_file_name = "./brimstone_test.bin";
+    format::EnabledOptions options;
+
+#if defined(ENABLE_LZ4_COMPRESSION)
+    options.compression_type = util::CompressionType::kLz4;
+#endif
 
     trace_manager = new brimstone::format::TraceManager();
 
