@@ -14,7 +14,7 @@ target_include_directories(brimstone_layer
                            PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
 
-target_link_libraries(brimstone_layer brimstone_format brimstone_generated vulkan_registry platform_specific)
+target_link_libraries(brimstone_layer brimstone_format brimstone_util brimstone_generated vulkan_registry platform_specific)
 
 # Generate the JSON file for this library
 include("GenerateLayerJson")
