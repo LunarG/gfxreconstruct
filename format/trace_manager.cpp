@@ -275,21 +275,43 @@ void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, ui
 
 void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
-    FillMemoryCommandHeader fill_cmd;
+    FillMemoryCommandHeader           fill_cmd;
+    const uint8_t*                    write_address  = (static_cast<const uint8_t*>(data) + offset);
+    size_t                            write_size     = size;
 
     fill_cmd.meta_header.block_header.type = kMetaDataBlock;
+    fill_cmd.meta_header.meta_data_type    = kFillMemoryCommand;
+    fill_cmd.memory_id                     = reinterpret_cast<uint64_t>(memory);
+    fill_cmd.memory_offset                 = offset;
+    fill_cmd.memory_size                   = size;
+
+    if (compressor_ != nullptr)
+    {
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        size_t compressed_size = compressor_->Compress(size, write_address, &thread_data->compressed_buffer_);
+
+        if ((compressed_size > 0) && (compressed_size < size))
+        {
+            // We don't have a special header for compressed fill commands because the header always includes
+            // the uncompressed size, so we just change the type to indicate the data is compressed.
+            fill_cmd.meta_header.block_header.type = kCompressedMetaDataBlock;
+
+            write_address = thread_data->compressed_buffer_.data();
+            write_size    = compressed_size;
+        }
+    }
+
+    // Calculate size of packet with compressed or uncompressed data size.
     fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.memory_id) +
-                                             sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + size;
-    fill_cmd.meta_header.meta_data_type = kFillMemoryCommand;
-    fill_cmd.memory_id                  = reinterpret_cast<uint64_t>(memory);
-    fill_cmd.memory_offset              = offset;
-    fill_cmd.memory_size                = size;
+                                            sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + write_size;
 
     {
         std::lock_guard<std::mutex> lock(file_lock_);
 
         bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
-        bytes_written_ += file_stream_->Write((static_cast<const uint8_t*>(data) + offset), size);
+        bytes_written_ += file_stream_->Write(write_address, write_size);
     }
 }
 
