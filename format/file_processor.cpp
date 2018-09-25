@@ -16,6 +16,7 @@
 
 #include <cassert>
 
+#include "util/logging.h"
 #include "util/platform.h"
 #include "format/file_processor.h"
 #include "util/compressor.h"
@@ -193,11 +194,9 @@ bool FileProcessor::ProcessNextFrame()
                     }
                 }
             }
-            else if (block_header.type == BlockType::kMetaDataBlock)
+            else if ((block_header.type == BlockType::kMetaDataBlock) || (block_header.type == BlockType::kCompressedMetaDataBlock))
             {
-                MetaDataType meta_type;
-
-                size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(meta_type);
+                MetaDataType meta_type = MetaDataType::kUnknownMetaDataType;
 
                 success = (ReadBytes(&meta_type, sizeof(meta_type)) == sizeof(meta_type)) ? true : false;
 
@@ -251,7 +250,32 @@ bool FileProcessor::ProcessNextFrame()
 
                         if (success)
                         {
-                            success = ReadParameterBuffer(header.memory_size);
+                            if (block_header.type == BlockType::kCompressedMetaDataBlock)
+                            {
+                                assert(compressor_ != nullptr);
+                                if (compressor_ != nullptr)
+                                {
+                                    size_t uncompressed_size = 0;
+                                    size_t compressed_size   = static_cast<size_t>(block_header.size) -
+                                                             sizeof(meta_type) - sizeof(header.memory_id) -
+                                                             sizeof(header.memory_offset) - sizeof(header.memory_size);
+
+                                    success = ReadCompressedParameterBuffer(
+                                        compressed_size, header.memory_size, &uncompressed_size);
+
+                                    assert(header.memory_size == uncompressed_size);
+                                }
+                                else
+                                {
+                                    success = false;
+                                    BRIMSTONE_LOG_ERROR(
+                                        "Failed to process compressed meta data block; compression is not enabled.");
+                                }
+                            }
+                            else
+                            {
+                                success = ReadParameterBuffer(header.memory_size);
+                            }
                         }
 
                         if (success)
