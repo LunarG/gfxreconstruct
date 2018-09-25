@@ -83,33 +83,21 @@ bool FileProcessor::ProcessNextFrame()
 
                 size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(api_call_id);
 
-                success = (ReadBytes(&api_call_id, sizeof(api_call_id)) == sizeof(api_call_id)) ? true : false;
+                success = ReadBytes(&api_call_id, sizeof(api_call_id));
 
                 ApiCallOptions call_options = {};
                 if (success && enabled_options_.record_thread_id)
                 {
                     parameter_buffer_size -= sizeof(call_options.thread_id);
-                    success = (ReadBytes(&call_options.thread_id, sizeof(call_options.thread_id)) ==
-                               sizeof(call_options.thread_id))
-                                  ? true
-                                  : false;
+                    success = ReadBytes(&call_options.thread_id, sizeof(call_options.thread_id));
                 }
 
                 if (success && enabled_options_.record_begin_end_timestamp)
                 {
                     parameter_buffer_size -= sizeof(call_options.begin_time) + sizeof(call_options.end_time);
 
-                    success = (ReadBytes(&call_options.begin_time, sizeof(call_options.begin_time)) ==
-                               sizeof(call_options.begin_time))
-                                  ? true
-                                  : false;
-                    if (success)
-                    {
-                        success = (ReadBytes(&call_options.end_time, sizeof(call_options.end_time)) ==
-                                   sizeof(call_options.end_time))
-                                      ? true
-                                      : false;
-                    }
+                    success = ReadBytes(&call_options.begin_time, sizeof(call_options.begin_time));
+                    success |= ReadBytes(&call_options.end_time, sizeof(call_options.end_time));
                 }
 
                 if (success)
@@ -139,11 +127,8 @@ bool FileProcessor::ProcessNextFrame()
                 ApiCallId api_call_id;
                 size_t    expected_uncompressed_size = 0;
 
-                success = (ReadBytes(&api_call_id, sizeof(api_call_id)) == sizeof(api_call_id)) ? true : false;
-                success = (ReadBytes(&expected_uncompressed_size, sizeof(expected_uncompressed_size)) ==
-                           sizeof(expected_uncompressed_size))
-                              ? true
-                              : false;
+                success = ReadBytes(&api_call_id, sizeof(api_call_id));
+                success |= ReadBytes(&expected_uncompressed_size, sizeof(expected_uncompressed_size));
 
                 size_t compressed_buffer_size =
                     static_cast<size_t>(block_header.size) - sizeof(api_call_id) - sizeof(expected_uncompressed_size);
@@ -152,27 +137,15 @@ bool FileProcessor::ProcessNextFrame()
                 if (success && enabled_options_.record_thread_id)
                 {
                     compressed_buffer_size -= sizeof(call_options.thread_id);
-                    success = (ReadBytes(&call_options.thread_id, sizeof(call_options.thread_id)) ==
-                               sizeof(call_options.thread_id))
-                                  ? true
-                                  : false;
+                    success = ReadBytes(&call_options.thread_id, sizeof(call_options.thread_id));
                 }
 
                 if (success && enabled_options_.record_begin_end_timestamp)
                 {
                     compressed_buffer_size -= sizeof(call_options.begin_time) + sizeof(call_options.end_time);
 
-                    success = (ReadBytes(&call_options.begin_time, sizeof(call_options.begin_time)) ==
-                               sizeof(call_options.begin_time))
-                                  ? true
-                                  : false;
-                    if (success)
-                    {
-                        success = (ReadBytes(&call_options.end_time, sizeof(call_options.end_time)) ==
-                                   sizeof(call_options.end_time))
-                                      ? true
-                                      : false;
-                    }
+                    success = ReadBytes(&call_options.begin_time, sizeof(call_options.begin_time));
+                    success |= ReadBytes(&call_options.end_time, sizeof(call_options.end_time));
                 }
 
                 if (success)
@@ -198,7 +171,7 @@ bool FileProcessor::ProcessNextFrame()
             {
                 MetaDataType meta_type = MetaDataType::kUnknownMetaDataType;
 
-                success = (ReadBytes(&meta_type, sizeof(meta_type)) == sizeof(meta_type)) ? true : false;
+                success = ReadBytes(&meta_type, sizeof(meta_type));
 
                 if (success)
                 {
@@ -206,10 +179,7 @@ bool FileProcessor::ProcessNextFrame()
                     {
                         DisplayMessageCommandHeader header;
 
-                        success = (ReadBytes(&header.message_size, sizeof(header.message_size)) ==
-                                   sizeof(header.message_size))
-                                      ? true
-                                      : false;
+                        success = ReadBytes(&header.message_size, sizeof(header.message_size));
 
                         if (success)
                         {
@@ -230,23 +200,9 @@ bool FileProcessor::ProcessNextFrame()
                     {
                         FillMemoryCommandHeader header;
 
-                        success =
-                            (ReadBytes(&header.memory_id, sizeof(header.memory_id)) == sizeof(header.memory_id)) ? true : false;
-
-                        if (success)
-                        {
-                            success = (ReadBytes(&header.memory_offset, sizeof(header.memory_offset)) == sizeof(header.memory_offset))
-                                          ? true
-                                          : false;
-                        }
-
-                        if (success)
-                        {
-                            success =
-                                (ReadBytes(&header.memory_size, sizeof(header.memory_size)) == sizeof(header.memory_size))
-                                    ? true
-                                    : false;
-                        }
+                        success = ReadBytes(&header.memory_id, sizeof(header.memory_id));
+                        success |= ReadBytes(&header.memory_offset, sizeof(header.memory_offset));
+                        success |= ReadBytes(&header.memory_size, sizeof(header.memory_size));
 
                         if (success)
                         {
@@ -293,24 +249,9 @@ bool FileProcessor::ProcessNextFrame()
                     {
                         ResizeWindowCommand command;
 
-                        success =
-                            (ReadBytes(&command.surface_id, sizeof(command.surface_id)) == sizeof(command.surface_id))
-                                ? true
-                                : false;
-
-                        if (success)
-                        {
-                            success = (ReadBytes(&command.width, sizeof(command.width)) == sizeof(command.width))
-                                          ? true
-                                          : false;
-                        }
-
-                        if (success)
-                        {
-                            success = (ReadBytes(&command.height, sizeof(command.height)) == sizeof(command.height))
-                                          ? true
-                                          : false;
-                        }
+                        success = ReadBytes(&command.surface_id, sizeof(command.surface_id));
+                        success |= ReadBytes(&command.width, sizeof(command.width));
+                        success |= ReadBytes(&command.height, sizeof(command.height));
 
                         if (success)
                         {
@@ -326,10 +267,6 @@ bool FileProcessor::ProcessNextFrame()
                         // TODO: Skip unrecognized block.
                     }
                 }
-            }
-            else if (block_header.type == BlockType::kCompressedMetaDataBlock)
-            {
-                // TODO
             }
             else
             {
@@ -364,13 +301,13 @@ bool FileProcessor::ReadFileHeader()
 {
     bool success = false;
 
-    if (ReadBytes(&file_header_, sizeof(file_header_)) == sizeof(file_header_))
+    if (ReadBytes(&file_header_, sizeof(file_header_)))
     {
         file_options_.resize(file_header_.num_options);
 
         size_t option_data_size = file_header_.num_options * sizeof(FileOptionPair);
 
-        if (ReadBytes(file_options_.data(), option_data_size) == option_data_size)
+        if (ReadBytes(file_options_.data(), option_data_size))
         {
             success = true;
 
@@ -421,7 +358,7 @@ bool FileProcessor::ReadBlockHeader(BlockHeader* block_header)
 
     bool success = false;
 
-    if (ReadBytes(block_header, sizeof(*block_header)) == sizeof(*block_header))
+    if (ReadBytes(block_header, sizeof(*block_header)))
     {
         success = true;
     }
@@ -435,7 +372,7 @@ bool FileProcessor::ReadFunctionCallHeader(FunctionCallHeader* function_call_hea
 
     bool success = false;
 
-    if (ReadBytes(function_call_header, sizeof(*function_call_header)) == sizeof(*function_call_header))
+    if (ReadBytes(function_call_header, sizeof(*function_call_header)))
     {
         success = true;
     }
@@ -450,7 +387,7 @@ bool FileProcessor::ReadParameterBuffer(size_t buffer_size)
         parameter_buffer_.resize(buffer_size);
     }
 
-    return (ReadBytes(parameter_buffer_.data(), buffer_size) == buffer_size) ? true : false;
+    return ReadBytes(parameter_buffer_.data(), buffer_size);
 }
 
 bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size,
@@ -462,7 +399,7 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
         compressed_parameter_buffer_.resize(compressed_buffer_size);
     }
 
-    if (ReadBytes(compressed_parameter_buffer_.data(), compressed_buffer_size) == compressed_buffer_size)
+    if (ReadBytes(compressed_parameter_buffer_.data(), compressed_buffer_size))
     {
         if (parameter_buffer_.size() < expected_uncompressed_size)
         {
@@ -480,11 +417,11 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
     return false;
 }
 
-size_t FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
+bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
     size_t bytes_read = util::platform::FileRead(buffer, 1, buffer_size, file_descriptor_);
     bytes_read_ += bytes_read;
-    return bytes_read;
+    return (bytes_read == buffer_size) ? true : false;
 }
 
 void FileProcessor::ProcessFunctionCall(ApiCallId      call_id,
