@@ -1,0 +1,63 @@
+# Build Configuration for Travis CI
+# https://travis-ci.org
+
+dist: trusty
+sudo: required
+language: cpp
+
+matrix:
+  # Show final status immediately if a test fails.
+  fast_finish: true
+  include:
+    # Linux GCC debug build.
+    - os: linux
+      compiler: gcc
+      env: VULKAN_BUILD_TARGET=LINUX
+
+cache: ccache
+
+# Use set -e so that the build fails when a command fails.
+# The default action for Travis-CI is to continue running even if a command fails.
+# See https://github.com/travis-ci/travis-ci/issues/1066.
+# Use the YAML block scalar header (|) to allow easier multiline script coding.
+
+before_install:
+  - set -e
+  # Install the appropriate Linux packages.
+  - |
+    if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
+      sudo apt-get -qq update
+      sudo apt-get -y install libxkbcommon-dev libwayland-dev libmirclient-dev libxrandr-dev libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-ewmh-dev
+      # Vulkan items
+      sudo apt-get -y install libvulkan-dev libvulkan1 vulkan-utils
+      # Needed for compression
+      sudo apt-get -y install liblz4-dev
+    fi
+  # Misc setup
+  - |
+  - export core_count=$(nproc || echo 4) && echo core_count = $core_count
+  - set +e
+
+script:
+  - set -e
+  - |
+    if [[ "$VULKAN_BUILD_TARGET" == "LINUX" ]]; then
+      # Build VulkanTools
+      mkdir dbuild
+      pushd dbuild
+      cmake -DCMAKE_BUILD_TYPE=Debug \
+          ..
+      cmake --build . -- -j $core_count
+      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/layer
+      export VK_LAYER_PATH=$PWD/layer
+      popd
+    fi
+  - set +e
+
+notifications:
+  email:
+    recipients:
+      - dustin@lunarg.com
+      - marky@lunarg.com
+    on_success: change
+    on_failure: always
