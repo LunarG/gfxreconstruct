@@ -17,6 +17,7 @@
 #include <cassert>
 
 #include "format/decompress_decoder.h"
+#include "util/logging.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
@@ -48,6 +49,8 @@ bool DecompressDecoder::Initialize(std::string                        filename,
         compressor_ = util::Compressor::CreateCompressor(target_compression_type);
         if (nullptr == compressor_)
         {
+            BRIMSTONE_LOG_WARNING("Failed to initialized file compression module (type = %u)",
+                                  target_compression_type);
             return false;
         }
     }
@@ -75,13 +78,14 @@ bool DecompressDecoder::Initialize(std::string                        filename,
                 // Don't touch these values from the original file
                 break;
             default:
-                // TODO: Error logging.
+                BRIMSTONE_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
                 break;
         }
     }
 
     if (file_stream_->IsValid())
     {
+        BRIMSTONE_LOG_ERROR("Failed to open file %s", filename_.c_str());
         bytes_written_ = 0;
         bytes_written_ += file_stream_->Write(&file_header, sizeof(file_header));
         bytes_written_ += file_stream_->Write(new_option_list.data(), new_option_list.size() * sizeof(FileOptionPair));
