@@ -29,6 +29,8 @@ Win32Window::Win32Window(Win32Application* application)
     assert(application != nullptr);
     win32_application_ = application;
     win32_application_->RegisterWindow(this);
+    screen_width_  = GetSystemMetrics(SM_CXFULLSCREEN);
+    screen_height_ = GetSystemMetrics(SM_CYFULLSCREEN);
 }
 
 Win32Window::~Win32Window()
@@ -57,7 +59,7 @@ bool Win32Window::Create(const uint32_t width, const uint32_t height)
     wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ICON));
     if (!RegisterClassEx(&wcex)) {
         //log("Failed to register windows class");
-        return false;
+        //return false;
     }
 
     // create the window
@@ -98,7 +100,15 @@ void Win32Window::SetSize(const uint32_t width, const uint32_t height)
         height_ = height;
 
         RECT wr = { 0, 0, (LONG)width, (LONG)height };
-        AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+        if (screen_height_ <= height && screen_width_ <= width)
+        {
+            SetWindowLong(hwnd_, GWL_STYLE, WS_POPUP);
+            AdjustWindowRect(&wr, WS_POPUP, FALSE);
+        }
+        else
+        {
+            AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+        }
         SetWindowPos(hwnd_, HWND_TOP, 0, 0, wr.right - wr.left, wr.bottom - wr.top, SWP_NOMOVE);
 
         // Make sure window is visible.
