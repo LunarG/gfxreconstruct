@@ -66,6 +66,8 @@ private:
     Win32Application *          win32_application_;
     uint32_t                    width_;
     uint32_t                    height_;
+    uint32_t                    screen_width_;
+    uint32_t                    screen_height_;
     HINSTANCE                   hinstance_;
 };
 
