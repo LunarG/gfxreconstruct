@@ -109,7 +109,8 @@ bool FileProcessor::ProcessNextFrame()
             else
             {
                 // Unrecognized block type.
-                // TODO: Skip unrecognized block.
+                BRIMSTONE_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
+                success = SkipBytes(block_header.size);
             }
 
             if (success)
@@ -260,6 +261,19 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
     size_t bytes_read = util::platform::FileRead(buffer, 1, buffer_size, file_descriptor_);
     bytes_read_ += bytes_read;
     return (bytes_read == buffer_size) ? true : false;
+}
+
+bool FileProcessor::SkipBytes(size_t skip_size)
+{
+    bool success = util::platform::FileSeek(file_descriptor_, skip_size, util::platform::FileSeekCurrent);
+
+    if (success)
+    {
+        // These technically count as bytes read/processed.
+        bytes_read_ += skip_size;
+    }
+
+    return success;
 }
 
 bool FileProcessor::ProcessFunctionCall(const BlockHeader& block_header, ApiCallId call_id)
@@ -424,7 +438,8 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
     else
     {
         // Unrecognized metadata type.
-        // TODO: Skip unrecognized block.
+        BRIMSTONE_LOG_WARNING("Skipping unrecognized meta-data block with type %u", meta_type);
+        success = SkipBytes(block_header.size - sizeof(meta_type));
     }
 
     return success;
