@@ -76,38 +76,16 @@ bool FileProcessor::ProcessNextFrame()
 
         if (success)
         {
-            // Process by block header type.
-            if (block_header.type == BlockType::kFunctionCallBlock)
+            if ((block_header.type == BlockType::kFunctionCallBlock) ||
+                (block_header.type == BlockType::kCompressedFunctionCallBlock))
             {
-                ApiCallId api_call_id;
-
-                size_t parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(api_call_id);
+                ApiCallId api_call_id = ApiCallId_Unknown;
 
                 success = ReadBytes(&api_call_id, sizeof(api_call_id));
 
-                ApiCallOptions call_options = {};
-                if (success && enabled_options_.record_thread_id)
-                {
-                    parameter_buffer_size -= sizeof(call_options.thread_id);
-                    success = ReadBytes(&call_options.thread_id, sizeof(call_options.thread_id));
-                }
-
-                if (success && enabled_options_.record_begin_end_timestamp)
-                {
-                    parameter_buffer_size -= sizeof(call_options.begin_time) + sizeof(call_options.end_time);
-
-                    success = ReadBytes(&call_options.begin_time, sizeof(call_options.begin_time));
-                    success |= ReadBytes(&call_options.end_time, sizeof(call_options.end_time));
-                }
-
                 if (success)
                 {
-                    success = ReadParameterBuffer(parameter_buffer_size);
-                }
-
-                if (success)
-                {
-                    ProcessFunctionCall(api_call_id, call_options, parameter_buffer_.data(), parameter_buffer_size);
+                    success = ProcessFunctionCall(block_header, api_call_id);
 
                     // Break from loop on frame delimiter.
                     if (IsFrameDelimiter(api_call_id))
@@ -116,58 +94,8 @@ bool FileProcessor::ProcessNextFrame()
                     }
                 }
             }
-            else if (block_header.type == BlockType::kCompressedFunctionCallBlock)
-            {
-                if (nullptr == compressor_)
-                {
-                    success = false;
-                    break;
-                }
-
-                ApiCallId api_call_id;
-                size_t    expected_uncompressed_size = 0;
-
-                success = ReadBytes(&api_call_id, sizeof(api_call_id));
-                success |= ReadBytes(&expected_uncompressed_size, sizeof(expected_uncompressed_size));
-
-                size_t compressed_buffer_size =
-                    static_cast<size_t>(block_header.size) - sizeof(api_call_id) - sizeof(expected_uncompressed_size);
-
-                ApiCallOptions call_options = {};
-                if (success && enabled_options_.record_thread_id)
-                {
-                    compressed_buffer_size -= sizeof(call_options.thread_id);
-                    success = ReadBytes(&call_options.thread_id, sizeof(call_options.thread_id));
-                }
-
-                if (success && enabled_options_.record_begin_end_timestamp)
-                {
-                    compressed_buffer_size -= sizeof(call_options.begin_time) + sizeof(call_options.end_time);
-
-                    success = ReadBytes(&call_options.begin_time, sizeof(call_options.begin_time));
-                    success |= ReadBytes(&call_options.end_time, sizeof(call_options.end_time));
-                }
-
-                if (success)
-                {
-                    size_t uncompressed_size = 0;
-                    success                  = ReadCompressedParameterBuffer(
-                        compressed_buffer_size, expected_uncompressed_size, &uncompressed_size);
-                }
-
-                if (success)
-                {
-                    ProcessFunctionCall(
-                        api_call_id, call_options, parameter_buffer_.data(), expected_uncompressed_size);
-
-                    // Break from loop on frame delimiter.
-                    if (IsFrameDelimiter(api_call_id))
-                    {
-                        break;
-                    }
-                }
-            }
-            else if ((block_header.type == BlockType::kMetaDataBlock) || (block_header.type == BlockType::kCompressedMetaDataBlock))
+            else if ((block_header.type == BlockType::kMetaDataBlock) ||
+                     (block_header.type == BlockType::kCompressedMetaDataBlock))
             {
                 MetaDataType meta_type = MetaDataType::kUnknownMetaDataType;
 
@@ -175,97 +103,7 @@ bool FileProcessor::ProcessNextFrame()
 
                 if (success)
                 {
-                    if (meta_type == kDisplayMessageCommand)
-                    {
-                        DisplayMessageCommandHeader header;
-
-                        success = ReadBytes(&header.message_size, sizeof(header.message_size));
-
-                        if (success)
-                        {
-                            success = ReadParameterBuffer(header.message_size);
-                        }
-
-                        if (success)
-                        {
-                            std::string message(parameter_buffer_.begin(), parameter_buffer_.end());
-
-                            for (auto decoder : decoders_)
-                            {
-                                decoder->DispatchDisplayMessageCommand(message);
-                            }
-                        }
-                    }
-                    else if (meta_type == kFillMemoryCommand)
-                    {
-                        FillMemoryCommandHeader header;
-
-                        success = ReadBytes(&header.memory_id, sizeof(header.memory_id));
-                        success |= ReadBytes(&header.memory_offset, sizeof(header.memory_offset));
-                        success |= ReadBytes(&header.memory_size, sizeof(header.memory_size));
-
-                        if (success)
-                        {
-                            if (block_header.type == BlockType::kCompressedMetaDataBlock)
-                            {
-                                assert(compressor_ != nullptr);
-                                if (compressor_ != nullptr)
-                                {
-                                    size_t uncompressed_size = 0;
-                                    size_t compressed_size   = static_cast<size_t>(block_header.size) -
-                                                             sizeof(meta_type) - sizeof(header.memory_id) -
-                                                             sizeof(header.memory_offset) - sizeof(header.memory_size);
-
-                                    success = ReadCompressedParameterBuffer(
-                                        compressed_size, header.memory_size, &uncompressed_size);
-
-                                    assert(header.memory_size == uncompressed_size);
-                                }
-                                else
-                                {
-                                    success = false;
-                                    BRIMSTONE_LOG_ERROR(
-                                        "Failed to process compressed meta data block; compression is not enabled.");
-                                }
-                            }
-                            else
-                            {
-                                success = ReadParameterBuffer(header.memory_size);
-                            }
-                        }
-
-                        if (success)
-                        {
-                            for (auto decoder : decoders_)
-                            {
-                                decoder->DispatchFillMemoryCommand(header.memory_id,
-                                                                   header.memory_offset,
-                                                                   header.memory_size,
-                                                                   parameter_buffer_.data());
-                            }
-                        }
-                    }
-                    else if (meta_type == kResizeWindowCommand)
-                    {
-                        ResizeWindowCommand command;
-
-                        success = ReadBytes(&command.surface_id, sizeof(command.surface_id));
-                        success |= ReadBytes(&command.width, sizeof(command.width));
-                        success |= ReadBytes(&command.height, sizeof(command.height));
-
-                        if (success)
-                        {
-                            for (auto decoder : decoders_)
-                            {
-                                decoder->DispatchResizeWindowCommand(command.surface_id, command.width, command.height);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Unrecognized metadata type.
-                        // TODO: Skip unrecognized block.
-                    }
+                    success = ProcessMetaData(block_header, meta_type);
                 }
             }
             else
@@ -424,23 +262,178 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
     return (bytes_read == buffer_size) ? true : false;
 }
 
-void FileProcessor::ProcessFunctionCall(ApiCallId      call_id,
-                                        ApiCallOptions call_options,
-                                        const uint8_t* parameter_buffer,
-                                        size_t         buffer_size)
+bool FileProcessor::ProcessFunctionCall(const BlockHeader& block_header, ApiCallId call_id)
 {
-    for (auto decoder : decoders_)
+    bool           success               = true;
+    size_t         parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
+    uint64_t       uncompressed_size     = 0;
+    ApiCallOptions call_options          = {};
+
+    if (block_header.type == BlockType::kCompressedFunctionCallBlock)
     {
-        if (decoder->SupportsApiCall(call_id))
+        assert(compressor_ != nullptr);
+        if (compressor_ != nullptr)
         {
-            decoder->DecodeFunctionCall(call_id, call_options, parameter_buffer, buffer_size);
+            parameter_buffer_size -= sizeof(uncompressed_size);
+            success = ReadBytes(&uncompressed_size, sizeof(uncompressed_size));
+        }
+        else
+        {
+            success = false;
+            BRIMSTONE_LOG_ERROR("Failed to process compressed function call block; compression is not enabled.");
         }
     }
+
+    if (success && enabled_options_.record_thread_id)
+    {
+        parameter_buffer_size -= sizeof(call_options.thread_id);
+        success = ReadBytes(&call_options.thread_id, sizeof(call_options.thread_id));
+    }
+
+    if (success && enabled_options_.record_begin_end_timestamp)
+    {
+        parameter_buffer_size -= sizeof(call_options.begin_time) + sizeof(call_options.end_time);
+
+        success = ReadBytes(&call_options.begin_time, sizeof(call_options.begin_time));
+        success |= ReadBytes(&call_options.end_time, sizeof(call_options.end_time));
+    }
+
+    if (success)
+    {
+        if (block_header.type == BlockType::kCompressedFunctionCallBlock)
+        {
+            size_t actual_size = 0;
+            success = ReadCompressedParameterBuffer(parameter_buffer_size, uncompressed_size, &actual_size);
+
+            if (success)
+            {
+                assert(actual_size == uncompressed_size);
+                parameter_buffer_size = uncompressed_size;
+            }
+        }
+        else
+        {
+            success = ReadParameterBuffer(parameter_buffer_size);
+        }
+    }
+
+    if (success)
+    {
+        for (auto decoder : decoders_)
+        {
+            if (decoder->SupportsApiCall(call_id))
+            {
+                decoder->DecodeFunctionCall(call_id, call_options, parameter_buffer_.data(), parameter_buffer_size);
+            }
+        }
+    }
+
+    return success;
+}
+
+bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataType meta_type)
+{
+    bool success = true;
+
+    if (meta_type == kFillMemoryCommand)
+    {
+        FillMemoryCommandHeader header;
+
+        success = ReadBytes(&header.memory_id, sizeof(header.memory_id));
+        success |= ReadBytes(&header.memory_offset, sizeof(header.memory_offset));
+        success |= ReadBytes(&header.memory_size, sizeof(header.memory_size));
+
+        if (success)
+        {
+            if (block_header.type == BlockType::kCompressedMetaDataBlock)
+            {
+                assert(compressor_ != nullptr);
+                if (compressor_ != nullptr)
+                {
+                    size_t uncompressed_size = 0;
+                    size_t compressed_size   = static_cast<size_t>(block_header.size) - sizeof(meta_type) -
+                                             sizeof(header.memory_id) - sizeof(header.memory_offset) -
+                                             sizeof(header.memory_size);
+
+                    success = ReadCompressedParameterBuffer(compressed_size, header.memory_size, &uncompressed_size);
+                }
+                else
+                {
+                    success = false;
+                    BRIMSTONE_LOG_ERROR("Failed to process compressed meta-data block; compression is not enabled.");
+                }
+            }
+            else
+            {
+                success = ReadParameterBuffer(header.memory_size);
+            }
+        }
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchFillMemoryCommand(
+                    header.memory_id, header.memory_offset, header.memory_size, parameter_buffer_.data());
+            }
+        }
+    }
+    else if (meta_type == kResizeWindowCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != BlockType::kCompressedMetaDataBlock);
+
+        ResizeWindowCommand command;
+
+        success = ReadBytes(&command.surface_id, sizeof(command.surface_id));
+        success |= ReadBytes(&command.width, sizeof(command.width));
+        success |= ReadBytes(&command.height, sizeof(command.height));
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchResizeWindowCommand(command.surface_id, command.width, command.height);
+            }
+        }
+    }
+    else if (meta_type == kDisplayMessageCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != BlockType::kCompressedMetaDataBlock);
+
+        DisplayMessageCommandHeader header;
+
+        success = ReadBytes(&header.message_size, sizeof(header.message_size));
+
+        if (success)
+        {
+            success = ReadParameterBuffer(header.message_size);
+        }
+
+        if (success)
+        {
+            std::string message(parameter_buffer_.begin(), parameter_buffer_.end());
+
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchDisplayMessageCommand(message);
+            }
+        }
+    }
+    else
+    {
+        // Unrecognized metadata type.
+        // TODO: Skip unrecognized block.
+    }
+
+    return success;
 }
 
 bool FileProcessor::IsFrameDelimiter(ApiCallId call_id) const
 {
-    // TODO: This information should be in the trace file header.
+    // TODO: IDs of API calls that were treated as frame delimiters by the trace layer should be in the trace file
+    // header.
     return (call_id == ApiCallId_vkQueuePresentKHR) ? true : false;
 }
 
