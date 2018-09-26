@@ -42,13 +42,13 @@ public:
 
     void RemoveDecoder(Decoder* decoder) { decoders_.erase(std::remove(decoders_.begin(), decoders_.end(), decoder), decoders_.end()); }
 
-    bool Initialize(const std::string& file_name);
+    bool Initialize(const std::string& filename);
 
     bool ProcessNextFrame();
 
     bool ProcessAllFrames();
 
-    FileHeader GetFileHeader() const { return file_header_; }
+    const FileHeader& GetFileHeader() const { return file_header_; }
 
     const std::vector<FileOptionPair>& GetFileOptions() const { return file_options_; }
 
@@ -58,8 +58,6 @@ private:
     bool ReadFileHeader();
 
     bool ReadBlockHeader(BlockHeader* block_header);
-
-    bool ReadFunctionCallHeader(FunctionCallHeader* function_call_header);
 
     bool ReadParameterBuffer(size_t buffer_size);
 
@@ -81,7 +79,7 @@ private:
 
 private:
     FILE*                       file_descriptor_;
-    std::string                 file_name_;
+    std::string                 filename_;
     FileHeader                  file_header_;
     std::vector<FileOptionPair> file_options_;
     EnabledOptions              enabled_options_;
