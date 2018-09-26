@@ -48,7 +48,7 @@ public:
         }
         else
         {
-            // TODO: Log an error message
+            BRIMSTONE_LOG_WARNING("String decoder's external memory was initialized with a NULL pointer");
         }
     }
 
@@ -79,17 +79,22 @@ public:
             {
                 assert(data_ != nullptr);
 
-                // TODO: Report error if alloc_len > capacity_
-                if (alloc_len > capacity_)
+                if (alloc_len <= capacity_)
+                {
+                    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
+                    data_[string_len] = '\0';
+                }
+                else
                 {
                     ValueDecoder::DecodeVoidArray(
                         (buffer + bytes_read), (buffer_size - bytes_read), data_, (capacity_ - 1));
                     data_[capacity_] = '\0';
-                }
-                else
-                {
-                    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
-                    data_[string_len] = '\0';
+
+                    BRIMSTONE_LOG_WARNING("String decoder's external memory capacity (%" PRIuPTR
+                                          ") is smaller than the decoded string size (%" PRIuPTR
+                                          "); data will be truncated",
+                                          capacity_,
+                                          alloc_len);
                 }
 
                 // We always need to advance the position within the buffer by the amount of data that was expected to

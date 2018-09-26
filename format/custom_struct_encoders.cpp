@@ -20,6 +20,7 @@
 #include "format/custom_struct_encoders.h"
 #include "format/struct_pointer_encoder.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
@@ -62,7 +63,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntry
                 result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(value));
                 break;
             default:
-                // TODO:  Log a message.
+                BRIMSTONE_LOG_WARNING("Skipping custom struct encoding for unrecognized VkObjectEntryTypeNVX %u",
+                                      value->type);
                 assert(true);
                 break;
         }

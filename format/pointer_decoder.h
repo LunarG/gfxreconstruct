@@ -20,6 +20,7 @@
 #include <cassert>
 
 #include "util/defines.h"
+#include "util/logging.h"
 #include "format/format.h"
 #include "format/pointer_decoder_base.h"
 #include "format/value_decoder.h"
@@ -47,7 +48,7 @@ public:
         }
         else
         {
-            // TODO: Log an error message
+            BRIMSTONE_LOG_WARNING("Pointer decoder's external memory was initialized with a NULL pointer");
         }
     }
 
@@ -99,8 +100,22 @@ private:
             {
                 assert(data_ != nullptr);
 
-                // TODO: Report error if len > capacity_
-                ValueDecoder::DecodeArrayFrom<SrcT>((buffer + bytes_read), (buffer_size - bytes_read), data_, (len > capacity_) ? capacity_ : len);
+                if (len <= capacity_)
+                {
+                    ValueDecoder::DecodeArrayFrom<SrcT>((buffer + bytes_read), (buffer_size - bytes_read), data_, len);
+                }
+                else
+                {
+                    // The external memory cacpacity is not large enough to contain the full decoded array.
+                    ValueDecoder::DecodeArrayFrom<SrcT>(
+                        (buffer + bytes_read), (buffer_size - bytes_read), data_, capacity_);
+
+                    BRIMSTONE_LOG_WARNING("Pointer decoder's external memory capacity (%" PRIuPTR
+                                          ") is smaller than the decoded array size (%" PRIuPTR
+                                          "); data will be truncated",
+                                          capacity_,
+                                          len);
+                }
 
                 // We always need to advance the position within the buffer by the amount of data that was expected to be decoded, not
                 // the actual amount of data decoded if capacity is too small to hold all of the data.

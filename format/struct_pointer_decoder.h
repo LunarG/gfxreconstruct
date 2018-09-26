@@ -64,7 +64,7 @@ public:
         }
         else
         {
-            // TODO: Log an error message
+            BRIMSTONE_LOG_WARNING("Struct pointer decoder's external memory was initialized with a NULL pointer");
         }
     }
 
@@ -91,12 +91,19 @@ public:
                 assert(struct_memory_ != nullptr);
                 assert(len <= capacity_);
 
-                // TODO: Log a message if len > capacity, which should never happen.
                 if ((struct_memory_ == nullptr) || (len > capacity_))
                 {
                     is_memory_external_ = false;
                     struct_memory_ = new typename T::struct_type[len];
                     capacity_ = len;
+                }
+                else
+                {
+                    BRIMSTONE_LOG_WARNING("Struct pointer decoder's external memory capacity (%" PRIuPTR
+                                          ") is smaller than the decoded array size (%" PRIuPTR
+                                          "); an internal memory allocation will be used instead",
+                                          capacity_,
+                                          len);
                 }
             }
 
