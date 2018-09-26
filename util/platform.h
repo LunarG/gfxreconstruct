@@ -44,6 +44,13 @@ BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 BRIMSTONE_BEGIN_NAMESPACE(platform)
 
+enum FileSeekOrigin
+{
+    FileSeekCurrent = SEEK_CUR,
+    FileSeekEnd     = SEEK_END,
+    FileSeekSet     = SEEK_SET
+};
+
 #if defined(WIN32)
 
 typedef DWORD pid_t;
@@ -115,6 +122,17 @@ inline int32_t StringCopy(wchar_t* destination, size_t destination_size, const w
 inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
 {
     return static_cast<int32_t>(fopen_s(stream, filename, mode));
+}
+
+inline int64_t FileTell(FILE* stream)
+{
+    return _ftelli64(stream);
+}
+
+inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
+{
+    int32_t result = _fseeki64(stream, offset, origin);
+    return (result == 0) ? true : false;
 }
 
 inline size_t FileWriteNoLock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
@@ -209,6 +227,17 @@ inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
 {
     (*stream) = fopen(filename, mode);
     return errno;
+}
+
+inline int64_t FileTell(FILE* stream)
+{
+    return ftello(stream);
+}
+
+inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
+{
+    int32_t result = fseeko(stream, offset, origin);
+    return (result == 0) ? true : false;
 }
 
 inline size_t FileWriteNoLock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)

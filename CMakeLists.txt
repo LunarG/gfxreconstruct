@@ -14,7 +14,7 @@ add_library(windows_specific INTERFACE)
 target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX VK_USE_PLATFORM_WIN32_KHR)
 
 add_library(linux_specific INTERFACE)
-target_compile_definitions(linux_specific INTERFACE
+target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
     $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>)
 
