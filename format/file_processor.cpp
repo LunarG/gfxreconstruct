@@ -44,26 +44,30 @@ FileProcessor::~FileProcessor()
     }
 }
 
-bool FileProcessor::Initialize(const std::string& file_name)
+bool FileProcessor::Initialize(const std::string& filename)
 {
     bool success = false;
 
-    int32_t result = util::platform::FileOpen(&file_descriptor_, file_name.c_str(), "rb");
+    int32_t result = util::platform::FileOpen(&file_descriptor_, filename.c_str(), "rb");
 
     if ((result == 0) && (file_descriptor_ != nullptr))
     {
         success = ReadFileHeader();
 
-        if (!success)
+        if (success)
         {
-            BRIMSTONE_LOG_ERROR("Failed to load file header from %s", file_name.c_str());
+            filename_ = filename;
+        }
+        else
+        {
+            BRIMSTONE_LOG_ERROR("Failed to load file header from %s", filename.c_str());
             fclose(file_descriptor_);
             file_descriptor_ = nullptr;
         }
     }
     else
     {
-        BRIMSTONE_LOG_ERROR("Failed to open file %s", file_name.c_str());
+        BRIMSTONE_LOG_ERROR("Failed to open file %s", filename.c_str());
     }
 
     return success;
@@ -205,7 +209,7 @@ bool FileProcessor::ReadFileHeader()
         BRIMSTONE_LOG_WARNING(
             "Failed to initialized file compression module (type = %u); replay of compressed data will not be possible",
             enabled_options_.compression_type);
-        return false;
+        success = false;
     }
 
     return success;
@@ -218,20 +222,6 @@ bool FileProcessor::ReadBlockHeader(BlockHeader* block_header)
     bool success = false;
 
     if (ReadBytes(block_header, sizeof(*block_header)))
-    {
-        success = true;
-    }
-
-    return success;
-}
-
-bool FileProcessor::ReadFunctionCallHeader(FunctionCallHeader* function_call_header)
-{
-    assert(function_call_header != nullptr);
-
-    bool success = false;
-
-    if (ReadBytes(function_call_header, sizeof(*function_call_header)))
     {
         success = true;
     }
