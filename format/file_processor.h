@@ -67,6 +67,8 @@ private:
 
     bool ReadBytes(void* buffer, size_t buffer_size);
 
+    bool SkipBytes(size_t skip_size);
+
     bool ProcessFunctionCall(const BlockHeader& block_header, ApiCallId call_id);
 
     bool ProcessMetaData(const BlockHeader& block_header, MetaDataType meta_type);
