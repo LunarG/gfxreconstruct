@@ -263,7 +263,7 @@ void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, ui
                                                sizeof(resize_cmd.height);
     resize_cmd.meta_header.meta_data_type = kResizeWindowCommand;
 
-    resize_cmd.surface_id = reinterpret_cast<HandleId>(surface);
+    resize_cmd.surface_id = ToHandleId(surface);
     resize_cmd.width      = width;
     resize_cmd.height     = height;
 
@@ -281,7 +281,7 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
 
     fill_cmd.meta_header.block_header.type = kMetaDataBlock;
     fill_cmd.meta_header.meta_data_type    = kFillMemoryCommand;
-    fill_cmd.memory_id                     = reinterpret_cast<uint64_t>(memory);
+    fill_cmd.memory_id                     = ToHandleId(memory);
     fill_cmd.memory_offset                 = offset;
     fill_cmd.memory_size                   = size;
 
@@ -450,7 +450,7 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
             assert(manager != nullptr);
 
             (*ppData) =
-                manager->AddMemory(reinterpret_cast<uint64_t>(memory), (*ppData), info->mapped_size, false, true);
+                manager->AddMemory(ToHandleId(memory), (*ppData), info->mapped_size, false, true);
         }
     }
 }
@@ -512,13 +512,13 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
         if ((info != nullptr) && (info->data != nullptr))
         {
             manager->ProcessMemoryEntry(
-                reinterpret_cast<uint64_t>(memory),
+                ToHandleId(memory),
                 [this](
                     uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                    WriteFillMemoryCmd(reinterpret_cast<VkDeviceMemory>(memory_id), offset, size, start_address);
+                    WriteFillMemoryCmd(FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
                 });
 
-            manager->RemoveMemory(reinterpret_cast<uint64_t>(memory));
+            manager->RemoveMemory(ToHandleId(memory));
         }
     }
     else if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
@@ -553,7 +553,7 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
 
-        manager->RemoveMemory(reinterpret_cast<uint64_t>(memory));
+        manager->RemoveMemory(ToHandleId(memory));
     }
 }
 
@@ -576,7 +576,7 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
 
         manager->ProcessMemoryEntries(
             [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                WriteFillMemoryCmd(reinterpret_cast<VkDeviceMemory>(memory_id), offset, size, start_address);
+                WriteFillMemoryCmd(FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
             });
     }
     else if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
