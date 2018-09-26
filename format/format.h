@@ -17,7 +17,8 @@
 #ifndef BRIMSTONE_FORMAT_FORMAT_H
 #define BRIMSTONE_FORMAT_FORMAT_H
 
-#include <inttypes.h>
+#include <cinttypes>
+#include <type_traits>
 
 #include "util/defines.h"
 #include "format/api_call_id.h"
@@ -36,6 +37,31 @@ typedef uint64_t SizeTEncodeType;
 typedef uint64_t AddressEncodeType;
 
 typedef HandleEncodeType HandleId;
+
+// Utilities for converting API handles to the HandleId type.
+template <typename T>
+typename std::enable_if<std::is_pointer<T>::value, HandleId>::type ToHandleId(const T& handle)
+{
+    return reinterpret_cast<uint64_t>(handle);
+}
+
+template <typename T>
+typename std::enable_if<!std::is_pointer<T>::value, HandleId>::type ToHandleId(const T& handle)
+{
+    return static_cast<uint64_t>(handle);
+}
+
+template <typename T>
+typename std::enable_if<std::is_pointer<T>::value, T>::type FromHandleId(HandleId id)
+{
+    return reinterpret_cast<T>(id);
+}
+
+template <typename T>
+typename std::enable_if<!std::is_pointer<T>::value, T>::type FromHandleId(HandleId id)
+{
+    return static_cast<T>(id);
+}
 
 // clang-format off
 enum BlockType : uint32_t
@@ -171,15 +197,15 @@ struct MetaDataHeader
 struct FillMemoryCommandHeader
 {
     MetaDataHeader meta_header;
-    uint64_t       memory_id;
-    uint64_t       memory_offset;           // Offset from the start of the mapped pointer, not the start of the memory object.
-    uint64_t       memory_size;             // Uncompressed size of the data encoded after the header.
+    HandleId       memory_id;
+    uint64_t       memory_offset; // Offset from the start of the mapped pointer, not the start of the memory object.
+    uint64_t       memory_size;   // Uncompressed size of the data encoded after the header.
 };
 
 struct DisplayMessageCommandHeader
 {
     MetaDataHeader meta_header;
-    uint64_t       message_size;            // Number of bytes in message string, not including a null terminator.
+    uint64_t       message_size; // Number of bytes in message string, not including a null terminator.
 };
 
 // Not a header because this command does not include a variable length data payload.
