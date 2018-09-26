@@ -200,7 +200,7 @@ size_t PageGuardManager::GetSystemPageSize() const
 
 size_t PageGuardManager::GetAdjustedSize(size_t size) const
 {
-    uint64_t extra = size % system_page_size_;
+    size_t extra = size % system_page_size_;
     if (extra != 0)
     {
         // Adjust the size to be a multiple of the system page size.

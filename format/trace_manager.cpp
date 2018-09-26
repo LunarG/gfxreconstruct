@@ -275,9 +275,11 @@ void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, ui
 
 void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
+    BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+
     FillMemoryCommandHeader           fill_cmd;
     const uint8_t*                    write_address  = (static_cast<const uint8_t*>(data) + offset);
-    size_t                            write_size     = size;
+    size_t                            write_size     = static_cast<size_t>(size);
 
     fill_cmd.meta_header.block_header.type = kMetaDataBlock;
     fill_cmd.meta_header.meta_data_type    = kFillMemoryCommand;
@@ -290,9 +292,9 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
 
-        size_t compressed_size = compressor_->Compress(size, write_address, &thread_data->compressed_buffer_);
+        size_t compressed_size = compressor_->Compress(write_size, write_address, &thread_data->compressed_buffer_);
 
-        if ((compressed_size > 0) && (compressed_size < size))
+        if ((compressed_size > 0) && (compressed_size < write_size))
         {
             // We don't have a special header for compressed fill commands because the header always includes
             // the uncompressed size, so we just change the type to indicate the data is compressed.
@@ -445,12 +447,14 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
 
         if ((info != nullptr) && (info->mapped_size > 0) && (memory_tracking_mode_ == kPageGuard))
         {
+            BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, info->mapped_size);
+
             util::PageGuardManager* manager = util::PageGuardManager::Get();
 
             assert(manager != nullptr);
 
             (*ppData) =
-                manager->AddMemory(ToHandleId(memory), (*ppData), info->mapped_size, false, true);
+                manager->AddMemory(ToHandleId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false, true);
         }
     }
 }
