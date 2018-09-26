@@ -14,10 +14,16 @@
 ** limitations under the License.
 */
 
+#include <cassert>
+#include <cstdint>
+#include <limits>
+
 #ifndef BRIMSTONE_UTIL_DEFINES_H
 #define BRIMSTONE_UTIL_DEFINES_H
 
-#define BRIMSTONE_BEGIN_NAMESPACE(x) namespace x {
+#define BRIMSTONE_BEGIN_NAMESPACE(x) \
+    namespace x                      \
+    {
 #define BRIMSTONE_END_NAMESPACE(x) }
 
 #define BRIMSTONE_UNREFERENCED_PARAMETER(x) ((void)x)
@@ -26,8 +32,13 @@
 #define BRIMSTONE_STR_EXPAND(x) #x
 #define BRIMSTONE_STR(x) BRIMSTONE_STR_EXPAND(x)
 
-#define BRIMSTONE_MAKE_FOURCC(c0, c1, c2, c3) (static_cast<uint32_t>(c0) | (static_cast<uint32_t>(c1) << 8) | (static_cast<uint32_t>(c2) << 16) | (static_cast<uint32_t>(c3) << 24))
+#define BRIMSTONE_MAKE_FOURCC(c0, c1, c2, c3)                                                           \
+    (static_cast<uint32_t>(c0) | (static_cast<uint32_t>(c1) << 8) | (static_cast<uint32_t>(c2) << 16) | \
+     (static_cast<uint32_t>(c3) << 24))
 
 #define BRIMSTONE_FOURCC BRIMSTONE_MAKE_FOURCC('G', 'R', 'E', 'C')
+
+// Determine if a type conversion would result in a loss of data.  Intended to check uint64_t to size_t conversions.
+#define BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(DstType, Value) assert(std::numeric_limits<DstType>::max() <= Value);
 
 #endif // BRIMSTONE_UTIL_DEFINES_H

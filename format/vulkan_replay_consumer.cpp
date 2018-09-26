@@ -64,7 +64,8 @@ void VulkanReplayConsumer::ProcessFillMemoryCommand(uint64_t       memory_id,
 
         if ((entry != memory_map_.end()) && (entry->second != nullptr))
         {
-            memcpy(static_cast<uint8_t*>(entry->second) + offset, data, size);
+            BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+            memcpy(static_cast<uint8_t*>(entry->second) + offset, data, static_cast<size_t>(size));
         }
         else
         {

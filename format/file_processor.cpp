@@ -127,7 +127,8 @@ bool FileProcessor::ProcessNextFrame()
             {
                 // Unrecognized block type.
                 BRIMSTONE_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
-                success = SkipBytes(block_header.size);
+                BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                success = SkipBytes(static_cast<size_t>(block_header.size));
             }
 
             if (success)
@@ -326,13 +327,15 @@ bool FileProcessor::ProcessFunctionCall(const BlockHeader& block_header, ApiCall
     {
         if (block_header.type == BlockType::kCompressedFunctionCallBlock)
         {
+            BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
+
             size_t actual_size = 0;
-            success = ReadCompressedParameterBuffer(parameter_buffer_size, uncompressed_size, &actual_size);
+            success = ReadCompressedParameterBuffer(parameter_buffer_size, static_cast<size_t>(uncompressed_size), &actual_size);
 
             if (success)
             {
                 assert(actual_size == uncompressed_size);
-                parameter_buffer_size = uncompressed_size;
+                parameter_buffer_size = static_cast<size_t>(uncompressed_size);
             }
         }
         else
@@ -373,6 +376,8 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
 
         if (success)
         {
+            BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, header.memory_size);
+
             if (block_header.type == BlockType::kCompressedMetaDataBlock)
             {
                 assert(compressor_ != nullptr);
@@ -383,7 +388,7 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
                                              sizeof(header.memory_id) - sizeof(header.memory_offset) -
                                              sizeof(header.memory_size);
 
-                    success = ReadCompressedParameterBuffer(compressed_size, header.memory_size, &uncompressed_size);
+                    success = ReadCompressedParameterBuffer(compressed_size, static_cast<size_t>(header.memory_size), &uncompressed_size);
                 }
                 else
                 {
@@ -393,7 +398,7 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
             }
             else
             {
-                success = ReadParameterBuffer(header.memory_size);
+                success = ReadParameterBuffer(static_cast<size_t>(header.memory_size));
             }
         }
         else
@@ -444,7 +449,8 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
 
         if (success)
         {
-            success = ReadParameterBuffer(header.message_size);
+            BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, header.message_size);
+            success = ReadParameterBuffer(static_cast<size_t>(header.message_size));
         }
         else
         {
@@ -465,7 +471,9 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
     {
         // Unrecognized metadata type.
         BRIMSTONE_LOG_WARNING("Skipping unrecognized meta-data block with type %u", meta_type);
-        success = SkipBytes(block_header.size - sizeof(meta_type));
+        BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+
+        success = SkipBytes(static_cast<size_t>(block_header.size) - sizeof(meta_type));
     }
 
     return success;
