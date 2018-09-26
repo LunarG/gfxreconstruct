@@ -42,7 +42,6 @@ public:
 
     void RemoveDecoder(Decoder* decoder) { decoders_.erase(std::remove(decoders_.begin(), decoders_.end(), decoder), decoders_.end()); }
 
-    // TODO: Add file processing options.
     bool Initialize(const std::string& file_name);
 
     bool ProcessNextFrame();
@@ -68,7 +67,9 @@ private:
 
     bool ReadBytes(void* buffer, size_t buffer_size);
 
-    void ProcessFunctionCall(ApiCallId call_id, ApiCallOptions call_options, const uint8_t* parameter_buffer, size_t buffer_size);
+    bool ProcessFunctionCall(const BlockHeader& block_header, ApiCallId call_id);
+
+    bool ProcessMetaData(const BlockHeader& block_header, MetaDataType meta_type);
 
     bool IsFrameDelimiter(ApiCallId call_id) const;
 
