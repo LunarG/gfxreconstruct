@@ -56,9 +56,14 @@ bool FileProcessor::Initialize(const std::string& file_name)
 
         if (!success)
         {
+            BRIMSTONE_LOG_ERROR("Failed to load file header from %s", file_name.c_str());
             fclose(file_descriptor_);
             file_descriptor_ = nullptr;
         }
+    }
+    else
+    {
+        BRIMSTONE_LOG_ERROR("Failed to open file %s", file_name.c_str());
     }
 
     return success;
@@ -93,6 +98,10 @@ bool FileProcessor::ProcessNextFrame()
                         break;
                     }
                 }
+                else
+                {
+                    BRIMSTONE_LOG_ERROR("Failed to read function call block header");
+                }
             }
             else if ((block_header.type == BlockType::kMetaDataBlock) ||
                      (block_header.type == BlockType::kCompressedMetaDataBlock))
@@ -104,6 +113,10 @@ bool FileProcessor::ProcessNextFrame()
                 if (success)
                 {
                     success = ProcessMetaData(block_header, meta_type);
+                }
+                else
+                {
+                    BRIMSTONE_LOG_ERROR("Failed to read meta-data block header");
                 }
             }
             else
@@ -118,6 +131,10 @@ bool FileProcessor::ProcessNextFrame()
                 // Check for EOF.
                 success = IsFileValid();
             }
+        }
+        else
+        {
+            BRIMSTONE_LOG_ERROR("Failed to read block header");
         }
     }
 
@@ -175,7 +192,7 @@ bool FileProcessor::ReadFileHeader()
                     // We currently assume all pointer/address values are encoded as 8 byte values.
                     break;
                 default:
-                    // TODO: Error logging.
+                    BRIMSTONE_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
                     break;
                 }
             }
@@ -185,6 +202,9 @@ bool FileProcessor::ReadFileHeader()
     compressor_ = util::Compressor::CreateCompressor(enabled_options_.compression_type);
     if ((nullptr == compressor_) && (util::kNone != enabled_options_.compression_type))
     {
+        BRIMSTONE_LOG_WARNING(
+            "Failed to initialized file compression module (type = %u); replay of compressed data will not be possible",
+            enabled_options_.compression_type);
         return false;
     }
 
@@ -330,6 +350,10 @@ bool FileProcessor::ProcessFunctionCall(const BlockHeader& block_header, ApiCall
             success = ReadParameterBuffer(parameter_buffer_size);
         }
     }
+    else
+    {
+        BRIMSTONE_LOG_ERROR("Failed to read function call block header");
+    }
 
     if (success)
     {
@@ -382,6 +406,10 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
                 success = ReadParameterBuffer(header.memory_size);
             }
         }
+        else
+        {
+            BRIMSTONE_LOG_ERROR("Failed to read fill memory meta-data block header");
+        }
 
         if (success)
         {
@@ -410,6 +438,10 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
                 decoder->DispatchResizeWindowCommand(command.surface_id, command.width, command.height);
             }
         }
+        else
+        {
+            BRIMSTONE_LOG_ERROR("Failed to read resize window meta-data block");
+        }
     }
     else if (meta_type == kDisplayMessageCommand)
     {
@@ -423,6 +455,10 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
         if (success)
         {
             success = ReadParameterBuffer(header.message_size);
+        }
+        else
+        {
+            BRIMSTONE_LOG_ERROR("Failed to read display message meta-data block header");
         }
 
         if (success)
