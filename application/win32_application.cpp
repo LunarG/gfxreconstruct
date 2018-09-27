@@ -25,9 +25,8 @@ Win32Application::Win32Application()
 
 }
 
-LRESULT WINAPI Win32Application::WindowProcVk(HWND window, unsigned int msg, WPARAM wp, LPARAM lp) {
-    auto *const app = (Win32Application *)GetWindowLongPtr(window, GWLP_USERDATA);
-    std::vector<format::Window*> windows_copy;
+LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp)
+{
     switch (msg)
     {
         case WM_KEYUP:
@@ -35,46 +34,49 @@ LRESULT WINAPI Win32Application::WindowProcVk(HWND window, unsigned int msg, WPA
             switch (wp)
             {
                 case VK_SPACE:
+                {
+                    Win32Application* app = reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
                     app->SetPaused(!app->GetPaused());
                     break;
+                }
                 case VK_ESCAPE:
-                    DestroyWindow(window);
                     PostQuitMessage(0);
                     break;
                 default:
                     break;
             }
-            return S_OK;
+            break;
         }
+        case WM_CLOSE:
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            break;
         case WM_NCCREATE:
             // Changes made with SetWindowLongPtr will not take effect until SetWindowPos is called.
             SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT *)lp)->lpCreateParams);
             SetWindowPos(window, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
-            return DefWindowProc(window, msg, wp, lp);
-        case WM_CLOSE:
-            windows_copy = app->windows;
-            for (auto window : windows_copy)
-            {
-                window->Destroy();
-            }
-            // fall-thru
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return S_OK;
+            // Intentional fall through.
         default:
             return DefWindowProc(window, msg, wp, lp);
     }
+
+    return 0;
 }
 
 void Win32Application::ProcessEvents(bool wait_for_input)
 {
-    MSG msg = {};
-    while (true)
+    // Process all pending events.
+    while (IsRunning())
     {
-        bool found_message;
+        MSG  msg = {};
+        bool found_message = false;
+
         if (wait_for_input)
         {
             found_message = (GetMessage(&msg, nullptr, 0, 0) > 0);
+
+            // Stop waiting after the first event or this function never will exit.
+            wait_for_input = false;
         }
         else
         {
@@ -85,10 +87,13 @@ void Win32Application::ProcessEvents(bool wait_for_input)
         {
             if (msg.message == WM_QUIT)
             {
-                exit(0);  // Prevents crashing due to vulkan cmds being on different thread than WindowProcVk
+                StopRunning();
             }
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            else
+            {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
         }
         else
         {

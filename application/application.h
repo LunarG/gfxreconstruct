@@ -18,30 +18,30 @@
 #define BRIMSTONE_APPLICATION_APPLICATION_H
 
 #include <vector>
-#include <algorithm>
 
+#include "util/defines.h"
 #include "format/file_processor.h"
 #include "format/window.h"
 
-#include "util/defines.h"
-
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
-
 
 class Application
 {
 public:
     Application();
-    virtual ~Application() {};
+
+    virtual ~Application();
 
     void SetFileProcessor(format::FileProcessor* file_processor);
 
+    bool IsRunning() const { return running_; }
+
     void Run();
 
-    bool GetPaused();
+    bool GetPaused() const { return paused_; }
 
-    void SetPaused(bool paused);
+    void SetPaused(bool paused) { paused_ = paused; }
 
     bool PlaySingleFrame();
 
@@ -49,15 +49,24 @@ public:
 
     bool UnregisterWindow(format::Window* window);
 
-public:
-    std::vector<format::Window*> windows;
-
-protected:
     virtual void ProcessEvents(bool wait_for_input) = 0;
 
+protected:
+    void StopRunning() { running_ = false; }
+
+protected:
+    std::vector<format::Window*> windows_;
+
 private:
-    format::FileProcessor* file_processor_ = nullptr;
-    bool paused_;
+    // clang-format off
+    format::FileProcessor*       file_processor_;   ///< The FileProcessor object responsible for decoding and processing
+                                                    ///< capture file data.
+    bool                         running_;          ///< Indicatess that the application is actively processing system
+                                                    ///< events for playback.
+    bool                         paused_;           ///< Indicates that the playback has been paused.  When paused the
+                                                    ///< application will stop rendering, but will continue processing
+                                                    ///< system events.
+    // clang-format on
 };
 
 BRIMSTONE_END_NAMESPACE(application)

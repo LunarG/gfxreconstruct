@@ -17,74 +17,72 @@
 #ifndef BRIMSTONE_APPLICATION_WIN32_WINDOW_H
 #define BRIMSTONE_APPLICATION_WIN32_WINDOW_H
 
-#include <windows.h>
-
+#include "util/defines.h"
+#include "util/platform.h"
 #include "format/window.h"
 #include "application/win32_application.h"
 
 #define IDI_ICON 101
-
-#include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
 class Win32Window : public format::Window
 {
-public:
+  public:
     enum HandleId : uint32_t
     {
         kHInstance = 0,
-        kHWnd = 1
+        kHWnd      = 1
     };
 
-public:
+  public:
     Win32Window(Win32Application* application);
 
     virtual ~Win32Window();
 
-    bool Create(const uint32_t width, const uint32_t height) override;
+    virtual bool Create(const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height) override;
 
-    bool Destroy() override;
+    virtual bool Destroy() override;
 
-    void SetPosition(const uint32_t x, const uint32_t y) override;
+    virtual void SetPosition(const int32_t x, const int32_t y) override;
 
-    void SetSize(const uint32_t width, const uint32_t height) override;
+    virtual void SetSize(const uint32_t width, const uint32_t height) override;
 
-    void SetVisibility(bool show) override;
+    virtual void SetVisibility(bool show) override;
 
-    void SetFocus() override;
+    virtual void SetForeground() override;
 
-    bool GetNativeHandle(uint32_t id, void ** handle) override;
+    virtual bool GetNativeHandle(uint32_t id, void** handle) override;
 
-    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
+    virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
 
-public:
-    HWND                        hwnd_;
-
-private:
-    Win32Application *          win32_application_;
-    uint32_t                    width_;
-    uint32_t                    height_;
-    uint32_t                    screen_width_;
-    uint32_t                    screen_height_;
-    HINSTANCE                   hinstance_;
+  private:
+    HWND              hwnd_;
+    Win32Application* win32_application_;
+    int32_t           xpos_;
+    int32_t           ypos_;
+    uint32_t          width_;
+    uint32_t          height_;
+    uint32_t          screen_width_;
+    uint32_t          screen_height_;
+    HINSTANCE         hinstance_;
 };
 
 class Win32WindowFactory : public format::WindowFactory
 {
-public:
+  public:
     Win32WindowFactory(Win32Application* application);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_WIN32_SURFACE_EXTENSION_NAME; }
 
-    virtual format::Window* Create(const uint32_t width, const uint32_t height) override;
+    virtual format::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                           uint32_t         queue_family_index) override;
 
   private:
-    Win32Application * win32_application_;
+    Win32Application* win32_application_;
 };
 
 BRIMSTONE_END_NAMESPACE(application)

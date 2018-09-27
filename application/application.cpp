@@ -14,14 +14,28 @@
 ** limitations under the License.
 */
 
+#include <algorithm>
+
+#include "util/logging.h"
 #include "application/application.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
-Application::Application() : paused_(false)
-{
+Application::Application() : file_processor_(nullptr), running_(false), paused_(false) {}
 
+Application::~Application()
+{
+    if (!windows_.empty())
+    {
+        BRIMSTONE_LOG_INFO(
+            "Application manager is destroying windows that were not previously destroyed by their owner");
+
+        for (auto window : windows_)
+        {
+            window->Destroy();
+        }
+    }
 }
 
 void Application::SetFileProcessor(format::FileProcessor* file_processor)
@@ -31,26 +45,18 @@ void Application::SetFileProcessor(format::FileProcessor* file_processor)
 
 void Application::Run()
 {
-    bool keep_playing = true;
-    while (keep_playing)
+    running_ = true;
+
+    while (running_)
     {
         ProcessEvents(paused_);
 
-        if (!paused_)
+        // Only process the next frame if a quit event was not processed or not paused.
+        if (running_ && !paused_)
         {
-            keep_playing = PlaySingleFrame();
+            running_ = PlaySingleFrame();
         }
     }
-}
-
-bool Application::GetPaused()
-{
-    return paused_;
-}
-
-void Application::SetPaused(bool paused)
-{
-    paused_ = paused;
 }
 
 bool Application::PlaySingleFrame()
@@ -67,21 +73,30 @@ bool Application::PlaySingleFrame()
 
 bool Application::RegisterWindow(format::Window* window)
 {
-    if (std::find(windows.begin(), windows.end(), window) != windows.end())
+    if (std::find(windows_.begin(), windows_.end(), window) != windows_.end())
     {
+        BRIMSTONE_LOG_INFO("A window was registered with the application more than once");
         return false;
     }
-    windows.push_back(window);
+
+    windows_.push_back(window);
+
     return true;
 }
 
 bool Application::UnregisterWindow(format::Window* window)
 {
-    auto pos = std::find(windows.begin(), windows.end(), window);
-    if (pos == windows.end()) {
+    auto pos = std::find(windows_.begin(), windows_.end(), window);
+
+    if (pos == windows_.end())
+    {
+        BRIMSTONE_LOG_INFO(
+            "A remove window request was made for an window that was never registered with the application");
         return false;
     }
-    windows.erase(pos);
+
+    windows_.erase(pos);
+
     return true;
 }
 

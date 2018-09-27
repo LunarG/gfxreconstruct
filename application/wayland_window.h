@@ -29,64 +29,72 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 
 class WaylandWindow : public format::Window
 {
-public:
+  public:
     enum HandleId : uint32_t
     {
         kDisplay = 0,
         kSurface = 1
     };
 
-public:
+  public:
     WaylandWindow(WaylandApplication* application);
 
     virtual ~WaylandWindow();
 
-    bool Create(const uint32_t width, const uint32_t height) override;
+    struct wl_surface* GetSurface() const { return surface_; }
 
-    bool Destroy() override;
+    struct wl_shell_surface* GetShellSurface() const { return shell_surface_; }
 
-    void SetPosition(const uint32_t x, const uint32_t y) override;
+    virtual bool Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
-    void SetSize(const uint32_t width, const uint32_t height) override;
+    virtual bool Destroy() override;
 
-    void SetVisibility(bool show) override;
+    virtual void SetPosition(const int32_t x, const int32_t y) override;
 
-    void SetFocus() override;
+    virtual void SetSize(const uint32_t width, const uint32_t height) override;
 
-    bool GetNativeHandle(uint32_t id, void ** handle) override;
+    virtual void SetVisibility(bool show) override;
 
-    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
+    virtual void SetForeground() override;
 
-public:
-    struct wl_surface*          surface;
-    struct wl_shell_surface*    shell_surface;
+    virtual bool GetNativeHandle(uint32_t id, void** handle) override;
 
-private:
-    WaylandApplication*             wayland_application_;
-    uint32_t                    width_;
-    uint32_t                    height_;
+    virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
 
-    static struct wl_shell_surface_listener shell_surface_listener;
+  private:
+    static void handle_ping(void* data, wl_shell_surface* shell_surface, uint32_t serial);
 
-    static void handle_ping(void *data, wl_shell_surface *shell_surface, uint32_t serial);
-    static void handle_configure(void *data, wl_shell_surface *shell_surface, uint32_t edges, int32_t width, int32_t height);
-    static void handle_popup_done(void *data, wl_shell_surface *shell_surface);
+    static void
+    handle_configure(void* data, wl_shell_surface* shell_surface, uint32_t edges, int32_t width, int32_t height);
+
+    static void handle_popup_done(void* data, wl_shell_surface* shell_surface);
+
+  private:
+    static struct wl_shell_surface_listener shell_surface_listener_;
+    WaylandApplication*                     wayland_application_;
+    int32_t                                 xpos_;
+    int32_t                                 ypos_;
+    uint32_t                                width_;
+    uint32_t                                height_;
+    struct wl_surface*                      surface_;
+    struct wl_shell_surface*                shell_surface_;
 };
 
 class WaylandWindowFactory : public format::WindowFactory
 {
-public:
+  public:
     WaylandWindowFactory(WaylandApplication* application);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME; }
 
-    virtual format::Window* Create(const uint32_t width, const uint32_t height) override;
+    virtual format::Window*
+    Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                           uint32_t         queue_family_index) override;
 
   private:
-    WaylandApplication*            wayland_application_;
+    WaylandApplication* wayland_application_;
 };
 
 BRIMSTONE_END_NAMESPACE(util)

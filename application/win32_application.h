@@ -17,11 +17,9 @@
 #ifndef BRIMSTONE_APPLICATION_WIN32_APPLICATION_H
 #define BRIMSTONE_APPLICATION_WIN32_APPLICATION_H
 
-#include <windows.h>
-
-#include "application/application.h"
-
+#include "util/platform.h"
 #include "util/defines.h"
+#include "application/application.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
@@ -31,11 +29,9 @@ class Win32Application : public Application
 public:
     Win32Application();
 
-    void ProcessEvents(bool wait_for_input) override;
+    virtual void ProcessEvents(bool wait_for_input) override;
 
-    static LRESULT WINAPI WindowProcVk(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
-
-public:
+    static LRESULT WINAPI WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
 };
 
 BRIMSTONE_END_NAMESPACE(application)

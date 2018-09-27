@@ -29,8 +29,10 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-const uint32_t kDefaultWindowWidth  = 320;
-const uint32_t kDefaultWindowHeight = 240;
+const int32_t  kDefaultWindowPositionX = 0;
+const int32_t  kDefaultWindowPositionY = 0;
+const uint32_t kDefaultWindowWidth     = 320;
+const uint32_t kDefaultWindowHeight    = 240;
 
 static std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, VK_MVK_IOS_SURFACE_EXTENSION_NAME, VK_MVK_MACOS_SURFACE_EXTENSION_NAME,
@@ -198,7 +200,8 @@ void VulkanReplayConsumer::CheckResult(const char* func_name, VkResult original,
 VkResult VulkanReplayConsumer::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface)
 {
     // Create a window for our surface.
-    Window* window = window_factory_->Create(kDefaultWindowWidth, kDefaultWindowWidth);
+    Window* window = window_factory_->Create(
+        kDefaultWindowPositionX, kDefaultWindowPositionY, kDefaultWindowWidth, kDefaultWindowHeight);
 
     if (window == nullptr)
     {
