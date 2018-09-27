@@ -29,58 +29,60 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 
 class XcbWindow : public format::Window
 {
-public:
+  public:
     enum HandleId : uint32_t
     {
         kConnection = 0,
-        kWindow = 1
+        kWindow     = 1
     };
 
-public:
+  public:
     XcbWindow(XcbApplication* application);
 
     virtual ~XcbWindow();
 
-    bool Create(const uint32_t width, const uint32_t height) override;
+    xcb_intern_atom_reply_t* GetDeleteWindowAtom() const { return atom_wm_delete_window_; }
 
-    bool Destroy() override;
+    virtual bool Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
-    void SetPosition(const uint32_t x, const uint32_t y) override;
+    virtual bool Destroy() override;
 
-    void SetSize(const uint32_t width, const uint32_t height) override;
+    virtual void SetPosition(const int32_t x, const int32_t y) override;
 
-    void SetVisibility(bool show) override;
+    virtual void SetSize(const uint32_t width, const uint32_t height) override;
 
-    void SetFocus() override;
+    virtual void SetVisibility(bool show) override;
 
-    bool GetNativeHandle(uint32_t id, void ** handle) override;
+    virtual void SetForeground() override;
 
-    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
+    virtual bool GetNativeHandle(uint32_t id, void** handle) override;
 
-public:
-    xcb_intern_atom_reply_t*    atom_wm_delete_window;
+    virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
 
-private:
-    XcbApplication*             xcb_application_;
-    uint32_t                    width_;
-    uint32_t                    height_;
-    xcb_window_t                window_;
+  private:
+    XcbApplication* xcb_application_;
+    int32_t         xpos_;
+    int32_t         ypos_;
+    uint32_t        width_;
+    uint32_t        height_;
+    xcb_window_t    window_;
+    xcb_intern_atom_reply_t* atom_wm_delete_window_;
 };
 
 class XcbWindowFactory : public format::WindowFactory
 {
-public:
+  public:
     XcbWindowFactory(XcbApplication* application);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_XCB_SURFACE_EXTENSION_NAME; }
 
-    virtual format::Window* Create(const uint32_t width, const uint32_t height) override;
+    virtual format::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                           uint32_t         queue_family_index) override;
 
-private:
-    XcbApplication*            xcb_application_;
+  private:
+    XcbApplication* xcb_application_;
 };
 
 BRIMSTONE_END_NAMESPACE(application)

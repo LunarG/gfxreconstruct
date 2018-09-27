@@ -28,49 +28,80 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 
 class WaylandApplication : public Application
 {
-public:
+  public:
     WaylandApplication();
+
     virtual ~WaylandApplication();
 
-    void ProcessEvents(bool wait_for_input) override;
+    struct wl_display* GetDisplay() const { return display_; }
 
-public:
-    struct wl_display*          display;
-    struct wl_shell*            shell;
-    struct wl_compositor*       compositor;
+    struct wl_shell* GetShell() const { return shell_; }
 
-private:
-    struct wl_registry*         registry_;
-    struct wl_seat*             seat_;
-    struct wl_pointer*          pointer_;
-    struct wl_keyboard *        keyboard_;
+    struct wl_compositor* GetCompositor() const { return compositor_; }
 
-    struct wl_surface*          current_keyboard_surface_;
-    struct wl_surface*          current_pointer_surface_;
+    virtual void ProcessEvents(bool wait_for_input) override;
 
-    static struct wl_pointer_listener pointer_listener;
-    static struct wl_keyboard_listener keyboard_listener;
-    static struct wl_seat_listener seat_listener;
-    static struct wl_registry_listener registry_listener;
+  private:
+    static void pointer_handle_enter(void*              data,
+                                     struct wl_pointer* pointer,
+                                     uint32_t           serial,
+                                     struct wl_surface* surface,
+                                     wl_fixed_t         sx,
+                                     wl_fixed_t         sy);
 
-    static void pointer_handle_enter(void *data, struct wl_pointer *pointer, uint32_t serial, struct wl_surface *surface,
-                                     wl_fixed_t sx, wl_fixed_t sy);
-    static void pointer_handle_leave(void *data, struct wl_pointer *pointer, uint32_t serial, struct wl_surface *surface);
-    static void pointer_handle_motion(void *data, struct wl_pointer *pointer, uint32_t time, wl_fixed_t sx, wl_fixed_t sy);
-    static void pointer_handle_button(void *data, struct wl_pointer *wl_pointer, uint32_t serial, uint32_t time, uint32_t button,
-                                      uint32_t state);
-    static void pointer_handle_axis(void *data, struct wl_pointer *wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value);
-    static void keyboard_handle_keymap(void *data, struct wl_keyboard *keyboard, uint32_t format, int fd, uint32_t size);
-    static void keyboard_handle_enter(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface,
-                                      struct wl_array *keys);
-    static void keyboard_handle_leave(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface);
-    static void keyboard_handle_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, uint32_t time, uint32_t key,
-                                    uint32_t state);
-    static void keyboard_handle_modifiers(void *data, wl_keyboard *keyboard, uint32_t serial, uint32_t mods_depressed,
-                                          uint32_t mods_latched, uint32_t mods_locked, uint32_t group);
-    static void seat_handle_capabilities(void *data, wl_seat *seat, uint32_t caps);
-    static void registry_handle_global(void *data, wl_registry *registry, uint32_t id, const char *interface, uint32_t version);
-    static void registry_handle_global_remove(void *data, wl_registry *registry, uint32_t name);
+    static void
+    pointer_handle_leave(void* data, struct wl_pointer* pointer, uint32_t serial, struct wl_surface* surface);
+
+    static void
+    pointer_handle_motion(void* data, struct wl_pointer* pointer, uint32_t time, wl_fixed_t sx, wl_fixed_t sy);
+
+    static void pointer_handle_button(
+        void* data, struct wl_pointer* wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state);
+
+    static void
+    pointer_handle_axis(void* data, struct wl_pointer* wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value);
+
+    static void
+    keyboard_handle_keymap(void* data, struct wl_keyboard* keyboard, uint32_t format, int fd, uint32_t size);
+
+    static void keyboard_handle_enter(
+        void* data, struct wl_keyboard* keyboard, uint32_t serial, struct wl_surface* surface, struct wl_array* keys);
+
+    static void
+    keyboard_handle_leave(void* data, struct wl_keyboard* keyboard, uint32_t serial, struct wl_surface* surface);
+
+    static void keyboard_handle_key(
+        void* data, struct wl_keyboard* keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t state);
+
+    static void keyboard_handle_modifiers(void*        data,
+                                          wl_keyboard* keyboard,
+                                          uint32_t     serial,
+                                          uint32_t     mods_depressed,
+                                          uint32_t     mods_latched,
+                                          uint32_t     mods_locked,
+                                          uint32_t     group);
+
+    static void seat_handle_capabilities(void* data, wl_seat* seat, uint32_t caps);
+
+    static void
+    registry_handle_global(void* data, wl_registry* registry, uint32_t id, const char* interface, uint32_t version);
+
+    static void registry_handle_global_remove(void* data, wl_registry* registry, uint32_t name);
+
+  private:
+    static struct wl_pointer_listener   pointer_listener_;
+    static struct wl_keyboard_listener  keyboard_listener_;
+    static struct wl_seat_listener      seat_listener_;
+    static struct wl_registry_listener  registry_listener_;
+    struct wl_display*                  display_;
+    struct wl_shell*                    shell_;
+    struct wl_compositor*               compositor_;
+    struct wl_registry*                 registry_;
+    struct wl_seat*                     seat_;
+    struct wl_pointer*                  pointer_;
+    struct wl_keyboard*                 keyboard_;
+    struct wl_surface*                  current_keyboard_surface_;
+    struct wl_surface*                  current_pointer_surface_;
 };
 
 BRIMSTONE_END_NAMESPACE(application)

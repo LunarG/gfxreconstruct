@@ -28,38 +28,41 @@ BRIMSTONE_BEGIN_NAMESPACE(format)
 
 class Window
 {
-public:
+  public:
     Window() {}
 
-    virtual bool Create(const uint32_t width, const uint32_t height) = 0;
+    virtual ~Window() {}
+
+    virtual bool Create(const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height) = 0;
 
     virtual bool Destroy() = 0;
 
-    virtual void SetPosition(const uint32_t x, const uint32_t y) = 0;
+    virtual void SetPosition(const int32_t x, const int32_t y) = 0;
 
     virtual void SetSize(const uint32_t width, const uint32_t height) = 0;
 
     virtual void SetVisibility(bool show) = 0;
 
-    virtual void SetFocus() = 0;
+    virtual void SetForeground() = 0;
 
-    virtual bool GetNativeHandle(uint32_t id, void ** handle) = 0;
+    virtual bool GetNativeHandle(uint32_t id, void** handle) = 0;
 
     virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) = 0;
 
-public:
+  public:
     std::string name;
 };
 
 class WindowFactory
 {
-public:
-    WindowFactory() {};
-    virtual ~WindowFactory() {};
+  public:
+    WindowFactory(){};
+
+    virtual ~WindowFactory(){};
 
     virtual const char* GetSurfaceExtensionName() const = 0;
 
-    virtual Window* Create(const uint32_t width, const uint32_t height) = 0;
+    virtual Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) = 0;
 
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                           uint32_t         queue_family_index) = 0;

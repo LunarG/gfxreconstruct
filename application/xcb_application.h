@@ -31,11 +31,17 @@ class XcbApplication : public Application
 public:
     XcbApplication();
 
-    void ProcessEvents(bool wait_for_input) override;
+    ~XcbApplication();
 
-public:
-    xcb_connection_t*           connection;
-    xcb_screen_t*               screen;
+    xcb_connection_t* GetConnection() const { return connection_; }
+
+    xcb_screen_t* GetScreen() const { return screen_; }
+
+    virtual void ProcessEvents(bool wait_for_input) override;
+
+private:
+    xcb_connection_t*           connection_;
+    xcb_screen_t*               screen_;
 };
 
 BRIMSTONE_END_NAMESPACE(application)
