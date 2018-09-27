@@ -39,6 +39,6 @@
 #define BRIMSTONE_FOURCC BRIMSTONE_MAKE_FOURCC('G', 'R', 'E', 'C')
 
 // Determine if a type conversion would result in a loss of data.  Intended to check uint64_t to size_t conversions.
-#define BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(DstType, Value) assert(std::numeric_limits<DstType>::max() <= Value);
+#define BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(DstType, Value) assert(std::numeric_limits<DstType>::max() >= Value);
 
 #endif // BRIMSTONE_UTIL_DEFINES_H
