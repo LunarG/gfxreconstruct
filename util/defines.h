@@ -36,8 +36,6 @@
     (static_cast<uint32_t>(c0) | (static_cast<uint32_t>(c1) << 8) | (static_cast<uint32_t>(c2) << 16) | \
      (static_cast<uint32_t>(c3) << 24))
 
-#define BRIMSTONE_FOURCC BRIMSTONE_MAKE_FOURCC('G', 'R', 'E', 'C')
-
 // Determine if a type conversion would result in a loss of data.  Intended to check uint64_t to size_t conversions.
 #define BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(DstType, Value) assert(std::numeric_limits<DstType>::max() <= Value);
 

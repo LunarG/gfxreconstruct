@@ -1,4 +1,5 @@
 #include "format/file_processor.h"
+#include "format/format.h"
 #include "format/vulkan_ascii_consumer.h"
 #include "format/vulkan_decoder.h"
 #include "util/argument_parser.h"
@@ -15,18 +16,19 @@ void PrintUsage(const char* exe_name)
     BRIMSTONE_WRITE_CONSOLE("\n\n%s\tis a trace replay tool designed to output the API commands", app_name.c_str());
     BRIMSTONE_WRITE_CONSOLE("\t\tfound inside of a trace binary file.\n");
     BRIMSTONE_WRITE_CONSOLE("Usage:");
-    BRIMSTONE_WRITE_CONSOLE("\t%s <binary_file>\n", app_name.c_str());
-    BRIMSTONE_WRITE_CONSOLE("\t<binary_file>\t\tThe filename (including path if necessary) of the trace");
+    BRIMSTONE_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
+    BRIMSTONE_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the trace");
     BRIMSTONE_WRITE_CONSOLE("\t\t\t\tbinary file whose API command contents should be outputted.");
     BRIMSTONE_WRITE_CONSOLE("\t\t\t\tThe results will be output to a file of the same name but");
-    BRIMSTONE_WRITE_CONSOLE("\t\t\t\twith \'.bin\' suffix replaced with \'.txt\'.");
+    BRIMSTONE_WRITE_CONSOLE("\t\t\t\twith \'" BRIMSTONE_FILE_EXTENSION "\' suffix replaced with \'.txt\'.");
 }
 
 int main(int argc, const char** argv)
 {
     brimstone::format::FileProcessor file_processor;
-    std::string                      bin_file_name = "brimstone_test.bin";
     brimstone::util::ArgumentParser  arg_parser(argc, argv, "", "", 1);
+    std::string                      filename = "brimstone_test";
+    filename += BRIMSTONE_FILE_EXTENSION;
 
     brimstone::util::logging::Init();
 
@@ -38,16 +40,16 @@ int main(int argc, const char** argv)
     }
     else
     {
-        bin_file_name = non_optional_arguments[0];
+        filename = non_optional_arguments[0];
     }
 
     if (argc > 1)
     {
-        bin_file_name = argv[1];
+        filename = argv[1];
     }
 
-    std::string text_file_name = bin_file_name;
-    size_t      suffix_pos     = text_file_name.find(".bin");
+    std::string text_file_name = filename;
+    size_t      suffix_pos     = text_file_name.find(BRIMSTONE_FILE_EXTENSION);
     if (suffix_pos == std::string::npos)
     {
         text_file_name += ".txt";
@@ -57,7 +59,7 @@ int main(int argc, const char** argv)
         text_file_name.replace(suffix_pos, 4, ".txt");
     }
 
-    if (file_processor.Initialize(bin_file_name))
+    if (file_processor.Initialize(filename))
     {
         brimstone::format::VulkanDecoder       decoder;
         brimstone::format::VulkanAsciiConsumer ascii_consumer;

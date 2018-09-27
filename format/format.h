@@ -24,6 +24,9 @@
 #include "format/api_call_id.h"
 #include "util/compressor.h"
 
+#define BRIMSTONE_FOURCC BRIMSTONE_MAKE_FOURCC('G', 'C', 'A', 'P')
+#define BRIMSTONE_FILE_EXTENSION ".gcap"
+
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
