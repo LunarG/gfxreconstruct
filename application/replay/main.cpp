@@ -4,6 +4,7 @@
 
 #include "application/application.h"
 #include "format/file_processor.h"
+#include "format/format.h"
 #include "format/vulkan_replay_consumer.h"
 #include "format/vulkan_decoder.h"
 #include "format/window.h"
@@ -37,9 +38,9 @@ void PrintUsage(const char* exe_name)
     BRIMSTONE_WRITE_CONSOLE("\n%s\tis a trace replay tool designed to playback trace binary files.\n",
                             app_name.c_str());
     BRIMSTONE_WRITE_CONSOLE("Usage:");
-    BRIMSTONE_WRITE_CONSOLE("\t%s <binary_file>\n", app_name.c_str());
-    BRIMSTONE_WRITE_CONSOLE("\t<binary_file>\t\tThe filename (including path if necessary) of the ");
-    BRIMSTONE_WRITE_CONSOLE("\t\t\t\ttrace binary file to replay");
+    BRIMSTONE_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
+    BRIMSTONE_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the ");
+    BRIMSTONE_WRITE_CONSOLE("\t\t\t\ttrace file to replay");
 }
 
 int main(int argc, const char** argv)
@@ -49,7 +50,7 @@ int main(int argc, const char** argv)
     brimstone::util::logging::Init();
 
     brimstone::format::FileProcessor file_processor;
-    std::string                      bin_file_name;
+    std::string                      filename;
 
     brimstone::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
     const std::vector<std::string>  non_optional_arguments = arg_parser.GetNonOptionalArguments();
@@ -60,16 +61,16 @@ int main(int argc, const char** argv)
     }
     else
     {
-        bin_file_name = non_optional_arguments[0];
+        filename = non_optional_arguments[0];
 
         try
         {
             std::unique_ptr<brimstone::application::Application> application;
             std::unique_ptr<brimstone::format::WindowFactory>    window_factory;
 
-            if (!file_processor.Initialize(bin_file_name))
+            if (!file_processor.Initialize(filename))
             {
-                BRIMSTONE_WRITE_CONSOLE("Failed to load file %s.", bin_file_name.c_str());
+                BRIMSTONE_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
                 return_code = -1;
             }
             else

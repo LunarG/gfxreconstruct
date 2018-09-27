@@ -1,12 +1,12 @@
-add_executable(grectoascii "")
+add_executable(gcaptoascii "")
 
-target_sources(grectoascii
+target_sources(gcaptoascii
                PRIVATE
                    main.cpp
               )
 
-target_include_directories(grectoascii
+target_include_directories(gcaptoascii
                            PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
 
-target_link_libraries(grectoascii brimstone_format platform_specific)
+target_link_libraries(gcaptoascii brimstone_format platform_specific)

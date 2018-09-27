@@ -29,7 +29,7 @@
 #include "generated/generated_layer_func_table.inc"
 
 static const VkLayerProperties LayerProps = {
-    "VK_LAYER_LUNARG_vktrace", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "LunarG tracing layer",
+    "VK_LAYER_LUNARG_brimstone", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "LunarG API Capture Layer",
 };
 
 static const VkLayerInstanceCreateInfo* get_instance_chain_info(const VkInstanceCreateInfo* pCreateInfo, VkLayerFunction func)
@@ -76,8 +76,9 @@ bool init_layer()
     }
 
     // TODO: load settings from file.
-    std::string            binary_file_name = "./brimstone_test.bin";
     format::EnabledOptions options;
+    std::string            binary_file_name = "./brimstone_out";
+    binary_file_name += BRIMSTONE_FILE_EXTENSION;
 
 #if defined(ENABLE_LZ4_COMPRESSION)
     options.compression_type = util::CompressionType::kLz4;
