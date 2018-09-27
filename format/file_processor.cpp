@@ -24,11 +24,7 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-FileProcessor::FileProcessor() :
-    file_descriptor_(nullptr),
-    bytes_read_(0)
-{
-}
+FileProcessor::FileProcessor() : file_descriptor_(nullptr), bytes_read_(0), compressor_(nullptr) {}
 
 FileProcessor::~FileProcessor()
 {
