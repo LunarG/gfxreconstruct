@@ -85,11 +85,14 @@ bool DecompressDecoder::Initialize(std::string                        filename,
 
     if (file_stream_->IsValid())
     {
-        BRIMSTONE_LOG_ERROR("Failed to open file %s", filename_.c_str());
         bytes_written_ = 0;
         bytes_written_ += file_stream_->Write(&file_header, sizeof(file_header));
         bytes_written_ += file_stream_->Write(new_option_list.data(), new_option_list.size() * sizeof(FileOptionPair));
         success = true;
+    }
+    else
+    {
+        BRIMSTONE_LOG_ERROR("Failed to open file %s", filename_.c_str());
     }
 
     return success;
@@ -202,6 +205,82 @@ void DecompressDecoder::DecodeFunctionCall(ApiCallId             call_id,
 
         // Write parameter data.
         bytes_written_ += file_stream_->Write(buffer, buffer_size);
+    }
+}
+
+void DecompressDecoder::DispatchDisplayMessageCommand(const std::string& message)
+{
+    size_t                      message_length = message.size();
+    DisplayMessageCommandHeader message_cmd;
+    message_cmd.meta_header.block_header.type = kMetaDataBlock;
+    message_cmd.meta_header.block_header.size =
+        sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.message_size) + message_length;
+    message_cmd.meta_header.meta_data_type = kDisplayMessageCommand;
+    message_cmd.message_size               = message_length;
+    {
+        bytes_written_ += file_stream_->Write(&message_cmd, sizeof(message_cmd));
+        bytes_written_ += file_stream_->Write(message.c_str(), message_length);
+    }
+}
+
+void DecompressDecoder::DispatchFillMemoryCommand(uint64_t       memory_id,
+                                                  uint64_t       offset,
+                                                  uint64_t       size,
+                                                  const uint8_t* data)
+{
+    // NOTE: Don't apply the offset to the write_address here since it's coming from the file_processor
+    //       at the start of the stream.  We only need to record the writing offset for future info.
+    FillMemoryCommandHeader fill_cmd;
+    const uint8_t*          write_address = static_cast<const uint8_t*>(data);
+    size_t                  write_size    = size;
+
+    fill_cmd.meta_header.block_header.type = kMetaDataBlock;
+    fill_cmd.meta_header.meta_data_type    = kFillMemoryCommand;
+    fill_cmd.memory_id                     = memory_id;
+    fill_cmd.memory_offset                 = offset;
+    fill_cmd.memory_size                   = size;
+
+    if ((decompress_mode_ == kCompress) && (compressor_ != nullptr))
+    {
+        size_t compressed_size = compressor_->Compress(size, write_address, &compressed_buffer_);
+        if ((compressed_size > 0) && (compressed_size < size))
+        {
+            // We don't have a special header for compressed fill commands because the header always includes
+            // the uncompressed size, so we just change the type to indicate the data is compressed.
+            fill_cmd.meta_header.block_header.type = kCompressedMetaDataBlock;
+
+            write_address = compressed_buffer_.data();
+            write_size    = compressed_size;
+        }
+    }
+
+    // Calculate size of packet with compressed or uncompressed data size.
+    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) +
+                                                sizeof(fill_cmd.memory_id) + sizeof(fill_cmd.memory_offset) +
+                                                sizeof(fill_cmd.memory_size) + write_size;
+
+    {
+        std::lock_guard<std::mutex> lock(file_lock_);
+
+        bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
+        bytes_written_ += file_stream_->Write(write_address, write_size);
+    }
+}
+
+void DecompressDecoder::DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height)
+{
+    ResizeWindowCommand resize_cmd;
+    resize_cmd.meta_header.block_header.type = kMetaDataBlock;
+    resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
+                                               sizeof(resize_cmd.surface_id) + sizeof(resize_cmd.width) +
+                                               sizeof(resize_cmd.height);
+    resize_cmd.meta_header.meta_data_type = kResizeWindowCommand;
+    resize_cmd.surface_id                 = surface_id;
+    resize_cmd.width                      = width;
+    resize_cmd.height                     = height;
+    {
+        std::lock_guard<std::mutex> lock(file_lock_);
+        bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
     }
 }
 
