@@ -22,7 +22,13 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 
 Win32Application::Win32Application()
 {
+}
 
+bool Win32Application::Initialize(format::FileProcessor* file_processor)
+{
+    // No additional initialization is required for WIN32.
+    SetFileProcessor(file_processor);
+    return true;
 }
 
 LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp)

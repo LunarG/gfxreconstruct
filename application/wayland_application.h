@@ -39,6 +39,8 @@ class WaylandApplication : public Application
 
     struct wl_compositor* GetCompositor() const { return compositor_; }
 
+    virtual bool Initialize(format::FileProcessor* file_processor) override;
+
     virtual void ProcessEvents(bool wait_for_input) override;
 
   private:

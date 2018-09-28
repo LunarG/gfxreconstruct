@@ -18,6 +18,7 @@
 #include <cstring>
 #include <linux/input.h>
 
+#include "util/logging.h"
 #include "application/wayland_application.h"
 #include "application/wayland_window.h"
 
@@ -32,6 +33,28 @@ struct wl_registry_listener WaylandApplication::registry_listener_;
 WaylandApplication::WaylandApplication() :
     display_(nullptr), shell_(nullptr), compositor_(nullptr), registry_(nullptr), seat_(nullptr), pointer_(nullptr),
     keyboard_(nullptr), current_keyboard_surface_(nullptr), current_pointer_surface_(nullptr)
+{
+}
+
+WaylandApplication::~WaylandApplication()
+{
+    if (keyboard_)
+        wl_keyboard_destroy(keyboard_);
+    if (pointer_)
+        wl_pointer_destroy(pointer_);
+    if (seat_)
+        wl_seat_destroy(seat_);
+    if (shell_)
+        wl_shell_destroy(shell_);
+    if (compositor_)
+        wl_compositor_destroy(compositor_);
+    if (registry_)
+        wl_registry_destroy(registry_);
+    if (display_)
+        wl_display_disconnect(display_);
+}
+
+bool WaylandApplication::Initialize(format::FileProcessor* file_processor)
 {
     // Populate callback structs
     pointer_listener_.enter  = pointer_handle_enter;
@@ -73,35 +96,14 @@ WaylandApplication::WaylandApplication() :
     }
     catch (const std::runtime_error& ex)
     {
-        if (shell_)
-            wl_shell_destroy(shell_);
-        if (compositor_)
-            wl_compositor_destroy(compositor_);
-        if (registry_)
-            wl_registry_destroy(registry_);
-        if (display_)
-            wl_display_disconnect(display_);
+        BRIMSTONE_LOG_ERROR("%s", ex.what());
 
-        throw;
+        return false;
     }
-}
 
-WaylandApplication::~WaylandApplication()
-{
-    if (keyboard_)
-        wl_keyboard_destroy(keyboard_);
-    if (pointer_)
-        wl_pointer_destroy(pointer_);
-    if (seat_)
-        wl_seat_destroy(seat_);
-    if (shell_)
-        wl_shell_destroy(shell_);
-    if (compositor_)
-        wl_compositor_destroy(compositor_);
-    if (registry_)
-        wl_registry_destroy(registry_);
-    if (display_)
-        wl_display_disconnect(display_);
+    SetFileProcessor(file_processor);
+
+    return true;
 }
 
 void WaylandApplication::ProcessEvents(bool wait_for_input)

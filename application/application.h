@@ -33,7 +33,7 @@ public:
 
     virtual ~Application();
 
-    void SetFileProcessor(format::FileProcessor* file_processor);
+    virtual bool Initialize(format::FileProcessor* file_processor) = 0;
 
     bool IsRunning() const { return running_; }
 
@@ -53,6 +53,8 @@ public:
 
 protected:
     void StopRunning() { running_ = false; }
+
+    void SetFileProcessor(format::FileProcessor* file_processor);
 
 protected:
     std::vector<format::Window*> windows_;

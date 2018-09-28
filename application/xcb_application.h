@@ -37,6 +37,8 @@ public:
 
     xcb_screen_t* GetScreen() const { return screen_; }
 
+    virtual bool Initialize(format::FileProcessor* file_processor) override;
+
     virtual void ProcessEvents(bool wait_for_input) override;
 
 private:
