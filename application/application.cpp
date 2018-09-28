@@ -15,6 +15,7 @@
 */
 
 #include <algorithm>
+#include <cassert>
 
 #include "util/logging.h"
 #include "application/application.h"
@@ -33,7 +34,7 @@ Application::~Application()
 
         for (auto window : windows_)
         {
-            window->Destroy();
+            delete window;
         }
     }
 }
@@ -73,6 +74,8 @@ bool Application::PlaySingleFrame()
 
 bool Application::RegisterWindow(format::Window* window)
 {
+    assert(window != nullptr);
+
     if (std::find(windows_.begin(), windows_.end(), window) != windows_.end())
     {
         BRIMSTONE_LOG_INFO("A window was registered with the application more than once");
@@ -86,6 +89,8 @@ bool Application::RegisterWindow(format::Window* window)
 
 bool Application::UnregisterWindow(format::Window* window)
 {
+    assert(window != nullptr);
+
     auto pos = std::find(windows_.begin(), windows_.end(), window);
 
     if (pos == windows_.end())

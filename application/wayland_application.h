@@ -17,6 +17,8 @@
 #ifndef BRIMSTONE_APPLICATION_WAYLAND_APPLICATION_H
 #define BRIMSTONE_APPLICATION_WAYLAND_APPLICATION_H
 
+#include <unordered_map>
+
 #include <wayland-client.h>
 
 #include "application/application.h"
@@ -25,6 +27,8 @@
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
+
+class WaylandWindow;
 
 class WaylandApplication : public Application
 {
@@ -40,6 +44,10 @@ class WaylandApplication : public Application
     struct wl_compositor* GetCompositor() const { return compositor_; }
 
     virtual bool Initialize(format::FileProcessor* file_processor) override;
+
+    bool RegisterWaylandWindow(WaylandWindow* window);
+
+    bool UnregisterWaylandWindow(WaylandWindow* window);
 
     virtual void ProcessEvents(bool wait_for_input) override;
 
@@ -91,6 +99,9 @@ class WaylandApplication : public Application
     static void registry_handle_global_remove(void* data, wl_registry* registry, uint32_t name);
 
   private:
+    typedef std::unordered_map<struct wl_surface*, WaylandWindow*> WaylandWindowMap;
+
+  private:
     static struct wl_pointer_listener   pointer_listener_;
     static struct wl_keyboard_listener  keyboard_listener_;
     static struct wl_seat_listener      seat_listener_;
@@ -104,6 +115,7 @@ class WaylandApplication : public Application
     struct wl_keyboard*                 keyboard_;
     struct wl_surface*                  current_keyboard_surface_;
     struct wl_surface*                  current_pointer_surface_;
+    WaylandWindowMap                    wayland_windows_;
 };
 
 BRIMSTONE_END_NAMESPACE(application)

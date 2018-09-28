@@ -61,6 +61,35 @@ bool XcbApplication::Initialize(format::FileProcessor* file_processor)
     return true;
 }
 
+bool XcbApplication::RegisterXcbWindow(XcbWindow* window)
+{
+    bool success = Application::RegisterWindow(window);
+
+    if (success)
+    {
+        xcb_window_t window_id = window->GetWindowId();
+
+        if (window_id != 0)
+        {
+            xcb_windows_.insert(std::make_pair(window_id, window));
+        }
+    }
+
+    return success;
+}
+
+bool XcbApplication::UnregisterXcbWindow(XcbWindow* window)
+{
+    bool success = Application::UnregisterWindow(window);
+
+    if (success)
+    {
+        xcb_windows_.erase(window->GetWindowId());
+    }
+
+    return success;
+}
+
 void XcbApplication::ProcessEvents(bool wait_for_input)
 {
     while (IsRunning())
@@ -91,17 +120,16 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 case XCB_CLIENT_MESSAGE:
                 {
                     xcb_client_message_event_t* message_event = reinterpret_cast<xcb_client_message_event_t*>(event);
-                    for (auto window : windows_)
-                    {
-                        XcbWindow* xcb_window = dynamic_cast<XcbWindow*>(window);
-                        if (xcb_window != nullptr)
-                        {
-                            xcb_intern_atom_reply_t* atom = xcb_window->GetDeleteWindowAtom();
+                    auto entry = xcb_windows_.find(message_event->window);
 
-                            if ((atom != nullptr) && (message_event->data.data32[0] == atom->atom))
-                            {
-                                StopRunning();
-                            }
+                    if (entry != xcb_windows_.end())
+                    {
+                        XcbWindow*               xcb_window = entry->second;
+                        xcb_intern_atom_reply_t* atom       = xcb_window->GetDeleteWindowAtom();
+
+                        if ((atom != nullptr) && (message_event->data.data32[0] == atom->atom))
+                        {
+                            StopRunning();
                         }
                     }
 

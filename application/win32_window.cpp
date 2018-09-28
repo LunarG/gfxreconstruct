@@ -30,22 +30,28 @@ Win32Window::Win32Window(Win32Application* application) :
 {
     assert(application != nullptr);
 
-    win32_application_->RegisterWindow(this);
-
     screen_width_  = GetSystemMetrics(SM_CXFULLSCREEN);
     screen_height_ = GetSystemMetrics(SM_CYFULLSCREEN);
 }
 
 Win32Window::~Win32Window()
 {
-    win32_application_->UnregisterWindow(this);
+    if (hwnd_ != nullptr)
+    {
+        DestroyWindow(hwnd_);
+    }
 }
 
 bool Win32Window::Create(const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
 {
     const char class_name[] = "GCAPPlay Window";
 
-    hinstance_ = GetModuleHandle(0);
+    hinstance_ = GetModuleHandle(nullptr);
+    if (hinstance_ == nullptr)
+    {
+        BRIMSTONE_LOG_ERROR("Failed to retrieve instance for window creation");
+        return false;
+    }
 
     // Register Window class
     WNDCLASSEX wcex    = {};
@@ -82,6 +88,8 @@ bool Win32Window::Create(const int32_t xpos, const int32_t ypos, const uint32_t 
 
     if (hwnd_)
     {
+        win32_application_->RegisterWindow(this);
+
         xpos_   = xpos;
         ypos_   = ypos;
         width_  = width;
@@ -101,8 +109,15 @@ bool Win32Window::Create(const int32_t xpos, const int32_t ypos, const uint32_t 
 
 bool Win32Window::Destroy()
 {
-    DestroyWindow(hwnd_);
-    return true;
+    if (hwnd_ != nullptr)
+    {
+        DestroyWindow(hwnd_);
+        win32_application_->UnregisterWindow(this);
+        hwnd_ = nullptr;
+        return true;
+    }
+
+    return false;
 }
 
 void Win32Window::SetPosition(const int32_t x, const int32_t y)

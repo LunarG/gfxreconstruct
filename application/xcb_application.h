@@ -17,6 +17,8 @@
 #ifndef BRIMSTONE_APPLICATION_XCB_APPLICATION_H
 #define BRIMSTONE_APPLICATION_XCB_APPLICATION_H
 
+#include <unordered_map>
+
 #include <xcb/xcb.h>
 
 #include "application/application.h"
@@ -25,6 +27,8 @@
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
+
+class XcbWindow;
 
 class XcbApplication : public Application
 {
@@ -39,11 +43,19 @@ public:
 
     virtual bool Initialize(format::FileProcessor* file_processor) override;
 
+    bool RegisterXcbWindow(XcbWindow* window);
+
+    bool UnregisterXcbWindow(XcbWindow* window);
+
     virtual void ProcessEvents(bool wait_for_input) override;
 
 private:
-    xcb_connection_t*           connection_;
-    xcb_screen_t*               screen_;
+    typedef std::unordered_map<xcb_window_t, XcbWindow*> XcbWindowMap;
+
+private:
+    xcb_connection_t* connection_;
+    xcb_screen_t*     screen_;
+    XcbWindowMap      xcb_windows_;
 };
 
 BRIMSTONE_END_NAMESPACE(application)

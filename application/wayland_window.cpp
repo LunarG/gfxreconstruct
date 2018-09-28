@@ -33,8 +33,6 @@ WaylandWindow::WaylandWindow(WaylandApplication* application) :
 {
     assert(application != nullptr);
 
-    wayland_application_->RegisterWindow(this);
-
     // Populate callback structs
     shell_surface_listener_.ping       = handle_ping;
     shell_surface_listener_.configure  = handle_configure;
@@ -43,18 +41,10 @@ WaylandWindow::WaylandWindow(WaylandApplication* application) :
 
 WaylandWindow::~WaylandWindow()
 {
-    wayland_application_->UnregisterWindow(this);
 }
 
 bool WaylandWindow::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
-    bool success = true;
-
-    xpos_   = x;
-    ypos_   = y;
-    width_  = width;
-    height_ = height;
-
     surface_ = wl_compositor_create_surface(wayland_application_->GetCompositor());
     if (surface_ == nullptr)
     {
@@ -69,6 +59,13 @@ bool WaylandWindow::Create(const int32_t x, const int32_t y, const uint32_t widt
         return false;
     }
 
+    wayland_application_->RegisterWaylandWindow(this);
+
+    xpos_   = x;
+    ypos_   = y;
+    width_  = width;
+    height_ = height;
+
     wl_shell_surface_add_listener(shell_surface_, &WaylandWindow::shell_surface_listener_, this);
     wl_shell_surface_set_title(shell_surface_, name.c_str());
     wl_shell_surface_set_toplevel(shell_surface_);
@@ -78,19 +75,21 @@ bool WaylandWindow::Create(const int32_t x, const int32_t y, const uint32_t widt
 
 bool WaylandWindow::Destroy()
 {
-    if (shell_surface_)
-    {
-        wl_shell_surface_destroy(shell_surface_);
-        shell_surface_ = nullptr;
-    }
-
     if (surface_)
     {
+        if (shell_surface_)
+        {
+            wl_shell_surface_destroy(shell_surface_);
+            shell_surface_ = nullptr;
+        }
+
         wl_surface_destroy(surface_);
+        wayland_application_->UnregisterWaylandWindow(this);
         surface_ = nullptr;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 void WaylandWindow::SetPosition(const int32_t x, const int32_t y) {}
