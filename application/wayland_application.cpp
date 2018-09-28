@@ -106,6 +106,35 @@ bool WaylandApplication::Initialize(format::FileProcessor* file_processor)
     return true;
 }
 
+bool WaylandApplication::RegisterWaylandWindow(WaylandWindow* window)
+{
+    bool success = Application::RegisterWindow(window);
+
+    if (success)
+    {
+        struct wl_surface* surface = window->GetSurface();
+
+        if (surface != nullptr)
+        {
+            wayland_windows_.insert(std::make_pair(surface, window));
+        }
+    }
+
+    return success;
+}
+
+bool WaylandApplication::UnregisterWaylandWindow(WaylandWindow* window)
+{
+    bool success = Application::UnregisterWindow(window);
+
+    if (success)
+    {
+        wayland_windows_.erase(window->GetSurface());
+    }
+
+    return success;
+}
+
 void WaylandApplication::ProcessEvents(bool wait_for_input)
 {
     wl_display_dispatch_pending(display_);
@@ -225,19 +254,12 @@ void WaylandApplication::pointer_handle_motion(
 void WaylandApplication::pointer_handle_button(
     void* data, struct wl_pointer* wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state)
 {
-    auto           app    = (WaylandApplication*)data;
-    WaylandWindow* window = nullptr;
-    for (auto window : app->windows_)
+    auto app   = reinterpret_cast<WaylandApplication*>(data);
+    auto entry = app->wayland_windows_.find(app->current_keyboard_surface_);
+
+    if (entry != app->wayland_windows_.end())
     {
-        auto wl_wind = (WaylandWindow*)window;
-        if (wl_wind->GetSurface() == app->current_pointer_surface_)
-        {
-            window = wl_wind;
-            break;
-        }
-    }
-    if (window)
-    {
+        WaylandWindow* window = entry->second;
         if (button == BTN_LEFT && state == WL_POINTER_BUTTON_STATE_PRESSED)
         {
             wl_shell_surface_move(window->GetShellSurface(), app->seat_, serial);

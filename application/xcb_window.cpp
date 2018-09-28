@@ -28,19 +28,18 @@ XcbWindow::XcbWindow(XcbApplication* application) :
     atom_wm_delete_window_(nullptr)
 {
     assert(application != nullptr);
-    xcb_application_->RegisterWindow(this);
 }
 
 XcbWindow::~XcbWindow()
 {
-    xcb_application_->UnregisterWindow(this);
+    if (window_ != 0)
+    {
+        xcb_destroy_window(xcb_application_->GetConnection(), window_);
+    }
 }
 
 bool XcbWindow::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
-    uint32_t value_mask;
-    uint32_t value_list[32];
-
     xcb_connection_t* connection = xcb_application_->GetConnection();
     xcb_screen_t*     screen     = xcb_application_->GetScreen();
 
@@ -50,9 +49,11 @@ bool XcbWindow::Create(const int32_t x, const int32_t y, const uint32_t width, c
     width_  = width;
     height_ = height;
 
-    value_mask    = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-    value_list[0] = screen->black_pixel;
-    value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
+    xcb_application_->RegisterXcbWindow(this);
+
+    uint32_t value_mask   = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
+    uint32_t value_list[] = { screen->black_pixel,
+                              XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY };
 
     xcb_create_window(connection,
                       XCB_COPY_FROM_PARENT,
@@ -91,8 +92,12 @@ bool XcbWindow::Destroy()
     if (window_ != 0)
     {
         xcb_destroy_window(xcb_application_->GetConnection(), window_);
+        xcb_application_->UnregisterXcbWindow(this);
+        window_ = 0;
+        return true;
     }
-    return true;
+
+    return false;
 }
 
 void XcbWindow::SetPosition(const int32_t x, const int32_t y)

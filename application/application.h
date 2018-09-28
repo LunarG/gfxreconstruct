@@ -56,11 +56,9 @@ protected:
 
     void SetFileProcessor(format::FileProcessor* file_processor);
 
-protected:
-    std::vector<format::Window*> windows_;
-
 private:
     // clang-format off
+    std::vector<format::Window*> windows_;          ///< List of windows that have been registered with the application.
     format::FileProcessor*       file_processor_;   ///< The FileProcessor object responsible for decoding and processing
                                                     ///< capture file data.
     bool                         running_;          ///< Indicatess that the application is actively processing system
