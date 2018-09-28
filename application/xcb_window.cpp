@@ -18,14 +18,15 @@
 
 #include "volk.h"
 
+#include "util/logging.h"
 #include "application/xcb_window.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
 XcbWindow::XcbWindow(XcbApplication* application) :
-    xcb_application_(application), xpos_(0), ypos_(0), width_(0), height_(0), window_(0),
-    atom_wm_delete_window_(nullptr)
+    xcb_application_(application), xpos_(0), ypos_(0), width_(0), height_(0), window_(0), map_complete_(false),
+    resize_complete_(false), atom_wm_delete_window_(nullptr)
 {
     assert(application != nullptr);
 }
@@ -44,10 +45,11 @@ bool XcbWindow::Create(const int32_t x, const int32_t y, const uint32_t width, c
     xcb_screen_t*     screen     = xcb_application_->GetScreen();
 
     window_ = xcb_generate_id(connection);
-    xpos_   = x;
-    ypos_   = y;
-    width_  = width;
-    height_ = height;
+    if (window_ == 0)
+    {
+        BRIMSTONE_LOG_ERROR("Failed to generate window ID");
+        return false;
+    }
 
     xcb_application_->RegisterXcbWindow(this);
 
@@ -55,21 +57,29 @@ bool XcbWindow::Create(const int32_t x, const int32_t y, const uint32_t width, c
     uint32_t value_list[] = { screen->black_pixel,
                               XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY };
 
-    xcb_create_window(connection,
-                      XCB_COPY_FROM_PARENT,
-                      window_,
-                      screen->root,
-                      static_cast<int16_t>(x),
-                      static_cast<int16_t>(y),
-                      static_cast<uint16_t>(width),
-                      static_cast<uint16_t>(height),
-                      0,
-                      XCB_WINDOW_CLASS_INPUT_OUTPUT,
-                      screen->root_visual,
-                      value_mask,
-                      value_list);
+    xcb_void_cookie_t check_cookie = xcb_create_window_checked(connection,
+                                                               XCB_COPY_FROM_PARENT,
+                                                               window_,
+                                                               screen->root,
+                                                               static_cast<int16_t>(x),
+                                                               static_cast<int16_t>(y),
+                                                               static_cast<uint16_t>(width),
+                                                               static_cast<uint16_t>(height),
+                                                               0,
+                                                               XCB_WINDOW_CLASS_INPUT_OUTPUT,
+                                                               screen->root_visual,
+                                                               value_mask,
+                                                               value_list);
 
-    // Magic code that will send notification when window is destroyed.
+    xcb_generic_error_t* error = xcb_request_check(connection, check_cookie);
+    if (error != nullptr)
+    {
+        BRIMSTONE_LOG_ERROR("Failed to create window with error %u", error->error_code);
+        window_ = 0;
+        return false;
+    }
+
+    // Request notification when user tries to close the window.
     xcb_intern_atom_cookie_t cookie = xcb_intern_atom(connection, 1, 12, "WM_PROTOCOLS");
     xcb_intern_atom_reply_t* reply  = xcb_intern_atom_reply(connection, cookie, 0);
 
@@ -80,9 +90,28 @@ bool XcbWindow::Create(const int32_t x, const int32_t y, const uint32_t width, c
         connection, XCB_PROP_MODE_REPLACE, window_, reply->atom, 4, 32, 1, &(atom_wm_delete_window_->atom));
     free(reply);
 
-    // Make sure window is visible.
-    xcb_map_window(connection, window_);
-    xcb_flush(connection);
+    check_cookie = xcb_map_window_checked(connection, window_);
+
+    error = xcb_request_check(connection, check_cookie);
+    if (error != nullptr)
+    {
+        BRIMSTONE_LOG_ERROR("Failed to map window with error %u", error->error_code);
+        return false;
+    }
+
+    // TODO: Determine if the following is necessary.  It wasn't clear if the xcb_request_check
+    // could return after the server has validated and accepted the request, but before the
+    // requested action had been performed.
+    map_complete_ = false;
+    while (!map_complete_ && xcb_application_->IsRunning())
+    {
+        xcb_application_->ProcessEvents(true);
+    }
+
+    xpos_   = x;
+    ypos_   = y;
+    width_  = width;
+    height_ = height;
 
     return true;
 }
@@ -125,25 +154,54 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
         xcb_connection_t* connection = xcb_application_->GetConnection();
         uint32_t          values[]   = { width, height };
 
-        xcb_configure_window(connection, window_, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-        xcb_flush(connection);
+        xcb_void_cookie_t cookie = xcb_configure_window_checked(
+            connection, window_, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+
+        xcb_generic_error_t* error = xcb_request_check(connection, cookie);
+        if (error == nullptr)
+        {
+            // Wait for configure notification.
+            resize_complete_ = false;
+            while (!resize_complete_ && xcb_application_->IsRunning())
+            {
+                xcb_application_->ProcessEvents(true);
+            }
+        }
+        else
+        {
+            BRIMSTONE_LOG_ERROR("Failed to resize window with error %u", error->error_code);
+        }
     }
 }
 
 void XcbWindow::SetVisibility(bool show)
 {
     xcb_connection_t* connection = xcb_application_->GetConnection();
+    xcb_void_cookie_t cookie;
 
     if (show)
     {
-        xcb_map_window(connection, window_);
+        cookie = xcb_map_window_checked(connection, window_);
     }
     else
     {
-        xcb_unmap_window(connection, window_);
+        cookie = xcb_unmap_window_checked(connection, window_);
     }
 
-    xcb_flush(connection);
+    xcb_generic_error_t* error = xcb_request_check(connection, cookie);
+    if (error == nullptr)
+    {
+        // Wait for map notification.
+        map_complete_ = false;
+        while (!map_complete_ && xcb_application_->IsRunning())
+        {
+            xcb_application_->ProcessEvents(true);
+        }
+    }
+    else
+    {
+        BRIMSTONE_LOG_ERROR("Failed to change window visibility with error %u", error->error_code);
+    }
 }
 
 void XcbWindow::SetForeground()
