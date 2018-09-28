@@ -99,6 +99,9 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
         if (wait_for_input)
         {
             event = xcb_wait_for_event(connection_);
+
+            // Stop waiting after the first event or this function never will exit.
+            wait_for_input = false;
         }
         else
         {
@@ -137,7 +140,7 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 }
                 case XCB_KEY_RELEASE:
                 {
-                    const xcb_key_release_event_t *key = (const xcb_key_release_event_t *)event;
+                    const xcb_key_release_event_t* key = (const xcb_key_release_event_t *)event;
 
                     switch (key->detail)
                     {
@@ -153,16 +156,28 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 }
                 case XCB_CONFIGURE_NOTIFY:
                 {
-                    xcb_configure_notify_event_t *cne = reinterpret_cast<xcb_configure_notify_event_t*>(event);
-                    // Our window has been resized, probably by the window manager.
-                    // TODO
+                    xcb_configure_notify_event_t* configure_event = reinterpret_cast<xcb_configure_notify_event_t*>(event);
+                    auto entry = xcb_windows_.find(configure_event->window);
+
+                    if (entry != xcb_windows_.end())
+                    {
+                        XcbWindow* xcb_window = entry->second;
+                        xcb_window->ResizeNotify(configure_event->width, configure_event->height);
+                    }
+
                     break;
                 }
                 case XCB_MAP_NOTIFY:
                 {
-                    // If we were waiting for a MapWindow request to be processed,
-                    // we can now continue
-                    // TODO
+                    xcb_map_notify_event_t* map_event = reinterpret_cast<xcb_map_notify_event_t*>(event);
+                    auto entry = xcb_windows_.find(map_event->window);
+
+                    if (entry != xcb_windows_.end())
+                    {
+                        XcbWindow* xcb_window = entry->second;
+                        xcb_window->MapNotify();
+                    }
+
                     break;
                 }
             }
