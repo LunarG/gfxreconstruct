@@ -97,7 +97,7 @@ int main(int argc, const char** argv)
 #endif
             }
 
-            if (!application || !window_factory)
+            if (!window_factory || !application || !application->Initialize(&file_processor))
             {
                 BRIMSTONE_WRITE_CONSOLE(
                     "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
@@ -106,8 +106,6 @@ int main(int argc, const char** argv)
             }
             else
             {
-                application->SetFileProcessor(&file_processor);
-
                 brimstone::format::VulkanDecoder        decoder;
                 brimstone::format::VulkanReplayConsumer replay_consumer(window_factory.get());
 

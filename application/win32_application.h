@@ -29,6 +29,8 @@ class Win32Application : public Application
 public:
     Win32Application();
 
+    virtual bool Initialize(format::FileProcessor* file_processor) override;
+
     virtual void ProcessEvents(bool wait_for_input) override;
 
     static LRESULT WINAPI WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);

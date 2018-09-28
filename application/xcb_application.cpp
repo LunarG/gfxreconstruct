@@ -16,16 +16,35 @@
 
 #include <cstdlib>
 
+#include "util/logging.h"
 #include "application/xcb_application.h"
 #include "application/xcb_window.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
-XcbApplication::XcbApplication()
+XcbApplication::XcbApplication() : connection_(nullptr), screen_(nullptr)
+{
+}
+
+XcbApplication::~XcbApplication()
+{
+    if (connection_ != nullptr)
+    {
+        xcb_disconnect(connection_);
+    }
+}
+
+bool XcbApplication::Initialize(format::FileProcessor* file_processor)
 {
     int screen_count = 0;
-    connection_ = xcb_connect(nullptr, &screen_count);
+    connection_      = xcb_connect(nullptr, &screen_count);
+
+    if (xcb_connection_has_error(connection_))
+    {
+        BRIMSTONE_LOG_ERROR("Failed to connect to X server");
+        return false;
+    }
 
     const xcb_setup_t*    setup = xcb_get_setup(connection_);
     xcb_screen_iterator_t iter  = xcb_setup_roots_iterator(setup);
@@ -36,14 +55,10 @@ XcbApplication::XcbApplication()
     }
 
     screen_ = iter.data;
-}
 
-XcbApplication::~XcbApplication()
-{
-    if (connection_ != nullptr)
-    {
-        xcb_disconnect(connection_);
-    }
+    SetFileProcessor(file_processor);
+
+    return true;
 }
 
 void XcbApplication::ProcessEvents(bool wait_for_input)
