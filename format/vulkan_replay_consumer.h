@@ -111,15 +111,19 @@ class VulkanReplayConsumer : public VulkanConsumer
                                    VkBool32       waitAll,
                                    uint64_t       timeout);
 
-   VkResult OverrideGetQueryPoolResults(VkResult           original_result,
-                                        VkDevice           device,
-                                        VkQueryPool        queryPool,
-                                        uint32_t           firstQuery,
-                                        uint32_t           queryCount,
-                                        size_t             dataSize,
-                                        void*              pData,
-                                        VkDeviceSize       stride,
-                                        VkQueryResultFlags flags);
+    VkResult OverrideGetFenceStatus(VkResult original_result, VkDevice device, VkFence fence);
+
+    VkResult OverrideGetEventStatus(VkResult original_result, VkDevice device, VkEvent event);
+
+    VkResult OverrideGetQueryPoolResults(VkResult           original_result,
+                                         VkDevice           device,
+                                         VkQueryPool        queryPool,
+                                         uint32_t           firstQuery,
+                                         uint32_t           queryCount,
+                                         size_t             dataSize,
+                                         void*              pData,
+                                         VkDeviceSize       stride,
+                                         VkQueryResultFlags flags);
 
     VkResult OverrideMapMemory(VkDevice         device,
                                VkDeviceMemory   memory,
@@ -284,6 +288,30 @@ class VulkanReplayConsumer : public VulkanConsumer
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideWaitForFences(original_result, args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkGetFenceStatus, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret
+        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkGetFenceStatus func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideGetFenceStatus(original_result, args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkGetEventStatus, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret
+        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkGetEventStatus func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideGetEventStatus(original_result, args...);
         }
     };
 

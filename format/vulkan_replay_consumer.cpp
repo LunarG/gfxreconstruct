@@ -308,6 +308,30 @@ VkResult VulkanReplayConsumer::OverrideWaitForFences(VkResult       original_res
     return result;
 }
 
+VkResult VulkanReplayConsumer::OverrideGetFenceStatus(VkResult original_result, VkDevice device, VkFence fence)
+{
+    VkResult result;
+
+    do
+    {
+        result = vkGetFenceStatus(device, fence);
+    } while ((original_result == VK_SUCCESS) && (result == VK_NOT_READY));
+
+    return result;
+}
+
+VkResult VulkanReplayConsumer::OverrideGetEventStatus(VkResult original_result, VkDevice device, VkEvent event)
+{
+    VkResult result;
+
+    do
+    {
+        result = vkGetEventStatus(device, event);
+    } while ((original_result == VK_EVENT_SET) && (result == VK_EVENT_RESET));
+
+    return result;
+}
+
 VkResult VulkanReplayConsumer::OverrideGetQueryPoolResults(VkResult           original_result,
                                                            VkDevice           device,
                                                            VkQueryPool        queryPool,
@@ -731,5 +755,5 @@ void VulkanReplayConsumer::Process_vkRegisterObjectsNVX(
 
 #include "generated/generated_api_call_replay_consumer_definitions.inc"
 
-    BRIMSTONE_END_NAMESPACE(format)
-    BRIMSTONE_END_NAMESPACE(brimstone)
+BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(brimstone)
