@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <exception>
 #include <memory>
+#include <string>
 
 #include "application/application.h"
 #include "format/file_processor.h"
@@ -26,6 +27,8 @@
 #include "application/wayland_window.h"
 #endif
 #endif
+
+const std::string kApplicationName = "GCAP Player";
 
 void PrintUsage(const char* exe_name)
 {
@@ -79,18 +82,19 @@ int main(int argc, const char** argv)
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
                 brimstone::application::Win32Application* win32_application =
-                    new brimstone::application::Win32Application();
+                    new brimstone::application::Win32Application(kApplicationName);
                 application    = std::unique_ptr<brimstone::application::Application>(win32_application);
                 window_factory = std::make_unique<brimstone::application::Win32WindowFactory>(win32_application);
 #endif
 #else
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-                brimstone::application::XcbApplication* xcb_application = new brimstone::application::XcbApplication();
+                brimstone::application::XcbApplication* xcb_application =
+                    new brimstone::application::XcbApplication(kApplicationName);
                 application    = std::unique_ptr<brimstone::application::Application>(xcb_application);
                 window_factory = std::make_unique<brimstone::application::XcbWindowFactory>(xcb_application);
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
                 brimstone::application::WaylandApplication* wayland_application =
-                    new brimstone::application::WaylandApplication();
+                    new brimstone::application::WaylandApplication(kApplicationName);
                 application    = std::unique_ptr<brimstone::application::Application>(wayland_application);
                 window_factory = std::make_unique<brimstone::application::WaylandWindowFactory>(wayland_application);
 #endif

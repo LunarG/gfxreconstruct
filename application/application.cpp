@@ -23,7 +23,7 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
-Application::Application() : file_processor_(nullptr), running_(false), paused_(false) {}
+Application::Application(const std::string& name) : file_processor_(nullptr), running_(false), paused_(false), name_(name) {}
 
 Application::~Application()
 {

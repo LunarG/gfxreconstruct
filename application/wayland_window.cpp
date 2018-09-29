@@ -43,7 +43,7 @@ WaylandWindow::~WaylandWindow()
 {
 }
 
-bool WaylandWindow::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+bool WaylandWindow::Create(const std::string& title, const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     surface_ = wl_compositor_create_surface(wayland_application_->GetCompositor());
     if (surface_ == nullptr)
@@ -67,7 +67,7 @@ bool WaylandWindow::Create(const int32_t x, const int32_t y, const uint32_t widt
     height_ = height;
 
     wl_shell_surface_add_listener(shell_surface_, &WaylandWindow::shell_surface_listener_, this);
-    wl_shell_surface_set_title(shell_surface_, name.c_str());
+    wl_shell_surface_set_title(shell_surface_, title.c_str());
     wl_shell_surface_set_toplevel(shell_surface_);
 
     return true;
@@ -91,6 +91,11 @@ bool WaylandWindow::Destroy()
 
     return false;
 }
+
+ void WaylandWindow::SetTitle(const std::string& title)
+ {
+    wl_shell_surface_set_title(shell_surface_, title.c_str());
+ }
 
 void WaylandWindow::SetPosition(const int32_t x, const int32_t y) {}
 
@@ -158,7 +163,7 @@ WaylandWindowFactory::WaylandWindowFactory(WaylandApplication* application) : wa
 format::Window* WaylandWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     auto window = new WaylandWindow(wayland_application_);
-    window->Create(x, y, width, height);
+    window->Create(wayland_application_->GetName(), x, y, width, height);
     return window;
 }
 

@@ -45,9 +45,11 @@ class WaylandWindow : public format::Window
 
     struct wl_shell_surface* GetShellSurface() const { return shell_surface_; }
 
-    virtual bool Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
+    virtual bool Create(const std::string& title, const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
     virtual bool Destroy() override;
+
+    virtual void SetTitle(const std::string& title) override;
 
     virtual void SetPosition(const int32_t x, const int32_t y) override;
 

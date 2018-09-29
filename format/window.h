@@ -33,9 +33,15 @@ class Window
 
     virtual ~Window() {}
 
-    virtual bool Create(const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height) = 0;
+    virtual bool Create(const std::string& title,
+                        const int32_t      xpos,
+                        const int32_t      ypos,
+                        const uint32_t     width,
+                        const uint32_t     height) = 0;
 
     virtual bool Destroy() = 0;
+
+    virtual void SetTitle(const std::string& title) = 0;
 
     virtual void SetPosition(const int32_t x, const int32_t y) = 0;
 
@@ -48,9 +54,6 @@ class Window
     virtual bool GetNativeHandle(uint32_t id, void** handle) = 0;
 
     virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) = 0;
-
-  public:
-    std::string name;
 };
 
 class WindowFactory
