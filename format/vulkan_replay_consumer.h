@@ -172,6 +172,8 @@ class VulkanReplayConsumer : public VulkanConsumer
                                                                     uint32_t           queueFamilyIndex,
                                                                     struct wl_display* display);
 
+    void OverrideDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface, const VkAllocationCallbacks* pAllocator);
+
     void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder);
 
     template <typename T>
@@ -467,6 +469,17 @@ class VulkanReplayConsumer : public VulkanConsumer
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<ApiCallId_vkDestroySurfaceKHR, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkDestroySurfaceKHR func, Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            return consumer->OverrideDestroySurfaceKHR(args...);
         }
     };
 
