@@ -45,7 +45,19 @@ VulkanReplayConsumer::VulkanReplayConsumer(WindowFactory* window_factory) : wind
     assert(window_factory != nullptr);
 }
 
-VulkanReplayConsumer::~VulkanReplayConsumer() {}
+VulkanReplayConsumer::~VulkanReplayConsumer()
+{
+    // Destroy any windows that were created for Vulkan surfaces.
+    for (const auto& entry : window_map_)
+    {
+        Window* window = entry.second;
+
+        assert(window != nullptr);
+
+        window->Destroy();
+        delete window;
+    }
+}
 
 void VulkanReplayConsumer::ProcessDisplayMessageCommand(const std::string& message)
 {
@@ -511,6 +523,29 @@ VkBool32 VulkanReplayConsumer::OverrideGetPhysicalDeviceWaylandPresentationSuppo
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(display);
     return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
+}
+
+void VulkanReplayConsumer::OverrideDestroySurfaceKHR(VkInstance                   instance,
+                                                     VkSurfaceKHR                 surface,
+                                                     const VkAllocationCallbacks* pAllocator)
+{
+    vkDestroySurfaceKHR(instance, surface, pAllocator);
+
+    if (surface != nullptr)
+    {
+        auto entry = window_map_.find(surface);
+
+        if (entry != window_map_.end())
+        {
+            Window* window = entry->second;
+
+            assert(window != nullptr);
+
+            window->Destroy();
+            delete window;
+            window_map_.erase(entry);
+        }
+    }
 }
 
 void VulkanReplayConsumer::MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder)
