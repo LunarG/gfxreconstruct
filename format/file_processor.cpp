@@ -135,7 +135,10 @@ bool FileProcessor::ProcessNextFrame()
         }
         else
         {
-            BRIMSTONE_LOG_ERROR("Failed to read block header");
+            if (!feof(file_descriptor_))
+            {
+                BRIMSTONE_LOG_ERROR("Failed to read block header");
+            }
         }
     }
 
