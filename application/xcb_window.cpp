@@ -39,7 +39,8 @@ XcbWindow::~XcbWindow()
     }
 }
 
-bool XcbWindow::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+bool XcbWindow::Create(
+    const std::string& title, const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     xcb_connection_t* connection = xcb_application_->GetConnection();
     xcb_screen_t*     screen     = xcb_application_->GetScreen();
@@ -78,6 +79,16 @@ bool XcbWindow::Create(const int32_t x, const int32_t y, const uint32_t width, c
         window_ = 0;
         return false;
     }
+
+    // Set the title.
+    xcb_change_property(connection,
+                        XCB_PROP_MODE_REPLACE,
+                        window_,
+                        XCB_ATOM_WM_NAME,
+                        XCB_ATOM_STRING,
+                        8,
+                        static_cast<uint32_t>(title.length()),
+                        title.c_str());
 
     // Request notification when user tries to close the window.
     xcb_intern_atom_cookie_t cookie = xcb_intern_atom(connection, 1, 12, "WM_PROTOCOLS");
@@ -127,6 +138,21 @@ bool XcbWindow::Destroy()
     }
 
     return false;
+}
+
+void XcbWindow::SetTitle(const std::string& title)
+{
+    xcb_connection_t* connection = xcb_application_->GetConnection();
+
+    xcb_change_property(connection,
+                        XCB_PROP_MODE_REPLACE,
+                        window_,
+                        XCB_ATOM_WM_NAME,
+                        XCB_ATOM_STRING,
+                        8,
+                        static_cast<uint32_t>(title.length()),
+                        title.c_str());
+    xcb_flush(connection);
 }
 
 void XcbWindow::SetPosition(const int32_t x, const int32_t y)
@@ -246,7 +272,7 @@ XcbWindowFactory::XcbWindowFactory(XcbApplication* application) : xcb_applicatio
 format::Window* XcbWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     auto window = new XcbWindow(xcb_application_);
-    window->Create(x, y, width, height);
+    window->Create(xcb_application_->GetName(), x, y, width, height);
     return window;
 }
 

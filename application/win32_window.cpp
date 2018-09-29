@@ -42,7 +42,7 @@ Win32Window::~Win32Window()
     }
 }
 
-bool Win32Window::Create(const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
+bool Win32Window::Create(const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
 {
     const char class_name[] = "GCAPPlay Window";
 
@@ -75,7 +75,7 @@ bool Win32Window::Create(const int32_t xpos, const int32_t ypos, const uint32_t 
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
 
     hwnd_ = CreateWindow(class_name,
-                         name.c_str(),
+                         title.c_str(),
                          WS_OVERLAPPEDWINDOW,
                          xpos,
                          ypos,
@@ -119,6 +119,11 @@ bool Win32Window::Destroy()
 
     return false;
 }
+
+ void Win32Window::SetTitle(const std::string& title)
+ {
+     SetWindowTextA(hwnd_, title.c_str());
+ }
 
 void Win32Window::SetPosition(const int32_t x, const int32_t y)
 {
@@ -208,7 +213,7 @@ format::Window*
 Win32WindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     format::Window* window = new Win32Window(win32_application_);
-    window->Create(x, y, width, height);
+    window->Create(win32_application_->GetName(), x, y, width, height);
     return window;
 }
 

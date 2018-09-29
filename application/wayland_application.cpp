@@ -30,11 +30,10 @@ struct wl_keyboard_listener WaylandApplication::keyboard_listener_;
 struct wl_seat_listener     WaylandApplication::seat_listener_;
 struct wl_registry_listener WaylandApplication::registry_listener_;
 
-WaylandApplication::WaylandApplication() :
-    display_(nullptr), shell_(nullptr), compositor_(nullptr), registry_(nullptr), seat_(nullptr), pointer_(nullptr),
-    keyboard_(nullptr), current_keyboard_surface_(nullptr), current_pointer_surface_(nullptr)
-{
-}
+WaylandApplication::WaylandApplication(const std::string& name) :
+    Application(name), display_(nullptr), shell_(nullptr), compositor_(nullptr), registry_(nullptr), seat_(nullptr),
+    pointer_(nullptr), keyboard_(nullptr), current_keyboard_surface_(nullptr), current_pointer_surface_(nullptr)
+{}
 
 WaylandApplication::~WaylandApplication()
 {

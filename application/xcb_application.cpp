@@ -23,9 +23,7 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
-XcbApplication::XcbApplication() : connection_(nullptr), screen_(nullptr)
-{
-}
+XcbApplication::XcbApplication(const std::string& name) : Application(name), connection_(nullptr), screen_(nullptr) {}
 
 XcbApplication::~XcbApplication()
 {

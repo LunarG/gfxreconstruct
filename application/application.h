@@ -17,6 +17,7 @@
 #ifndef BRIMSTONE_APPLICATION_APPLICATION_H
 #define BRIMSTONE_APPLICATION_APPLICATION_H
 
+#include <string>
 #include <vector>
 
 #include "util/defines.h"
@@ -29,9 +30,11 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 class Application
 {
 public:
-    Application();
+    Application(const std::string& name);
 
     virtual ~Application();
+
+    const std::string& GetName() const { return name_; }
 
     virtual bool Initialize(format::FileProcessor* file_processor) = 0;
 
@@ -66,6 +69,7 @@ private:
     bool                         paused_;           ///< Indicates that the playback has been paused.  When paused the
                                                     ///< application will stop rendering, but will continue processing
                                                     ///< system events.
+    std::string                  name_;             ///< Application name to display in window title bar.
     // clang-format on
 };
 

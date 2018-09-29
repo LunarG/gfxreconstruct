@@ -33,7 +33,7 @@ class WaylandWindow;
 class WaylandApplication : public Application
 {
   public:
-    WaylandApplication();
+    WaylandApplication(const std::string& name);
 
     virtual ~WaylandApplication();
 

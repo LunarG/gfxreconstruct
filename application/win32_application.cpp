@@ -20,9 +20,7 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
-Win32Application::Win32Application()
-{
-}
+Win32Application::Win32Application(const std::string& name) : Application(name) {}
 
 bool Win32Application::Initialize(format::FileProcessor* file_processor)
 {

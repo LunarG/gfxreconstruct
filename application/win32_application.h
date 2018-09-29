@@ -27,7 +27,9 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 class Win32Application : public Application
 {
 public:
-    Win32Application();
+    Win32Application(const std::string& name);
+
+    virtual ~Win32Application() {}
 
     virtual bool Initialize(format::FileProcessor* file_processor) override;
 

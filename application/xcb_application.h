@@ -33,9 +33,9 @@ class XcbWindow;
 class XcbApplication : public Application
 {
 public:
-    XcbApplication();
+    XcbApplication(const std::string& name);
 
-    ~XcbApplication();
+    virtual ~XcbApplication();
 
     xcb_connection_t* GetConnection() const { return connection_; }
 
