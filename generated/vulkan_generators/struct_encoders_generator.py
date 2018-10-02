@@ -86,7 +86,7 @@ class StructEncodersGenerator(BaseGenerator):
             body += 'void encode_struct(format::ParameterEncoder* encoder, const {}& value)\n'.format(struct)
             body += '{\n'
             body += self.makeStructBody(self.featureStructMembers[struct], 'value.')
-            body += '}\n'
+            body += '}'
             write(body, file=self.outFile)
 
             first = False
