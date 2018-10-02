@@ -15,6 +15,7 @@
 */
 #include <cassert>
 #include <cstdlib>
+#include <limits>
 
 #include "volk.h"
 
@@ -25,7 +26,9 @@ BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
 XcbWindow::XcbWindow(XcbApplication* application) :
-    xcb_application_(application), width_(0), height_(0), window_(0), atom_wm_delete_window_(nullptr)
+    xcb_application_(application), width_(0), height_(0), screen_width_(std::numeric_limits<uint32_t>::max()),
+    screen_height_(std::numeric_limits<uint32_t>::max()), fullscreen_(false), window_(0),
+    atom_wm_delete_window_(nullptr)
 {
     assert(application != nullptr);
 }
@@ -90,11 +93,11 @@ bool XcbWindow::Create(
                         title.c_str());
 
     // Request notification when user tries to close the window.
-    xcb_intern_atom_cookie_t cookie = xcb_intern_atom(connection, 1, 12, "WM_PROTOCOLS");
-    xcb_intern_atom_reply_t* reply  = xcb_intern_atom_reply(connection, cookie, 0);
+    xcb_intern_atom_cookie_t proto_cookie = xcb_intern_atom(connection, 1, 12, "WM_PROTOCOLS");
+    xcb_intern_atom_reply_t* reply        = xcb_intern_atom_reply(connection, proto_cookie, nullptr);
 
-    xcb_intern_atom_cookie_t cookie2 = xcb_intern_atom(connection, 0, 16, "WM_DELETE_WINDOW");
-    atom_wm_delete_window_           = xcb_intern_atom_reply(connection, cookie2, 0);
+    xcb_intern_atom_cookie_t delete_cookie = xcb_intern_atom(connection, 0, 16, "WM_DELETE_WINDOW");
+    atom_wm_delete_window_                 = xcb_intern_atom_reply(connection, delete_cookie, nullptr);
 
     xcb_change_property(
         connection, XCB_PROP_MODE_REPLACE, window_, reply->atom, 4, 32, 1, &(atom_wm_delete_window_->atom));
@@ -111,6 +114,14 @@ bool XcbWindow::Create(
 
     width_  = width;
     height_ = height;
+
+    // Get screen dimensions.
+    xcb_get_geometry_cookie_t geom_cookie = xcb_get_geometry(connection, screen->root);
+    xcb_get_geometry_reply_t* geom = xcb_get_geometry_reply (connection, geom_cookie, nullptr);
+
+    screen_width_ = geom->width;
+    screen_height_ = geom->height;
+    free (geom);    
 
     return true;
 }
@@ -154,21 +165,96 @@ void XcbWindow::SetPosition(const int32_t x, const int32_t y)
 
 void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
 {
-    if (width != width_ || height != height_)
+    if ((width != width_) || (height != height_))
     {
         width_  = width;
         height_ = height;
 
+        if ((screen_width_ <= width) || (screen_height_ <= height))
+        {
+            if ((screen_height_ < height) || (screen_width_ < width))
+            {
+                BRIMSTONE_LOG_WARNING(
+                    "Requested window size (%ux%u) exceeds current screen size (%ux%u); replay may fail due to "
+                    "inability to create a window of the appropriate size.",
+                    width,
+                    height,
+                    screen_width_,
+                    screen_height_);
+            }
+
+            SetPosition(0, 0);
+            SetFullscreen(true);
+        }
+        else
+        {
+            SetFullscreen(false);
+        }
+
         xcb_connection_t* connection = xcb_application_->GetConnection();
         uint32_t          values[]   = { width, height };
-
-        xcb_void_cookie_t cookie = xcb_configure_window_checked(
+        xcb_void_cookie_t cookie     = xcb_configure_window_checked(
             connection, window_, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
 
         xcb_generic_error_t* error = xcb_request_check(connection, cookie);
         if (error != nullptr)
         {
             BRIMSTONE_LOG_ERROR("Failed to resize window with error %u", error->error_code);
+        }
+    }
+}
+
+void XcbWindow::SetFullscreen(bool fullscreen)
+{
+    if (fullscreen != fullscreen_)
+    {
+        xcb_connection_t* connection = xcb_application_->GetConnection();
+
+        xcb_generic_error_t*     error        = nullptr;
+        xcb_intern_atom_cookie_t state_cookie = xcb_intern_atom(connection, 1, 13, "_NET_WM_STATE");
+        xcb_intern_atom_reply_t* state_reply  = xcb_intern_atom_reply(connection, state_cookie, &error);
+
+        if (state_reply != nullptr)
+        {
+            xcb_intern_atom_cookie_t fullscreen_cookie = xcb_intern_atom(connection, 0, 24, "_NET_WM_STATE_FULLSCREEN");
+            xcb_intern_atom_reply_t* fullscreen_reply  = xcb_intern_atom_reply(connection, fullscreen_cookie, &error);
+
+            if (fullscreen_reply != nullptr)
+            {
+                xcb_client_message_event_t event;
+                event.response_type = XCB_CLIENT_MESSAGE;
+                event.format = 32;
+                event.sequence = 0;
+                event.window = window_;
+                event.type = state_reply->atom;
+                event.data.data32[0] = fullscreen ? 1 : 0;
+                event.data.data32[1] = fullscreen_reply->atom;
+                event.data.data32[2] = 0;
+                event.data.data32[3] = 0;
+                event.data.data32[4] = 0;
+
+                xcb_void_cookie_t event_cookie =
+                    xcb_send_event_checked(connection,
+                                           0,
+                                           xcb_application_->GetScreen()->root,
+                                           XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
+                                           reinterpret_cast<const char*>(&event));
+
+                error = xcb_request_check(connection, event_cookie);
+
+                free(fullscreen_reply);
+            }
+
+            free(state_reply);
+        }
+
+        if (error == nullptr)
+        {
+            fullscreen_ = fullscreen;
+        }
+        else
+        {
+            BRIMSTONE_LOG_ERROR("Failed to toggle fullscreen mode with error %u", error->error_code);
         }
     }
 }
