@@ -68,9 +68,15 @@ class XcbWindow : public format::Window
     virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
 
   private:
+    void SetFullscreen(bool fullscreen);
+    
+  private:
     XcbApplication* xcb_application_;
     uint32_t        width_;
     uint32_t        height_;
+    uint32_t        screen_width_;
+    uint32_t        screen_height_;
+    bool            fullscreen_;
     xcb_window_t    window_;
     xcb_intern_atom_reply_t* atom_wm_delete_window_;
 };
