@@ -64,20 +64,16 @@ class WaylandWindow : public format::Window
     virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
 
   private:
-    static void handle_ping(void* data, wl_shell_surface* shell_surface, uint32_t serial);
+    static void HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial);
 
     static void
-    handle_configure(void* data, wl_shell_surface* shell_surface, uint32_t edges, int32_t width, int32_t height);
+    HandleConfigure(void* data, wl_shell_surface* shell_surface, uint32_t edges, int32_t width, int32_t height);
 
-    static void handle_popup_done(void* data, wl_shell_surface* shell_surface);
+    static void HandlePopupDone(void* data, wl_shell_surface* shell_surface);
 
   private:
     static struct wl_shell_surface_listener shell_surface_listener_;
     WaylandApplication*                     wayland_application_;
-    int32_t                                 xpos_;
-    int32_t                                 ypos_;
-    uint32_t                                width_;
-    uint32_t                                height_;
     struct wl_surface*                      surface_;
     struct wl_shell_surface*                shell_surface_;
 };
