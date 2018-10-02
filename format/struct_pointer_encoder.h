@@ -27,28 +27,26 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
 template <typename T>
-size_t encode_struct_ptr(format::ParameterEncoder* encoder, const T* value)
+void encode_struct_ptr(format::ParameterEncoder* encoder, const T* value)
 {
-    size_t result = encoder->EncodeStructPtrPreamble(value);
+    encoder->EncodeStructPtrPreamble(value);
     if (value != nullptr)
     {
-        result += encode_struct(encoder, *value);
+        encode_struct(encoder, *value);
     }
-    return result;
 }
 
 template <typename T>
-size_t encode_struct_array(format::ParameterEncoder* encoder, const T* value, size_t len)
+void encode_struct_array(format::ParameterEncoder* encoder, const T* value, size_t len)
 {
-    size_t result = encoder->EncodeStructArrayPreamble(value, len);
+    encoder->EncodeStructArrayPreamble(value, len);
     if ((value != nullptr) && (len > 0))
     {
         for (size_t i = 0; i < len; ++i)
         {
-            result += encode_struct(encoder, value[i]);
+            encode_struct(encoder, value[i]);
         }
     }
-    return result;
 }
 
 BRIMSTONE_END_NAMESPACE(brimstone)

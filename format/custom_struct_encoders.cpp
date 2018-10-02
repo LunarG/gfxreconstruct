@@ -24,43 +24,37 @@
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkClearColorValue& value)
+void encode_struct(format::ParameterEncoder* encoder, const VkClearColorValue& value)
 {
-    size_t result = 0;
-    result += encoder->EncodeUInt32Array(value.uint32, 4);
-    return result;
+    encoder->EncodeUInt32Array(value.uint32, 4);
 }
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkClearValue& value)
+void encode_struct(format::ParameterEncoder* encoder, const VkClearValue& value)
 {
-    size_t result = 0;
     // VkClearColorValue is used becaue it is the larger of the two union members.
-    result += encode_struct(encoder, value.color);
-    return result;
+    encode_struct(encoder, value.color);
 }
 
-size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
+void encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
 {
-    size_t result = 0;
-
     if (value != nullptr)
     {
         switch (value->type)
         {
             case VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX:
-                result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(value));
+                encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(value));
                 break;
             case VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX:
-                result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(value));
+                encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(value));
                 break;
             case VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX:
-                result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(value));
+                encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(value));
                 break;
             case VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX:
-                result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(value));
+                encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(value));
                 break;
             case VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX:
-                result += encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(value));
+                encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(value));
                 break;
             default:
                 BRIMSTONE_LOG_WARNING("Skipping custom struct encoding for unrecognized VkObjectEntryTypeNVX %u",
@@ -71,10 +65,8 @@ size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntry
     }
     else
     {
-        result += encoder->EncodeStructPtrPreamble(nullptr);
+        encoder->EncodeStructPtrPreamble(nullptr);
     }
-
-    return result;
 }
 
 // The WIN32 SID structure has a variable size, so will be encoded as an array of bytes instead of a struct.
@@ -95,26 +87,20 @@ static void pack_sid_struct(const SID* sid, std::vector<uint8_t>* buffer)
     buffer->insert(buffer->end(), sub_authority, sub_authority + sub_authority_size);
 }
 
-size_t encode_struct(format::ParameterEncoder* encoder, const ACL& value)
+void encode_struct(format::ParameterEncoder* encoder, const ACL& value)
 {
-    size_t result = 0;
-
-    result += encoder->EncodeUInt8Value(value.AclRevision);
-    result += encoder->EncodeUInt8Value(value.Sbz1);
-    result += encoder->EncodeUInt16Value(value.AclSize);
-    result += encoder->EncodeUInt16Value(value.AceCount);
-    result += encoder->EncodeUInt16Value(value.Sbz2);
-
-    return result;
+    encoder->EncodeUInt8Value(value.AclRevision);
+    encoder->EncodeUInt8Value(value.Sbz1);
+    encoder->EncodeUInt16Value(value.AclSize);
+    encoder->EncodeUInt16Value(value.AceCount);
+    encoder->EncodeUInt16Value(value.Sbz2);
 }
 
-size_t encode_struct(format::ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value)
+void encode_struct(format::ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value)
 {
-    size_t result = 0;
-
-    result += encoder->EncodeUInt8Value(value.Revision);
-    result += encoder->EncodeUInt8Value(value.Sbz1);
-    result += encoder->EncodeUInt16Value(value.Control);
+    encoder->EncodeUInt8Value(value.Revision);
+    encoder->EncodeUInt8Value(value.Sbz1);
+    encoder->EncodeUInt16Value(value.Control);
 
     // The SID structure has a variable size, so will be packed into an array of bytes.
     std::vector<uint8_t> buffer;
@@ -122,11 +108,11 @@ size_t encode_struct(format::ParameterEncoder* encoder, const SECURITY_DESCRIPTO
     if (value.Owner != nullptr)
     {
         pack_sid_struct(reinterpret_cast<SID*>(value.Owner), &buffer);
-        result += encoder->EncodeUInt8Array(buffer.data(), buffer.size());
+        encoder->EncodeUInt8Array(buffer.data(), buffer.size());
     }
     else
     {
-        result += encoder->EncodeUInt8Array(nullptr, 0);
+        encoder->EncodeUInt8Array(nullptr, 0);
     }
 
     buffer.clear();
@@ -134,28 +120,22 @@ size_t encode_struct(format::ParameterEncoder* encoder, const SECURITY_DESCRIPTO
     if (value.Group != nullptr)
     {
         pack_sid_struct(reinterpret_cast<SID*>(value.Group), &buffer);
-        result += encoder->EncodeUInt8Array(buffer.data(), buffer.size());
+        encoder->EncodeUInt8Array(buffer.data(), buffer.size());
     }
     else
     {
-        result += encoder->EncodeUInt8Array(nullptr, 0);
+        encoder->EncodeUInt8Array(nullptr, 0);
     }
 
-    result += encode_struct_ptr(encoder, value.Sacl);
-    result += encode_struct_ptr(encoder, value.Dacl);
-
-    return result;
+    encode_struct_ptr(encoder, value.Sacl);
+    encode_struct_ptr(encoder, value.Dacl);
 }
 
-size_t encode_struct(format::ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value)
+void encode_struct(format::ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value)
 {
-    size_t   result  = 0;
-
-    result += encoder->EncodeUInt32Value(value.nLength);
-    result += encode_struct_ptr(encoder, reinterpret_cast<SECURITY_DESCRIPTOR*>(value.lpSecurityDescriptor));
-    result += encoder->EncodeInt32Value(value.bInheritHandle);
-
-    return result;
+    encoder->EncodeUInt32Value(value.nLength);
+    encode_struct_ptr(encoder, reinterpret_cast<SECURITY_DESCRIPTOR*>(value.lpSecurityDescriptor));
+    encoder->EncodeInt32Value(value.bInheritHandle);
 }
 
 BRIMSTONE_END_NAMESPACE(brimstone)

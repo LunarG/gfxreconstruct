@@ -60,7 +60,7 @@ class StructEncodersGenerator(BaseGenerator):
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         self.newline()
-        write('size_t encode_pnext_struct(format::ParameterEncoder* encoder, const void* value);', file=self.outFile)
+        write('void encode_pnext_struct(format::ParameterEncoder* encoder, const void* value);', file=self.outFile)
 
     # Method override
     def endFile(self):
@@ -83,11 +83,9 @@ class StructEncodersGenerator(BaseGenerator):
         first = True
         for struct in self.featureStructMembers:
             body = '' if first else '\n'
-            body += 'size_t encode_struct(format::ParameterEncoder* encoder, const {}& value)\n'.format(struct)
+            body += 'void encode_struct(format::ParameterEncoder* encoder, const {}& value)\n'.format(struct)
             body += '{\n'
-            body += '    size_t result = 0;\n'
             body += self.makeStructBody(self.featureStructMembers[struct], 'value.')
-            body += '    return result;\n'
             body += '}\n'
             write(body, file=self.outFile)
 
@@ -102,9 +100,9 @@ class StructEncodersGenerator(BaseGenerator):
         for value in values:
             # pNext fields require special treatment and are not processed by typename
             if 'pNext' in value.name:
-                body += '    result += encode_pnext_struct(encoder, {});\n'.format(prefix + value.name)
+                body += '    encode_pnext_struct(encoder, {});\n'.format(prefix + value.name)
             else:
                 methodCall = self.makeEncoderMethodCall(value, values, prefix)
-                body += '    result += {};\n'.format(methodCall)
+                body += '    {};\n'.format(methodCall)
 
         return body

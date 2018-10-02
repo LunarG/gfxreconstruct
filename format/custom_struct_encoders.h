@@ -26,16 +26,16 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
 // Unions.
-size_t encode_struct(format::ParameterEncoder* encoder, const VkClearColorValue& value);
-size_t encode_struct(format::ParameterEncoder* encoder, const VkClearValue& value);
+void encode_struct(format::ParameterEncoder* encoder, const VkClearColorValue& value);
+void encode_struct(format::ParameterEncoder* encoder, const VkClearValue& value);
 
 // Vulkan structures that require special processing that the code generator cannot infer from the XML registry.
-size_t encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* value);
+void encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* value);
 
 // Platform defined structures that are external to Vulkan.
-size_t encode_struct(format::ParameterEncoder* encoder, const ACL& value);
-size_t encode_struct(format::ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value);
-size_t encode_struct(format::ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value);
+void encode_struct(format::ParameterEncoder* encoder, const ACL& value);
+void encode_struct(format::ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value);
+void encode_struct(format::ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value);
 
 BRIMSTONE_END_NAMESPACE(brimstone)
 
