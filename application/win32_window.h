@@ -66,6 +66,7 @@ class Win32Window : public format::Window
     uint32_t          height_;
     uint32_t          screen_width_;
     uint32_t          screen_height_;
+    bool              fullscreen_;
     HINSTANCE         hinstance_;
 };
 

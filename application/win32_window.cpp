@@ -16,6 +16,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <limits>
 
 #include "volk.h"
 
@@ -30,12 +31,11 @@ const uint32_t kWindowedStyle   = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
 const uint32_t kFullscreenStyle = WS_POPUP;
 
 Win32Window::Win32Window(Win32Application* application) :
-    hwnd_(nullptr), win32_application_(application), width_(0), height_(0), hinstance_(nullptr)
+    hwnd_(nullptr), win32_application_(application), width_(0), height_(0),
+    screen_width_(std::numeric_limits<uint32_t>::max()), screen_height_(std::numeric_limits<uint32_t>::max()),
+    fullscreen_(false), hinstance_(nullptr)
 {
     assert(application != nullptr);
-
-    screen_width_  = GetSystemMetrics(SM_CXFULLSCREEN);
-    screen_height_ = GetSystemMetrics(SM_CYFULLSCREEN);
 }
 
 Win32Window::~Win32Window()
@@ -96,6 +96,8 @@ bool Win32Window::Create(const std::string& title, const int32_t xpos, const int
 
         width_  = width;
         height_ = height;
+        screen_width_  = GetSystemMetrics(SM_CXFULLSCREEN);
+        screen_height_ = GetSystemMetrics(SM_CYFULLSCREEN);
     }
     else
     {
@@ -141,23 +143,54 @@ void Win32Window::SetSize(const uint32_t width, const uint32_t height)
 
         RECT wr = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
 
-        if (screen_height_ <= height && screen_width_ <= width)
+        if ((screen_height_ <= height) || (screen_width_ <= width))
         {
-            SetWindowLong(hwnd_, GWL_STYLE, kFullscreenStyle);
+            if ((screen_height_ < height) || (screen_width_ < width))
+            {
+                BRIMSTONE_LOG_WARNING(
+                    "Requested window size (%ux%u) exceeds current screen size (%ux%u); replay may fail due to "
+                    "inability to create a window of the appropriate size.",
+                    width,
+                    height,
+                    screen_width_,
+                    screen_height_);
+            }
+
+            if (!fullscreen_)
+            {
+                SetWindowLong(hwnd_, GWL_STYLE, kFullscreenStyle);
+                fullscreen_ = true;
+            }
+
             AdjustWindowRect(&wr, kFullscreenStyle, FALSE);
+
+            // Move window to the 0,0 position when resizing.
+            SetWindowPos(hwnd_,
+                        nullptr,
+                        0,
+                        0,
+                        wr.right - wr.left,
+                        wr.bottom - wr.top,
+                        SWP_NOZORDER);
         }
         else
         {
-            AdjustWindowRect(&wr, kWindowedStyle, FALSE);
-        }
+            if (fullscreen_)
+            {
+                SetWindowLong(hwnd_, GWL_STYLE, kWindowedStyle);
+                fullscreen_ = false;
+            }
 
-        SetWindowPos(hwnd_,
-                     nullptr,
-                     0,
-                     0,
-                     wr.right - wr.left,
-                     wr.bottom - wr.top,
-                     SWP_NOMOVE | SWP_NOZORDER);
+            AdjustWindowRect(&wr, kWindowedStyle, FALSE);
+
+            SetWindowPos(hwnd_,
+                        nullptr,
+                        0,
+                        0,
+                        wr.right - wr.left,
+                        wr.bottom - wr.top,
+                        SWP_NOMOVE | SWP_NOZORDER);
+        }
     }
 }
 
