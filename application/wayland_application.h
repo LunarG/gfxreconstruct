@@ -52,51 +52,49 @@ class WaylandApplication : public Application
     virtual void ProcessEvents(bool wait_for_input) override;
 
   private:
-    static void pointer_handle_enter(void*              data,
-                                     struct wl_pointer* pointer,
-                                     uint32_t           serial,
-                                     struct wl_surface* surface,
-                                     wl_fixed_t         sx,
-                                     wl_fixed_t         sy);
-
     static void
-    pointer_handle_leave(void* data, struct wl_pointer* pointer, uint32_t serial, struct wl_surface* surface);
+    HandleRegistryGlobal(void* data, wl_registry* registry, uint32_t id, const char* interface, uint32_t version);
 
-    static void
-    pointer_handle_motion(void* data, struct wl_pointer* pointer, uint32_t time, wl_fixed_t sx, wl_fixed_t sy);
+    static void HandleRegistryGlobalRemove(void* data, wl_registry* registry, uint32_t name);
 
-    static void pointer_handle_button(
-        void* data, struct wl_pointer* wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state);
+    static void HandleSeatCapabilities(void* data, wl_seat* seat, uint32_t caps);
 
-    static void
-    pointer_handle_axis(void* data, struct wl_pointer* wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value);
+    static void HandleKeyboardKeymap(void* data, struct wl_keyboard* keyboard, uint32_t format, int fd, uint32_t size);
 
-    static void
-    keyboard_handle_keymap(void* data, struct wl_keyboard* keyboard, uint32_t format, int fd, uint32_t size);
-
-    static void keyboard_handle_enter(
+    static void HandleKeyboardEnter(
         void* data, struct wl_keyboard* keyboard, uint32_t serial, struct wl_surface* surface, struct wl_array* keys);
 
     static void
-    keyboard_handle_leave(void* data, struct wl_keyboard* keyboard, uint32_t serial, struct wl_surface* surface);
+    HandleKeyboardLeave(void* data, struct wl_keyboard* keyboard, uint32_t serial, struct wl_surface* surface);
 
-    static void keyboard_handle_key(
+    static void HandleKeyboardKey(
         void* data, struct wl_keyboard* keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t state);
 
-    static void keyboard_handle_modifiers(void*        data,
-                                          wl_keyboard* keyboard,
-                                          uint32_t     serial,
-                                          uint32_t     mods_depressed,
-                                          uint32_t     mods_latched,
-                                          uint32_t     mods_locked,
-                                          uint32_t     group);
+    static void HandleKeyboardModifiers(void*        data,
+                                        wl_keyboard* keyboard,
+                                        uint32_t     serial,
+                                        uint32_t     mods_depressed,
+                                        uint32_t     mods_latched,
+                                        uint32_t     mods_locked,
+                                        uint32_t     group);
 
-    static void seat_handle_capabilities(void* data, wl_seat* seat, uint32_t caps);
+    static void HandlePointerEnter(void*              data,
+                                   struct wl_pointer* pointer,
+                                   uint32_t           serial,
+                                   struct wl_surface* surface,
+                                   wl_fixed_t         sx,
+                                   wl_fixed_t         sy);
+
+    static void HandlePointerLeave(void* data, struct wl_pointer* pointer, uint32_t serial, struct wl_surface* surface);
 
     static void
-    registry_handle_global(void* data, wl_registry* registry, uint32_t id, const char* interface, uint32_t version);
+    HandlePointerMotion(void* data, struct wl_pointer* pointer, uint32_t time, wl_fixed_t sx, wl_fixed_t sy);
 
-    static void registry_handle_global_remove(void* data, wl_registry* registry, uint32_t name);
+    static void HandlePointerButton(
+        void* data, struct wl_pointer* wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state);
+
+    static void
+    HandlePointerAxis(void* data, struct wl_pointer* wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value);
 
   private:
     typedef std::unordered_map<struct wl_surface*, WaylandWindow*> WaylandWindowMap;
