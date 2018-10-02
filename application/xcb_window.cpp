@@ -25,8 +25,7 @@ BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
 XcbWindow::XcbWindow(XcbApplication* application) :
-    xcb_application_(application), width_(0), height_(0), window_(0), map_complete_(false), resize_complete_(false),
-    atom_wm_delete_window_(nullptr)
+    xcb_application_(application), width_(0), height_(0), window_(0), atom_wm_delete_window_(nullptr)
 {
     assert(application != nullptr);
 }
@@ -110,15 +109,6 @@ bool XcbWindow::Create(
         return false;
     }
 
-    // TODO: Determine if the following is necessary.  It wasn't clear if the xcb_request_check
-    // could return after the server has validated and accepted the request, but before the
-    // requested action had been performed.
-    map_complete_ = false;
-    while (!map_complete_ && xcb_application_->IsRunning())
-    {
-        xcb_application_->ProcessEvents(true);
-    }
-
     width_  = width;
     height_ = height;
 
@@ -176,16 +166,7 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
             connection, window_, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
 
         xcb_generic_error_t* error = xcb_request_check(connection, cookie);
-        if (error == nullptr)
-        {
-            // Wait for configure notification.
-            resize_complete_ = false;
-            while (!resize_complete_ && xcb_application_->IsRunning())
-            {
-                xcb_application_->ProcessEvents(true);
-            }
-        }
-        else
+        if (error != nullptr)
         {
             BRIMSTONE_LOG_ERROR("Failed to resize window with error %u", error->error_code);
         }
@@ -207,16 +188,7 @@ void XcbWindow::SetVisibility(bool show)
     }
 
     xcb_generic_error_t* error = xcb_request_check(connection, cookie);
-    if (error == nullptr)
-    {
-        // Wait for map notification.
-        map_complete_ = false;
-        while (!map_complete_ && xcb_application_->IsRunning())
-        {
-            xcb_application_->ProcessEvents(true);
-        }
-    }
-    else
+    if (error != nullptr)
     {
         BRIMSTONE_LOG_ERROR("Failed to change window visibility with error %u", error->error_code);
     }
