@@ -75,4 +75,4 @@ class StructEncoderDeclarationsGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         for struct in self.featureStructMembers:
-            write('size_t encode_struct(format::ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)
+            write('void encode_struct(format::ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)

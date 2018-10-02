@@ -29,14 +29,13 @@
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
-static size_t EncodeDescriptorUpdateTemplateInfo(format::TraceManager*      manager,
+static void EncodeDescriptorUpdateTemplateInfo(format::TraceManager*      manager,
                                                  format::ParameterEncoder*  encoder,
                                                  VkDescriptorUpdateTemplate update_template,
                                                  const void*                data)
 {
     assert((manager != nullptr) && (encoder != nullptr));
 
-    size_t                                          bytes_written = 0;
     bool                                            found         = false;
     const format::TraceManager::UpdateTemplateInfo* info          = nullptr;
 
@@ -48,15 +47,15 @@ static size_t EncodeDescriptorUpdateTemplateInfo(format::TraceManager*      mana
     if (found && (info != nullptr))
     {
         // Write pointer attributes as if we were processing a struct pointer.
-        bytes_written += encoder->EncodeStructPtrPreamble(data);
+        encoder->EncodeStructPtrPreamble(data);
 
         // The update template data will be written as tightly packed sets of arrays of VkDescriptorImageInfo,
         // VkDescriptorBufferInfo, and VkBufferView types.  There will be one array per descriptor update entry.  We
         // will write the total number of entries of each type before we write the entries, so that the decoder will
         // know up front how much memory it needs to allocate for decoding.
-        bytes_written += encoder->EncodeSizeTValue(info->image_info_count);
-        bytes_written += encoder->EncodeSizeTValue(info->buffer_info_count);
-        bytes_written += encoder->EncodeSizeTValue(info->texel_buffer_view_count);
+        encoder->EncodeSizeTValue(info->image_info_count);
+        encoder->EncodeSizeTValue(info->buffer_info_count);
+        encoder->EncodeSizeTValue(info->texel_buffer_view_count);
 
         // Write the individual template update entries, sorted by type, as tightly packed arrays.
         const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
@@ -67,7 +66,7 @@ static size_t EncodeDescriptorUpdateTemplateInfo(format::TraceManager*      mana
             {
                 size_t                       offset = entry_info.offset + (entry_info.stride * i);
                 const VkDescriptorImageInfo* entry = reinterpret_cast<const VkDescriptorImageInfo*>(bytes + offset);
-                bytes_written += encode_struct(encoder, (*entry));
+                encode_struct(encoder, (*entry));
             }
         }
 
@@ -79,7 +78,7 @@ static size_t EncodeDescriptorUpdateTemplateInfo(format::TraceManager*      mana
                 size_t                        offset = entry_info.offset + (entry_info.stride * i);
                 const VkDescriptorBufferInfo* entry =
                     reinterpret_cast<const VkDescriptorBufferInfo*>(bytes + offset);
-                bytes_written += encode_struct(encoder, (*entry));
+                encode_struct(encoder, (*entry));
             }
         }
 
@@ -90,16 +89,14 @@ static size_t EncodeDescriptorUpdateTemplateInfo(format::TraceManager*      mana
             {
                 size_t              offset = entry_info.offset + (entry_info.stride * i);
                 const VkBufferView* entry  = reinterpret_cast<const VkBufferView*>(bytes + offset);
-                bytes_written += encoder->EncodeHandleIdValue((*entry));
+                encoder->EncodeHandleIdValue((*entry));
             }
         }
     }
     else
     {
-        bytes_written += encoder->EncodeStructArrayPreamble(data, 0);
+        encoder->EncodeStructArrayPreamble(data, 0);
     }
-
-    return bytes_written;
 }
 
 VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice                   device,
