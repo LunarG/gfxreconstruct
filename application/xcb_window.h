@@ -45,16 +45,6 @@ class XcbWindow : public format::Window
 
     xcb_intern_atom_reply_t* GetDeleteWindowAtom() const { return atom_wm_delete_window_; }
 
-    void MapNotify() { map_complete_ = true; }
-
-    void ResizeNotify(uint32_t width, uint32_t height)
-    {
-        if ((width == width_) && (height == height_))
-        {
-            resize_complete_ = true;
-        }
-    }
-
     virtual bool Create(const std::string& title,
                         const int32_t      x,
                         const int32_t      y,
@@ -82,8 +72,6 @@ class XcbWindow : public format::Window
     uint32_t        width_;
     uint32_t        height_;
     xcb_window_t    window_;
-    bool            map_complete_;
-    bool            resize_complete_;
     xcb_intern_atom_reply_t* atom_wm_delete_window_;
 };
 
