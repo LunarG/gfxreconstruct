@@ -79,8 +79,6 @@ class XcbWindow : public format::Window
 
   private:
     XcbApplication* xcb_application_;
-    int32_t         xpos_;
-    int32_t         ypos_;
     uint32_t        width_;
     uint32_t        height_;
     xcb_window_t    window_;

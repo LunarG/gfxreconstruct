@@ -30,7 +30,7 @@ const uint32_t kWindowedStyle   = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
 const uint32_t kFullscreenStyle = WS_POPUP;
 
 Win32Window::Win32Window(Win32Application* application) :
-    hwnd_(nullptr), win32_application_(application), xpos_(0), ypos_(0), width_(0), height_(0), hinstance_(nullptr)
+    hwnd_(nullptr), win32_application_(application), width_(0), height_(0), hinstance_(nullptr)
 {
     assert(application != nullptr);
 
@@ -94,8 +94,6 @@ bool Win32Window::Create(const std::string& title, const int32_t xpos, const int
     {
         win32_application_->RegisterWindow(this);
 
-        xpos_   = xpos;
-        ypos_   = ypos;
         width_  = width;
         height_ = height;
     }
@@ -131,13 +129,7 @@ bool Win32Window::Destroy()
 
 void Win32Window::SetPosition(const int32_t x, const int32_t y)
 {
-    if ((x != xpos_) || (y != ypos_))
-    {
-        xpos_ = x;
-        ypos_ = y;
-
-        SetWindowPos(hwnd_, nullptr, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-    }
+    SetWindowPos(hwnd_, nullptr, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 }
 
 void Win32Window::SetSize(const uint32_t width, const uint32_t height)

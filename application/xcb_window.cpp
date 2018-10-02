@@ -25,8 +25,8 @@ BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
 XcbWindow::XcbWindow(XcbApplication* application) :
-    xcb_application_(application), xpos_(0), ypos_(0), width_(0), height_(0), window_(0), map_complete_(false),
-    resize_complete_(false), atom_wm_delete_window_(nullptr)
+    xcb_application_(application), width_(0), height_(0), window_(0), map_complete_(false), resize_complete_(false),
+    atom_wm_delete_window_(nullptr)
 {
     assert(application != nullptr);
 }
@@ -119,8 +119,6 @@ bool XcbWindow::Create(
         xcb_application_->ProcessEvents(true);
     }
 
-    xpos_   = x;
-    ypos_   = y;
     width_  = width;
     height_ = height;
 
@@ -157,17 +155,11 @@ void XcbWindow::SetTitle(const std::string& title)
 
 void XcbWindow::SetPosition(const int32_t x, const int32_t y)
 {
-    if (x != xpos_ || y != ypos_)
-    {
-        xpos_ = x;
-        ypos_ = y;
+    xcb_connection_t* connection = xcb_application_->GetConnection();
+    uint32_t          values[]   = { static_cast<uint32_t>(x), static_cast<uint32_t>(y) };
 
-        xcb_connection_t* connection = xcb_application_->GetConnection();
-        uint32_t          values[]   = { static_cast<uint32_t>(x), static_cast<uint32_t>(y) };
-
-        xcb_configure_window(connection, window_, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, values);
-        xcb_flush(connection);
-    }
+    xcb_configure_window(connection, window_, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, values);
+    xcb_flush(connection);
 }
 
 void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
