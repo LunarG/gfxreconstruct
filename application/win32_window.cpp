@@ -25,6 +25,10 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
+// Define a style similar to WS_OVERLAPPEDWINDOW, but without the ability to resize, minimize, or maximize.
+const uint32_t kWindowedStyle   = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
+const uint32_t kFullscreenStyle = WS_POPUP;
+
 Win32Window::Win32Window(Win32Application* application) :
     hwnd_(nullptr), win32_application_(application), xpos_(0), ypos_(0), width_(0), height_(0), hinstance_(nullptr)
 {
@@ -72,11 +76,11 @@ bool Win32Window::Create(const std::string& title, const int32_t xpos, const int
 
     // Create the window.
     RECT wr = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
-    AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+    AdjustWindowRect(&wr, kWindowedStyle, FALSE);
 
     hwnd_ = CreateWindow(class_name,
                          title.c_str(),
-                         WS_OVERLAPPEDWINDOW,
+                         kWindowedStyle,
                          xpos,
                          ypos,
                          wr.right - wr.left,
@@ -147,12 +151,12 @@ void Win32Window::SetSize(const uint32_t width, const uint32_t height)
 
         if (screen_height_ <= height && screen_width_ <= width)
         {
-            SetWindowLong(hwnd_, GWL_STYLE, WS_POPUP);
-            AdjustWindowRect(&wr, WS_POPUP, FALSE);
+            SetWindowLong(hwnd_, GWL_STYLE, kFullscreenStyle);
+            AdjustWindowRect(&wr, kFullscreenStyle, FALSE);
         }
         else
         {
-            AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+            AdjustWindowRect(&wr, kWindowedStyle, FALSE);
         }
 
         SetWindowPos(hwnd_,
