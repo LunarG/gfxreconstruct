@@ -62,8 +62,6 @@ class Win32Window : public format::Window
   private:
     HWND              hwnd_;
     Win32Application* win32_application_;
-    int32_t           xpos_;
-    int32_t           ypos_;
     uint32_t          width_;
     uint32_t          height_;
     uint32_t          screen_width_;
