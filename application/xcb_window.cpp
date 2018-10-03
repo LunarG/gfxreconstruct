@@ -39,6 +39,11 @@ XcbWindow::~XcbWindow()
     {
         xcb_destroy_window(xcb_application_->GetConnection(), window_);
     }
+
+    if (atom_wm_delete_window_ != nullptr)
+    {
+        free(atom_wm_delete_window_);
+    }
 }
 
 bool XcbWindow::Create(
@@ -94,15 +99,29 @@ bool XcbWindow::Create(
 
     // Request notification when user tries to close the window.
     xcb_intern_atom_cookie_t proto_cookie = xcb_intern_atom(connection, 1, 12, "WM_PROTOCOLS");
-    xcb_intern_atom_reply_t* reply        = xcb_intern_atom_reply(connection, proto_cookie, nullptr);
+    xcb_intern_atom_reply_t* reply        = xcb_intern_atom_reply(connection, proto_cookie, &error);
 
-    xcb_intern_atom_cookie_t delete_cookie = xcb_intern_atom(connection, 0, 16, "WM_DELETE_WINDOW");
-    atom_wm_delete_window_                 = xcb_intern_atom_reply(connection, delete_cookie, nullptr);
+    if (reply != nullptr)
+    {
+        xcb_intern_atom_cookie_t delete_cookie = xcb_intern_atom(connection, 0, 16, "WM_DELETE_WINDOW");
+        atom_wm_delete_window_                 = xcb_intern_atom_reply(connection, delete_cookie, &error);
 
-    xcb_change_property(
-        connection, XCB_PROP_MODE_REPLACE, window_, reply->atom, 4, 32, 1, &(atom_wm_delete_window_->atom));
-    free(reply);
+        if (atom_wm_delete_window_ != nullptr)
+        {
+            xcb_change_property(
+                connection, XCB_PROP_MODE_REPLACE, window_, reply->atom, 4, 32, 1, &(atom_wm_delete_window_->atom));
+        }
 
+        free(reply);
+    }
+
+    if (atom_wm_delete_window_ == nullptr)
+    {
+        BRIMSTONE_LOG_ERROR("Failed to change window property with error %u", error->error_code);
+        return false;
+    }
+
+    // Display the window.
     check_cookie = xcb_map_window_checked(connection, window_);
 
     error = xcb_request_check(connection, check_cookie);
@@ -117,11 +136,18 @@ bool XcbWindow::Create(
 
     // Get screen dimensions.
     xcb_get_geometry_cookie_t geom_cookie = xcb_get_geometry(connection, screen->root);
-    xcb_get_geometry_reply_t* geom = xcb_get_geometry_reply (connection, geom_cookie, nullptr);
+    xcb_get_geometry_reply_t* geom        = xcb_get_geometry_reply(connection, geom_cookie, &error);
 
-    screen_width_ = geom->width;
-    screen_height_ = geom->height;
-    free (geom);    
+    if (geom != nullptr)
+    {
+        screen_width_  = geom->width;
+        screen_height_ = geom->height;
+        free(geom);
+    }
+    else
+    {
+        BRIMSTONE_LOG_WARNING("Failed to retrieve screen geometry with error code %u", error->error_code);
+    }
 
     return true;
 }
@@ -133,6 +159,13 @@ bool XcbWindow::Destroy()
         xcb_destroy_window(xcb_application_->GetConnection(), window_);
         xcb_application_->UnregisterXcbWindow(this);
         window_ = 0;
+
+        if (atom_wm_delete_window_ != nullptr)
+        {
+            free(atom_wm_delete_window_);
+            atom_wm_delete_window_ = nullptr;
+        }
+
         return true;
     }
 
