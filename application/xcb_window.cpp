@@ -25,10 +25,19 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
+// Names for protocol and state atoms.
+const char kProtocolName[]           = "WM_PROTOCOLS";
+const char kDeleteWindowName[]       = "WM_DELETE_WINDOW";
+const char kStateName[]              = "_NET_WM_STATE";
+const char kStateFullscreenName[]    = "_NET_WM_STATE_FULLSCREEN";
+const char kStateMaximizedHorzName[] = "_NET_WM_STATE_MAXIMIZED_HORZ";
+const char kStateMaximizedVertName[] = "_NET_WM_STATE_MAXIMIZED_VERT";
+
 XcbWindow::XcbWindow(XcbApplication* application) :
     xcb_application_(application), width_(0), height_(0), screen_width_(std::numeric_limits<uint32_t>::max()),
-    screen_height_(std::numeric_limits<uint32_t>::max()), fullscreen_(false), window_(0),
-    atom_wm_delete_window_(nullptr)
+    screen_height_(std::numeric_limits<uint32_t>::max()), fullscreen_(false), window_(0), protocol_atom_(0),
+    delete_window_atom_(0), state_atom_(0), state_fullscreen_atom_(0), state_maximized_horz_atom_(0),
+    state_maximized_vert_atom_(0)
 {
     assert(application != nullptr);
 }
@@ -38,11 +47,6 @@ XcbWindow::~XcbWindow()
     if (window_ != 0)
     {
         xcb_destroy_window(xcb_application_->GetConnection(), window_);
-    }
-
-    if (atom_wm_delete_window_ != nullptr)
-    {
-        free(atom_wm_delete_window_);
     }
 }
 
@@ -128,6 +132,11 @@ bool XcbWindow::Create(
         return false;
     }
 
+    InitializeAtoms();
+
+    // Request notification when user closes window.
+    xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window_, protocol_atom_, 4, 32, 1, &(delete_window_atom_));
+
     // Set the title.
     xcb_change_property(connection,
                         XCB_PROP_MODE_REPLACE,
@@ -137,30 +146,6 @@ bool XcbWindow::Create(
                         8,
                         static_cast<uint32_t>(title.length()),
                         title.c_str());
-
-    // Request notification when user tries to close the window.
-    xcb_intern_atom_cookie_t proto_cookie = xcb_intern_atom(connection, 1, 12, "WM_PROTOCOLS");
-    xcb_intern_atom_reply_t* reply        = xcb_intern_atom_reply(connection, proto_cookie, &error);
-
-    if (reply != nullptr)
-    {
-        xcb_intern_atom_cookie_t delete_cookie = xcb_intern_atom(connection, 0, 16, "WM_DELETE_WINDOW");
-        atom_wm_delete_window_                 = xcb_intern_atom_reply(connection, delete_cookie, &error);
-
-        if (atom_wm_delete_window_ != nullptr)
-        {
-            xcb_change_property(
-                connection, XCB_PROP_MODE_REPLACE, window_, reply->atom, 4, 32, 1, &(atom_wm_delete_window_->atom));
-        }
-
-        free(reply);
-    }
-
-    if (atom_wm_delete_window_ == nullptr)
-    {
-        BRIMSTONE_LOG_ERROR("Failed to change window property with error %u", error->error_code);
-        return false;
-    }
 
     // Display the window.
     check_cookie = xcb_map_window_checked(connection, window_);
@@ -191,13 +176,6 @@ bool XcbWindow::Destroy()
         xcb_destroy_window(xcb_application_->GetConnection(), window_);
         xcb_application_->UnregisterXcbWindow(this);
         window_ = 0;
-
-        if (atom_wm_delete_window_ != nullptr)
-        {
-            free(atom_wm_delete_window_);
-            atom_wm_delete_window_ = nullptr;
-        }
-
         return true;
     }
 
@@ -276,28 +254,38 @@ void XcbWindow::SetFullscreen(bool fullscreen)
         xcb_connection_t* connection = xcb_application_->GetConnection();
         xcb_screen_t*     screen     = xcb_application_->GetScreen();
 
-        xcb_generic_error_t*     error        = nullptr;
-        xcb_intern_atom_cookie_t state_cookie = xcb_intern_atom(connection, 1, 13, "_NET_WM_STATE");
-        xcb_intern_atom_reply_t* state_reply  = xcb_intern_atom_reply(connection, state_cookie, &error);
+        xcb_client_message_event_t event;
+        event.response_type  = XCB_CLIENT_MESSAGE;
+        event.format         = 32;
+        event.sequence       = 0;
+        event.window         = window_;
+        event.type           = state_atom_;
+        event.data.data32[0] = fullscreen ? 1 : 0;
+        event.data.data32[1] = state_fullscreen_atom_;
+        event.data.data32[2] = 0;
+        event.data.data32[3] = 0;
+        event.data.data32[4] = 0;
 
-        if (state_reply != nullptr)
+        xcb_void_cookie_t event_cookie =
+            xcb_send_event_checked(connection,
+                                   0,
+                                   screen->root,
+                                   XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
+                                   reinterpret_cast<const char*>(&event));
+
+        xcb_generic_error_t* error = xcb_request_check(connection, event_cookie);
+
+        if (error == nullptr)
         {
-            xcb_intern_atom_cookie_t fullscreen_cookie = xcb_intern_atom(connection, 0, 24, "_NET_WM_STATE_FULLSCREEN");
-            xcb_intern_atom_reply_t* fullscreen_reply  = xcb_intern_atom_reply(connection, fullscreen_cookie, &error);
+            fullscreen_ = fullscreen;
 
-            if (fullscreen_reply != nullptr)
+            if (!fullscreen)
             {
-                xcb_client_message_event_t event;
-                event.response_type = XCB_CLIENT_MESSAGE;
-                event.format = 32;
-                event.sequence = 0;
-                event.window = window_;
-                event.type = state_reply->atom;
-                event.data.data32[0] = fullscreen ? 1 : 0;
-                event.data.data32[1] = fullscreen_reply->atom;
-                event.data.data32[2] = 0;
-                event.data.data32[3] = 0;
-                event.data.data32[4] = 0;
+                // Some window managers may maximize when entering full screen, but won't restore when exiting full
+                // screen.  Ensure that the window is not in the maximized state.
+                event.data.data32[0] = 0;
+                event.data.data32[1] = state_maximized_horz_atom_;
+                event.data.data32[2] = state_maximized_vert_atom_;
 
                 xcb_void_cookie_t event_cookie =
                     xcb_send_event_checked(connection,
@@ -307,52 +295,7 @@ void XcbWindow::SetFullscreen(bool fullscreen)
                                            reinterpret_cast<const char*>(&event));
 
                 error = xcb_request_check(connection, event_cookie);
-
-                free(fullscreen_reply);
-
-                if (!fullscreen)
-                {
-                    // Some window managers may maximize when entering full screen, but won't restore when exiting full
-                    // screen.  Ensure that the window is not in the maximized state.
-                    xcb_intern_atom_cookie_t horz_cookie =
-                        xcb_intern_atom(connection, 0, 28, "_NET_WM_STATE_MAXIMIZED_HORZ");
-                    xcb_intern_atom_reply_t* horz_reply = xcb_intern_atom_reply(connection, horz_cookie, &error);
-
-                    if (horz_reply != nullptr)
-                    {
-                        xcb_intern_atom_cookie_t vert_cookie =
-                            xcb_intern_atom(connection, 0, 28, "_NET_WM_STATE_MAXIMIZED_VERT");
-                        xcb_intern_atom_reply_t* vert_reply = xcb_intern_atom_reply(connection, vert_cookie, &error);
-
-                        if (vert_reply != nullptr)
-                        {
-                            event.data.data32[0] = 0;
-                            event.data.data32[1] = horz_reply->atom;
-                            event.data.data32[2] = vert_reply->atom;
-
-                            xcb_void_cookie_t event_cookie = xcb_send_event_checked(
-                                connection,
-                                0,
-                                screen->root,
-                                XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
-                                reinterpret_cast<const char*>(&event));
-
-                            error = xcb_request_check(connection, event_cookie);
-
-                            free(vert_reply);
-                        }
-
-                        free(horz_reply);
-                    }
-                }
             }
-
-            free(state_reply);
-        }
-
-        if (error == nullptr)
-        {
-            fullscreen_ = fullscreen;
         }
         else
         {
@@ -414,6 +357,39 @@ VkResult XcbWindow::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceK
     };
 
     return vkCreateXcbSurfaceKHR(instance, &create_info, nullptr, pSurface);
+}
+
+xcb_atom_t XcbWindow::GetAtom(const char* name, uint8_t only_if_exists) const
+{
+    xcb_atom_t               atom       = 0;
+    xcb_generic_error_t*     error      = nullptr;
+    xcb_connection_t*        connection = xcb_application_->GetConnection();
+    xcb_intern_atom_cookie_t cookie     = xcb_intern_atom(connection, only_if_exists, strlen(name), name);
+    xcb_intern_atom_reply_t* reply      = xcb_intern_atom_reply(connection, cookie, &error);
+
+    if (reply != nullptr)
+    {
+        atom = reply->atom;
+        free(reply);
+    }
+    else
+    {
+        BRIMSTONE_LOG_ERROR("Failed to retrieve internal atom for %s with error %u", name, error->error_code);
+        return false;
+    }
+
+    return atom;
+}
+
+void XcbWindow::InitializeAtoms()
+{
+    protocol_atom_ = GetAtom(kProtocolName, 1);
+    delete_window_atom_ =  GetAtom(kDeleteWindowName, 0);
+
+    state_atom_ = GetAtom(kStateName, 1);
+    state_fullscreen_atom_ = GetAtom(kStateFullscreenName, 0);
+    state_maximized_horz_atom_ = GetAtom(kStateMaximizedHorzName, 0);
+    state_maximized_vert_atom_ = GetAtom(kStateMaximizedVertName, 0);
 }
 
 XcbWindowFactory::XcbWindowFactory(XcbApplication* application) : xcb_application_(application)
