@@ -47,7 +47,7 @@ XcbWindow::~XcbWindow()
 }
 
 bool XcbWindow::Create(
-    const std::string& title, const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+    const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
 {
     xcb_connection_t* connection = xcb_application_->GetConnection();
     xcb_screen_t*     screen     = xcb_application_->GetScreen();
@@ -60,6 +60,47 @@ bool XcbWindow::Create(
     }
 
     xcb_application_->RegisterXcbWindow(this);
+
+    // Get screen dimensions.
+    xcb_generic_error_t*      error       = nullptr;
+    xcb_get_geometry_cookie_t geom_cookie = xcb_get_geometry(connection, screen->root);
+    xcb_get_geometry_reply_t* geom        = xcb_get_geometry_reply(connection, geom_cookie, &error);
+
+    if (geom != nullptr)
+    {
+        screen_width_  = geom->width;
+        screen_height_ = geom->height;
+        free(geom);
+    }
+    else
+    {
+        BRIMSTONE_LOG_WARNING("Failed to retrieve screen geometry with error code %u", error->error_code);
+    }
+
+    // Determine if fullscreen mode is required.
+    int32_t  x            = xpos;
+    int32_t  y            = ypos;
+    bool go_fullscreen    = false;
+
+    if ((screen_height_ <= height) || (screen_width_ <= width))
+    {
+        if ((screen_height_ < height) || (screen_width_ < width))
+        {
+            BRIMSTONE_LOG_WARNING(
+                "Requested window size (%ux%u) exceeds current screen size (%ux%u); replay may fail due to "
+                "inability to create a window of the appropriate size.",
+                width,
+                height,
+                screen_width_,
+                screen_height_);
+        }
+
+        go_fullscreen = true;
+
+        // Place fullscreen window at 0, 0.
+        x = 0;
+        y = 0;
+    }
 
     uint32_t value_mask   = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     uint32_t value_list[] = { screen->black_pixel,
@@ -79,7 +120,7 @@ bool XcbWindow::Create(
                                                                value_mask,
                                                                value_list);
 
-    xcb_generic_error_t* error = xcb_request_check(connection, check_cookie);
+    error = xcb_request_check(connection, check_cookie);
     if (error != nullptr)
     {
         BRIMSTONE_LOG_ERROR("Failed to create window with error %u", error->error_code);
@@ -131,23 +172,14 @@ bool XcbWindow::Create(
         return false;
     }
 
+    // Enable fullscreen if necessary.
+    if (go_fullscreen)
+    {
+        SetFullscreen(true);
+    }
+
     width_  = width;
     height_ = height;
-
-    // Get screen dimensions.
-    xcb_get_geometry_cookie_t geom_cookie = xcb_get_geometry(connection, screen->root);
-    xcb_get_geometry_reply_t* geom        = xcb_get_geometry_reply(connection, geom_cookie, &error);
-
-    if (geom != nullptr)
-    {
-        screen_width_  = geom->width;
-        screen_height_ = geom->height;
-        free(geom);
-    }
-    else
-    {
-        BRIMSTONE_LOG_WARNING("Failed to retrieve screen geometry with error code %u", error->error_code);
-    }
 
     return true;
 }
