@@ -188,8 +188,10 @@ void VulkanReplayConsumer::CheckResult(const char* func_name, VkResult original,
     }
     else
     {
-        // Report error when replay result is different than the original result.
-        if (original != replay)
+        // Report error when replay result is different than the original result, unless the replay results indicates
+        // that a wait operation completed before the original.
+        if ((original != replay) &&
+            !((replay == VK_SUCCESS) && ((original == VK_TIMEOUT) || (original == VK_NOT_READY))))
         {
             BRIMSTONE_LOG_ERROR("API call (%s) returned value %s that does not match return value from trace file %s.",
                                 func_name,
@@ -197,7 +199,7 @@ void VulkanReplayConsumer::CheckResult(const char* func_name, VkResult original,
                                 enumutil::GetResultValueString(original));
         }
 
-        // Warn when an API call returned a failure, regardless of original result (excluding fromat not supported
+        // Warn when an API call returned a failure, regardless of original result (excluding format not supported
         // results).
         if ((replay < 0) && (replay != VK_ERROR_FORMAT_NOT_SUPPORTED))
         {

@@ -99,26 +99,26 @@ int main(int argc, const char** argv)
                 window_factory = std::make_unique<brimstone::application::WaylandWindowFactory>(wayland_application);
 #endif
 #endif
-            }
 
-            if (!window_factory || !application || !application->Initialize(&file_processor))
-            {
-                BRIMSTONE_WRITE_CONSOLE(
-                    "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
-                    "Vulkan platform extensions have been enabled.");
-                return_code = -1;
-            }
-            else
-            {
-                brimstone::format::VulkanDecoder        decoder;
-                brimstone::format::VulkanReplayConsumer replay_consumer(window_factory.get());
+                if (!window_factory || !application || !application->Initialize(&file_processor))
+                {
+                    BRIMSTONE_WRITE_CONSOLE(
+                        "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
+                        "Vulkan platform extensions have been enabled.");
+                    return_code = -1;
+                }
+                else
+                {
+                    brimstone::format::VulkanDecoder        decoder;
+                    brimstone::format::VulkanReplayConsumer replay_consumer(window_factory.get());
 
-                replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
+                    replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 
-                decoder.AddConsumer(&replay_consumer);
-                file_processor.AddDecoder(&decoder);
+                    decoder.AddConsumer(&replay_consumer);
+                    file_processor.AddDecoder(&decoder);
 
-                application->Run();
+                    application->Run();
+                }
             }
         }
         catch (std::runtime_error error)
