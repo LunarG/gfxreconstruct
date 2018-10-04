@@ -125,10 +125,10 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
 
                     if (entry != xcb_windows_.end())
                     {
-                        XcbWindow*               xcb_window = entry->second;
-                        xcb_intern_atom_reply_t* atom       = xcb_window->GetDeleteWindowAtom();
+                        XcbWindow* xcb_window = entry->second;
+                        xcb_atom_t atom       = xcb_window->GetDeleteWindowAtom();
 
-                        if ((atom != nullptr) && (message_event->data.data32[0] == atom->atom))
+                        if (message_event->data.data32[0] == atom)
                         {
                             StopRunning();
                         }

@@ -43,7 +43,7 @@ class XcbWindow : public format::Window
 
     xcb_window_t GetWindowId() const { return window_; }
 
-    xcb_intern_atom_reply_t* GetDeleteWindowAtom() const { return atom_wm_delete_window_; }
+    xcb_atom_t GetDeleteWindowAtom() const { return delete_window_atom_; }
 
     virtual bool Create(const std::string& title,
                         const int32_t      xpos,
@@ -69,6 +69,10 @@ class XcbWindow : public format::Window
 
   private:
     void SetFullscreen(bool fullscreen);
+
+    xcb_atom_t GetAtom(const char* name, uint8_t only_if_exists) const;
+
+    void InitializeAtoms();
     
   private:
     XcbApplication* xcb_application_;
@@ -78,7 +82,12 @@ class XcbWindow : public format::Window
     uint32_t        screen_height_;
     bool            fullscreen_;
     xcb_window_t    window_;
-    xcb_intern_atom_reply_t* atom_wm_delete_window_;
+    xcb_atom_t protocol_atom_;
+    xcb_atom_t delete_window_atom_;
+    xcb_atom_t state_atom_;
+    xcb_atom_t state_fullscreen_atom_;
+    xcb_atom_t state_maximized_horz_atom_;
+    xcb_atom_t state_maximized_vert_atom_;
 };
 
 class XcbWindowFactory : public format::WindowFactory
