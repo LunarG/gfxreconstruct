@@ -274,6 +274,7 @@ void XcbWindow::SetFullscreen(bool fullscreen)
     if (fullscreen != fullscreen_)
     {
         xcb_connection_t* connection = xcb_application_->GetConnection();
+        xcb_screen_t*     screen     = xcb_application_->GetScreen();
 
         xcb_generic_error_t*     error        = nullptr;
         xcb_intern_atom_cookie_t state_cookie = xcb_intern_atom(connection, 1, 13, "_NET_WM_STATE");
@@ -301,13 +302,49 @@ void XcbWindow::SetFullscreen(bool fullscreen)
                 xcb_void_cookie_t event_cookie =
                     xcb_send_event_checked(connection,
                                            0,
-                                           xcb_application_->GetScreen()->root,
+                                           screen->root,
                                            XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
                                            reinterpret_cast<const char*>(&event));
 
                 error = xcb_request_check(connection, event_cookie);
 
                 free(fullscreen_reply);
+
+                if (!fullscreen)
+                {
+                    // Some window managers may maximize when entering full screen, but won't restore when exiting full
+                    // screen.  Ensure that the window is not in the maximized state.
+                    xcb_intern_atom_cookie_t horz_cookie =
+                        xcb_intern_atom(connection, 0, 28, "_NET_WM_STATE_MAXIMIZED_HORZ");
+                    xcb_intern_atom_reply_t* horz_reply = xcb_intern_atom_reply(connection, horz_cookie, &error);
+
+                    if (horz_reply != nullptr)
+                    {
+                        xcb_intern_atom_cookie_t vert_cookie =
+                            xcb_intern_atom(connection, 0, 28, "_NET_WM_STATE_MAXIMIZED_VERT");
+                        xcb_intern_atom_reply_t* vert_reply = xcb_intern_atom_reply(connection, vert_cookie, &error);
+
+                        if (vert_reply != nullptr)
+                        {
+                            event.data.data32[0] = 0;
+                            event.data.data32[1] = horz_reply->atom;
+                            event.data.data32[2] = vert_reply->atom;
+
+                            xcb_void_cookie_t event_cookie = xcb_send_event_checked(
+                                connection,
+                                0,
+                                screen->root,
+                                XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
+                                reinterpret_cast<const char*>(&event));
+
+                            error = xcb_request_check(connection, event_cookie);
+
+                            free(vert_reply);
+                        }
+
+                        free(horz_reply);
+                    }
+                }
             }
 
             free(state_reply);
