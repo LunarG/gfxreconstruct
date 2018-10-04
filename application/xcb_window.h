@@ -46,8 +46,8 @@ class XcbWindow : public format::Window
     xcb_intern_atom_reply_t* GetDeleteWindowAtom() const { return atom_wm_delete_window_; }
 
     virtual bool Create(const std::string& title,
-                        const int32_t      x,
-                        const int32_t      y,
+                        const int32_t      xpos,
+                        const int32_t      ypos,
                         const uint32_t     width,
                         const uint32_t     height) override;
 

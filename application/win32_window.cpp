@@ -74,15 +74,50 @@ bool Win32Window::Create(const std::string& title, const int32_t xpos, const int
 
     RegisterClassEx(&wcex);
 
+    // Get desktop resolution (ignoring the taskbar).
+    HWND screen = GetDesktopWindow();
+    RECT      screen_rect;
+    GetWindowRect(screen, &screen_rect);
+    screen_width_  = screen_rect.right;
+    screen_height_ = screen_rect.bottom;
+
+    // Determine if fullscreen mode is required.
+    uint32_t window_style = kWindowedStyle;
+    int32_t  x            = xpos;
+    int32_t  y            = ypos;
+    fullscreen_           = false;
+
+    if ((screen_height_ <= height) || (screen_width_ <= width))
+    {
+        if ((screen_height_ < height) || (screen_width_ < width))
+        {
+            BRIMSTONE_LOG_WARNING(
+                "Requested window size (%ux%u) exceeds current screen size (%ux%u); replay may fail due to "
+                "inability to create a window of the appropriate size.",
+                width,
+                height,
+                screen_width_,
+                screen_height_);
+        }
+
+        fullscreen_ = true;
+
+        window_style = kFullscreenStyle;
+
+        // Place fullscreen window at 0, 0.
+        x = 0;
+        y = 0;
+    }
+
     // Create the window.
     RECT wr = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
-    AdjustWindowRect(&wr, kWindowedStyle, FALSE);
+    AdjustWindowRect(&wr, window_style, FALSE);
 
     hwnd_ = CreateWindow(class_name,
                          title.c_str(),
-                         kWindowedStyle,
-                         xpos,
-                         ypos,
+                         window_style,
+                         x,
+                         y,
                          wr.right - wr.left,
                          wr.bottom - wr.top,
                          nullptr,
@@ -96,8 +131,6 @@ bool Win32Window::Create(const std::string& title, const int32_t xpos, const int
 
         width_  = width;
         height_ = height;
-        screen_width_  = GetSystemMetrics(SM_CXFULLSCREEN);
-        screen_height_ = GetSystemMetrics(SM_CYFULLSCREEN);
     }
     else
     {
