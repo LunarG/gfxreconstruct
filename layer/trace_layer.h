@@ -17,6 +17,8 @@
 #ifndef BRIMSTONE_TRACE_LAYER_H
 #define BRIMSTONE_TRACE_LAYER_H
 
+#include <mutex>
+
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
@@ -32,6 +34,8 @@
 #include "layer/vk_layer_dispatch_table.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+
+extern std::mutex g_create_destroy_mutex;
 
 // The following prototype declarations are required so the dispatch table can find these
 // functions which are defined in trace_layer.cpp

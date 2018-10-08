@@ -68,6 +68,8 @@ static brimstone::format::TraceManager* trace_manager;
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
+std::mutex g_create_destroy_mutex;
+
 bool init_layer()
 {
     if (nullptr != trace_manager)
