@@ -35,9 +35,9 @@ const char kStateMaximizedVertName[] = "_NET_WM_STATE_MAXIMIZED_VERT";
 
 XcbWindow::XcbWindow(XcbApplication* application) :
     xcb_application_(application), width_(0), height_(0), screen_width_(std::numeric_limits<uint32_t>::max()),
-    screen_height_(std::numeric_limits<uint32_t>::max()), fullscreen_(false), window_(0), protocol_atom_(0),
-    delete_window_atom_(0), state_atom_(0), state_fullscreen_atom_(0), state_maximized_horz_atom_(0),
-    state_maximized_vert_atom_(0)
+    screen_height_(std::numeric_limits<uint32_t>::max()), fullscreen_(false), map_complete_(false),
+    resize_complete_(false), window_(0), protocol_atom_(0), delete_window_atom_(0), state_atom_(0),
+    state_fullscreen_atom_(0), state_maximized_horz_atom_(0), state_maximized_vert_atom_(0)
 {
     assert(application != nullptr);
 }
@@ -157,6 +157,15 @@ bool XcbWindow::Create(
         return false;
     }
 
+    // Waiting for the map event seems to be required to ensure that the map operation is complete.
+    // The xcb_request_check seems to indicate the request has been processed successfully,
+    // not that the map operation has completed.
+    map_complete_ = false;
+    while (!map_complete_ && xcb_application_->IsRunning())
+    {
+        xcb_application_->ProcessEvents(true);
+    }
+
     // Enable fullscreen if necessary.
     if (go_fullscreen)
     {
@@ -240,7 +249,20 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
             connection, window_, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
 
         xcb_generic_error_t* error = xcb_request_check(connection, cookie);
-        if (error != nullptr)
+        if (error == nullptr)
+        {
+            // Wait for configure notification.
+            resize_complete_ = false;
+            while (!resize_complete_ && xcb_application_->IsRunning())
+            {
+                // TODO: This may require a timeout.  The resize_complete_ flag is only set to true
+                // when a configure event with the exact width and height specified by the resize
+                // request is received.  If for some reason, the window manager adjusted the width and
+                // height, this could become an infinite loop.
+                xcb_application_->ProcessEvents(true);
+            }
+        }
+        else
         {
             BRIMSTONE_LOG_ERROR("Failed to resize window with error %u", error->error_code);
         }
@@ -319,7 +341,16 @@ void XcbWindow::SetVisibility(bool show)
     }
 
     xcb_generic_error_t* error = xcb_request_check(connection, cookie);
-    if (error != nullptr)
+    if (error == nullptr)
+    {
+        // Wait for map notification.
+        map_complete_ = false;
+        while (!map_complete_ && xcb_application_->IsRunning())
+        {
+            xcb_application_->ProcessEvents(true);
+        }
+    }
+    else
     {
         BRIMSTONE_LOG_ERROR("Failed to change window visibility with error %u", error->error_code);
     }
