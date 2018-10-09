@@ -45,6 +45,16 @@ class XcbWindow : public format::Window
 
     xcb_atom_t GetDeleteWindowAtom() const { return delete_window_atom_; }
 
+    void MapNotify() { map_complete_ = true; }
+
+    void ResizeNotify(uint32_t width, uint32_t height)
+    {
+        if ((width == width_) && (height == height_))
+        {
+            resize_complete_ = true;
+        }
+    }
+
     virtual bool Create(const std::string& title,
                         const int32_t      xpos,
                         const int32_t      ypos,
@@ -81,6 +91,8 @@ class XcbWindow : public format::Window
     uint32_t        screen_width_;
     uint32_t        screen_height_;
     bool            fullscreen_;
+    bool            map_complete_;
+    bool            resize_complete_;
     xcb_window_t    window_;
     xcb_atom_t protocol_atom_;
     xcb_atom_t delete_window_atom_;
