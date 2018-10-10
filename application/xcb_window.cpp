@@ -164,17 +164,6 @@ bool XcbWindow::Create(
         SetSize(width, height);
     }
 
-    // Check actual result of size request and report width/height adjustments made by window manager.
-    if ((width != width_) || (height != height_))
-    {
-        BRIMSTONE_LOG_ERROR(
-            "Window creation produced a window size (%ux%u) that does not match requested size (%ux%u)",
-            width_,
-            height_,
-            width,
-            height);
-    }
-
     return true;
 }
 
@@ -267,17 +256,6 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
                 BRIMSTONE_LOG_ERROR("Failed to resize window with error %u", xcb_application_->GetLastErrorCode());
                 break;
             }
-        }
-
-        // Check actual result of resize request and report width/height adjustments made by window manager.
-        if ((width != width_) || (height != height_))
-        {
-            BRIMSTONE_LOG_ERROR(
-                "Window resize produced a window size (%ux%u) that does not match requested size (%ux%u)",
-                width_,
-                height_,
-                width,
-                height);
         }
     }
 }
@@ -378,12 +356,6 @@ void XcbWindow::SetVisibility(bool show)
                 BRIMSTONE_LOG_ERROR("Failed to change window visibility with error %u", xcb_application_->GetLastErrorCode());
                 break;
             }
-        }
-
-        // Report unsuccessful operation.
-        if (show != visible_)
-        {
-            BRIMSTONE_LOG_WARNING("Failed to receive a successful window visibility change notification");
         }
     }
 }
