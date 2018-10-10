@@ -108,6 +108,15 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
 
         if (event != nullptr)
         {
+            if (event->response_type == 0)
+            {
+                // Set error status and break from event processing loop.
+                xcb_generic_error_t* error = reinterpret_cast<xcb_generic_error_t*>(event);
+                last_error_sequence_       = error->sequence;
+                last_error_code_           = error->error_code;
+                break;
+            }
+
             uint8_t event_code = event->response_type & 0x7f;
             switch (event_code)
             {
@@ -160,12 +169,13 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                     if (entry != xcb_windows_.end())
                     {
                         XcbWindow* xcb_window = entry->second;
-                        xcb_window->ResizeNotify(configure_event->width, configure_event->height);
+                        xcb_window->ResizeNotify(configure_event->sequence);
                     }
 
                     break;
                 }
                 case XCB_MAP_NOTIFY:
+                case XCB_UNMAP_NOTIFY:
                 {
                     xcb_map_notify_event_t* map_event = reinterpret_cast<xcb_map_notify_event_t*>(event);
                     auto entry = xcb_windows_.find(map_event->window);
@@ -173,7 +183,7 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                     if (entry != xcb_windows_.end())
                     {
                         XcbWindow* xcb_window = entry->second;
-                        xcb_window->MapNotify();
+                        xcb_window->MapNotify(map_event->sequence);
                     }
 
                     break;

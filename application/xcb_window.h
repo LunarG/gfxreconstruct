@@ -45,15 +45,9 @@ class XcbWindow : public format::Window
 
     xcb_atom_t GetDeleteWindowAtom() const { return delete_window_atom_; }
 
-    void MapNotify() { map_complete_ = true; }
+    void MapNotify(uint32_t sequence) { CheckEventStatus(sequence, XCB_MAP_NOTIFY); }
 
-    void ResizeNotify(uint32_t width, uint32_t height)
-    {
-        if ((width == width_) && (height == height_))
-        {
-            resize_complete_ = true;
-        }
-    }
+    void ResizeNotify(uint32_t sequence) { CheckEventStatus(sequence, XCB_CONFIGURE_NOTIFY); }
 
     virtual bool Create(const std::string& title,
                         const int32_t      xpos,
@@ -83,23 +77,33 @@ class XcbWindow : public format::Window
     xcb_atom_t GetAtom(const char* name, uint8_t only_if_exists) const;
 
     void InitializeAtoms();
-    
+
+    void CheckEventStatus(uint32_t sequence, uint32_t type);
+
+  private:
+    struct EventInfo
+    {
+        uint32_t sequence{ 0 };
+        uint32_t type{ 0 };
+        bool     complete{ false };
+    };
+
   private:
     XcbApplication* xcb_application_;
     uint32_t        width_;
     uint32_t        height_;
     uint32_t        screen_width_;
     uint32_t        screen_height_;
+    EventInfo       pending_event_;
+    bool            visible_;
     bool            fullscreen_;
-    bool            map_complete_;
-    bool            resize_complete_;
     xcb_window_t    window_;
-    xcb_atom_t protocol_atom_;
-    xcb_atom_t delete_window_atom_;
-    xcb_atom_t state_atom_;
-    xcb_atom_t state_fullscreen_atom_;
-    xcb_atom_t state_maximized_horz_atom_;
-    xcb_atom_t state_maximized_vert_atom_;
+    xcb_atom_t      protocol_atom_;
+    xcb_atom_t      delete_window_atom_;
+    xcb_atom_t      state_atom_;
+    xcb_atom_t      state_fullscreen_atom_;
+    xcb_atom_t      state_maximized_horz_atom_;
+    xcb_atom_t      state_maximized_vert_atom_;
 };
 
 class XcbWindowFactory : public format::WindowFactory
