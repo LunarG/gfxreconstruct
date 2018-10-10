@@ -45,9 +45,18 @@ class XcbWindow : public format::Window
 
     xcb_atom_t GetDeleteWindowAtom() const { return delete_window_atom_; }
 
-    void MapNotify(uint32_t sequence) { CheckEventStatus(sequence, XCB_MAP_NOTIFY); }
+    void MapNotify(uint32_t sequence, bool visible)
+    {
+        CheckEventStatus(sequence, XCB_MAP_NOTIFY);
+        visible_ = visible;
+    }
 
-    void ResizeNotify(uint32_t sequence) { CheckEventStatus(sequence, XCB_CONFIGURE_NOTIFY); }
+    void ResizeNotify(uint32_t sequence, uint32_t width, uint32_t height)
+    {
+        CheckEventStatus(sequence, XCB_CONFIGURE_NOTIFY);
+        width_  = width;
+        height_ = height;
+    }
 
     virtual bool Create(const std::string& title,
                         const int32_t      xpos,

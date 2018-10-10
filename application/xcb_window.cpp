@@ -154,10 +154,21 @@ bool XcbWindow::Create(
     if (go_fullscreen)
     {
         SetFullscreen(true);
+
+        // If window was created with a reduced size, make sure it is the appropriate size.
+        SetSize(width, height);
     }
 
-    width_  = width;
-    height_ = height;
+    // Check actual result of size request and report width/height adjustments made by window manager.
+    if ((width != width_) || (height != height_))
+    {
+        BRIMSTONE_LOG_ERROR(
+            "Window creation produced a window size (%ux%u) that does not match requested size (%ux%u)",
+            width_,
+            height_,
+            width,
+            height);
+    }
 
     return true;
 }
@@ -203,11 +214,6 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
 {
     if ((width != width_) || (height != height_))
     {
-        // TODO: the size should probably be set by the configure notify, and then checked at the end of this function
-        // against the requested size.
-        width_  = width;
-        height_ = height;
-
         if ((screen_width_ <= width) || (screen_height_ <= height))
         {
             if ((screen_height_ < height) || (screen_width_ < width))
@@ -250,6 +256,17 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
                 BRIMSTONE_LOG_ERROR("Failed to resize window with error %u", xcb_application_->GetLastErrorCode());
                 break;
             }
+        }
+
+        // Check actual result of resize request and report width/height adjustments made by window manager.
+        if ((width != width_) || (height != height_))
+        {
+            BRIMSTONE_LOG_ERROR(
+                "Window resize produced a window size (%ux%u) that does not match requested size (%ux%u)",
+                width_,
+                height_,
+                width,
+                height);
         }
     }
 }
@@ -318,10 +335,6 @@ void XcbWindow::SetVisibility(bool show)
         xcb_connection_t* connection = xcb_application_->GetConnection();
         xcb_void_cookie_t cookie;
 
-        // TODO: the size should probably be set by the map/unmap notify, in case the state is changed by an external
-        // action (eg. user interaction).
-        visible_ = show;
-
         if (show)
         {
             cookie = xcb_map_window(connection, window_);
@@ -354,6 +367,12 @@ void XcbWindow::SetVisibility(bool show)
                 BRIMSTONE_LOG_ERROR("Failed to change window visibility with error %u", xcb_application_->GetLastErrorCode());
                 break;
             }
+        }
+
+        // Report unsuccessful operation.
+        if (show != visible_)
+        {
+            BRIMSTONE_LOG_WARNING("Failed to receive a successful window visibility change notification");
         }
     }
 }
