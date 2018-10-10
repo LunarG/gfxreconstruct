@@ -35,9 +35,9 @@ const char kStateMaximizedVertName[] = "_NET_WM_STATE_MAXIMIZED_VERT";
 
 XcbWindow::XcbWindow(XcbApplication* application) :
     xcb_application_(application), width_(0), height_(0), screen_width_(std::numeric_limits<uint32_t>::max()),
-    screen_height_(std::numeric_limits<uint32_t>::max()), fullscreen_(false), map_complete_(false),
-    resize_complete_(false), window_(0), protocol_atom_(0), delete_window_atom_(0), state_atom_(0),
-    state_fullscreen_atom_(0), state_maximized_horz_atom_(0), state_maximized_vert_atom_(0)
+    screen_height_(std::numeric_limits<uint32_t>::max()), visible_(false), fullscreen_(false), window_(0),
+    protocol_atom_(0), delete_window_atom_(0), state_atom_(0), state_fullscreen_atom_(0), state_maximized_horz_atom_(0),
+    state_maximized_vert_atom_(0)
 {
     assert(application != nullptr);
 }
@@ -110,21 +110,21 @@ bool XcbWindow::Create(
     uint32_t value_list[] = { screen->black_pixel,
                               XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY };
 
-    xcb_void_cookie_t check_cookie = xcb_create_window_checked(connection,
-                                                               XCB_COPY_FROM_PARENT,
-                                                               window_,
-                                                               screen->root,
-                                                               static_cast<int16_t>(x),
-                                                               static_cast<int16_t>(y),
-                                                               static_cast<uint16_t>(width),
-                                                               static_cast<uint16_t>(height),
-                                                               0,
-                                                               XCB_WINDOW_CLASS_INPUT_OUTPUT,
-                                                               screen->root_visual,
-                                                               value_mask,
-                                                               value_list);
+    xcb_void_cookie_t cookie = xcb_create_window_checked(connection,
+                                                         XCB_COPY_FROM_PARENT,
+                                                         window_,
+                                                         screen->root,
+                                                         static_cast<int16_t>(x),
+                                                         static_cast<int16_t>(y),
+                                                         static_cast<uint16_t>(width),
+                                                         static_cast<uint16_t>(height),
+                                                         0,
+                                                         XCB_WINDOW_CLASS_INPUT_OUTPUT,
+                                                         screen->root_visual,
+                                                         value_mask,
+                                                         value_list);
 
-    error = xcb_request_check(connection, check_cookie);
+    error = xcb_request_check(connection, cookie);
     if (error != nullptr)
     {
         BRIMSTONE_LOG_ERROR("Failed to create window with error %u", error->error_code);
@@ -148,23 +148,7 @@ bool XcbWindow::Create(
                         title.c_str());
 
     // Display the window.
-    check_cookie = xcb_map_window_checked(connection, window_);
-
-    error = xcb_request_check(connection, check_cookie);
-    if (error != nullptr)
-    {
-        BRIMSTONE_LOG_ERROR("Failed to map window with error %u", error->error_code);
-        return false;
-    }
-
-    // Waiting for the map event seems to be required to ensure that the map operation is complete.
-    // The xcb_request_check seems to indicate the request has been processed successfully,
-    // not that the map operation has completed.
-    map_complete_ = false;
-    while (!map_complete_ && xcb_application_->IsRunning())
-    {
-        xcb_application_->ProcessEvents(true);
-    }
+    SetVisibility(true);
 
     // Enable fullscreen if necessary.
     if (go_fullscreen)
@@ -219,6 +203,8 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
 {
     if ((width != width_) || (height != height_))
     {
+        // TODO: the size should probably be set by the configure notify, and then checked at the end of this function
+        // against the requested size.
         width_  = width;
         height_ = height;
 
@@ -245,26 +231,25 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
 
         xcb_connection_t* connection = xcb_application_->GetConnection();
         uint32_t          values[]   = { width, height };
-        xcb_void_cookie_t cookie     = xcb_configure_window_checked(
-            connection, window_, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+        xcb_void_cookie_t cookie =
+            xcb_configure_window(connection, window_, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
+        xcb_flush(connection);
 
-        xcb_generic_error_t* error = xcb_request_check(connection, cookie);
-        if (error == nullptr)
+        // Wait for configure notification.
+        pending_event_.sequence = cookie.sequence;
+        pending_event_.type     = XCB_CONFIGURE_NOTIFY;
+        pending_event_.complete = false;
+        xcb_application_->ClearLastError();
+        while (!pending_event_.complete && xcb_application_->IsRunning())
         {
-            // Wait for configure notification.
-            resize_complete_ = false;
-            while (!resize_complete_ && xcb_application_->IsRunning())
+            xcb_application_->ProcessEvents(true);
+
+            // TODO: We may need to check for any error, not an error for a specific sequence number.
+            if (xcb_application_->GetLastErrorSequence() == pending_event_.sequence)
             {
-                // TODO: This may require a timeout.  The resize_complete_ flag is only set to true
-                // when a configure event with the exact width and height specified by the resize
-                // request is received.  If for some reason, the window manager adjusted the width and
-                // height, this could become an infinite loop.
-                xcb_application_->ProcessEvents(true);
+                BRIMSTONE_LOG_ERROR("Failed to resize window with error %u", xcb_application_->GetLastErrorCode());
+                break;
             }
-        }
-        else
-        {
-            BRIMSTONE_LOG_ERROR("Failed to resize window with error %u", error->error_code);
         }
     }
 }
@@ -328,31 +313,48 @@ void XcbWindow::SetFullscreen(bool fullscreen)
 
 void XcbWindow::SetVisibility(bool show)
 {
-    xcb_connection_t* connection = xcb_application_->GetConnection();
-    xcb_void_cookie_t cookie;
+    if (show != visible_)
+    {
+        xcb_connection_t* connection = xcb_application_->GetConnection();
+        xcb_void_cookie_t cookie;
 
-    if (show)
-    {
-        cookie = xcb_map_window_checked(connection, window_);
-    }
-    else
-    {
-        cookie = xcb_unmap_window_checked(connection, window_);
-    }
+        // TODO: the size should probably be set by the map/unmap notify, in case the state is changed by an external
+        // action (eg. user interaction).
+        visible_ = show;
 
-    xcb_generic_error_t* error = xcb_request_check(connection, cookie);
-    if (error == nullptr)
-    {
-        // Wait for map notification.
-        map_complete_ = false;
-        while (!map_complete_ && xcb_application_->IsRunning())
+        if (show)
+        {
+            cookie = xcb_map_window(connection, window_);
+        }
+        else
+        {
+            cookie = xcb_unmap_window(connection, window_);
+        }
+
+        xcb_flush(connection);
+
+        // We wait for the map event instead of using xcb_request_check because the
+        // result of xcb_request_check seems to indicate the request has been processed
+        // successfully, not that the map operation has completed, and we need to wait
+        // for the operation to complete. We also do not do both because the sequence
+        // number from the checked call does not appear to match the sequence number of
+        // the event notifications.  So, we do an unchecked call and check for errors in
+        // the event loop.
+        pending_event_.sequence = cookie.sequence;
+        pending_event_.type     = XCB_MAP_NOTIFY;
+        pending_event_.complete = false;
+        xcb_application_->ClearLastError();
+        while (!pending_event_.complete && xcb_application_->IsRunning())
         {
             xcb_application_->ProcessEvents(true);
+
+            // TODO: We may need to check for any error, not an error for a specific sequence number.
+            if (xcb_application_->GetLastErrorSequence() == pending_event_.sequence)
+            {
+                BRIMSTONE_LOG_ERROR("Failed to change window visibility with error %u", xcb_application_->GetLastErrorCode());
+                break;
+            }
         }
-    }
-    else
-    {
-        BRIMSTONE_LOG_ERROR("Failed to change window visibility with error %u", error->error_code);
     }
 }
 
@@ -421,6 +423,14 @@ void XcbWindow::InitializeAtoms()
     state_fullscreen_atom_ = GetAtom(kStateFullscreenName, 0);
     state_maximized_horz_atom_ = GetAtom(kStateMaximizedHorzName, 0);
     state_maximized_vert_atom_ = GetAtom(kStateMaximizedVertName, 0);
+}
+
+void XcbWindow::CheckEventStatus(uint32_t sequence, uint32_t type)
+{
+    if ((sequence == pending_event_.sequence) && (type == pending_event_.type))
+    {
+        pending_event_.complete = true;
+    }
 }
 
 XcbWindowFactory::XcbWindowFactory(XcbApplication* application) : xcb_application_(application)
