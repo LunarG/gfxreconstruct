@@ -33,6 +33,11 @@ const char kStateFullscreenName[]    = "_NET_WM_STATE_FULLSCREEN";
 const char kStateMaximizedHorzName[] = "_NET_WM_STATE_MAXIMIZED_HORZ";
 const char kStateMaximizedVertName[] = "_NET_WM_STATE_MAXIMIZED_VERT";
 
+// Masks for window geometry configuration.
+const uint16_t kConfigurePositionMask     = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y;
+const uint16_t kConfigureSizeMask         = XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
+const uint16_t kConfigurePositionSizeMask = kConfigurePositionMask | kConfigureSizeMask;
+
 XcbWindow::XcbWindow(XcbApplication* application) :
     xcb_application_(application), width_(0), height_(0), screen_width_(std::numeric_limits<uint32_t>::max()),
     screen_height_(std::numeric_limits<uint32_t>::max()), visible_(false), fullscreen_(false), window_(0),
@@ -206,7 +211,7 @@ void XcbWindow::SetPosition(const int32_t x, const int32_t y)
     xcb_connection_t* connection = xcb_application_->GetConnection();
     uint32_t          values[]   = { static_cast<uint32_t>(x), static_cast<uint32_t>(y) };
 
-    xcb_configure_window(connection, window_, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, values);
+    xcb_configure_window(connection, window_, kConfigurePositionMask, values);
     xcb_flush(connection);
 }
 
@@ -214,6 +219,9 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
 {
     if ((width != width_) || (height != height_))
     {
+        xcb_void_cookie_t cookie     = { 0 };
+        xcb_connection_t* connection = xcb_application_->GetConnection();
+
         if ((screen_width_ <= width) || (screen_height_ <= height))
         {
             if ((screen_height_ < height) || (screen_width_ < width))
@@ -227,18 +235,21 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
                     screen_height_);
             }
 
-            SetPosition(0, 0);
             SetFullscreen(true);
+
+            // Make sure the window position is (0,0).
+            uint32_t values[] = { 0, 0, width, height };
+            cookie = xcb_configure_window(connection, window_, kConfigurePositionSizeMask, values);
         }
         else
         {
             SetFullscreen(false);
+
+            uint32_t values[] = { width, height };
+            cookie =
+                xcb_configure_window(connection, window_, kConfigureSizeMask, values);
         }
 
-        xcb_connection_t* connection = xcb_application_->GetConnection();
-        uint32_t          values[]   = { width, height };
-        xcb_void_cookie_t cookie =
-            xcb_configure_window(connection, window_, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
         xcb_flush(connection);
 
         // Wait for configure notification.
