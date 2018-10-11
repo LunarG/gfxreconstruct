@@ -19,7 +19,30 @@
 **
 */
 
+#ifndef  BRIMSTONE_GENERATED_VULKAN_DECODER_H
+#define  BRIMSTONE_GENERATED_VULKAN_DECODER_H
 
+#include "vulkan/vulkan.h"
+
+#include "util/defines.h"
+#include "format/vulkan_decoder_base.h"
+
+BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+BRIMSTONE_BEGIN_NAMESPACE(format)
+
+class VulkanDecoder : public VulkanDecoderBase
+{
+  public:
+    VulkanDecoder() { }
+
+    virtual ~VulkanDecoder() { }
+
+    virtual void DecodeFunctionCall(ApiCallId             call_id,
+                                    const ApiCallOptions& call_options,
+                                    const uint8_t*        parameter_buffer,
+                                    size_t                buffer_size) override;
+
+  private:
     size_t Decode_vkCreateInstance(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkDestroyInstance(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -621,3 +644,9 @@
     size_t Decode_vkGetMemoryHostPointerPropertiesEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdWriteBufferMarkerAMD(const uint8_t* parameter_buffer, size_t buffer_size);
+};
+
+BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(brimstone)
+
+#endif

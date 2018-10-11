@@ -29,7 +29,7 @@ target_sources(brimstone_format
                    vulkan_ascii_consumer.h
                    vulkan_replay_consumer.h
                    vulkan_consumer.h
-                   vulkan_decoder.h
+                   vulkan_decoder_base.h
                    vulkan_enum_util.h
                    vulkan_object_mapper.h
                    window.h
@@ -42,8 +42,10 @@ target_sources(brimstone_format
                    trace_manager.cpp
                    vulkan_ascii_consumer.cpp
                    vulkan_replay_consumer.cpp
-                   vulkan_decoder.cpp
+                   vulkan_decoder_base.cpp
                    decompress_decoder.cpp
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_decoder.h
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_decoder.cpp
               )
 
 target_include_directories(brimstone_format

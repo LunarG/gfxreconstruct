@@ -44,6 +44,9 @@ class ApiCallDecodersGenerator(BaseGenerator):
                                processCmds=True, processStructs=False, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
+        # Names of all Vulkan commands processed by the generator.
+        self.cmdNames = []
+
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
@@ -60,12 +63,19 @@ class ApiCallDecodersGenerator(BaseGenerator):
         write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "format/value_decoder.h"', file=self.outFile)
         write('#include "format/vulkan_consumer.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_decoder.h"', file=self.outFile)
+        self.newline()
+        write('#include "generated/generated_struct_decoders.inc"', file=self.outFile)
+        write('#include "generated/generated_decode_pnext_struct.inc"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
 
     # Method override
     def endFile(self):
+        self.newline()
+        # Generate the VulkanDecoder::DecodeFunctionCall method for all of the commands processed by the generator.
+        self.generateDecodeCases()
         self.newline()
         write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
@@ -85,6 +95,8 @@ class ApiCallDecodersGenerator(BaseGenerator):
     def generateFeature(self):
         first = True
         for cmd in self.featureCmdParams:
+            self.cmdNames.append(cmd)
+
             info = self.featureCmdParams[cmd]
             returnType = info[0]
             values = info[2]
@@ -133,7 +145,7 @@ class ApiCallDecodersGenerator(BaseGenerator):
         if returnType and returnType != 'void':
             arglist = ', '.join(['return_value', arglist])
 
-        body += '    for (auto consumer : consumers_)\n'
+        body += '    for (auto consumer : GetConsumers())\n'
         body += '    {\n'
         body += '        consumer->Process_{}({});\n'.format(name, arglist)
         body += '    }\n'
@@ -184,3 +196,26 @@ class ApiCallDecodersGenerator(BaseGenerator):
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(typeName, bufferArgs, value.name)
 
         return body
+
+    #
+    # Generate the VulkanDecoder::DecodeFunctionCall method.
+    def generateDecodeCases(self):
+        write('void VulkanDecoder::DecodeFunctionCall(ApiCallId             call_id,', file=self.outFile)
+        write('                                       const ApiCallOptions& call_options,', file=self.outFile)
+        write('                                       const uint8_t*        parameter_buffer,', file=self.outFile)
+        write('                                       size_t                buffer_size)', file=self.outFile)
+        write('{', file=self.outFile)
+        write('    switch(call_id)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('    default:', file=self.outFile)
+        write('        VulkanDecoderBase::DecodeFunctionCall(call_id, call_options, parameter_buffer, buffer_size);', file=self.outFile)
+        write('        break;', file=self.outFile)
+
+        for cmd in self.cmdNames:
+            cmddef = '    case ApiCallId_{}:\n'.format(cmd)
+            cmddef += '        Decode_{}(parameter_buffer, buffer_size);\n'.format(cmd)
+            cmddef += '        break;'
+            write(cmddef, file=self.outFile)
+
+        write('    }', file=self.outFile)
+        write('}\n', file=self.outFile)
