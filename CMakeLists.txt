@@ -34,6 +34,5 @@ target_link_libraries(volk PUBLIC vulkan_registry platform_specific $<$<NOT:$<BO
 
 add_subdirectory(util)
 add_subdirectory(format)
-add_subdirectory(generated)
 add_subdirectory(layer)
 add_subdirectory(application)

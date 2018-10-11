@@ -19,6 +19,9 @@
 **
 */
 
+#ifndef  BRIMSTONE_GENERATED_STRUCT_ENCODERS_H
+#define  BRIMSTONE_GENERATED_STRUCT_ENCODERS_H
+
 #include <cstdint>
 
 #include "vulkan/vulkan.h"
@@ -27,6 +30,8 @@
 #include "format/parameter_encoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+
+void encode_pnext_struct(format::ParameterEncoder* encoder, const void* value);
 
 void encode_struct(format::ParameterEncoder* encoder, const VkApplicationInfo& value);
 void encode_struct(format::ParameterEncoder* encoder, const VkInstanceCreateInfo& value);
@@ -462,3 +467,5 @@ void encode_struct(format::ParameterEncoder* encoder, const VkVertexInputBinding
 void encode_struct(format::ParameterEncoder* encoder, const VkPipelineVertexInputDivisorStateCreateInfoEXT& value);
 
 BRIMSTONE_END_NAMESPACE(brimstone)
+
+#endif

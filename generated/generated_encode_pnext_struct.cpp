@@ -25,7 +25,10 @@
 
 #include "util/defines.h"
 #include "format/parameter_encoder.h"
+#include "format/struct_pointer_encoder.h"
 #include "format/trace_pnext_util.h"
+
+#include "generated/generated_struct_encoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 

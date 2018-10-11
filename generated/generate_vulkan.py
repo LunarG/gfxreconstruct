@@ -26,9 +26,9 @@ generator_path = './vulkan_generators'
 
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
-    'generated_encode_pnext_struct.inc',
-    'generated_struct_encoders.inc',
-    'generated_struct_encoder_declarations.inc',
+    'generated_encode_pnext_struct.cpp',
+    'generated_struct_encoders.h',
+    'generated_struct_encoders.cpp',
     'generated_api_call_encoders.inc',
     'generated_layer_func_table.inc',
     'generated_decoded_struct_types.inc',

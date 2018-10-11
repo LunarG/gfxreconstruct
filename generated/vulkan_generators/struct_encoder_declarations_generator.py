@@ -55,6 +55,8 @@ class StructEncoderDeclarationsGenerator(BaseGenerator):
         write('#include "format/parameter_encoder.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        self.newline()
+        write('void encode_pnext_struct(format::ParameterEncoder* encoder, const void* value);', file=self.outFile)
 
     # Method override
     def endFile(self):
