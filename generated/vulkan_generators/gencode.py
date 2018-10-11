@@ -259,13 +259,13 @@ def makeGenOpts(args):
             protectFeature    = True)
         ]
 
-    genOpts['generated_layer_func_table.inc'] = [
+    genOpts['generated_layer_func_table.h'] = [
           LayerFuncTableGenerator,
           LayerFuncTableGeneratorOptions(
-            filename          = 'generated_layer_func_table.inc',
+            filename          = 'generated_layer_func_table.h',
             directory         = directory,
             prefixText        = prefixStrings + vkPrefixStrings,
-            protectFile       = False,
+            protectFile       = True,
             protectFeature    = True)
         ]
 

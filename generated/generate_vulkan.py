@@ -30,7 +30,7 @@ generate_targets = [
     'generated_struct_encoders.h',
     'generated_struct_encoders.cpp',
     'generated_api_call_encoders.inc',
-    'generated_layer_func_table.inc',
+    'generated_layer_func_table.h',
     'generated_decoded_struct_types.inc',
     'generated_struct_decoders.inc',
     'generated_struct_decoder_declarations.inc',
