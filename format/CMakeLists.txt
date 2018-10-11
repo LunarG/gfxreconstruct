@@ -25,7 +25,6 @@ target_sources(brimstone_format
                    struct_pointer_decoder_nvx.h
                    struct_pointer_encoder.h
                    trace_manager.h
-                   trace_pnext_util.h
                    value_decoder.h
                    vulkan_ascii_consumer.h
                    vulkan_replay_consumer.h

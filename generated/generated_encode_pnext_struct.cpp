@@ -26,7 +26,6 @@
 #include "util/defines.h"
 #include "format/parameter_encoder.h"
 #include "format/struct_pointer_encoder.h"
-#include "format/trace_pnext_util.h"
 
 #include "generated/generated_struct_encoders.h"
 
@@ -36,7 +35,7 @@ void encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
 {
     assert(encoder != nullptr);
 
-    const format::VulkanStructHeader* header = reinterpret_cast<const format::VulkanStructHeader*>(value);
+    const VkBaseInStructure* header = reinterpret_cast<const VkBaseInStructure*>(value);
 
     // Ignore the structures added to the pnext chain by the loader.
     if ((header != nullptr) &&

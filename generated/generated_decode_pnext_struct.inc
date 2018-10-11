@@ -29,7 +29,6 @@
 #include "format/pnext_node.h"
 #include "format/pnext_null_node.h"
 #include "format/pnext_typed_node.h"
-#include "format/trace_pnext_util.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
