@@ -19,6 +19,9 @@
 **
 */
 
+#ifndef  BRIMSTONE_GENERATED_LAYER_FUNC_TABLE_H
+#define  BRIMSTONE_GENERATED_LAYER_FUNC_TABLE_H
+
 #include <unordered_map>
 
 #include "vulkan/vulkan.h"
@@ -375,3 +378,5 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
 };
 
 BRIMSTONE_END_NAMESPACE(brimstone)
+
+#endif
