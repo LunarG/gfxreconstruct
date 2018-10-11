@@ -7,6 +7,9 @@ target_sources(brimstone_layer
                    custom_api_call_encoders.cpp
                    dll_main.cpp
                    trace_layer.cpp
+                   ${CMAKE_SOURCE_DIR}/generated/generated_struct_encoders.h
+                   ${CMAKE_SOURCE_DIR}/generated/generated_struct_encoders.cpp
+                   ${CMAKE_SOURCE_DIR}/generated/generated_encode_pnext_struct.cpp
                    $<$<BOOL:WIN32>:trace_layer.def>
               )
 
@@ -14,7 +17,7 @@ target_include_directories(brimstone_layer
                            PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
 
-target_link_libraries(brimstone_layer brimstone_format brimstone_util brimstone_generated vulkan_registry platform_specific)
+target_link_libraries(brimstone_layer brimstone_format brimstone_util vulkan_registry platform_specific)
 
 # Generate the JSON file for this library
 include("GenerateLayerJson")

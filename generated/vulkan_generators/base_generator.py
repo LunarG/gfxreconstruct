@@ -225,17 +225,17 @@ class BaseGenerator(OutputGenerator):
             # so these structs will be added to the blacklist.
             self.STRUCT_BLACKLIST += self.PLATFORM_STRUCTS
 
-        # Multiple inclusion protection & C++ wrappers.
-        if (genOpts.protectFile and self.genOpts.filename):
-            headerSym = re.sub('\.h', '_h',
-                               os.path.basename(self.genOpts.filename)).upper()
-            write('#ifndef', headerSym, file=self.outFile)
-            write('#define', headerSym, file=self.outFile)
-
         # User-supplied prefix text, if any (list of strings)
         if (genOpts.prefixText):
             for s in genOpts.prefixText:
                 write(s, file=self.outFile)
+
+        # Multiple inclusion protection & C++ wrappers.
+        if (genOpts.protectFile and self.genOpts.filename):
+            headerSym = 'BRIMSTONE_' + re.sub('\.h', '_H', os.path.basename(self.genOpts.filename)).upper()
+            write('#ifndef ', headerSym, file=self.outFile)
+            write('#define ', headerSym, file=self.outFile)
+            self.newline()
 
     # Method override
     def endFile(self):

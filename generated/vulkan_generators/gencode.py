@@ -271,10 +271,10 @@ def makeGenOpts(args):
 
     #
     # Struct encoder generators
-    genOpts['generated_struct_encoders.inc'] = [
+    genOpts['generated_struct_encoders.cpp'] = [
           StructEncodersGenerator,
           StructEncodersGeneratorOptions(
-            filename          = 'generated_struct_encoders.inc',
+            filename          = 'generated_struct_encoders.cpp',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
@@ -283,22 +283,22 @@ def makeGenOpts(args):
             protectFeature    = True)
         ]
 
-    genOpts['generated_struct_encoder_declarations.inc'] = [
+    genOpts['generated_struct_encoders.h'] = [
           StructEncoderDeclarationsGenerator,
           StructEncoderDeclarationsGeneratorOptions(
-            filename          = 'generated_struct_encoder_declarations.inc',
+            filename          = 'generated_struct_encoders.h',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
-            protectFile       = False,
+            protectFile       = True,
             protectFeature    = True)
         ]
 
-    genOpts['generated_encode_pnext_struct.inc'] = [
+    genOpts['generated_encode_pnext_struct.cpp'] = [
           EncodePNextStructGenerator,
           EncodePNextStructGeneratorOptions(
-            filename          = 'generated_encode_pnext_struct.inc',
+            filename          = 'generated_encode_pnext_struct.cpp',
             directory         = directory,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,

@@ -26,6 +26,7 @@
 #include "util/defines.h"
 #include "format/api_call_id.h"
 #include "format/custom_encoder_commands.h"
+#include "format/struct_pointer_encoder.h"
 #include "format/trace_manager.h"
 #include "format/parameter_encoder.h"
 #include "layer/custom_api_call_encoders.h"

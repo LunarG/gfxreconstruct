@@ -23,8 +23,6 @@
 #include "layer/trace_layer.h"
 #include "layer/vk_dispatch_table_helper.h"
 
-#include "generated/generated_struct_encoders.inc"
-#include "generated/generated_encode_pnext_struct.inc"
 #include "generated/generated_api_call_encoders.inc"
 #include "generated/generated_layer_func_table.inc"
 

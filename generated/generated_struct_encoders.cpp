@@ -28,11 +28,9 @@
 #include "format/parameter_encoder.h"
 #include "format/struct_pointer_encoder.h"
 
-#include "generated/generated_struct_encoder_declarations.inc"
+#include "generated/generated_struct_encoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-
-void encode_pnext_struct(format::ParameterEncoder* encoder, const void* value);
 
 void encode_struct(format::ParameterEncoder* encoder, const VkApplicationInfo& value)
 {

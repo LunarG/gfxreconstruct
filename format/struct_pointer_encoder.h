@@ -22,7 +22,7 @@
 #include "format/platform_types.h"
 #include "util/defines.h"
 
-#include "generated/generated_struct_encoder_declarations.inc"
+#include "generated/generated_struct_encoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
