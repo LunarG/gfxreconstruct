@@ -44,6 +44,39 @@ class ApiCallDecoderDeclarationsGenerator(BaseGenerator):
                                processCmds=True, processStructs=False, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
+    # Method override
+    def beginFile(self, genOpts):
+        BaseGenerator.beginFile(self, genOpts)
+
+        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.newline()
+        write('#include "util/defines.h"', file=self.outFile)
+        write('#include "format/vulkan_decoder_base.h"', file=self.outFile)
+        self.newline()
+        write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+        self.newline()
+        write('class VulkanDecoder : public VulkanDecoderBase', file=self.outFile)
+        write('{', file=self.outFile)
+        write('  public:', file=self.outFile)
+        write('    VulkanDecoder() { }\n', file=self.outFile)
+        write('    virtual ~VulkanDecoder() { }\n', file=self.outFile)
+        write('    virtual void DecodeFunctionCall(ApiCallId             call_id,', file=self.outFile)
+        write('                                    const ApiCallOptions& call_options,', file=self.outFile)
+        write('                                    const uint8_t*        parameter_buffer,', file=self.outFile)
+        write('                                    size_t                buffer_size) override;\n', file=self.outFile)
+        write('  private:', end='', file=self.outFile)
+
+    # Method override
+    def endFile(self):
+        write('};', file=self.outFile)
+        self.newline()
+        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
+
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)
+
     #
     # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):

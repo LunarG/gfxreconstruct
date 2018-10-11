@@ -25,7 +25,6 @@
     <Compile Include="api_call_consumer_declarations_generator.py" />
     <Compile Include="api_call_decoders_generator.py" />
     <Compile Include="api_call_decoder_declarations_generator.py" />
-    <Compile Include="api_call_decode_cases_generator.py" />
     <Compile Include="api_call_encoders_generator.py" />
     <Compile Include="api_call_replay_consumer_definitions_generator.py" />
     <Compile Include="base_generator.py" />

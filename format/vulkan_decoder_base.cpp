@@ -18,39 +18,12 @@
 #include "format/pointer_decoder.h"
 #include "format/value_decoder.h"
 #include "format/vulkan_consumer.h"
-#include "format/vulkan_decoder.h"
+#include "format/vulkan_decoder_base.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-void VulkanDecoder::DecodeFunctionCall(ApiCallId             call_id,
-                                       const ApiCallOptions& call_options,
-                                       const uint8_t*        parameter_buffer,
-                                       size_t                buffer_size)
-{
-    BRIMSTONE_UNREFERENCED_PARAMETER(call_options);
-
-    switch (call_id)
-    {
-#include "generated/generated_api_call_decode_cases.inc"
-        case ApiCallId_vkUpdateDescriptorSetWithTemplate:
-            Decode_vkUpdateDescriptorSetWithTemplate(parameter_buffer, buffer_size);
-            break;
-        case ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR:
-            Decode_vkCmdPushDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
-            break;
-        case ApiCallId_vkUpdateDescriptorSetWithTemplateKHR:
-            Decode_vkUpdateDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
-            break;
-        case ApiCallId_vkRegisterObjectsNVX:
-            Decode_vkRegisterObjectsNVX(parameter_buffer, buffer_size);
-            break;
-        default:
-            break;
-    }
-}
-
-void VulkanDecoder::DispatchDisplayMessageCommand(const std::string& message)
+void VulkanDecoderBase::DispatchDisplayMessageCommand(const std::string& message)
 {
     for (auto consumer : consumers_)
     {
@@ -58,7 +31,10 @@ void VulkanDecoder::DispatchDisplayMessageCommand(const std::string& message)
     }
 }
 
-void VulkanDecoder::DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data)
+void VulkanDecoderBase::DispatchFillMemoryCommand(uint64_t       memory_id,
+                                                  uint64_t       offset,
+                                                  uint64_t       size,
+                                                  const uint8_t* data)
 {
     for (auto consumer : consumers_)
     {
@@ -66,7 +42,7 @@ void VulkanDecoder::DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offse
     }
 }
 
-void VulkanDecoder::DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height)
+void VulkanDecoderBase::DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height)
 {
     for (auto consumer : consumers_)
     {
@@ -74,7 +50,7 @@ void VulkanDecoder::DispatchResizeWindowCommand(HandleId surface_id, uint32_t wi
     }
 }
 
-size_t VulkanDecoder::Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -99,7 +75,8 @@ size_t VulkanDecoder::Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t* pa
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer,
+                                                                       size_t         buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -127,7 +104,8 @@ size_t VulkanDecoder::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const uint8_t
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer,
+                                                                      size_t         buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -152,7 +130,7 @@ size_t VulkanDecoder::Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint8_t*
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_vkRegisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size)
+size_t VulkanDecoderBase::Decode_vkRegisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -183,9 +161,31 @@ size_t VulkanDecoder::Decode_vkRegisterObjectsNVX(const uint8_t* parameter_buffe
     return bytes_read;
 }
 
+void VulkanDecoderBase::DecodeFunctionCall(ApiCallId             call_id,
+                                           const ApiCallOptions& call_options,
+                                           const uint8_t*        parameter_buffer,
+                                           size_t                buffer_size)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(call_options);
+
+    switch (call_id)
+    {
+        case ApiCallId_vkUpdateDescriptorSetWithTemplate:
+            Decode_vkUpdateDescriptorSetWithTemplate(parameter_buffer, buffer_size);
+            break;
+        case ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR:
+            Decode_vkCmdPushDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
+            break;
+        case ApiCallId_vkUpdateDescriptorSetWithTemplateKHR:
+            Decode_vkUpdateDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
+            break;
+        case ApiCallId_vkRegisterObjectsNVX:
+            Decode_vkRegisterObjectsNVX(parameter_buffer, buffer_size);
+            break;
+        default:
+            break;
+    }
+}
+
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
-
-#include "generated/generated_struct_decoders.inc"
-#include "generated/generated_decode_pnext_struct.inc"
-#include "generated/generated_api_call_decoders.inc"

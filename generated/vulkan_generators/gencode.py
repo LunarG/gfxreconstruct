@@ -22,7 +22,6 @@ from generator import write
 # API Call Decoders
 from api_call_decoders_generator import ApiCallDecodersGenerator,ApiCallDecodersGeneratorOptions
 from api_call_decoder_declarations_generator import ApiCallDecoderDeclarationsGenerator,ApiCallDecoderDeclarationsGeneratorOptions
-from api_call_decode_cases_generator import ApiCallDecodeCasesGenerator,ApiCallDecodeCasesGeneratorOptions
 
 # Struct Decoders
 from struct_decoders_generator import StructDecodersGenerator,StructDecodersGeneratorOptions
@@ -109,10 +108,10 @@ def makeGenOpts(args):
 
     #
     # API call decoder generators
-    genOpts['generated_api_call_decoders.inc'] = [
+    genOpts['generated_vulkan_decoder.cpp'] = [
           ApiCallDecodersGenerator,
           ApiCallDecodersGeneratorOptions(
-            filename          = 'generated_api_call_decoders.inc',
+            filename          = 'generated_vulkan_decoder.cpp',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
@@ -121,27 +120,15 @@ def makeGenOpts(args):
             protectFeature    = False)
         ]
 
-    genOpts['generated_api_call_decoder_declarations.inc'] = [
+    genOpts['generated_vulkan_decoder.h'] = [
           ApiCallDecoderDeclarationsGenerator,
           ApiCallDecoderDeclarationsGeneratorOptions(
-            filename          = 'generated_api_call_decoder_declarations.inc',
+            filename          = 'generated_vulkan_decoder.h',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
-            protectFile       = False,
-            protectFeature    = False)
-        ]
-
-    genOpts['generated_api_call_decode_cases.inc'] = [
-          ApiCallDecodeCasesGenerator,
-          ApiCallDecodeCasesGeneratorOptions(
-            filename          = 'generated_api_call_decode_cases.inc',
-            directory         = directory,
-            blacklists        = blacklists,
-            platformTypes     = platformTypes,
-            prefixText        = prefixStrings + vkPrefixStrings,
-            protectFile       = False,
+            protectFile       = True,
             protectFeature    = False)
         ]
 

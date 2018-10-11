@@ -7,7 +7,7 @@
 #include "format/file_processor.h"
 #include "format/format.h"
 #include "format/vulkan_replay_consumer.h"
-#include "format/vulkan_decoder.h"
+#include "generated/generated_vulkan_decoder.h"
 #include "format/window.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"

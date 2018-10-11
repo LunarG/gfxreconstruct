@@ -14,10 +14,9 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_VULKAN_DECODER_H
-#define BRIMSTONE_VULKAN_DECODER_H
+#ifndef BRIMSTONE_VULKAN_DECODER_BASE_H
+#define BRIMSTONE_VULKAN_DECODER_BASE_H
 
-#include <algorithm>
 #include <vector>
 
 #include "vulkan/vulkan.h"
@@ -33,10 +32,12 @@ BRIMSTONE_BEGIN_NAMESPACE(format)
 
 class VulkanConsumer;
 
-class VulkanDecoder : public Decoder
+class VulkanDecoderBase : public Decoder
 {
 public:
-    virtual ~VulkanDecoder() { }
+    VulkanDecoderBase() { }
+
+    virtual ~VulkanDecoderBase() { }
 
     void AddConsumer(VulkanConsumer* consumer) { consumers_.push_back(consumer); }
 
@@ -56,6 +57,9 @@ public:
 
     virtual void DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) override;
 
+protected:
+    const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
+
 private:
     size_t Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -65,8 +69,6 @@ private:
 
     size_t Decode_vkRegisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size);
 
-#include "generated/generated_api_call_decoder_declarations.inc"
-
 private:
     std::vector<VulkanConsumer*>        consumers_;
 };
@@ -74,4 +76,4 @@ private:
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_VULKAN_DECODER_H
+#endif // BRIMSTONE_VULKAN_DECODER_BASE_H
