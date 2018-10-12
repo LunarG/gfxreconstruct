@@ -52,7 +52,6 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
             break;
         }
         case WM_CLOSE:
-        case WM_DESTROY:
             PostQuitMessage(0);
             break;
         case WM_NCCREATE:
