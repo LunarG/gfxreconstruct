@@ -17,8 +17,8 @@
 import os,re,sys
 from base_generator import *
 
-class StructEncodersGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API structure encoding C++ code generation"""
+class VulkanAsciiConsumerBodyGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating a C++ class for Vulkan capture file to ASCII file generation"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -31,38 +31,35 @@ class StructEncodersGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# StructEncodersGenerator - subclass of BaseGenerator.
-# Generates C++ functions for encoding Vulkan API structures.
-class StructEncodersGenerator(BaseGenerator):
-    """Generate structure encoding C++ code"""
+# VulkanAsciiConsumerBodyGenerator - subclass of BaseGenerator.
+# Generates C++ member definitions for the VulkanAsciiConsumer class responsible for
+# generating a textfile containing decoded Vulkan API call parameter data.
+class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
+    """Generate a C++ class for Vulkan capture file to ASCII file generation"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
+                               processCmds=True, processStructs=False, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include <cmath>', file=self.outFile)
-        self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/custom_struct_encoders.h"', file=self.outFile)
-        write('#include "format/parameter_encoder.h"', file=self.outFile)
-        write('#include "format/struct_pointer_encoder.h"', file=self.outFile)
-        self.newline()
-        write('#include "generated/generated_struct_encoders.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_ascii_consumer.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
 
     # Method override
     def endFile(self):
         self.newline()
+        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass
@@ -71,7 +68,7 @@ class StructEncodersGenerator(BaseGenerator):
     #
     # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
-        if self.featureStructMembers:
+        if self.featureCmdParams:
             return True
         return False
 
@@ -79,28 +76,22 @@ class StructEncodersGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for struct in self.featureStructMembers:
-            body = '' if first else '\n'
-            body += 'void encode_struct(format::ParameterEncoder* encoder, const {}& value)\n'.format(struct)
-            body += '{\n'
-            body += self.makeStructBody(self.featureStructMembers[struct], 'value.')
-            body += '}'
-            write(body, file=self.outFile)
+        for cmd in self.featureCmdParams:
+            info = self.featureCmdParams[cmd]
+            returnType = info[0]
+            values = info[2]
 
+            cmddef = '' if first else '\n'
+            cmddef += self.makeConsumerFuncDecl(returnType, 'VulkanAsciiConsumer::Process_' + cmd, values) + '\n'
+            cmddef += '{\n'
+            cmddef += self.makeConsumerFuncBody(returnType, cmd, values)
+            cmddef += '}'
+
+            write(cmddef, file=self.outFile)
             first = False
 
     #
-    # Command definition
-    def makeStructBody(self, values, prefix):
-        # Build array of lines for function body
-        body = ''
-
-        for value in values:
-            # pNext fields require special treatment and are not processed by typename
-            if 'pNext' in value.name:
-                body += '    encode_pnext_struct(encoder, {});\n'.format(prefix + value.name)
-            else:
-                methodCall = self.makeEncoderMethodCall(value, values, prefix)
-                body += '    {};\n'.format(methodCall)
-
+    # Return VulkanAsciiConsumer class member function definition.
+    def makeConsumerFuncBody(self, returnType, name, values):
+        body = '    fprintf(GetFile(), "%s\\n", "' + name + '");\n'
         return body

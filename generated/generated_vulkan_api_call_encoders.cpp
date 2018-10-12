@@ -31,6 +31,8 @@
 #include "format/parameter_encoder.h"
 #include "layer/trace_layer.h"
 
+#include "generated/generated_vulkan_api_call_encoders.h"
+
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(

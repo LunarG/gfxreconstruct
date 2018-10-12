@@ -27,7 +27,7 @@
 #include "format/parameter_encoder.h"
 #include "format/struct_pointer_encoder.h"
 
-#include "generated/generated_struct_encoders.h"
+#include "generated/generated_vulkan_struct_encoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 

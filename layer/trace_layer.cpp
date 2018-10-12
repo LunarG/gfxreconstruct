@@ -19,7 +19,7 @@
 #include <unordered_map>
 
 #include "vulkan/vk_layer.h"
-#include "generated/generated_api_call_encoders.h"
+#include "generated/generated_vulkan_api_call_encoders.h"
 #include "generated/generated_layer_func_table.h"
 #include "layer/custom_api_call_encoders.h"
 #include "layer/trace_layer.h"

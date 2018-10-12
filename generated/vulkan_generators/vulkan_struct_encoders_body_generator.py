@@ -17,8 +17,8 @@
 import os,re,sys
 from base_generator import *
 
-class ApiCallDecoderDeclarationsGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API parameter decoding C++ code generation"""
+class VulkanStructEncodersBodyGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating C++ functions for Vulkan struct encoding"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -31,47 +31,38 @@ class ApiCallDecoderDeclarationsGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# ApiCallDecoderDeclarationsGenerator - subclass of BaseGenerator.
-# Generates C++ member declarations for the VulkanDecoder class responsible for decoding
-# Vulkan API call parameter data.
-class ApiCallDecoderDeclarationsGenerator(BaseGenerator):
-    """Generate API parameter decoding C++ member declarations"""
+# VulkanStructEncodersBodyGenerator - subclass of BaseGenerator.
+# Generates C++ functions for encoding Vulkan API structures.
+class VulkanStructEncodersBodyGenerator(BaseGenerator):
+    """Generate C++ functions for Vulkan struct encoding"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=True,
+                               processCmds=False, processStructs=True, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
+        write('#include <cmath>', file=self.outFile)
+        self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/vulkan_decoder_base.h"', file=self.outFile)
+        write('#include "format/custom_struct_encoders.h"', file=self.outFile)
+        write('#include "format/parameter_encoder.h"', file=self.outFile)
+        write('#include "format/struct_pointer_encoder.h"', file=self.outFile)
+        self.newline()
+        write('#include "generated/generated_vulkan_struct_encoders.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
-        self.newline()
-        write('class VulkanDecoder : public VulkanDecoderBase', file=self.outFile)
-        write('{', file=self.outFile)
-        write('  public:', file=self.outFile)
-        write('    VulkanDecoder() { }\n', file=self.outFile)
-        write('    virtual ~VulkanDecoder() { }\n', file=self.outFile)
-        write('    virtual void DecodeFunctionCall(ApiCallId             call_id,', file=self.outFile)
-        write('                                    const ApiCallOptions& call_options,', file=self.outFile)
-        write('                                    const uint8_t*        parameter_buffer,', file=self.outFile)
-        write('                                    size_t                buffer_size) override;\n', file=self.outFile)
-        write('  private:', end='', file=self.outFile)
 
     # Method override
     def endFile(self):
-        write('};', file=self.outFile)
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass
@@ -80,7 +71,7 @@ class ApiCallDecoderDeclarationsGenerator(BaseGenerator):
     #
     # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
-        if self.featureCmdParams:
+        if self.featureStructMembers:
             return True
         return False
 
@@ -88,8 +79,28 @@ class ApiCallDecoderDeclarationsGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for cmd in self.featureCmdParams:
-            cmddef = '' if first else '\n'
-            cmddef += '    size_t Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size);'.format(cmd)
-            write(cmddef, file=self.outFile)
+        for struct in self.featureStructMembers:
+            body = '' if first else '\n'
+            body += 'void encode_struct(format::ParameterEncoder* encoder, const {}& value)\n'.format(struct)
+            body += '{\n'
+            body += self.makeStructBody(self.featureStructMembers[struct], 'value.')
+            body += '}'
+            write(body, file=self.outFile)
+
             first = False
+
+    #
+    # Command definition
+    def makeStructBody(self, values, prefix):
+        # Build array of lines for function body
+        body = ''
+
+        for value in values:
+            # pNext fields require special treatment and are not processed by typename
+            if 'pNext' in value.name:
+                body += '    encode_pnext_struct(encoder, {});\n'.format(prefix + value.name)
+            else:
+                methodCall = self.makeEncoderMethodCall(value, values, prefix)
+                body += '    {};\n'.format(methodCall)
+
+        return body

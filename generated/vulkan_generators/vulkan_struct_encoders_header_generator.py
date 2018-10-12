@@ -17,8 +17,8 @@
 import os,re,sys
 from base_generator import *
 
-class StructEncoderDeclarationsGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API structure encoding C++ code generation"""
+class VulkanStructEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating C++ function declarations for Vulkan struct encoding"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -31,10 +31,10 @@ class StructEncoderDeclarationsGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# StructEncoderDeclarationsGenerator - subclass of BaseGenerator.
+# VulkanStructEncodersHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ type and function declarations for encoding Vulkan API structures.
-class StructEncoderDeclarationsGenerator(BaseGenerator):
-    """Generate structure encoding C++ type and function declarations"""
+class VulkanStructEncodersHeaderGenerator(BaseGenerator):
+    """Generate C++ function declarations for Vulkan struct encoding"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,

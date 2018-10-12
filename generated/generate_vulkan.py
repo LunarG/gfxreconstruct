@@ -27,14 +27,14 @@ generator_path = './vulkan_generators'
 # File names to provide to the Vulkan XML Registry generator script.
 generate_targets = [
     'generated_encode_pnext_struct.cpp',
-    'generated_struct_encoders.h',
-    'generated_struct_encoders.cpp',
-    'generated_api_call_encoders.h',
-    'generated_api_call_encoders.cpp',
+    'generated_vulkan_struct_encoders.h',
+    'generated_vulkan_struct_encoders.cpp',
+    'generated_vulkan_api_call_encoders.h',
+    'generated_vulkan_api_call_encoders.cpp',
     'generated_layer_func_table.h',
-    'generated_struct_decoders.h',
-    'generated_struct_decoders.cpp',
-    'generated_struct_decoders_forward.h',
+    'generated_vulkan_struct_decoders.h',
+    'generated_vulkan_struct_decoders.cpp',
+    'generated_vulkan_struct_decoders_forward.h',
     'generated_vulkan_decoder.h',
     'generated_vulkan_decoder.cpp',
     'generated_decode_pnext_struct.cpp',
@@ -57,5 +57,5 @@ if __name__ == '__main__':
     env['PYTHONPATH'] = os.pathsep.join(sys.path)
 
     for target in generate_targets:
-        print('\nGenerating', target)
+        print('Generating', target)
         subprocess.call([sys.executable, os.path.join(generator_dir, 'gencode.py'), '-o', current_dir, '-configs', generator_dir, '-registry', os.path.join(registry_dir, 'vk.xml'), target], shell=False, env=env)

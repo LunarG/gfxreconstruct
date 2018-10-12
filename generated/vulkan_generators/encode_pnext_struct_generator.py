@@ -58,7 +58,7 @@ class EncodePNextStructGenerator(BaseGenerator):
         write('#include "format/parameter_encoder.h"', file=self.outFile)
         write('#include "format/struct_pointer_encoder.h"', file=self.outFile)
         self.newline()
-        write('#include "generated/generated_struct_encoders.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_struct_encoders.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         self.newline()

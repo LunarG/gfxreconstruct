@@ -29,7 +29,7 @@
 #include "format/pnext_node.h"
 #include "format/pnext_null_node.h"
 #include "format/pnext_typed_node.h"
-#include "generated/generated_struct_decoders.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)

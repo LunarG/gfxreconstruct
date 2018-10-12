@@ -19,8 +19,8 @@
 **
 */
 
-#ifndef  BRIMSTONE_GENERATED_STRUCT_DECODERS_H
-#define  BRIMSTONE_GENERATED_STRUCT_DECODERS_H
+#ifndef  BRIMSTONE_GENERATED_VULKAN_STRUCT_DECODERS_H
+#define  BRIMSTONE_GENERATED_VULKAN_STRUCT_DECODERS_H
 
 #include <memory>
 
@@ -34,7 +34,8 @@
 #include "format/string_array_decoder.h"
 #include "format/string_decoder.h"
 #include "format/struct_pointer_decoder.h"
-#include "generated/generated_struct_decoders_forward.h"
+
+#include "generated/generated_vulkan_struct_decoders_forward.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)

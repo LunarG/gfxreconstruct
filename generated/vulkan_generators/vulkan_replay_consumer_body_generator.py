@@ -17,8 +17,8 @@
 import os,re,sys
 from base_generator import *
 
-class ApiCallReplayConsumerDefinitionsGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API parameter processing C++ code generation"""
+class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating a C++ class for Vulkan capture file replay"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -31,11 +31,11 @@ class ApiCallReplayConsumerDefinitionsGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# ApiCallReplayConsumerDefinitionsGenerator - subclass of BaseGenerator.
+# VulkanReplayConsumerBodyGenerator - subclass of BaseGenerator.
 # Generates C++ member definitions for the VulkanReplayConsumer class responsible for
 # replaying decoded Vulkan API call parameter data.
-class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
-    """Generate API parameter processing C++ member definitions"""
+class VulkanReplayConsumerBodyGenerator(BaseGenerator):
+    """Generate a C++ class for Vulkan capture file replay"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,

@@ -17,8 +17,8 @@
 import os,re,sys
 from base_generator import *
 
-class ApiCallEncoderDeclarationsGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API parameter encoding C++ prototype generation"""
+class VulkanDecoderHeaderGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating a C++ class declaration for Vulkan API parameter decoding"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -31,10 +31,11 @@ class ApiCallEncoderDeclarationsGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# APICallEncoderDeclarationsGenerator - subclass of BaseGenerator.
-# Generates C++ functions responsible for encoding Vulkan API call parameter data.
-class ApiCallEncoderDeclarationsGenerator(BaseGenerator):
-    """Generate API parameter encoding C++ prototypes"""
+# VulkanDecoderHeaderGenerator - subclass of BaseGenerator.
+# Generates C++ member declarations for the VulkanDecoder class responsible for decoding
+# Vulkan API call parameter data.
+class VulkanDecoderHeaderGenerator(BaseGenerator):
+    """Generate a C++ class declaration for Vulkan API parameter decoding"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -50,20 +51,27 @@ class ApiCallEncoderDeclarationsGenerator(BaseGenerator):
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
+        write('#include "format/vulkan_decoder_base.h"', file=self.outFile)
         self.newline()
-        write('#if defined(CreateSemaphore)', file=self.outFile)
-        write('#undef CreateSemaphore', file=self.outFile)
-        write('#endif', file=self.outFile)
-        write('#if defined(CreateEvent)', file=self.outFile)
-        write('#undef CreateEvent', file=self.outFile)
-        write('#endif', file=self.outFile)
-        self.newline()
-
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+        self.newline()
+        write('class VulkanDecoder : public VulkanDecoderBase', file=self.outFile)
+        write('{', file=self.outFile)
+        write('  public:', file=self.outFile)
+        write('    VulkanDecoder() { }\n', file=self.outFile)
+        write('    virtual ~VulkanDecoder() { }\n', file=self.outFile)
+        write('    virtual void DecodeFunctionCall(ApiCallId             call_id,', file=self.outFile)
+        write('                                    const ApiCallOptions& call_options,', file=self.outFile)
+        write('                                    const uint8_t*        parameter_buffer,', file=self.outFile)
+        write('                                    size_t                buffer_size) override;\n', file=self.outFile)
+        write('  private:', end='', file=self.outFile)
 
     # Method override
     def endFile(self):
+        write('};', file=self.outFile)
         self.newline()
+        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass
@@ -81,34 +89,7 @@ class ApiCallEncoderDeclarationsGenerator(BaseGenerator):
     def generateFeature(self):
         first = True
         for cmd in self.featureCmdParams:
-            info = self.featureCmdParams[cmd]
-            returnType = info[0]
-            proto = info[1]
-            values = info[2]
-
             cmddef = '' if first else '\n'
-            cmddef += self.makeCmdDecl(proto, values)
-
+            cmddef += '    size_t Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size);'.format(cmd)
             write(cmddef, file=self.outFile)
             first = False
-
-    #
-    # Generate function declaration for a command
-    def makeCmdDecl(self, proto, values):
-        paramDecls = []
-
-        for value in values:
-            valueName = value.name
-            valueType = value.fullType if not value.platformFullType else value.platformFullType
-
-            if value.isArray and not value.isDynamic:
-                valueName += '[{}]'.format(value.arrayCapacity)
-
-            paramDecl = self.makeAlignedParamDecl(valueType, valueName, self.INDENT_SIZE, self.genOpts.alignFuncParam)
-            paramDecls.append(paramDecl)
-
-        if paramDecls:
-            return '{}(\n{});'.format(proto, ',\n'.join(paramDecls))
-
-        return '{}();'.format(proto)
-

@@ -17,8 +17,8 @@
 import os,re,sys
 from base_generator import *
 
-class DecodedStructTypesGeneratorOptions(BaseGeneratorOptions):
-    """Options for decoded Vulkan API structure wrapper C++ code generation"""
+class VulkanStructDecodersHeaderGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating C++ type declarations for Vulkan struct decoding"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -31,10 +31,10 @@ class DecodedStructTypesGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# DecodedStructTypesGenerator - subclass of BaseGenerator.
+# VulkanStructDecodersHeaderGenerator - subclass of BaseGenerator.
 # Generates C++ type declarations for the decoded Vulkan API structure wrappers.
-class DecodedStructTypesGenerator(BaseGenerator):
-    """Generate decoded structure wrapper C++ type declarations"""
+class VulkanStructDecodersHeaderGenerator(BaseGenerator):
+    """Generate C++ type declarations for Vulkan struct decoding"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -59,7 +59,8 @@ class DecodedStructTypesGenerator(BaseGenerator):
         write('#include "format/string_array_decoder.h"', file=self.outFile)
         write('#include "format/string_decoder.h"', file=self.outFile)
         write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
-        write('#include "generated/generated_struct_decoders_forward.h"', file=self.outFile)
+        self.newline()
+        write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
