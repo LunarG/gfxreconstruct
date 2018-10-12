@@ -14,11 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_VULKAN_CONSUMER_H
-#define BRIMSTONE_VULKAN_CONSUMER_H
-
-#include <algorithm>
-#include <vector>
+#ifndef BRIMSTONE_VULKAN_CONSUMER_BASE_H
+#define BRIMSTONE_VULKAN_CONSUMER_BASE_H
 
 #include "vulkan/vulkan.h"
 
@@ -33,10 +30,12 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-class VulkanConsumer
+class VulkanConsumerBase
 {
 public:
-    virtual ~VulkanConsumer() { }
+    VulkanConsumerBase() {}
+
+    virtual ~VulkanConsumerBase() {}
 
     virtual void ProcessDisplayMessageCommand(const std::string& message) {}
 
@@ -67,11 +66,9 @@ public:
                                  uint32_t                                                   objectCount,
                                  const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
                                  const PointerDecoder<uint32_t>&                            pObjectIndices) = 0;
-
-#include "generated/generated_api_call_consumer_declarations.inc"
 };
 
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_VULKAN_CONSUMER_H
+#endif // BRIMSTONE_VULKAN_CONSUMER_BASE_H

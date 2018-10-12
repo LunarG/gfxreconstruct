@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_VULKAN_ASCII_CONSUMER_H
-#define BRIMSTONE_VULKAN_ASCII_CONSUMER_H
+#ifndef BRIMSTONE_VULKAN_ASCII_CONSUMER_BASE_H
+#define BRIMSTONE_VULKAN_ASCII_CONSUMER_BASE_H
 
 #include <cstdio>
 #include <string>
@@ -24,17 +24,17 @@
 
 #include "util/defines.h"
 #include "format/platform_types.h"
-#include "format/vulkan_consumer.h"
+#include "generated/generated_vulkan_consumer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-class VulkanAsciiConsumer : public VulkanConsumer
+class VulkanAsciiConsumerBase : public VulkanConsumer
 {
 public:
-    VulkanAsciiConsumer();
+    VulkanAsciiConsumerBase();
 
-    virtual ~VulkanAsciiConsumer();
+    virtual ~VulkanAsciiConsumerBase();
 
     bool Initialize(const std::string& filename);
 
@@ -68,9 +68,10 @@ public:
                                  const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
                                  const PointerDecoder<uint32_t>&                            pObjectIndices) override;
 
-#include "generated/generated_api_call_consumer_override_declarations.inc"
+  protected:
+    FILE* GetFile() const { return m_file; }
 
-private:
+  private:
     FILE*           m_file;
     std::string     m_filename;
 };
@@ -78,4 +79,4 @@ private:
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_VULKAN_ASCII_CONSUMER_H
+#endif // BRIMSTONE_VULKAN_ASCII_CONSUMER_BASE_H

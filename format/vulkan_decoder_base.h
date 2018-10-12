@@ -17,6 +17,7 @@
 #ifndef BRIMSTONE_VULKAN_DECODER_BASE_H
 #define BRIMSTONE_VULKAN_DECODER_BASE_H
 
+#include <algorithm>
 #include <vector>
 
 #include "vulkan/vulkan.h"
@@ -26,11 +27,10 @@
 #include "format/format.h"
 #include "format/decoder.h"
 #include "format/platform_types.h"
+#include "generated/generated_vulkan_consumer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
-
-class VulkanConsumer;
 
 class VulkanDecoderBase : public Decoder
 {

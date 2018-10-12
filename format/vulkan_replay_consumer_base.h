@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_VULKAN_REPLAY_CONSUMER_H
-#define BRIMSTONE_VULKAN_REPLAY_CONSUMER_H
+#ifndef BRIMSTONE_VULKAN_REPLAY_CONSUMER_BASE_H
+#define BRIMSTONE_VULKAN_REPLAY_CONSUMER_BASE_H
 
 #include <algorithm>
 #include <cassert>
@@ -29,19 +29,19 @@
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
 #include "format/pointer_decoder.h"
-#include "format/vulkan_consumer.h"
 #include "format/vulkan_object_mapper.h"
 #include "format/window.h"
+#include "generated/generated_vulkan_consumer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-class VulkanReplayConsumer : public VulkanConsumer
+class VulkanReplayConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReplayConsumer(WindowFactory* window_factory);
+    VulkanReplayConsumerBase(WindowFactory* window_factory);
 
-    virtual ~VulkanReplayConsumer();
+    virtual ~VulkanReplayConsumerBase();
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
 
@@ -76,10 +76,8 @@ class VulkanReplayConsumer : public VulkanConsumer
                                  const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
                                  const PointerDecoder<uint32_t>&                            pObjectIndices) override;
 
-#include "generated/generated_api_call_consumer_override_declarations.inc"
-
-  private:
-    void RaiseFatalError(const char* message) const;
+  protected:
+    const VulkanObjectMapper& GetObjectMapper() const { return object_mapper_; }
 
     void* PreProcessExternalObject(uint64_t object_id, ApiCallId call_id, const char* call_name);
 
@@ -92,6 +90,71 @@ class VulkanReplayConsumer : public VulkanConsumer
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
 
     void CheckResult(const char* func_name, VkResult original, VkResult replay);
+
+    template <typename T>
+    T* AllocateArray(size_t len) const
+    {
+        return new T[len];
+    }
+
+    template <typename T>
+    void FreeArray(T** arr) const
+    {
+        if ((*arr) != nullptr)
+        {
+            delete[](*arr);
+            *arr = nullptr;
+        }
+    }
+
+    template <typename T>
+    void FreeArray(const T** arr) const
+    {
+        if ((*arr) != nullptr)
+        {
+            delete[](*arr);
+            *arr = nullptr;
+        }
+    }
+
+    template <typename T>
+    void MapHandles(const HandleId* ids,
+                    size_t          ids_len,
+                    T*              handles,
+                    size_t          handles_len,
+                    T (VulkanObjectMapper::*MapFunc)(HandleId) const) const
+    {
+        if ((ids != nullptr) && (handles != nullptr))
+        {
+            // The array sizes are expected to be the same for mapping operations.
+            assert(ids_len == handles_len);
+            for (size_t i = 0; i < handles_len; ++i)
+            {
+                handles[i] = (object_mapper_.*MapFunc)(ids[i]);
+            }
+        }
+    }
+
+    template <typename T>
+    void AddHandles(const HandleId* ids,
+                    size_t          ids_len,
+                    const T*        handles,
+                    size_t          handles_len,
+                    void (VulkanObjectMapper::*AddFunc)(HandleId, T))
+    {
+        if ((ids != nullptr) && (handles != nullptr))
+        {
+            // TODO: Improved handling of array size mismatch.
+            size_t len = std::min(ids_len, handles_len);
+            for (size_t i = 0; i < len; ++i)
+            {
+                (object_mapper_.*AddFunc)(ids[i], handles[i]);
+            }
+        }
+    }
+
+  private:
+    void RaiseFatalError(const char* message) const;
 
     VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
 
@@ -176,80 +239,30 @@ class VulkanReplayConsumer : public VulkanConsumer
 
     void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder);
 
-    template <typename T>
-    T* AllocateArray(size_t len) const
-    {
-        return new T[len];
-    }
+  private:
+    typedef std::unordered_map<VkSurfaceKHR, Window*> WindowMap;
+    typedef std::unordered_map<VkDeviceMemory, void*> MappedMemoryMap;
 
-    template <typename T>
-    void FreeArray(T** arr) const
-    {
-        if ((*arr) != nullptr)
-        {
-            delete[](*arr);
-            *arr = nullptr;
-        }
-    }
+  private:
+    std::function<void(const char*)> fatal_error_handler_;
+    WindowFactory*                   window_factory_;
+    VulkanObjectMapper               object_mapper_;
+    WindowMap                        window_map_;
+    MappedMemoryMap                  memory_map_;
 
-    template <typename T>
-    void FreeArray(const T** arr) const
-    {
-        if ((*arr) != nullptr)
-        {
-            delete[](*arr);
-            *arr = nullptr;
-        }
-    }
-
-    template <typename T>
-    void MapHandles(const HandleId* ids,
-                    size_t          ids_len,
-                    T*              handles,
-                    size_t          handles_len,
-                    T (VulkanObjectMapper::*MapFunc)(HandleId) const) const
-    {
-        if ((ids != nullptr) && (handles != nullptr))
-        {
-            // The array sizes are expected to be the same for mapping operations.
-            assert(ids_len == handles_len);
-            for (size_t i = 0; i < handles_len; ++i)
-            {
-                handles[i] = (object_mapper_.*MapFunc)(ids[i]);
-            }
-        }
-    }
-
-    template <typename T>
-    void AddHandles(const HandleId* ids,
-                    size_t          ids_len,
-                    const T*        handles,
-                    size_t          handles_len,
-                    void (VulkanObjectMapper::*AddFunc)(HandleId, T))
-    {
-        if ((ids != nullptr) && (handles != nullptr))
-        {
-            // TODO: Improved handling of array size mismatch.
-            size_t len = std::min(ids_len, handles_len);
-            for (size_t i = 0; i < len; ++i)
-            {
-                (object_mapper_.*AddFunc)(ids[i], handles[i]);
-            }
-        }
-    }
-
+  protected:
     template <ApiCallId Id, typename Ret, typename Pfn>
     struct Dispatcher
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, Pfn func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumerBase* consumer, Pfn func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(consumer);
             return func(args...);
         }
 
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, Pfn func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, Pfn func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(consumer);
             BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
@@ -261,7 +274,8 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkCreateInstance, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkCreateInstance func, Args... args)
+        static Ret
+        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkCreateInstance func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
@@ -274,7 +288,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     {
         template <typename... Args>
         static Ret
-        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkCreateDevice func, Args... args)
+        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkCreateDevice func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
@@ -286,7 +300,8 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkWaitForFences, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkWaitForFences func, Args... args)
+        static Ret
+        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkWaitForFences func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideWaitForFences(original_result, args...);
@@ -298,7 +313,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     {
         template <typename... Args>
         static Ret
-        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkGetFenceStatus func, Args... args)
+        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkGetFenceStatus func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetFenceStatus(original_result, args...);
@@ -310,7 +325,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     {
         template <typename... Args>
         static Ret
-        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkGetEventStatus func, Args... args)
+        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkGetEventStatus func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetEventStatus(original_result, args...);
@@ -321,8 +336,10 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkGetQueryPoolResults, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret
-        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkGetQueryPoolResults func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumerBase* consumer,
+                            VkResult                  original_result,
+                            PFN_vkGetQueryPoolResults func,
+                            Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetQueryPoolResults(original_result, args...);
@@ -334,7 +351,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     {
         template <typename... Args>
         static Ret
-        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkMapMemory func, Args... args)
+        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkMapMemory func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
@@ -346,7 +363,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkUnmapMemory, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkUnmapMemory func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkUnmapMemory func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideUnmapMemory(args...);
@@ -357,7 +374,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkFreeMemory, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkFreeMemory func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkFreeMemory func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideFreeMemory(args...);
@@ -368,7 +385,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkCreateDescriptorUpdateTemplate, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer*                consumer,
+        static Ret Dispatch(VulkanReplayConsumerBase*            consumer,
                             VkResult                             original_result,
                             PFN_vkCreateDescriptorUpdateTemplate func,
                             Args... args)
@@ -382,7 +399,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkCreateDescriptorUpdateTemplateKHR, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer*                   consumer,
+        static Ret Dispatch(VulkanReplayConsumerBase*               consumer,
                             VkResult                                original_result,
                             PFN_vkCreateDescriptorUpdateTemplateKHR func,
                             Args... args)
@@ -396,7 +413,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkCreateWin32SurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer*       consumer,
+        static Ret Dispatch(VulkanReplayConsumerBase*   consumer,
                             VkResult                    original_result,
                             PFN_vkCreateWin32SurfaceKHR func,
                             Args... args)
@@ -411,8 +428,9 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkGetPhysicalDeviceWin32PresentationSupportKHR, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret
-        Dispatch(VulkanReplayConsumer* consumer, PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumerBase*                          consumer,
+                            PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func,
+                            Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetPhysicalDeviceWin32PresentationSupportKHR(args...);
@@ -423,8 +441,10 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkCreateXcbSurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret
-        Dispatch(VulkanReplayConsumer* consumer, VkResult original_result, PFN_vkCreateXcbSurfaceKHR func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumerBase* consumer,
+                            VkResult                  original_result,
+                            PFN_vkCreateXcbSurfaceKHR func,
+                            Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
@@ -436,8 +456,9 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret
-        Dispatch(VulkanReplayConsumer* consumer, PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumerBase*                        consumer,
+                            PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func,
+                            Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetPhysicalDeviceXcbPresentationSupportKHR(args...);
@@ -448,7 +469,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkCreateWaylandSurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer*         consumer,
+        static Ret Dispatch(VulkanReplayConsumerBase*     consumer,
                             VkResult                      original_result,
                             PFN_vkCreateWaylandSurfaceKHR func,
                             Args... args)
@@ -463,7 +484,7 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer*                                consumer,
+        static Ret Dispatch(VulkanReplayConsumerBase*                            consumer,
                             PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,
                             Args... args)
         {
@@ -476,26 +497,15 @@ class VulkanReplayConsumer : public VulkanConsumer
     struct Dispatcher<ApiCallId_vkDestroySurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumer* consumer, PFN_vkDestroySurfaceKHR func, Args... args)
+        static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkDestroySurfaceKHR func, Args... args)
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideDestroySurfaceKHR(args...);
         }
     };
-
-  private:
-    typedef std::unordered_map<VkSurfaceKHR, Window*> WindowMap;
-    typedef std::unordered_map<VkDeviceMemory, void*> MappedMemoryMap;
-
-  private:
-    std::function<void(const char*)> fatal_error_handler_;
-    WindowFactory*                   window_factory_;
-    VulkanObjectMapper               object_mapper_;
-    WindowMap                        window_map_;
-    MappedMemoryMap                  memory_map_;
 };
 
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_VULKAN_REPLAY_CONSUMER_H
+#endif // BRIMSTONE_VULKAN_REPLAY_CONSUMER_BASE_H

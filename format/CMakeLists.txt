@@ -26,9 +26,9 @@ target_sources(brimstone_format
                    struct_pointer_encoder.h
                    trace_manager.h
                    value_decoder.h
-                   vulkan_ascii_consumer.h
-                   vulkan_replay_consumer.h
-                   vulkan_consumer.h
+                   vulkan_ascii_consumer_base.h
+                   vulkan_replay_consumer_base.h
+                   vulkan_consumer_base.h
                    vulkan_decoder_base.h
                    vulkan_enum_util.h
                    vulkan_object_mapper.h
@@ -40,11 +40,16 @@ target_sources(brimstone_format
                    file_processor.cpp
                    memory_tracker.cpp
                    trace_manager.cpp
-                   vulkan_ascii_consumer.cpp
-                   vulkan_replay_consumer.cpp
+                   vulkan_ascii_consumer_base.cpp
+                   vulkan_replay_consumer_base.cpp
                    vulkan_decoder_base.cpp
                    decompress_decoder.cpp
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_consumer.h
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_ascii_consumer.h
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_replay_consumer.h
                    ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_decoder.h
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_ascii_consumer.cpp
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_replay_consumer.cpp
                    ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_decoder.cpp
               )
 

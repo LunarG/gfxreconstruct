@@ -15,22 +15,22 @@
 */
 
 #include "util/platform.h"
-#include "format/vulkan_ascii_consumer.h"
+#include "format/vulkan_ascii_consumer_base.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
 
-VulkanAsciiConsumer::VulkanAsciiConsumer() :
+VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() :
     m_file(nullptr)
 {
 }
 
-VulkanAsciiConsumer::~VulkanAsciiConsumer()
+VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
 {
     Destroy();
 }
 
-bool VulkanAsciiConsumer::Initialize(const std::string& filename)
+bool VulkanAsciiConsumerBase::Initialize(const std::string& filename)
 {
     bool success = false;
 
@@ -47,7 +47,7 @@ bool VulkanAsciiConsumer::Initialize(const std::string& filename)
     return success;
 }
 
-void VulkanAsciiConsumer::Destroy()
+void VulkanAsciiConsumerBase::Destroy()
 {
     if (m_file != nullptr)
     {
@@ -55,7 +55,7 @@ void VulkanAsciiConsumer::Destroy()
     }
 }
 
-void VulkanAsciiConsumer::Process_vkUpdateDescriptorSetWithTemplate(HandleId device,
+void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(HandleId device,
                                                                     HandleId descriptorSet,
                                                                     HandleId descriptorUpdateTemplate,
                                                                     const DescriptorUpdateTemplateDecoder& pData)
@@ -67,7 +67,7 @@ void VulkanAsciiConsumer::Process_vkUpdateDescriptorSetWithTemplate(HandleId dev
     fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplate");
 }
 
-void VulkanAsciiConsumer::Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
+void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
                                                                         HandleId descriptorUpdateTemplate,
                                                                         HandleId layout,
                                                                         uint32_t set,
@@ -81,7 +81,7 @@ void VulkanAsciiConsumer::Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId
     fprintf(m_file, "%s\n", "vkCmdPushDescriptorSetWithTemplateKHR");
 }
 
-void VulkanAsciiConsumer::Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId device,
+void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId device,
                                                                        HandleId descriptorSet,
                                                                        HandleId descriptorUpdateTemplate,
                                                                        const DescriptorUpdateTemplateDecoder& pData)
@@ -93,7 +93,7 @@ void VulkanAsciiConsumer::Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId 
     fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplateKHR");
 }
 
-void VulkanAsciiConsumer::Process_vkRegisterObjectsNVX(
+void VulkanAsciiConsumerBase::Process_vkRegisterObjectsNVX(
     VkResult                                                   returnValue,
     HandleId                                                   device,
     HandleId                                                   objectTable,
@@ -109,8 +109,6 @@ void VulkanAsciiConsumer::Process_vkRegisterObjectsNVX(
     BRIMSTONE_UNREFERENCED_PARAMETER(pObjectIndices);
     fprintf(m_file, "%s\n", "vkRegisterObjectsNVX");
 }
-
-#include "generated/generated_api_call_ascii_consumer_definitions.inc"
 
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)

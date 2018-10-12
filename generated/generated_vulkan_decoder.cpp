@@ -30,7 +30,6 @@
 #include "format/string_decoder.h"
 #include "format/struct_pointer_decoder.h"
 #include "format/value_decoder.h"
-#include "format/vulkan_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
 
 #include "generated/generated_struct_decoders.inc"

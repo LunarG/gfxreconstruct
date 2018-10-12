@@ -182,36 +182,56 @@ def makeGenOpts(args):
 
     #
     # Consumer generation
-    genOpts['generated_api_call_consumer_declarations.inc'] = [
+    genOpts['generated_vulkan_consumer.h'] = [
         ApiCallConsumerDeclarationsGenerator,
         ApiCallConsumerDeclarationsGeneratorOptions(
+        className         = 'VulkanConsumer',
+        baseClassHeader   = 'vulkan_consumer_base.h',
         isOverride        = False,
-        filename          = 'generated_api_call_consumer_declarations.inc',
+        filename          = 'generated_vulkan_consumer.h',
         directory         = directory,
         blacklists        = blacklists,
         platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
-        protectFile       = False,
+        protectFile       = True,
         protectFeature    = False)
     ]
 
-    genOpts['generated_api_call_consumer_override_declarations.inc'] = [
+    genOpts['generated_vulkan_ascii_consumer.h'] = [
         ApiCallConsumerDeclarationsGenerator,
         ApiCallConsumerDeclarationsGeneratorOptions(
+        className         = 'VulkanAsciiConsumer',
+        baseClassHeader   = 'vulkan_ascii_consumer_base.h',
         isOverride        = True,
-        filename          = 'generated_api_call_consumer_override_declarations.inc',
+        filename          = 'generated_vulkan_ascii_consumer.h',
         directory         = directory,
         blacklists        = blacklists,
         platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
-        protectFile       = False,
+        protectFile       = True,
         protectFeature    = False)
     ]
 
-    genOpts['generated_api_call_ascii_consumer_definitions.inc'] = [
+    genOpts['generated_vulkan_replay_consumer.h'] = [
+        ApiCallConsumerDeclarationsGenerator,
+        ApiCallConsumerDeclarationsGeneratorOptions(
+        className         = 'VulkanReplayConsumer',
+        baseClassHeader   = 'vulkan_replay_consumer_base.h',
+        isOverride        = True,
+        constructorArgs   = 'WindowFactory* window_factory',
+        filename          = 'generated_vulkan_replay_consumer.h',
+        directory         = directory,
+        blacklists        = blacklists,
+        platformTypes     = platformTypes,
+        prefixText        = prefixStrings + vkPrefixStrings,
+        protectFile       = True,
+        protectFeature    = False)
+    ]
+
+    genOpts['generated_vulkan_ascii_consumer.cpp'] = [
         ApiCallAsciiConsumerDefinitionsGenerator,
         ApiCallAsciiConsumerDefinitionsGeneratorOptions(
-        filename          = 'generated_api_call_ascii_consumer_definitions.inc',
+        filename          = 'generated_vulkan_ascii_consumer.cpp',
         directory         = directory,
         blacklists        = blacklists,
         platformTypes     = platformTypes,
@@ -220,10 +240,10 @@ def makeGenOpts(args):
         protectFeature    = False)
     ]
 
-    genOpts['generated_api_call_replay_consumer_definitions.inc'] = [
+    genOpts['generated_vulkan_replay_consumer.cpp'] = [
         ApiCallReplayConsumerDefinitionsGenerator,
         ApiCallReplayConsumerDefinitionsGeneratorOptions(
-        filename          = 'generated_api_call_replay_consumer_definitions.inc',
+        filename          = 'generated_vulkan_replay_consumer.cpp',
         directory         = directory,
         blacklists        = blacklists,
         platformTypes     = platformTypes,
