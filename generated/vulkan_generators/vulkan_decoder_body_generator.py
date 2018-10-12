@@ -17,8 +17,8 @@
 import os,re,sys
 from base_generator import *
 
-class ApiCallDecodersGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API parameter decoding C++ code generation"""
+class VulkanDecoderBodyGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating a C++ class for Vulkan API parameter decoding"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -31,11 +31,11 @@ class ApiCallDecodersGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# ApiCallDecodersGenerator - subclass of BaseGenerator.
+# VulkanDecoderBodyGenerator - subclass of BaseGenerator.
 # Generates C++ member functions for the VulkanDecoder class responsible for decoding
 # Vulkan API call parameter data.
-class ApiCallDecodersGenerator(BaseGenerator):
-    """Generate API parameter decoding C++ code"""
+class VulkanDecoderBodyGenerator(BaseGenerator):
+    """Generate a C++ class for Vulkan API parameter decoding"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -63,7 +63,7 @@ class ApiCallDecodersGenerator(BaseGenerator):
         write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "format/value_decoder.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_decoder.h"', file=self.outFile)
-        write('#include "generated/generated_struct_decoders_forward.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)

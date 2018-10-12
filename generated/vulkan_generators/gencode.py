@@ -20,28 +20,28 @@ from reg import *
 from generator import write
 
 # API Call Decoders
-from api_call_decoders_generator import ApiCallDecodersGenerator,ApiCallDecodersGeneratorOptions
-from api_call_decoder_declarations_generator import ApiCallDecoderDeclarationsGenerator,ApiCallDecoderDeclarationsGeneratorOptions
+from vulkan_decoder_body_generator import VulkanDecoderBodyGenerator,VulkanDecoderBodyGeneratorOptions
+from vulkan_decoder_header_generator import VulkanDecoderHeaderGenerator,VulkanDecoderHeaderGeneratorOptions
 
 # Struct Decoders
-from struct_decoders_generator import StructDecodersGenerator,StructDecodersGeneratorOptions
-from struct_decoder_declarations_generator import StructDecoderDeclarationsGenerator,StructDecoderDeclarationsGeneratorOptions
-from decoded_struct_types_generator import DecodedStructTypesGenerator,DecodedStructTypesGeneratorOptions
+from vulkan_struct_decoders_body_generator import VulkanStructDecodersBodyGenerator,VulkanStructDecodersBodyGeneratorOptions
+from vulkan_struct_decoders_forward_generator import VulkanStructDecodersForwardGenerator,VulkanStructDecodersForwardGeneratorOptions
+from vulkan_struct_decoders_header_generator import VulkanStructDecodersHeaderGenerator,VulkanStructDecodersHeaderGeneratorOptions
 from decode_pnext_struct_generator import DecodePNextStructGenerator,DecodePNextStructGeneratorOptions
 
 # Consumers
-from api_call_consumer_declarations_generator import ApiCallConsumerDeclarationsGenerator,ApiCallConsumerDeclarationsGeneratorOptions
-from api_call_ascii_consumer_definitions_generator import ApiCallAsciiConsumerDefinitionsGenerator,ApiCallAsciiConsumerDefinitionsGeneratorOptions
-from api_call_replay_consumer_definitions_generator import ApiCallReplayConsumerDefinitionsGenerator,ApiCallReplayConsumerDefinitionsGeneratorOptions
+from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator,VulkanConsumerHeaderGeneratorOptions
+from vulkan_ascii_consumer_body_generator import VulkanAsciiConsumerBodyGenerator,VulkanAsciiConsumerBodyGeneratorOptions
+from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator,VulkanReplayConsumerBodyGeneratorOptions
 
 # API Call Encoders
-from api_call_encoders_generator import ApiCallEncodersGenerator,ApiCallEncodersGeneratorOptions
-from api_call_encoder_declarations_generator import ApiCallEncoderDeclarationsGenerator,ApiCallEncoderDeclarationsGeneratorOptions
+from vulkan_api_call_encoders_body_generator import VulkanApiCallEncodersBodyGenerator,VulkanApiCallEncodersBodyGeneratorOptions
+from vulkan_api_call_encoders_header_generator import VulkanApiCallEncodersHeaderGenerator,VulkanApiCallEncodersHeaderGeneratorOptions
 from layer_func_table_generator import LayerFuncTableGenerator,LayerFuncTableGeneratorOptions
 
 # Struct Encoders
-from struct_encoders_generator import StructEncodersGenerator,StructEncodersGeneratorOptions
-from struct_encoder_declarations_generator import StructEncoderDeclarationsGenerator,StructEncoderDeclarationsGeneratorOptions
+from vulkan_struct_encoders_body_generator import VulkanStructEncodersBodyGenerator,VulkanStructEncodersBodyGeneratorOptions
+from vulkan_struct_encoders_header_generator import VulkanStructEncodersHeaderGenerator,VulkanStructEncodersHeaderGeneratorOptions
 from encode_pnext_struct_generator import EncodePNextStructGenerator,EncodePNextStructGeneratorOptions
 
 # Simple timer functions
@@ -110,8 +110,8 @@ def makeGenOpts(args):
     #
     # API call decoder generators
     genOpts['generated_vulkan_decoder.cpp'] = [
-          ApiCallDecodersGenerator,
-          ApiCallDecodersGeneratorOptions(
+          VulkanDecoderBodyGenerator,
+          VulkanDecoderBodyGeneratorOptions(
             filename          = 'generated_vulkan_decoder.cpp',
             directory         = directory,
             blacklists        = blacklists,
@@ -122,8 +122,8 @@ def makeGenOpts(args):
         ]
 
     genOpts['generated_vulkan_decoder.h'] = [
-          ApiCallDecoderDeclarationsGenerator,
-          ApiCallDecoderDeclarationsGeneratorOptions(
+          VulkanDecoderHeaderGenerator,
+          VulkanDecoderHeaderGeneratorOptions(
             filename          = 'generated_vulkan_decoder.h',
             directory         = directory,
             blacklists        = blacklists,
@@ -135,10 +135,10 @@ def makeGenOpts(args):
 
     #
     # Struct decoder generators
-    genOpts['generated_struct_decoders.cpp'] = [
-          StructDecodersGenerator,
-          StructDecodersGeneratorOptions(
-            filename          = 'generated_struct_decoders.cpp',
+    genOpts['generated_vulkan_struct_decoders.cpp'] = [
+          VulkanStructDecodersBodyGenerator,
+          VulkanStructDecodersBodyGeneratorOptions(
+            filename          = 'generated_vulkan_struct_decoders.cpp',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
@@ -147,10 +147,10 @@ def makeGenOpts(args):
             protectFeature    = False)
         ]
 
-    genOpts['generated_struct_decoders_forward.h'] = [
-          StructDecoderDeclarationsGenerator,
-          StructDecoderDeclarationsGeneratorOptions(
-            filename          = 'generated_struct_decoders_forward.h',
+    genOpts['generated_vulkan_struct_decoders_forward.h'] = [
+          VulkanStructDecodersForwardGenerator,
+          VulkanStructDecodersForwardGeneratorOptions(
+            filename          = 'generated_vulkan_struct_decoders_forward.h',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
@@ -159,10 +159,10 @@ def makeGenOpts(args):
             protectFeature    = False)
         ]
 
-    genOpts['generated_struct_decoders.h'] = [
-          DecodedStructTypesGenerator,
-          DecodedStructTypesGeneratorOptions(
-            filename          = 'generated_struct_decoders.h',
+    genOpts['generated_vulkan_struct_decoders.h'] = [
+          VulkanStructDecodersHeaderGenerator,
+          VulkanStructDecodersHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_struct_decoders.h',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
@@ -184,8 +184,8 @@ def makeGenOpts(args):
     #
     # Consumer generation
     genOpts['generated_vulkan_consumer.h'] = [
-        ApiCallConsumerDeclarationsGenerator,
-        ApiCallConsumerDeclarationsGeneratorOptions(
+        VulkanConsumerHeaderGenerator,
+        VulkanConsumerHeaderGeneratorOptions(
         className         = 'VulkanConsumer',
         baseClassHeader   = 'vulkan_consumer_base.h',
         isOverride        = False,
@@ -199,8 +199,8 @@ def makeGenOpts(args):
     ]
 
     genOpts['generated_vulkan_ascii_consumer.h'] = [
-        ApiCallConsumerDeclarationsGenerator,
-        ApiCallConsumerDeclarationsGeneratorOptions(
+        VulkanConsumerHeaderGenerator,
+        VulkanConsumerHeaderGeneratorOptions(
         className         = 'VulkanAsciiConsumer',
         baseClassHeader   = 'vulkan_ascii_consumer_base.h',
         isOverride        = True,
@@ -214,8 +214,8 @@ def makeGenOpts(args):
     ]
 
     genOpts['generated_vulkan_replay_consumer.h'] = [
-        ApiCallConsumerDeclarationsGenerator,
-        ApiCallConsumerDeclarationsGeneratorOptions(
+        VulkanConsumerHeaderGenerator,
+        VulkanConsumerHeaderGeneratorOptions(
         className         = 'VulkanReplayConsumer',
         baseClassHeader   = 'vulkan_replay_consumer_base.h',
         isOverride        = True,
@@ -230,8 +230,8 @@ def makeGenOpts(args):
     ]
 
     genOpts['generated_vulkan_ascii_consumer.cpp'] = [
-        ApiCallAsciiConsumerDefinitionsGenerator,
-        ApiCallAsciiConsumerDefinitionsGeneratorOptions(
+        VulkanAsciiConsumerBodyGenerator,
+        VulkanAsciiConsumerBodyGeneratorOptions(
         filename          = 'generated_vulkan_ascii_consumer.cpp',
         directory         = directory,
         blacklists        = blacklists,
@@ -242,8 +242,8 @@ def makeGenOpts(args):
     ]
 
     genOpts['generated_vulkan_replay_consumer.cpp'] = [
-        ApiCallReplayConsumerDefinitionsGenerator,
-        ApiCallReplayConsumerDefinitionsGeneratorOptions(
+        VulkanReplayConsumerBodyGenerator,
+        VulkanReplayConsumerBodyGeneratorOptions(
         filename          = 'generated_vulkan_replay_consumer.cpp',
         directory         = directory,
         blacklists        = blacklists,
@@ -255,10 +255,10 @@ def makeGenOpts(args):
 
     #
     # API call encoder generators
-    genOpts['generated_api_call_encoders.h'] = [
-          ApiCallEncoderDeclarationsGenerator,
-          ApiCallEncoderDeclarationsGeneratorOptions(
-            filename          = 'generated_api_call_encoders.h',
+    genOpts['generated_vulkan_api_call_encoders.h'] = [
+          VulkanApiCallEncodersHeaderGenerator,
+          VulkanApiCallEncodersHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_api_call_encoders.h',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
@@ -267,10 +267,10 @@ def makeGenOpts(args):
             protectFeature    = True)
         ]
 
-    genOpts['generated_api_call_encoders.cpp'] = [
-          ApiCallEncodersGenerator,
-          ApiCallEncodersGeneratorOptions(
-            filename          = 'generated_api_call_encoders.cpp',
+    genOpts['generated_vulkan_api_call_encoders.cpp'] = [
+          VulkanApiCallEncodersBodyGenerator,
+          VulkanApiCallEncodersBodyGeneratorOptions(
+            filename          = 'generated_vulkan_api_call_encoders.cpp',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
@@ -291,10 +291,10 @@ def makeGenOpts(args):
 
     #
     # Struct encoder generators
-    genOpts['generated_struct_encoders.cpp'] = [
-          StructEncodersGenerator,
-          StructEncodersGeneratorOptions(
-            filename          = 'generated_struct_encoders.cpp',
+    genOpts['generated_vulkan_struct_encoders.cpp'] = [
+          VulkanStructEncodersBodyGenerator,
+          VulkanStructEncodersBodyGeneratorOptions(
+            filename          = 'generated_vulkan_struct_encoders.cpp',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
@@ -303,10 +303,10 @@ def makeGenOpts(args):
             protectFeature    = True)
         ]
 
-    genOpts['generated_struct_encoders.h'] = [
-          StructEncoderDeclarationsGenerator,
-          StructEncoderDeclarationsGeneratorOptions(
-            filename          = 'generated_struct_encoders.h',
+    genOpts['generated_vulkan_struct_encoders.h'] = [
+          VulkanStructEncodersHeaderGenerator,
+          VulkanStructEncodersHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_struct_encoders.h',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,

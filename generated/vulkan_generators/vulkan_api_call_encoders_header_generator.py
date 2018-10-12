@@ -17,8 +17,8 @@
 import os,re,sys
 from base_generator import *
 
-class StructDecoderDeclarationsGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API structure decoding C++ code generation"""
+class VulkanApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating C++ function declarations for Vulkan API parameter encoding"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -31,35 +31,39 @@ class StructDecoderDeclarationsGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# StructDecoderDeclarationsGenerator - subclass of BaseGenerator.
-# Generates C++ type and function declarations for decoding Vulkan API structures.
-class StructDecoderDeclarationsGenerator(BaseGenerator):
-    """Generate structure decoding C++ type and function declarations"""
+# VulkanApiCallEncodersHeaderGenerator - subclass of BaseGenerator.
+# Generates C++ functions responsible for encoding Vulkan API call parameter data.
+class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
+    """Generate C++ function declarations for Vulkan API parameter encoding"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=False, processStructs=True, featureBreak=True,
+                               processCmds=True, processStructs=False, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include <cstdint>', file=self.outFile)
-        self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
+        write('#if defined(CreateSemaphore)', file=self.outFile)
+        write('#undef CreateSemaphore', file=self.outFile)
+        write('#endif', file=self.outFile)
+        write('#if defined(CreateEvent)', file=self.outFile)
+        write('#undef CreateEvent', file=self.outFile)
+        write('#endif', file=self.outFile)
+        self.newline()
+
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
 
     # Method override
     def endFile(self):
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass
@@ -68,17 +72,43 @@ class StructDecoderDeclarationsGenerator(BaseGenerator):
     #
     # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
-        if self.featureStructMembers:
+        if self.featureCmdParams:
             return True
         return False
 
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        for struct in self.featureStructMembers:
-            write('struct Decoded_{};'.format(struct), file=self.outFile)
+        first = True
+        for cmd in self.featureCmdParams:
+            info = self.featureCmdParams[cmd]
+            returnType = info[0]
+            proto = info[1]
+            values = info[2]
 
-        self.newline()
+            cmddef = '' if first else '\n'
+            cmddef += self.makeCmdDecl(proto, values)
 
-        for struct in self.featureStructMembers:
-            write('size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'.format(struct), file=self.outFile)
+            write(cmddef, file=self.outFile)
+            first = False
+
+    #
+    # Generate function declaration for a command
+    def makeCmdDecl(self, proto, values):
+        paramDecls = []
+
+        for value in values:
+            valueName = value.name
+            valueType = value.fullType if not value.platformFullType else value.platformFullType
+
+            if value.isArray and not value.isDynamic:
+                valueName += '[{}]'.format(value.arrayCapacity)
+
+            paramDecl = self.makeAlignedParamDecl(valueType, valueName, self.INDENT_SIZE, self.genOpts.alignFuncParam)
+            paramDecls.append(paramDecl)
+
+        if paramDecls:
+            return '{}(\n{});'.format(proto, ',\n'.join(paramDecls))
+
+        return '{}();'.format(proto)
+

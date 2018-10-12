@@ -7,10 +7,10 @@ target_sources(brimstone_layer
                    custom_api_call_encoders.cpp
                    dll_main.cpp
                    trace_layer.cpp
-                   ${CMAKE_SOURCE_DIR}/generated/generated_api_call_encoders.h
-                   ${CMAKE_SOURCE_DIR}/generated/generated_struct_encoders.h
-                   ${CMAKE_SOURCE_DIR}/generated/generated_api_call_encoders.cpp
-                   ${CMAKE_SOURCE_DIR}/generated/generated_struct_encoders.cpp
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_api_call_encoders.h
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_struct_encoders.h
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_api_call_encoders.cpp
+                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_struct_encoders.cpp
                    ${CMAKE_SOURCE_DIR}/generated/generated_encode_pnext_struct.cpp
                    $<$<BOOL:WIN32>:trace_layer.def>
               )

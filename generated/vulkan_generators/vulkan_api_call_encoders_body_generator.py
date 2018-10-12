@@ -17,8 +17,8 @@
 import os,re,sys
 from base_generator import *
 
-class ApiCallEncodersGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API parameter encoding C++ code generation"""
+class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating C++ functions for Vulkan API parameter encoding"""
     def __init__(self,
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
@@ -31,10 +31,10 @@ class ApiCallEncodersGeneratorOptions(BaseGeneratorOptions):
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
 
-# APICallEncodersGenerator - subclass of BaseGenerator.
+# VulkanApiCallEncodersBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions responsible for encoding Vulkan API call parameter data.
-class ApiCallEncodersGenerator(BaseGenerator):
-    """Generate API parameter encoding C++ code"""
+class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
+    """Generate C++ functions for Vulkan API parameter encoding"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -58,6 +58,8 @@ class ApiCallEncodersGenerator(BaseGenerator):
         write('#include "format/trace_manager.h"', file=self.outFile)
         write('#include "format/parameter_encoder.h"', file=self.outFile)
         write('#include "layer/trace_layer.h"', file=self.outFile)
+        self.newline()
+        write('#include "generated/generated_vulkan_api_call_encoders.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
 

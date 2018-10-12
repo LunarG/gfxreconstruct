@@ -21,23 +21,23 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="api_call_ascii_consumer_definitions_generator.py" />
-    <Compile Include="api_call_consumer_declarations_generator.py" />
-    <Compile Include="api_call_decoders_generator.py" />
-    <Compile Include="api_call_decoder_declarations_generator.py" />
-    <Compile Include="api_call_encoders_generator.py" />
-    <Compile Include="api_call_encoder_declarations_generator.py" />
-    <Compile Include="api_call_replay_consumer_definitions_generator.py" />
+    <Compile Include="vulkan_ascii_consumer_body_generator.py" />
+    <Compile Include="vulkan_consumer_header_generator.py" />
+    <Compile Include="vulkan_decoder_body_generator.py" />
+    <Compile Include="vulkan_decoder_header_generator.py" />
+    <Compile Include="vulkan_api_call_encoders_body_generator.py" />
+    <Compile Include="vulkan_api_call_encoders_header_generator.py" />
+    <Compile Include="vulkan_replay_consumer_body_generator.py" />
     <Compile Include="base_generator.py" />
-    <Compile Include="decoded_struct_types_generator.py" />
+    <Compile Include="vulkan_struct_decoders_header_generator.py" />
     <Compile Include="decode_pnext_struct_generator.py" />
     <Compile Include="encode_pnext_struct_generator.py" />
     <Compile Include="gencode.py" />
     <Compile Include="layer_func_table_generator.py" />
-    <Compile Include="struct_decoders_generator.py" />
-    <Compile Include="struct_decoder_declarations_generator.py" />
-    <Compile Include="struct_encoders_generator.py" />
-    <Compile Include="struct_encoder_declarations_generator.py" />
+    <Compile Include="vulkan_struct_decoders_body_generator.py" />
+    <Compile Include="vulkan_struct_decoders_forward_generator.py" />
+    <Compile Include="vulkan_struct_encoders_body_generator.py" />
+    <Compile Include="vulkan_struct_encoders_header_generator.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

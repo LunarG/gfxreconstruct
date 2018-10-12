@@ -17,16 +17,9 @@
 import os,re,sys
 from base_generator import *
 
-# Adds the following new option:
-#  isOverride - Specify whether the member function declarations are
-#               virtual function overrides or pure virtual functions.
-class ApiCallConsumerDeclarationsGeneratorOptions(BaseGeneratorOptions):
-    """Options for Vulkan API parameter processing C++ code generation"""
+class VulkanStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
+    """Options for generating C++ function and forward type declarations for Vulkan struct decoding"""
     def __init__(self,
-                 className,
-                 baseClassHeader,
-                 isOverride,
-                 constructorArgs = '',
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
@@ -37,49 +30,34 @@ class ApiCallConsumerDeclarationsGeneratorOptions(BaseGeneratorOptions):
         BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
-        self.className = className
-        self.baseClassHeader = baseClassHeader
-        self.isOverride = isOverride
-        self.constructorArgs = constructorArgs
 
-# ApiCallDecoderDeclarationsGenerator - subclass of BaseGenerator.
-# Generates C++ member declarations for the VulkanConsumer class responsible for processing
-# Vulkan API call parameter data.
-class ApiCallConsumerDeclarationsGenerator(BaseGenerator):
-    """Generate API parameter processing C++ member declarations"""
+# VulkanStructDecodersForwardGenerator - subclass of BaseGenerator.
+# Generates C++ type and function declarations for decoding Vulkan API structures.
+class VulkanStructDecodersForwardGenerator(BaseGenerator):
+    """Generate C++ function and forward type declarations for Vulkan struct decoding"""
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=True,
+                               processCmds=False, processStructs=True, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
+        write('#include <cstdint>', file=self.outFile)
+        self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/{}"'.format(genOpts.baseClassHeader), file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
-        self.newline()
-        write('class {className} : public {className}Base'.format(className=genOpts.className), file=self.outFile)
-        write('{', file=self.outFile)
-        write('  public:', file=self.outFile)
-        if genOpts.constructorArgs:
-            argList = ', '.join([arg.split(' ')[-1] for arg in genOpts.constructorArgs.split(',')])
-            write('    {className}({}) : {className}Base({}) {{ }}\n'.format(genOpts.constructorArgs, argList, className=genOpts.className), file=self.outFile)
-        else:
-            write('    {}() {{ }}\n'.format(genOpts.className), file=self.outFile)
-        write('    virtual ~{}() {{ }}'.format(genOpts.className), file=self.outFile)
 
     # Method override
     def endFile(self):
-        write('};', file=self.outFile)
         self.newline()
         write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
@@ -90,26 +68,17 @@ class ApiCallConsumerDeclarationsGenerator(BaseGenerator):
     #
     # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
-        if self.featureCmdParams:
+        if self.featureStructMembers:
             return True
         return False
 
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        first = True
-        for cmd in self.featureCmdParams:
-            info = self.featureCmdParams[cmd]
-            returnType = info[0]
-            values = info[2]
+        for struct in self.featureStructMembers:
+            write('struct Decoded_{};'.format(struct), file=self.outFile)
 
-            decl = self.makeConsumerFuncDecl(returnType, 'Process_' + cmd, values)
+        self.newline()
 
-            cmddef = '' if first else '\n'
-            if self.genOpts.isOverride:
-                cmddef += self.indent('virtual ' + decl + ' override;', self.INDENT_SIZE)
-            else:
-                cmddef += self.indent('virtual ' + decl + ' = 0;', self.INDENT_SIZE)
-
-            write(cmddef, file=self.outFile)
-            first = False
+        for struct in self.featureStructMembers:
+            write('size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'.format(struct), file=self.outFile)
