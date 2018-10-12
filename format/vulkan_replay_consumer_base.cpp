@@ -242,11 +242,25 @@ VkResult VulkanReplayConsumerBase::OverrideCreateInstance(const VkInstanceCreate
                                                       const VkAllocationCallbacks* pAllocator,
                                                       VkInstance*                  pInstance)
 {
-    static bool initialized = false;
-    if (!initialized)
+    static bool volk_initialized = false;
+    if (!volk_initialized)
     {
-        volkInitialize();
-        initialized = true;
+        if (volkInitialize() == VK_SUCCESS)
+        {
+            volk_initialized = true;
+        }
+        else
+        {
+#if WIN32
+            const char loader_name[] = "vulkan-1.dll";
+#else
+            const char loader_name[] = "libvulkan.so";
+#endif
+            BRIMSTONE_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
+                                "loader (eg. %s) has been added to the appropriate system path",
+                                loader_name);
+            RaiseFatalError("Failed to load Vulkan runtime library");
+        }
     }
 
     // Replace WSI extension in extension list.
