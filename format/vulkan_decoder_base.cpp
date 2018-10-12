@@ -17,7 +17,6 @@
 #include "format/descriptor_update_template_decoder.h"
 #include "format/pointer_decoder.h"
 #include "format/value_decoder.h"
-#include "format/vulkan_consumer.h"
 #include "format/vulkan_decoder_base.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)

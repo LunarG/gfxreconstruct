@@ -44,6 +44,27 @@ class ApiCallAsciiConsumerDefinitionsGenerator(BaseGenerator):
                                processCmds=True, processStructs=False, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
 
+    # Method override
+    def beginFile(self, genOpts):
+        BaseGenerator.beginFile(self, genOpts)
+
+        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.newline()
+        write('#include "util/defines.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_ascii_consumer.h"', file=self.outFile)
+        self.newline()
+        write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+
+    # Method override
+    def endFile(self):
+        self.newline()
+        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
+
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)
+
     #
     # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
@@ -72,5 +93,5 @@ class ApiCallAsciiConsumerDefinitionsGenerator(BaseGenerator):
     #
     # Return VulkanAsciiConsumer class member function definition.
     def makeConsumerFuncBody(self, returnType, name, values):
-        body = '    fprintf(m_file, "%s\\n", "' + name + '");\n'
+        body = '    fprintf(GetFile(), "%s\\n", "' + name + '");\n'
         return body

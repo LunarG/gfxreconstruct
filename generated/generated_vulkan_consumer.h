@@ -19,6 +19,23 @@
 **
 */
 
+#ifndef  BRIMSTONE_GENERATED_VULKAN_CONSUMER_H
+#define  BRIMSTONE_GENERATED_VULKAN_CONSUMER_H
+
+#include "vulkan/vulkan.h"
+
+#include "util/defines.h"
+#include "format/vulkan_consumer_base.h"
+
+BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+BRIMSTONE_BEGIN_NAMESPACE(format)
+
+class VulkanConsumer : public VulkanConsumerBase
+{
+  public:
+    VulkanConsumer() { }
+
+    virtual ~VulkanConsumer() { }
 
     virtual void Process_vkCreateInstance(
         VkResult                                    returnValue,
@@ -1850,3 +1867,9 @@
         HandleId                                    dstBuffer,
         VkDeviceSize                                dstOffset,
         uint32_t                                    marker) = 0;
+};
+
+BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(brimstone)
+
+#endif

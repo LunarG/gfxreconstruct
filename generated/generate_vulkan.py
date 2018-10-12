@@ -37,10 +37,11 @@ generate_targets = [
     'generated_vulkan_decoder.h',
     'generated_vulkan_decoder.cpp',
     'generated_decode_pnext_struct.inc',
-    'generated_api_call_consumer_declarations.inc',
-    'generated_api_call_consumer_override_declarations.inc',
-    'generated_api_call_ascii_consumer_definitions.inc',
-    'generated_api_call_replay_consumer_definitions.inc'
+    'generated_vulkan_consumer.h',
+    'generated_vulkan_ascii_consumer.h',
+    'generated_vulkan_replay_consumer.h',
+    'generated_vulkan_ascii_consumer.cpp',
+    'generated_vulkan_replay_consumer.cpp'
 ]
 
 if __name__ == '__main__':

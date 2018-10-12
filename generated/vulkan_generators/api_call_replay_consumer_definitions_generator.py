@@ -49,6 +49,27 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
         # member that contains handles).
         self.structsWithHandles = dict()
 
+    # Method override
+    def beginFile(self, genOpts):
+        BaseGenerator.beginFile(self, genOpts)
+
+        write('#include "volk.h"', file=self.outFile)
+        self.newline()
+        write('#include "util/defines.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_replay_consumer.h"', file=self.outFile)
+        self.newline()
+        write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+
+    # Method override
+    def endFile(self):
+        self.newline()
+        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
+
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)
+
     #
     # Method override
     def genStruct(self, typeinfo, typename, alias):
@@ -243,7 +264,7 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
                 argName = 'in_' + value.name
                 args.append(argName)
                 expr = '{} {} = '.format(value.fullType, argName)
-                expr += 'object_mapper_.Map{}({});'.format(value.baseType, value.name)
+                expr += 'GetObjectMapper().Map{}({});'.format(value.baseType, value.name)
                 preexpr.append(expr)
             elif self.isFunctionPtr(value.baseType):
                 # Function pointers are encoded as a 64-bit address value.
@@ -372,4 +393,4 @@ class ApiCallReplayConsumerDefinitionsGenerator(BaseGenerator):
             preexpr.append(indent + 'MapHandles<{handletype}>({srcname}{handlename}.GetPointer(), {srcname}{handlename}.GetLength(), {}, {argname}{}, &VulkanObjectMapper::Map{handletype});'.format(allocation_name, value.arrayLength, srcname=srcname, handlename=value.name, argname=dstname, handletype=value.baseType))
         else:
             # Mapping a single handle.
-            preexpr.append(indent + '{}{membername} = object_mapper_.Map{}({}{membername});'.format(dstname, value.baseType, srcname, membername=value.name))
+            preexpr.append(indent + '{}{membername} = GetObjectMapper().Map{}({}{membername});'.format(dstname, value.baseType, srcname, membername=value.name))

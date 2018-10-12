@@ -62,7 +62,6 @@ class ApiCallDecodersGenerator(BaseGenerator):
         write('#include "format/string_decoder.h"', file=self.outFile)
         write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "format/value_decoder.h"', file=self.outFile)
-        write('#include "format/vulkan_consumer.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_decoder.h"', file=self.outFile)
         self.newline()
         write('#include "generated/generated_struct_decoders.inc"', file=self.outFile)

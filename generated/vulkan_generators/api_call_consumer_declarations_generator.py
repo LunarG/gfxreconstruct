@@ -23,7 +23,10 @@ from base_generator import *
 class ApiCallConsumerDeclarationsGeneratorOptions(BaseGeneratorOptions):
     """Options for Vulkan API parameter processing C++ code generation"""
     def __init__(self,
+                 className,
+                 baseClassHeader,
                  isOverride,
+                 constructorArgs = '',
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
@@ -34,7 +37,10 @@ class ApiCallConsumerDeclarationsGeneratorOptions(BaseGeneratorOptions):
         BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
+        self.className = className
+        self.baseClassHeader = baseClassHeader
         self.isOverride = isOverride
+        self.constructorArgs = constructorArgs
 
 # ApiCallDecoderDeclarationsGenerator - subclass of BaseGenerator.
 # Generates C++ member declarations for the VulkanConsumer class responsible for processing
@@ -48,6 +54,38 @@ class ApiCallConsumerDeclarationsGenerator(BaseGenerator):
         BaseGenerator.__init__(self,
                                processCmds=True, processStructs=False, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+    # Method override
+    def beginFile(self, genOpts):
+        BaseGenerator.beginFile(self, genOpts)
+
+        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.newline()
+        write('#include "util/defines.h"', file=self.outFile)
+        write('#include "format/{}"'.format(genOpts.baseClassHeader), file=self.outFile)
+        self.newline()
+        write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+        self.newline()
+        write('class {className} : public {className}Base'.format(className=genOpts.className), file=self.outFile)
+        write('{', file=self.outFile)
+        write('  public:', file=self.outFile)
+        if genOpts.constructorArgs:
+            argList = ', '.join([arg.split(' ')[-1] for arg in genOpts.constructorArgs.split(',')])
+            write('    {className}({}) : {className}Base({}) {{ }}\n'.format(genOpts.constructorArgs, argList, className=genOpts.className), file=self.outFile)
+        else:
+            write('    {}() {{ }}\n'.format(genOpts.className), file=self.outFile)
+        write('    virtual ~{}() {{ }}'.format(genOpts.className), file=self.outFile)
+
+    # Method override
+    def endFile(self):
+        write('};', file=self.outFile)
+        self.newline()
+        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
+
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)
 
     #
     # Indicates that the current feature has C++ code to generate.
