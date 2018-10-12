@@ -19,6 +19,9 @@
 **
 */
 
+#ifndef  BRIMSTONE_GENERATED_STRUCT_DECODERS_H
+#define  BRIMSTONE_GENERATED_STRUCT_DECODERS_H
+
 #include <memory>
 
 #include "vulkan/vulkan.h"
@@ -31,6 +34,7 @@
 #include "format/string_array_decoder.h"
 #include "format/string_decoder.h"
 #include "format/struct_pointer_decoder.h"
+#include "generated/generated_struct_decoders_forward.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
@@ -3304,3 +3308,5 @@ struct Decoded_VkPipelineVertexInputDivisorStateCreateInfoEXT
 
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
+
+#endif

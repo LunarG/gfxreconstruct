@@ -134,10 +134,10 @@ def makeGenOpts(args):
 
     #
     # Struct decoder generators
-    genOpts['generated_struct_decoders.inc'] = [
+    genOpts['generated_struct_decoders.cpp'] = [
           StructDecodersGenerator,
           StructDecodersGeneratorOptions(
-            filename          = 'generated_struct_decoders.inc',
+            filename          = 'generated_struct_decoders.cpp',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
@@ -146,34 +146,34 @@ def makeGenOpts(args):
             protectFeature    = False)
         ]
 
-    genOpts['generated_struct_decoder_declarations.inc'] = [
+    genOpts['generated_struct_decoders_forward.h'] = [
           StructDecoderDeclarationsGenerator,
           StructDecoderDeclarationsGeneratorOptions(
-            filename          = 'generated_struct_decoder_declarations.inc',
+            filename          = 'generated_struct_decoders_forward.h',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
-            protectFile       = False,
+            protectFile       = True,
             protectFeature    = False)
         ]
 
-    genOpts['generated_decoded_struct_types.inc'] = [
+    genOpts['generated_struct_decoders.h'] = [
           DecodedStructTypesGenerator,
           DecodedStructTypesGeneratorOptions(
-            filename          = 'generated_decoded_struct_types.inc',
+            filename          = 'generated_struct_decoders.h',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
-            protectFile       = False,
+            protectFile       = True,
             protectFeature    = False)
         ]
 
-    genOpts['generated_decode_pnext_struct.inc'] = [
+    genOpts['generated_decode_pnext_struct.cpp'] = [
           DecodePNextStructGenerator,
           DecodePNextStructGeneratorOptions(
-            filename          = 'generated_decode_pnext_struct.inc',
+            filename          = 'generated_decode_pnext_struct.cpp',
             directory         = directory,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,

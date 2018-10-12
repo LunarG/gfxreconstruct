@@ -59,6 +59,7 @@ class DecodedStructTypesGenerator(BaseGenerator):
         write('#include "format/string_array_decoder.h"', file=self.outFile)
         write('#include "format/string_decoder.h"', file=self.outFile)
         write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
+        write('#include "generated/generated_struct_decoders_forward.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)

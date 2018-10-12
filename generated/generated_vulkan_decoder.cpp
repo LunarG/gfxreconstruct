@@ -31,9 +31,7 @@
 #include "format/struct_pointer_decoder.h"
 #include "format/value_decoder.h"
 #include "generated/generated_vulkan_decoder.h"
-
-#include "generated/generated_struct_decoders.inc"
-#include "generated/generated_decode_pnext_struct.inc"
+#include "generated/generated_struct_decoders_forward.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
