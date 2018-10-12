@@ -44,21 +44,21 @@ target_sources(brimstone_format
                    vulkan_replay_consumer_base.cpp
                    vulkan_decoder_base.cpp
                    decompress_decoder.cpp
-                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_struct_decoders_forward.h
-                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_struct_decoders.h
-                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_consumer.h
-                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_ascii_consumer.h
-                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_replay_consumer.h
-                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_decoder.h
-                   ${CMAKE_SOURCE_DIR}/generated/generated_decode_pnext_struct.cpp
-                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_struct_decoders.cpp
-                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_ascii_consumer.cpp
-                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_replay_consumer.cpp
-                   ${CMAKE_SOURCE_DIR}/generated/generated_vulkan_decoder.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
               )
 
 target_include_directories(brimstone_format
                            PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
+                               ${CMAKE_SOURCE_DIR}/framework)
 
 target_link_libraries(brimstone_format brimstone_util volk vulkan_registry platform_specific)

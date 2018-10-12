@@ -32,7 +32,7 @@ target_include_directories(brimstone_util
                            PUBLIC
                                $<$<BOOL:${LZ4_FOUND}>:${LZ4_INCLUDE_DIRS}>
                                $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
-                               $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
+                               ${CMAKE_SOURCE_DIR}/framework)
 
 target_link_libraries(brimstone_util
                           platform_specific

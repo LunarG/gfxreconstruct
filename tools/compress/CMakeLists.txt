@@ -7,6 +7,6 @@ target_sources(gcapcompress
 
 target_include_directories(gcapcompress
                            PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
+                               ${CMAKE_SOURCE_DIR}/framework)
 
 target_link_libraries(gcapcompress brimstone_format platform_specific)
