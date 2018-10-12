@@ -19,6 +19,9 @@
 **
 */
 
+#ifndef  BRIMSTONE_GENERATED_STRUCT_DECODERS_FORWARD_H
+#define  BRIMSTONE_GENERATED_STRUCT_DECODERS_FORWARD_H
+
 #include <cstdint>
 
 #include "vulkan/vulkan.h"
@@ -832,3 +835,5 @@ size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decode
 
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)
+
+#endif

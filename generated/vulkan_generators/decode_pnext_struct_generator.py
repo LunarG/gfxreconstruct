@@ -60,6 +60,7 @@ class DecodePNextStructGenerator(BaseGenerator):
         write('#include "format/pnext_node.h"', file=self.outFile)
         write('#include "format/pnext_null_node.h"', file=self.outFile)
         write('#include "format/pnext_typed_node.h"', file=self.outFile)
+        write('#include "generated/generated_struct_decoders.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)

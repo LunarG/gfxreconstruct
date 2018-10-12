@@ -21,8 +21,7 @@
 
 #include "util/defines.h"
 #include "format/pointer_decoder_base.h"
-
-#include "generated/generated_struct_decoder_declarations.inc"
+#include "generated/generated_struct_decoders_forward.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)

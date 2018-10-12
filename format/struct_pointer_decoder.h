@@ -26,7 +26,7 @@
 #include "format/value_decoder.h"
 
 #include "format/custom_struct_decoders_forward.h"
-#include "generated/generated_struct_decoder_declarations.inc"
+#include "generated/generated_struct_decoders_forward.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
