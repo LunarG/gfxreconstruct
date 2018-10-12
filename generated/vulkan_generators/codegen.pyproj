@@ -26,6 +26,7 @@
     <Compile Include="api_call_decoders_generator.py" />
     <Compile Include="api_call_decoder_declarations_generator.py" />
     <Compile Include="api_call_encoders_generator.py" />
+    <Compile Include="api_call_encoder_declarations_generator.py" />
     <Compile Include="api_call_replay_consumer_definitions_generator.py" />
     <Compile Include="base_generator.py" />
     <Compile Include="decoded_struct_types_generator.py" />

@@ -19,12 +19,11 @@
 #include <unordered_map>
 
 #include "vulkan/vk_layer.h"
-
+#include "generated/generated_api_call_encoders.h"
+#include "generated/generated_layer_func_table.h"
+#include "layer/custom_api_call_encoders.h"
 #include "layer/trace_layer.h"
 #include "layer/vk_dispatch_table_helper.h"
-
-#include "generated/generated_api_call_encoders.inc"
-#include "generated/generated_layer_func_table.h"
 
 static const VkLayerProperties LayerProps = {
     "VK_LAYER_LUNARG_brimstone", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "LunarG API Capture Layer",
