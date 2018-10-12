@@ -29,7 +29,7 @@
 #include "format/struct_pointer_encoder.h"
 #include "format/trace_manager.h"
 #include "format/parameter_encoder.h"
-#include "layer/custom_api_call_encoders.h"
+#include "layer/trace_layer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 

@@ -36,6 +36,7 @@ from api_call_replay_consumer_definitions_generator import ApiCallReplayConsumer
 
 # API Call Encoders
 from api_call_encoders_generator import ApiCallEncodersGenerator,ApiCallEncodersGeneratorOptions
+from api_call_encoder_declarations_generator import ApiCallEncoderDeclarationsGenerator,ApiCallEncoderDeclarationsGeneratorOptions
 from layer_func_table_generator import LayerFuncTableGenerator,LayerFuncTableGeneratorOptions
 
 # Struct Encoders
@@ -254,10 +255,22 @@ def makeGenOpts(args):
 
     #
     # API call encoder generators
-    genOpts['generated_api_call_encoders.inc'] = [
+    genOpts['generated_api_call_encoders.h'] = [
+          ApiCallEncoderDeclarationsGenerator,
+          ApiCallEncoderDeclarationsGeneratorOptions(
+            filename          = 'generated_api_call_encoders.h',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
+            protectFeature    = True)
+        ]
+
+    genOpts['generated_api_call_encoders.cpp'] = [
           ApiCallEncodersGenerator,
           ApiCallEncodersGeneratorOptions(
-            filename          = 'generated_api_call_encoders.inc',
+            filename          = 'generated_api_call_encoders.cpp',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,

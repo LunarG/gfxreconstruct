@@ -27,6 +27,9 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
+#include "generated/generated_api_call_encoders.h"
+#include "layer/custom_api_call_encoders.h"
+#include "layer/trace_layer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
