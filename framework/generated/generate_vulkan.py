@@ -19,7 +19,7 @@ import sys
 import subprocess
 
 # Relative path from code generators to directory containing the Vulkan XML Registry.
-registry_path = '../external/Vulkan-Headers/registry'
+registry_path = '../../external/Vulkan-Headers/registry'
 
 # Relative path to vulkan code generators for trace encode/decode.
 generator_path = './vulkan_generators'
