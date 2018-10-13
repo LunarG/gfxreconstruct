@@ -155,7 +155,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 body += indent + '{} result;\n'.format(returnType)
                 body += '\n'
 
-        body += indent + 'encode::CustomEncoderPreCall<format::ApiCallId_{}>::Dispatch(get_trace_manager(), {});\n'.format(name, argList)
+        body += indent + 'encode::CustomEncoderPreCall<format::ApiCallId_{}>::Dispatch(encode::TraceManager::Get(), {});\n'.format(name, argList)
         body += '\n'
 
         # Add a resource create/destroy lock
@@ -176,7 +176,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             body += indent + '{};\n'.format(callExpr)
 
         body += '\n'
-        body += indent + 'auto encoder = get_trace_manager()->BeginApiCallTrace(format::ApiCallId_{});\n'.format(name)
+        body += indent + 'auto encoder = encode::TraceManager::Get()->BeginApiCallTrace(format::ApiCallId_{});\n'.format(name)
         body += indent + 'if (encoder)\n'
         body += indent + '{\n'
         indent += ' ' * self.INDENT_SIZE
@@ -188,7 +188,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if returnType and returnType != 'void':
             body += indent + 'encoder->EncodeEnumValue(result);\n'
 
-        body += indent + 'get_trace_manager()->EndApiCallTrace(encoder);\n'
+        body += indent + 'encode::TraceManager::Get()->EndApiCallTrace(encoder);\n'
         indent = indent[0:-self.INDENT_SIZE]
         body += indent + '}\n'
 
@@ -198,11 +198,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         body += '\n'
         if returnType and returnType != 'void':
-            body += '    encode::CustomEncoderPostCall<format::ApiCallId_{}>::Dispatch(get_trace_manager(), result, {});\n'.format(name, argList)
+            body += '    encode::CustomEncoderPostCall<format::ApiCallId_{}>::Dispatch(encode::TraceManager::Get(), result, {});\n'.format(name, argList)
             body += '\n'
             body += '    return result;\n'
         else:
-            body += '    encode::CustomEncoderPostCall<format::ApiCallId_{}>::Dispatch(get_trace_manager(), {});\n'.format(name, argList)
+            body += '    encode::CustomEncoderPostCall<format::ApiCallId_{}>::Dispatch(encode::TraceManager::Get(), {});\n'.format(name, argList)
 
         return body
 
