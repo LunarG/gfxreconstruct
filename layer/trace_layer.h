@@ -49,7 +49,6 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice p
 
 bool init_layer();
 void destroy_layer();
-encode::TraceManager* get_trace_manager();
 
 void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
 void init_device_table(VkDevice device, PFN_vkGetDeviceProcAddr gpa);

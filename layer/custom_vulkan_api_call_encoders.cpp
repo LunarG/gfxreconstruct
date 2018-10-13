@@ -104,7 +104,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
                                                            VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                            const void*                pData)
 {
-    encode::TraceManager* trace_manager = get_trace_manager();
+    encode::TraceManager* trace_manager = encode::TraceManager::Get();
 
     encode::CustomEncoderPreCall<format::ApiCallId_vkUpdateDescriptorSetWithTemplate>::Dispatch(
         trace_manager, device, descriptorSet, descriptorUpdateTemplate, pData);
@@ -133,7 +133,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
                                                                uint32_t                   set,
                                                                const void*                pData)
 {
-    encode::TraceManager* trace_manager = get_trace_manager();
+    encode::TraceManager* trace_manager = encode::TraceManager::Get();
 
     encode::CustomEncoderPreCall<format::ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
         trace_manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
@@ -163,7 +163,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
                                                               VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                               const void*                pData)
 {
-    encode::TraceManager* trace_manager = get_trace_manager();
+    encode::TraceManager* trace_manager = encode::TraceManager::Get();
 
     encode::CustomEncoderPreCall<format::ApiCallId_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
         trace_manager, device, descriptorSet, descriptorUpdateTemplate, pData);
@@ -193,7 +193,7 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
                                                   const VkObjectTableEntryNVX* const* ppObjectTableEntries,
                                                   const uint32_t*                     pObjectIndices)
 {
-    encode::TraceManager* trace_manager = get_trace_manager();
+    encode::TraceManager* trace_manager = encode::TraceManager::Get();
 
     encode::CustomEncoderPreCall<format::ApiCallId_vkRegisterObjectsNVX>::Dispatch(
         trace_manager, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);

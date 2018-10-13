@@ -71,13 +71,11 @@ class TraceManager
     };
 
   public:
-    TraceManager() : memory_tracking_mode_(MemoryTrackingMode::kUnassisted) {}
+    static bool Create(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode);
 
-    ~TraceManager() {}
+    static void Destroy();
 
-    bool Initialize(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode);
-
-    void Destroy();
+    static TraceManager* Get() { return instance_; }
 
     ParameterEncoder* BeginApiCallTrace(format::ApiCallId call_id);
 
@@ -137,6 +135,13 @@ class TraceManager
                                                          VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
                                                          const VkAllocationCallbacks* pAllocator);
 
+  protected:
+    TraceManager() : memory_tracking_mode_(MemoryTrackingMode::kUnassisted) {}
+
+    ~TraceManager() {}
+
+    bool Initialize(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode);
+
   private:
     class ThreadData
     {
@@ -176,7 +181,8 @@ class TraceManager
     }
 
     void WriteFileHeader();
-    void BuildOptionList(const format::EnabledOptions& enabled_options, std::vector<format::FileOptionPair>* option_list);
+    void BuildOptionList(const format::EnabledOptions&        enabled_options,
+                         std::vector<format::FileOptionPair>* option_list);
 
     void WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height);
     void WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data);
@@ -186,6 +192,7 @@ class TraceManager
     void RemoveDescriptorUpdateTemplate(VkDescriptorUpdateTemplate update_template);
 
   private:
+    static TraceManager*                            instance_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     format::EnabledOptions                          file_options_;
     std::unique_ptr<util::FileOutputStream>         file_stream_;

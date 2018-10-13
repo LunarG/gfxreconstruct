@@ -62,7 +62,6 @@ static const void* get_dispatch_key(const void* handle)
 
 static std::unordered_map<const void*, VkLayerInstanceDispatchTable> instance_table;
 static std::unordered_map<const void*, VkLayerDispatchTable> device_table;
-static brimstone::encode::TraceManager* trace_manager;
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
@@ -70,7 +69,7 @@ std::mutex g_create_destroy_mutex;
 
 bool init_layer()
 {
-    if (nullptr != trace_manager)
+    if (brimstone::encode::TraceManager::Get() != nullptr)
     {
         return true;
     }
@@ -84,8 +83,6 @@ bool init_layer()
     options.compression_type = util::CompressionType::kLz4;
 #endif
 
-    trace_manager = new brimstone::encode::TraceManager();
-
     // Check to see if there's an environment variable overriding the default binary location value.
     std::string env_variable = brimstone::util::platform::GetEnv("BRIMSTONE_BINARY_FILE");
     if (!env_variable.empty())
@@ -93,22 +90,12 @@ bool init_layer()
         binary_file_name = env_variable;
     }
 
-    return trace_manager->Initialize(binary_file_name, options, encode::TraceManager::kPageGuard);
+    return brimstone::encode::TraceManager::Create(binary_file_name, options, encode::TraceManager::kPageGuard);
 }
 
 void destroy_layer()
 {
-    if (nullptr != trace_manager)
-    {
-        trace_manager->Destroy();
-        delete trace_manager;
-        trace_manager = nullptr;
-    }
-}
-
-encode::TraceManager* get_trace_manager()
-{
-    return trace_manager;
+    brimstone::encode::TraceManager::Destroy();
 }
 
 void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa)

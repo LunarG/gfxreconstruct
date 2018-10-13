@@ -18,6 +18,7 @@
 
 #include "encode/trace_manager.h"
 #include "util/compressor.h"
+#include "util/logging.h"
 #include "util/platform.h"
 #include "util/page_guard_manager.h"
 
@@ -27,6 +28,7 @@ BRIMSTONE_BEGIN_NAMESPACE(encode)
 std::mutex                                             TraceManager::ThreadData::count_lock_;
 uint32_t                                               TraceManager::ThreadData::thread_count_ = 0;
 std::unordered_map<uint64_t, uint32_t>                 TraceManager::ThreadData::id_map_;
+TraceManager*                                          TraceManager::instance_ = nullptr;
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 
 TraceManager::ThreadData::ThreadData() :
@@ -57,6 +59,37 @@ uint32_t TraceManager::ThreadData::GetThreadId()
     return id;
 }
 
+bool TraceManager::Create(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode)
+{
+    bool success = false;
+
+    if (instance_ == nullptr)
+    {
+        instance_ = new TraceManager();
+        success   = instance_->Initialize(filename, file_options, mode);
+    }
+    else
+    {
+        BRIMSTONE_LOG_WARNING("TraceManager creation was attempted more than once");
+    }
+
+    return success;
+}
+
+void TraceManager::Destroy()
+{
+    if (instance_ != nullptr)
+    {
+        if (instance_->memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
+        {
+            util::PageGuardManager::Destroy();
+        }
+
+        delete instance_;
+        instance_ = nullptr;
+    }
+}
+
 bool TraceManager::Initialize(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode)
 {
     bool success = false;
@@ -65,7 +98,7 @@ bool TraceManager::Initialize(std::string filename, format::EnabledOptions file_
     file_options_         = file_options;
     memory_tracking_mode_ = mode;
 
-    file_stream_  = std::make_unique<util::FileOutputStream>(filename_);
+    file_stream_ = std::make_unique<util::FileOutputStream>(filename_);
 
     if (file_stream_->IsValid())
     {
@@ -76,7 +109,8 @@ bool TraceManager::Initialize(std::string filename, format::EnabledOptions file_
 
     if (success)
     {
-        compressor_ = std::unique_ptr<util::Compressor>(util::Compressor::CreateCompressor(file_options.compression_type));
+        compressor_ =
+            std::unique_ptr<util::Compressor>(util::Compressor::CreateCompressor(file_options.compression_type));
         if ((nullptr == compressor_) && (util::kNone != file_options.compression_type))
         {
             success = false;
@@ -89,14 +123,6 @@ bool TraceManager::Initialize(std::string filename, format::EnabledOptions file_
     }
 
     return success;
-}
-
-void TraceManager::Destroy()
-{
-    if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
-    {
-        util::PageGuardManager::Destroy();
-    }
 }
 
 ParameterEncoder* TraceManager::BeginApiCallTrace(format::ApiCallId call_id)
