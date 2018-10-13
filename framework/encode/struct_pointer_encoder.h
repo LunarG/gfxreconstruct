@@ -14,20 +14,21 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_STRUCT_POINTER_ENCODER_H
-#define BRIMSTONE_STRUCT_POINTER_ENCODER_H
+#ifndef BRIMSTONE_ENCODE_STRUCT_POINTER_ENCODER_H
+#define BRIMSTONE_ENCODE_STRUCT_POINTER_ENCODER_H
 
-#include "format/custom_struct_encoders.h"
-#include "format/parameter_encoder.h"
+#include "encode/custom_vulkan_struct_encoders.h"
+#include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
 
 #include "generated/generated_vulkan_struct_encoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+BRIMSTONE_BEGIN_NAMESPACE(encode)
 
 template <typename T>
-void encode_struct_ptr(format::ParameterEncoder* encoder, const T* value)
+void encode_struct_ptr(ParameterEncoder* encoder, const T* value)
 {
     encoder->EncodeStructPtrPreamble(value);
     if (value != nullptr)
@@ -37,7 +38,7 @@ void encode_struct_ptr(format::ParameterEncoder* encoder, const T* value)
 }
 
 template <typename T>
-void encode_struct_array(format::ParameterEncoder* encoder, const T* value, size_t len)
+void encode_struct_array(ParameterEncoder* encoder, const T* value, size_t len)
 {
     encoder->EncodeStructArrayPreamble(value, len);
     if ((value != nullptr) && (len > 0))
@@ -49,6 +50,7 @@ void encode_struct_array(format::ParameterEncoder* encoder, const T* value, size
     }
 }
 
+BRIMSTONE_END_NAMESPACE(encode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_STRUCT_POINTER_ENCODER_H
+#endif // BRIMSTONE_ENCODE_STRUCT_POINTER_ENCODER_H

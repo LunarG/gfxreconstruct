@@ -24,14 +24,15 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
-#include "format/parameter_encoder.h"
-#include "format/struct_pointer_encoder.h"
+#include "encode/parameter_encoder.h"
+#include "encode/struct_pointer_encoder.h"
 
 #include "generated/generated_vulkan_struct_encoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+BRIMSTONE_BEGIN_NAMESPACE(encode)
 
-void encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
+void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
 {
     assert(encoder != nullptr);
 
@@ -393,4 +394,5 @@ void encode_pnext_struct(format::ParameterEncoder* encoder, const void* value)
     }
 }
 
+BRIMSTONE_END_NAMESPACE(encode)
 BRIMSTONE_END_NAMESPACE(brimstone)

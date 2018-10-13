@@ -16,13 +16,13 @@
 
 #include <cassert>
 
-#include "format/trace_manager.h"
+#include "encode/trace_manager.h"
 #include "util/compressor.h"
 #include "util/platform.h"
 #include "util/page_guard_manager.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(encode)
 
 std::mutex                                             TraceManager::ThreadData::count_lock_;
 uint32_t                                               TraceManager::ThreadData::thread_count_ = 0;
@@ -30,7 +30,7 @@ std::unordered_map<uint64_t, uint32_t>                 TraceManager::ThreadData:
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 
 TraceManager::ThreadData::ThreadData() :
-    thread_id_(GetThreadId()), call_id_(ApiCallId_Unknown), call_begin_time_(0), call_end_time_(0)
+    thread_id_(GetThreadId()), call_id_(format::ApiCallId_Unknown), call_begin_time_(0), call_end_time_(0)
 {
     parameter_buffer_  = std::make_unique<util::MemoryOutputStream>();
     parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
@@ -57,7 +57,7 @@ uint32_t TraceManager::ThreadData::GetThreadId()
     return id;
 }
 
-bool TraceManager::Initialize(std::string filename, EnabledOptions file_options, MemoryTrackingMode mode)
+bool TraceManager::Initialize(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode)
 {
     bool success = false;
 
@@ -99,7 +99,7 @@ void TraceManager::Destroy()
     }
 }
 
-ParameterEncoder* TraceManager::BeginApiCallTrace(ApiCallId call_id)
+ParameterEncoder* TraceManager::BeginApiCallTrace(format::ApiCallId call_id)
 {
     auto thread_data      = GetThreadData();
     thread_data->call_id_ = call_id;
@@ -115,14 +115,14 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
     auto parameter_encoder = thread_data->parameter_encoder_.get();
     assert((parameter_buffer != nullptr) && (parameter_encoder != nullptr));
 
-    bool                         not_compressed      = true;
-    CompressedFunctionCallHeader compressed_header   = {};
-    FunctionCallHeader           uncompressed_header = {};
-    size_t                       uncompressed_size   = parameter_buffer->GetDataSize();
-    size_t                       header_size         = 0;
-    const void*                  header_pointer      = nullptr;
-    size_t                       data_size           = 0;
-    const void*                  data_pointer        = nullptr;
+    bool                                 not_compressed      = true;
+    format::CompressedFunctionCallHeader compressed_header   = {};
+    format::FunctionCallHeader           uncompressed_header = {};
+    size_t                               uncompressed_size   = parameter_buffer->GetDataSize();
+    size_t                               header_size         = 0;
+    const void*                          header_pointer      = nullptr;
+    size_t                               data_size           = 0;
+    const void*                          data_pointer        = nullptr;
 
     if (nullptr != compressor_)
     {
@@ -135,9 +135,9 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
             data_pointer   = reinterpret_cast<const void*>(thread_data->compressed_buffer_.data());
             data_size      = compressed_size;
             header_pointer = reinterpret_cast<const void*>(&compressed_header);
-            header_size    = sizeof(CompressedFunctionCallHeader);
+            header_size    = sizeof(format::CompressedFunctionCallHeader);
 
-            compressed_header.block_header.type = BlockType::kCompressedFunctionCallBlock;
+            compressed_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
             compressed_header.api_call_id       = thread_data->call_id_;
             compressed_header.uncompressed_size = uncompressed_size;
 
@@ -163,9 +163,9 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
         data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
         data_size          = uncompressed_size;
         header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
-        header_size        = sizeof(FunctionCallHeader);
+        header_size        = sizeof(format::FunctionCallHeader);
 
-        uncompressed_header.block_header.type = BlockType::kFunctionCallBlock;
+        uncompressed_header.block_header.type = format::BlockType::kFunctionCallBlock;
         uncompressed_header.api_call_id       = thread_data->call_id_;
 
         packet_size += sizeof(uncompressed_header.api_call_id) + data_size;
@@ -209,41 +209,42 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 
 void TraceManager::WriteFileHeader()
 {
-    std::vector<FileOptionPair> option_list;
+    std::vector<format::FileOptionPair> option_list;
 
     BuildOptionList(file_options_, &option_list);
 
-    FileHeader file_header;
+    format::FileHeader file_header;
     file_header.fourcc        = BRIMSTONE_FOURCC;
     file_header.major_version = 1;
     file_header.minor_version = 0;
     file_header.num_options   = static_cast<uint32_t>(option_list.size());
 
     bytes_written_ += file_stream_->Write(&file_header, sizeof(file_header));
-    bytes_written_ += file_stream_->Write(option_list.data(), option_list.size() * sizeof(FileOptionPair));
+    bytes_written_ += file_stream_->Write(option_list.data(), option_list.size() * sizeof(format::FileOptionPair));
 }
 
-void TraceManager::BuildOptionList(const EnabledOptions& enabled_options, std::vector<FileOptionPair>* option_list)
+void TraceManager::BuildOptionList(const format::EnabledOptions&        enabled_options,
+                                   std::vector<format::FileOptionPair>* option_list)
 {
     assert(option_list != nullptr);
 
-    option_list->push_back({ FileOption::kCompressionType, enabled_options.compression_type });
-    option_list->push_back({ FileOption::kHaveThreadId, enabled_options.record_thread_id ? 1u : 0u });
+    option_list->push_back({ format::FileOption::kCompressionType, enabled_options.compression_type });
+    option_list->push_back({ format::FileOption::kHaveThreadId, enabled_options.record_thread_id ? 1u : 0u });
     option_list->push_back(
-        { FileOption::kHaveBeginEndTimestamp, enabled_options.record_begin_end_timestamp ? 1u : 0u });
-    option_list->push_back({ FileOption::kOmitTextures, enabled_options.omit_textures ? 1u : 0u });
-    option_list->push_back({ FileOption::kOmitBuffers, enabled_options.omit_buffers ? 1u : 0u });
+        { format::FileOption::kHaveBeginEndTimestamp, enabled_options.record_begin_end_timestamp ? 1u : 0u });
+    option_list->push_back({ format::FileOption::kOmitTextures, enabled_options.omit_textures ? 1u : 0u });
+    option_list->push_back({ format::FileOption::kOmitBuffers, enabled_options.omit_buffers ? 1u : 0u });
 }
 
 void TraceManager::WriteDisplayMessageCmd(const char* message)
 {
-    size_t                      message_length = util::platform::StringLength(message);
-    DisplayMessageCommandHeader message_cmd;
+    size_t                              message_length = util::platform::StringLength(message);
+    format::DisplayMessageCommandHeader message_cmd;
 
-    message_cmd.meta_header.block_header.type = kMetaDataBlock;
+    message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     message_cmd.meta_header.block_header.size =
         sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.message_size) + message_length;
-    message_cmd.meta_header.meta_data_type = kDisplayMessageCommand;
+    message_cmd.meta_header.meta_data_type = format::MetaDataType::kDisplayMessageCommand;
     message_cmd.message_size               = message_length;
 
     {
@@ -256,14 +257,14 @@ void TraceManager::WriteDisplayMessageCmd(const char* message)
 
 void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height)
 {
-    ResizeWindowCommand resize_cmd;
-    resize_cmd.meta_header.block_header.type = kMetaDataBlock;
+    format::ResizeWindowCommand resize_cmd;
+    resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
                                                sizeof(resize_cmd.surface_id) + sizeof(resize_cmd.width) +
                                                sizeof(resize_cmd.height);
-    resize_cmd.meta_header.meta_data_type = kResizeWindowCommand;
+    resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
 
-    resize_cmd.surface_id = ToHandleId(surface);
+    resize_cmd.surface_id = format::ToHandleId(surface);
     resize_cmd.width      = width;
     resize_cmd.height     = height;
 
@@ -277,13 +278,13 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
 {
     BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
-    FillMemoryCommandHeader           fill_cmd;
+    format::FillMemoryCommandHeader   fill_cmd;
     const uint8_t*                    write_address  = (static_cast<const uint8_t*>(data) + offset);
     size_t                            write_size     = static_cast<size_t>(size);
 
-    fill_cmd.meta_header.block_header.type = kMetaDataBlock;
-    fill_cmd.meta_header.meta_data_type    = kFillMemoryCommand;
-    fill_cmd.memory_id                     = ToHandleId(memory);
+    fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
+    fill_cmd.memory_id                     = format::ToHandleId(memory);
     fill_cmd.memory_offset                 = offset;
     fill_cmd.memory_size                   = size;
 
@@ -298,7 +299,7 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
         {
             // We don't have a special header for compressed fill commands because the header always includes
             // the uncompressed size, so we just change the type to indicate the data is compressed.
-            fill_cmd.meta_header.block_header.type = kCompressedMetaDataBlock;
+            fill_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
 
             write_address = thread_data->compressed_buffer_.data();
             write_size    = compressed_size;
@@ -453,8 +454,8 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
 
             assert(manager != nullptr);
 
-            (*ppData) =
-                manager->AddMemory(ToHandleId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false, true);
+            (*ppData) = manager->AddMemory(
+                format::ToHandleId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false, true);
         }
     }
 }
@@ -515,14 +516,13 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
 
         if ((info != nullptr) && (info->data != nullptr))
         {
-            manager->ProcessMemoryEntry(
-                ToHandleId(memory),
+            manager->ProcessMemoryEntry(format::ToHandleId(memory),
                 [this](
                     uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                    WriteFillMemoryCmd(FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
+                    WriteFillMemoryCmd(format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
                 });
 
-            manager->RemoveMemory(ToHandleId(memory));
+            manager->RemoveMemory(format::ToHandleId(memory));
         }
     }
     else if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
@@ -557,7 +557,7 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
 
-        manager->RemoveMemory(ToHandleId(memory));
+        manager->RemoveMemory(format::ToHandleId(memory));
     }
 }
 
@@ -580,7 +580,7 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
 
         manager->ProcessMemoryEntries(
             [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                WriteFillMemoryCmd(FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
+            WriteFillMemoryCmd(format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
             });
     }
     else if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
@@ -652,5 +652,5 @@ void TraceManager::PreProcess_vkDestroyDescriptorUpdateTemplateKHR(VkDevice     
     RemoveDescriptorUpdateTemplate(descriptorUpdateTemplate);
 }
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(encode)
 BRIMSTONE_END_NAMESPACE(brimstone)

@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_TRACE_MANAGER_H
-#define BRIMSTONE_FORMAT_TRACE_MANAGER_H
+#ifndef BRIMSTONE_ENCODE_FORMAT_TRACE_MANAGER_H
+#define BRIMSTONE_ENCODE_FORMAT_TRACE_MANAGER_H
 
 #include <memory>
 #include <mutex>
@@ -27,15 +27,15 @@
 
 #include "format/api_call_id.h"
 #include "format/format.h"
-#include "format/memory_tracker.h"
-#include "format/parameter_encoder.h"
+#include "encode/memory_tracker.h"
+#include "encode/parameter_encoder.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_output_stream.h"
 #include "util/memory_output_stream.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(encode)
 
 class TraceManager
 {
@@ -75,11 +75,11 @@ class TraceManager
 
     ~TraceManager() {}
 
-    bool Initialize(std::string filename, EnabledOptions file_options, MemoryTrackingMode mode);
+    bool Initialize(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode);
 
     void Destroy();
 
-    ParameterEncoder* BeginApiCallTrace(ApiCallId call_id);
+    ParameterEncoder* BeginApiCallTrace(format::ApiCallId call_id);
 
     void EndApiCallTrace(ParameterEncoder* encoder);
 
@@ -147,7 +147,7 @@ class TraceManager
 
       public:
         const uint32_t                            thread_id_;
-        ApiCallId                                 call_id_;
+        format::ApiCallId                         call_id_;
         uint32_t                                  call_begin_time_;
         uint32_t                                  call_end_time_;
         std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
@@ -176,7 +176,7 @@ class TraceManager
     }
 
     void WriteFileHeader();
-    void BuildOptionList(const EnabledOptions& enabled_options, std::vector<FileOptionPair>* option_list);
+    void BuildOptionList(const format::EnabledOptions& enabled_options, std::vector<format::FileOptionPair>* option_list);
 
     void WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height);
     void WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data);
@@ -187,7 +187,7 @@ class TraceManager
 
   private:
     static thread_local std::unique_ptr<ThreadData> thread_data_;
-    EnabledOptions                                  file_options_;
+    format::EnabledOptions                          file_options_;
     std::unique_ptr<util::FileOutputStream>         file_stream_;
     std::string                                     filename_;
     std::mutex                                      file_lock_;
@@ -200,7 +200,7 @@ class TraceManager
     mutable std::mutex                              update_template_map_lock_;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(encode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_TRACE_MANAGER_H
+#endif // BRIMSTONE_ENCODE_FORMAT_TRACE_MANAGER_H

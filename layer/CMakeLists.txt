@@ -2,16 +2,13 @@ add_library(brimstone_layer SHARED "")
 
 target_sources(brimstone_layer
                PRIVATE
-                   custom_api_call_encoders.h
-                   trace_layer.h
-                   custom_api_call_encoders.cpp
+                   custom_vulkan_api_call_encoders.h
+                   custom_vulkan_api_call_encoders.cpp
                    dll_main.cpp
+                   trace_layer.h
                    trace_layer.cpp
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp
                    $<$<BOOL:WIN32>:trace_layer.def>
               )
 
@@ -19,7 +16,7 @@ target_include_directories(brimstone_layer
                            PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
 
-target_link_libraries(brimstone_layer brimstone_format brimstone_util vulkan_registry platform_specific)
+target_link_libraries(brimstone_layer brimstone_encode brimstone_format brimstone_util vulkan_registry platform_specific)
 
 # Generate the JSON file for this library
 include("GenerateLayerJson")
