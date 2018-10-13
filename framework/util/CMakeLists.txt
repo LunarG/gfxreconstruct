@@ -3,24 +3,24 @@ add_library(brimstone_util STATIC "")
 target_sources(brimstone_util
                PRIVATE
                    argument_parser.h
+                   argument_parser.cpp
                    compressor.h
+                   compressor.cpp
                    defines.h
                    file_output_stream.h
+                   file_output_stream.cpp
                    logging.h
                    lz4_compressor.h
+                   lz4_compressor.cpp
                    lz77_compressor.h
+                   lz77_compressor.cpp
                    memory_output_stream.h
+                   memory_output_stream.cpp
                    output_stream.h
                    page_guard_manager.h
+                   page_guard_manager.cpp
                    page_status_tracker.h
                    platform.h
-                   argument_parser.cpp
-                   compressor.cpp
-                   file_output_stream.cpp
-                   lz4_compressor.cpp
-                   lz77_compressor.cpp
-                   memory_output_stream.cpp
-                   page_guard_manager.cpp
               )
 
 target_compile_definitions(brimstone_util

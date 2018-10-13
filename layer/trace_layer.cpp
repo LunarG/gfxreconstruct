@@ -21,7 +21,8 @@
 #include "vulkan/vk_layer.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
 #include "generated/generated_layer_func_table.h"
-#include "layer/custom_api_call_encoders.h"
+#include "encode/trace_manager.h"
+#include "layer/custom_vulkan_api_call_encoders.h"
 #include "layer/trace_layer.h"
 #include "layer/vk_dispatch_table_helper.h"
 
@@ -61,7 +62,7 @@ static const void* get_dispatch_key(const void* handle)
 
 static std::unordered_map<const void*, VkLayerInstanceDispatchTable> instance_table;
 static std::unordered_map<const void*, VkLayerDispatchTable> device_table;
-static brimstone::format::TraceManager* trace_manager;
+static brimstone::encode::TraceManager* trace_manager;
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
@@ -83,7 +84,7 @@ bool init_layer()
     options.compression_type = util::CompressionType::kLz4;
 #endif
 
-    trace_manager = new brimstone::format::TraceManager();
+    trace_manager = new brimstone::encode::TraceManager();
 
     // Check to see if there's an environment variable overriding the default binary location value.
     std::string env_variable = brimstone::util::platform::GetEnv("BRIMSTONE_BINARY_FILE");
@@ -92,7 +93,7 @@ bool init_layer()
         binary_file_name = env_variable;
     }
 
-    return trace_manager->Initialize(binary_file_name, options, format::TraceManager::kPageGuard);
+    return trace_manager->Initialize(binary_file_name, options, encode::TraceManager::kPageGuard);
 }
 
 void destroy_layer()
@@ -105,7 +106,7 @@ void destroy_layer()
     }
 }
 
-format::TraceManager* get_trace_manager()
+encode::TraceManager* get_trace_manager()
 {
     return trace_manager;
 }

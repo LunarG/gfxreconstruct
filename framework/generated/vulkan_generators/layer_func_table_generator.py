@@ -57,7 +57,7 @@ class LayerFuncTableGenerator(BaseGenerator):
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_api_call_encoders.h"', file=self.outFile)
-        write('#include "layer/custom_api_call_encoders.h"', file=self.outFile)
+        write('#include "layer/custom_vulkan_api_call_encoders.h"', file=self.outFile)
         write('#include "layer/trace_layer.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)

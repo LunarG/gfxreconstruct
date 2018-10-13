@@ -52,15 +52,17 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/parameter_encoder.h"', file=self.outFile)
+        write('#include "encode/parameter_encoder.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
-        write('void encode_pnext_struct(format::ParameterEncoder* encoder, const void* value);', file=self.outFile)
+        write('void encode_pnext_struct(ParameterEncoder* encoder, const void* value);', file=self.outFile)
 
     # Method override
     def endFile(self):
         self.newline()
+        write('BRIMSTONE_END_NAMESPACE(encode)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass
@@ -77,4 +79,4 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         for struct in self.featureStructMembers:
-            write('void encode_struct(format::ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)
+            write('void encode_struct(ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)

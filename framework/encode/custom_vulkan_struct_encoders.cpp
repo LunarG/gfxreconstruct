@@ -17,25 +17,26 @@
 #include <cassert>
 #include <vector>
 
-#include "format/custom_struct_encoders.h"
-#include "format/struct_pointer_encoder.h"
+#include "encode/custom_vulkan_struct_encoders.h"
+#include "encode/struct_pointer_encoder.h"
 #include "util/defines.h"
 #include "util/logging.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+BRIMSTONE_BEGIN_NAMESPACE(encode)
 
-void encode_struct(format::ParameterEncoder* encoder, const VkClearColorValue& value)
+void encode_struct(ParameterEncoder* encoder, const VkClearColorValue& value)
 {
     encoder->EncodeUInt32Array(value.uint32, 4);
 }
 
-void encode_struct(format::ParameterEncoder* encoder, const VkClearValue& value)
+void encode_struct(ParameterEncoder* encoder, const VkClearValue& value)
 {
     // VkClearColorValue is used becaue it is the larger of the two union members.
     encode_struct(encoder, value.color);
 }
 
-void encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
+void encode_struct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
 {
     if (value != nullptr)
     {
@@ -87,7 +88,7 @@ static void pack_sid_struct(const SID* sid, std::vector<uint8_t>* buffer)
     buffer->insert(buffer->end(), sub_authority, sub_authority + sub_authority_size);
 }
 
-void encode_struct(format::ParameterEncoder* encoder, const ACL& value)
+void encode_struct(ParameterEncoder* encoder, const ACL& value)
 {
     encoder->EncodeUInt8Value(value.AclRevision);
     encoder->EncodeUInt8Value(value.Sbz1);
@@ -96,7 +97,7 @@ void encode_struct(format::ParameterEncoder* encoder, const ACL& value)
     encoder->EncodeUInt16Value(value.Sbz2);
 }
 
-void encode_struct(format::ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value)
+void encode_struct(ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value)
 {
     encoder->EncodeUInt8Value(value.Revision);
     encoder->EncodeUInt8Value(value.Sbz1);
@@ -131,11 +132,12 @@ void encode_struct(format::ParameterEncoder* encoder, const SECURITY_DESCRIPTOR&
     encode_struct_ptr(encoder, value.Dacl);
 }
 
-void encode_struct(format::ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value)
+void encode_struct(ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value)
 {
     encoder->EncodeUInt32Value(value.nLength);
     encode_struct_ptr(encoder, reinterpret_cast<SECURITY_DESCRIPTOR*>(value.lpSecurityDescriptor));
     encoder->EncodeInt32Value(value.bInheritHandle);
 }
 
+BRIMSTONE_END_NAMESPACE(encode)
 BRIMSTONE_END_NAMESPACE(brimstone)

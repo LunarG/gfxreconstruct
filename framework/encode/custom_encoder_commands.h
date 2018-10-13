@@ -14,17 +14,17 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_CUSTOM_ENCODER_COMMANDS_H
-#define BRIMSTONE_FORMAT_CUSTOM_ENCODER_COMMANDS_H
+#ifndef BRIMSTONE_ENCODE_CUSTOM_ENCODER_COMMANDS_H
+#define BRIMSTONE_ENCODE_CUSTOM_ENCODER_COMMANDS_H
 
 #include "util/defines.h"
 #include "format/api_call_id.h"
-#include "format/trace_manager.h"
+#include "encode/trace_manager.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(encode)
 
-template <ApiCallId Id>
+template <format::ApiCallId Id>
 struct CustomEncoderPreCall
 {
     template <typename... Args>
@@ -33,7 +33,7 @@ struct CustomEncoderPreCall
     }
 };
 
-template <ApiCallId Id>
+template <format::ApiCallId Id>
 struct CustomEncoderPostCall
 {
     template <typename... Args>
@@ -49,7 +49,7 @@ struct CustomEncoderPostCall
 
 // Dispatch custom command for window resize command generation.
 template <>
-struct CustomEncoderPreCall<ApiCallId_vkCreateSwapchainKHR>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkCreateSwapchainKHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -60,7 +60,7 @@ struct CustomEncoderPreCall<ApiCallId_vkCreateSwapchainKHR>
 
 // Dispatch custom commands for fill memory command generation.
 template <>
-struct CustomEncoderPostCall<ApiCallId_vkAllocateMemory>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkAllocateMemory>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, VkResult result, Args... args)
@@ -70,7 +70,7 @@ struct CustomEncoderPostCall<ApiCallId_vkAllocateMemory>
 };
 
 template <>
-struct CustomEncoderPostCall<ApiCallId_vkMapMemory>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkMapMemory>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, VkResult result, Args... args)
@@ -80,7 +80,7 @@ struct CustomEncoderPostCall<ApiCallId_vkMapMemory>
 };
 
 template <>
-struct CustomEncoderPreCall<ApiCallId_vkFlushMappedMemoryRanges>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkFlushMappedMemoryRanges>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -90,7 +90,7 @@ struct CustomEncoderPreCall<ApiCallId_vkFlushMappedMemoryRanges>
 };
 
 template <>
-struct CustomEncoderPreCall<ApiCallId_vkUnmapMemory>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkUnmapMemory>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -100,7 +100,7 @@ struct CustomEncoderPreCall<ApiCallId_vkUnmapMemory>
 };
 
 template <>
-struct CustomEncoderPreCall<ApiCallId_vkFreeMemory>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkFreeMemory>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -110,7 +110,7 @@ struct CustomEncoderPreCall<ApiCallId_vkFreeMemory>
 };
 
 template <>
-struct CustomEncoderPreCall<ApiCallId_vkQueueSubmit>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkQueueSubmit>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -120,7 +120,7 @@ struct CustomEncoderPreCall<ApiCallId_vkQueueSubmit>
 };
 
 template <>
-struct CustomEncoderPostCall<ApiCallId_vkCreateDescriptorUpdateTemplate>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkCreateDescriptorUpdateTemplate>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -130,7 +130,7 @@ struct CustomEncoderPostCall<ApiCallId_vkCreateDescriptorUpdateTemplate>
 };
 
 template <>
-struct CustomEncoderPostCall<ApiCallId_vkCreateDescriptorUpdateTemplateKHR>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkCreateDescriptorUpdateTemplateKHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -140,7 +140,7 @@ struct CustomEncoderPostCall<ApiCallId_vkCreateDescriptorUpdateTemplateKHR>
 };
 
 template <>
-struct CustomEncoderPreCall<ApiCallId_vkDestroyDescriptorUpdateTemplate>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkDestroyDescriptorUpdateTemplate>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -150,7 +150,7 @@ struct CustomEncoderPreCall<ApiCallId_vkDestroyDescriptorUpdateTemplate>
 };
 
 template <>
-struct CustomEncoderPreCall<ApiCallId_vkDestroyDescriptorUpdateTemplateKHR>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkDestroyDescriptorUpdateTemplateKHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -159,7 +159,7 @@ struct CustomEncoderPreCall<ApiCallId_vkDestroyDescriptorUpdateTemplateKHR>
     }
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(encode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_CUSTOM_ENCODER_COMMANDS_H
+#endif // BRIMSTONE_ENCODE_CUSTOM_ENCODER_COMMANDS_H

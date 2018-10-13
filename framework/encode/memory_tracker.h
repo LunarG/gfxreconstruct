@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_MEMORY_TRACKER_H
-#define BRIMSTONE_FORMAT_MEMORY_TRACKER_H
+#ifndef BRIMSTONE_ENCODE_MEMORY_TRACKER_H
+#define BRIMSTONE_ENCODE_MEMORY_TRACKER_H
 
 #include <functional>
 #include <unordered_map>
@@ -25,7 +25,7 @@
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(encode)
 
 class MemoryTracker
 {
@@ -65,7 +65,7 @@ class MemoryTracker
     std::unordered_map<VkDeviceMemory, EntryInfo> mapped_memory_;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(encode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_MEMORY_TRACKER_H
+#endif // BRIMSTONE_ENCODE_MEMORY_TRACKER_H

@@ -22,8 +22,8 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
-#include "format/parameter_encoder.h"
-#include "format/trace_manager.h"
+#include "encode/parameter_encoder.h"
+#include "encode/trace_manager.h"
 
 #if defined(CreateSemaphore)
 #undef CreateSemaphore
@@ -49,7 +49,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice p
 
 bool init_layer();
 void destroy_layer();
-format::TraceManager* get_trace_manager();
+encode::TraceManager* get_trace_manager();
 
 void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
 void init_device_table(VkDevice device, PFN_vkGetDeviceProcAddr gpa);

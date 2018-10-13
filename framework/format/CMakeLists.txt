@@ -4,15 +4,16 @@ target_sources(brimstone_format
                PRIVATE
                    api_call_id.h
                    custom_struct_decoders.h
+                   custom_struct_decoders.cpp
                    custom_struct_decoders_forward.h
-                   custom_struct_encoders.h
-                   custom_encoder_commands.h
                    decoder.h
+                   decompress_decoder.h
+                   decompress_decoder.cpp
                    descriptor_update_template_decoder.h
+                   descriptor_update_template_decoder.cpp
                    file_processor.h
+                   file_processor.cpp
                    format.h
-                   memory_tracker.h
-                   parameter_encoder.h
                    platform_types.h
                    pnext_node.h
                    pnext_null_node.h
@@ -23,38 +24,28 @@ target_sources(brimstone_format
                    string_decoder.h
                    struct_pointer_decoder.h
                    struct_pointer_decoder_nvx.h
-                   struct_pointer_encoder.h
-                   trace_manager.h
                    value_decoder.h
                    vulkan_ascii_consumer_base.h
-                   vulkan_replay_consumer_base.h
+                   vulkan_ascii_consumer_base.cpp
                    vulkan_consumer_base.h
                    vulkan_decoder_base.h
+                   vulkan_decoder_base.cpp
                    vulkan_enum_util.h
                    vulkan_object_mapper.h
-                   window.h
-                   decompress_decoder.h
-                   custom_struct_decoders.cpp
-                   custom_struct_encoders.cpp
-                   descriptor_update_template_decoder.cpp
-                   file_processor.cpp
-                   memory_tracker.cpp
-                   trace_manager.cpp
-                   vulkan_ascii_consumer_base.cpp
+                   vulkan_replay_consumer_base.h
                    vulkan_replay_consumer_base.cpp
-                   vulkan_decoder_base.cpp
-                   decompress_decoder.cpp
+                   window.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
               )
 
 target_include_directories(brimstone_format

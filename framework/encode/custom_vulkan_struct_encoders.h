@@ -14,29 +14,31 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_CUSTOM_STRUCT_ENCODERS_H
-#define BRIMSTONE_CUSTOM_STRUCT_ENCODERS_H
+#ifndef BRIMSTONE_ENCODE_CUSTOM_STRUCT_ENCODERS_H
+#define BRIMSTONE_ENCODE_CUSTOM_STRUCT_ENCODERS_H
 
 #include "vulkan/vulkan.h"
 
-#include "format/parameter_encoder.h"
+#include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+BRIMSTONE_BEGIN_NAMESPACE(encode)
 
 // Unions.
-void encode_struct(format::ParameterEncoder* encoder, const VkClearColorValue& value);
-void encode_struct(format::ParameterEncoder* encoder, const VkClearValue& value);
+void encode_struct(encode::ParameterEncoder* encoder, const VkClearColorValue& value);
+void encode_struct(encode::ParameterEncoder* encoder, const VkClearValue& value);
 
 // Vulkan structures that require special processing that the code generator cannot infer from the XML registry.
-void encode_struct(format::ParameterEncoder* encoder, const VkObjectTableEntryNVX* value);
+void encode_struct(encode::ParameterEncoder* encoder, const VkObjectTableEntryNVX* value);
 
 // Platform defined structures that are external to Vulkan.
-void encode_struct(format::ParameterEncoder* encoder, const ACL& value);
-void encode_struct(format::ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value);
-void encode_struct(format::ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value);
+void encode_struct(encode::ParameterEncoder* encoder, const ACL& value);
+void encode_struct(encode::ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value);
+void encode_struct(encode::ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value);
 
+BRIMSTONE_END_NAMESPACE(encode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_CUSTOM_STRUCT_ENCODERS_H
+#endif // BRIMSTONE_ENCODE_CUSTOM_STRUCT_ENCODERS_H
