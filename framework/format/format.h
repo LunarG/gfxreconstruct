@@ -41,31 +41,6 @@ typedef uint64_t AddressEncodeType;
 
 typedef HandleEncodeType HandleId;
 
-// Utilities for converting API handles to the HandleId type.
-template <typename T>
-typename std::enable_if<std::is_pointer<T>::value, HandleId>::type ToHandleId(const T& handle)
-{
-    return reinterpret_cast<uint64_t>(handle);
-}
-
-template <typename T>
-typename std::enable_if<!std::is_pointer<T>::value, HandleId>::type ToHandleId(const T& handle)
-{
-    return static_cast<uint64_t>(handle);
-}
-
-template <typename T>
-typename std::enable_if<std::is_pointer<T>::value, T>::type FromHandleId(HandleId id)
-{
-    return reinterpret_cast<T>(id);
-}
-
-template <typename T>
-typename std::enable_if<!std::is_pointer<T>::value, T>::type FromHandleId(HandleId id)
-{
-    return static_cast<T>(id);
-}
-
 // clang-format off
 enum BlockType : uint32_t
 {

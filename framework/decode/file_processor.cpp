@@ -20,6 +20,7 @@
 #include "util/logging.h"
 #include "util/platform.h"
 #include "decode/file_processor.h"
+#include "format/format_util.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)
@@ -162,6 +163,11 @@ bool FileProcessor::ReadFileHeader()
     bool success = false;
 
     if (ReadBytes(&file_header_, sizeof(file_header_)))
+    {
+        success = format::ValidateFileHeader(file_header_);
+    }
+
+    if (success)
     {
         file_options_.resize(file_header_.num_options);
 
