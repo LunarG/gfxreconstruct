@@ -17,6 +17,7 @@
 #include <cassert>
 
 #include "encode/trace_manager.h"
+#include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/platform.h"
