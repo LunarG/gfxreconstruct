@@ -14,18 +14,18 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_PNEXT_NULL_NODE_H
-#define BRIMSTONE_FORMAT_PNEXT_NULL_NODE_H
+#ifndef BRIMSTONE_DECODE_PNEXT_NULL_NODE_H
+#define BRIMSTONE_DECODE_PNEXT_NULL_NODE_H
 
 #include <cassert>
 #include <memory>
 
 #include "util/defines.h"
 #include "format/format.h"
-#include "format/pnext_node.h"
+#include "decode/pnext_node.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class PNextNullNode : public PNextNode
 {
@@ -34,7 +34,11 @@ class PNextNullNode : public PNextNode
 
     virtual ~PNextNullNode() {}
 
-    virtual uint32_t GetAttributeMask() const { return (kIsStruct | kIsSingle | kIsNull); }
+    virtual uint32_t GetAttributeMask() const
+    {
+        return (format::PointerAttributes::kIsStruct | format::PointerAttributes::kIsSingle |
+                format::PointerAttributes::kIsNull);
+    }
 
     virtual uint64_t GetAddress() const { return 0; }
 
@@ -43,7 +47,7 @@ class PNextNullNode : public PNextNode
     virtual size_t Decode(const uint8_t*, size_t) { return 0; };
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_PNEXT_NULL_NODE_H
+#endif // BRIMSTONE_DECODE_PNEXT_NULL_NODE_H

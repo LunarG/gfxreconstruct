@@ -15,10 +15,10 @@
 */
 
 #include "util/platform.h"
-#include "format/vulkan_ascii_consumer_base.h"
+#include "decode/vulkan_ascii_consumer_base.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() :
     m_file(nullptr)
@@ -55,10 +55,10 @@ void VulkanAsciiConsumerBase::Destroy()
     }
 }
 
-void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(HandleId device,
-                                                                    HandleId descriptorSet,
-                                                                    HandleId descriptorUpdateTemplate,
-                                                                    const DescriptorUpdateTemplateDecoder& pData)
+void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
+                                                                        format::HandleId descriptorSet,
+                                                                        format::HandleId descriptorUpdateTemplate,
+                                                                        const DescriptorUpdateTemplateDecoder& pData)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(device);
     BRIMSTONE_UNREFERENCED_PARAMETER(descriptorSet);
@@ -67,11 +67,12 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(HandleId
     fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplate");
 }
 
-void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
-                                                                        HandleId descriptorUpdateTemplate,
-                                                                        HandleId layout,
-                                                                        uint32_t set,
-                                                                        const DescriptorUpdateTemplateDecoder& pData)
+void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
+    format::HandleId                       commandBuffer,
+    format::HandleId                       descriptorUpdateTemplate,
+    format::HandleId                       layout,
+    uint32_t                               set,
+    const DescriptorUpdateTemplateDecoder& pData)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(commandBuffer);
     BRIMSTONE_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
@@ -81,10 +82,10 @@ void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(Hand
     fprintf(m_file, "%s\n", "vkCmdPushDescriptorSetWithTemplateKHR");
 }
 
-void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId device,
-                                                                       HandleId descriptorSet,
-                                                                       HandleId descriptorUpdateTemplate,
-                                                                       const DescriptorUpdateTemplateDecoder& pData)
+void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
+                                                                           format::HandleId descriptorSet,
+                                                                           format::HandleId descriptorUpdateTemplate,
+                                                                           const DescriptorUpdateTemplateDecoder& pData)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(device);
     BRIMSTONE_UNREFERENCED_PARAMETER(descriptorSet);
@@ -95,8 +96,8 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(Handl
 
 void VulkanAsciiConsumerBase::Process_vkRegisterObjectsNVX(
     VkResult                                                   returnValue,
-    HandleId                                                   device,
-    HandleId                                                   objectTable,
+    format::HandleId                                           device,
+    format::HandleId                                           objectTable,
     uint32_t                                                   objectCount,
     const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
     const PointerDecoder<uint32_t>&                            pObjectIndices)
@@ -110,5 +111,5 @@ void VulkanAsciiConsumerBase::Process_vkRegisterObjectsNVX(
     fprintf(m_file, "%s\n", "vkRegisterObjectsNVX");
 }
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)

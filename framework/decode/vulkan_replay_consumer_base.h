@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_VULKAN_REPLAY_CONSUMER_BASE_H
-#define BRIMSTONE_VULKAN_REPLAY_CONSUMER_BASE_H
+#ifndef BRIMSTONE_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
+#define BRIMSTONE_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
 
 #include <algorithm>
 #include <cassert>
@@ -28,13 +28,13 @@
 #include "util/defines.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
-#include "format/pointer_decoder.h"
-#include "format/vulkan_object_mapper.h"
-#include "format/window.h"
+#include "decode/pointer_decoder.h"
+#include "decode/vulkan_object_mapper.h"
+#include "decode/window.h"
 #include "generated/generated_vulkan_consumer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class VulkanReplayConsumerBase : public VulkanConsumer
 {
@@ -50,28 +50,28 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void
     ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
-    virtual void ProcessResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) override;
+    virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(HandleId device,
-                                                           HandleId descriptorSet,
-                                                           HandleId descriptorUpdateTemplate,
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
+                                                           format::HandleId descriptorSet,
+                                                           format::HandleId descriptorUpdateTemplate,
                                                            const DescriptorUpdateTemplateDecoder& pData) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
-                                                               HandleId descriptorUpdateTemplate,
-                                                               HandleId layout,
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
+                                                               format::HandleId descriptorUpdateTemplate,
+                                                               format::HandleId layout,
                                                                uint32_t set,
                                                                const DescriptorUpdateTemplateDecoder& pData) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId device,
-                                                              HandleId descriptorSet,
-                                                              HandleId descriptorUpdateTemplate,
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
+                                                              format::HandleId descriptorSet,
+                                                              format::HandleId descriptorUpdateTemplate,
                                                               const DescriptorUpdateTemplateDecoder& pData) override;
 
     virtual void
     Process_vkRegisterObjectsNVX(VkResult                                                   returnValue,
-                                 HandleId                                                   device,
-                                 HandleId                                                   objectTable,
+                                 format::HandleId                                                   device,
+                                 format::HandleId                                                   objectTable,
                                  uint32_t                                                   objectCount,
                                  const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
                                  const PointerDecoder<uint32_t>&                            pObjectIndices) override;
@@ -79,11 +79,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
   protected:
     const VulkanObjectMapper& GetObjectMapper() const { return object_mapper_; }
 
-    void* PreProcessExternalObject(uint64_t object_id, ApiCallId call_id, const char* call_name);
+    void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
     void  PostProcessExternalObject(const PointerDecoder<uint64_t>& object_id,
                                     void*                           object,
-                                    ApiCallId                       call_id,
+                                    format::ApiCallId               call_id,
                                     const char*                     call_name);
 
     const VkAllocationCallbacks*
@@ -118,11 +118,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     template <typename T>
-    void MapHandles(const HandleId* ids,
+    void MapHandles(const format::HandleId* ids,
                     size_t          ids_len,
                     T*              handles,
                     size_t          handles_len,
-                    T (VulkanObjectMapper::*MapFunc)(HandleId) const) const
+                    T (VulkanObjectMapper::*MapFunc)(format::HandleId) const) const
     {
         if ((ids != nullptr) && (handles != nullptr))
         {
@@ -136,11 +136,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     template <typename T>
-    void AddHandles(const HandleId* ids,
+    void AddHandles(const format::HandleId* ids,
                     size_t          ids_len,
                     const T*        handles,
                     size_t          handles_len,
-                    void (VulkanObjectMapper::*AddFunc)(HandleId, T))
+                    void (VulkanObjectMapper::*AddFunc)(format::HandleId, T))
     {
         if ((ids != nullptr) && (handles != nullptr))
         {
@@ -251,7 +251,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     MappedMemoryMap                  memory_map_;
 
   protected:
-    template <ApiCallId Id, typename Ret, typename Pfn>
+    template <format::ApiCallId Id, typename Ret, typename Pfn>
     struct Dispatcher
     {
         template <typename... Args>
@@ -271,7 +271,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkCreateInstance, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateInstance, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -284,7 +284,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkCreateDevice, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateDevice, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -297,7 +297,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkWaitForFences, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkWaitForFences, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -309,7 +309,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkGetFenceStatus, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetFenceStatus, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -321,7 +321,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkGetEventStatus, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetEventStatus, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -333,7 +333,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkGetQueryPoolResults, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetQueryPoolResults, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer,
@@ -347,7 +347,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkMapMemory, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkMapMemory, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -360,7 +360,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkUnmapMemory, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkUnmapMemory, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkUnmapMemory func, Args... args)
@@ -371,7 +371,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkFreeMemory, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkFreeMemory, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkFreeMemory func, Args... args)
@@ -382,7 +382,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkCreateDescriptorUpdateTemplate, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateDescriptorUpdateTemplate, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*            consumer,
@@ -396,7 +396,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkCreateDescriptorUpdateTemplateKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateDescriptorUpdateTemplateKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*               consumer,
@@ -410,7 +410,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkCreateWin32SurfaceKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateWin32SurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*   consumer,
@@ -425,7 +425,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkGetPhysicalDeviceWin32PresentationSupportKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetPhysicalDeviceWin32PresentationSupportKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*                          consumer,
@@ -438,7 +438,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkCreateXcbSurfaceKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateXcbSurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer,
@@ -453,7 +453,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*                        consumer,
@@ -466,7 +466,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkCreateWaylandSurfaceKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateWaylandSurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*     consumer,
@@ -481,7 +481,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*                            consumer,
@@ -494,7 +494,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<ApiCallId_vkDestroySurfaceKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCallId_vkDestroySurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkDestroySurfaceKHR func, Args... args)
@@ -505,7 +505,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_VULKAN_REPLAY_CONSUMER_BASE_H
+#endif // BRIMSTONE_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H

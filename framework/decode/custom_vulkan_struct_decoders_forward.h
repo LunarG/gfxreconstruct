@@ -14,14 +14,14 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
-#define BRIMSTONE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
+#ifndef BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
+#define BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
 
 #include "format/platform_types.h"
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 // Decoded unions.
 struct Decoded_VkClearColorValue;
@@ -42,7 +42,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wra
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper);
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper);
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
+#endif // BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H

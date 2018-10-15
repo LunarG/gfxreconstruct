@@ -22,12 +22,12 @@
 
 #include "util/logging.h"
 #include "util/platform.h"
-#include "format/descriptor_update_template_decoder.h"
-#include "format/vulkan_enum_util.h"
-#include "format/vulkan_replay_consumer_base.h"
+#include "decode/descriptor_update_template_decoder.h"
+#include "decode/vulkan_enum_util.h"
+#include "decode/vulkan_replay_consumer_base.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 const int32_t  kDefaultWindowPositionX = 0;
 const int32_t  kDefaultWindowPositionY = 0;
@@ -93,7 +93,7 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
     }
 }
 
-void VulkanReplayConsumerBase::ProcessResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height)
+void VulkanReplayConsumerBase::ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
 {
     // We need to find the surface associated with this ID, and then lookup its window.
     VkSurfaceKHR surface = object_mapper_.MapVkSurfaceKHR(surface_id);
@@ -128,12 +128,14 @@ void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
     }
 }
 
-void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t object_id, ApiCallId call_id, const char* call_name)
+void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
+                                                         format::ApiCallId call_id,
+                                                         const char*       call_name)
 {
     void* object = nullptr;
 
-    if ((call_id == ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR) ||
-        (call_id == ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR))
+    if ((call_id == format::ApiCallId::ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR) ||
+        (call_id == format::ApiCallId::ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR))
     {
         // For window system related handles, we put the object ID into the pointer.
         // The dispatch override for the API call will use this ID as a key to the window map.
@@ -152,10 +154,10 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t object_id, Api
 
 void VulkanReplayConsumerBase::PostProcessExternalObject(const PointerDecoder<uint64_t>& object_id,
                                                      void*                           object,
-                                                     ApiCallId                       call_id,
+                                                     format::ApiCallId               call_id,
                                                      const char*                     call_name)
 {
-    if (call_id == ApiCallId_vkMapMemory)
+    if (call_id == format::ApiCallId::ApiCallId_vkMapMemory)
     {
         // Mapped memory tracking is handled by mapping the VkDeviceMemory handle to the mapped pointer, rather than
         // mapping the traced pointer address to the mapped pointer.  The memory needs to be tracked by handle so that
@@ -622,8 +624,8 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(const Descript
 
     if (texel_buffer_view_count > 0)
     {
-        VkBufferView*   texel_buffer_views = decoder.GetTexelBufferViewPointer();
-        const HandleId* handle_ids         = decoder.GetTexelBufferViewHandleIdsPointer();
+        VkBufferView*           texel_buffer_views = decoder.GetTexelBufferViewPointer();
+        const format::HandleId* handle_ids         = decoder.GetTexelBufferViewHandleIdsPointer();
 
         assert((texel_buffer_views != nullptr) && (handle_ids != nullptr));
 
@@ -635,10 +637,10 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(const Descript
     }
 }
 
-void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(HandleId device,
-                                                                     HandleId descriptorSet,
-                                                                     HandleId descriptorUpdateTemplate,
-                                                                     const DescriptorUpdateTemplateDecoder& pData)
+void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
+                                                                         format::HandleId descriptorSet,
+                                                                         format::HandleId descriptorUpdateTemplate,
+                                                                         const DescriptorUpdateTemplateDecoder& pData)
 {
     VkDevice                   in_device        = object_mapper_.MapVkDevice(device);
     VkDescriptorSet            in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
@@ -647,20 +649,22 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(HandleI
 
     MapDescriptorUpdateTemplateHandles(pData);
 
-    Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplate, void, PFN_vkUpdateDescriptorSetWithTemplate>::Dispatch(
-        this,
-        vkUpdateDescriptorSetWithTemplate,
-        in_device,
-        in_descriptorSet,
-        in_descriptorUpdateTemplate,
-        pData.GetPointer());
+    Dispatcher<format::ApiCallId::ApiCallId_vkUpdateDescriptorSetWithTemplate,
+               void,
+               PFN_vkUpdateDescriptorSetWithTemplate>::Dispatch(this,
+                                                                vkUpdateDescriptorSetWithTemplate,
+                                                                in_device,
+                                                                in_descriptorSet,
+                                                                in_descriptorUpdateTemplate,
+                                                                pData.GetPointer());
 }
 
-void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
-                                                                         HandleId descriptorUpdateTemplate,
-                                                                         HandleId layout,
-                                                                         uint32_t set,
-                                                                         const DescriptorUpdateTemplateDecoder& pData)
+void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
+    format::HandleId                       commandBuffer,
+    format::HandleId                       descriptorUpdateTemplate,
+    format::HandleId                       layout,
+    uint32_t                               set,
+    const DescriptorUpdateTemplateDecoder& pData)
 {
     VkCommandBuffer            in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate =
@@ -669,19 +673,21 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(Han
 
     MapDescriptorUpdateTemplateHandles(pData);
 
-    Dispatcher<ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR, void, PFN_vkCmdPushDescriptorSetWithTemplateKHR>::
-        Dispatch(this,
-                 vkCmdPushDescriptorSetWithTemplateKHR,
-                 in_commandBuffer,
-                 in_descriptorUpdateTemplate,
-                 in_layout,
-                 set,
-                 pData.GetPointer());
+    Dispatcher<format::ApiCallId::ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR,
+               void,
+               PFN_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(this,
+                                                                    vkCmdPushDescriptorSetWithTemplateKHR,
+                                                                    in_commandBuffer,
+                                                                    in_descriptorUpdateTemplate,
+                                                                    in_layout,
+                                                                    set,
+                                                                    pData.GetPointer());
 }
 
-void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId device,
-                                                                        HandleId descriptorSet,
-                                                                        HandleId descriptorUpdateTemplate,
+void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
+    format::HandleId                       device,
+    format::HandleId                       descriptorSet,
+    format::HandleId                       descriptorUpdateTemplate,
                                                                         const DescriptorUpdateTemplateDecoder& pData)
 {
     VkDevice                   in_device        = object_mapper_.MapVkDevice(device);
@@ -691,19 +697,20 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(Hand
 
     MapDescriptorUpdateTemplateHandles(pData);
 
-    Dispatcher<ApiCallId_vkUpdateDescriptorSetWithTemplateKHR, void, PFN_vkUpdateDescriptorSetWithTemplateKHR>::
-        Dispatch(this,
-                 vkUpdateDescriptorSetWithTemplateKHR,
-                 in_device,
-                 in_descriptorSet,
-                 in_descriptorUpdateTemplate,
-                 pData.GetPointer());
+    Dispatcher<format::ApiCallId::ApiCallId_vkUpdateDescriptorSetWithTemplateKHR,
+               void,
+               PFN_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(this,
+                                                                   vkUpdateDescriptorSetWithTemplateKHR,
+                                                                   in_device,
+                                                                   in_descriptorSet,
+                                                                   in_descriptorUpdateTemplate,
+                                                                   pData.GetPointer());
 }
 
 void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
     VkResult                                                   returnValue,
-    HandleId                                                   device,
-    HandleId                                                   objectTable,
+    format::HandleId                                           device,
+    format::HandleId                                           objectTable,
     uint32_t                                                   objectCount,
     const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
     const PointerDecoder<uint32_t>&                            pObjectIndices)
@@ -794,18 +801,19 @@ void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
         }
     }
 
-    VkResult replay_result = Dispatcher<ApiCallId_vkRegisterObjectsNVX, VkResult, PFN_vkRegisterObjectsNVX>::Dispatch(
-        this,
-        returnValue,
-        vkRegisterObjectsNVX,
-        in_device,
-        in_objectTable,
-        objectCount,
-        in_ppObjectTableEntries,
-        in_pObjectIndices);
+    VkResult replay_result =
+        Dispatcher<format::ApiCallId::ApiCallId_vkRegisterObjectsNVX, VkResult, PFN_vkRegisterObjectsNVX>::Dispatch(
+            this,
+            returnValue,
+            vkRegisterObjectsNVX,
+            in_device,
+            in_objectTable,
+            objectCount,
+            in_ppObjectTableEntries,
+            in_pObjectIndices);
 
     CheckResult("vkRegisterObjectsNVX", returnValue, replay_result);
 }
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)

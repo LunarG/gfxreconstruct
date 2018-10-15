@@ -1,4 +1,4 @@
-#include "format/file_processor.h"
+#include "decode/file_processor.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
@@ -25,7 +25,7 @@ void PrintUsage(const char* exe_name)
 
 int main(int argc, const char** argv)
 {
-    brimstone::format::FileProcessor file_processor;
+    brimstone::decode::FileProcessor file_processor;
     brimstone::util::ArgumentParser  arg_parser(argc, argv, "", "", 1);
     std::string                      filename = "brimstone_test";
     filename += BRIMSTONE_FILE_EXTENSION;
@@ -61,8 +61,8 @@ int main(int argc, const char** argv)
 
     if (file_processor.Initialize(filename))
     {
-        brimstone::format::VulkanDecoder       decoder;
-        brimstone::format::VulkanAsciiConsumer ascii_consumer;
+        brimstone::decode::VulkanDecoder       decoder;
+        brimstone::decode::VulkanAsciiConsumer ascii_consumer;
 
         ascii_consumer.Initialize(text_file_name);
         decoder.AddConsumer(&ascii_consumer);

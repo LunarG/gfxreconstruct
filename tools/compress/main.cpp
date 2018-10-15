@@ -1,8 +1,8 @@
 #include <cassert>
 
-#include "format/file_processor.h"
 #include "format/format.h"
-#include "format/decompress_decoder.h"
+#include "decode/file_processor.h"
+#include "decode/decompress_decoder.h"
 #include "util/compressor.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
@@ -32,7 +32,7 @@ void PrintUsage(const char* exe_name)
 
 int main(int argc, const char** argv)
 {
-    brimstone::format::FileProcessor file_processor;
+    brimstone::decode::FileProcessor file_processor;
     brimstone::util::CompressionType compression_type       = brimstone::util::kNone;
     std::string                      dst_compression_string = "NONE";
     bool                             print_usage            = false;
@@ -83,7 +83,7 @@ int main(int argc, const char** argv)
 
     if (file_processor.Initialize(input_file_name))
     {
-        brimstone::format::DecompressDecoder decoder;
+        brimstone::decode::DecompressDecoder decoder;
 
         if (decoder.Initialize(
                 output_file_name, file_processor.GetFileHeader(), file_processor.GetFileOptions(), compression_type))

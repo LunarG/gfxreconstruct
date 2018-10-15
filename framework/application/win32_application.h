@@ -31,7 +31,7 @@ public:
 
     virtual ~Win32Application() {}
 
-    virtual bool Initialize(format::FileProcessor* file_processor) override;
+    virtual bool Initialize(decode::FileProcessor* file_processor) override;
 
     virtual void ProcessEvents(bool wait_for_input) override;
 

@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODER_H
-#define BRIMSTONE_DECODER_H
+#ifndef BRIMSTONE_DECODE_DECODER_H
+#define BRIMSTONE_DECODE_DECODER_H
 
 #include <string>
 
@@ -26,26 +26,28 @@
 #include "format/format.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class Decoder
 {
   public:
     virtual ~Decoder() {}
 
-    virtual bool SupportsApiCall(ApiCallId id) = 0;
+    virtual bool SupportsApiCall(format::ApiCallId id) = 0;
 
-    virtual void
-    DecodeFunctionCall(ApiCallId id, const ApiCallOptions& call_options, const uint8_t* buffer, size_t buffer_size) = 0;
+    virtual void DecodeFunctionCall(format::ApiCallId             id,
+                                    const format::ApiCallOptions& call_options,
+                                    const uint8_t*                buffer,
+                                    size_t                        buffer_size) = 0;
 
     virtual void DispatchDisplayMessageCommand(const std::string& message) {}
 
     virtual void DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
 
-    virtual void DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) {}
+    virtual void DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) {}
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_DECODER_H
+#endif // BRIMSTONE_DECODE_DECODER_H

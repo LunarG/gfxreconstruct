@@ -14,22 +14,22 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_STRUCT_POINTER_DECODER_H
-#define BRIMSTONE_FORMAT_STRUCT_POINTER_DECODER_H
+#ifndef BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_H
+#define BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_H
 
 #include <cassert>
 #include <memory>
 
 #include "util/defines.h"
 #include "format/format.h"
-#include "format/pointer_decoder_base.h"
-#include "format/value_decoder.h"
+#include "decode/pointer_decoder_base.h"
+#include "decode/value_decoder.h"
 
-#include "format/custom_struct_decoders_forward.h"
+#include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 template<typename T>
 class StructPointerDecoder : public PointerDecoderBase
@@ -73,7 +73,7 @@ public:
         size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
         // We should only be decoding structs.
-        assert((GetAttributeMask() & PointerAttributes::kIsStruct) == PointerAttributes::kIsStruct);
+        assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) == format::PointerAttributes::kIsStruct);
 
         if (!IsNull() && HasData())
         {
@@ -130,7 +130,7 @@ private:
     bool                        is_memory_external_;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_STRUCT_POINTER_DECODER_H
+#endif // BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_H

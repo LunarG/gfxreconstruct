@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_STRING_ARRAY_DECODER_H
-#define BRIMSTONE_FORMAT_STRING_ARRAY_DECODER_H
+#ifndef BRIMSTONE_DECODE_STRING_ARRAY_DECODER_H
+#define BRIMSTONE_DECODE_STRING_ARRAY_DECODER_H
 
 #include <cassert>
 #include <cwchar>
@@ -23,13 +23,13 @@
 
 #include "util/defines.h"
 #include "format/format.h"
-#include "format/pointer_decoder_base.h"
-#include "format/value_decoder.h"
+#include "decode/pointer_decoder_base.h"
+#include "decode/value_decoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-template <typename CharT, PointerAttributes DecodeAttrib>
+template <typename CharT, format::PointerAttributes DecodeAttrib>
 class BasicStringArrayDecoder : public PointerDecoderBase
 {
 public:
@@ -50,8 +50,8 @@ public:
         size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
         // We should only be decoding string arrays.
-        assert((GetAttributeMask() & (DecodeAttrib | PointerAttributes::kIsArray)) ==
-               (DecodeAttrib | PointerAttributes::kIsArray));
+        assert((GetAttributeMask() & (DecodeAttrib | format::PointerAttributes::kIsArray)) ==
+               (DecodeAttrib | format::PointerAttributes::kIsArray));
 
         if (!IsNull() && HasData())
         {
@@ -67,9 +67,9 @@ public:
                 bytes_read +=
                     ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
 
-                if ((attrib & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
+                if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
                 {
-                    if ((attrib & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
+                    if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
                     {
                         bytes_read += ValueDecoder::DecodeAddress(
                             (buffer + bytes_read), (buffer_size - bytes_read), &string_addresses_[i]);
@@ -83,7 +83,7 @@ public:
 
                     CharT* value = new CharT[slen + 1];
 
-                    if (((attrib & PointerAttributes::kHasData) == PointerAttributes::kHasData))
+                    if (((attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData))
                     {
                         bytes_read += ValueDecoder::DecodeVoidArray(
                             (buffer + bytes_read), (buffer_size - bytes_read), value, slen);
@@ -132,10 +132,10 @@ private:
     std::unique_ptr<size_t[]>       string_lengths_;
 };
 
-typedef BasicStringArrayDecoder<char, PointerAttributes::kIsString>     StringArrayDecoder;
-typedef BasicStringArrayDecoder<wchar_t, PointerAttributes::kIsWString> WStringArrayDecoder;
+typedef BasicStringArrayDecoder<char, format::PointerAttributes::kIsString> StringArrayDecoder;
+typedef BasicStringArrayDecoder<wchar_t, format::PointerAttributes::kIsWString> WStringArrayDecoder;
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_POINTER_DECODER_H
+#endif // BRIMSTONE_DECODE_STRING_ARRAY_DECODER_H

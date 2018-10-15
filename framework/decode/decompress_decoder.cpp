@@ -16,16 +16,16 @@
 
 #include <cassert>
 
-#include "format/decompress_decoder.h"
+#include "decode/decompress_decoder.h"
 #include "util/logging.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-bool DecompressDecoder::Initialize(std::string                        filename,
-                                   const FileHeader&                  file_header,
-                                   const std::vector<FileOptionPair>& option_list,
-                                   util::CompressionType              target_compression_type)
+bool DecompressDecoder::Initialize(std::string                                filename,
+                                   const format::FileHeader&                  file_header,
+                                   const std::vector<format::FileOptionPair>& option_list,
+                                   util::CompressionType                      target_compression_type)
 {
     bool success = false;
 
@@ -55,26 +55,26 @@ bool DecompressDecoder::Initialize(std::string                        filename,
         }
     }
 
-    std::vector<FileOptionPair> new_option_list = option_list;
+    std::vector<format::FileOptionPair> new_option_list = option_list;
     for (auto& option : new_option_list)
     {
         switch (option.key)
         {
-            case kCompressionType:
+            case format::FileOption::kCompressionType:
                 // Change the file option to the new compression type
                 option.value = static_cast<uint32_t>(target_compression_type);
                 break;
-            case kHaveThreadId:
+            case format::FileOption::kHaveThreadId:
                 write_thread_id_ = (option.value != 0);
                 break;
-            case kHaveBeginEndTimestamp:
+            case format::FileOption::kHaveBeginEndTimestamp:
                 write_begin_end_times_ = (option.value != 0);
                 break;
-            case kOmitTextures:
-            case kOmitBuffers:
-            case kAddressEncodingSize:
-            case kObjectEncodingSize:
-            case kHandleEncodingSize:
+            case format::FileOption::kOmitTextures:
+            case format::FileOption::kOmitBuffers:
+            case format::FileOption::kAddressEncodingSize:
+            case format::FileOption::kObjectEncodingSize:
+            case format::FileOption::kHandleEncodingSize:
                 // Don't touch these values from the original file
                 break;
             default:
@@ -87,7 +87,7 @@ bool DecompressDecoder::Initialize(std::string                        filename,
     {
         bytes_written_ = 0;
         bytes_written_ += file_stream_->Write(&file_header, sizeof(file_header));
-        bytes_written_ += file_stream_->Write(new_option_list.data(), new_option_list.size() * sizeof(FileOptionPair));
+        bytes_written_ += file_stream_->Write(new_option_list.data(), new_option_list.size() * sizeof(format::FileOptionPair));
         success = true;
     }
     else
@@ -107,23 +107,23 @@ void DecompressDecoder::Destroy()
     }
 }
 
-void DecompressDecoder::DecodeFunctionCall(ApiCallId             call_id,
-                                           const ApiCallOptions& call_options,
-                                           const uint8_t*        buffer,
-                                           size_t                buffer_size)
+void DecompressDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
+                                           const format::ApiCallOptions& call_options,
+                                           const uint8_t*                buffer,
+                                           size_t                        buffer_size)
 {
     bool write_uncompressed = (decompress_mode_ == kDecompress);
 
     if (decompress_mode_ == kCompress)
     {
         // Compress the buffer with the new compression format and write to the new file.
-        CompressedFunctionCallHeader compressed_func_call_header = {};
+        format::CompressedFunctionCallHeader compressed_func_call_header = {};
         size_t                       packet_size                 = 0;
         size_t                       compressed_size = compressor_->Compress(buffer_size, buffer, &compressed_buffer_);
 
         if (0 < compressed_size && compressed_size < buffer_size)
         {
-            compressed_func_call_header.block_header.type = BlockType::kCompressedFunctionCallBlock;
+            compressed_func_call_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
             compressed_func_call_header.api_call_id       = call_id;
             compressed_func_call_header.uncompressed_size = buffer_size;
 
@@ -142,7 +142,7 @@ void DecompressDecoder::DecodeFunctionCall(ApiCallId             call_id,
             compressed_func_call_header.block_header.size = packet_size;
 
             // Write compressed function call block header.
-            bytes_written_ += file_stream_->Write(&compressed_func_call_header, sizeof(CompressedFunctionCallHeader));
+            bytes_written_ += file_stream_->Write(&compressed_func_call_header, sizeof(compressed_func_call_header));
 
             // Add optional call items
             if (write_thread_id_)
@@ -169,10 +169,10 @@ void DecompressDecoder::DecodeFunctionCall(ApiCallId             call_id,
     if (write_uncompressed)
     {
         // Buffer is currently not compressed; it was decompressed prior to this call.
-        FunctionCallHeader func_call_header = {};
-        size_t             packet_size      = 0;
+        format::FunctionCallHeader func_call_header = {};
+        size_t                     packet_size      = 0;
 
-        func_call_header.block_header.type = BlockType::kFunctionCallBlock;
+        func_call_header.block_header.type = format::BlockType::kFunctionCallBlock;
         func_call_header.api_call_id       = call_id;
 
         packet_size += sizeof(func_call_header.api_call_id) + buffer_size;
@@ -189,7 +189,7 @@ void DecompressDecoder::DecodeFunctionCall(ApiCallId             call_id,
         func_call_header.block_header.size = packet_size;
 
         // Write compressed function call block header.
-        bytes_written_ += file_stream_->Write(&func_call_header, sizeof(FunctionCallHeader));
+        bytes_written_ += file_stream_->Write(&func_call_header, sizeof(format::FunctionCallHeader));
 
         // Add optional call items
         if (write_thread_id_)
@@ -210,12 +210,12 @@ void DecompressDecoder::DecodeFunctionCall(ApiCallId             call_id,
 
 void DecompressDecoder::DispatchDisplayMessageCommand(const std::string& message)
 {
-    size_t                      message_length = message.size();
-    DisplayMessageCommandHeader message_cmd;
-    message_cmd.meta_header.block_header.type = kMetaDataBlock;
+    size_t                              message_length = message.size();
+    format::DisplayMessageCommandHeader message_cmd;
+    message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     message_cmd.meta_header.block_header.size =
         sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.message_size) + message_length;
-    message_cmd.meta_header.meta_data_type = kDisplayMessageCommand;
+    message_cmd.meta_header.meta_data_type = format::MetaDataType::kDisplayMessageCommand;
     message_cmd.message_size               = message_length;
     {
         bytes_written_ += file_stream_->Write(&message_cmd, sizeof(message_cmd));
@@ -230,12 +230,12 @@ void DecompressDecoder::DispatchFillMemoryCommand(uint64_t       memory_id,
 {
     // NOTE: Don't apply the offset to the write_address here since it's coming from the file_processor
     //       at the start of the stream.  We only need to record the writing offset for future info.
-    FillMemoryCommandHeader fill_cmd;
-    const uint8_t*          write_address = static_cast<const uint8_t*>(data);
-    size_t                  write_size    = size;
+    format::FillMemoryCommandHeader fill_cmd;
+    const uint8_t*                  write_address = static_cast<const uint8_t*>(data);
+    size_t                          write_size    = size;
 
-    fill_cmd.meta_header.block_header.type = kMetaDataBlock;
-    fill_cmd.meta_header.meta_data_type    = kFillMemoryCommand;
+    fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
     fill_cmd.memory_id                     = memory_id;
     fill_cmd.memory_offset                 = offset;
     fill_cmd.memory_size                   = size;
@@ -247,7 +247,7 @@ void DecompressDecoder::DispatchFillMemoryCommand(uint64_t       memory_id,
         {
             // We don't have a special header for compressed fill commands because the header always includes
             // the uncompressed size, so we just change the type to indicate the data is compressed.
-            fill_cmd.meta_header.block_header.type = kCompressedMetaDataBlock;
+            fill_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
 
             write_address = compressed_buffer_.data();
             write_size    = compressed_size;
@@ -267,14 +267,14 @@ void DecompressDecoder::DispatchFillMemoryCommand(uint64_t       memory_id,
     }
 }
 
-void DecompressDecoder::DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height)
+void DecompressDecoder::DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
 {
-    ResizeWindowCommand resize_cmd;
-    resize_cmd.meta_header.block_header.type = kMetaDataBlock;
+    format::ResizeWindowCommand resize_cmd;
+    resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
                                                sizeof(resize_cmd.surface_id) + sizeof(resize_cmd.width) +
                                                sizeof(resize_cmd.height);
-    resize_cmd.meta_header.meta_data_type = kResizeWindowCommand;
+    resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
     resize_cmd.surface_id                 = surface_id;
     resize_cmd.width                      = width;
     resize_cmd.height                     = height;
@@ -284,5 +284,5 @@ void DecompressDecoder::DispatchResizeWindowCommand(HandleId surface_id, uint32_
     }
 }
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)

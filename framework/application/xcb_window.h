@@ -19,7 +19,7 @@
 
 #include <xcb/xcb.h>
 
-#include "format/window.h"
+#include "decode/window.h"
 #include "application/xcb_application.h"
 
 #include "util/defines.h"
@@ -27,7 +27,7 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
-class XcbWindow : public format::Window
+class XcbWindow : public decode::Window
 {
   public:
     enum HandleId : uint32_t
@@ -115,14 +115,14 @@ class XcbWindow : public format::Window
     xcb_atom_t      state_maximized_vert_atom_;
 };
 
-class XcbWindowFactory : public format::WindowFactory
+class XcbWindowFactory : public decode::WindowFactory
 {
   public:
     XcbWindowFactory(XcbApplication* application);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_XCB_SURFACE_EXTENSION_NAME; }
 
-    virtual format::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
+    virtual decode::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                           uint32_t         queue_family_index) override;

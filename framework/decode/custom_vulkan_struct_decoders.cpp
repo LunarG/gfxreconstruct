@@ -16,12 +16,12 @@
 
 #include <cassert>
 
-#include "format/custom_struct_decoders.h"
-#include "format/value_decoder.h"
+#include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/value_decoder.h"
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper)
 {
@@ -139,5 +139,5 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY
     return bytes_read;
 }
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)

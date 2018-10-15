@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_VULKAN_DECODER_BASE_H
-#define BRIMSTONE_VULKAN_DECODER_BASE_H
+#ifndef BRIMSTONE_DECODE_VULKAN_DECODER_BASE_H
+#define BRIMSTONE_DECODE_VULKAN_DECODER_BASE_H
 
 #include <algorithm>
 #include <vector>
@@ -25,12 +25,12 @@
 #include "util/defines.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
-#include "format/decoder.h"
 #include "format/platform_types.h"
+#include "decode/decoder.h"
 #include "generated/generated_vulkan_consumer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class VulkanDecoderBase : public Decoder
 {
@@ -43,19 +43,19 @@ public:
 
     void RemoveConsumer(VulkanConsumer* consumer) { consumers_.erase(std::remove(consumers_.begin(), consumers_.end(), consumer)); }
 
-    virtual bool SupportsApiCall(ApiCallId call_id) override { return ((call_id >= 0x1000) && (call_id <= 0x112b)) ? true : false; }
+    virtual bool SupportsApiCall(format::ApiCallId call_id) override { return ((call_id >= 0x1000) && (call_id <= 0x112b)) ? true : false; }
 
-    virtual void DecodeFunctionCall(ApiCallId             call_id,
-                                    const ApiCallOptions& call_options,
-                                    const uint8_t*        parameter_buffer,
-                                    size_t                buffer_size) override;
+    virtual void DecodeFunctionCall(format::ApiCallId             call_id,
+                                    const format::ApiCallOptions& call_options,
+                                    const uint8_t*                parameter_buffer,
+                                    size_t                        buffer_size) override;
 
     virtual void DispatchDisplayMessageCommand(const std::string& message) override;
 
     virtual void
     DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
-    virtual void DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) override;
+    virtual void DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
 
 protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
@@ -73,7 +73,7 @@ private:
     std::vector<VulkanConsumer*>        consumers_;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_VULKAN_DECODER_BASE_H
+#endif // BRIMSTONE_DECODE_VULKAN_DECODER_BASE_H

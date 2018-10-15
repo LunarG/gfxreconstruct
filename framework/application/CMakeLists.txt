@@ -14,7 +14,10 @@ target_include_directories(brimstone_application
                                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
 
 target_link_libraries(brimstone_application
+                      brimstone_decode
                       brimstone_format
+                      brimstone_util
+                      volk
                       vulkan_registry
                       platform_specific
                       $<$<BOOL:${XCB_FOUND}>:${XCB_LIBRARY}>

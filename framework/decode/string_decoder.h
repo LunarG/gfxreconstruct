@@ -14,21 +14,21 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_STRING_DECODER_H
-#define BRIMSTONE_FORMAT_STRING_DECODER_H
+#ifndef BRIMSTONE_DECODE_STRING_DECODER_H
+#define BRIMSTONE_DECODE_STRING_DECODER_H
 
 #include <cassert>
 #include <cwchar>
 
 #include "util/defines.h"
 #include "format/format.h"
-#include "format/pointer_decoder_base.h"
-#include "format/value_decoder.h"
+#include "decode/pointer_decoder_base.h"
+#include "decode/value_decoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-template <typename CharT, PointerAttributes DecodeAttrib>
+template <typename CharT, format::PointerAttributes DecodeAttrib>
 class BasicStringDecoder : public PointerDecoderBase
 {
 public:
@@ -58,7 +58,7 @@ public:
 
         // We should only be decoding individual strings.
         assert((GetAttributeMask() & DecodeAttrib) == DecodeAttrib);
-        assert((GetAttributeMask() & PointerAttributes::kIsArray) != PointerAttributes::kIsArray);
+        assert((GetAttributeMask() & format::PointerAttributes::kIsArray) != format::PointerAttributes::kIsArray);
 
         if (!IsNull() && HasData())
         {
@@ -112,10 +112,10 @@ public:
     bool    is_memory_external_;
 };
 
-typedef BasicStringDecoder<char, PointerAttributes::kIsString>     StringDecoder;
-typedef BasicStringDecoder<wchar_t, PointerAttributes::kIsWString> WStringDecoder;
+typedef BasicStringDecoder<char, format::PointerAttributes::kIsString>     StringDecoder;
+typedef BasicStringDecoder<wchar_t, format::PointerAttributes::kIsWString> WStringDecoder;
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_STRING_DECODER_H
+#endif // BRIMSTONE_DECODE_STRING_DECODER_H

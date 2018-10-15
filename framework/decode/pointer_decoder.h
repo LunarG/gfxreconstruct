@@ -14,19 +14,19 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_POINTER_DECODER_H
-#define BRIMSTONE_FORMAT_POINTER_DECODER_H
+#ifndef BRIMSTONE_DECODE_POINTER_DECODER_H
+#define BRIMSTONE_DECODE_POINTER_DECODER_H
 
 #include <cassert>
 
 #include "util/defines.h"
 #include "util/logging.h"
 #include "format/format.h"
-#include "format/pointer_decoder_base.h"
-#include "format/value_decoder.h"
+#include "decode/pointer_decoder_base.h"
+#include "decode/value_decoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 template<typename T>
 class PointerDecoder : public PointerDecoderBase
@@ -52,27 +52,29 @@ public:
         }
     }
 
-    size_t DecodeInt32(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<int32_t>(buffer, buffer_size); }
-    size_t DecodeUInt32(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<uint32_t>(buffer, buffer_size); }
-    size_t DecodeInt64(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<int64_t>(buffer, buffer_size); }
-    size_t DecodeUInt64(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<uint64_t>(buffer, buffer_size); }
-    size_t DecodeFloat(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<float>(buffer, buffer_size); }
-    size_t DecodeVkBool32(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<VkBool32>(buffer, buffer_size); }
+    // clang-format off
+    size_t DecodeInt32(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<int32_t>(buffer, buffer_size); }
+    size_t DecodeUInt32(const uint8_t* buffer, size_t buffer_size)       { return DecodeFrom<uint32_t>(buffer, buffer_size); }
+    size_t DecodeInt64(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<int64_t>(buffer, buffer_size); }
+    size_t DecodeUInt64(const uint8_t* buffer, size_t buffer_size)       { return DecodeFrom<uint64_t>(buffer, buffer_size); }
+    size_t DecodeFloat(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<float>(buffer, buffer_size); }
+    size_t DecodeVkBool32(const uint8_t* buffer, size_t buffer_size)     { return DecodeFrom<VkBool32>(buffer, buffer_size); }
 
     // Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
-    size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<AddressEncodeType>(buffer, buffer_size); }
+    size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)      { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }
 
     // Decode for array of bytes.
-    size_t DecodeUInt8(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<uint8_t>(buffer, buffer_size); }
-    size_t DecodeVoid(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<uint8_t>(buffer, buffer_size); }
+    size_t DecodeUInt8(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<uint8_t>(buffer, buffer_size); }
+    size_t DecodeVoid(const uint8_t* buffer, size_t buffer_size)         { return DecodeFrom<uint8_t>(buffer, buffer_size); }
 
     // Decode for special types that may require conversion.
-    size_t DecodeEnum(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<EnumEncodeType>(buffer, buffer_size); }
-    size_t DecodeFlags(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<FlagsEncodeType>(buffer, buffer_size); }
-    size_t DecodeVkSampleMask(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<SampleMaskEncodeType>(buffer, buffer_size); }
-    size_t DecodeHandleId(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<HandleEncodeType>(buffer, buffer_size); }
-    size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<DeviceSizeEncodeType>(buffer, buffer_size); }
-    size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<SizeTEncodeType>(buffer, buffer_size); }
+    size_t DecodeEnum(const uint8_t* buffer, size_t buffer_size)         { return DecodeFrom<format::EnumEncodeType>(buffer, buffer_size); }
+    size_t DecodeFlags(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::FlagsEncodeType>(buffer, buffer_size); }
+    size_t DecodeVkSampleMask(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::SampleMaskEncodeType>(buffer, buffer_size); }
+    size_t DecodeHandleId(const uint8_t* buffer, size_t buffer_size)     { return DecodeFrom<format::HandleEncodeType>(buffer, buffer_size); }
+    size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
+    size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
+    // clang-format on
 
 private:
     template <typename SrcT>
@@ -81,8 +83,9 @@ private:
         size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
         // We should not be decoding string arrays or structs.
-        assert((GetAttributeMask() & (PointerAttributes::kIsString | PointerAttributes::kIsArray)) != (PointerAttributes::kIsString | PointerAttributes::kIsArray));
-        assert((GetAttributeMask() & PointerAttributes::kIsStruct) != PointerAttributes::kIsStruct);
+        assert((GetAttributeMask() & (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray)) !=
+               (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray));
+        assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) != format::PointerAttributes::kIsStruct);
 
         if (!IsNull() && HasData())
         {
@@ -132,7 +135,7 @@ private:
     bool    is_memory_external_;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_POINTER_DECODER_H
+#endif // BRIMSTONE_DECODE_POINTER_DECODER_H

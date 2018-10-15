@@ -54,12 +54,12 @@ class VulkanAsciiConsumerBodyGenerator(BaseGenerator):
         write('#include "generated/generated_vulkan_ascii_consumer.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
     # Method override
     def endFile(self):
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_END_NAMESPACE(decode)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass

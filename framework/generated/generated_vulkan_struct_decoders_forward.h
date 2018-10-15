@@ -29,7 +29,7 @@
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 struct Decoded_VkApplicationInfo;
 struct Decoded_VkInstanceCreateInfo;
@@ -833,7 +833,7 @@ size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decode
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkVertexInputBindingDivisorDescriptionEXT* wrapper);
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineVertexInputDivisorStateCreateInfoEXT* wrapper);
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
 #endif

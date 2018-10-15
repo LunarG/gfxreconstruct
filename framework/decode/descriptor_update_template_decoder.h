@@ -14,17 +14,18 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
-#define BRIMSTONE_FORMAT_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
+#ifndef BRIMSTONE_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
+#define BRIMSTONE_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
 
 #include <memory>
 
 #include "util/defines.h"
-#include "format/pointer_decoder_base.h"
+#include "decode/pointer_decoder_base.h"
+#include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
 {
@@ -41,7 +42,10 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
 
     const Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() const { return decoded_image_info_.get(); }
     const Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() const { return decoded_buffer_info_.get(); }
-    const HandleId* GetTexelBufferViewHandleIdsPointer() const { return decoded_texel_buffer_view_handle_ids_.get(); }
+    const format::HandleId*               GetTexelBufferViewHandleIdsPointer() const
+    {
+        return decoded_texel_buffer_view_handle_ids_.get();
+    }
 
     VkDescriptorImageInfo*  GetImageInfoPointer() const { return image_info_; }
     VkDescriptorBufferInfo* GetBufferInfoPointer() const { return buffer_info_; }
@@ -53,7 +57,7 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     std::unique_ptr<uint8_t[]>                        template_memory_;
     std::unique_ptr<Decoded_VkDescriptorImageInfo[]>  decoded_image_info_;
     std::unique_ptr<Decoded_VkDescriptorBufferInfo[]> decoded_buffer_info_;
-    std::unique_ptr<HandleId[]>                       decoded_texel_buffer_view_handle_ids_;
+    std::unique_ptr<format::HandleId[]>               decoded_texel_buffer_view_handle_ids_;
     size_t                                            image_info_count_;
     size_t                                            buffer_info_count_;
     size_t                                            texel_buffer_view_count_;
@@ -62,7 +66,7 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     VkBufferView*                                     texel_buffer_views_;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
+#endif // BRIMSTONE_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H

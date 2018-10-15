@@ -39,7 +39,7 @@ Application::~Application()
     }
 }
 
-void Application::SetFileProcessor(format::FileProcessor* file_processor)
+void Application::SetFileProcessor(decode::FileProcessor* file_processor)
 {
     file_processor_ = file_processor;
 }
@@ -72,7 +72,7 @@ bool Application::PlaySingleFrame()
     return success;
 }
 
-bool Application::RegisterWindow(format::Window* window)
+bool Application::RegisterWindow(decode::Window* window)
 {
     assert(window != nullptr);
 
@@ -87,7 +87,7 @@ bool Application::RegisterWindow(format::Window* window)
     return true;
 }
 
-bool Application::UnregisterWindow(format::Window* window)
+bool Application::UnregisterWindow(decode::Window* window)
 {
     assert(window != nullptr);
 

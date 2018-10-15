@@ -20,19 +20,14 @@
 */
 
 #include <cassert>
-#include <memory>
 
-#include "vulkan/vulkan.h"
-
-#include "util/defines.h"
-#include "format/platform_types.h"
-#include "format/pnext_node.h"
-#include "format/pnext_null_node.h"
-#include "format/pnext_typed_node.h"
+#include "decode/pnext_node.h"
+#include "decode/pnext_null_node.h"
+#include "decode/pnext_typed_node.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size,  std::unique_ptr<PNextNode>* pNext)
 {
@@ -48,14 +43,14 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
         // Peek at the pointer attribute mask to make sure we have a non-NULL value that can be decoded.
         attrib = *(reinterpret_cast<const uint32_t*>(parameter_buffer));
 
-        if ((attrib & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
+        if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
         {
             // Offset to VkStructureType, after the pointer encoding preamble.
             stype_offset = sizeof(attrib);
 
-            if ((attrib & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
+            if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
             {
-                stype_offset += sizeof(AddressEncodeType);
+                stype_offset += sizeof(format::AddressEncodeType);
             }
         }
 
@@ -515,5 +510,5 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
     return bytes_read;
 }
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)

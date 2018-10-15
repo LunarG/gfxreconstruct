@@ -16,13 +16,13 @@
 
 #include <cassert>
 
+#include "util/compressor.h"
 #include "util/logging.h"
 #include "util/platform.h"
-#include "format/file_processor.h"
-#include "util/compressor.h"
+#include "decode/file_processor.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() : file_descriptor_(nullptr), bytes_read_(0), compressor_(nullptr) {}
 
@@ -72,8 +72,8 @@ bool FileProcessor::Initialize(const std::string& filename)
 bool FileProcessor::ProcessNextFrame()
 {
     // TODO: Frame blocks in trace file.
-    bool        success = IsFileValid();
-    BlockHeader block_header;
+    bool                success = IsFileValid();
+    format::BlockHeader block_header;
 
     while (success)
     {
@@ -81,10 +81,10 @@ bool FileProcessor::ProcessNextFrame()
 
         if (success)
         {
-            if ((block_header.type == BlockType::kFunctionCallBlock) ||
-                (block_header.type == BlockType::kCompressedFunctionCallBlock))
+            if ((block_header.type == format::BlockType::kFunctionCallBlock) ||
+                (block_header.type == format::BlockType::kCompressedFunctionCallBlock))
             {
-                ApiCallId api_call_id = ApiCallId_Unknown;
+                format::ApiCallId api_call_id = format::ApiCallId::ApiCallId_Unknown;
 
                 success = ReadBytes(&api_call_id, sizeof(api_call_id));
 
@@ -103,10 +103,10 @@ bool FileProcessor::ProcessNextFrame()
                     BRIMSTONE_LOG_ERROR("Failed to read function call block header");
                 }
             }
-            else if ((block_header.type == BlockType::kMetaDataBlock) ||
-                     (block_header.type == BlockType::kCompressedMetaDataBlock))
+            else if ((block_header.type == format::BlockType::kMetaDataBlock) ||
+                     (block_header.type == format::BlockType::kCompressedMetaDataBlock))
             {
-                MetaDataType meta_type = MetaDataType::kUnknownMetaDataType;
+                format::MetaDataType meta_type = format::MetaDataType::kUnknownMetaDataType;
 
                 success = ReadBytes(&meta_type, sizeof(meta_type));
 
@@ -165,7 +165,7 @@ bool FileProcessor::ReadFileHeader()
     {
         file_options_.resize(file_header_.num_options);
 
-        size_t option_data_size = file_header_.num_options * sizeof(FileOptionPair);
+        size_t option_data_size = file_header_.num_options * sizeof(format::FileOptionPair);
 
         if (ReadBytes(file_options_.data(), option_data_size))
         {
@@ -175,29 +175,29 @@ bool FileProcessor::ReadFileHeader()
             {
                 switch (option.key)
                 {
-                case kCompressionType:
-                    enabled_options_.compression_type = static_cast<util::CompressionType>(option.value);
-                    break;
-                case kHaveThreadId:
-                    enabled_options_.record_thread_id = option.value ? true : false;
-                    break;
-                case kHaveBeginEndTimestamp:
-                    enabled_options_.record_begin_end_timestamp = option.value ? true : false;
-                    break;
-                case kOmitTextures:
-                    enabled_options_.omit_textures = option.value ? true : false;
-                    break;
-                case kOmitBuffers:
-                    enabled_options_.omit_buffers = option.value ? true : false;
-                    break;
-                case kAddressEncodingSize:
-                case kObjectEncodingSize:
-                case kHandleEncodingSize:
-                    // We currently assume all pointer/address values are encoded as 8 byte values.
-                    break;
-                default:
-                    BRIMSTONE_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
-                    break;
+                    case format::FileOption::kCompressionType:
+                        enabled_options_.compression_type = static_cast<util::CompressionType>(option.value);
+                        break;
+                    case format::FileOption::kHaveThreadId:
+                        enabled_options_.record_thread_id = option.value ? true : false;
+                        break;
+                    case format::FileOption::kHaveBeginEndTimestamp:
+                        enabled_options_.record_begin_end_timestamp = option.value ? true : false;
+                        break;
+                    case format::FileOption::kOmitTextures:
+                        enabled_options_.omit_textures = option.value ? true : false;
+                        break;
+                    case format::FileOption::kOmitBuffers:
+                        enabled_options_.omit_buffers = option.value ? true : false;
+                        break;
+                    case format::FileOption::kAddressEncodingSize:
+                    case format::FileOption::kObjectEncodingSize:
+                    case format::FileOption::kHandleEncodingSize:
+                        // We currently assume all pointer/address values are encoded as 8 byte values.
+                        break;
+                    default:
+                        BRIMSTONE_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
+                        break;
                 }
             }
         }
@@ -215,7 +215,7 @@ bool FileProcessor::ReadFileHeader()
     return success;
 }
 
-bool FileProcessor::ReadBlockHeader(BlockHeader* block_header)
+bool FileProcessor::ReadBlockHeader(format::BlockHeader* block_header)
 {
     assert(block_header != nullptr);
 
@@ -286,14 +286,14 @@ bool FileProcessor::SkipBytes(size_t skip_size)
     return success;
 }
 
-bool FileProcessor::ProcessFunctionCall(const BlockHeader& block_header, ApiCallId call_id)
+bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
 {
-    bool           success               = true;
-    size_t         parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
-    uint64_t       uncompressed_size     = 0;
-    ApiCallOptions call_options          = {};
+    bool                   success               = true;
+    size_t                 parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
+    uint64_t               uncompressed_size     = 0;
+    format::ApiCallOptions call_options          = {};
 
-    if (block_header.type == BlockType::kCompressedFunctionCallBlock)
+    if (block_header.type == format::BlockType::kCompressedFunctionCallBlock)
     {
         assert(compressor_ != nullptr);
         if (compressor_ != nullptr)
@@ -324,7 +324,7 @@ bool FileProcessor::ProcessFunctionCall(const BlockHeader& block_header, ApiCall
 
     if (success)
     {
-        if (block_header.type == BlockType::kCompressedFunctionCallBlock)
+        if (block_header.type == format::BlockType::kCompressedFunctionCallBlock)
         {
             BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
 
@@ -361,13 +361,13 @@ bool FileProcessor::ProcessFunctionCall(const BlockHeader& block_header, ApiCall
     return success;
 }
 
-bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataType meta_type)
+bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type)
 {
     bool success = true;
 
-    if (meta_type == kFillMemoryCommand)
+    if (meta_type == format::MetaDataType::kFillMemoryCommand)
     {
-        FillMemoryCommandHeader header;
+        format::FillMemoryCommandHeader header;
 
         success = ReadBytes(&header.memory_id, sizeof(header.memory_id));
         success |= ReadBytes(&header.memory_offset, sizeof(header.memory_offset));
@@ -377,7 +377,7 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
         {
             BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, header.memory_size);
 
-            if (block_header.type == BlockType::kCompressedMetaDataBlock)
+            if (block_header.type == format::BlockType::kCompressedMetaDataBlock)
             {
                 assert(compressor_ != nullptr);
                 if (compressor_ != nullptr)
@@ -414,12 +414,12 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
             }
         }
     }
-    else if (meta_type == kResizeWindowCommand)
+    else if (meta_type == format::MetaDataType::kResizeWindowCommand)
     {
         // This command does not support compression.
-        assert(block_header.type != BlockType::kCompressedMetaDataBlock);
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
 
-        ResizeWindowCommand command;
+        format::ResizeWindowCommand command;
 
         success = ReadBytes(&command.surface_id, sizeof(command.surface_id));
         success |= ReadBytes(&command.width, sizeof(command.width));
@@ -437,12 +437,12 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
             BRIMSTONE_LOG_ERROR("Failed to read resize window meta-data block");
         }
     }
-    else if (meta_type == kDisplayMessageCommand)
+    else if (meta_type == format::MetaDataType::kDisplayMessageCommand)
     {
         // This command does not support compression.
-        assert(block_header.type != BlockType::kCompressedMetaDataBlock);
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
 
-        DisplayMessageCommandHeader header;
+        format::DisplayMessageCommandHeader header;
 
         success = ReadBytes(&header.message_size, sizeof(header.message_size));
 
@@ -478,12 +478,12 @@ bool FileProcessor::ProcessMetaData(const BlockHeader& block_header, MetaDataTyp
     return success;
 }
 
-bool FileProcessor::IsFrameDelimiter(ApiCallId call_id) const
+bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
 {
     // TODO: IDs of API calls that were treated as frame delimiters by the trace layer should be in the trace file
     // header.
-    return (call_id == ApiCallId_vkQueuePresentKHR) ? true : false;
+    return (call_id == format::ApiCallId::ApiCallId_vkQueuePresentKHR) ? true : false;
 }
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)

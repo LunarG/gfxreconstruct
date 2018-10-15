@@ -43,7 +43,7 @@ class WaylandApplication : public Application
 
     struct wl_compositor* GetCompositor() const { return compositor_; }
 
-    virtual bool Initialize(format::FileProcessor* file_processor) override;
+    virtual bool Initialize(decode::FileProcessor* file_processor) override;
 
     bool RegisterWaylandWindow(WaylandWindow* window);
 

@@ -14,20 +14,20 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECOMPRESS_DECODER_H
-#define BRIMSTONE_DECOMPRESS_DECODER_H
+#ifndef BRIMSTONE_DECODE_DECOMPRESS_DECODER_H
+#define BRIMSTONE_DECODE_DECOMPRESS_DECODER_H
 
 #include <mutex>
 #include <string>
 
-#include "format/decoder.h"
+#include "decode/decoder.h"
 
 #include "util/file_output_stream.h"
 #include "util/memory_output_stream.h"
 #include "util/compressor.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 enum DecompressMode : uint32_t
 {
@@ -41,23 +41,29 @@ class DecompressDecoder : public Decoder
   public:
     virtual ~DecompressDecoder() { Destroy(); }
 
-    bool Initialize(std::string                        filename,
-                    const FileHeader&                  file_header,
-                    const std::vector<FileOptionPair>& option_list,
-                    util::CompressionType              target_compression_type);
+    bool Initialize(std::string                                filename,
+                    const format::FileHeader&                  file_header,
+                    const std::vector<format::FileOptionPair>& option_list,
+                    util::CompressionType                      target_compression_type);
+
     void Destroy();
 
-    virtual bool SupportsApiCall(ApiCallId call_id) override
+    virtual bool SupportsApiCall(format::ApiCallId call_id) override
     {
         return ((call_id >= 0x1000) && (call_id <= 0x112b)) ? true : false;
     }
-    virtual void
-    DecodeFunctionCall(ApiCallId call_id, const ApiCallOptions& call_options, const uint8_t* buffer, size_t buffer_size);
+
+    virtual void DecodeFunctionCall(format::ApiCallId             call_id,
+                                    const format::ApiCallOptions& call_options,
+                                    const uint8_t*                buffer,
+                                    size_t                        buffer_size);
 
     virtual void DispatchDisplayMessageCommand(const std::string& message) override;
+
     virtual void
                  DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
-    virtual void DispatchResizeWindowCommand(HandleId surface_id, uint32_t width, uint32_t height) override;
+
+    virtual void DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
 
     uint64_t     NumBytesWritten() { return bytes_written_; }
 
@@ -73,7 +79,7 @@ class DecompressDecoder : public Decoder
     bool                                    write_begin_end_times_;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_DECOMPRESS_DECODER_H
+#endif // BRIMSTONE_DECODE_DECOMPRESS_DECODER_H

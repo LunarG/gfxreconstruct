@@ -62,10 +62,10 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/{}"'.format(genOpts.baseClassHeader), file=self.outFile)
+        write('#include "decode/{}"'.format(genOpts.baseClassHeader), file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
         write('class {className} : public {className}Base'.format(className=genOpts.className), file=self.outFile)
         write('{', file=self.outFile)
@@ -81,7 +81,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
     def endFile(self):
         write('};', file=self.outFile)
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_END_NAMESPACE(decode)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass
