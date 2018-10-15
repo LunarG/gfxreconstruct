@@ -140,7 +140,7 @@ class VulkanObjectMapper
             }
             else
             {
-                BRIMSTONE_LOG_ERROR("Failed to map handle for object id " PRIx64, id);
+                BRIMSTONE_LOG_WARNING("Failed to map handle for object id %" PRIx64, id);
             }
         }
 
