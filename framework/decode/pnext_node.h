@@ -14,17 +14,16 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_PNEXT_NODE_H
-#define BRIMSTONE_FORMAT_PNEXT_NODE_H
+#ifndef BRIMSTONE_DECODE_PNEXT_NODE_H
+#define BRIMSTONE_DECODE_PNEXT_NODE_H
 
 #include <cassert>
 #include <memory>
 
 #include "util/defines.h"
-#include "format/format.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class PNextNode
 {
@@ -42,7 +41,7 @@ public:
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) = 0;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_PNEXT_NODE_H
+#endif // BRIMSTONE_DECODE_PNEXT_NODE_H

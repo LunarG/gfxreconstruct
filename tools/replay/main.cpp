@@ -4,11 +4,11 @@
 #include <string>
 
 #include "application/application.h"
-#include "format/file_processor.h"
+#include "decode/file_processor.h"
+#include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
-#include "format/window.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
 
@@ -52,7 +52,7 @@ int main(int argc, const char** argv)
 
     brimstone::util::logging::Init();
 
-    brimstone::format::FileProcessor file_processor;
+    brimstone::decode::FileProcessor file_processor;
     std::string                      filename;
 
     brimstone::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
@@ -69,7 +69,7 @@ int main(int argc, const char** argv)
         try
         {
             std::unique_ptr<brimstone::application::Application> application;
-            std::unique_ptr<brimstone::format::WindowFactory>    window_factory;
+            std::unique_ptr<brimstone::decode::WindowFactory>    window_factory;
 
             if (!file_processor.Initialize(filename))
             {
@@ -109,8 +109,8 @@ int main(int argc, const char** argv)
                 }
                 else
                 {
-                    brimstone::format::VulkanDecoder        decoder;
-                    brimstone::format::VulkanReplayConsumer replay_consumer(window_factory.get());
+                    brimstone::decode::VulkanDecoder        decoder;
+                    brimstone::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
 
                     replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 

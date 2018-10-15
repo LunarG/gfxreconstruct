@@ -72,7 +72,7 @@ WaylandApplication::~WaylandApplication()
     }
 }
 
-bool WaylandApplication::Initialize(format::FileProcessor* file_processor)
+bool WaylandApplication::Initialize(decode::FileProcessor* file_processor)
 {
     bool success = true;
 

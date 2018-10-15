@@ -21,8 +21,8 @@
 #include <vector>
 
 #include "util/defines.h"
-#include "format/file_processor.h"
-#include "format/window.h"
+#include "decode/file_processor.h"
+#include "decode/window.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
@@ -36,7 +36,7 @@ public:
 
     const std::string& GetName() const { return name_; }
 
-    virtual bool Initialize(format::FileProcessor* file_processor) = 0;
+    virtual bool Initialize(decode::FileProcessor* file_processor) = 0;
 
     bool IsRunning() const { return running_; }
 
@@ -48,21 +48,21 @@ public:
 
     bool PlaySingleFrame();
 
-    bool RegisterWindow(format::Window* window);
+    bool RegisterWindow(decode::Window* window);
 
-    bool UnregisterWindow(format::Window* window);
+    bool UnregisterWindow(decode::Window* window);
 
     virtual void ProcessEvents(bool wait_for_input) = 0;
 
 protected:
     void StopRunning() { running_ = false; }
 
-    void SetFileProcessor(format::FileProcessor* file_processor);
+    void SetFileProcessor(decode::FileProcessor* file_processor);
 
 private:
     // clang-format off
-    std::vector<format::Window*> windows_;          ///< List of windows that have been registered with the application.
-    format::FileProcessor*       file_processor_;   ///< The FileProcessor object responsible for decoding and processing
+    std::vector<decode::Window*> windows_;          ///< List of windows that have been registered with the application.
+    decode::FileProcessor*       file_processor_;   ///< The FileProcessor object responsible for decoding and processing
                                                     ///< capture file data.
     bool                         running_;          ///< Indicatess that the application is actively processing system
                                                     ///< events for playback.

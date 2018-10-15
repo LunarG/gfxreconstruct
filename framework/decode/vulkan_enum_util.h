@@ -14,15 +14,15 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_VULKAN_ENUM_UTIL_H
-#define BRIMSTONE_VULKAN_ENUM_UTIL_H
+#ifndef BRIMSTONE_DECODE_VULKAN_ENUM_UTIL_H
+#define BRIMSTONE_DECODE_VULKAN_ENUM_UTIL_H
 
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 BRIMSTONE_BEGIN_NAMESPACE(enumutil)
 
 const char* GetResultValueString(VkResult result)
@@ -120,7 +120,7 @@ const char* GetResultDescription(VkResult result)
 }
 
 BRIMSTONE_END_NAMESPACE(enumutil)
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONBRIMSTONE_VULKAN_ENUM_UTIL_HE_VULKAN_CONSUMER_H
+#endif // BRIMSTONE_DECODE_VULKAN_ENUM_UTIL_H

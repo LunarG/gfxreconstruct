@@ -25,10 +25,10 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
-#include "format/vulkan_decoder_base.h"
+#include "decode/vulkan_decoder_base.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class VulkanDecoder : public VulkanDecoderBase
 {
@@ -37,10 +37,10 @@ class VulkanDecoder : public VulkanDecoderBase
 
     virtual ~VulkanDecoder() { }
 
-    virtual void DecodeFunctionCall(ApiCallId             call_id,
-                                    const ApiCallOptions& call_options,
-                                    const uint8_t*        parameter_buffer,
-                                    size_t                buffer_size) override;
+    virtual void DecodeFunctionCall(format::ApiCallId             call_id,
+                                    const format::ApiCallOptions& call_options,
+                                    const uint8_t*                parameter_buffer,
+                                    size_t                        buffer_size) override;
 
   private:
     size_t Decode_vkCreateInstance(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -646,7 +646,7 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkCmdWriteBufferMarkerAMD(const uint8_t* parameter_buffer, size_t buffer_size);
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
 #endif

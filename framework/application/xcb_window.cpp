@@ -440,7 +440,7 @@ XcbWindowFactory::XcbWindowFactory(XcbApplication* application) : xcb_applicatio
     assert(application != nullptr);
 }
 
-format::Window* XcbWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* XcbWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     auto window = new XcbWindow(xcb_application_);
     window->Create(xcb_application_->GetName(), x, y, width, height);

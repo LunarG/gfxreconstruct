@@ -48,31 +48,18 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include <cassert>', file=self.outFile)
-        write('#include <memory>', file=self.outFile)
-        self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
-        self.newline()
-        write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/custom_struct_decoders.h"', file=self.outFile)
-        write('#include "format/platform_types.h"', file=self.outFile)
-        write('#include "format/pnext_node.h"', file=self.outFile)
-        write('#include "format/pointer_decoder.h"', file=self.outFile)
-        write('#include "format/string_array_decoder.h"', file=self.outFile)
-        write('#include "format/string_decoder.h"', file=self.outFile)
-        write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
-        write('#include "format/value_decoder.h"', file=self.outFile)
         self.newline()
         write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
         write('size_t decode_pnext_struct(const uint8_t* buffer, size_t buffer_size, std::unique_ptr<PNextNode>* pNext);', file=self.outFile)
 
     # Method override
     def endFile(self):
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_END_NAMESPACE(decode)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass

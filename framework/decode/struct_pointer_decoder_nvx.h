@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_STRUCT_POINTER_DECODER_NVX_H
-#define BRIMSTONE_FORMAT_STRUCT_POINTER_DECODER_NVX_H
+#ifndef BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_NVX_H
+#define BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_NVX_H
 
 #include <cassert>
 #include <memory>
@@ -24,15 +24,15 @@
 
 #include "util/defines.h"
 #include "format/format.h"
-#include "format/pointer_decoder_base.h"
-#include "format/struct_pointer_decoder.h"
-#include "format/value_decoder.h"
+#include "decode/pointer_decoder_base.h"
+#include "decode/struct_pointer_decoder.h"
+#include "decode/value_decoder.h"
 
-#include "format/custom_struct_decoders.h"
+#include "decode/custom_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 template <>
 class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecoderBase
@@ -78,8 +78,8 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
         size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
         // We should only be decoding arrays of structs.
-        assert(((GetAttributeMask() & PointerAttributes::kIsStruct) == PointerAttributes::kIsStruct) &&
-               ((GetAttributeMask() & PointerAttributes::kIsArray) == PointerAttributes::kIsArray));
+        assert(((GetAttributeMask() & format::PointerAttributes::kIsStruct) == format::PointerAttributes::kIsStruct) &&
+               ((GetAttributeMask() & format::PointerAttributes::kIsArray) == format::PointerAttributes::kIsArray));
 
         if (!IsNull() && HasData())
         {
@@ -97,9 +97,10 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
                 bytes_read += ValueDecoder::DecodeUInt32Value(
                     (buffer + bytes_read), (buffer_size - bytes_read), &struct_attributes_[i]);
 
-                if ((struct_attributes_[i] & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
+                if ((struct_attributes_[i] & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
                 {
-                    if ((struct_attributes_[i] & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
+                    if ((struct_attributes_[i] & format::PointerAttributes::kHasAddress) ==
+                        format::PointerAttributes::kHasAddress)
                     {
                         bytes_read += ValueDecoder::DecodeAddress(
                             (buffer + bytes_read), (buffer_size - bytes_read), &struct_addresses_[i]);
@@ -195,7 +196,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
     std::unique_ptr<uint64_t[]>                        struct_addresses_;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_STRUCT_POINTER_DECODER_NVX_H
+#endif // BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_NVX_H

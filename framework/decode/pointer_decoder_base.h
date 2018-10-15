@@ -14,28 +14,38 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_POINTER_DECODER_BASE_H
-#define BRIMSTONE_FORMAT_POINTER_DECODER_BASE_H
+#ifndef BRIMSTONE_DECODE_POINTER_DECODER_BASE_H
+#define BRIMSTONE_DECODE_POINTER_DECODER_BASE_H
 
 #include "util/defines.h"
 #include "format/format.h"
-#include "format/value_decoder.h"
+#include "decode/value_decoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class PointerDecoderBase
 {
 public:
-    PointerDecoderBase() : len_(0), address_(0), attrib_(PointerAttributes::kIsNull) { }
+    PointerDecoderBase() : len_(0), address_(0), attrib_(format::PointerAttributes::kIsNull) { }
 
     ~PointerDecoderBase() { }
 
-    bool IsNull() const { return ((attrib_ & PointerAttributes::kIsNull) == PointerAttributes::kIsNull) ? true : false; }
+    bool IsNull() const
+    {
+        return ((attrib_ & format::PointerAttributes::kIsNull) == format::PointerAttributes::kIsNull) ? true : false;
+    }
 
-    bool HasAddress() const { return ((attrib_ & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress) ? true : false; }
+    bool HasAddress() const
+    {
+        return ((attrib_ & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress) ? true
+                                                                                                              : false;
+    }
 
-    bool HasData() const { return ((attrib_ & PointerAttributes::kHasData) == PointerAttributes::kHasData) ? true : false; }
+    bool HasData() const
+    {
+        return ((attrib_ & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData) ? true : false;
+    }
 
     uint32_t GetAttributeMask() const { return attrib_; }
 
@@ -50,15 +60,15 @@ protected:
 
         bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib_);
 
-        if ((attrib_ & PointerAttributes::kIsNull) != PointerAttributes::kIsNull)
+        if ((attrib_ & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
         {
-            if ((attrib_ & PointerAttributes::kHasAddress) == PointerAttributes::kHasAddress)
+            if ((attrib_ & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
             {
                 bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address_);
             }
 
-            if (((attrib_ & PointerAttributes::kIsArray) == PointerAttributes::kIsArray) ||
-                ((attrib_ & PointerAttributes::kIsString) == PointerAttributes::kIsString))
+            if (((attrib_ & format::PointerAttributes::kIsArray) == format::PointerAttributes::kIsArray) ||
+                ((attrib_ & format::PointerAttributes::kIsString) == format::PointerAttributes::kIsString))
             {
                 bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &len_);
             }
@@ -77,7 +87,7 @@ private:
     uint32_t                attrib_;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_POINTER_DECODER_BASE_H
+#endif // BRIMSTONE_DECODE_POINTER_DECODER_BASE_H

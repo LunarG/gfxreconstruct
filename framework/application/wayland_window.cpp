@@ -168,7 +168,7 @@ WaylandWindowFactory::WaylandWindowFactory(WaylandApplication* application) : wa
     assert(application != nullptr);
 }
 
-format::Window*
+decode::Window*
 WaylandWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     auto window = new WaylandWindow(wayland_application_);

@@ -20,24 +20,11 @@
 */
 
 #include <cassert>
-#include <memory>
-
-#include "vulkan/vulkan.h"
-
-#include "util/defines.h"
-#include "format/custom_struct_decoders.h"
-#include "format/platform_types.h"
-#include "format/pnext_node.h"
-#include "format/pointer_decoder.h"
-#include "format/string_array_decoder.h"
-#include "format/string_decoder.h"
-#include "format/struct_pointer_decoder.h"
-#include "format/value_decoder.h"
 
 #include "generated/generated_vulkan_struct_decoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 size_t decode_pnext_struct(const uint8_t* buffer, size_t buffer_size, std::unique_ptr<PNextNode>* pNext);
 
@@ -6220,5 +6207,5 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipeli
     return bytes_read;
 }
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)

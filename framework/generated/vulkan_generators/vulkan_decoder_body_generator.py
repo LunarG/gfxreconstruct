@@ -56,17 +56,17 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('#include "util/defines.h"', file=self.outFile)
-        write('#include "format/pnext_node.h"', file=self.outFile)
-        write('#include "format/pointer_decoder.h"', file=self.outFile)
-        write('#include "format/string_array_decoder.h"', file=self.outFile)
-        write('#include "format/string_decoder.h"', file=self.outFile)
-        write('#include "format/struct_pointer_decoder.h"', file=self.outFile)
-        write('#include "format/value_decoder.h"', file=self.outFile)
+        write('#include "decode/pnext_node.h"', file=self.outFile)
+        write('#include "decode/pointer_decoder.h"', file=self.outFile)
+        write('#include "decode/string_array_decoder.h"', file=self.outFile)
+        write('#include "decode/string_decoder.h"', file=self.outFile)
+        write('#include "decode/struct_pointer_decoder.h"', file=self.outFile)
+        write('#include "decode/value_decoder.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_decoder.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
     # Method override
     def endFile(self):
@@ -74,7 +74,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         # Generate the VulkanDecoder::DecodeFunctionCall method for all of the commands processed by the generator.
         self.generateDecodeCases()
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_END_NAMESPACE(decode)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass
@@ -197,10 +197,10 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
     #
     # Generate the VulkanDecoder::DecodeFunctionCall method.
     def generateDecodeCases(self):
-        write('void VulkanDecoder::DecodeFunctionCall(ApiCallId             call_id,', file=self.outFile)
-        write('                                       const ApiCallOptions& call_options,', file=self.outFile)
-        write('                                       const uint8_t*        parameter_buffer,', file=self.outFile)
-        write('                                       size_t                buffer_size)', file=self.outFile)
+        write('void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,', file=self.outFile)
+        write('                                       const format::ApiCallOptions& call_options,', file=self.outFile)
+        write('                                       const uint8_t*                parameter_buffer,', file=self.outFile)
+        write('                                       size_t                        buffer_size)', file=self.outFile)
         write('{', file=self.outFile)
         write('    switch(call_id)', file=self.outFile)
         write('    {', file=self.outFile)
@@ -209,7 +209,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         write('        break;', file=self.outFile)
 
         for cmd in self.cmdNames:
-            cmddef = '    case ApiCallId_{}:\n'.format(cmd)
+            cmddef = '    case format::ApiCallId::ApiCallId_{}:\n'.format(cmd)
             cmddef += '        Decode_{}(parameter_buffer, buffer_size);\n'.format(cmd)
             cmddef += '        break;'
             write(cmddef, file=self.outFile)

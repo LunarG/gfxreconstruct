@@ -25,10 +25,10 @@
 #include "vulkan/vulkan.h"
 
 #include "util/defines.h"
-#include "format/vulkan_consumer_base.h"
+#include "decode/vulkan_consumer_base.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class VulkanConsumer : public VulkanConsumerBase
 {
@@ -41,30 +41,30 @@ class VulkanConsumer : public VulkanConsumerBase
         VkResult                                    returnValue,
         const StructPointerDecoder<Decoded_VkInstanceCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pInstance) = 0;
+        const PointerDecoder<format::HandleId>&     pInstance) = 0;
 
     virtual void Process_vkDestroyInstance(
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkEnumeratePhysicalDevices(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const PointerDecoder<uint32_t>&             pPhysicalDeviceCount,
-        const PointerDecoder<HandleId>&             pPhysicalDevices) = 0;
+        const PointerDecoder<format::HandleId>&     pPhysicalDevices) = 0;
 
     virtual void Process_vkGetPhysicalDeviceFeatures(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures>& pFeatures) = 0;
 
     virtual void Process_vkGetPhysicalDeviceFormatProperties(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         VkFormat                                    format,
         const StructPointerDecoder<Decoded_VkFormatProperties>& pFormatProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceImageFormatProperties(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         VkFormat                                    format,
         VkImageType                                 type,
         VkImageTiling                               tiling,
@@ -73,124 +73,124 @@ class VulkanConsumer : public VulkanConsumerBase
         const StructPointerDecoder<Decoded_VkImageFormatProperties>& pImageFormatProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceProperties(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>& pProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceQueueFamilyProperties(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const PointerDecoder<uint32_t>&             pQueueFamilyPropertyCount,
         const StructPointerDecoder<Decoded_VkQueueFamilyProperties>& pQueueFamilyProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceMemoryProperties(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties>& pMemoryProperties) = 0;
 
     virtual void Process_vkCreateDevice(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkDeviceCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pDevice) = 0;
+        const PointerDecoder<format::HandleId>&     pDevice) = 0;
 
     virtual void Process_vkDestroyDevice(
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkGetDeviceQueue(
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    queueFamilyIndex,
         uint32_t                                    queueIndex,
-        const PointerDecoder<HandleId>&             pQueue) = 0;
+        const PointerDecoder<format::HandleId>&     pQueue) = 0;
 
     virtual void Process_vkQueueSubmit(
         VkResult                                    returnValue,
-        HandleId                                    queue,
+        format::HandleId                            queue,
         uint32_t                                    submitCount,
         const StructPointerDecoder<Decoded_VkSubmitInfo>& pSubmits,
-        HandleId                                    fence) = 0;
+        format::HandleId                            fence) = 0;
 
     virtual void Process_vkQueueWaitIdle(
         VkResult                                    returnValue,
-        HandleId                                    queue) = 0;
+        format::HandleId                            queue) = 0;
 
     virtual void Process_vkDeviceWaitIdle(
         VkResult                                    returnValue,
-        HandleId                                    device) = 0;
+        format::HandleId                            device) = 0;
 
     virtual void Process_vkAllocateMemory(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pMemory) = 0;
+        const PointerDecoder<format::HandleId>&     pMemory) = 0;
 
     virtual void Process_vkFreeMemory(
-        HandleId                                    device,
-        HandleId                                    memory,
+        format::HandleId                            device,
+        format::HandleId                            memory,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkMapMemory(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    memory,
+        format::HandleId                            device,
+        format::HandleId                            memory,
         VkDeviceSize                                offset,
         VkDeviceSize                                size,
         VkMemoryMapFlags                            flags,
         const PointerDecoder<uint64_t>&             ppData) = 0;
 
     virtual void Process_vkUnmapMemory(
-        HandleId                                    device,
-        HandleId                                    memory) = 0;
+        format::HandleId                            device,
+        format::HandleId                            memory) = 0;
 
     virtual void Process_vkFlushMappedMemoryRanges(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    memoryRangeCount,
         const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges) = 0;
 
     virtual void Process_vkInvalidateMappedMemoryRanges(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    memoryRangeCount,
         const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges) = 0;
 
     virtual void Process_vkGetDeviceMemoryCommitment(
-        HandleId                                    device,
-        HandleId                                    memory,
+        format::HandleId                            device,
+        format::HandleId                            memory,
         const PointerDecoder<VkDeviceSize>&         pCommittedMemoryInBytes) = 0;
 
     virtual void Process_vkBindBufferMemory(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    buffer,
-        HandleId                                    memory,
+        format::HandleId                            device,
+        format::HandleId                            buffer,
+        format::HandleId                            memory,
         VkDeviceSize                                memoryOffset) = 0;
 
     virtual void Process_vkBindImageMemory(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    image,
-        HandleId                                    memory,
+        format::HandleId                            device,
+        format::HandleId                            image,
+        format::HandleId                            memory,
         VkDeviceSize                                memoryOffset) = 0;
 
     virtual void Process_vkGetBufferMemoryRequirements(
-        HandleId                                    device,
-        HandleId                                    buffer,
+        format::HandleId                            device,
+        format::HandleId                            buffer,
         const StructPointerDecoder<Decoded_VkMemoryRequirements>& pMemoryRequirements) = 0;
 
     virtual void Process_vkGetImageMemoryRequirements(
-        HandleId                                    device,
-        HandleId                                    image,
+        format::HandleId                            device,
+        format::HandleId                            image,
         const StructPointerDecoder<Decoded_VkMemoryRequirements>& pMemoryRequirements) = 0;
 
     virtual void Process_vkGetImageSparseMemoryRequirements(
-        HandleId                                    device,
-        HandleId                                    image,
+        format::HandleId                            device,
+        format::HandleId                            image,
         const PointerDecoder<uint32_t>&             pSparseMemoryRequirementCount,
         const StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements>& pSparseMemoryRequirements) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSparseImageFormatProperties(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         VkFormat                                    format,
         VkImageType                                 type,
         VkSampleCountFlagBits                       samples,
@@ -201,97 +201,97 @@ class VulkanConsumer : public VulkanConsumerBase
 
     virtual void Process_vkQueueBindSparse(
         VkResult                                    returnValue,
-        HandleId                                    queue,
+        format::HandleId                            queue,
         uint32_t                                    bindInfoCount,
         const StructPointerDecoder<Decoded_VkBindSparseInfo>& pBindInfo,
-        HandleId                                    fence) = 0;
+        format::HandleId                            fence) = 0;
 
     virtual void Process_vkCreateFence(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkFenceCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pFence) = 0;
+        const PointerDecoder<format::HandleId>&     pFence) = 0;
 
     virtual void Process_vkDestroyFence(
-        HandleId                                    device,
-        HandleId                                    fence,
+        format::HandleId                            device,
+        format::HandleId                            fence,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkResetFences(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    fenceCount,
-        const PointerDecoder<HandleId>&             pFences) = 0;
+        const PointerDecoder<format::HandleId>&     pFences) = 0;
 
     virtual void Process_vkGetFenceStatus(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    fence) = 0;
+        format::HandleId                            device,
+        format::HandleId                            fence) = 0;
 
     virtual void Process_vkWaitForFences(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    fenceCount,
-        const PointerDecoder<HandleId>&             pFences,
+        const PointerDecoder<format::HandleId>&     pFences,
         VkBool32                                    waitAll,
         uint64_t                                    timeout) = 0;
 
     virtual void Process_vkCreateSemaphore(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkSemaphoreCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSemaphore) = 0;
+        const PointerDecoder<format::HandleId>&     pSemaphore) = 0;
 
     virtual void Process_vkDestroySemaphore(
-        HandleId                                    device,
-        HandleId                                    semaphore,
+        format::HandleId                            device,
+        format::HandleId                            semaphore,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateEvent(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkEventCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pEvent) = 0;
+        const PointerDecoder<format::HandleId>&     pEvent) = 0;
 
     virtual void Process_vkDestroyEvent(
-        HandleId                                    device,
-        HandleId                                    event,
+        format::HandleId                            device,
+        format::HandleId                            event,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkGetEventStatus(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    event) = 0;
+        format::HandleId                            device,
+        format::HandleId                            event) = 0;
 
     virtual void Process_vkSetEvent(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    event) = 0;
+        format::HandleId                            device,
+        format::HandleId                            event) = 0;
 
     virtual void Process_vkResetEvent(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    event) = 0;
+        format::HandleId                            device,
+        format::HandleId                            event) = 0;
 
     virtual void Process_vkCreateQueryPool(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkQueryPoolCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pQueryPool) = 0;
+        const PointerDecoder<format::HandleId>&     pQueryPool) = 0;
 
     virtual void Process_vkDestroyQueryPool(
-        HandleId                                    device,
-        HandleId                                    queryPool,
+        format::HandleId                            device,
+        format::HandleId                            queryPool,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkGetQueryPoolResults(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    queryPool,
+        format::HandleId                            device,
+        format::HandleId                            queryPool,
         uint32_t                                    firstQuery,
         uint32_t                                    queryCount,
         size_t                                      dataSize,
@@ -301,188 +301,188 @@ class VulkanConsumer : public VulkanConsumerBase
 
     virtual void Process_vkCreateBuffer(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkBufferCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pBuffer) = 0;
+        const PointerDecoder<format::HandleId>&     pBuffer) = 0;
 
     virtual void Process_vkDestroyBuffer(
-        HandleId                                    device,
-        HandleId                                    buffer,
+        format::HandleId                            device,
+        format::HandleId                            buffer,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateBufferView(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkBufferViewCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pView) = 0;
+        const PointerDecoder<format::HandleId>&     pView) = 0;
 
     virtual void Process_vkDestroyBufferView(
-        HandleId                                    device,
-        HandleId                                    bufferView,
+        format::HandleId                            device,
+        format::HandleId                            bufferView,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateImage(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkImageCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pImage) = 0;
+        const PointerDecoder<format::HandleId>&     pImage) = 0;
 
     virtual void Process_vkDestroyImage(
-        HandleId                                    device,
-        HandleId                                    image,
+        format::HandleId                            device,
+        format::HandleId                            image,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkGetImageSubresourceLayout(
-        HandleId                                    device,
-        HandleId                                    image,
+        format::HandleId                            device,
+        format::HandleId                            image,
         const StructPointerDecoder<Decoded_VkImageSubresource>& pSubresource,
         const StructPointerDecoder<Decoded_VkSubresourceLayout>& pLayout) = 0;
 
     virtual void Process_vkCreateImageView(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkImageViewCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pView) = 0;
+        const PointerDecoder<format::HandleId>&     pView) = 0;
 
     virtual void Process_vkDestroyImageView(
-        HandleId                                    device,
-        HandleId                                    imageView,
+        format::HandleId                            device,
+        format::HandleId                            imageView,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateShaderModule(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pShaderModule) = 0;
+        const PointerDecoder<format::HandleId>&     pShaderModule) = 0;
 
     virtual void Process_vkDestroyShaderModule(
-        HandleId                                    device,
-        HandleId                                    shaderModule,
+        format::HandleId                            device,
+        format::HandleId                            shaderModule,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreatePipelineCache(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pPipelineCache) = 0;
+        const PointerDecoder<format::HandleId>&     pPipelineCache) = 0;
 
     virtual void Process_vkDestroyPipelineCache(
-        HandleId                                    device,
-        HandleId                                    pipelineCache,
+        format::HandleId                            device,
+        format::HandleId                            pipelineCache,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkGetPipelineCacheData(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    pipelineCache,
+        format::HandleId                            device,
+        format::HandleId                            pipelineCache,
         const PointerDecoder<size_t>&               pDataSize,
         const PointerDecoder<uint8_t>&              pData) = 0;
 
     virtual void Process_vkMergePipelineCaches(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    dstCache,
+        format::HandleId                            device,
+        format::HandleId                            dstCache,
         uint32_t                                    srcCacheCount,
-        const PointerDecoder<HandleId>&             pSrcCaches) = 0;
+        const PointerDecoder<format::HandleId>&     pSrcCaches) = 0;
 
     virtual void Process_vkCreateGraphicsPipelines(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    pipelineCache,
+        format::HandleId                            device,
+        format::HandleId                            pipelineCache,
         uint32_t                                    createInfoCount,
         const StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>& pCreateInfos,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pPipelines) = 0;
+        const PointerDecoder<format::HandleId>&     pPipelines) = 0;
 
     virtual void Process_vkCreateComputePipelines(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    pipelineCache,
+        format::HandleId                            device,
+        format::HandleId                            pipelineCache,
         uint32_t                                    createInfoCount,
         const StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>& pCreateInfos,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pPipelines) = 0;
+        const PointerDecoder<format::HandleId>&     pPipelines) = 0;
 
     virtual void Process_vkDestroyPipeline(
-        HandleId                                    device,
-        HandleId                                    pipeline,
+        format::HandleId                            device,
+        format::HandleId                            pipeline,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreatePipelineLayout(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkPipelineLayoutCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pPipelineLayout) = 0;
+        const PointerDecoder<format::HandleId>&     pPipelineLayout) = 0;
 
     virtual void Process_vkDestroyPipelineLayout(
-        HandleId                                    device,
-        HandleId                                    pipelineLayout,
+        format::HandleId                            device,
+        format::HandleId                            pipelineLayout,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateSampler(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkSamplerCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSampler) = 0;
+        const PointerDecoder<format::HandleId>&     pSampler) = 0;
 
     virtual void Process_vkDestroySampler(
-        HandleId                                    device,
-        HandleId                                    sampler,
+        format::HandleId                            device,
+        format::HandleId                            sampler,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateDescriptorSetLayout(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSetLayout) = 0;
+        const PointerDecoder<format::HandleId>&     pSetLayout) = 0;
 
     virtual void Process_vkDestroyDescriptorSetLayout(
-        HandleId                                    device,
-        HandleId                                    descriptorSetLayout,
+        format::HandleId                            device,
+        format::HandleId                            descriptorSetLayout,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateDescriptorPool(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pDescriptorPool) = 0;
+        const PointerDecoder<format::HandleId>&     pDescriptorPool) = 0;
 
     virtual void Process_vkDestroyDescriptorPool(
-        HandleId                                    device,
-        HandleId                                    descriptorPool,
+        format::HandleId                            device,
+        format::HandleId                            descriptorPool,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkResetDescriptorPool(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    descriptorPool,
+        format::HandleId                            device,
+        format::HandleId                            descriptorPool,
         VkDescriptorPoolResetFlags                  flags) = 0;
 
     virtual void Process_vkAllocateDescriptorSets(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>& pAllocateInfo,
-        const PointerDecoder<HandleId>&             pDescriptorSets) = 0;
+        const PointerDecoder<format::HandleId>&     pDescriptorSets) = 0;
 
     virtual void Process_vkFreeDescriptorSets(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    descriptorPool,
+        format::HandleId                            device,
+        format::HandleId                            descriptorPool,
         uint32_t                                    descriptorSetCount,
-        const PointerDecoder<HandleId>&             pDescriptorSets) = 0;
+        const PointerDecoder<format::HandleId>&     pDescriptorSets) = 0;
 
     virtual void Process_vkUpdateDescriptorSets(
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    descriptorWriteCount,
         const StructPointerDecoder<Decoded_VkWriteDescriptorSet>& pDescriptorWrites,
         uint32_t                                    descriptorCopyCount,
@@ -490,160 +490,160 @@ class VulkanConsumer : public VulkanConsumerBase
 
     virtual void Process_vkCreateFramebuffer(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkFramebufferCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pFramebuffer) = 0;
+        const PointerDecoder<format::HandleId>&     pFramebuffer) = 0;
 
     virtual void Process_vkDestroyFramebuffer(
-        HandleId                                    device,
-        HandleId                                    framebuffer,
+        format::HandleId                            device,
+        format::HandleId                            framebuffer,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateRenderPass(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkRenderPassCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pRenderPass) = 0;
+        const PointerDecoder<format::HandleId>&     pRenderPass) = 0;
 
     virtual void Process_vkDestroyRenderPass(
-        HandleId                                    device,
-        HandleId                                    renderPass,
+        format::HandleId                            device,
+        format::HandleId                            renderPass,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkGetRenderAreaGranularity(
-        HandleId                                    device,
-        HandleId                                    renderPass,
+        format::HandleId                            device,
+        format::HandleId                            renderPass,
         const StructPointerDecoder<Decoded_VkExtent2D>& pGranularity) = 0;
 
     virtual void Process_vkCreateCommandPool(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pCommandPool) = 0;
+        const PointerDecoder<format::HandleId>&     pCommandPool) = 0;
 
     virtual void Process_vkDestroyCommandPool(
-        HandleId                                    device,
-        HandleId                                    commandPool,
+        format::HandleId                            device,
+        format::HandleId                            commandPool,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkResetCommandPool(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    commandPool,
+        format::HandleId                            device,
+        format::HandleId                            commandPool,
         VkCommandPoolResetFlags                     flags) = 0;
 
     virtual void Process_vkAllocateCommandBuffers(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>& pAllocateInfo,
-        const PointerDecoder<HandleId>&             pCommandBuffers) = 0;
+        const PointerDecoder<format::HandleId>&     pCommandBuffers) = 0;
 
     virtual void Process_vkFreeCommandBuffers(
-        HandleId                                    device,
-        HandleId                                    commandPool,
+        format::HandleId                            device,
+        format::HandleId                            commandPool,
         uint32_t                                    commandBufferCount,
-        const PointerDecoder<HandleId>&             pCommandBuffers) = 0;
+        const PointerDecoder<format::HandleId>&     pCommandBuffers) = 0;
 
     virtual void Process_vkBeginCommandBuffer(
         VkResult                                    returnValue,
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkCommandBufferBeginInfo>& pBeginInfo) = 0;
 
     virtual void Process_vkEndCommandBuffer(
         VkResult                                    returnValue,
-        HandleId                                    commandBuffer) = 0;
+        format::HandleId                            commandBuffer) = 0;
 
     virtual void Process_vkResetCommandBuffer(
         VkResult                                    returnValue,
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkCommandBufferResetFlags                   flags) = 0;
 
     virtual void Process_vkCmdBindPipeline(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkPipelineBindPoint                         pipelineBindPoint,
-        HandleId                                    pipeline) = 0;
+        format::HandleId                            pipeline) = 0;
 
     virtual void Process_vkCmdSetViewport(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    firstViewport,
         uint32_t                                    viewportCount,
         const StructPointerDecoder<Decoded_VkViewport>& pViewports) = 0;
 
     virtual void Process_vkCmdSetScissor(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    firstScissor,
         uint32_t                                    scissorCount,
         const StructPointerDecoder<Decoded_VkRect2D>& pScissors) = 0;
 
     virtual void Process_vkCmdSetLineWidth(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         float                                       lineWidth) = 0;
 
     virtual void Process_vkCmdSetDepthBias(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         float                                       depthBiasConstantFactor,
         float                                       depthBiasClamp,
         float                                       depthBiasSlopeFactor) = 0;
 
     virtual void Process_vkCmdSetBlendConstants(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const PointerDecoder<float>&                blendConstants) = 0;
 
     virtual void Process_vkCmdSetDepthBounds(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         float                                       minDepthBounds,
         float                                       maxDepthBounds) = 0;
 
     virtual void Process_vkCmdSetStencilCompareMask(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkStencilFaceFlags                          faceMask,
         uint32_t                                    compareMask) = 0;
 
     virtual void Process_vkCmdSetStencilWriteMask(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkStencilFaceFlags                          faceMask,
         uint32_t                                    writeMask) = 0;
 
     virtual void Process_vkCmdSetStencilReference(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkStencilFaceFlags                          faceMask,
         uint32_t                                    reference) = 0;
 
     virtual void Process_vkCmdBindDescriptorSets(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkPipelineBindPoint                         pipelineBindPoint,
-        HandleId                                    layout,
+        format::HandleId                            layout,
         uint32_t                                    firstSet,
         uint32_t                                    descriptorSetCount,
-        const PointerDecoder<HandleId>&             pDescriptorSets,
+        const PointerDecoder<format::HandleId>&     pDescriptorSets,
         uint32_t                                    dynamicOffsetCount,
         const PointerDecoder<uint32_t>&             pDynamicOffsets) = 0;
 
     virtual void Process_vkCmdBindIndexBuffer(
-        HandleId                                    commandBuffer,
-        HandleId                                    buffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
         VkDeviceSize                                offset,
         VkIndexType                                 indexType) = 0;
 
     virtual void Process_vkCmdBindVertexBuffers(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    firstBinding,
         uint32_t                                    bindingCount,
-        const PointerDecoder<HandleId>&             pBuffers,
+        const PointerDecoder<format::HandleId>&     pBuffers,
         const PointerDecoder<VkDeviceSize>&         pOffsets) = 0;
 
     virtual void Process_vkCmdDraw(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    vertexCount,
         uint32_t                                    instanceCount,
         uint32_t                                    firstVertex,
         uint32_t                                    firstInstance) = 0;
 
     virtual void Process_vkCmdDrawIndexed(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    indexCount,
         uint32_t                                    instanceCount,
         uint32_t                                    firstIndex,
@@ -651,132 +651,132 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    firstInstance) = 0;
 
     virtual void Process_vkCmdDrawIndirect(
-        HandleId                                    commandBuffer,
-        HandleId                                    buffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
         VkDeviceSize                                offset,
         uint32_t                                    drawCount,
         uint32_t                                    stride) = 0;
 
     virtual void Process_vkCmdDrawIndexedIndirect(
-        HandleId                                    commandBuffer,
-        HandleId                                    buffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
         VkDeviceSize                                offset,
         uint32_t                                    drawCount,
         uint32_t                                    stride) = 0;
 
     virtual void Process_vkCmdDispatch(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    groupCountX,
         uint32_t                                    groupCountY,
         uint32_t                                    groupCountZ) = 0;
 
     virtual void Process_vkCmdDispatchIndirect(
-        HandleId                                    commandBuffer,
-        HandleId                                    buffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
         VkDeviceSize                                offset) = 0;
 
     virtual void Process_vkCmdCopyBuffer(
-        HandleId                                    commandBuffer,
-        HandleId                                    srcBuffer,
-        HandleId                                    dstBuffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            srcBuffer,
+        format::HandleId                            dstBuffer,
         uint32_t                                    regionCount,
         const StructPointerDecoder<Decoded_VkBufferCopy>& pRegions) = 0;
 
     virtual void Process_vkCmdCopyImage(
-        HandleId                                    commandBuffer,
-        HandleId                                    srcImage,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            srcImage,
         VkImageLayout                               srcImageLayout,
-        HandleId                                    dstImage,
+        format::HandleId                            dstImage,
         VkImageLayout                               dstImageLayout,
         uint32_t                                    regionCount,
         const StructPointerDecoder<Decoded_VkImageCopy>& pRegions) = 0;
 
     virtual void Process_vkCmdBlitImage(
-        HandleId                                    commandBuffer,
-        HandleId                                    srcImage,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            srcImage,
         VkImageLayout                               srcImageLayout,
-        HandleId                                    dstImage,
+        format::HandleId                            dstImage,
         VkImageLayout                               dstImageLayout,
         uint32_t                                    regionCount,
         const StructPointerDecoder<Decoded_VkImageBlit>& pRegions,
         VkFilter                                    filter) = 0;
 
     virtual void Process_vkCmdCopyBufferToImage(
-        HandleId                                    commandBuffer,
-        HandleId                                    srcBuffer,
-        HandleId                                    dstImage,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            srcBuffer,
+        format::HandleId                            dstImage,
         VkImageLayout                               dstImageLayout,
         uint32_t                                    regionCount,
         const StructPointerDecoder<Decoded_VkBufferImageCopy>& pRegions) = 0;
 
     virtual void Process_vkCmdCopyImageToBuffer(
-        HandleId                                    commandBuffer,
-        HandleId                                    srcImage,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            srcImage,
         VkImageLayout                               srcImageLayout,
-        HandleId                                    dstBuffer,
+        format::HandleId                            dstBuffer,
         uint32_t                                    regionCount,
         const StructPointerDecoder<Decoded_VkBufferImageCopy>& pRegions) = 0;
 
     virtual void Process_vkCmdUpdateBuffer(
-        HandleId                                    commandBuffer,
-        HandleId                                    dstBuffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            dstBuffer,
         VkDeviceSize                                dstOffset,
         VkDeviceSize                                dataSize,
         const PointerDecoder<uint8_t>&              pData) = 0;
 
     virtual void Process_vkCmdFillBuffer(
-        HandleId                                    commandBuffer,
-        HandleId                                    dstBuffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            dstBuffer,
         VkDeviceSize                                dstOffset,
         VkDeviceSize                                size,
         uint32_t                                    data) = 0;
 
     virtual void Process_vkCmdClearColorImage(
-        HandleId                                    commandBuffer,
-        HandleId                                    image,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            image,
         VkImageLayout                               imageLayout,
         const StructPointerDecoder<Decoded_VkClearColorValue>& pColor,
         uint32_t                                    rangeCount,
         const StructPointerDecoder<Decoded_VkImageSubresourceRange>& pRanges) = 0;
 
     virtual void Process_vkCmdClearDepthStencilImage(
-        HandleId                                    commandBuffer,
-        HandleId                                    image,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            image,
         VkImageLayout                               imageLayout,
         const StructPointerDecoder<Decoded_VkClearDepthStencilValue>& pDepthStencil,
         uint32_t                                    rangeCount,
         const StructPointerDecoder<Decoded_VkImageSubresourceRange>& pRanges) = 0;
 
     virtual void Process_vkCmdClearAttachments(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    attachmentCount,
         const StructPointerDecoder<Decoded_VkClearAttachment>& pAttachments,
         uint32_t                                    rectCount,
         const StructPointerDecoder<Decoded_VkClearRect>& pRects) = 0;
 
     virtual void Process_vkCmdResolveImage(
-        HandleId                                    commandBuffer,
-        HandleId                                    srcImage,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            srcImage,
         VkImageLayout                               srcImageLayout,
-        HandleId                                    dstImage,
+        format::HandleId                            dstImage,
         VkImageLayout                               dstImageLayout,
         uint32_t                                    regionCount,
         const StructPointerDecoder<Decoded_VkImageResolve>& pRegions) = 0;
 
     virtual void Process_vkCmdSetEvent(
-        HandleId                                    commandBuffer,
-        HandleId                                    event,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            event,
         VkPipelineStageFlags                        stageMask) = 0;
 
     virtual void Process_vkCmdResetEvent(
-        HandleId                                    commandBuffer,
-        HandleId                                    event,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            event,
         VkPipelineStageFlags                        stageMask) = 0;
 
     virtual void Process_vkCmdWaitEvents(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    eventCount,
-        const PointerDecoder<HandleId>&             pEvents,
+        const PointerDecoder<format::HandleId>&     pEvents,
         VkPipelineStageFlags                        srcStageMask,
         VkPipelineStageFlags                        dstStageMask,
         uint32_t                                    memoryBarrierCount,
@@ -787,7 +787,7 @@ class VulkanConsumer : public VulkanConsumerBase
         const StructPointerDecoder<Decoded_VkImageMemoryBarrier>& pImageMemoryBarriers) = 0;
 
     virtual void Process_vkCmdPipelineBarrier(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkPipelineStageFlags                        srcStageMask,
         VkPipelineStageFlags                        dstStageMask,
         VkDependencyFlags                           dependencyFlags,
@@ -799,88 +799,88 @@ class VulkanConsumer : public VulkanConsumerBase
         const StructPointerDecoder<Decoded_VkImageMemoryBarrier>& pImageMemoryBarriers) = 0;
 
     virtual void Process_vkCmdBeginQuery(
-        HandleId                                    commandBuffer,
-        HandleId                                    queryPool,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
         uint32_t                                    query,
         VkQueryControlFlags                         flags) = 0;
 
     virtual void Process_vkCmdEndQuery(
-        HandleId                                    commandBuffer,
-        HandleId                                    queryPool,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
         uint32_t                                    query) = 0;
 
     virtual void Process_vkCmdResetQueryPool(
-        HandleId                                    commandBuffer,
-        HandleId                                    queryPool,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
         uint32_t                                    firstQuery,
         uint32_t                                    queryCount) = 0;
 
     virtual void Process_vkCmdWriteTimestamp(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkPipelineStageFlagBits                     pipelineStage,
-        HandleId                                    queryPool,
+        format::HandleId                            queryPool,
         uint32_t                                    query) = 0;
 
     virtual void Process_vkCmdCopyQueryPoolResults(
-        HandleId                                    commandBuffer,
-        HandleId                                    queryPool,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
         uint32_t                                    firstQuery,
         uint32_t                                    queryCount,
-        HandleId                                    dstBuffer,
+        format::HandleId                            dstBuffer,
         VkDeviceSize                                dstOffset,
         VkDeviceSize                                stride,
         VkQueryResultFlags                          flags) = 0;
 
     virtual void Process_vkCmdPushConstants(
-        HandleId                                    commandBuffer,
-        HandleId                                    layout,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            layout,
         VkShaderStageFlags                          stageFlags,
         uint32_t                                    offset,
         uint32_t                                    size,
         const PointerDecoder<uint8_t>&              pValues) = 0;
 
     virtual void Process_vkCmdBeginRenderPass(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkRenderPassBeginInfo>& pRenderPassBegin,
         VkSubpassContents                           contents) = 0;
 
     virtual void Process_vkCmdNextSubpass(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkSubpassContents                           contents) = 0;
 
     virtual void Process_vkCmdEndRenderPass(
-        HandleId                                    commandBuffer) = 0;
+        format::HandleId                            commandBuffer) = 0;
 
     virtual void Process_vkCmdExecuteCommands(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    commandBufferCount,
-        const PointerDecoder<HandleId>&             pCommandBuffers) = 0;
+        const PointerDecoder<format::HandleId>&     pCommandBuffers) = 0;
 
     virtual void Process_vkBindBufferMemory2(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    bindInfoCount,
         const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>& pBindInfos) = 0;
 
     virtual void Process_vkBindImageMemory2(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    bindInfoCount,
         const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>& pBindInfos) = 0;
 
     virtual void Process_vkGetDeviceGroupPeerMemoryFeatures(
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    heapIndex,
         uint32_t                                    localDeviceIndex,
         uint32_t                                    remoteDeviceIndex,
         const PointerDecoder<VkPeerMemoryFeatureFlags>& pPeerMemoryFeatures) = 0;
 
     virtual void Process_vkCmdSetDeviceMask(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    deviceMask) = 0;
 
     virtual void Process_vkCmdDispatchBase(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    baseGroupX,
         uint32_t                                    baseGroupY,
         uint32_t                                    baseGroupZ,
@@ -890,379 +890,379 @@ class VulkanConsumer : public VulkanConsumerBase
 
     virtual void Process_vkEnumeratePhysicalDeviceGroups(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const PointerDecoder<uint32_t>&             pPhysicalDeviceGroupCount,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>& pPhysicalDeviceGroupProperties) = 0;
 
     virtual void Process_vkGetImageMemoryRequirements2(
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>& pInfo,
         const StructPointerDecoder<Decoded_VkMemoryRequirements2>& pMemoryRequirements) = 0;
 
     virtual void Process_vkGetBufferMemoryRequirements2(
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>& pInfo,
         const StructPointerDecoder<Decoded_VkMemoryRequirements2>& pMemoryRequirements) = 0;
 
     virtual void Process_vkGetImageSparseMemoryRequirements2(
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkImageSparseMemoryRequirementsInfo2>& pInfo,
         const PointerDecoder<uint32_t>&             pSparseMemoryRequirementCount,
         const StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>& pSparseMemoryRequirements) = 0;
 
     virtual void Process_vkGetPhysicalDeviceFeatures2(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2>& pFeatures) = 0;
 
     virtual void Process_vkGetPhysicalDeviceProperties2(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>& pProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceFormatProperties2(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         VkFormat                                    format,
         const StructPointerDecoder<Decoded_VkFormatProperties2>& pFormatProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceImageFormatProperties2(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceImageFormatInfo2>& pImageFormatInfo,
         const StructPointerDecoder<Decoded_VkImageFormatProperties2>& pImageFormatProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceQueueFamilyProperties2(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const PointerDecoder<uint32_t>&             pQueueFamilyPropertyCount,
         const StructPointerDecoder<Decoded_VkQueueFamilyProperties2>& pQueueFamilyProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceMemoryProperties2(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>& pMemoryProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSparseImageFormatProperties2(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceSparseImageFormatInfo2>& pFormatInfo,
         const PointerDecoder<uint32_t>&             pPropertyCount,
         const StructPointerDecoder<Decoded_VkSparseImageFormatProperties2>& pProperties) = 0;
 
     virtual void Process_vkTrimCommandPool(
-        HandleId                                    device,
-        HandleId                                    commandPool,
+        format::HandleId                            device,
+        format::HandleId                            commandPool,
         VkCommandPoolTrimFlags                      flags) = 0;
 
     virtual void Process_vkGetDeviceQueue2(
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDeviceQueueInfo2>& pQueueInfo,
-        const PointerDecoder<HandleId>&             pQueue) = 0;
+        const PointerDecoder<format::HandleId>&     pQueue) = 0;
 
     virtual void Process_vkCreateSamplerYcbcrConversion(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkSamplerYcbcrConversionCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pYcbcrConversion) = 0;
+        const PointerDecoder<format::HandleId>&     pYcbcrConversion) = 0;
 
     virtual void Process_vkDestroySamplerYcbcrConversion(
-        HandleId                                    device,
-        HandleId                                    ycbcrConversion,
+        format::HandleId                            device,
+        format::HandleId                            ycbcrConversion,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateDescriptorUpdateTemplate(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pDescriptorUpdateTemplate) = 0;
+        const PointerDecoder<format::HandleId>&     pDescriptorUpdateTemplate) = 0;
 
     virtual void Process_vkDestroyDescriptorUpdateTemplate(
-        HandleId                                    device,
-        HandleId                                    descriptorUpdateTemplate,
+        format::HandleId                            device,
+        format::HandleId                            descriptorUpdateTemplate,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkGetPhysicalDeviceExternalBufferProperties(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo>& pExternalBufferInfo,
         const StructPointerDecoder<Decoded_VkExternalBufferProperties>& pExternalBufferProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceExternalFenceProperties(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalFenceInfo>& pExternalFenceInfo,
         const StructPointerDecoder<Decoded_VkExternalFenceProperties>& pExternalFenceProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceExternalSemaphoreProperties(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalSemaphoreInfo>& pExternalSemaphoreInfo,
         const StructPointerDecoder<Decoded_VkExternalSemaphoreProperties>& pExternalSemaphoreProperties) = 0;
 
     virtual void Process_vkGetDescriptorSetLayoutSupport(
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport>& pSupport) = 0;
 
     virtual void Process_vkDestroySurfaceKHR(
-        HandleId                                    instance,
-        HandleId                                    surface,
+        format::HandleId                            instance,
+        format::HandleId                            surface,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSurfaceSupportKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex,
-        HandleId                                    surface,
+        format::HandleId                            surface,
         const PointerDecoder<VkBool32>&             pSupported) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
-        HandleId                                    surface,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            surface,
         const StructPointerDecoder<Decoded_VkSurfaceCapabilitiesKHR>& pSurfaceCapabilities) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSurfaceFormatsKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
-        HandleId                                    surface,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            surface,
         const PointerDecoder<uint32_t>&             pSurfaceFormatCount,
         const StructPointerDecoder<Decoded_VkSurfaceFormatKHR>& pSurfaceFormats) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSurfacePresentModesKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
-        HandleId                                    surface,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            surface,
         const PointerDecoder<uint32_t>&             pPresentModeCount,
         const PointerDecoder<VkPresentModeKHR>&     pPresentModes) = 0;
 
     virtual void Process_vkCreateSwapchainKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSwapchain) = 0;
+        const PointerDecoder<format::HandleId>&     pSwapchain) = 0;
 
     virtual void Process_vkDestroySwapchainKHR(
-        HandleId                                    device,
-        HandleId                                    swapchain,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkGetSwapchainImagesKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    swapchain,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
         const PointerDecoder<uint32_t>&             pSwapchainImageCount,
-        const PointerDecoder<HandleId>&             pSwapchainImages) = 0;
+        const PointerDecoder<format::HandleId>&     pSwapchainImages) = 0;
 
     virtual void Process_vkAcquireNextImageKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    swapchain,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
         uint64_t                                    timeout,
-        HandleId                                    semaphore,
-        HandleId                                    fence,
+        format::HandleId                            semaphore,
+        format::HandleId                            fence,
         const PointerDecoder<uint32_t>&             pImageIndex) = 0;
 
     virtual void Process_vkQueuePresentKHR(
         VkResult                                    returnValue,
-        HandleId                                    queue,
+        format::HandleId                            queue,
         const StructPointerDecoder<Decoded_VkPresentInfoKHR>& pPresentInfo) = 0;
 
     virtual void Process_vkGetDeviceGroupPresentCapabilitiesKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDeviceGroupPresentCapabilitiesKHR>& pDeviceGroupPresentCapabilities) = 0;
 
     virtual void Process_vkGetDeviceGroupSurfacePresentModesKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    surface,
+        format::HandleId                            device,
+        format::HandleId                            surface,
         const PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>& pModes) = 0;
 
     virtual void Process_vkGetPhysicalDevicePresentRectanglesKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
-        HandleId                                    surface,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            surface,
         const PointerDecoder<uint32_t>&             pRectCount,
         const StructPointerDecoder<Decoded_VkRect2D>& pRects) = 0;
 
     virtual void Process_vkAcquireNextImage2KHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>& pAcquireInfo,
         const PointerDecoder<uint32_t>&             pImageIndex) = 0;
 
     virtual void Process_vkGetPhysicalDeviceDisplayPropertiesKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const PointerDecoder<uint32_t>&             pPropertyCount,
         const StructPointerDecoder<Decoded_VkDisplayPropertiesKHR>& pProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const PointerDecoder<uint32_t>&             pPropertyCount,
         const StructPointerDecoder<Decoded_VkDisplayPlanePropertiesKHR>& pProperties) = 0;
 
     virtual void Process_vkGetDisplayPlaneSupportedDisplaysKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         uint32_t                                    planeIndex,
         const PointerDecoder<uint32_t>&             pDisplayCount,
-        const PointerDecoder<HandleId>&             pDisplays) = 0;
+        const PointerDecoder<format::HandleId>&     pDisplays) = 0;
 
     virtual void Process_vkGetDisplayModePropertiesKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
-        HandleId                                    display,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            display,
         const PointerDecoder<uint32_t>&             pPropertyCount,
         const StructPointerDecoder<Decoded_VkDisplayModePropertiesKHR>& pProperties) = 0;
 
     virtual void Process_vkCreateDisplayModeKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
-        HandleId                                    display,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            display,
         const StructPointerDecoder<Decoded_VkDisplayModeCreateInfoKHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pMode) = 0;
+        const PointerDecoder<format::HandleId>&     pMode) = 0;
 
     virtual void Process_vkGetDisplayPlaneCapabilitiesKHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
-        HandleId                                    mode,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            mode,
         uint32_t                                    planeIndex,
         const StructPointerDecoder<Decoded_VkDisplayPlaneCapabilitiesKHR>& pCapabilities) = 0;
 
     virtual void Process_vkCreateDisplayPlaneSurfaceKHR(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkDisplaySurfaceCreateInfoKHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSurface) = 0;
+        const PointerDecoder<format::HandleId>&     pSurface) = 0;
 
     virtual void Process_vkCreateSharedSwapchainsKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    swapchainCount,
         const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>& pCreateInfos,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSwapchains) = 0;
+        const PointerDecoder<format::HandleId>&     pSwapchains) = 0;
 
     virtual void Process_vkCreateXlibSurfaceKHR(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkXlibSurfaceCreateInfoKHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSurface) = 0;
+        const PointerDecoder<format::HandleId>&     pSurface) = 0;
 
     virtual void Process_vkGetPhysicalDeviceXlibPresentationSupportKHR(
         VkBool32                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    dpy,
         uint32_t                                    visualID) = 0;
 
     virtual void Process_vkCreateXcbSurfaceKHR(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkXcbSurfaceCreateInfoKHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSurface) = 0;
+        const PointerDecoder<format::HandleId>&     pSurface) = 0;
 
     virtual void Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
         VkBool32                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    connection,
         uint32_t                                    visual_id) = 0;
 
     virtual void Process_vkCreateWaylandSurfaceKHR(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkWaylandSurfaceCreateInfoKHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSurface) = 0;
+        const PointerDecoder<format::HandleId>&     pSurface) = 0;
 
     virtual void Process_vkGetPhysicalDeviceWaylandPresentationSupportKHR(
         VkBool32                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    display) = 0;
 
     virtual void Process_vkCreateMirSurfaceKHR(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkMirSurfaceCreateInfoKHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSurface) = 0;
+        const PointerDecoder<format::HandleId>&     pSurface) = 0;
 
     virtual void Process_vkGetPhysicalDeviceMirPresentationSupportKHR(
         VkBool32                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    connection) = 0;
 
     virtual void Process_vkCreateAndroidSurfaceKHR(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSurface) = 0;
+        const PointerDecoder<format::HandleId>&     pSurface) = 0;
 
     virtual void Process_vkCreateWin32SurfaceKHR(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkWin32SurfaceCreateInfoKHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSurface) = 0;
+        const PointerDecoder<format::HandleId>&     pSurface) = 0;
 
     virtual void Process_vkGetPhysicalDeviceWin32PresentationSupportKHR(
         VkBool32                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex) = 0;
 
     virtual void Process_vkGetPhysicalDeviceFeatures2KHR(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceFeatures2>& pFeatures) = 0;
 
     virtual void Process_vkGetPhysicalDeviceProperties2KHR(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>& pProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceFormatProperties2KHR(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         VkFormat                                    format,
         const StructPointerDecoder<Decoded_VkFormatProperties2>& pFormatProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceImageFormatProperties2KHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceImageFormatInfo2>& pImageFormatInfo,
         const StructPointerDecoder<Decoded_VkImageFormatProperties2>& pImageFormatProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const PointerDecoder<uint32_t>&             pQueueFamilyPropertyCount,
         const StructPointerDecoder<Decoded_VkQueueFamilyProperties2>& pQueueFamilyProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceMemoryProperties2KHR(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>& pMemoryProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceSparseImageFormatInfo2>& pFormatInfo,
         const PointerDecoder<uint32_t>&             pPropertyCount,
         const StructPointerDecoder<Decoded_VkSparseImageFormatProperties2>& pProperties) = 0;
 
     virtual void Process_vkGetDeviceGroupPeerMemoryFeaturesKHR(
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    heapIndex,
         uint32_t                                    localDeviceIndex,
         uint32_t                                    remoteDeviceIndex,
         const PointerDecoder<VkPeerMemoryFeatureFlags>& pPeerMemoryFeatures) = 0;
 
     virtual void Process_vkCmdSetDeviceMaskKHR(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    deviceMask) = 0;
 
     virtual void Process_vkCmdDispatchBaseKHR(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    baseGroupX,
         uint32_t                                    baseGroupY,
         uint32_t                                    baseGroupZ,
@@ -1271,262 +1271,262 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    groupCountZ) = 0;
 
     virtual void Process_vkTrimCommandPoolKHR(
-        HandleId                                    device,
-        HandleId                                    commandPool,
+        format::HandleId                            device,
+        format::HandleId                            commandPool,
         VkCommandPoolTrimFlags                      flags) = 0;
 
     virtual void Process_vkEnumeratePhysicalDeviceGroupsKHR(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const PointerDecoder<uint32_t>&             pPhysicalDeviceGroupCount,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceGroupProperties>& pPhysicalDeviceGroupProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalBufferInfo>& pExternalBufferInfo,
         const StructPointerDecoder<Decoded_VkExternalBufferProperties>& pExternalBufferProperties) = 0;
 
     virtual void Process_vkGetMemoryWin32HandleKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkMemoryGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
         const PointerDecoder<uint64_t>&             pHandle) = 0;
 
     virtual void Process_vkGetMemoryWin32HandlePropertiesKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         VkExternalMemoryHandleTypeFlagBits          handleType,
         uint64_t                                    handle,
         const StructPointerDecoder<Decoded_VkMemoryWin32HandlePropertiesKHR>& pMemoryWin32HandleProperties) = 0;
 
     virtual void Process_vkGetMemoryFdKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkMemoryGetFdInfoKHR>& pGetFdInfo,
         const PointerDecoder<int>&                  pFd) = 0;
 
     virtual void Process_vkGetMemoryFdPropertiesKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         VkExternalMemoryHandleTypeFlagBits          handleType,
         int                                         fd,
         const StructPointerDecoder<Decoded_VkMemoryFdPropertiesKHR>& pMemoryFdProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalSemaphoreInfo>& pExternalSemaphoreInfo,
         const StructPointerDecoder<Decoded_VkExternalSemaphoreProperties>& pExternalSemaphoreProperties) = 0;
 
     virtual void Process_vkImportSemaphoreWin32HandleKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkImportSemaphoreWin32HandleInfoKHR>& pImportSemaphoreWin32HandleInfo) = 0;
 
     virtual void Process_vkGetSemaphoreWin32HandleKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
         const PointerDecoder<uint64_t>&             pHandle) = 0;
 
     virtual void Process_vkImportSemaphoreFdKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkImportSemaphoreFdInfoKHR>& pImportSemaphoreFdInfo) = 0;
 
     virtual void Process_vkGetSemaphoreFdKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkSemaphoreGetFdInfoKHR>& pGetFdInfo,
         const PointerDecoder<int>&                  pFd) = 0;
 
     virtual void Process_vkCmdPushDescriptorSetKHR(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkPipelineBindPoint                         pipelineBindPoint,
-        HandleId                                    layout,
+        format::HandleId                            layout,
         uint32_t                                    set,
         uint32_t                                    descriptorWriteCount,
         const StructPointerDecoder<Decoded_VkWriteDescriptorSet>& pDescriptorWrites) = 0;
 
     virtual void Process_vkCreateDescriptorUpdateTemplateKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pDescriptorUpdateTemplate) = 0;
+        const PointerDecoder<format::HandleId>&     pDescriptorUpdateTemplate) = 0;
 
     virtual void Process_vkDestroyDescriptorUpdateTemplateKHR(
-        HandleId                                    device,
-        HandleId                                    descriptorUpdateTemplate,
+        format::HandleId                            device,
+        format::HandleId                            descriptorUpdateTemplate,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateRenderPass2KHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkRenderPassCreateInfo2KHR>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pRenderPass) = 0;
+        const PointerDecoder<format::HandleId>&     pRenderPass) = 0;
 
     virtual void Process_vkCmdBeginRenderPass2KHR(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkRenderPassBeginInfo>& pRenderPassBegin,
         const StructPointerDecoder<Decoded_VkSubpassBeginInfoKHR>& pSubpassBeginInfo) = 0;
 
     virtual void Process_vkCmdNextSubpass2KHR(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkSubpassBeginInfoKHR>& pSubpassBeginInfo,
         const StructPointerDecoder<Decoded_VkSubpassEndInfoKHR>& pSubpassEndInfo) = 0;
 
     virtual void Process_vkCmdEndRenderPass2KHR(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkSubpassEndInfoKHR>& pSubpassEndInfo) = 0;
 
     virtual void Process_vkGetSwapchainStatusKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    swapchain) = 0;
+        format::HandleId                            device,
+        format::HandleId                            swapchain) = 0;
 
     virtual void Process_vkGetPhysicalDeviceExternalFencePropertiesKHR(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceExternalFenceInfo>& pExternalFenceInfo,
         const StructPointerDecoder<Decoded_VkExternalFenceProperties>& pExternalFenceProperties) = 0;
 
     virtual void Process_vkImportFenceWin32HandleKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkImportFenceWin32HandleInfoKHR>& pImportFenceWin32HandleInfo) = 0;
 
     virtual void Process_vkGetFenceWin32HandleKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkFenceGetWin32HandleInfoKHR>& pGetWin32HandleInfo,
         const PointerDecoder<uint64_t>&             pHandle) = 0;
 
     virtual void Process_vkImportFenceFdKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkImportFenceFdInfoKHR>& pImportFenceFdInfo) = 0;
 
     virtual void Process_vkGetFenceFdKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkFenceGetFdInfoKHR>& pGetFdInfo,
         const PointerDecoder<int>&                  pFd) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>& pSurfaceInfo,
         const StructPointerDecoder<Decoded_VkSurfaceCapabilities2KHR>& pSurfaceCapabilities) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>& pSurfaceInfo,
         const PointerDecoder<uint32_t>&             pSurfaceFormatCount,
         const StructPointerDecoder<Decoded_VkSurfaceFormat2KHR>& pSurfaceFormats) = 0;
 
     virtual void Process_vkGetPhysicalDeviceDisplayProperties2KHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const PointerDecoder<uint32_t>&             pPropertyCount,
         const StructPointerDecoder<Decoded_VkDisplayProperties2KHR>& pProperties) = 0;
 
     virtual void Process_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const PointerDecoder<uint32_t>&             pPropertyCount,
         const StructPointerDecoder<Decoded_VkDisplayPlaneProperties2KHR>& pProperties) = 0;
 
     virtual void Process_vkGetDisplayModeProperties2KHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
-        HandleId                                    display,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            display,
         const PointerDecoder<uint32_t>&             pPropertyCount,
         const StructPointerDecoder<Decoded_VkDisplayModeProperties2KHR>& pProperties) = 0;
 
     virtual void Process_vkGetDisplayPlaneCapabilities2KHR(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkDisplayPlaneInfo2KHR>& pDisplayPlaneInfo,
         const StructPointerDecoder<Decoded_VkDisplayPlaneCapabilities2KHR>& pCapabilities) = 0;
 
     virtual void Process_vkGetImageMemoryRequirements2KHR(
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkImageMemoryRequirementsInfo2>& pInfo,
         const StructPointerDecoder<Decoded_VkMemoryRequirements2>& pMemoryRequirements) = 0;
 
     virtual void Process_vkGetBufferMemoryRequirements2KHR(
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkBufferMemoryRequirementsInfo2>& pInfo,
         const StructPointerDecoder<Decoded_VkMemoryRequirements2>& pMemoryRequirements) = 0;
 
     virtual void Process_vkGetImageSparseMemoryRequirements2KHR(
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkImageSparseMemoryRequirementsInfo2>& pInfo,
         const PointerDecoder<uint32_t>&             pSparseMemoryRequirementCount,
         const StructPointerDecoder<Decoded_VkSparseImageMemoryRequirements2>& pSparseMemoryRequirements) = 0;
 
     virtual void Process_vkCreateSamplerYcbcrConversionKHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkSamplerYcbcrConversionCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pYcbcrConversion) = 0;
+        const PointerDecoder<format::HandleId>&     pYcbcrConversion) = 0;
 
     virtual void Process_vkDestroySamplerYcbcrConversionKHR(
-        HandleId                                    device,
-        HandleId                                    ycbcrConversion,
+        format::HandleId                            device,
+        format::HandleId                            ycbcrConversion,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkBindBufferMemory2KHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    bindInfoCount,
         const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>& pBindInfos) = 0;
 
     virtual void Process_vkBindImageMemory2KHR(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    bindInfoCount,
         const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>& pBindInfos) = 0;
 
     virtual void Process_vkGetDescriptorSetLayoutSupportKHR(
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport>& pSupport) = 0;
 
     virtual void Process_vkCmdDrawIndirectCountKHR(
-        HandleId                                    commandBuffer,
-        HandleId                                    buffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
         VkDeviceSize                                offset,
-        HandleId                                    countBuffer,
+        format::HandleId                            countBuffer,
         VkDeviceSize                                countBufferOffset,
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) = 0;
 
     virtual void Process_vkCmdDrawIndexedIndirectCountKHR(
-        HandleId                                    commandBuffer,
-        HandleId                                    buffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
         VkDeviceSize                                offset,
-        HandleId                                    countBuffer,
+        format::HandleId                            countBuffer,
         VkDeviceSize                                countBufferOffset,
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) = 0;
 
     virtual void Process_vkCreateDebugReportCallbackEXT(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkDebugReportCallbackCreateInfoEXT>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pCallback) = 0;
+        const PointerDecoder<format::HandleId>&     pCallback) = 0;
 
     virtual void Process_vkDestroyDebugReportCallbackEXT(
-        HandleId                                    instance,
-        HandleId                                    callback,
+        format::HandleId                            instance,
+        format::HandleId                            callback,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkDebugReportMessageEXT(
-        HandleId                                    instance,
+        format::HandleId                            instance,
         VkDebugReportFlagsEXT                       flags,
         VkDebugReportObjectTypeEXT                  objectType,
         uint64_t                                    object,
@@ -1537,47 +1537,47 @@ class VulkanConsumer : public VulkanConsumerBase
 
     virtual void Process_vkDebugMarkerSetObjectTagEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDebugMarkerObjectTagInfoEXT>& pTagInfo) = 0;
 
     virtual void Process_vkDebugMarkerSetObjectNameEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDebugMarkerObjectNameInfoEXT>& pNameInfo) = 0;
 
     virtual void Process_vkCmdDebugMarkerBeginEXT(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>& pMarkerInfo) = 0;
 
     virtual void Process_vkCmdDebugMarkerEndEXT(
-        HandleId                                    commandBuffer) = 0;
+        format::HandleId                            commandBuffer) = 0;
 
     virtual void Process_vkCmdDebugMarkerInsertEXT(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>& pMarkerInfo) = 0;
 
     virtual void Process_vkCmdDrawIndirectCountAMD(
-        HandleId                                    commandBuffer,
-        HandleId                                    buffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
         VkDeviceSize                                offset,
-        HandleId                                    countBuffer,
+        format::HandleId                            countBuffer,
         VkDeviceSize                                countBufferOffset,
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) = 0;
 
     virtual void Process_vkCmdDrawIndexedIndirectCountAMD(
-        HandleId                                    commandBuffer,
-        HandleId                                    buffer,
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
         VkDeviceSize                                offset,
-        HandleId                                    countBuffer,
+        format::HandleId                            countBuffer,
         VkDeviceSize                                countBufferOffset,
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) = 0;
 
     virtual void Process_vkGetShaderInfoAMD(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    pipeline,
+        format::HandleId                            device,
+        format::HandleId                            pipeline,
         VkShaderStageFlagBits                       shaderStage,
         VkShaderInfoTypeAMD                         infoType,
         const PointerDecoder<size_t>&               pInfoSize,
@@ -1585,7 +1585,7 @@ class VulkanConsumer : public VulkanConsumerBase
 
     virtual void Process_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         VkFormat                                    format,
         VkImageType                                 type,
         VkImageTiling                               tiling,
@@ -1596,280 +1596,280 @@ class VulkanConsumer : public VulkanConsumerBase
 
     virtual void Process_vkGetMemoryWin32HandleNV(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    memory,
+        format::HandleId                            device,
+        format::HandleId                            memory,
         VkExternalMemoryHandleTypeFlagsNV           handleType,
         const PointerDecoder<uint64_t>&             pHandle) = 0;
 
     virtual void Process_vkCreateViSurfaceNN(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkViSurfaceCreateInfoNN>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSurface) = 0;
+        const PointerDecoder<format::HandleId>&     pSurface) = 0;
 
     virtual void Process_vkCmdBeginConditionalRenderingEXT(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkConditionalRenderingBeginInfoEXT>& pConditionalRenderingBegin) = 0;
 
     virtual void Process_vkCmdEndConditionalRenderingEXT(
-        HandleId                                    commandBuffer) = 0;
+        format::HandleId                            commandBuffer) = 0;
 
     virtual void Process_vkCmdProcessCommandsNVX(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkCmdProcessCommandsInfoNVX>& pProcessCommandsInfo) = 0;
 
     virtual void Process_vkCmdReserveSpaceForCommandsNVX(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkCmdReserveSpaceForCommandsInfoNVX>& pReserveSpaceInfo) = 0;
 
     virtual void Process_vkCreateIndirectCommandsLayoutNVX(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkIndirectCommandsLayoutCreateInfoNVX>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pIndirectCommandsLayout) = 0;
+        const PointerDecoder<format::HandleId>&     pIndirectCommandsLayout) = 0;
 
     virtual void Process_vkDestroyIndirectCommandsLayoutNVX(
-        HandleId                                    device,
-        HandleId                                    indirectCommandsLayout,
+        format::HandleId                            device,
+        format::HandleId                            indirectCommandsLayout,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkCreateObjectTableNVX(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkObjectTableCreateInfoNVX>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pObjectTable) = 0;
+        const PointerDecoder<format::HandleId>&     pObjectTable) = 0;
 
     virtual void Process_vkDestroyObjectTableNVX(
-        HandleId                                    device,
-        HandleId                                    objectTable,
+        format::HandleId                            device,
+        format::HandleId                            objectTable,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkUnregisterObjectsNVX(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    objectTable,
+        format::HandleId                            device,
+        format::HandleId                            objectTable,
         uint32_t                                    objectCount,
         const PointerDecoder<VkObjectEntryTypeNVX>& pObjectEntryTypes,
         const PointerDecoder<uint32_t>&             pObjectIndices) = 0;
 
     virtual void Process_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         const StructPointerDecoder<Decoded_VkDeviceGeneratedCommandsFeaturesNVX>& pFeatures,
         const StructPointerDecoder<Decoded_VkDeviceGeneratedCommandsLimitsNVX>& pLimits) = 0;
 
     virtual void Process_vkCmdSetViewportWScalingNV(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    firstViewport,
         uint32_t                                    viewportCount,
         const StructPointerDecoder<Decoded_VkViewportWScalingNV>& pViewportWScalings) = 0;
 
     virtual void Process_vkReleaseDisplayEXT(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
-        HandleId                                    display) = 0;
+        format::HandleId                            physicalDevice,
+        format::HandleId                            display) = 0;
 
     virtual void Process_vkAcquireXlibDisplayEXT(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         uint64_t                                    dpy,
-        HandleId                                    display) = 0;
+        format::HandleId                            display) = 0;
 
     virtual void Process_vkGetRandROutputDisplayEXT(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         uint64_t                                    dpy,
         uint32_t                                    rrOutput,
-        const PointerDecoder<HandleId>&             pDisplay) = 0;
+        const PointerDecoder<format::HandleId>&     pDisplay) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
         VkResult                                    returnValue,
-        HandleId                                    physicalDevice,
-        HandleId                                    surface,
+        format::HandleId                            physicalDevice,
+        format::HandleId                            surface,
         const StructPointerDecoder<Decoded_VkSurfaceCapabilities2EXT>& pSurfaceCapabilities) = 0;
 
     virtual void Process_vkDisplayPowerControlEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    display,
+        format::HandleId                            device,
+        format::HandleId                            display,
         const StructPointerDecoder<Decoded_VkDisplayPowerInfoEXT>& pDisplayPowerInfo) = 0;
 
     virtual void Process_vkRegisterDeviceEventEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDeviceEventInfoEXT>& pDeviceEventInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pFence) = 0;
+        const PointerDecoder<format::HandleId>&     pFence) = 0;
 
     virtual void Process_vkRegisterDisplayEventEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    display,
+        format::HandleId                            device,
+        format::HandleId                            display,
         const StructPointerDecoder<Decoded_VkDisplayEventInfoEXT>& pDisplayEventInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pFence) = 0;
+        const PointerDecoder<format::HandleId>&     pFence) = 0;
 
     virtual void Process_vkGetSwapchainCounterEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    swapchain,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
         VkSurfaceCounterFlagBitsEXT                 counter,
         const PointerDecoder<uint64_t>&             pCounterValue) = 0;
 
     virtual void Process_vkGetRefreshCycleDurationGOOGLE(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    swapchain,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
         const StructPointerDecoder<Decoded_VkRefreshCycleDurationGOOGLE>& pDisplayTimingProperties) = 0;
 
     virtual void Process_vkGetPastPresentationTimingGOOGLE(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    swapchain,
+        format::HandleId                            device,
+        format::HandleId                            swapchain,
         const PointerDecoder<uint32_t>&             pPresentationTimingCount,
         const StructPointerDecoder<Decoded_VkPastPresentationTimingGOOGLE>& pPresentationTimings) = 0;
 
     virtual void Process_vkCmdSetDiscardRectangleEXT(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         uint32_t                                    firstDiscardRectangle,
         uint32_t                                    discardRectangleCount,
         const StructPointerDecoder<Decoded_VkRect2D>& pDiscardRectangles) = 0;
 
     virtual void Process_vkSetHdrMetadataEXT(
-        HandleId                                    device,
+        format::HandleId                            device,
         uint32_t                                    swapchainCount,
-        const PointerDecoder<HandleId>&             pSwapchains,
+        const PointerDecoder<format::HandleId>&     pSwapchains,
         const StructPointerDecoder<Decoded_VkHdrMetadataEXT>& pMetadata) = 0;
 
     virtual void Process_vkCreateIOSSurfaceMVK(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkIOSSurfaceCreateInfoMVK>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSurface) = 0;
+        const PointerDecoder<format::HandleId>&     pSurface) = 0;
 
     virtual void Process_vkCreateMacOSSurfaceMVK(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkMacOSSurfaceCreateInfoMVK>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pSurface) = 0;
+        const PointerDecoder<format::HandleId>&     pSurface) = 0;
 
     virtual void Process_vkSetDebugUtilsObjectNameEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>& pNameInfo) = 0;
 
     virtual void Process_vkSetDebugUtilsObjectTagEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>& pTagInfo) = 0;
 
     virtual void Process_vkQueueBeginDebugUtilsLabelEXT(
-        HandleId                                    queue,
+        format::HandleId                            queue,
         const StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>& pLabelInfo) = 0;
 
     virtual void Process_vkQueueEndDebugUtilsLabelEXT(
-        HandleId                                    queue) = 0;
+        format::HandleId                            queue) = 0;
 
     virtual void Process_vkQueueInsertDebugUtilsLabelEXT(
-        HandleId                                    queue,
+        format::HandleId                            queue,
         const StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>& pLabelInfo) = 0;
 
     virtual void Process_vkCmdBeginDebugUtilsLabelEXT(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>& pLabelInfo) = 0;
 
     virtual void Process_vkCmdEndDebugUtilsLabelEXT(
-        HandleId                                    commandBuffer) = 0;
+        format::HandleId                            commandBuffer) = 0;
 
     virtual void Process_vkCmdInsertDebugUtilsLabelEXT(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>& pLabelInfo) = 0;
 
     virtual void Process_vkCreateDebugUtilsMessengerEXT(
         VkResult                                    returnValue,
-        HandleId                                    instance,
+        format::HandleId                            instance,
         const StructPointerDecoder<Decoded_VkDebugUtilsMessengerCreateInfoEXT>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pMessenger) = 0;
+        const PointerDecoder<format::HandleId>&     pMessenger) = 0;
 
     virtual void Process_vkDestroyDebugUtilsMessengerEXT(
-        HandleId                                    instance,
-        HandleId                                    messenger,
+        format::HandleId                            instance,
+        format::HandleId                            messenger,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkSubmitDebugUtilsMessageEXT(
-        HandleId                                    instance,
+        format::HandleId                            instance,
         VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
         const StructPointerDecoder<Decoded_VkDebugUtilsMessengerCallbackDataEXT>& pCallbackData) = 0;
 
     virtual void Process_vkGetAndroidHardwareBufferPropertiesANDROID(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         uint64_t                                    buffer,
         const StructPointerDecoder<Decoded_VkAndroidHardwareBufferPropertiesANDROID>& pProperties) = 0;
 
     virtual void Process_vkGetMemoryAndroidHardwareBufferANDROID(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID>& pInfo,
         const PointerDecoder<uint64_t>&             pBuffer) = 0;
 
     virtual void Process_vkCmdSetSampleLocationsEXT(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkSampleLocationsInfoEXT>& pSampleLocationsInfo) = 0;
 
     virtual void Process_vkGetPhysicalDeviceMultisamplePropertiesEXT(
-        HandleId                                    physicalDevice,
+        format::HandleId                            physicalDevice,
         VkSampleCountFlagBits                       samples,
         const StructPointerDecoder<Decoded_VkMultisamplePropertiesEXT>& pMultisampleProperties) = 0;
 
     virtual void Process_vkCreateValidationCacheEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkValidationCacheCreateInfoEXT>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<HandleId>&             pValidationCache) = 0;
+        const PointerDecoder<format::HandleId>&     pValidationCache) = 0;
 
     virtual void Process_vkDestroyValidationCacheEXT(
-        HandleId                                    device,
-        HandleId                                    validationCache,
+        format::HandleId                            device,
+        format::HandleId                            validationCache,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
     virtual void Process_vkMergeValidationCachesEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    dstCache,
+        format::HandleId                            device,
+        format::HandleId                            dstCache,
         uint32_t                                    srcCacheCount,
-        const PointerDecoder<HandleId>&             pSrcCaches) = 0;
+        const PointerDecoder<format::HandleId>&     pSrcCaches) = 0;
 
     virtual void Process_vkGetValidationCacheDataEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
-        HandleId                                    validationCache,
+        format::HandleId                            device,
+        format::HandleId                            validationCache,
         const PointerDecoder<size_t>&               pDataSize,
         const PointerDecoder<uint8_t>&              pData) = 0;
 
     virtual void Process_vkGetMemoryHostPointerPropertiesEXT(
         VkResult                                    returnValue,
-        HandleId                                    device,
+        format::HandleId                            device,
         VkExternalMemoryHandleTypeFlagBits          handleType,
         uint64_t                                    pHostPointer,
         const StructPointerDecoder<Decoded_VkMemoryHostPointerPropertiesEXT>& pMemoryHostPointerProperties) = 0;
 
     virtual void Process_vkCmdWriteBufferMarkerAMD(
-        HandleId                                    commandBuffer,
+        format::HandleId                            commandBuffer,
         VkPipelineStageFlagBits                     pipelineStage,
-        HandleId                                    dstBuffer,
+        format::HandleId                            dstBuffer,
         VkDeviceSize                                dstOffset,
         uint32_t                                    marker) = 0;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
 #endif

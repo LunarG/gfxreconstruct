@@ -17,13 +17,13 @@
 #include <cassert>
 
 #include "util/defines.h"
-#include "format/descriptor_update_template_decoder.h"
 #include "format/format.h"
-#include "format/value_decoder.h"
+#include "decode/descriptor_update_template_decoder.h"
+#include "decode/value_decoder.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 DescriptorUpdateTemplateDecoder::DescriptorUpdateTemplateDecoder() : texel_buffer_views_(nullptr) {}
 
@@ -34,8 +34,8 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
     size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
     // The update template should identify as a struct pointer.
-    assert(((GetAttributeMask() & PointerAttributes::kIsStruct) == PointerAttributes::kIsStruct) &&
-           ((GetAttributeMask() & PointerAttributes::kIsSingle) == PointerAttributes::kIsSingle));
+    assert(((GetAttributeMask() & format::PointerAttributes::kIsStruct) == format::PointerAttributes::kIsStruct) &&
+           ((GetAttributeMask() & format::PointerAttributes::kIsSingle) == format::PointerAttributes::kIsSingle));
 
     if (!IsNull() && HasData())
     {
@@ -83,7 +83,7 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
         if (texel_buffer_view_count_ > 0)
         {
             texel_buffer_views_ = reinterpret_cast<VkBufferView*>(template_memory_.get() + texel_buffer_view_offset);
-            decoded_texel_buffer_view_handle_ids_ = std::make_unique<HandleId[]>(texel_buffer_view_count_);
+            decoded_texel_buffer_view_handle_ids_ = std::make_unique<format::HandleId[]>(texel_buffer_view_count_);
 
             ValueDecoder::DecodeHandleIdArray((buffer + bytes_read),
                                               (buffer_size - bytes_read),
@@ -95,5 +95,5 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
     return bytes_read;
 }
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)

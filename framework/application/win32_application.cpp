@@ -22,7 +22,7 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 
 Win32Application::Win32Application(const std::string& name) : Application(name) {}
 
-bool Win32Application::Initialize(format::FileProcessor* file_processor)
+bool Win32Application::Initialize(decode::FileProcessor* file_processor)
 {
     // No additional initialization is required for WIN32.
     SetFileProcessor(file_processor);

@@ -14,18 +14,18 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_PNEXT_TYPED_NODE_H
-#define BRIMSTONE_FORMAT_PNEXT_TYPED_NODE_H
+#ifndef BRIMSTONE_DECODE_PNEXT_TYPED_NODE_H
+#define BRIMSTONE_DECODE_PNEXT_TYPED_NODE_H
 
 #include <cassert>
 #include <memory>
 
 #include "util/defines.h"
 #include "format/format.h"
-#include "format/struct_pointer_decoder.h"
+#include "decode/struct_pointer_decoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 template <typename T>
 class PNextTypedNode : public PNextNode
@@ -47,7 +47,7 @@ private:
     StructPointerDecoder<T> struct_pointer_;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_PNEXT_TYPED_NODE_H
+#endif // BRIMSTONE_DECODE_PNEXT_TYPED_NODE_H

@@ -33,7 +33,7 @@ XcbApplication::~XcbApplication()
     }
 }
 
-bool XcbApplication::Initialize(format::FileProcessor* file_processor)
+bool XcbApplication::Initialize(decode::FileProcessor* file_processor)
 {
     int screen_count = 0;
     connection_      = xcb_connect(nullptr, &screen_count);

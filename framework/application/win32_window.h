@@ -19,7 +19,7 @@
 
 #include "util/defines.h"
 #include "util/platform.h"
-#include "format/window.h"
+#include "decode/window.h"
 #include "application/win32_application.h"
 
 #define IDI_ICON 101
@@ -27,7 +27,7 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
-class Win32Window : public format::Window
+class Win32Window : public decode::Window
 {
   public:
     enum HandleId : uint32_t
@@ -70,14 +70,14 @@ class Win32Window : public format::Window
     HINSTANCE         hinstance_;
 };
 
-class Win32WindowFactory : public format::WindowFactory
+class Win32WindowFactory : public decode::WindowFactory
 {
   public:
     Win32WindowFactory(Win32Application* application);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_WIN32_SURFACE_EXTENSION_NAME; }
 
-    virtual format::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
+    virtual decode::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                           uint32_t         queue_family_index) override;

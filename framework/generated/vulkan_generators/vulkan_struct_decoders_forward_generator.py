@@ -54,12 +54,12 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        write('BRIMSTONE_BEGIN_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
     # Method override
     def endFile(self):
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(format)', file=self.outFile)
+        write('BRIMSTONE_END_NAMESPACE(decode)', file=self.outFile)
         write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
 
         # Finish processing in superclass

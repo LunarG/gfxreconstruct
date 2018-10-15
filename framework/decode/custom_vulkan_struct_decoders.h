@@ -14,21 +14,21 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_CUSTOM_STRUCT_DECODERS_H
-#define BRIMSTONE_CUSTOM_STRUCT_DECODERS_H
+#ifndef BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODERS_H
+#define BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODERS_H
 
 #include <memory>
 
 #include "vulkan/vulkan.h"
 
-#include "format/custom_struct_decoders_forward.h"
 #include "format/platform_types.h"
-#include "format/pointer_decoder.h"
-#include "format/struct_pointer_decoder.h"
+#include "decode/custom_vulkan_struct_decoders_forward.h"
+#include "decode/pointer_decoder.h"
+#include "decode/struct_pointer_decoder.h"
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 // Decoded union wrappers.
 struct Decoded_VkClearColorValue
@@ -83,7 +83,7 @@ struct Decoded_SECURITY_ATTRIBUTES
     StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR> lpSecurityDescriptor;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_CUSTOM_STRUCT_DECODERS_H
+#endif // BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODERS_H

@@ -19,7 +19,7 @@
 
 #include <wayland-client.h>
 
-#include "format/window.h"
+#include "decode/window.h"
 #include "application/wayland_application.h"
 
 #include "util/defines.h"
@@ -27,7 +27,7 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
 
-class WaylandWindow : public format::Window
+class WaylandWindow : public decode::Window
 {
   public:
     enum HandleId : uint32_t
@@ -78,14 +78,14 @@ class WaylandWindow : public format::Window
     struct wl_shell_surface*                shell_surface_;
 };
 
-class WaylandWindowFactory : public format::WindowFactory
+class WaylandWindowFactory : public decode::WindowFactory
 {
   public:
     WaylandWindowFactory(WaylandApplication* application);
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME; }
 
-    virtual format::Window*
+    virtual decode::Window*
     Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,

@@ -271,10 +271,10 @@ Win32WindowFactory::Win32WindowFactory(Win32Application* application) : win32_ap
     assert(application != nullptr);
 }
 
-format::Window*
+decode::Window*
 Win32WindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
-    format::Window* window = new Win32Window(win32_application_);
+    decode::Window* window = new Win32Window(win32_application_);
     window->Create(win32_application_->GetName(), x, y, width, height);
     return window;
 }

@@ -45,7 +45,7 @@ public:
 
     uint8_t GetLastErrorCode() const { return last_error_code_; }
 
-    virtual bool Initialize(format::FileProcessor* file_processor) override;
+    virtual bool Initialize(decode::FileProcessor* file_processor) override;
 
     bool RegisterXcbWindow(XcbWindow* window);
 

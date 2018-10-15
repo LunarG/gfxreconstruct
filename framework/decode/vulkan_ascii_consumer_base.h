@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_VULKAN_ASCII_CONSUMER_BASE_H
-#define BRIMSTONE_VULKAN_ASCII_CONSUMER_BASE_H
+#ifndef BRIMSTONE_DECODE_VULKAN_ASCII_CONSUMER_BASE_H
+#define BRIMSTONE_DECODE_VULKAN_ASCII_CONSUMER_BASE_H
 
 #include <cstdio>
 #include <string>
@@ -27,7 +27,7 @@
 #include "generated/generated_vulkan_consumer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class VulkanAsciiConsumerBase : public VulkanConsumer
 {
@@ -44,26 +44,26 @@ public:
 
     const std::string& GetFilename() const { return m_filename; }
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(HandleId device,
-                                                           HandleId descriptorSet,
-                                                           HandleId descriptorUpdateTemplate,
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
+                                                           format::HandleId descriptorSet,
+                                                           format::HandleId descriptorUpdateTemplate,
                                                            const DescriptorUpdateTemplateDecoder& pData) override;
 
-    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(HandleId commandBuffer,
-                                                               HandleId descriptorUpdateTemplate,
-                                                               HandleId layout,
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
+                                                               format::HandleId descriptorUpdateTemplate,
+                                                               format::HandleId layout,
                                                                uint32_t set,
                                                                const DescriptorUpdateTemplateDecoder& pData) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(HandleId device,
-                                                              HandleId descriptorSet,
-                                                              HandleId descriptorUpdateTemplate,
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
+                                                              format::HandleId descriptorSet,
+                                                              format::HandleId descriptorUpdateTemplate,
                                                               const DescriptorUpdateTemplateDecoder& pData) override;
 
     virtual void
     Process_vkRegisterObjectsNVX(VkResult                                                   returnValue,
-                                 HandleId                                                   device,
-                                 HandleId                                                   objectTable,
+                                 format::HandleId                                           device,
+                                 format::HandleId                                           objectTable,
                                  uint32_t                                                   objectCount,
                                  const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
                                  const PointerDecoder<uint32_t>&                            pObjectIndices) override;
@@ -76,7 +76,7 @@ public:
     std::string     m_filename;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_VULKAN_ASCII_CONSUMER_BASE_H
+#endif // BRIMSTONE_DECODE_VULKAN_ASCII_CONSUMER_BASE_H

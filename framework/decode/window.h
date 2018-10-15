@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_WINDOW_H
-#define BRIMSTONE_FORMAT_WINDOW_H
+#ifndef BRIMSTONE_DECODE_WINDOW_H
+#define BRIMSTONE_DECODE_WINDOW_H
 
 #include <string>
 
@@ -24,7 +24,7 @@
 #include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class Window
 {
@@ -71,7 +71,7 @@ class WindowFactory
                                                           uint32_t         queue_family_index) = 0;
 };
 
-BRIMSTONE_END_NAMESPACE(format)
+BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_WINDOW_H
+#endif // BRIMSTONE_DECODE_WINDOW_H
