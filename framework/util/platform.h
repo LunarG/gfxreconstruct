@@ -300,7 +300,6 @@ inline int32_t FileClose(FILE* stream)
     return fclose(stream);
 }
 
-
 BRIMSTONE_END_NAMESPACE(platform)
 BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)

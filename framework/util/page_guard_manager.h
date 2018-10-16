@@ -32,12 +32,12 @@ BRIMSTONE_BEGIN_NAMESPACE(util)
 class PageGuardManager
 {
   public:
-    static const bool     kDefaultEnableShadowCachedMemory   = false;
-    static const bool     kDefaultEnableUncachedRead         = false;
-    static const bool     kDefaultEnableCopyOnMap            = true;
-    static const bool     kDefaultEnableLazyCopy             = true;
-    static const bool     kDefaultEnableSeparateReadTracking = true;
-    static const bool     kDefaultEnableReadWriteSamePage    = true;
+    static const bool kDefaultEnableShadowCachedMemory   = false;
+    static const bool kDefaultEnableUncachedRead         = false;
+    static const bool kDefaultEnableCopyOnMap            = true;
+    static const bool kDefaultEnableLazyCopy             = true;
+    static const bool kDefaultEnableSeparateReadTracking = true;
+    static const bool kDefaultEnableReadWriteSamePage    = true;
 
   public:
     // Callback for processing modified memory.  The function parameters are the ID of the modified memory object,
@@ -46,12 +46,12 @@ class PageGuardManager
     typedef std::function<void(uint64_t, void*, size_t, size_t)> ModifiedMemoryFunc;
 
   public:
-    static void Create(bool     enable_shadow_cached_memory,
-                       bool     enable_uncached_read,
-                       bool     enable_copy_on_map,
-                       bool     enable_lazy_copy,
-                       bool     enable_separate_read_tracking,
-                       bool     expect_read_write_same_page);
+    static void Create(bool enable_shadow_cached_memory,
+                       bool enable_uncached_read,
+                       bool enable_copy_on_map,
+                       bool enable_lazy_copy,
+                       bool enable_separate_read_tracking,
+                       bool expect_read_write_same_page);
 
     static void Destroy();
 
@@ -70,12 +70,12 @@ class PageGuardManager
   protected:
     PageGuardManager();
 
-    PageGuardManager(bool     enable_shadow_cached_memory,
-                     bool     enable_uncached_read,
-                     bool     enable_copy_on_map,
-                     bool     enable_lazy_copy,
-                     bool     enable_separate_read_tracking,
-                     bool     expect_read_write_same_page);
+    PageGuardManager(bool enable_shadow_cached_memory,
+                     bool enable_uncached_read,
+                     bool enable_copy_on_map,
+                     bool enable_lazy_copy,
+                     bool enable_separate_read_tracking,
+                     bool expect_read_write_same_page);
 
     ~PageGuardManager();
 
