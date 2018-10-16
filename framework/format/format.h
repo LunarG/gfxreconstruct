@@ -114,11 +114,11 @@ enum PointerAttributes : uint32_t
 
 struct EnabledOptions
 {
-    CompressionType       compression_type{ CompressionType::kNone };
-    bool                  record_thread_id{ true };
-    bool                  record_begin_end_timestamp{ false };
-    bool                  omit_textures{ false };
-    bool                  omit_buffers{ false };
+    CompressionType compression_type{ CompressionType::kNone };
+    bool            record_thread_id{ true };
+    bool            record_begin_end_timestamp{ false };
+    bool            omit_textures{ false };
+    bool            omit_buffers{ false };
 };
 
 #pragma pack(push)
