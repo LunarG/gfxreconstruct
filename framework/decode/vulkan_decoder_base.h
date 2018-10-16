@@ -26,13 +26,13 @@
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "format/platform_types.h"
-#include "decode/decoder.h"
+#include "decode/api_decoder.h"
 #include "generated/generated_vulkan_consumer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-class VulkanDecoderBase : public Decoder
+class VulkanDecoderBase : public ApiDecoder
 {
 public:
     VulkanDecoderBase() { }

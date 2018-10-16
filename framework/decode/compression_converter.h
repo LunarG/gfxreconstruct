@@ -19,7 +19,7 @@
 
 #include <string>
 
-#include "decode/decoder.h"
+#include "decode/api_decoder.h"
 
 #include "util/file_output_stream.h"
 #include "util/memory_output_stream.h"
@@ -28,7 +28,7 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-class CompressionConverter : public Decoder
+class CompressionConverter : public ApiDecoder
 {
   public:
     CompressionConverter();

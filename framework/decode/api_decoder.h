@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_DECODER_H
-#define BRIMSTONE_DECODE_DECODER_H
+#ifndef BRIMSTONE_API_DECODE_DECODER_H
+#define BRIMSTONE_API_DECODE_DECODER_H
 
 #include <string>
 
@@ -28,10 +28,10 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-class Decoder
+class ApiDecoder
 {
   public:
-    virtual ~Decoder() {}
+    virtual ~ApiDecoder() {}
 
     virtual bool SupportsApiCall(format::ApiCallId id) = 0;
 
@@ -50,4 +50,4 @@ class Decoder
 BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_DECODE_DECODER_H
+#endif // BRIMSTONE_API_DECODE_DECODER_H
