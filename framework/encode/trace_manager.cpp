@@ -110,8 +110,7 @@ bool TraceManager::Initialize(std::string filename, format::EnabledOptions file_
 
     if (success)
     {
-        compressor_ =
-            std::unique_ptr<util::Compressor>(format::CreateCompressor(file_options.compression_type));
+        compressor_ = std::unique_ptr<util::Compressor>(format::CreateCompressor(file_options.compression_type));
         if ((nullptr == compressor_) && (format::CompressionType::kNone != file_options.compression_type))
         {
             success = false;
@@ -305,9 +304,9 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
 {
     BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
-    format::FillMemoryCommandHeader   fill_cmd;
-    const uint8_t*                    write_address  = (static_cast<const uint8_t*>(data) + offset);
-    size_t                            write_size     = static_cast<size_t>(size);
+    format::FillMemoryCommandHeader fill_cmd;
+    const uint8_t*                  write_address = (static_cast<const uint8_t*>(data) + offset);
+    size_t                          write_size    = static_cast<size_t>(size);
 
     fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
@@ -335,7 +334,7 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
 
     // Calculate size of packet with compressed or uncompressed data size.
     fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.memory_id) +
-                                            sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + write_size;
+                                             sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + write_size;
 
     {
         std::lock_guard<std::mutex> lock(file_lock_);
@@ -471,7 +470,7 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
     if ((result == VK_SUCCESS) && (ppData != nullptr))
     {
         std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-        auto info = memory_tracker_.MapEntry(memory, offset, size, (*ppData));
+        auto                        info = memory_tracker_.MapEntry(memory, offset, size, (*ppData));
 
         if ((info != nullptr) && (info->mapped_size > 0) && (memory_tracking_mode_ == kPageGuard))
         {
@@ -516,7 +515,7 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
                 // offset is realtive to the start of the memory object, we need to adjust it to be
                 // realitve to the start of the mapped pointer.
                 VkDeviceSize relative_offset = pMemoryRanges[i].offset - info->mapped_offset;
-                VkDeviceSize size = pMemoryRanges[i].size;
+                VkDeviceSize size            = pMemoryRanges[i].size;
                 if (size == VK_WHOLE_SIZE)
                 {
                     size = info->allocation_size - pMemoryRanges[i].offset;
@@ -543,9 +542,9 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
 
         if ((info != nullptr) && (info->data != nullptr))
         {
-            manager->ProcessMemoryEntry(format::ToHandleId(memory),
-                [this](
-                    uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+            manager->ProcessMemoryEntry(
+                format::ToHandleId(memory),
+                [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
                     WriteFillMemoryCmd(format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
                 });
 
@@ -559,10 +558,7 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
         if ((info != nullptr) && (info->data != nullptr))
         {
             // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-            WriteFillMemoryCmd(memory,
-                               0,
-                               info->mapped_size,
-                               info->data);
+            WriteFillMemoryCmd(memory, 0, info->mapped_size, info->data);
         }
     }
 
@@ -602,13 +598,12 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     {
         std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
-        util::PageGuardManager*     manager = util::PageGuardManager::Get();
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
 
-        manager->ProcessMemoryEntries(
-            [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+        manager->ProcessMemoryEntries([this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
             WriteFillMemoryCmd(format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
-            });
+        });
     }
     else if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
     {
@@ -619,10 +614,7 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
             if (entry.data != nullptr)
             {
                 // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-                WriteFillMemoryCmd(memory,
-                                   0,
-                                   entry.mapped_size,
-                                   entry.data);
+                WriteFillMemoryCmd(memory, 0, entry.mapped_size, entry.data);
             }
         });
     }

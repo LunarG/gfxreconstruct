@@ -31,7 +31,8 @@ void MemoryTracker::AddEntry(VkDeviceMemory memory, VkMemoryPropertyFlags proper
                            std::forward_as_tuple(memory, property_flags, allocation_size));
 }
 
-const MemoryTracker::EntryInfo* MemoryTracker::MapEntry(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, void* data)
+const MemoryTracker::EntryInfo*
+MemoryTracker::MapEntry(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, void* data)
 {
     assert(mapped_memory_.find(memory) != mapped_memory_.end());
 

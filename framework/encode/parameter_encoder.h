@@ -34,10 +34,10 @@ BRIMSTONE_BEGIN_NAMESPACE(encode)
 
 class ParameterEncoder
 {
-public:
-    ParameterEncoder(util::OutputStream* stream) : output_stream_(stream) { }
+  public:
+    ParameterEncoder(util::OutputStream* stream) : output_stream_(stream) {}
 
-    ~ParameterEncoder() { }
+    ~ParameterEncoder() {}
 
     void Reset() { output_stream_->Reset(); }
 
@@ -151,7 +151,7 @@ public:
         }
     }
 
-private:
+  private:
     uint32_t GetPointerAttributeMask(const void* ptr, bool omit_addr, bool omit_data)
     {
         uint32_t pointer_attrib = 0;
@@ -176,25 +176,27 @@ private:
         return pointer_attrib;
     }
 
-    template<typename DstT, typename SrcT>
-    typename std::enable_if<!std::is_pointer<SrcT>::value && !std::is_pointer<DstT>::value, DstT>::type TypeCast(SrcT value)
+    template <typename DstT, typename SrcT>
+    typename std::enable_if<!std::is_pointer<SrcT>::value && !std::is_pointer<DstT>::value, DstT>::type
+    TypeCast(SrcT value)
     {
         return static_cast<DstT>(value);
     }
 
-    template<typename DstT, typename SrcT>
-    typename std::enable_if<std::is_pointer<SrcT>::value || std::is_pointer<DstT>::value, DstT>::type TypeCast(SrcT value)
+    template <typename DstT, typename SrcT>
+    typename std::enable_if<std::is_pointer<SrcT>::value || std::is_pointer<DstT>::value, DstT>::type
+    TypeCast(SrcT value)
     {
         return reinterpret_cast<DstT>(value);
     }
 
-    template<typename T>
+    template <typename T>
     void EncodeValue(T value)
     {
         output_stream_->Write(&value, sizeof(T));
     }
 
-    template<typename T>
+    template <typename T>
     void EncodePointer(const T* ptr, bool omit_addr = false, bool omit_data = false)
     {
         uint32_t pointer_attrib =
@@ -216,7 +218,7 @@ private:
         }
     }
 
-    template<typename DstT, typename SrcT>
+    template <typename DstT, typename SrcT>
     void EncodePointerConverted(const SrcT* ptr, bool omit_addr = false, bool omit_data = false)
     {
         uint32_t pointer_attrib =
@@ -239,7 +241,7 @@ private:
         }
     }
 
-    template<typename T>
+    template <typename T>
     void EncodeArray(const T* arr, size_t len, bool omit_addr = false, bool omit_data = false)
     {
         uint32_t pointer_attrib =
@@ -264,9 +266,11 @@ private:
         }
     }
 
-    // Perform a type conversion for array elements when the original type has a size that is not equal to the target type for conversion.
-    template<typename DstT, typename SrcT>
-    typename std::enable_if<sizeof(SrcT) != sizeof(DstT), void>::type EncodeArrayConverted(const SrcT* arr, size_t len, bool omit_addr = false, bool omit_data = false)
+    // Perform a type conversion for array elements when the original type has a size that is not equal to the target
+    // type for conversion.
+    template <typename DstT, typename SrcT>
+    typename std::enable_if<sizeof(SrcT) != sizeof(DstT), void>::type
+    EncodeArrayConverted(const SrcT* arr, size_t len, bool omit_addr = false, bool omit_data = false)
     {
         uint32_t pointer_attrib =
             format::PointerAttributes::kIsArray | GetPointerAttributeMask(arr, omit_addr, omit_data);
@@ -294,9 +298,11 @@ private:
         }
     }
 
-    // Overload for the case where the original type and the conversion type have matching sizes, where we can skip the type conversion.
-    template<typename DstT, typename SrcT>
-    typename std::enable_if<sizeof(SrcT) == sizeof(DstT), void>::type EncodeArrayConverted(const SrcT* arr, size_t len, bool omit_addr = false, bool omit_data = false)
+    // Overload for the case where the original type and the conversion type have matching sizes, where we can skip the
+    // type conversion.
+    template <typename DstT, typename SrcT>
+    typename std::enable_if<sizeof(SrcT) == sizeof(DstT), void>::type
+    EncodeArrayConverted(const SrcT* arr, size_t len, bool omit_addr = false, bool omit_data = false)
     {
         EncodeArray(arr, len, omit_addr, omit_data);
     }
@@ -356,8 +362,8 @@ private:
         }
     }
 
-private:
-    util::OutputStream*                 output_stream_;
+  private:
+    util::OutputStream* output_stream_;
 };
 
 BRIMSTONE_END_NAMESPACE(encode)
