@@ -28,7 +28,8 @@ bool ValidateFileHeader(const FileHeader& header)
 
     if (header.fourcc != BRIMSTONE_FOURCC)
     {
-        BRIMSTONE_LOG_ERROR("Invalid file: File header does not contain the expected unrecognized four character code.");
+        BRIMSTONE_LOG_ERROR(
+            "Invalid file: File header does not contain the expected unrecognized four character code.");
         valid = false;
     }
 
