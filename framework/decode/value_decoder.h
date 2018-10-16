@@ -30,7 +30,7 @@ BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class ValueDecoder
 {
-public:
+  public:
     // clang-format off
 
     // Values
@@ -85,14 +85,16 @@ public:
 
     // clang-format on
 
-    // Perform a type conversion for array elements when the original type has a size that is not equal to the target type for conversion.
-    template<typename SrcT, typename DstT>
-    static typename std::enable_if<sizeof(SrcT) != sizeof(DstT), size_t>::type DecodeArrayFrom(const uint8_t* buffer, size_t buffer_size, DstT* arr, size_t len)
+    // Perform a type conversion for array elements when the original type has a size that is not equal to the target
+    // type for conversion.
+    template <typename SrcT, typename DstT>
+    static typename std::enable_if<sizeof(SrcT) != sizeof(DstT), size_t>::type
+    DecodeArrayFrom(const uint8_t* buffer, size_t buffer_size, DstT* arr, size_t len)
     {
         assert(arr != nullptr);
 
         size_t bytes_read = 0;
-        size_t data_size = len * sizeof(SrcT);
+        size_t data_size  = len * sizeof(SrcT);
 
         if (buffer_size >= data_size)
         {
@@ -107,33 +109,37 @@ public:
         return bytes_read;
     }
 
-    // Overload for the case where the original type and the conversion type have matching sizes, where we can skip the type conversion.
-    template<typename SrcT, typename DstT>
-    static typename std::enable_if<sizeof(SrcT) == sizeof(DstT), size_t>::type DecodeArrayFrom(const uint8_t* buffer, size_t buffer_size, DstT* arr, size_t len)
+    // Overload for the case where the original type and the conversion type have matching sizes, where we can skip the
+    // type conversion.
+    template <typename SrcT, typename DstT>
+    static typename std::enable_if<sizeof(SrcT) == sizeof(DstT), size_t>::type
+    DecodeArrayFrom(const uint8_t* buffer, size_t buffer_size, DstT* arr, size_t len)
     {
         return DecodeArray(buffer, buffer_size, arr, len);
     }
 
-private:
-    template<typename DstT, typename SrcT>
-    static typename std::enable_if<!std::is_pointer<SrcT>::value && !std::is_pointer<DstT>::value, DstT>::type TypeCast(SrcT value)
+  private:
+    template <typename DstT, typename SrcT>
+    static typename std::enable_if<!std::is_pointer<SrcT>::value && !std::is_pointer<DstT>::value, DstT>::type
+    TypeCast(SrcT value)
     {
         return static_cast<DstT>(value);
     }
 
-    template<typename DstT, typename SrcT>
-    static typename std::enable_if<std::is_pointer<SrcT>::value || std::is_pointer<DstT>::value, DstT>::type TypeCast(SrcT value)
+    template <typename DstT, typename SrcT>
+    static typename std::enable_if<std::is_pointer<SrcT>::value || std::is_pointer<DstT>::value, DstT>::type
+    TypeCast(SrcT value)
     {
         return reinterpret_cast<DstT>(value);
     }
 
-    template<typename T>
+    template <typename T>
     static size_t DecodeValue(const uint8_t* buffer, size_t buffer_size, T* value)
     {
         assert(value != nullptr);
 
         size_t bytes_read = 0;
-        size_t data_size = sizeof(T);
+        size_t data_size  = sizeof(T);
 
         if (buffer_size >= data_size)
         {
@@ -144,18 +150,18 @@ private:
         return bytes_read;
     }
 
-    template<typename SrcT, typename DstT>
+    template <typename SrcT, typename DstT>
     static size_t DecodeValueFrom(const uint8_t* buffer, size_t buffer_size, DstT* value)
     {
         assert(value != nullptr);
 
         size_t bytes_read = 0;
-        size_t data_size = sizeof(SrcT);
+        size_t data_size  = sizeof(SrcT);
 
         if (buffer_size >= data_size)
         {
             SrcT from_type = 0;
-            bytes_read = data_size;
+            bytes_read     = data_size;
             memcpy(&from_type, buffer, data_size);
             (*value) = TypeCast<DstT>(from_type);
         }
@@ -163,13 +169,13 @@ private:
         return bytes_read;
     }
 
-    template<typename T>
+    template <typename T>
     static size_t DecodeArray(const uint8_t* buffer, size_t buffer_size, T* arr, size_t len)
     {
         assert(arr != nullptr);
 
         size_t bytes_read = 0;
-        size_t data_size = len * sizeof(T);
+        size_t data_size  = len * sizeof(T);
 
         if (buffer_size >= data_size)
         {

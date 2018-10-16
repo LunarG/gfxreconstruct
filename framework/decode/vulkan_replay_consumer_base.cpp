@@ -65,9 +65,9 @@ void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& m
 }
 
 void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
-                                                    uint64_t       offset,
-                                                    uint64_t       size,
-                                                    const uint8_t* data)
+                                                        uint64_t       offset,
+                                                        uint64_t       size,
+                                                        const uint8_t* data)
 {
     // We need to find the device memory associated with this ID, and then lookup its mapped pointer.
     VkDeviceMemory memory = object_mapper_.MapVkDeviceMemory(memory_id);
@@ -153,9 +153,9 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
 }
 
 void VulkanReplayConsumerBase::PostProcessExternalObject(const PointerDecoder<uint64_t>& object_id,
-                                                     void*                           object,
-                                                     format::ApiCallId               call_id,
-                                                     const char*                     call_name)
+                                                         void*                           object,
+                                                         format::ApiCallId               call_id,
+                                                         const char*                     call_name)
 {
     if (call_id == format::ApiCallId::ApiCallId_vkMapMemory)
     {
@@ -241,8 +241,8 @@ VkResult VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags fl
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
-                                                      const VkAllocationCallbacks* pAllocator,
-                                                      VkInstance*                  pInstance)
+                                                          const VkAllocationCallbacks* pAllocator,
+                                                          VkInstance*                  pInstance)
 {
     static bool volk_initialized = false;
     if (!volk_initialized)
@@ -298,9 +298,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateInstance(const VkInstanceCreate
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkPhysicalDevice             physicalDevice,
-                                                    const VkDeviceCreateInfo*    pCreateInfo,
-                                                    const VkAllocationCallbacks* pAllocator,
-                                                    VkDevice*                    pDevice)
+                                                        const VkDeviceCreateInfo*    pCreateInfo,
+                                                        const VkAllocationCallbacks* pAllocator,
+                                                        VkDevice*                    pDevice)
 {
     VkResult result = vkCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
 
@@ -314,11 +314,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkPhysicalDevice        
 }
 
 VkResult VulkanReplayConsumerBase::OverrideWaitForFences(VkResult       original_result,
-                                                     VkDevice       device,
-                                                     uint32_t       fenceCount,
-                                                     const VkFence* pFences,
-                                                     VkBool32       waitAll,
-                                                     uint64_t       timeout)
+                                                         VkDevice       device,
+                                                         uint32_t       fenceCount,
+                                                         const VkFence* pFences,
+                                                         VkBool32       waitAll,
+                                                         uint64_t       timeout)
 {
     VkResult result;
 
@@ -366,14 +366,14 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(VkResult original_resu
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(VkResult           original_result,
-                                                           VkDevice           device,
-                                                           VkQueryPool        queryPool,
-                                                           uint32_t           firstQuery,
-                                                           uint32_t           queryCount,
-                                                           size_t             dataSize,
-                                                           void*              pData,
-                                                           VkDeviceSize       stride,
-                                                           VkQueryResultFlags flags)
+                                                               VkDevice           device,
+                                                               VkQueryPool        queryPool,
+                                                               uint32_t           firstQuery,
+                                                               uint32_t           queryCount,
+                                                               size_t             dataSize,
+                                                               void*              pData,
+                                                               VkDeviceSize       stride,
+                                                               VkQueryResultFlags flags)
 {
     VkResult result;
 
@@ -386,11 +386,11 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(VkResult         
 }
 
 VkResult VulkanReplayConsumerBase::OverrideMapMemory(VkDevice         device,
-                                                 VkDeviceMemory   memory,
-                                                 VkDeviceSize     offset,
-                                                 VkDeviceSize     size,
-                                                 VkMemoryMapFlags flags,
-                                                 void**           ppData)
+                                                     VkDeviceMemory   memory,
+                                                     VkDeviceSize     offset,
+                                                     VkDeviceSize     size,
+                                                     VkMemoryMapFlags flags,
+                                                     void**           ppData)
 {
     VkResult result = vkMapMemory(device, memory, offset, size, flags, ppData);
 
@@ -410,20 +410,20 @@ void VulkanReplayConsumerBase::OverrideUnmapMemory(VkDevice device, VkDeviceMemo
 }
 
 void VulkanReplayConsumerBase::OverrideFreeMemory(VkDevice                     device,
-                                              VkDeviceMemory               memory,
-                                              const VkAllocationCallbacks* pAllocator)
+                                                  VkDeviceMemory               memory,
+                                                  const VkAllocationCallbacks* pAllocator)
 {
     memory_map_.erase(memory);
 
     vkFreeMemory(device, memory, pAllocator);
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(PFN_vkCreateDescriptorUpdateTemplate        func,
-                                                             VkDevice                                    device,
-                                                             const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
-                                                             const VkAllocationCallbacks*                pAllocator,
-                                                             VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate)
+VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
+    PFN_vkCreateDescriptorUpdateTemplate        func,
+    VkDevice                                    device,
+    const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkDescriptorUpdateTemplate*                 pDescriptorUpdateTemplate)
 {
     if (pCreateInfo != nullptr)
     {
@@ -517,33 +517,33 @@ VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(PFN_vkCreateDes
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(VkInstance                         instance,
-                                                             const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
-                                                             const VkAllocationCallbacks*       pAllocator,
-                                                             VkSurfaceKHR*                      pSurface)
+                                                                 const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
+                                                                 const VkAllocationCallbacks*       pAllocator,
+                                                                 VkSurfaceKHR*                      pSurface)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physicalDevice,
-                                                                                    uint32_t         queueFamilyIndex)
+                                                                                        uint32_t queueFamilyIndex)
 {
     return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(VkInstance                       instance,
-                                                           const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
-                                                           const VkAllocationCallbacks*     pAllocator,
-                                                           VkSurfaceKHR*                    pSurface)
+                                                               const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
+                                                               const VkAllocationCallbacks*     pAllocator,
+                                                               VkSurfaceKHR*                    pSurface)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
-VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice  physicalDevice,
-                                                                                  uint32_t          queueFamilyIndex,
-                                                                                  xcb_connection_t* connection,
-                                                                                  xcb_visualid_t    visual_id)
+VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice physicalDevice,
+                                                                                      uint32_t         queueFamilyIndex,
+                                                                                      xcb_connection_t* connection,
+                                                                                      xcb_visualid_t    visual_id)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(connection);
     BRIMSTONE_UNREFERENCED_PARAMETER(visual_id);
@@ -551,25 +551,24 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSuppo
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(VkInstance                           instance,
-                                                               const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
-                                                               const VkAllocationCallbacks*         pAllocator,
-                                                               VkSurfaceKHR*                        pSurface)
+                                                                   const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
+                                                                   const VkAllocationCallbacks*         pAllocator,
+                                                                   VkSurfaceKHR*                        pSurface)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
-VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice physicalDevice,
-                                                                                      uint32_t         queueFamilyIndex,
-                                                                                      struct wl_display* display)
+VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(
+    VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, struct wl_display* display)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(display);
     return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
 }
 
 void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(VkInstance                   instance,
-                                                     VkSurfaceKHR                 surface,
-                                                     const VkAllocationCallbacks* pAllocator)
+                                                         VkSurfaceKHR                 surface,
+                                                         const VkAllocationCallbacks* pAllocator)
 {
     vkDestroySurfaceKHR(instance, surface, pAllocator);
 
@@ -688,7 +687,7 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
     format::HandleId                       device,
     format::HandleId                       descriptorSet,
     format::HandleId                       descriptorUpdateTemplate,
-                                                                        const DescriptorUpdateTemplateDecoder& pData)
+    const DescriptorUpdateTemplateDecoder& pData)
 {
     VkDevice                   in_device        = object_mapper_.MapVkDevice(device);
     VkDescriptorSet            in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);

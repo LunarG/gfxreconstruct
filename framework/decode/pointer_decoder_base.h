@@ -26,10 +26,10 @@ BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class PointerDecoderBase
 {
-public:
-    PointerDecoderBase() : len_(0), address_(0), attrib_(format::PointerAttributes::kIsNull) { }
+  public:
+    PointerDecoderBase() : len_(0), address_(0), attrib_(format::PointerAttributes::kIsNull) {}
 
-    ~PointerDecoderBase() { }
+    ~PointerDecoderBase() {}
 
     bool IsNull() const
     {
@@ -53,7 +53,7 @@ public:
 
     size_t GetLength() const { return len_; }
 
-protected:
+  protected:
     size_t DecodeAttributes(const uint8_t* buffer, size_t buffer_size)
     {
         size_t bytes_read = 0;
@@ -81,10 +81,10 @@ protected:
         return bytes_read;
     }
 
-private:
-    size_t                  len_;
-    uint64_t                address_;
-    uint32_t                attrib_;
+  private:
+    size_t   len_;
+    uint64_t address_;
+    uint32_t attrib_;
 };
 
 BRIMSTONE_END_NAMESPACE(decode)

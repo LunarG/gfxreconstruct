@@ -30,10 +30,10 @@ BRIMSTONE_BEGIN_NAMESPACE(decode)
 template <typename T>
 class PNextTypedNode : public PNextNode
 {
-public:
-    PNextTypedNode() { }
+  public:
+    PNextTypedNode() {}
 
-    ~PNextTypedNode() { }
+    ~PNextTypedNode() {}
 
     virtual uint32_t GetAttributeMask() const override { return struct_pointer_.GetAttributeMask(); }
 
@@ -41,9 +41,12 @@ public:
 
     virtual void* GetPointer() const override { return struct_pointer_.GetPointer(); }
 
-    virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) override { return struct_pointer_.Decode(buffer, buffer_size); }
+    virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) override
+    {
+        return struct_pointer_.Decode(buffer, buffer_size);
+    }
 
-private:
+  private:
     StructPointerDecoder<T> struct_pointer_;
 };
 

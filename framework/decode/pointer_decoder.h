@@ -28,13 +28,17 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-template<typename T>
+template <typename T>
 class PointerDecoder : public PointerDecoderBase
 {
-public:
-    PointerDecoder() : data_(nullptr), capacity_(0), is_memory_external_(false) { }
+  public:
+    PointerDecoder() : data_(nullptr), capacity_(0), is_memory_external_(false) {}
 
-    ~PointerDecoder() { if ((data_ != nullptr) && !is_memory_external_) delete [] data_; }
+    ~PointerDecoder()
+    {
+        if ((data_ != nullptr) && !is_memory_external_)
+            delete[] data_;
+    }
 
     T* GetPointer() const { return data_; }
 
@@ -42,8 +46,8 @@ public:
     {
         if ((data != nullptr) && (capacity > 0))
         {
-            data_ = data;
-            capacity_ = capacity;
+            data_               = data;
+            capacity_           = capacity;
             is_memory_external_ = true;
         }
         else
@@ -76,7 +80,7 @@ public:
     size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
     // clang-format on
 
-private:
+  private:
     template <typename SrcT>
     size_t DecodeFrom(const uint8_t* buffer, size_t buffer_size)
     {
@@ -95,9 +99,10 @@ private:
             {
                 assert(data_ == nullptr);
 
-                data_ = new T[len];
+                data_     = new T[len];
                 capacity_ = len;
-                bytes_read += ValueDecoder::DecodeArrayFrom<SrcT>((buffer + bytes_read), (buffer_size - bytes_read), data_, len);
+                bytes_read +=
+                    ValueDecoder::DecodeArrayFrom<SrcT>((buffer + bytes_read), (buffer_size - bytes_read), data_, len);
             }
             else
             {
@@ -120,8 +125,8 @@ private:
                                           len);
                 }
 
-                // We always need to advance the position within the buffer by the amount of data that was expected to be decoded, not
-                // the actual amount of data decoded if capacity is too small to hold all of the data.
+                // We always need to advance the position within the buffer by the amount of data that was expected to
+                // be decoded, not the actual amount of data decoded if capacity is too small to hold all of the data.
                 bytes_read += sizeof(SrcT) * len;
             }
         }
@@ -129,10 +134,10 @@ private:
         return bytes_read;
     }
 
-private:
-    T*      data_;
-    size_t  capacity_;
-    bool    is_memory_external_;
+  private:
+    T*     data_;
+    size_t capacity_;
+    bool   is_memory_external_;
 };
 
 BRIMSTONE_END_NAMESPACE(decode)

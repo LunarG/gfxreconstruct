@@ -60,7 +60,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
                                                                format::HandleId descriptorUpdateTemplate,
                                                                format::HandleId layout,
-                                                               uint32_t set,
+                                                               uint32_t         set,
                                                                const DescriptorUpdateTemplateDecoder& pData) override;
 
     virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
@@ -70,8 +70,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     virtual void
     Process_vkRegisterObjectsNVX(VkResult                                                   returnValue,
-                                 format::HandleId                                                   device,
-                                 format::HandleId                                                   objectTable,
+                                 format::HandleId                                           device,
+                                 format::HandleId                                           objectTable,
                                  uint32_t                                                   objectCount,
                                  const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
                                  const PointerDecoder<uint32_t>&                            pObjectIndices) override;
@@ -81,10 +81,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
-    void  PostProcessExternalObject(const PointerDecoder<uint64_t>& object_id,
-                                    void*                           object,
-                                    format::ApiCallId               call_id,
-                                    const char*                     call_name);
+    void PostProcessExternalObject(const PointerDecoder<uint64_t>& object_id,
+                                   void*                           object,
+                                   format::ApiCallId               call_id,
+                                   const char*                     call_name);
 
     const VkAllocationCallbacks*
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
@@ -119,9 +119,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     template <typename T>
     void MapHandles(const format::HandleId* ids,
-                    size_t          ids_len,
-                    T*              handles,
-                    size_t          handles_len,
+                    size_t                  ids_len,
+                    T*                      handles,
+                    size_t                  handles_len,
                     T (VulkanObjectMapper::*MapFunc)(format::HandleId) const) const
     {
         if ((ids != nullptr) && (handles != nullptr))
@@ -137,9 +137,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     template <typename T>
     void AddHandles(const format::HandleId* ids,
-                    size_t          ids_len,
-                    const T*        handles,
-                    size_t          handles_len,
+                    size_t                  ids_len,
+                    const T*                handles,
+                    size_t                  handles_len,
                     void (VulkanObjectMapper::*AddFunc)(format::HandleId, T))
     {
         if ((ids != nullptr) && (handles != nullptr))
@@ -204,7 +204,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                     const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
                                                     const VkAllocationCallbacks*                pAllocator,
                                                     VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
-
 
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.

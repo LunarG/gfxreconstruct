@@ -31,22 +31,24 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-template<typename T>
+template <typename T>
 class StructPointerDecoder : public PointerDecoderBase
 {
-public:
-    StructPointerDecoder() : decoded_structs_(nullptr), struct_memory_(nullptr), capacity_(0), is_memory_external_(false) { }
+  public:
+    StructPointerDecoder() :
+        decoded_structs_(nullptr), struct_memory_(nullptr), capacity_(0), is_memory_external_(false)
+    {}
 
     ~StructPointerDecoder()
     {
         if ((struct_memory_ != nullptr) && !is_memory_external_)
         {
-            delete [] struct_memory_;
+            delete[] struct_memory_;
         }
 
         if (decoded_structs_ != nullptr)
         {
-            delete [] decoded_structs_;
+            delete[] decoded_structs_;
         }
     }
 
@@ -58,8 +60,8 @@ public:
     {
         if ((data != nullptr) && (capacity > 0))
         {
-            struct_memory_ = data;
-            capacity_ = capacity;
+            struct_memory_      = data;
+            capacity_           = capacity;
             is_memory_external_ = true;
         }
         else
@@ -84,7 +86,7 @@ public:
                 assert(struct_memory_ == nullptr);
 
                 struct_memory_ = new typename T::struct_type[len];
-                capacity_ = len;
+                capacity_      = len;
             }
             else
             {
@@ -94,8 +96,8 @@ public:
                 if ((struct_memory_ == nullptr) || (len > capacity_))
                 {
                     is_memory_external_ = false;
-                    struct_memory_ = new typename T::struct_type[len];
-                    capacity_ = len;
+                    struct_memory_      = new typename T::struct_type[len];
+                    capacity_           = len;
                 }
                 else
                 {
@@ -123,11 +125,11 @@ public:
         return bytes_read;
     }
 
-private:
-    T*                          decoded_structs_;
-    typename T::struct_type*    struct_memory_;
-    size_t                      capacity_;
-    bool                        is_memory_external_;
+  private:
+    T*                       decoded_structs_;
+    typename T::struct_type* struct_memory_;
+    size_t                   capacity_;
+    bool                     is_memory_external_;
 };
 
 BRIMSTONE_END_NAMESPACE(decode)

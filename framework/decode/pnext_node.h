@@ -27,10 +27,10 @@ BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class PNextNode
 {
-public:
-    PNextNode() { }
+  public:
+    PNextNode() {}
 
-    virtual ~PNextNode() { }
+    virtual ~PNextNode() {}
 
     virtual uint32_t GetAttributeMask() const = 0;
 

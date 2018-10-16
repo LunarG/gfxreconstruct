@@ -64,7 +64,6 @@ const char* GetResultValueString(VkResult result)
     // clang-format on
 }
 
-
 /**
  * Get VkResult code description.
  *

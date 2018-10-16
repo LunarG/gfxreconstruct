@@ -56,7 +56,7 @@ static std::unique_ptr<uint8_t[]> unpack_sid_struct(const PointerDecoder<uint8_t
 
     // Allocate memory for variable length SID struct, to use for unpacking.
     // SidAuthorityCount is the second byte of the packed array.
-    size_t                     sid_authority_size = bytes[1] * sizeof(uint32_t);
+    size_t sid_authority_size = bytes[1] * sizeof(uint32_t);
 
     // sizeof(SID) already includes the size of one of the SidAuthority elements,
     // so we can subtract 4 bytes from sid_authority_size.

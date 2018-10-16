@@ -56,11 +56,11 @@ class CompressionConverter : public ApiDecoder
     virtual void DispatchDisplayMessageCommand(const std::string& message) override;
 
     virtual void
-                 DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
+    DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
     virtual void DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
 
-    uint64_t     NumBytesWritten() { return bytes_written_; }
+    uint64_t NumBytesWritten() { return bytes_written_; }
 
   private:
     std::unique_ptr<util::FileOutputStream> file_stream_;
