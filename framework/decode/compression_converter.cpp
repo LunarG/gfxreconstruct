@@ -17,6 +17,7 @@
 #include <cassert>
 
 #include "decode/compression_converter.h"
+#include "format/format_util.h"
 #include "util/logging.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
@@ -35,7 +36,7 @@ CompressionConverter::~CompressionConverter()
 bool CompressionConverter::Initialize(std::string                                filename,
                                    const format::FileHeader&                  file_header,
                                    const std::vector<format::FileOptionPair>& option_list,
-                                   util::CompressionType                      target_compression_type)
+                                   format::CompressionType                     target_compression_type)
 {
     bool success = false;
 
@@ -47,7 +48,7 @@ bool CompressionConverter::Initialize(std::string                               
     write_thread_id_       = false;
     write_begin_end_times_ = false;
 
-    if (util::kNone == target_compression_type)
+    if (format::CompressionType::kNone == target_compression_type)
     {
         decompressing_   = true;
         compressor_      = nullptr;
@@ -55,8 +56,8 @@ bool CompressionConverter::Initialize(std::string                               
     else
     {
         decompressing_ = false;
+        compressor_ = format::CreateCompressor(target_compression_type);
 
-        compressor_ = util::Compressor::CreateCompressor(target_compression_type);
         if (nullptr == compressor_)
         {
             BRIMSTONE_LOG_WARNING("Failed to initialized file compression module (type = %u)",

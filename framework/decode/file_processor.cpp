@@ -182,7 +182,7 @@ bool FileProcessor::ReadFileHeader()
                 switch (option.key)
                 {
                     case format::FileOption::kCompressionType:
-                        enabled_options_.compression_type = static_cast<util::CompressionType>(option.value);
+                        enabled_options_.compression_type = static_cast<format::CompressionType>(option.value);
                         break;
                     case format::FileOption::kHaveThreadId:
                         enabled_options_.record_thread_id = option.value ? true : false;
@@ -209,8 +209,8 @@ bool FileProcessor::ReadFileHeader()
         }
     }
 
-    compressor_ = util::Compressor::CreateCompressor(enabled_options_.compression_type);
-    if ((nullptr == compressor_) && (util::kNone != enabled_options_.compression_type))
+    compressor_ = format::CreateCompressor(enabled_options_.compression_type);
+    if ((nullptr == compressor_) && (format::CompressionType::kNone != enabled_options_.compression_type))
     {
         BRIMSTONE_LOG_WARNING(
             "Failed to initialized file compression module (type = %u); replay of compressed data will not be possible",

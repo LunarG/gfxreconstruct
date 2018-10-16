@@ -80,7 +80,7 @@ bool init_layer()
     binary_file_name += BRIMSTONE_FILE_EXTENSION;
 
 #if defined(ENABLE_LZ4_COMPRESSION)
-    options.compression_type = util::CompressionType::kLz4;
+    options.compression_type = format::CompressionType::kLz4;
 #endif
 
     // Check to see if there's an environment variable overriding the default binary location value.

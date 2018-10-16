@@ -5,7 +5,6 @@ target_sources(brimstone_util
                    argument_parser.h
                    argument_parser.cpp
                    compressor.h
-                   compressor.cpp
                    defines.h
                    file_output_stream.h
                    file_output_stream.cpp

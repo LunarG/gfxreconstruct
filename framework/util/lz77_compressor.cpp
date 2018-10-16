@@ -27,40 +27,39 @@ size_t Lz77Compressor::Compress(const size_t          uncompressed_size,
                                 std::vector<uint8_t>* compressed_data)
 {
     size_t copy_size = 0;
-    if (kLz77 == compression_type_)
+
+    try
     {
-        try
+        if (nullptr == compressed_data)
         {
-            if (nullptr == compressed_data)
-            {
-                return 0;
-            }
-
-            if (compressed_data->size() < uncompressed_size)
-            {
-                compressed_data->resize(uncompressed_size);
-            }
-
-            z_stream compress_stream  = {};
-            compress_stream.zalloc    = Z_NULL;
-            compress_stream.zfree     = Z_NULL;
-            compress_stream.opaque    = Z_NULL;
-            compress_stream.avail_in  = uncompressed_size;
-            compress_stream.next_in   = const_cast<Bytef*>(uncompressed_data);
-            compress_stream.avail_out = compressed_data->size();
-            compress_stream.next_out  = compressed_data->data();
-
-            // Perform the compression (deflate the data).
-            deflateInit(&compress_stream, Z_BEST_COMPRESSION);
-            deflate(&compress_stream, Z_FINISH);
-            deflateEnd(&compress_stream);
-
-            // Determine the size of data from the stream
-            copy_size = compress_stream.total_out;
+            return 0;
         }
-        catch (...)
-        {}
+
+        if (compressed_data->size() < uncompressed_size)
+        {
+            compressed_data->resize(uncompressed_size);
+        }
+
+        z_stream compress_stream  = {};
+        compress_stream.zalloc    = Z_NULL;
+        compress_stream.zfree     = Z_NULL;
+        compress_stream.opaque    = Z_NULL;
+        compress_stream.avail_in  = uncompressed_size;
+        compress_stream.next_in   = const_cast<Bytef*>(uncompressed_data);
+        compress_stream.avail_out = compressed_data->size();
+        compress_stream.next_out  = compressed_data->data();
+
+        // Perform the compression (deflate the data).
+        deflateInit(&compress_stream, Z_BEST_COMPRESSION);
+        deflate(&compress_stream, Z_FINISH);
+        deflateEnd(&compress_stream);
+
+        // Determine the size of data from the stream
+        copy_size = compress_stream.total_out;
     }
+    catch (...)
+    {}
+
     return copy_size;
 }
 
@@ -70,35 +69,34 @@ size_t Lz77Compressor::Decompress(const size_t                compressed_size,
                                   std::vector<uint8_t>*       uncompressed_data)
 {
     size_t copy_size = 0;
-    if (kLz77 == compression_type_)
+
+    try
     {
-        try
+        if (nullptr == uncompressed_data)
         {
-            if (nullptr == uncompressed_data)
-            {
-                return 0;
-            }
-
-            z_stream decompress_stream  = {};
-            decompress_stream.zalloc    = Z_NULL;
-            decompress_stream.zfree     = Z_NULL;
-            decompress_stream.opaque    = Z_NULL;
-            decompress_stream.avail_in  = compressed_size;
-            decompress_stream.next_in   = const_cast<Bytef*>(compressed_data.data());
-            decompress_stream.avail_out = expected_uncompressed_size;
-            decompress_stream.next_out  = uncompressed_data->data();
-
-            // Perform the decompression (inflate the data).
-            inflateInit(&decompress_stream);
-            inflate(&decompress_stream, Z_NO_FLUSH);
-            inflateEnd(&decompress_stream);
-
-            // Determine the size of data from the stream
-            copy_size = decompress_stream.total_out;
+            return 0;
         }
-        catch (...)
-        {}
+
+        z_stream decompress_stream  = {};
+        decompress_stream.zalloc    = Z_NULL;
+        decompress_stream.zfree     = Z_NULL;
+        decompress_stream.opaque    = Z_NULL;
+        decompress_stream.avail_in  = compressed_size;
+        decompress_stream.next_in   = const_cast<Bytef*>(compressed_data.data());
+        decompress_stream.avail_out = expected_uncompressed_size;
+        decompress_stream.next_out  = uncompressed_data->data();
+
+        // Perform the decompression (inflate the data).
+        inflateInit(&decompress_stream);
+        inflate(&decompress_stream, Z_NO_FLUSH);
+        inflateEnd(&decompress_stream);
+
+        // Determine the size of data from the stream
+        copy_size = decompress_stream.total_out;
     }
+    catch (...)
+    {}
+
     return copy_size;
 }
 

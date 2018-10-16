@@ -16,6 +16,8 @@
 
 #include "format/format_util.h"
 #include "util/logging.h"
+#include "util/lz4_compressor.h"
+#include "util/lz77_compressor.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)
@@ -33,6 +35,34 @@ bool ValidateFileHeader(const FileHeader& header)
     // TODO: Verify version is supported.
 
     return valid;
+}
+
+util::Compressor* CreateCompressor(CompressionType type)
+{
+    util::Compressor* compressor = nullptr;
+
+    switch (type)
+    {
+#ifdef ENABLE_LZ4_COMPRESSION
+        case kLz4:
+            compressor = new util::Lz4Compressor();
+            break;
+#endif // ENABLE_LZ4_COMPRESSION
+#ifdef ENABLE_LZ77_COMPRESSION
+        case kLz77:
+            compressor = new util::Lz77Compressor();
+            break;
+#endif // ENABLE_LZ77_COMPRESSION
+        case kNone:
+            // Nothing to do here.
+            break;
+        default:
+            BRIMSTONE_LOG_ERROR("Unsupported compression format %d", type);
+            assert(false);
+            break;
+    }
+
+    return compressor;
 }
 
 BRIMSTONE_END_NAMESPACE(format)

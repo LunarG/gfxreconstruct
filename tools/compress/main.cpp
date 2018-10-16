@@ -32,12 +32,12 @@ void PrintUsage(const char* exe_name)
 
 int main(int argc, const char** argv)
 {
-    brimstone::decode::FileProcessor file_processor;
-    brimstone::util::CompressionType compression_type       = brimstone::util::kNone;
-    std::string                      dst_compression_string = "NONE";
-    bool                             print_usage            = false;
-    std::string                      input_file_name        = "brimstone_out";
-    std::string                      output_file_name       = "gcapcompress_out";
+    brimstone::decode::FileProcessor   file_processor;
+    brimstone::format::CompressionType compression_type       = brimstone::format::kNone;
+    std::string                        dst_compression_string = "NONE";
+    bool                               print_usage            = false;
+    std::string                        input_file_name        = "brimstone_out";
+    std::string                        output_file_name       = "gcapcompress_out";
 
     input_file_name += BRIMSTONE_FILE_EXTENSION;
     output_file_name += BRIMSTONE_FILE_EXTENSION;
@@ -60,12 +60,12 @@ int main(int argc, const char** argv)
         }
         else if (non_optional_arguments[2] == "LZ4")
         {
-            compression_type       = brimstone::util::kLz4;
+            compression_type       = brimstone::format::CompressionType::kLz4;
             dst_compression_string = non_optional_arguments[2];
         }
         else if (non_optional_arguments[2] == "LZ77")
         {
-            compression_type       = brimstone::util::kLz77;
+            compression_type       = brimstone::format::CompressionType::kLz77;
             dst_compression_string = non_optional_arguments[2];
         }
         else
@@ -98,13 +98,13 @@ int main(int argc, const char** argv)
                 {
                     switch (option.value)
                     {
-                        case brimstone::util::kNone:
+                        case brimstone::format::CompressionType::kNone:
                             // Nothing to do
                             break;
-                        case brimstone::util::kLz4:
+                        case brimstone::format::CompressionType::kLz4:
                             src_compression = "LZ4";
                             break;
-                        case brimstone::util::kLz77:
+                        case brimstone::format::CompressionType::kLz77:
                             src_compression = "LZ77";
                             break;
                         default:
@@ -115,7 +115,7 @@ int main(int argc, const char** argv)
                 }
             }
 
-            if (brimstone::util::kNone != compression_type)
+            if (brimstone::format::CompressionType::kNone != compression_type)
             {
                 uint64_t bytes_read    = file_processor.NumBytesRead();
                 uint64_t bytes_written = decoder.NumBytesWritten();
