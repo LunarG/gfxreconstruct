@@ -39,7 +39,8 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
             {
                 case VK_SPACE:
                 {
-                    Win32Application* app = reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
+                    Win32Application* app =
+                        reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
                     app->SetPaused(!app->GetPaused());
                     break;
                 }
@@ -56,7 +57,7 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
             break;
         case WM_NCCREATE:
             // Changes made with SetWindowLongPtr will not take effect until SetWindowPos is called.
-            SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT *)lp)->lpCreateParams);
+            SetWindowLongPtr(window, GWLP_USERDATA, (LONG_PTR)((CREATESTRUCT*)lp)->lpCreateParams);
             SetWindowPos(window, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
             // Intentional fall through.
         default:
@@ -71,7 +72,7 @@ void Win32Application::ProcessEvents(bool wait_for_input)
     // Process all pending events.
     while (IsRunning())
     {
-        MSG  msg = {};
+        MSG  msg           = {};
         bool found_message = false;
 
         if (wait_for_input)

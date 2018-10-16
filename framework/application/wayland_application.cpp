@@ -199,7 +199,7 @@ void WaylandApplication::HandleSeatCapabilities(void* data, wl_seat* seat, uint3
         app->pointer_ = wl_seat_get_pointer(seat);
         wl_pointer_add_listener(app->pointer_, &pointer_listener_, app);
     }
-    else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && (app->pointer_!= nullptr))
+    else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && (app->pointer_ != nullptr))
     {
         wl_pointer_destroy(app->pointer_);
         app->pointer_ = nullptr;
@@ -230,9 +230,9 @@ void WaylandApplication::HandleKeyboardEnter(
 }
 
 void WaylandApplication::HandleKeyboardLeave(void*               data,
-                                            struct wl_keyboard* keyboard,
-                                            uint32_t            serial,
-                                            struct wl_surface*  surface)
+                                             struct wl_keyboard* keyboard,
+                                             uint32_t            serial,
+                                             struct wl_surface*  surface)
 {}
 
 void WaylandApplication::HandleKeyboardKey(
@@ -271,9 +271,9 @@ void WaylandApplication::HandlePointerEnter(
 }
 
 void WaylandApplication::HandlePointerLeave(void*              data,
-                                           struct wl_pointer* pointer,
-                                           uint32_t           serial,
-                                           struct wl_surface* surface)
+                                            struct wl_pointer* pointer,
+                                            uint32_t           serial,
+                                            struct wl_surface* surface)
 {}
 
 void WaylandApplication::HandlePointerMotion(
