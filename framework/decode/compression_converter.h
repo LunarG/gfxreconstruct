@@ -14,10 +14,9 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_DECOMPRESS_DECODER_H
-#define BRIMSTONE_DECODE_DECOMPRESS_DECODER_H
+#ifndef BRIMSTONE_DECODE_COMPRESSION_CONVERTER_H
+#define BRIMSTONE_DECODE_COMPRESSION_CONVERTER_H
 
-#include <mutex>
 #include <string>
 
 #include "decode/decoder.h"
@@ -29,17 +28,12 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-enum DecompressMode : uint32_t
-{
-    kNone       = 0,
-    kDecompress = 1,
-    kCompress   = 2
-};
-
-class DecompressDecoder : public Decoder
+class CompressionConverter : public Decoder
 {
   public:
-    virtual ~DecompressDecoder() { Destroy(); }
+    CompressionConverter();
+
+    virtual ~CompressionConverter();
 
     bool Initialize(std::string                                filename,
                     const format::FileHeader&                  file_header,
@@ -50,7 +44,8 @@ class DecompressDecoder : public Decoder
 
     virtual bool SupportsApiCall(format::ApiCallId call_id) override
     {
-        return ((call_id >= 0x1000) && (call_id <= 0x112b)) ? true : false;
+        // Blocks are not decoded, just compressed or decmpressed, so all are supported.
+        return true;
     }
 
     virtual void DecodeFunctionCall(format::ApiCallId             call_id,
@@ -68,13 +63,12 @@ class DecompressDecoder : public Decoder
     uint64_t     NumBytesWritten() { return bytes_written_; }
 
   private:
-    DecompressMode                          decompress_mode_;
     std::unique_ptr<util::FileOutputStream> file_stream_;
     std::string                             filename_;
-    std::mutex                              file_lock_;
     uint64_t                                bytes_written_;
     std::vector<uint8_t>                    compressed_buffer_;
     util::Compressor*                       compressor_;
+    bool                                    decompressing_;
     bool                                    write_thread_id_;
     bool                                    write_begin_end_times_;
 };
@@ -82,4 +76,4 @@ class DecompressDecoder : public Decoder
 BRIMSTONE_END_NAMESPACE(decode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_DECODE_DECOMPRESS_DECODER_H
+#endif // BRIMSTONE_DECODE_COMPRESSION_CONVERTER_H

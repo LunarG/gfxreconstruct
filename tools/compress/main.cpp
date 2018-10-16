@@ -2,7 +2,7 @@
 
 #include "format/format.h"
 #include "decode/file_processor.h"
-#include "decode/decompress_decoder.h"
+#include "decode/compression_converter.h"
 #include "util/compressor.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
@@ -83,7 +83,7 @@ int main(int argc, const char** argv)
 
     if (file_processor.Initialize(input_file_name))
     {
-        brimstone::decode::DecompressDecoder decoder;
+        brimstone::decode::CompressionConverter decoder;
 
         if (decoder.Initialize(
                 output_file_name, file_processor.GetFileHeader(), file_processor.GetFileOptions(), compression_type))
