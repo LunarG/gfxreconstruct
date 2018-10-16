@@ -26,12 +26,12 @@ BRIMSTONE_BEGIN_NAMESPACE(util)
 
 class OutputStream
 {
-public:
-    virtual ~OutputStream() { }
+  public:
+    virtual ~OutputStream() {}
 
     virtual bool IsValid() { return false; }
 
-    virtual void Reset() { }
+    virtual void Reset() {}
 
     virtual size_t Write(const void* data, size_t len) = 0;
 };

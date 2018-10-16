@@ -156,12 +156,12 @@ PageGuardManager::~PageGuardManager()
     }
 }
 
-void PageGuardManager::Create(bool     enable_shadow_cached_memory,
-                              bool     enable_uncached_read,
-                              bool     enable_copy_on_map,
-                              bool     enable_lazy_copy,
-                              bool     enable_separate_read_tracking,
-                              bool     expect_read_write_same_page)
+void PageGuardManager::Create(bool enable_shadow_cached_memory,
+                              bool enable_uncached_read,
+                              bool enable_copy_on_map,
+                              bool enable_lazy_copy,
+                              bool enable_separate_read_tracking,
+                              bool expect_read_write_same_page)
 {
     if (instance_ == nullptr)
     {
@@ -377,8 +377,8 @@ void PageGuardManager::ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info,
 {
     assert(memory_info != nullptr);
 
-    bool   active_range   = false;
-    size_t start_index    = 0;
+    bool   active_range = false;
+    size_t start_index  = 0;
 
     memory_info->is_modified = false;
 
@@ -419,22 +419,14 @@ void PageGuardManager::ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info,
             {
                 active_range = false;
 
-                ProcessActiveRange(memory_id,
-                                   memory_info,
-                                   start_index,
-                                   i,
-                                   handle_modified);
+                ProcessActiveRange(memory_id, memory_info, start_index, i, handle_modified);
             }
         }
     }
 
     if (active_range)
     {
-        ProcessActiveRange(memory_id,
-                           memory_info,
-                           start_index,
-                           memory_info->total_pages,
-                           handle_modified);
+        ProcessActiveRange(memory_id, memory_info, start_index, memory_info->total_pages, handle_modified);
     }
 }
 
@@ -529,8 +521,7 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
         ULONG_PTR address_count = 1;
         ULONG     granularity   = 0;
 
-        if (GetWriteWatch(
-                0, page_address, segment_size, &addresses, &address_count, &granularity) == 0)
+        if (GetWriteWatch(0, page_address, segment_size, &addresses, &address_count, &granularity) == 0)
         {
             if (address_count == 1)
             {
