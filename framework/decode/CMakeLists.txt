@@ -2,10 +2,10 @@ add_library(brimstone_decode STATIC "")
 
 target_sources(brimstone_decode
                PRIVATE
+                   api_decoder.h
                    custom_vulkan_struct_decoders.h
                    custom_vulkan_struct_decoders.cpp
                    custom_vulkan_struct_decoders_forward.h
-                   decoder.h
                    compression_converter.h
                    compression_converter.cpp
                    descriptor_update_template_decoder.h

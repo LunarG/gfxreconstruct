@@ -24,7 +24,7 @@
 
 #include "util/defines.h"
 #include "util/compressor.h"
-#include "decode/decoder.h"
+#include "decode/api_decoder.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
 
@@ -38,9 +38,9 @@ public:
 
     ~FileProcessor();
 
-    void AddDecoder(Decoder* decoder) { decoders_.push_back(decoder); }
+    void AddDecoder(ApiDecoder* decoder) { decoders_.push_back(decoder); }
 
-    void RemoveDecoder(Decoder* decoder) { decoders_.erase(std::remove(decoders_.begin(), decoders_.end(), decoder), decoders_.end()); }
+    void RemoveDecoder(ApiDecoder* decoder) { decoders_.erase(std::remove(decoders_.begin(), decoders_.end(), decoder), decoders_.end()); }
 
     bool Initialize(const std::string& filename);
 
@@ -84,7 +84,7 @@ private:
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
     uint64_t                            bytes_read_;
-    std::vector<Decoder*>               decoders_;
+    std::vector<ApiDecoder*>               decoders_;
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;
