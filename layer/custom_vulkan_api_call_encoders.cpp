@@ -36,7 +36,7 @@ static void EncodeDescriptorUpdateTemplateInfo(encode::TraceManager*      manage
 {
     assert((manager != nullptr) && (encoder != nullptr));
 
-    bool                                    found = false;
+    bool                                            found = false;
     const encode::TraceManager::UpdateTemplateInfo* info  = nullptr;
 
     if (data != nullptr)
@@ -65,7 +65,7 @@ static void EncodeDescriptorUpdateTemplateInfo(encode::TraceManager*      manage
             for (size_t i = 0; i < entry_info.count; ++i)
             {
                 size_t                       offset = entry_info.offset + (entry_info.stride * i);
-                const VkDescriptorImageInfo* entry = reinterpret_cast<const VkDescriptorImageInfo*>(bytes + offset);
+                const VkDescriptorImageInfo* entry  = reinterpret_cast<const VkDescriptorImageInfo*>(bytes + offset);
                 encode_struct(encoder, (*entry));
             }
         }
@@ -76,8 +76,7 @@ static void EncodeDescriptorUpdateTemplateInfo(encode::TraceManager*      manage
             for (size_t i = 0; i < entry_info.count; ++i)
             {
                 size_t                        offset = entry_info.offset + (entry_info.stride * i);
-                const VkDescriptorBufferInfo* entry =
-                    reinterpret_cast<const VkDescriptorBufferInfo*>(bytes + offset);
+                const VkDescriptorBufferInfo* entry  = reinterpret_cast<const VkDescriptorBufferInfo*>(bytes + offset);
                 encode_struct(encoder, (*entry));
             }
         }

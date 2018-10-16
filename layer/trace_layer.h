@@ -41,11 +41,19 @@ extern std::mutex g_create_destroy_mutex;
 // functions which are defined in trace_layer.cpp
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName);
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char* pName);
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char *pName);
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties);
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties);
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties);
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties);
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char* pName);
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                                                  const char*            pLayerName,
+                                                                  uint32_t*              pPropertyCount,
+                                                                  VkExtensionProperties* pProperties);
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char*            pLayerName,
+                                                                    uint32_t*              pPropertyCount,
+                                                                    VkExtensionProperties* pProperties);
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
+                                                                VkLayerProperties* pProperties);
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
+                                                              uint32_t*          pPropertyCount,
+                                                              VkLayerProperties* pProperties);
 
 bool init_layer();
 void destroy_layer();
@@ -54,10 +62,15 @@ void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
 void init_device_table(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
 
 VkLayerInstanceDispatchTable* get_instance_table(const void* instance);
-VkLayerDispatchTable* get_device_table(const void* device);
+VkLayerDispatchTable*         get_device_table(const void* device);
 
-VkResult dispatch_CreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance);
-VkResult dispatch_CreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice);
+VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                 const VkAllocationCallbacks* pAllocator,
+                                 VkInstance*                  pInstance);
+VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
+                               const VkDeviceCreateInfo*    pCreateInfo,
+                               const VkAllocationCallbacks* pAllocator,
+                               VkDevice*                    pDevice);
 
 BRIMSTONE_END_NAMESPACE(brimstone)
 

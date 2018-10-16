@@ -112,7 +112,8 @@ int main(int argc, const char** argv)
                     brimstone::decode::VulkanDecoder        decoder;
                     brimstone::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
 
-                    replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
+                    replay_consumer.SetFatalErrorHandler(
+                        [](const char* message) { throw std::runtime_error(message); });
 
                     decoder.AddConsumer(&replay_consumer);
                     file_processor.AddDecoder(&decoder);
