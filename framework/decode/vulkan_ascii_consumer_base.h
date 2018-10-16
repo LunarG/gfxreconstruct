@@ -31,7 +31,7 @@ BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class VulkanAsciiConsumerBase : public VulkanConsumer
 {
-public:
+  public:
     VulkanAsciiConsumerBase();
 
     virtual ~VulkanAsciiConsumerBase();
@@ -52,7 +52,7 @@ public:
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
                                                                format::HandleId descriptorUpdateTemplate,
                                                                format::HandleId layout,
-                                                               uint32_t set,
+                                                               uint32_t         set,
                                                                const DescriptorUpdateTemplateDecoder& pData) override;
 
     virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
@@ -72,8 +72,8 @@ public:
     FILE* GetFile() const { return m_file; }
 
   private:
-    FILE*           m_file;
-    std::string     m_filename;
+    FILE*       m_file;
+    std::string m_filename;
 };
 
 BRIMSTONE_END_NAMESPACE(decode)

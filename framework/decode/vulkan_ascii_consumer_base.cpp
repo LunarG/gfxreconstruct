@@ -20,10 +20,7 @@
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() :
-    m_file(nullptr)
-{
-}
+VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() : m_file(nullptr) {}
 
 VulkanAsciiConsumerBase::~VulkanAsciiConsumerBase()
 {
@@ -39,7 +36,7 @@ bool VulkanAsciiConsumerBase::Initialize(const std::string& filename)
         int32_t result = util::platform::FileOpen(&m_file, filename.c_str(), "w");
         if (result == 0)
         {
-            success = true;
+            success    = true;
             m_filename = filename;
         }
     }

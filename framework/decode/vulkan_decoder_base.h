@@ -34,16 +34,22 @@ BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class VulkanDecoderBase : public ApiDecoder
 {
-public:
-    VulkanDecoderBase() { }
+  public:
+    VulkanDecoderBase() {}
 
-    virtual ~VulkanDecoderBase() { }
+    virtual ~VulkanDecoderBase() {}
 
     void AddConsumer(VulkanConsumer* consumer) { consumers_.push_back(consumer); }
 
-    void RemoveConsumer(VulkanConsumer* consumer) { consumers_.erase(std::remove(consumers_.begin(), consumers_.end(), consumer)); }
+    void RemoveConsumer(VulkanConsumer* consumer)
+    {
+        consumers_.erase(std::remove(consumers_.begin(), consumers_.end(), consumer));
+    }
 
-    virtual bool SupportsApiCall(format::ApiCallId call_id) override { return ((call_id >= 0x1000) && (call_id <= 0x112b)) ? true : false; }
+    virtual bool SupportsApiCall(format::ApiCallId call_id) override
+    {
+        return ((call_id >= 0x1000) && (call_id <= 0x112b)) ? true : false;
+    }
 
     virtual void DecodeFunctionCall(format::ApiCallId             call_id,
                                     const format::ApiCallOptions& call_options,
@@ -57,10 +63,10 @@ public:
 
     virtual void DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
 
-protected:
+  protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
 
-private:
+  private:
     size_t Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdPushDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -69,8 +75,8 @@ private:
 
     size_t Decode_vkRegisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size);
 
-private:
-    std::vector<VulkanConsumer*>        consumers_;
+  private:
+    std::vector<VulkanConsumer*> consumers_;
 };
 
 BRIMSTONE_END_NAMESPACE(decode)

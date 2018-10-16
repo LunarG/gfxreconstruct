@@ -31,10 +31,16 @@ BRIMSTONE_BEGIN_NAMESPACE(decode)
 template <typename CharT, format::PointerAttributes DecodeAttrib>
 class BasicStringDecoder : public PointerDecoderBase
 {
-public:
+  public:
     BasicStringDecoder() : data_(nullptr), capacity_(0), is_memory_external_(false) {}
 
-    ~BasicStringDecoder() { if ((data_ != nullptr) && !is_memory_external_) delete [] data_; }
+    ~BasicStringDecoder()
+    {
+        if ((data_ != nullptr) && !is_memory_external_)
+        {
+            delete[] data_;
+        }
+    }
 
     CharT* GetPointer() const { return data_; }
 
@@ -42,8 +48,8 @@ public:
     {
         if ((data != nullptr) && (capacity > 0))
         {
-            data_ = data;
-            capacity_ = capacity;
+            data_               = data;
+            capacity_           = capacity;
             is_memory_external_ = true;
         }
         else
@@ -107,9 +113,9 @@ public:
     }
 
   private:
-    CharT*  data_;
-    size_t  capacity_;
-    bool    is_memory_external_;
+    CharT* data_;
+    size_t capacity_;
+    bool   is_memory_external_;
 };
 
 typedef BasicStringDecoder<char, format::PointerAttributes::kIsString>     StringDecoder;

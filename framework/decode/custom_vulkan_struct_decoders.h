@@ -67,8 +67,8 @@ struct Decoded_SECURITY_DESCRIPTOR
 
     std::unique_ptr<uint8_t[]> Owner;
     std::unique_ptr<uint8_t[]> Group;
-    PointerDecoder<uint8_t> PackedOwner;
-    PointerDecoder<uint8_t> PackedGroup;
+    PointerDecoder<uint8_t>    PackedOwner;
+    PointerDecoder<uint8_t>    PackedGroup;
 
     StructPointerDecoder<Decoded_ACL> Sacl;
     StructPointerDecoder<Decoded_ACL> Dacl;

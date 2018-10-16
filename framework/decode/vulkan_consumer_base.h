@@ -32,7 +32,7 @@ BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class VulkanConsumerBase
 {
-public:
+  public:
     VulkanConsumerBase() {}
 
     virtual ~VulkanConsumerBase() {}
@@ -51,7 +51,7 @@ public:
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
                                                                format::HandleId descriptorUpdateTemplate,
                                                                format::HandleId layout,
-                                                               uint32_t set,
+                                                               uint32_t         set,
                                                                const DescriptorUpdateTemplateDecoder& pData) = 0;
 
     virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,

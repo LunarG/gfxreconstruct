@@ -34,9 +34,9 @@ CompressionConverter::~CompressionConverter()
 }
 
 bool CompressionConverter::Initialize(std::string                                filename,
-                                   const format::FileHeader&                  file_header,
-                                   const std::vector<format::FileOptionPair>& option_list,
-                                   format::CompressionType                     target_compression_type)
+                                      const format::FileHeader&                  file_header,
+                                      const std::vector<format::FileOptionPair>& option_list,
+                                      format::CompressionType                    target_compression_type)
 {
     bool success = false;
 
@@ -50,18 +50,17 @@ bool CompressionConverter::Initialize(std::string                               
 
     if (format::CompressionType::kNone == target_compression_type)
     {
-        decompressing_   = true;
-        compressor_      = nullptr;
+        decompressing_ = true;
+        compressor_    = nullptr;
     }
     else
     {
         decompressing_ = false;
-        compressor_ = format::CreateCompressor(target_compression_type);
+        compressor_    = format::CreateCompressor(target_compression_type);
 
         if (nullptr == compressor_)
         {
-            BRIMSTONE_LOG_WARNING("Failed to initialized file compression module (type = %u)",
-                                  target_compression_type);
+            BRIMSTONE_LOG_WARNING("Failed to initialized file compression module (type = %u)", target_compression_type);
             return false;
         }
     }
@@ -98,7 +97,8 @@ bool CompressionConverter::Initialize(std::string                               
     {
         bytes_written_ = 0;
         bytes_written_ += file_stream_->Write(&file_header, sizeof(file_header));
-        bytes_written_ += file_stream_->Write(new_option_list.data(), new_option_list.size() * sizeof(format::FileOptionPair));
+        bytes_written_ +=
+            file_stream_->Write(new_option_list.data(), new_option_list.size() * sizeof(format::FileOptionPair));
         success = true;
     }
     else
@@ -119,9 +119,9 @@ void CompressionConverter::Destroy()
 }
 
 void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call_id,
-                                           const format::ApiCallOptions& call_options,
-                                           const uint8_t*                buffer,
-                                           size_t                        buffer_size)
+                                              const format::ApiCallOptions& call_options,
+                                              const uint8_t*                buffer,
+                                              size_t                        buffer_size)
 {
     bool write_uncompressed = decompressing_;
 
@@ -129,8 +129,8 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call
     {
         // Compress the buffer with the new compression format and write to the new file.
         format::CompressedFunctionCallHeader compressed_func_call_header = {};
-        size_t                       packet_size                 = 0;
-        size_t                       compressed_size = compressor_->Compress(buffer_size, buffer, &compressed_buffer_);
+        size_t                               packet_size                 = 0;
+        size_t compressed_size = compressor_->Compress(buffer_size, buffer, &compressed_buffer_);
 
         if (0 < compressed_size && compressed_size < buffer_size)
         {
@@ -235,9 +235,9 @@ void CompressionConverter::DispatchDisplayMessageCommand(const std::string& mess
 }
 
 void CompressionConverter::DispatchFillMemoryCommand(uint64_t       memory_id,
-                                                  uint64_t       offset,
-                                                  uint64_t       size,
-                                                  const uint8_t* data)
+                                                     uint64_t       offset,
+                                                     uint64_t       size,
+                                                     const uint8_t* data)
 {
     // NOTE: Don't apply the offset to the write_address here since it's coming from the file_processor
     //       at the start of the stream.  We only need to record the writing offset for future info.
@@ -266,9 +266,8 @@ void CompressionConverter::DispatchFillMemoryCommand(uint64_t       memory_id,
     }
 
     // Calculate size of packet with compressed or uncompressed data size.
-    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) +
-                                                sizeof(fill_cmd.memory_id) + sizeof(fill_cmd.memory_offset) +
-                                                sizeof(fill_cmd.memory_size) + write_size;
+    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.memory_id) +
+                                             sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + write_size;
 
     bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
     bytes_written_ += file_stream_->Write(write_address, write_size);

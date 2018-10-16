@@ -335,7 +335,8 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
             BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
 
             size_t actual_size = 0;
-            success = ReadCompressedParameterBuffer(parameter_buffer_size, static_cast<size_t>(uncompressed_size), &actual_size);
+            success            = ReadCompressedParameterBuffer(
+                parameter_buffer_size, static_cast<size_t>(uncompressed_size), &actual_size);
 
             if (success)
             {
@@ -393,7 +394,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                              sizeof(header.memory_id) - sizeof(header.memory_offset) -
                                              sizeof(header.memory_size);
 
-                    success = ReadCompressedParameterBuffer(compressed_size, static_cast<size_t>(header.memory_size), &uncompressed_size);
+                    success = ReadCompressedParameterBuffer(
+                        compressed_size, static_cast<size_t>(header.memory_size), &uncompressed_size);
                 }
                 else
                 {

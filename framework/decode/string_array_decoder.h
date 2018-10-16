@@ -32,8 +32,8 @@ BRIMSTONE_BEGIN_NAMESPACE(decode)
 template <typename CharT, format::PointerAttributes DecodeAttrib>
 class BasicStringArrayDecoder : public PointerDecoderBase
 {
-public:
-    BasicStringArrayDecoder() { }
+  public:
+    BasicStringArrayDecoder() {}
 
     ~BasicStringArrayDecoder() { DestroyStrings(); }
 
@@ -111,7 +111,7 @@ public:
         return bytes_read;
     }
 
-private:
+  private:
     void DestroyStrings()
     {
         if (strings_ != nullptr)
@@ -125,14 +125,14 @@ private:
         }
     }
 
-private:
-    std::unique_ptr<CharT*[]>       strings_;
-    std::unique_ptr<uint32_t[]>     string_attributes_;
-    std::unique_ptr<uint64_t[]>     string_addresses_;
-    std::unique_ptr<size_t[]>       string_lengths_;
+  private:
+    std::unique_ptr<CharT* []>  strings_;
+    std::unique_ptr<uint32_t[]> string_attributes_;
+    std::unique_ptr<uint64_t[]> string_addresses_;
+    std::unique_ptr<size_t[]>   string_lengths_;
 };
 
-typedef BasicStringArrayDecoder<char, format::PointerAttributes::kIsString> StringArrayDecoder;
+typedef BasicStringArrayDecoder<char, format::PointerAttributes::kIsString>     StringArrayDecoder;
 typedef BasicStringArrayDecoder<wchar_t, format::PointerAttributes::kIsWString> WStringArrayDecoder;
 
 BRIMSTONE_END_NAMESPACE(decode)

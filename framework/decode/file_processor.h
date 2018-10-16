@@ -33,14 +33,17 @@ BRIMSTONE_BEGIN_NAMESPACE(decode)
 
 class FileProcessor
 {
-public:
+  public:
     FileProcessor();
 
     ~FileProcessor();
 
     void AddDecoder(ApiDecoder* decoder) { decoders_.push_back(decoder); }
 
-    void RemoveDecoder(ApiDecoder* decoder) { decoders_.erase(std::remove(decoders_.begin(), decoders_.end(), decoder), decoders_.end()); }
+    void RemoveDecoder(ApiDecoder* decoder)
+    {
+        decoders_.erase(std::remove(decoders_.begin(), decoders_.end(), decoder), decoders_.end());
+    }
 
     bool Initialize(const std::string& filename);
 
@@ -54,14 +57,16 @@ public:
 
     uint64_t NumBytesRead() { return bytes_read_; }
 
-private:
+  private:
     bool ReadFileHeader();
 
     bool ReadBlockHeader(format::BlockHeader* block_header);
 
     bool ReadParameterBuffer(size_t buffer_size);
 
-    bool ReadCompressedParameterBuffer(size_t compressed_buffer_size, size_t expected_uncompressed_size, size_t* uncompressed_buffer_size);
+    bool ReadCompressedParameterBuffer(size_t  compressed_buffer_size,
+                                       size_t  expected_uncompressed_size,
+                                       size_t* uncompressed_buffer_size);
 
     bool ReadBytes(void* buffer, size_t buffer_size);
 
@@ -75,16 +80,19 @@ private:
 
     bool IsFileHeaderValid() const { return (file_header_.fourcc == BRIMSTONE_FOURCC) ? true : false; }
 
-    bool IsFileValid() const { return (file_descriptor_ && !feof(file_descriptor_) && !ferror(file_descriptor_)) ? true : false; }
+    bool IsFileValid() const
+    {
+        return (file_descriptor_ && !feof(file_descriptor_) && !ferror(file_descriptor_)) ? true : false;
+    }
 
-private:
+  private:
     FILE*                               file_descriptor_;
     std::string                         filename_;
     format::FileHeader                  file_header_;
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
     uint64_t                            bytes_read_;
-    std::vector<ApiDecoder*>               decoders_;
+    std::vector<ApiDecoder*>            decoders_;
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;
