@@ -87,9 +87,9 @@ bool XcbWindow::Create(
     }
 
     // Determine if fullscreen mode is required.
-    int32_t  x            = xpos;
-    int32_t  y            = ypos;
-    bool go_fullscreen    = false;
+    int32_t x             = xpos;
+    int32_t y             = ypos;
+    bool    go_fullscreen = false;
 
     if ((screen_height_ <= height) || (screen_width_ <= width))
     {
@@ -228,15 +228,14 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
 
             // Make sure the window position is (0,0).
             uint32_t values[] = { 0, 0, width, height };
-            cookie = xcb_configure_window(connection, window_, kConfigurePositionSizeMask, values);
+            cookie            = xcb_configure_window(connection, window_, kConfigurePositionSizeMask, values);
         }
         else
         {
             SetFullscreen(false);
 
             uint32_t values[] = { width, height };
-            cookie =
-                xcb_configure_window(connection, window_, kConfigureSizeMask, values);
+            cookie            = xcb_configure_window(connection, window_, kConfigureSizeMask, values);
         }
 
         xcb_flush(connection);
@@ -353,7 +352,8 @@ void XcbWindow::SetVisibility(bool show)
             // TODO: We may need to check for any error, not an error for a specific sequence number.
             if (xcb_application_->GetLastErrorSequence() == pending_event_.sequence)
             {
-                BRIMSTONE_LOG_ERROR("Failed to change window visibility with error %u", xcb_application_->GetLastErrorCode());
+                BRIMSTONE_LOG_ERROR("Failed to change window visibility with error %u",
+                                    xcb_application_->GetLastErrorCode());
                 break;
             }
         }
@@ -418,11 +418,11 @@ xcb_atom_t XcbWindow::GetAtom(const char* name, uint8_t only_if_exists) const
 
 void XcbWindow::InitializeAtoms()
 {
-    protocol_atom_ = GetAtom(kProtocolName, 1);
-    delete_window_atom_ =  GetAtom(kDeleteWindowName, 0);
+    protocol_atom_      = GetAtom(kProtocolName, 1);
+    delete_window_atom_ = GetAtom(kDeleteWindowName, 0);
 
-    state_atom_ = GetAtom(kStateName, 1);
-    state_fullscreen_atom_ = GetAtom(kStateFullscreenName, 0);
+    state_atom_                = GetAtom(kStateName, 1);
+    state_fullscreen_atom_     = GetAtom(kStateFullscreenName, 0);
     state_maximized_horz_atom_ = GetAtom(kStateMaximizedHorzName, 0);
     state_maximized_vert_atom_ = GetAtom(kStateMaximizedVertName, 0);
 }

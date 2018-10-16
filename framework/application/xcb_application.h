@@ -32,7 +32,7 @@ class XcbWindow;
 
 class XcbApplication : public Application
 {
-public:
+  public:
     XcbApplication(const std::string& name);
 
     virtual ~XcbApplication();
@@ -59,10 +59,10 @@ public:
 
     virtual void ProcessEvents(bool wait_for_input) override;
 
-private:
+  private:
     typedef std::unordered_map<xcb_window_t, XcbWindow*> XcbWindowMap;
 
-private:
+  private:
     xcb_connection_t* connection_;
     xcb_screen_t*     screen_;
     uint32_t          last_error_sequence_;

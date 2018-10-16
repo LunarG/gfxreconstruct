@@ -103,7 +103,7 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
         }
         else
         {
-            event = xcb_poll_for_event(connection_);        
+            event = xcb_poll_for_event(connection_);
         }
 
         if (event != nullptr)
@@ -123,14 +123,14 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 case XCB_EXPOSE:
                 {
                     // A portion of the window needs to be redrawn.
-                    // If playback is paused, the window may no longer contain a valid image, but the only way to fix this
-                    // would be to re-draw the current frame.
+                    // If playback is paused, the window may no longer contain a valid image, but the only way to fix
+                    // this would be to re-draw the current frame.
                     break;
                 }
                 case XCB_CLIENT_MESSAGE:
                 {
                     xcb_client_message_event_t* message_event = reinterpret_cast<xcb_client_message_event_t*>(event);
-                    auto entry = xcb_windows_.find(message_event->window);
+                    auto                        entry         = xcb_windows_.find(message_event->window);
 
                     if (entry != xcb_windows_.end())
                     {
@@ -147,18 +147,18 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 }
                 case XCB_KEY_RELEASE:
                 {
-                    const xcb_key_release_event_t* key = (const xcb_key_release_event_t *)event;
+                    const xcb_key_release_event_t* key = (const xcb_key_release_event_t*)event;
 
                     switch (key->detail)
                     {
-                        case 0x9:  // Escape
+                        case 0x9: // Escape
                             StopRunning();
                             break;
-                        case 0x41:  // Space
+                        case 0x41: // Space
                             SetPaused(!GetPaused());
                             break;
                     }
-    
+
                     break;
                 }
                 case XCB_CONFIGURE_NOTIFY:

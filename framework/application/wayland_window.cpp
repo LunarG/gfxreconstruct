@@ -28,8 +28,7 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 struct wl_shell_surface_listener WaylandWindow::shell_surface_listener_;
 
 WaylandWindow::WaylandWindow(WaylandApplication* application) :
-    wayland_application_(application), surface_(nullptr),
-    shell_surface_(nullptr)
+    wayland_application_(application), surface_(nullptr), shell_surface_(nullptr)
 {
     assert(application != nullptr);
 
@@ -52,7 +51,8 @@ WaylandWindow::~WaylandWindow()
     }
 }
 
-bool WaylandWindow::Create(const std::string& title, const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+bool WaylandWindow::Create(
+    const std::string& title, const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(x);
     BRIMSTONE_UNREFERENCED_PARAMETER(y);

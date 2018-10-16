@@ -46,7 +46,8 @@ Win32Window::~Win32Window()
     }
 }
 
-bool Win32Window::Create(const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
+bool Win32Window::Create(
+    const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
 {
     const char class_name[] = "GCAPPlay Window";
 
@@ -76,7 +77,7 @@ bool Win32Window::Create(const std::string& title, const int32_t xpos, const int
 
     // Get desktop resolution (ignoring the taskbar).
     HWND screen = GetDesktopWindow();
-    RECT      screen_rect;
+    RECT screen_rect;
     GetWindowRect(screen, &screen_rect);
     screen_width_  = screen_rect.right;
     screen_height_ = screen_rect.bottom;
@@ -157,10 +158,10 @@ bool Win32Window::Destroy()
     return false;
 }
 
- void Win32Window::SetTitle(const std::string& title)
- {
-     SetWindowTextA(hwnd_, title.c_str());
- }
+void Win32Window::SetTitle(const std::string& title)
+{
+    SetWindowTextA(hwnd_, title.c_str());
+}
 
 void Win32Window::SetPosition(const int32_t x, const int32_t y)
 {
@@ -198,13 +199,7 @@ void Win32Window::SetSize(const uint32_t width, const uint32_t height)
             AdjustWindowRect(&wr, kFullscreenStyle, FALSE);
 
             // Move window to the 0,0 position when resizing.
-            SetWindowPos(hwnd_,
-                        nullptr,
-                        0,
-                        0,
-                        wr.right - wr.left,
-                        wr.bottom - wr.top,
-                        SWP_NOZORDER);
+            SetWindowPos(hwnd_, nullptr, 0, 0, wr.right - wr.left, wr.bottom - wr.top, SWP_NOZORDER);
         }
         else
         {
@@ -216,13 +211,7 @@ void Win32Window::SetSize(const uint32_t width, const uint32_t height)
 
             AdjustWindowRect(&wr, kWindowedStyle, FALSE);
 
-            SetWindowPos(hwnd_,
-                        nullptr,
-                        0,
-                        0,
-                        wr.right - wr.left,
-                        wr.bottom - wr.top,
-                        SWP_NOMOVE | SWP_NOZORDER);
+            SetWindowPos(hwnd_, nullptr, 0, 0, wr.right - wr.left, wr.bottom - wr.top, SWP_NOMOVE | SWP_NOZORDER);
         }
     }
 }
@@ -237,30 +226,26 @@ void Win32Window::SetForeground()
     SetForegroundWindow(hwnd_);
 }
 
-bool Win32Window::GetNativeHandle(uint32_t id, void ** handle)
+bool Win32Window::GetNativeHandle(uint32_t id, void** handle)
 {
     assert(handle != nullptr);
-    switch (id) {
-    case Win32Window::kHInstance:
-        *handle = reinterpret_cast<void*>(hinstance_);
-        return true;
-    case Win32Window::kHWnd:
-        *handle = reinterpret_cast<void*>(hwnd_);
-        return true;
-    default:
-        return false;
+    switch (id)
+    {
+        case Win32Window::kHInstance:
+            *handle = reinterpret_cast<void*>(hinstance_);
+            return true;
+        case Win32Window::kHWnd:
+            *handle = reinterpret_cast<void*>(hwnd_);
+            return true;
+        default:
+            return false;
     }
 }
 
 VkResult Win32Window::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
 {
-    VkWin32SurfaceCreateInfoKHR create_info
-    {
-        VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
-        nullptr,
-        flags,
-        hinstance_,
-        hwnd_
+    VkWin32SurfaceCreateInfoKHR create_info{
+        VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR, nullptr, flags, hinstance_, hwnd_
     };
 
     return vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, pSurface);

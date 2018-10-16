@@ -29,7 +29,7 @@ BRIMSTONE_BEGIN_NAMESPACE(application)
 
 class Application
 {
-public:
+  public:
     Application(const std::string& name);
 
     virtual ~Application();
@@ -54,12 +54,12 @@ public:
 
     virtual void ProcessEvents(bool wait_for_input) = 0;
 
-protected:
+  protected:
     void StopRunning() { running_ = false; }
 
     void SetFileProcessor(decode::FileProcessor* file_processor);
 
-private:
+  private:
     // clang-format off
     std::vector<decode::Window*> windows_;          ///< List of windows that have been registered with the application.
     decode::FileProcessor*       file_processor_;   ///< The FileProcessor object responsible for decoding and processing
