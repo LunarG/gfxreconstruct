@@ -14,8 +14,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_LZ77_COMPRESSOR_H
-#define BRIMSTONE_FORMAT_LZ77_COMPRESSOR_H
+#ifndef BRIMSTONE_UTIL_LZ77_COMPRESSOR_H
+#define BRIMSTONE_UTIL_LZ77_COMPRESSOR_H
 
 #include "util/compressor.h"
 
@@ -25,18 +25,21 @@ BRIMSTONE_BEGIN_NAMESPACE(util)
 class Lz77Compressor : public Compressor
 {
   public:
-    Lz77Compressor(CompressionType type) : Compressor(type) {}
-    ~Lz77Compressor() {}
+    Lz77Compressor() {}
 
-    virtual size_t
-                   Compress(const size_t uncompressed_size, const uint8_t* uncompressed_data, std::vector<uint8_t>* compressed_data);
+    virtual ~Lz77Compressor() {}
+
+    virtual size_t Compress(const size_t          uncompressed_size,
+                            const uint8_t*        uncompressed_data,
+                            std::vector<uint8_t>* compressed_data) override;
+
     virtual size_t Decompress(const size_t                compressed_size,
                               const std::vector<uint8_t>& compressed_data,
                               const size_t                expected_uncompressed_size,
-                              std::vector<uint8_t>*       uncompressed_data);
+                              std::vector<uint8_t>*       uncompressed_data) override;
 };
 
 BRIMSTONE_END_NAMESPACE(util)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
-#endif // BRIMSTONE_FORMAT_LZ77_COMPRESSOR_H
+#endif // BRIMSTONE_UTIL_LZ77_COMPRESSOR_H

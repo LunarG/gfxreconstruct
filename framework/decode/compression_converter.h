@@ -38,7 +38,7 @@ class CompressionConverter : public Decoder
     bool Initialize(std::string                                filename,
                     const format::FileHeader&                  file_header,
                     const std::vector<format::FileOptionPair>& option_list,
-                    util::CompressionType                      target_compression_type);
+                    format::CompressionType                    target_compression_type);
 
     void Destroy();
 

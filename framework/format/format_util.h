@@ -17,6 +17,7 @@
 #ifndef BRIMSTONE_FORMAT_FORMAT_UTIL_H
 #define BRIMSTONE_FORMAT_FORMAT_UTIL_H
 
+#include "util/compressor.h"
 #include "util/defines.h"
 #include "format/format.h"
 
@@ -49,6 +50,8 @@ typename std::enable_if<!std::is_pointer<T>::value, T>::type FromHandleId(Handle
 }
 
 bool ValidateFileHeader(const FileHeader& header);
+
+util::Compressor* CreateCompressor(CompressionType type);
 
 BRIMSTONE_END_NAMESPACE(format)
 BRIMSTONE_END_NAMESPACE(brimstone)

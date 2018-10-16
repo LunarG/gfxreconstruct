@@ -111,8 +111,8 @@ bool TraceManager::Initialize(std::string filename, format::EnabledOptions file_
     if (success)
     {
         compressor_ =
-            std::unique_ptr<util::Compressor>(util::Compressor::CreateCompressor(file_options.compression_type));
-        if ((nullptr == compressor_) && (util::kNone != file_options.compression_type))
+            std::unique_ptr<util::Compressor>(format::CreateCompressor(file_options.compression_type));
+        if ((nullptr == compressor_) && (format::CompressionType::kNone != file_options.compression_type))
         {
             success = false;
         }

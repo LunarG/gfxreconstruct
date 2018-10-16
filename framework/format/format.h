@@ -68,6 +68,13 @@ enum MetaDataType : uint32_t
     kVulkanMemoryInfo         = 5
 };
 
+enum CompressionType : uint32_t
+{
+    kNone = 0,
+    kLz4  = 1,
+    kLz77 = 2
+};
+
 enum FileOption : uint32_t
 {
     kUnknownFileOption     = 0,
@@ -107,7 +114,7 @@ enum PointerAttributes : uint32_t
 
 struct EnabledOptions
 {
-    util::CompressionType compression_type{ util::kNone };
+    CompressionType       compression_type{ CompressionType::kNone };
     bool                  record_thread_id{ true };
     bool                  record_begin_end_timestamp{ false };
     bool                  omit_textures{ false };
