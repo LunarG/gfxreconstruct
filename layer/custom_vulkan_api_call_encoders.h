@@ -23,12 +23,10 @@
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
-
 VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice                   device,
                                                            VkDescriptorSet            descriptorSet,
                                                            VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                            const void*                pData);
-
 
 VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer            commandBuffer,
                                                                VkDescriptorUpdateTemplate descriptorUpdateTemplate,

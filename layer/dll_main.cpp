@@ -26,28 +26,28 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
     switch (fdwReason)
     {
-    case DLL_PROCESS_ATTACH:
-        // TODO: Layer initialization will use the CRT, which we assume to be safe here
-        //       because the layer is loaded by a LoadLibrary call made from vkCreateInstance
-        //       and CRT would already be initialized, but this should be confirmed.
-        if (!brimstone::init_layer())
-        {
-            // If initialization fails, return FALSE so that the layer is not loaded.
-            success = FALSE;
-        }
-        break;
-    case DLL_PROCESS_DETACH:
-        // TODO: We assume that lpvReserved will always be NULL, because FreeLibrary should be
-        //       invoked by the loader from vkDestroyInstance.  If this is not always the case,
-        //       we will need to split destroy_layer into a shutdown function, responsible for
-        //       performing any finalization work, that would always run and a destroy funtion,
-        //       responsible for releasing resources, that would only run when the process was
-        //       not terminating.
-        if (lpvReserved == nullptr)
-        {
-            brimstone::destroy_layer();
-        }
-        break;
+        case DLL_PROCESS_ATTACH:
+            // TODO: Layer initialization will use the CRT, which we assume to be safe here
+            //       because the layer is loaded by a LoadLibrary call made from vkCreateInstance
+            //       and CRT would already be initialized, but this should be confirmed.
+            if (!brimstone::init_layer())
+            {
+                // If initialization fails, return FALSE so that the layer is not loaded.
+                success = FALSE;
+            }
+            break;
+        case DLL_PROCESS_DETACH:
+            // TODO: We assume that lpvReserved will always be NULL, because FreeLibrary should be
+            //       invoked by the loader from vkDestroyInstance.  If this is not always the case,
+            //       we will need to split destroy_layer into a shutdown function, responsible for
+            //       performing any finalization work, that would always run and a destroy funtion,
+            //       responsible for releasing resources, that would only run when the process was
+            //       not terminating.
+            if (lpvReserved == nullptr)
+            {
+                brimstone::destroy_layer();
+            }
+            break;
     }
 
     return success;
@@ -55,14 +55,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 #else // WIN32
 
-__attribute__((constructor))
-static void initialize_trace_layer()
+__attribute__((constructor)) static void initialize_trace_layer()
 {
     brimstone::init_layer();
 }
 
-__attribute__((destructor))
-static void destroy_trace_layer()
+__attribute__((destructor)) static void destroy_trace_layer()
 {
     brimstone::destroy_layer();
 }

@@ -27,14 +27,20 @@
 #include "layer/vk_dispatch_table_helper.h"
 
 static const VkLayerProperties LayerProps = {
-    "VK_LAYER_LUNARG_brimstone", VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION), 1, "LunarG API Capture Layer",
+    "VK_LAYER_LUNARG_brimstone",
+    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),
+    1,
+    "LunarG API Capture Layer",
 };
 
-static const VkLayerInstanceCreateInfo* get_instance_chain_info(const VkInstanceCreateInfo* pCreateInfo, VkLayerFunction func)
+static const VkLayerInstanceCreateInfo* get_instance_chain_info(const VkInstanceCreateInfo* pCreateInfo,
+                                                                VkLayerFunction             func)
 {
-    const VkLayerInstanceCreateInfo* chain_info = reinterpret_cast<const VkLayerInstanceCreateInfo*>(pCreateInfo->pNext);
+    const VkLayerInstanceCreateInfo* chain_info =
+        reinterpret_cast<const VkLayerInstanceCreateInfo*>(pCreateInfo->pNext);
 
-    while (chain_info && ((chain_info->sType != VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) || (chain_info->function != func)))
+    while (chain_info &&
+           ((chain_info->sType != VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) || (chain_info->function != func)))
     {
         chain_info = reinterpret_cast<const VkLayerInstanceCreateInfo*>(chain_info->pNext);
     }
@@ -46,7 +52,8 @@ static const VkLayerDeviceCreateInfo* get_device_chain_info(const VkDeviceCreate
 {
     const VkLayerDeviceCreateInfo* chain_info = reinterpret_cast<const VkLayerDeviceCreateInfo*>(pCreateInfo->pNext);
 
-    while (chain_info && ((chain_info->sType != VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO) || (chain_info->function != func)))
+    while (chain_info &&
+           ((chain_info->sType != VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO) || (chain_info->function != func)))
     {
         chain_info = reinterpret_cast<const VkLayerDeviceCreateInfo*>(chain_info->pNext);
     }
@@ -61,7 +68,7 @@ static const void* get_dispatch_key(const void* handle)
 }
 
 static std::unordered_map<const void*, VkLayerInstanceDispatchTable> instance_table;
-static std::unordered_map<const void*, VkLayerDispatchTable> device_table;
+static std::unordered_map<const void*, VkLayerDispatchTable>         device_table;
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
@@ -122,12 +129,15 @@ VkLayerDispatchTable* get_device_table(const void* device)
     return (table != device_table.end()) ? &table->second : nullptr;
 }
 
-VkResult dispatch_CreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkInstance* pInstance)
+VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                 const VkAllocationCallbacks* pAllocator,
+                                 VkInstance*                  pInstance)
 {
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
-    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = nullptr;
-    PFN_vkCreateInstance fpCreateInstance = nullptr;
-    VkLayerInstanceCreateInfo* chain_info = const_cast<VkLayerInstanceCreateInfo*>(get_instance_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
+    VkResult                   result                = VK_ERROR_INITIALIZATION_FAILED;
+    PFN_vkGetInstanceProcAddr  fpGetInstanceProcAddr = nullptr;
+    PFN_vkCreateInstance       fpCreateInstance      = nullptr;
+    VkLayerInstanceCreateInfo* chain_info =
+        const_cast<VkLayerInstanceCreateInfo*>(get_instance_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
 
     if (chain_info && chain_info->u.pLayerInfo)
     {
@@ -156,18 +166,22 @@ VkResult dispatch_CreateInstance(const VkInstanceCreateInfo* pCreateInfo, const 
     return result;
 }
 
-VkResult dispatch_CreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDevice* pDevice)
+VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
+                               const VkDeviceCreateInfo*    pCreateInfo,
+                               const VkAllocationCallbacks* pAllocator,
+                               VkDevice*                    pDevice)
 {
-    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+    VkResult                  result                = VK_ERROR_INITIALIZATION_FAILED;
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = nullptr;
-    PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = nullptr;
-    PFN_vkCreateDevice fpCreateDevice = nullptr;
-    VkLayerDeviceCreateInfo* chain_info = const_cast<VkLayerDeviceCreateInfo*>(get_device_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
+    PFN_vkGetDeviceProcAddr   fpGetDeviceProcAddr   = nullptr;
+    PFN_vkCreateDevice        fpCreateDevice        = nullptr;
+    VkLayerDeviceCreateInfo*  chain_info =
+        const_cast<VkLayerDeviceCreateInfo*>(get_device_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
 
     if (chain_info && chain_info->u.pLayerInfo)
     {
         fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
-        fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
+        fpGetDeviceProcAddr   = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
     }
 
     if (fpGetInstanceProcAddr && fpGetDeviceProcAddr)
@@ -195,7 +209,7 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice physicalDevice, const VkDeviceCr
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;
-    const auto entry = brimstone::func_table.find(pName);
+    const auto         entry  = brimstone::func_table.find(pName);
 
     if (entry != brimstone::func_table.end())
     {
@@ -216,7 +230,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;
-    const auto entry = brimstone::func_table.find(pName);
+    const auto         entry  = brimstone::func_table.find(pName);
 
     if (entry != brimstone::func_table.end())
     {
@@ -234,7 +248,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
     return result;
 }
 
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char *pName) {
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char* pName)
+{
     PFN_vkVoidFunction result = nullptr;
     assert(instance != VK_NULL_HANDLE);
     const auto table = brimstone::get_instance_table(instance);
@@ -245,7 +260,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance in
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                                                  const char*            pLayerName,
+                                                                  uint32_t*              pPropertyCount,
+                                                                  VkExtensionProperties* pProperties)
 {
     VkResult result = VK_SUCCESS;
 
@@ -259,14 +277,18 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     }
     else
     {
-        // If this function was not called with the layer's name, we expect to dispatch down the chain to obtain the ICD provided extensions.
-        result = brimstone::get_instance_table(physicalDevice)->EnumerateDeviceExtensionProperties(physicalDevice, nullptr, pPropertyCount, pProperties);
+        // If this function was not called with the layer's name, we expect to dispatch down the chain to obtain the ICD
+        // provided extensions.
+        result = brimstone::get_instance_table(physicalDevice)
+                     ->EnumerateDeviceExtensionProperties(physicalDevice, nullptr, pPropertyCount, pProperties);
     }
 
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char*            pLayerName,
+                                                                    uint32_t*              pPropertyCount,
+                                                                    VkExtensionProperties* pProperties)
 {
     VkResult result = VK_SUCCESS;
 
@@ -285,7 +307,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char* 
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties)
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
+                                                                VkLayerProperties* pProperties)
 {
     VkResult result = VK_SUCCESS;
 
@@ -312,14 +335,15 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t* pPrope
     return result;
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice physicalDevice, uint32_t* pPropertyCount, VkLayerProperties* pProperties)
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
+                                                              uint32_t*          pPropertyCount,
+                                                              VkLayerProperties* pProperties)
 {
     BRIMSTONE_UNREFERENCED_PARAMETER(physicalDevice);
     return EnumerateInstanceLayerProperties(pPropertyCount, pProperties);
 }
 
 BRIMSTONE_END_NAMESPACE(brimstone)
-
 
 // To be safe, we extern "C" these items to remove name mangling for all the items we want to export for Android and old
 // loaders to find.
