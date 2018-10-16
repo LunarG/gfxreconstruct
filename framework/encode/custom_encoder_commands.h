@@ -29,8 +29,7 @@ struct CustomEncoderPreCall
 {
     template <typename... Args>
     static void Dispatch(TraceManager*, Args...)
-    {
-    }
+    {}
 };
 
 template <format::ApiCallId Id>
@@ -38,13 +37,11 @@ struct CustomEncoderPostCall
 {
     template <typename... Args>
     static void Dispatch(TraceManager*, Args...)
-    {
-    }
+    {}
 
     template <typename... Args>
     static void Dispatch(TraceManager*, VkResult, Args...)
-    {
-    }
+    {}
 };
 
 // Dispatch custom command for window resize command generation.
