@@ -16,13 +16,23 @@
 
 #include <cassert>
 
-#include "decode/decompress_decoder.h"
+#include "decode/compression_converter.h"
 #include "util/logging.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)
 
-bool DecompressDecoder::Initialize(std::string                                filename,
+CompressionConverter::CompressionConverter() :
+    bytes_written_(0), compressor_(nullptr), decompressing_(false), write_thread_id_(false),
+    write_begin_end_times_(false)
+{}
+
+CompressionConverter::~CompressionConverter()
+{
+    Destroy();
+}
+
+bool CompressionConverter::Initialize(std::string                                filename,
                                    const format::FileHeader&                  file_header,
                                    const std::vector<format::FileOptionPair>& option_list,
                                    util::CompressionType                      target_compression_type)
@@ -39,12 +49,12 @@ bool DecompressDecoder::Initialize(std::string                                fi
 
     if (util::kNone == target_compression_type)
     {
-        decompress_mode_ = kDecompress;
+        decompressing_   = true;
         compressor_      = nullptr;
     }
     else
     {
-        decompress_mode_ = kCompress;
+        decompressing_ = false;
 
         compressor_ = util::Compressor::CreateCompressor(target_compression_type);
         if (nullptr == compressor_)
@@ -98,7 +108,7 @@ bool DecompressDecoder::Initialize(std::string                                fi
     return success;
 }
 
-void DecompressDecoder::Destroy()
+void CompressionConverter::Destroy()
 {
     if (nullptr != compressor_)
     {
@@ -107,14 +117,14 @@ void DecompressDecoder::Destroy()
     }
 }
 
-void DecompressDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
+void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call_id,
                                            const format::ApiCallOptions& call_options,
                                            const uint8_t*                buffer,
                                            size_t                        buffer_size)
 {
-    bool write_uncompressed = (decompress_mode_ == kDecompress);
+    bool write_uncompressed = decompressing_;
 
-    if (decompress_mode_ == kCompress)
+    if (!decompressing_)
     {
         // Compress the buffer with the new compression format and write to the new file.
         format::CompressedFunctionCallHeader compressed_func_call_header = {};
@@ -208,7 +218,7 @@ void DecompressDecoder::DecodeFunctionCall(format::ApiCallId             call_id
     }
 }
 
-void DecompressDecoder::DispatchDisplayMessageCommand(const std::string& message)
+void CompressionConverter::DispatchDisplayMessageCommand(const std::string& message)
 {
     size_t                              message_length = message.size();
     format::DisplayMessageCommandHeader message_cmd;
@@ -223,7 +233,7 @@ void DecompressDecoder::DispatchDisplayMessageCommand(const std::string& message
     }
 }
 
-void DecompressDecoder::DispatchFillMemoryCommand(uint64_t       memory_id,
+void CompressionConverter::DispatchFillMemoryCommand(uint64_t       memory_id,
                                                   uint64_t       offset,
                                                   uint64_t       size,
                                                   const uint8_t* data)
@@ -240,7 +250,7 @@ void DecompressDecoder::DispatchFillMemoryCommand(uint64_t       memory_id,
     fill_cmd.memory_offset                 = offset;
     fill_cmd.memory_size                   = size;
 
-    if ((decompress_mode_ == kCompress) && (compressor_ != nullptr))
+    if ((!decompressing_) && (compressor_ != nullptr))
     {
         size_t compressed_size = compressor_->Compress(size, write_address, &compressed_buffer_);
         if ((compressed_size > 0) && (compressed_size < size))
@@ -259,15 +269,11 @@ void DecompressDecoder::DispatchFillMemoryCommand(uint64_t       memory_id,
                                                 sizeof(fill_cmd.memory_id) + sizeof(fill_cmd.memory_offset) +
                                                 sizeof(fill_cmd.memory_size) + write_size;
 
-    {
-        std::lock_guard<std::mutex> lock(file_lock_);
-
-        bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
-        bytes_written_ += file_stream_->Write(write_address, write_size);
-    }
+    bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
+    bytes_written_ += file_stream_->Write(write_address, write_size);
 }
 
-void DecompressDecoder::DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
+void CompressionConverter::DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
 {
     format::ResizeWindowCommand resize_cmd;
     resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
@@ -278,10 +284,8 @@ void DecompressDecoder::DispatchResizeWindowCommand(format::HandleId surface_id,
     resize_cmd.surface_id                 = surface_id;
     resize_cmd.width                      = width;
     resize_cmd.height                     = height;
-    {
-        std::lock_guard<std::mutex> lock(file_lock_);
-        bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
-    }
+
+    bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
 }
 
 BRIMSTONE_END_NAMESPACE(decode)

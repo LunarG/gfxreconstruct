@@ -6,8 +6,8 @@ target_sources(brimstone_decode
                    custom_vulkan_struct_decoders.cpp
                    custom_vulkan_struct_decoders_forward.h
                    decoder.h
-                   decompress_decoder.h
-                   decompress_decoder.cpp
+                   compression_converter.h
+                   compression_converter.cpp
                    descriptor_update_template_decoder.h
                    descriptor_update_template_decoder.cpp
                    file_processor.h
