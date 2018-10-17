@@ -13,4 +13,4 @@ target_include_directories(brimstone_format
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(brimstone_format brimstone_util platform_specific)
+target_link_libraries(brimstone_format brimstone_util vulkan_registry platform_specific)
