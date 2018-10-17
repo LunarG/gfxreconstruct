@@ -190,28 +190,34 @@ void Win32Window::SetSize(const uint32_t width, const uint32_t height)
                     screen_height_);
             }
 
+            uint32_t swp_flags = 0;
+
             if (!fullscreen_)
             {
-                SetWindowLong(hwnd_, GWL_STYLE, kFullscreenStyle);
+                SetWindowLong(hwnd_, GWL_STYLE, WS_VISIBLE | kFullscreenStyle);
+                swp_flags |= SWP_FRAMECHANGED;
                 fullscreen_ = true;
             }
 
             AdjustWindowRect(&wr, kFullscreenStyle, FALSE);
 
             // Move window to the 0,0 position when resizing.
-            SetWindowPos(hwnd_, nullptr, 0, 0, wr.right - wr.left, wr.bottom - wr.top, SWP_NOZORDER);
+            SetWindowPos(hwnd_, HWND_TOPMOST, 0, 0, wr.right - wr.left, wr.bottom - wr.top, swp_flags);
         }
         else
         {
+            uint32_t swp_flags = SWP_NOMOVE | SWP_NOZORDER;
+
             if (fullscreen_)
             {
-                SetWindowLong(hwnd_, GWL_STYLE, kWindowedStyle);
+                SetWindowLong(hwnd_, GWL_STYLE, WS_VISIBLE | kWindowedStyle);
+                swp_flags |= SWP_FRAMECHANGED;
                 fullscreen_ = false;
             }
 
             AdjustWindowRect(&wr, kWindowedStyle, FALSE);
 
-            SetWindowPos(hwnd_, nullptr, 0, 0, wr.right - wr.left, wr.bottom - wr.top, SWP_NOMOVE | SWP_NOZORDER);
+            SetWindowPos(hwnd_, nullptr, 0, 0, wr.right - wr.left, wr.bottom - wr.top, swp_flags);
         }
     }
 }
