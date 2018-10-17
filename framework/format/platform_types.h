@@ -191,6 +191,38 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(
 }
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 
+#if !defined VK_USE_PLATFORM_FUCHSIA
+#define VK_FUCHSIA_IMAGEPIPE_SURFACE_EXTENSION_NAME "VK_FUCHSIA_imagepipe_surface"
+
+typedef VkFlags  VkImagePipeSurfaceCreateFlagsFUCHSIA;
+
+typedef uint32_t zx_handle_t;
+
+struct VkImagePipeSurfaceCreateInfoFUCHSIA
+{
+    VkStructureType                      sType;
+    const void*                          pNext;
+    VkImagePipeSurfaceCreateFlagsFUCHSIA flags;
+    zx_handle_t                          imagePipeHandle;
+};
+
+extern "C" {
+typedef VkResult(VKAPI_PTR* PFN_vkCreateImagePipeSurfaceFUCHSIA)(VkInstance                                 instance,
+                                                                 const VkImagePipeSurfaceCreateInfoFUCHSIA* pCreateInfo,
+                                                                 const VkAllocationCallbacks*               pAllocator,
+                                                                 VkSurfaceKHR*                              pSurface);
+
+static VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(VkInstance,
+                                                                      const VkImagePipeSurfaceCreateInfoFUCHSIA*,
+                                                                      const VkAllocationCallbacks*,
+                                                                      VkSurfaceKHR*)
+{
+    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateImagePipeSurfaceFUCHSIA");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+}
+#endif // defined VK_USE_PLATFORM_FUCHSIA
+
 #if !defined(VK_USE_PLATFORM_IOS_MVK)
 #define VK_MVK_IOS_SURFACE_EXTENSION_NAME "VK_MVK_ios_surface"
 
