@@ -319,6 +319,13 @@ void encode_struct(ParameterEncoder* encoder, const VkImageFormatListCreateInfoK
 
 void encode_struct(ParameterEncoder* encoder, const VkPhysicalDevice8BitStorageFeaturesKHR& value);
 
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicInt64FeaturesKHR& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkConformanceVersionKHR& value);
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceDriverPropertiesKHR& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceVulkanMemoryModelFeaturesKHR& value);
+
 void encode_struct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value);
 
 void encode_struct(ParameterEncoder* encoder, const VkPipelineRasterizationStateRasterizationOrderAMD& value);
@@ -335,6 +342,8 @@ void encode_struct(ParameterEncoder* encoder, const VkTextureLODGatherFormatProp
 
 void encode_struct(ParameterEncoder* encoder, const VkShaderResourceUsageAMD& value);
 void encode_struct(ParameterEncoder* encoder, const VkShaderStatisticsInfoAMD& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceCornerSampledImageFeaturesNV& value);
 
 void encode_struct(ParameterEncoder* encoder, const VkExternalImageFormatPropertiesNV& value);
 
@@ -355,6 +364,9 @@ void encode_struct(ParameterEncoder* encoder, const VkValidationFlagsEXT& value)
 #ifdef VK_USE_PLATFORM_VI_NN
 void encode_struct(ParameterEncoder* encoder, const VkViSurfaceCreateInfoNN& value);
 #endif /* VK_USE_PLATFORM_VI_NN */
+
+void encode_struct(ParameterEncoder* encoder, const VkImageViewASTCDecodeModeEXT& value);
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceASTCDecodeFeaturesEXT& value);
 
 void encode_struct(ParameterEncoder* encoder, const VkConditionalRenderingBeginInfoEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceConditionalRenderingFeaturesEXT& value);
@@ -429,6 +441,11 @@ void encode_struct(ParameterEncoder* encoder, const VkExternalFormatANDROID& val
 void encode_struct(ParameterEncoder* encoder, const VkSamplerReductionModeCreateInfoEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT& value);
 
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceInlineUniformBlockFeaturesEXT& value);
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceInlineUniformBlockPropertiesEXT& value);
+void encode_struct(ParameterEncoder* encoder, const VkWriteDescriptorSetInlineUniformBlockEXT& value);
+void encode_struct(ParameterEncoder* encoder, const VkDescriptorPoolInlineUniformBlockCreateInfoEXT& value);
+
 void encode_struct(ParameterEncoder* encoder, const VkSampleLocationEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkSampleLocationsInfoEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkAttachmentSampleLocationsEXT& value);
@@ -455,6 +472,28 @@ void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIn
 void encode_struct(ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountAllocateInfoEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountLayoutSupportEXT& value);
 
+void encode_struct(ParameterEncoder* encoder, const VkShadingRatePaletteNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkPipelineViewportShadingRateImageStateCreateInfoNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceShadingRateImageFeaturesNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceShadingRateImagePropertiesNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkCoarseSampleLocationNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkCoarseSampleOrderCustomNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkRaytracingPipelineCreateInfoNVX& value);
+void encode_struct(ParameterEncoder* encoder, const VkGeometryTrianglesNVX& value);
+void encode_struct(ParameterEncoder* encoder, const VkGeometryAABBNVX& value);
+void encode_struct(ParameterEncoder* encoder, const VkGeometryDataNVX& value);
+void encode_struct(ParameterEncoder* encoder, const VkGeometryNVX& value);
+void encode_struct(ParameterEncoder* encoder, const VkAccelerationStructureCreateInfoNVX& value);
+void encode_struct(ParameterEncoder* encoder, const VkBindAccelerationStructureMemoryInfoNVX& value);
+void encode_struct(ParameterEncoder* encoder, const VkDescriptorAccelerationStructureInfoNVX& value);
+void encode_struct(ParameterEncoder* encoder, const VkAccelerationStructureMemoryRequirementsInfoNVX& value);
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceRaytracingPropertiesNVX& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkPipelineRepresentativeFragmentTestStateCreateInfoNV& value);
+
 void encode_struct(ParameterEncoder* encoder, const VkDeviceQueueGlobalPriorityCreateInfoEXT& value);
 
 void encode_struct(ParameterEncoder* encoder, const VkImportMemoryHostPointerInfoEXT& value);
@@ -466,6 +505,27 @@ void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderCorePr
 void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkVertexInputBindingDivisorDescriptionEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkPipelineVertexInputDivisorStateCreateInfoEXT& value);
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceComputeShaderDerivativesFeaturesNV& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceMeshShaderFeaturesNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceMeshShaderPropertiesNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkDrawMeshTasksIndirectCommandNV& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderImageFootprintFeaturesNV& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkPipelineViewportExclusiveScissorStateCreateInfoNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceExclusiveScissorFeaturesNV& value);
+
+void encode_struct(ParameterEncoder* encoder, const VkQueueFamilyCheckpointPropertiesNV& value);
+void encode_struct(ParameterEncoder* encoder, const VkCheckpointDataNV& value);
+
+#ifdef VK_USE_PLATFORM_FUCHSIA
+void encode_struct(ParameterEncoder* encoder, const VkImagePipeSurfaceCreateInfoFUCHSIA& value);
+#endif /* VK_USE_PLATFORM_FUCHSIA */
 
 BRIMSTONE_END_NAMESPACE(encode)
 BRIMSTONE_END_NAMESPACE(brimstone)

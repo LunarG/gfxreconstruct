@@ -641,9 +641,55 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetValidationCacheDataEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdBindShadingRateImageNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetViewportShadingRatePaletteNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetCoarseSampleOrderNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreateAccelerationStructureNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkDestroyAccelerationStructureNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetAccelerationStructureMemoryRequirementsNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetAccelerationStructureScratchMemoryRequirementsNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkBindAccelerationStructureMemoryNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBuildAccelerationStructureNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyAccelerationStructureNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdTraceRaysNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreateRaytracingPipelinesNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetRaytracingShaderHandlesNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetAccelerationStructureHandleNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdWriteAccelerationStructurePropertiesNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCompileDeferredNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetMemoryHostPointerPropertiesEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdWriteBufferMarkerAMD(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawMeshTasksNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawMeshTasksIndirectNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawMeshTasksIndirectCountNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetExclusiveScissorNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetCheckpointNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetQueueCheckpointDataNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreateImagePipeSurfaceFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
 };
 
 BRIMSTONE_END_NAMESPACE(decode)
