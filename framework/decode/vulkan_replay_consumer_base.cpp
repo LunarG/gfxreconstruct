@@ -572,7 +572,7 @@ void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(VkInstance             
 {
     vkDestroySurfaceKHR(instance, surface, pAllocator);
 
-    if (surface != nullptr)
+    if (surface != VK_NULL_HANDLE)
     {
         auto entry = window_map_.find(surface);
 
