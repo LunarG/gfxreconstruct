@@ -209,7 +209,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                             preexpr.append(expr)
                             expr = ''
                             # We need to map the handles.  The current expr will be modified and appended to the appropriate pre and post lists.
-                            newdecls, newpreexpr, newpostexpr = self.makeStructHandleMappings(value, argName, lengthName, [], [], [], '', '', '', '')
+                            newdecls, newpreexpr, newpostexpr = self.makeStructHandleMappings(value, argName, lengthName, [], [], [], '', '', '')
                             preexpr += newdecls + newpreexpr
                             postexpr += newpostexpr
                 else:
@@ -277,7 +277,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
 
     #
     #
-    def makeStructHandleMappings(self, value, argName, lengthName, predecls = [], preexpr = [], postexpr = [], srcPrefix = '', dstPrefix = '', initIndent = '', initCounter = ''):
+    def makeStructHandleMappings(self, value, argName, lengthName, predecls = [], preexpr = [], postexpr = [], srcPrefix = '', initIndent = '', initCounter = ''):
         handleValues = self.structsWithHandles[value.baseType]
         wrapperName = argName + '_wrapper'
         deallocations = []
@@ -342,7 +342,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     preexpr.append(nextExpr)
 
                     nextLength = dstName + handleValue.arrayLength if handleValue.arrayLength else None
-                    predecls, preexpr, postexpr = self.makeStructHandleMappings(handleValue, nextName, nextLength, predecls, preexpr, postexpr, srcName, dstName, indent, counter)
+                    predecls, preexpr, postexpr = self.makeStructHandleMappings(handleValue, nextName, nextLength, predecls, preexpr, postexpr, srcName, indent, counter)
                 else:
                     nextValues = self.structsWithHandles[handleValue.baseType]
                     for nextValue in nextValues:
@@ -352,7 +352,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         else:
                             # We have a struct that contains one or more handles, so we need to process the struct
                             nextName = dstName + handleValue.name + '.' + nextValue.name
-                            predecls, preexpr, postexpr = self.makeStructHandleMappings(nextValue, nextName, None, predecls, preexpr, postexpr, srcName + handleValue.name + '.', dstName + handleValue.name + '.', indent, counter)
+                            predecls, preexpr, postexpr = self.makeStructHandleMappings(nextValue, nextName, None, predecls, preexpr, postexpr, srcName + handleValue.name + '.', indent, counter)
             else:
                 self.makeStructHandleMappingExpr(value, handleValue, srcName, dstName, preexpr, postexpr, deallocations, indent)
 
