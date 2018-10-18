@@ -78,7 +78,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
     #
     # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
-        if self.featureStructMembers:
+        if self.featureStructMembers or self.featureStructAliases:
             return True
         return False
 
@@ -101,6 +101,13 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
 
             body += '};'
 
+            write(body, file=self.outFile)
+            first = False
+
+        # Write typedefs for any aliases
+        for struct in self.featureStructAliases:
+            body = '' if first else '\n'
+            body += 'typedef Decoded_{} Decoded_{};'.format(self.featureStructAliases[struct], struct)
             write(body, file=self.outFile)
             first = False
 
