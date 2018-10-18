@@ -286,12 +286,13 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
 
         valueName = srcPrefix + value.name
 
-        # Allocate memory for handles and perform mapping when the struct array is not NULL.
-        preexpr.append(indent + 'if ({} != nullptr)'.format(argName))
-        preexpr.append(indent + '{')
-        indent = initIndent + ' ' * self.INDENT_SIZE
+        if value.isPointer or value.isArray:
+            # Allocate memory for handles and perform mapping when the struct pointer or array is not NULL.
+            preexpr.append(indent + 'if ({} != nullptr)'.format(argName))
+            preexpr.append(indent + '{')
+            indent = initIndent + ' ' * self.INDENT_SIZE
 
-        preexpr.append(indent + 'const Decoded_{}* {} = {}.GetMetaStructPointer();'.format(value.baseType, wrapperName, valueName))
+            preexpr.append(indent + 'const Decoded_{}* {} = {}.GetMetaStructPointer();'.format(value.baseType, wrapperName, valueName))
 
         if value.isArray:
             # Start a for loop to process all of the structures in the array.
@@ -304,28 +305,35 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
 
         first = True
         for handleValue in handleValues:
-            if not first:
-                preexpr.append('')
-            else:
-                first = False
-
-            srcName = wrapperName
+            srcName = ''
             dstName = argName
 
-            if value.isArray:
-                # Index the array
-                srcName += '[{}].'.format(counter)
-                dstName += '[{}].'.format(counter)
+            if value.isPointer or value.isArray:
+                if not first:
+                    preexpr.append('')
+                else:
+                    first = False
+
+                # Access fields of pointer or array members
+                srcName = wrapperName
+                if value.isArray:
+                    # Index the array
+                    srcName += '[{}].'.format(counter)
+                    dstName += '[{}].'.format(counter)
+                else:
+                    # Dereference the pointer
+                    srcName += '->'
+                    dstName += '->'
             else:
-                # Dereference the pointer
-                srcName += '->'
-                dstName += '->'
+                # Access fields of a struct member
+                srcName = valueName
+                srcName += '.'
+                dstName += '.'
 
             if self.isStruct(handleValue.baseType):
-                nextName = argName + '_' + handleValue.name
-
                 if handleValue.isPointer or handleValue.isArray:
                     fullType = handleValue.fullType.replace('const ', '').lstrip()
+                    nextName = argName + '_' + handleValue.name
 
                     nextDecl = '{} {} = nullptr;'.format(fullType, nextName)
                     predecls.append(nextDecl)
@@ -339,9 +347,12 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     nextValues = self.structsWithHandles[handleValue.baseType]
                     for nextValue in nextValues:
                         if not self.isStruct(nextValue.baseType):
+                            # We have a handle to map
                             self.makeStructHandleMappingExpr(value, nextValue, srcName + handleValue.name + '.', dstName + handleValue.name + '.', preexpr, postexpr, deallocations, indent)
                         else:
-                            print('WARNING: Skipping unexpected nested structure case in replay consumer handle mapping.')
+                            # We have a struct that contains one or more handles, so we need to process the struct
+                            nextName = dstName + handleValue.name + '.' + nextValue.name
+                            predecls, preexpr, postexpr = self.makeStructHandleMappings(nextValue, nextName, None, predecls, preexpr, postexpr, srcName + handleValue.name + '.', dstName + handleValue.name + '.', indent, counter)
             else:
                 self.makeStructHandleMappingExpr(value, handleValue, srcName, dstName, preexpr, postexpr, deallocations, indent)
 
@@ -350,8 +361,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
             indent = initIndent + ' ' * self.INDENT_SIZE
             preexpr.append(indent + '}')
 
-        indent = initIndent
-        preexpr.append(indent + '}')
+        if value.isPointer or value.isArray:
+            indent = initIndent
+            preexpr.append(indent + '}')
 
         # Free any temporary allocations that were made.
         if postexpr or deallocations:
