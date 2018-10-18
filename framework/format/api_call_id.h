@@ -348,6 +348,30 @@ enum ApiCallId : uint32_t
     ApiCallId_vkGetValidationCacheDataEXT                                                           = 0x1135,
     ApiCallId_vkGetMemoryHostPointerPropertiesEXT                                                   = 0x1136,
     ApiCallId_vkCmdWriteBufferMarkerAMD                                                             = 0x1137,
+    ApiCallId_vkCmdBindShadingRateImageNV                                                           = 0x1138,
+    ApiCallId_vkCmdSetViewportShadingRatePaletteNV                                                  = 0x1139,
+    ApiCallId_vkCmdSetCoarseSampleOrderNV                                                           = 0x113a,
+    ApiCallId_vkCreateAccelerationStructureNVX                                                      = 0x113b,
+    ApiCallId_vkDestroyAccelerationStructureNVX                                                     = 0x113c,
+    ApiCallId_vkGetAccelerationStructureMemoryRequirementsNVX                                       = 0x113d,
+    ApiCallId_vkGetAccelerationStructureScratchMemoryRequirementsNVX                                = 0x113e,
+    ApiCallId_vkBindAccelerationStructureMemoryNVX                                                  = 0x113f,
+    ApiCallId_vkCmdBuildAccelerationStructureNVX                                                    = 0x1140,
+    ApiCallId_vkCmdCopyAccelerationStructureNVX                                                     = 0x1141,
+    ApiCallId_vkCmdTraceRaysNVX                                                                     = 0x1142,
+    ApiCallId_vkCreateRaytracingPipelinesNVX                                                        = 0x1143,
+    ApiCallId_vkGetRaytracingShaderHandlesNVX                                                       = 0x1144,
+    ApiCallId_vkGetAccelerationStructureHandleNVX                                                   = 0x1145,
+    ApiCallId_vkCmdWriteAccelerationStructurePropertiesNVX                                          = 0x1146,
+    ApiCallId_vkCompileDeferredNVX                                                                  = 0x1147,
+    ApiCallId_vkCmdDrawMeshTasksNV                                                                  = 0x1148,
+    ApiCallId_vkCmdDrawMeshTasksIndirectNV                                                          = 0x1149,
+    ApiCallId_vkCmdDrawMeshTasksIndirectCountNV                                                     = 0x114a,
+    ApiCallId_vkCmdSetExclusiveScissorNV                                                            = 0x114b,
+    ApiCallId_vkCmdSetCheckpointNV                                                                  = 0x114c,
+    ApiCallId_vkGetQueueCheckpointDataNV                                                            = 0x114d,
+    ApiCallId_vkCreateImagePipeSurfaceFUCHSIA                                                       = 0x114e
+
     // clang-format on
 };
 
