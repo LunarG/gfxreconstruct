@@ -2741,6 +2741,171 @@ void VulkanAsciiConsumer::Process_vkGetValidationCacheDataEXT(
     fprintf(GetFile(), "%s\n", "vkGetValidationCacheDataEXT");
 }
 
+void VulkanAsciiConsumer::Process_vkCmdBindShadingRateImageNV(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            imageView,
+    VkImageLayout                               imageLayout)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdBindShadingRateImageNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetViewportShadingRatePaletteNV(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstViewport,
+    uint32_t                                    viewportCount,
+    const StructPointerDecoder<Decoded_VkShadingRatePaletteNV>& pShadingRatePalettes)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetViewportShadingRatePaletteNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetCoarseSampleOrderNV(
+    format::HandleId                            commandBuffer,
+    VkCoarseSampleOrderTypeNV                   sampleOrderType,
+    uint32_t                                    customSampleOrderCount,
+    const StructPointerDecoder<Decoded_VkCoarseSampleOrderCustomNV>& pCustomSampleOrders)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetCoarseSampleOrderNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureNVX(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoNVX>& pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+    const PointerDecoder<format::HandleId>&     pAccelerationStructure)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateAccelerationStructureNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkDestroyAccelerationStructureNVX(
+    format::HandleId                            device,
+    format::HandleId                            accelerationStructure,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
+{
+    fprintf(GetFile(), "%s\n", "vkDestroyAccelerationStructureNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkGetAccelerationStructureMemoryRequirementsNVX(
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNVX>& pInfo,
+    const StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>& pMemoryRequirements)
+{
+    fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureMemoryRequirementsNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkGetAccelerationStructureScratchMemoryRequirementsNVX(
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNVX>& pInfo,
+    const StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>& pMemoryRequirements)
+{
+    fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureScratchMemoryRequirementsNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkBindAccelerationStructureMemoryNVX(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint32_t                                    bindInfoCount,
+    const StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNVX>& pBindInfos)
+{
+    fprintf(GetFile(), "%s\n", "vkBindAccelerationStructureMemoryNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdBuildAccelerationStructureNVX(
+    format::HandleId                            commandBuffer,
+    VkAccelerationStructureTypeNVX              type,
+    uint32_t                                    instanceCount,
+    format::HandleId                            instanceData,
+    VkDeviceSize                                instanceOffset,
+    uint32_t                                    geometryCount,
+    const StructPointerDecoder<Decoded_VkGeometryNVX>& pGeometries,
+    VkBuildAccelerationStructureFlagsNVX        flags,
+    VkBool32                                    update,
+    format::HandleId                            dst,
+    format::HandleId                            src,
+    format::HandleId                            scratch,
+    VkDeviceSize                                scratchOffset)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdBuildAccelerationStructureNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdCopyAccelerationStructureNVX(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            dst,
+    format::HandleId                            src,
+    VkCopyAccelerationStructureModeNVX          mode)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdCopyAccelerationStructureNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdTraceRaysNVX(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            raygenShaderBindingTableBuffer,
+    VkDeviceSize                                raygenShaderBindingOffset,
+    format::HandleId                            missShaderBindingTableBuffer,
+    VkDeviceSize                                missShaderBindingOffset,
+    VkDeviceSize                                missShaderBindingStride,
+    format::HandleId                            hitShaderBindingTableBuffer,
+    VkDeviceSize                                hitShaderBindingOffset,
+    VkDeviceSize                                hitShaderBindingStride,
+    uint32_t                                    width,
+    uint32_t                                    height)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdTraceRaysNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkCreateRaytracingPipelinesNVX(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            pipelineCache,
+    uint32_t                                    createInfoCount,
+    const StructPointerDecoder<Decoded_VkRaytracingPipelineCreateInfoNVX>& pCreateInfos,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+    const PointerDecoder<format::HandleId>&     pPipelines)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateRaytracingPipelinesNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkGetRaytracingShaderHandlesNVX(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            pipeline,
+    uint32_t                                    firstGroup,
+    uint32_t                                    groupCount,
+    size_t                                      dataSize,
+    const PointerDecoder<uint8_t>&              pData)
+{
+    fprintf(GetFile(), "%s\n", "vkGetRaytracingShaderHandlesNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkGetAccelerationStructureHandleNVX(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            accelerationStructure,
+    size_t                                      dataSize,
+    const PointerDecoder<uint8_t>&              pData)
+{
+    fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureHandleNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdWriteAccelerationStructurePropertiesNVX(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            accelerationStructure,
+    VkQueryType                                 queryType,
+    format::HandleId                            queryPool,
+    uint32_t                                    query)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdWriteAccelerationStructurePropertiesNVX");
+}
+
+void VulkanAsciiConsumer::Process_vkCompileDeferredNVX(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            pipeline,
+    uint32_t                                    shader)
+{
+    fprintf(GetFile(), "%s\n", "vkCompileDeferredNVX");
+}
+
 void VulkanAsciiConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(
     VkResult                                    returnValue,
     format::HandleId                            device,
@@ -2759,6 +2924,70 @@ void VulkanAsciiConsumer::Process_vkCmdWriteBufferMarkerAMD(
     uint32_t                                    marker)
 {
     fprintf(GetFile(), "%s\n", "vkCmdWriteBufferMarkerAMD");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdDrawMeshTasksNV(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    taskCount,
+    uint32_t                                    firstTask)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdDrawMeshTasksNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdDrawMeshTasksIndirectNV(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    uint32_t                                    drawCount,
+    uint32_t                                    stride)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdDrawMeshTasksIndirectNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdDrawMeshTasksIndirectCountNV(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    format::HandleId                            countBuffer,
+    VkDeviceSize                                countBufferOffset,
+    uint32_t                                    maxDrawCount,
+    uint32_t                                    stride)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdDrawMeshTasksIndirectCountNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetExclusiveScissorNV(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstExclusiveScissor,
+    uint32_t                                    exclusiveScissorCount,
+    const StructPointerDecoder<Decoded_VkRect2D>& pExclusiveScissors)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetExclusiveScissorNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetCheckpointNV(
+    format::HandleId                            commandBuffer,
+    uint64_t                                    pCheckpointMarker)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetCheckpointNV");
+}
+
+void VulkanAsciiConsumer::Process_vkGetQueueCheckpointDataNV(
+    format::HandleId                            queue,
+    const PointerDecoder<uint32_t>&             pCheckpointDataCount,
+    const StructPointerDecoder<Decoded_VkCheckpointDataNV>& pCheckpointData)
+{
+    fprintf(GetFile(), "%s\n", "vkGetQueueCheckpointDataNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
+    VkResult                                    returnValue,
+    format::HandleId                            instance,
+    const StructPointerDecoder<Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA>& pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+    const PointerDecoder<format::HandleId>&     pSurface)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateImagePipeSurfaceFUCHSIA");
 }
 
 BRIMSTONE_END_NAMESPACE(decode)

@@ -1854,6 +1854,123 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         const PointerDecoder<size_t>&               pDataSize,
         const PointerDecoder<uint8_t>&              pData) override;
 
+    virtual void Process_vkCmdBindShadingRateImageNV(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            imageView,
+        VkImageLayout                               imageLayout) override;
+
+    virtual void Process_vkCmdSetViewportShadingRatePaletteNV(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstViewport,
+        uint32_t                                    viewportCount,
+        const StructPointerDecoder<Decoded_VkShadingRatePaletteNV>& pShadingRatePalettes) override;
+
+    virtual void Process_vkCmdSetCoarseSampleOrderNV(
+        format::HandleId                            commandBuffer,
+        VkCoarseSampleOrderTypeNV                   sampleOrderType,
+        uint32_t                                    customSampleOrderCount,
+        const StructPointerDecoder<Decoded_VkCoarseSampleOrderCustomNV>& pCustomSampleOrders) override;
+
+    virtual void Process_vkCreateAccelerationStructureNVX(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoNVX>& pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+        const PointerDecoder<format::HandleId>&     pAccelerationStructure) override;
+
+    virtual void Process_vkDestroyAccelerationStructureNVX(
+        format::HandleId                            device,
+        format::HandleId                            accelerationStructure,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) override;
+
+    virtual void Process_vkGetAccelerationStructureMemoryRequirementsNVX(
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNVX>& pInfo,
+        const StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>& pMemoryRequirements) override;
+
+    virtual void Process_vkGetAccelerationStructureScratchMemoryRequirementsNVX(
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNVX>& pInfo,
+        const StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>& pMemoryRequirements) override;
+
+    virtual void Process_vkBindAccelerationStructureMemoryNVX(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        uint32_t                                    bindInfoCount,
+        const StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNVX>& pBindInfos) override;
+
+    virtual void Process_vkCmdBuildAccelerationStructureNVX(
+        format::HandleId                            commandBuffer,
+        VkAccelerationStructureTypeNVX              type,
+        uint32_t                                    instanceCount,
+        format::HandleId                            instanceData,
+        VkDeviceSize                                instanceOffset,
+        uint32_t                                    geometryCount,
+        const StructPointerDecoder<Decoded_VkGeometryNVX>& pGeometries,
+        VkBuildAccelerationStructureFlagsNVX        flags,
+        VkBool32                                    update,
+        format::HandleId                            dst,
+        format::HandleId                            src,
+        format::HandleId                            scratch,
+        VkDeviceSize                                scratchOffset) override;
+
+    virtual void Process_vkCmdCopyAccelerationStructureNVX(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            dst,
+        format::HandleId                            src,
+        VkCopyAccelerationStructureModeNVX          mode) override;
+
+    virtual void Process_vkCmdTraceRaysNVX(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            raygenShaderBindingTableBuffer,
+        VkDeviceSize                                raygenShaderBindingOffset,
+        format::HandleId                            missShaderBindingTableBuffer,
+        VkDeviceSize                                missShaderBindingOffset,
+        VkDeviceSize                                missShaderBindingStride,
+        format::HandleId                            hitShaderBindingTableBuffer,
+        VkDeviceSize                                hitShaderBindingOffset,
+        VkDeviceSize                                hitShaderBindingStride,
+        uint32_t                                    width,
+        uint32_t                                    height) override;
+
+    virtual void Process_vkCreateRaytracingPipelinesNVX(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            pipelineCache,
+        uint32_t                                    createInfoCount,
+        const StructPointerDecoder<Decoded_VkRaytracingPipelineCreateInfoNVX>& pCreateInfos,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+        const PointerDecoder<format::HandleId>&     pPipelines) override;
+
+    virtual void Process_vkGetRaytracingShaderHandlesNVX(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            pipeline,
+        uint32_t                                    firstGroup,
+        uint32_t                                    groupCount,
+        size_t                                      dataSize,
+        const PointerDecoder<uint8_t>&              pData) override;
+
+    virtual void Process_vkGetAccelerationStructureHandleNVX(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            accelerationStructure,
+        size_t                                      dataSize,
+        const PointerDecoder<uint8_t>&              pData) override;
+
+    virtual void Process_vkCmdWriteAccelerationStructurePropertiesNVX(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            accelerationStructure,
+        VkQueryType                                 queryType,
+        format::HandleId                            queryPool,
+        uint32_t                                    query) override;
+
+    virtual void Process_vkCompileDeferredNVX(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            pipeline,
+        uint32_t                                    shader) override;
+
     virtual void Process_vkGetMemoryHostPointerPropertiesEXT(
         VkResult                                    returnValue,
         format::HandleId                            device,
@@ -1867,6 +1984,49 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         format::HandleId                            dstBuffer,
         VkDeviceSize                                dstOffset,
         uint32_t                                    marker) override;
+
+    virtual void Process_vkCmdDrawMeshTasksNV(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    taskCount,
+        uint32_t                                    firstTask) override;
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectNV(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        uint32_t                                    drawCount,
+        uint32_t                                    stride) override;
+
+    virtual void Process_vkCmdDrawMeshTasksIndirectCountNV(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        format::HandleId                            countBuffer,
+        VkDeviceSize                                countBufferOffset,
+        uint32_t                                    maxDrawCount,
+        uint32_t                                    stride) override;
+
+    virtual void Process_vkCmdSetExclusiveScissorNV(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstExclusiveScissor,
+        uint32_t                                    exclusiveScissorCount,
+        const StructPointerDecoder<Decoded_VkRect2D>& pExclusiveScissors) override;
+
+    virtual void Process_vkCmdSetCheckpointNV(
+        format::HandleId                            commandBuffer,
+        uint64_t                                    pCheckpointMarker) override;
+
+    virtual void Process_vkGetQueueCheckpointDataNV(
+        format::HandleId                            queue,
+        const PointerDecoder<uint32_t>&             pCheckpointDataCount,
+        const StructPointerDecoder<Decoded_VkCheckpointDataNV>& pCheckpointData) override;
+
+    virtual void Process_vkCreateImagePipeSurfaceFUCHSIA(
+        VkResult                                    returnValue,
+        format::HandleId                            instance,
+        const StructPointerDecoder<Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA>& pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+        const PointerDecoder<format::HandleId>&     pSurface) override;
 };
 
 BRIMSTONE_END_NAMESPACE(decode)
