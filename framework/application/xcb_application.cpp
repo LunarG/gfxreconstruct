@@ -170,7 +170,7 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                     if (entry != xcb_windows_.end())
                     {
                         XcbWindow* xcb_window = entry->second;
-                        xcb_window->ResizeNotify(
+                        xcb_window->ResizeNotifyReceived(
                             configure_event->sequence, configure_event->width, configure_event->height);
                     }
 
@@ -184,7 +184,7 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                     if (entry != xcb_windows_.end())
                     {
                         XcbWindow* xcb_window = entry->second;
-                        xcb_window->MapNotify(map_event->sequence, true);
+                        xcb_window->MapNotifyReceived(map_event->sequence, true);
                     }
 
                     break;
@@ -197,7 +197,7 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                     if (entry != xcb_windows_.end())
                     {
                         XcbWindow* xcb_window = entry->second;
-                        xcb_window->MapNotify(map_event->sequence, false);
+                        xcb_window->MapNotifyReceived(map_event->sequence, false);
                     }
 
                     break;
