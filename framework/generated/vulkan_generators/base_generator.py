@@ -197,6 +197,7 @@ class BaseGenerator(OutputGenerator):
         # Command parameter and struct member data for the current feature
         if self.processStructs:
             self.featureStructMembers = dict()            # Map of struct names to lists of per-member ValueInfo
+            self.featureStructAliases = dict()            # Map of struct names to aliases
         if self.processCmds:
             self.featureCmdParams = dict()                # Map of cmd names to lists of per-parameter ValueInfo
 
@@ -255,6 +256,7 @@ class BaseGenerator(OutputGenerator):
         # Reset feature specific data sets
         if self.processStructs:
             self.featureStructMembers = dict()
+            self.featureStructAliases = dict()
         if self.processCmds:
             self.featureCmdParams = dict()
 
@@ -308,8 +310,11 @@ class BaseGenerator(OutputGenerator):
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
-        if self.processStructs and (typename not in self.STRUCT_BLACKLIST) and not alias:
-            self.featureStructMembers[typename] = self.makeValueInfo(typeinfo.elem.findall('.//member'))
+        if self.processStructs and (typename not in self.STRUCT_BLACKLIST):
+            if not alias:
+                self.featureStructMembers[typename] = self.makeValueInfo(typeinfo.elem.findall('.//member'))
+            else:
+                self.featureStructAliases[typename] = alias
 
     #
     # Group (e.g. C "enum" type) generation.
