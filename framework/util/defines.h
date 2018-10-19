@@ -21,6 +21,10 @@
 #ifndef BRIMSTONE_UTIL_DEFINES_H
 #define BRIMSTONE_UTIL_DEFINES_H
 
+#if defined(_WIN64) || defined(__LP64__)
+#define BRIMSTONE_ARCH64
+#endif
+
 #define BRIMSTONE_BEGIN_NAMESPACE(x) \
     namespace x                      \
     {
