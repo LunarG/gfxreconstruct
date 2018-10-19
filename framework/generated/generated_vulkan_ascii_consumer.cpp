@@ -1685,7 +1685,7 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR(
     format::HandleId                            physicalDevice,
     uint32_t                                    queueFamilyIndex,
     uint64_t                                    dpy,
-    uint32_t                                    visualID)
+    size_t                                      visualID)
 {
     fprintf(GetFile(), "%s\n", "vkGetPhysicalDeviceXlibPresentationSupportKHR");
 }
@@ -2475,7 +2475,7 @@ void VulkanAsciiConsumer::Process_vkGetRandROutputDisplayEXT(
     VkResult                                    returnValue,
     format::HandleId                            physicalDevice,
     uint64_t                                    dpy,
-    uint32_t                                    rrOutput,
+    size_t                                      rrOutput,
     const PointerDecoder<format::HandleId>&     pDisplay)
 {
     fprintf(GetFile(), "%s\n", "vkGetRandROutputDisplayEXT");

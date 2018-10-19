@@ -4069,13 +4069,13 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceXlibPresentationSupportKHR(const
     format::HandleId physicalDevice;
     uint32_t queueFamilyIndex;
     uint64_t dpy;
-    uint32_t visualID;
+    size_t visualID;
     VkBool32 return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queueFamilyIndex);
     bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dpy);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &visualID);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &visualID);
     bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -6002,13 +6002,13 @@ size_t VulkanDecoder::Decode_vkGetRandROutputDisplayEXT(const uint8_t* parameter
 
     format::HandleId physicalDevice;
     uint64_t dpy;
-    uint32_t rrOutput;
+    size_t rrOutput;
     PointerDecoder<format::HandleId> pDisplay;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
     bytes_read += ValueDecoder::DecodeAddress((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dpy);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rrOutput);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &rrOutput);
     bytes_read += pDisplay.DecodeHandleId((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 

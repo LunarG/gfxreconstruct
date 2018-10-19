@@ -710,9 +710,9 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportK
 
 typedef VkFlags VkXlibSurfaceCreateFlagsKHR;
 
-typedef uint32_t XID;
-typedef uint32_t VisualID;
-typedef XID      Window;
+typedef size_t XID;
+typedef size_t VisualID;
+typedef XID    Window;
 
 struct Display;
 

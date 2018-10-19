@@ -4631,7 +4631,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(
         encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeVoidPtr(dpy);
-        encoder->EncodeUInt32Value(visualID);
+        encoder->EncodeSizeTValue(visualID);
         encoder->EncodeEnumValue(result);
         encode::TraceManager::Get()->EndApiCallTrace(encoder);
     }
@@ -6814,7 +6814,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
     {
         encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeVoidPtr(dpy);
-        encoder->EncodeUInt32Value(rrOutput);
+        encoder->EncodeSizeTValue(rrOutput);
         encoder->EncodeHandleIdPtr(pDisplay);
         encoder->EncodeEnumValue(result);
         encode::TraceManager::Get()->EndApiCallTrace(encoder);
