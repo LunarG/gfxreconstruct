@@ -550,6 +550,25 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSuppo
     return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(VkInstance                        instance,
+                                                                const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
+                                                                const VkAllocationCallbacks*      pAllocator,
+                                                                VkSurfaceKHR*                     pSurface)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    return CreateSurface(instance, pCreateInfo->flags, pSurface);
+}
+
+VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice physicalDevice,
+                                                                                       uint32_t queueFamilyIndex,
+                                                                                       Display* dpy,
+                                                                                       VisualID visualID)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(dpy);
+    BRIMSTONE_UNREFERENCED_PARAMETER(visualID);
+    return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(VkInstance                           instance,
                                                                    const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
                                                                    const VkAllocationCallbacks*         pAllocator,
