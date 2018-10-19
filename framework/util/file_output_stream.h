@@ -36,7 +36,7 @@ class FileOutputStream : public OutputStream
 
     virtual ~FileOutputStream();
 
-    virtual bool IsValid() { return (file_ != nullptr); }
+    virtual bool IsValid() override { return (file_ != nullptr); }
 
     virtual size_t Write(const void* data, size_t len) override;
 

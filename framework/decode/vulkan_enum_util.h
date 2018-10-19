@@ -95,7 +95,7 @@ const char* GetResultDescription(VkResult result)
         case VK_ERROR_INCOMPATIBLE_DRIVER:      return "a Vulkan driver could not be found";
         case VK_ERROR_TOO_MANY_OBJECTS:         return "too many objects of the type have already been created";
         case VK_ERROR_FORMAT_NOT_SUPPORTED:     return "the requested format is not supported on this device";
-        case VK_ERROR_FRAGMENTED_POOL:          return "a pool allocation has failed due to fragmentation of the pool’s memory";
+        case VK_ERROR_FRAGMENTED_POOL:          return "a pool allocation has failed due to fragmentation of the pool's memory";
         case VK_ERROR_OUT_OF_POOL_MEMORY:       return "a pool memory allocation has failed";
         case VK_ERROR_INVALID_EXTERNAL_HANDLE:  return "an external handle is not a valid handle of the specified type";
         case VK_ERROR_SURFACE_LOST_KHR:         return "a surface is no longer available";

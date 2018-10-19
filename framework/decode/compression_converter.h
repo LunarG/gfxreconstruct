@@ -51,7 +51,7 @@ class CompressionConverter : public ApiDecoder
     virtual void DecodeFunctionCall(format::ApiCallId             call_id,
                                     const format::ApiCallOptions& call_options,
                                     const uint8_t*                buffer,
-                                    size_t                        buffer_size);
+                                    size_t                        buffer_size) override;
 
     virtual void DispatchDisplayMessageCommand(const std::string& message) override;
 
