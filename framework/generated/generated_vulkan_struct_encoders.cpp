@@ -1938,7 +1938,7 @@ void encode_struct(ParameterEncoder* encoder, const VkXlibSurfaceCreateInfoKHR& 
     encode_pnext_struct(encoder, value.pNext);
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeVoidPtr(value.dpy);
-    encoder->EncodeUInt32Value(value.window);
+    encoder->EncodeSizeTValue(value.window);
 }
 #endif /* VK_USE_PLATFORM_XLIB_KHR */
 

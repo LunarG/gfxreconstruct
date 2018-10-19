@@ -1155,7 +1155,7 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            physicalDevice,
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    dpy,
-        uint32_t                                    visualID) = 0;
+        size_t                                      visualID) = 0;
 
     virtual void Process_vkCreateXcbSurfaceKHR(
         VkResult                                    returnValue,
@@ -1681,7 +1681,7 @@ class VulkanConsumer : public VulkanConsumerBase
         VkResult                                    returnValue,
         format::HandleId                            physicalDevice,
         uint64_t                                    dpy,
-        uint32_t                                    rrOutput,
+        size_t                                      rrOutput,
         const PointerDecoder<format::HandleId>&     pDisplay) = 0;
 
     virtual void Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(

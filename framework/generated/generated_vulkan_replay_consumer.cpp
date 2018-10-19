@@ -3191,7 +3191,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR
     format::HandleId                            physicalDevice,
     uint32_t                                    queueFamilyIndex,
     uint64_t                                    dpy,
-    uint32_t                                    visualID)
+    size_t                                      visualID)
 {
     VkPhysicalDevice in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     Display* in_dpy = static_cast<Display*>(PreProcessExternalObject(dpy, format::ApiCallId::ApiCallId_vkGetPhysicalDeviceXlibPresentationSupportKHR, "vkGetPhysicalDeviceXlibPresentationSupportKHR"));
@@ -4687,7 +4687,7 @@ void VulkanReplayConsumer::Process_vkGetRandROutputDisplayEXT(
     VkResult                                    returnValue,
     format::HandleId                            physicalDevice,
     uint64_t                                    dpy,
-    uint32_t                                    rrOutput,
+    size_t                                      rrOutput,
     const PointerDecoder<format::HandleId>&     pDisplay)
 {
     VkPhysicalDevice in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);

@@ -50,6 +50,10 @@ class ValueDecoder
     static size_t DecodeVkSampleMaskValue(const uint8_t* buffer, size_t buffer_size, VkSampleMask* value)           { return DecodeValueFrom<format::SampleMaskEncodeType>(buffer, buffer_size, value); }
     static size_t DecodeVkDeviceSizeValue(const uint8_t* buffer, size_t buffer_size, VkDeviceSize* value)           { return DecodeValueFrom<format::DeviceSizeEncodeType>(buffer, buffer_size, value); }
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, size_t* value)                        { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
+#if defined(VK_USE_PLATFORM_XLIB_KHR) && !defined(BRIMSTONE_ARCH64)
+    // Oveload for the 32-bit XID type.  Pointers from the 32-bit XID typedef of unsigned long are not compatible with size_t pointers.
+    static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                 { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
+#endif
 
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
     static size_t DecodeAddress(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                         { return DecodeValueFrom<format::AddressEncodeType>(buffer, buffer_size, value); }

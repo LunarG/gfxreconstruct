@@ -17,9 +17,9 @@
       "wl_display"       : { "baseType" : "void",     "replaceWith" : "void" },
       "wl_surface"       : { "baseType" : "void",     "replaceWith" : "void" },
       "Display"          : { "baseType" : "void",     "replaceWith" : "void" },
-      "VisualID"         : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
-      "Window"           : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
-      "RROutput"         : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
+      "VisualID"         : { "baseType" : "size_t",   "replaceWith" : "size_t" },
+      "Window"           : { "baseType" : "size_t",   "replaceWith" : "size_t" },
+      "RROutput"         : { "baseType" : "size_t",   "replaceWith" : "size_t" },
       "xcb_connection_t" : { "baseType" : "void",     "replaceWith" : "void" },
       "xcb_visualid_t"   : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
       "xcb_window_t"     : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" }
