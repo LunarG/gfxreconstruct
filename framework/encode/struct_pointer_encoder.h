@@ -28,20 +28,23 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 template <typename T>
-void EncodeStructPtr(ParameterEncoder* encoder, const T* value)
+void EncodeStructPtr(ParameterEncoder* encoder, const T* value, bool omit_data = false, bool omit_addr = false)
 {
-    encoder->EncodeStructPtrPreamble(value);
-    if (value != nullptr)
+    encoder->EncodeStructPtrPreamble(value, omit_data, omit_addr);
+
+    if ((value != nullptr) && !omit_data)
     {
         EncodeStruct(encoder, *value);
     }
 }
 
 template <typename T>
-void EncodeStructArray(ParameterEncoder* encoder, const T* value, size_t len)
+void EncodeStructArray(
+    ParameterEncoder* encoder, const T* value, size_t len, bool omit_data = false, bool omit_addr = false)
 {
-    encoder->EncodeStructArrayPreamble(value, len);
-    if ((value != nullptr) && (len > 0))
+    encoder->EncodeStructArrayPreamble(value, len, omit_data, omit_addr);
+
+    if ((value != nullptr) && (len > 0) && !omit_data)
     {
         for (size_t i = 0; i < len; ++i)
         {
