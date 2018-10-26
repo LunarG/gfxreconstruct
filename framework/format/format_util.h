@@ -49,8 +49,26 @@ typename std::enable_if<!std::is_pointer<T>::value, T>::type FromHandleId(Handle
     return static_cast<T>(id);
 }
 
+// Utilities for managing compressed block types.
+inline bool IsBlockCompressed(BlockType type)
+{
+    return ((type & kCompressedBlockTypeBit) == kCompressedBlockTypeBit);
+}
+
+inline BlockType AddCompressedBlockBit(BlockType type)
+{
+    return static_cast<BlockType>(type | kCompressedBlockTypeBit);
+}
+
+inline BlockType RemoveCompressedBlockBit(BlockType type)
+{
+    return static_cast<BlockType>(type & ~kCompressedBlockTypeBit);
+}
+
+// Utilities for format validation.
 bool ValidateFileHeader(const FileHeader& header);
 
+// Utilities for object creation.
 util::Compressor* CreateCompressor(CompressionType type);
 
 BRIMSTONE_END_NAMESPACE(format)
