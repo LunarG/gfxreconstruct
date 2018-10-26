@@ -41,17 +41,23 @@ typedef uint64_t AddressEncodeType;
 
 typedef HandleEncodeType HandleId;
 
+const uint32_t kCompressedBlockTypeBit = 0x80000000;
+
+constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
+{
+    return kCompressedBlockTypeBit | block_type;
+}
+
 // clang-format off
 enum BlockType : uint32_t
 {
     kUnknownBlock                = 0,
     kFrameBlock                  = 1,
-    kStateBlock                  = 2, // Encapsulates a group of metadata, apicall, and methodcall blocks representing the initial state
-                                      // for a trimmed trace.
+    kStateBlock                  = 2, // A group of metadata and apicall blocks representing the initial state for a trimmed file.
     kMetaDataBlock               = 3,
     kFunctionCallBlock           = 4,
-    kCompressedFunctionCallBlock = 5,
-    kCompressedMetaDataBlock     = 6,
+    kCompressedMetaDataBlock     = MakeCompressedBlockType(kMetaDataBlock),
+    kCompressedFunctionCallBlock = MakeCompressedBlockType(kFunctionCallBlock)
 };
 
 enum MetaDataType : uint32_t

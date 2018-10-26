@@ -82,8 +82,7 @@ bool FileProcessor::ProcessNextFrame()
 
         if (success)
         {
-            if ((block_header.type == format::BlockType::kFunctionCallBlock) ||
-                (block_header.type == format::BlockType::kCompressedFunctionCallBlock))
+            if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
             {
                 format::ApiCallId api_call_id = format::ApiCallId::ApiCallId_Unknown;
 
@@ -104,8 +103,7 @@ bool FileProcessor::ProcessNextFrame()
                     BRIMSTONE_LOG_ERROR("Failed to read function call block header");
                 }
             }
-            else if ((block_header.type == format::BlockType::kMetaDataBlock) ||
-                     (block_header.type == format::BlockType::kCompressedMetaDataBlock))
+            else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
             {
                 format::MetaDataType meta_type = format::MetaDataType::kUnknownMetaDataType;
 
@@ -299,7 +297,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     uint64_t               uncompressed_size     = 0;
     format::ApiCallOptions call_options          = {};
 
-    if (block_header.type == format::BlockType::kCompressedFunctionCallBlock)
+    if (format::IsBlockCompressed(block_header.type))
     {
         assert(compressor_ != nullptr);
         if (compressor_ != nullptr)
@@ -330,7 +328,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
 
     if (success)
     {
-        if (block_header.type == format::BlockType::kCompressedFunctionCallBlock)
+        if (format::IsBlockCompressed(block_header.type))
         {
             BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
 
@@ -384,7 +382,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, header.memory_size);
 
-            if (block_header.type == format::BlockType::kCompressedMetaDataBlock)
+            if (format::IsBlockCompressed(block_header.type))
             {
                 assert(compressor_ != nullptr);
                 if (compressor_ != nullptr)
