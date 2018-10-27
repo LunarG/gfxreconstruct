@@ -33,7 +33,7 @@ TraceManager*                                          TraceManager::instance_ =
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 
 TraceManager::ThreadData::ThreadData() :
-    thread_id_(GetThreadId()), call_id_(format::ApiCallId_Unknown), call_begin_time_(0), call_end_time_(0)
+    thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown), call_begin_time_(0), call_end_time_(0)
 {
     parameter_buffer_  = std::make_unique<util::MemoryOutputStream>();
     parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
