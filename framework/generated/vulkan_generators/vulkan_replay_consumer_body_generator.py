@@ -124,10 +124,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
             body += '\n'
             body += '\n'
         if returnType == 'VkResult':
-            body += '    VkResult replay_result = Dispatcher<format::ApiCallId::ApiCallId_{name}, {}, PFN_{name}>::Dispatch(this, returnValue, {name}, {});\n'.format(returnType, arglist, name=name)
+            body += '    VkResult replay_result = Dispatcher<format::ApiCallId::ApiCall_{name}, {}, PFN_{name}>::Dispatch(this, returnValue, {name}, {});\n'.format(returnType, arglist, name=name)
             body += '    CheckResult("{}", returnValue, replay_result);\n'.format(name)
         else:
-            body += '    Dispatcher<format::ApiCallId::ApiCallId_{name}, {}, PFN_{name}>::Dispatch(this, {name}, {});\n'.format(returnType, arglist, name=name)
+            body += '    Dispatcher<format::ApiCallId::ApiCall_{name}, {}, PFN_{name}>::Dispatch(this, {name}, {});\n'.format(returnType, arglist, name=name)
         if postexpr:
             body += '\n'
             body += '\n'.join(['    ' + val if val else val for val in postexpr])
@@ -188,9 +188,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         # If possible, we will map the ID to an object previously created during replay.  Otherwise, we will
                         # need to report a warning that we may have a case that replay cannot handle.
                         if value.platformFullType:
-                            expr += 'static_cast<{}>(PreProcessExternalObject({}, format::ApiCallId::ApiCallId_{name}, "{name}"));'.format(value.platformFullType, value.name, name=name)
+                            expr += 'static_cast<{}>(PreProcessExternalObject({}, format::ApiCallId::ApiCall_{name}, "{name}"));'.format(value.platformFullType, value.name, name=name)
                         else:
-                            expr += 'PreProcessExternalObject({}, format::ApiCallId::ApiCallId_{name}, "{name}");'.format(value.name, name=name)
+                            expr += 'PreProcessExternalObject({}, format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, name=name)
                     elif value.baseType == 'VkAllocationCallbacks':
                         # The replay consumer needs to override the allocation callbacks used by the captured application.
                         expr += 'GetAllocationCallbacks({});'.format(value.name)
@@ -237,9 +237,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
 
                             # Map the object ID to the new object
                             if value.platformFullType:
-                                postexpr.append('PostProcessExternalObject({}, static_cast<void*>({}), format::ApiCallId::ApiCallId_{name}, "{name}");'.format(value.name, outName, name=name))
+                                postexpr.append('PostProcessExternalObject({}, static_cast<void*>({}), format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, outName, name=name))
                             else:
-                                postexpr.append('PostProcessExternalObject({}, {}, format::ApiCallId::ApiCallId_{name}, "{name}");'.format(value.name, outName, name=name))
+                                postexpr.append('PostProcessExternalObject({}, {}, format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, outName, name=name))
                         else:
                             outName = 'out_{}_value'.format(value.name)
                             if self.isArrayLen(value.name, values):

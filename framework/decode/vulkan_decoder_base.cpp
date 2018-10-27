@@ -169,16 +169,16 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId             call_id
 
     switch (call_id)
     {
-        case format::ApiCallId::ApiCallId_vkUpdateDescriptorSetWithTemplate:
+        case format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate:
             Decode_vkUpdateDescriptorSetWithTemplate(parameter_buffer, buffer_size);
             break;
-        case format::ApiCallId::ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR:
+        case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR:
             Decode_vkCmdPushDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
             break;
-        case format::ApiCallId::ApiCallId_vkUpdateDescriptorSetWithTemplateKHR:
+        case format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR:
             Decode_vkUpdateDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
             break;
-        case format::ApiCallId::ApiCallId_vkRegisterObjectsNVX:
+        case format::ApiCallId::ApiCall_vkRegisterObjectsNVX:
             Decode_vkRegisterObjectsNVX(parameter_buffer, buffer_size);
             break;
         default:

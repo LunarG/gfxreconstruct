@@ -209,7 +209,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         write('        break;', file=self.outFile)
 
         for cmd in self.cmdNames:
-            cmddef = '    case format::ApiCallId::ApiCallId_{}:\n'.format(cmd)
+            cmddef = '    case format::ApiCallId::ApiCall_{}:\n'.format(cmd)
             cmddef += '        Decode_{}(parameter_buffer, buffer_size);\n'.format(cmd)
             cmddef += '        break;'
             write(cmddef, file=self.outFile)

@@ -134,8 +134,8 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
 {
     void* object = nullptr;
 
-    if ((call_id == format::ApiCallId::ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR) ||
-        (call_id == format::ApiCallId::ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR))
+    if ((call_id == format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR) ||
+        (call_id == format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR))
     {
         // For window system related handles, we put the object ID into the pointer.
         // The dispatch override for the API call will use this ID as a key to the window map.
@@ -157,7 +157,7 @@ void VulkanReplayConsumerBase::PostProcessExternalObject(const PointerDecoder<ui
                                                          format::ApiCallId               call_id,
                                                          const char*                     call_name)
 {
-    if (call_id == format::ApiCallId::ApiCallId_vkMapMemory)
+    if (call_id == format::ApiCallId::ApiCall_vkMapMemory)
     {
         // Mapped memory tracking is handled by mapping the VkDeviceMemory handle to the mapped pointer, rather than
         // mapping the traced pointer address to the mapped pointer.  The memory needs to be tracked by handle so that
@@ -667,7 +667,7 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format:
 
     MapDescriptorUpdateTemplateHandles(pData);
 
-    Dispatcher<format::ApiCallId::ApiCallId_vkUpdateDescriptorSetWithTemplate,
+    Dispatcher<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate,
                void,
                PFN_vkUpdateDescriptorSetWithTemplate>::Dispatch(this,
                                                                 vkUpdateDescriptorSetWithTemplate,
@@ -691,7 +691,7 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
 
     MapDescriptorUpdateTemplateHandles(pData);
 
-    Dispatcher<format::ApiCallId::ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR,
+    Dispatcher<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR,
                void,
                PFN_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(this,
                                                                     vkCmdPushDescriptorSetWithTemplateKHR,
@@ -715,7 +715,7 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
 
     MapDescriptorUpdateTemplateHandles(pData);
 
-    Dispatcher<format::ApiCallId::ApiCallId_vkUpdateDescriptorSetWithTemplateKHR,
+    Dispatcher<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR,
                void,
                PFN_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(this,
                                                                    vkUpdateDescriptorSetWithTemplateKHR,
@@ -820,7 +820,7 @@ void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
     }
 
     VkResult replay_result =
-        Dispatcher<format::ApiCallId::ApiCallId_vkRegisterObjectsNVX, VkResult, PFN_vkRegisterObjectsNVX>::Dispatch(
+        Dispatcher<format::ApiCallId::ApiCall_vkRegisterObjectsNVX, VkResult, PFN_vkRegisterObjectsNVX>::Dispatch(
             this,
             returnValue,
             vkRegisterObjectsNVX,

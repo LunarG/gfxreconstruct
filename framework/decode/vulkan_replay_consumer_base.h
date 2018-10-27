@@ -280,7 +280,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateInstance, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateInstance, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -293,7 +293,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateDevice, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateDevice, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -306,7 +306,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkWaitForFences, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkWaitForFences, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -318,7 +318,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetFenceStatus, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkGetFenceStatus, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -330,7 +330,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetEventStatus, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkGetEventStatus, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -342,7 +342,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetQueryPoolResults, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkGetQueryPoolResults, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer,
@@ -356,7 +356,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkMapMemory, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkMapMemory, Ret, Pfn>
     {
         template <typename... Args>
         static Ret
@@ -369,7 +369,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkUnmapMemory, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkUnmapMemory, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkUnmapMemory func, Args... args)
@@ -380,7 +380,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkFreeMemory, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkFreeMemory, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkFreeMemory func, Args... args)
@@ -391,7 +391,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateDescriptorUpdateTemplate, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*            consumer,
@@ -405,7 +405,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateDescriptorUpdateTemplateKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*               consumer,
@@ -419,7 +419,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateWin32SurfaceKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*   consumer,
@@ -434,7 +434,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetPhysicalDeviceWin32PresentationSupportKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*                          consumer,
@@ -447,7 +447,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateXcbSurfaceKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer,
@@ -462,7 +462,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*                        consumer,
@@ -475,7 +475,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateXlibSurfaceKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*  consumer,
@@ -490,7 +490,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetPhysicalDeviceXlibPresentationSupportKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*                         consumer,
@@ -503,7 +503,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkCreateWaylandSurfaceKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*     consumer,
@@ -518,7 +518,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase*                            consumer,
@@ -531,7 +531,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCallId_vkDestroySurfaceKHR, Ret, Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkDestroySurfaceKHR, Ret, Pfn>
     {
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkDestroySurfaceKHR func, Args... args)

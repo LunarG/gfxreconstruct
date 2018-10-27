@@ -105,12 +105,12 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
 {
     encode::TraceManager* trace_manager = encode::TraceManager::Get();
 
-    encode::CustomEncoderPreCall<format::ApiCallId_vkUpdateDescriptorSetWithTemplate>::Dispatch(
+    encode::CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate>::Dispatch(
         trace_manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 
     get_device_table(device)->UpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData);
 
-    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId_vkUpdateDescriptorSetWithTemplate);
+    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
     if (encoder)
     {
         encoder->EncodeHandleIdValue(device);
@@ -122,7 +122,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
         trace_manager->EndApiCallTrace(encoder);
     }
 
-    encode::CustomEncoderPostCall<format::ApiCallId_vkUpdateDescriptorSetWithTemplate>::Dispatch(
+    encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate>::Dispatch(
         trace_manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 }
 
@@ -134,13 +134,13 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
 {
     encode::TraceManager* trace_manager = encode::TraceManager::Get();
 
-    encode::CustomEncoderPreCall<format::ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
+    encode::CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
         trace_manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 
     get_device_table(commandBuffer)
         ->CmdPushDescriptorSetWithTemplateKHR(commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 
-    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR);
+    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
     if (encoder)
     {
         encoder->EncodeHandleIdValue(commandBuffer);
@@ -153,7 +153,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
         trace_manager->EndApiCallTrace(encoder);
     }
 
-    encode::CustomEncoderPostCall<format::ApiCallId_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
+    encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
         trace_manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 }
 
@@ -164,13 +164,13 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
 {
     encode::TraceManager* trace_manager = encode::TraceManager::Get();
 
-    encode::CustomEncoderPreCall<format::ApiCallId_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
+    encode::CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
         trace_manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 
     get_device_table(device)->UpdateDescriptorSetWithTemplateKHR(
         device, descriptorSet, descriptorUpdateTemplate, pData);
 
-    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId_vkUpdateDescriptorSetWithTemplateKHR);
+    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
     if (encoder)
     {
         encoder->EncodeHandleIdValue(device);
@@ -182,7 +182,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
         trace_manager->EndApiCallTrace(encoder);
     }
 
-    encode::CustomEncoderPostCall<format::ApiCallId_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
+    encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
         trace_manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 }
 
@@ -194,13 +194,13 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
 {
     encode::TraceManager* trace_manager = encode::TraceManager::Get();
 
-    encode::CustomEncoderPreCall<format::ApiCallId_vkRegisterObjectsNVX>::Dispatch(
+    encode::CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterObjectsNVX>::Dispatch(
         trace_manager, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
 
     VkResult result = get_device_table(device)->RegisterObjectsNVX(
         device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
 
-    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId_vkRegisterObjectsNVX);
+    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkRegisterObjectsNVX);
     if (encoder)
     {
         encoder->EncodeHandleIdValue(device);
@@ -212,7 +212,7 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
         trace_manager->EndApiCallTrace(encoder);
     }
 
-    encode::CustomEncoderPostCall<format::ApiCallId_vkRegisterObjectsNVX>::Dispatch(
+    encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_vkRegisterObjectsNVX>::Dispatch(
         trace_manager, result, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
 
     return result;

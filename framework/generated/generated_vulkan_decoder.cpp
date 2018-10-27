@@ -7268,976 +7268,976 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     default:
         VulkanDecoderBase::DecodeFunctionCall(call_id, call_options, parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateInstance:
+    case format::ApiCallId::ApiCall_vkCreateInstance:
         Decode_vkCreateInstance(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyInstance:
+    case format::ApiCallId::ApiCall_vkDestroyInstance:
         Decode_vkDestroyInstance(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkEnumeratePhysicalDevices:
+    case format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices:
         Decode_vkEnumeratePhysicalDevices(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceFeatures:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures:
         Decode_vkGetPhysicalDeviceFeatures(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceFormatProperties:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties:
         Decode_vkGetPhysicalDeviceFormatProperties(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceImageFormatProperties:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties:
         Decode_vkGetPhysicalDeviceImageFormatProperties(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceProperties:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties:
         Decode_vkGetPhysicalDeviceProperties(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceQueueFamilyProperties:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties:
         Decode_vkGetPhysicalDeviceQueueFamilyProperties(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceMemoryProperties:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties:
         Decode_vkGetPhysicalDeviceMemoryProperties(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateDevice:
+    case format::ApiCallId::ApiCall_vkCreateDevice:
         Decode_vkCreateDevice(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyDevice:
+    case format::ApiCallId::ApiCall_vkDestroyDevice:
         Decode_vkDestroyDevice(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDeviceQueue:
+    case format::ApiCallId::ApiCall_vkGetDeviceQueue:
         Decode_vkGetDeviceQueue(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkQueueSubmit:
+    case format::ApiCallId::ApiCall_vkQueueSubmit:
         Decode_vkQueueSubmit(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkQueueWaitIdle:
+    case format::ApiCallId::ApiCall_vkQueueWaitIdle:
         Decode_vkQueueWaitIdle(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDeviceWaitIdle:
+    case format::ApiCallId::ApiCall_vkDeviceWaitIdle:
         Decode_vkDeviceWaitIdle(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkAllocateMemory:
+    case format::ApiCallId::ApiCall_vkAllocateMemory:
         Decode_vkAllocateMemory(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkFreeMemory:
+    case format::ApiCallId::ApiCall_vkFreeMemory:
         Decode_vkFreeMemory(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkMapMemory:
+    case format::ApiCallId::ApiCall_vkMapMemory:
         Decode_vkMapMemory(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkUnmapMemory:
+    case format::ApiCallId::ApiCall_vkUnmapMemory:
         Decode_vkUnmapMemory(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkFlushMappedMemoryRanges:
+    case format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges:
         Decode_vkFlushMappedMemoryRanges(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkInvalidateMappedMemoryRanges:
+    case format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges:
         Decode_vkInvalidateMappedMemoryRanges(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDeviceMemoryCommitment:
+    case format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment:
         Decode_vkGetDeviceMemoryCommitment(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkBindBufferMemory:
+    case format::ApiCallId::ApiCall_vkBindBufferMemory:
         Decode_vkBindBufferMemory(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkBindImageMemory:
+    case format::ApiCallId::ApiCall_vkBindImageMemory:
         Decode_vkBindImageMemory(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetBufferMemoryRequirements:
+    case format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements:
         Decode_vkGetBufferMemoryRequirements(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetImageMemoryRequirements:
+    case format::ApiCallId::ApiCall_vkGetImageMemoryRequirements:
         Decode_vkGetImageMemoryRequirements(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetImageSparseMemoryRequirements:
+    case format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements:
         Decode_vkGetImageSparseMemoryRequirements(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceSparseImageFormatProperties:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties:
         Decode_vkGetPhysicalDeviceSparseImageFormatProperties(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkQueueBindSparse:
+    case format::ApiCallId::ApiCall_vkQueueBindSparse:
         Decode_vkQueueBindSparse(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateFence:
+    case format::ApiCallId::ApiCall_vkCreateFence:
         Decode_vkCreateFence(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyFence:
+    case format::ApiCallId::ApiCall_vkDestroyFence:
         Decode_vkDestroyFence(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkResetFences:
+    case format::ApiCallId::ApiCall_vkResetFences:
         Decode_vkResetFences(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetFenceStatus:
+    case format::ApiCallId::ApiCall_vkGetFenceStatus:
         Decode_vkGetFenceStatus(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkWaitForFences:
+    case format::ApiCallId::ApiCall_vkWaitForFences:
         Decode_vkWaitForFences(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateSemaphore:
+    case format::ApiCallId::ApiCall_vkCreateSemaphore:
         Decode_vkCreateSemaphore(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroySemaphore:
+    case format::ApiCallId::ApiCall_vkDestroySemaphore:
         Decode_vkDestroySemaphore(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateEvent:
+    case format::ApiCallId::ApiCall_vkCreateEvent:
         Decode_vkCreateEvent(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyEvent:
+    case format::ApiCallId::ApiCall_vkDestroyEvent:
         Decode_vkDestroyEvent(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetEventStatus:
+    case format::ApiCallId::ApiCall_vkGetEventStatus:
         Decode_vkGetEventStatus(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkSetEvent:
+    case format::ApiCallId::ApiCall_vkSetEvent:
         Decode_vkSetEvent(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkResetEvent:
+    case format::ApiCallId::ApiCall_vkResetEvent:
         Decode_vkResetEvent(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateQueryPool:
+    case format::ApiCallId::ApiCall_vkCreateQueryPool:
         Decode_vkCreateQueryPool(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyQueryPool:
+    case format::ApiCallId::ApiCall_vkDestroyQueryPool:
         Decode_vkDestroyQueryPool(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetQueryPoolResults:
+    case format::ApiCallId::ApiCall_vkGetQueryPoolResults:
         Decode_vkGetQueryPoolResults(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateBuffer:
+    case format::ApiCallId::ApiCall_vkCreateBuffer:
         Decode_vkCreateBuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyBuffer:
+    case format::ApiCallId::ApiCall_vkDestroyBuffer:
         Decode_vkDestroyBuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateBufferView:
+    case format::ApiCallId::ApiCall_vkCreateBufferView:
         Decode_vkCreateBufferView(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyBufferView:
+    case format::ApiCallId::ApiCall_vkDestroyBufferView:
         Decode_vkDestroyBufferView(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateImage:
+    case format::ApiCallId::ApiCall_vkCreateImage:
         Decode_vkCreateImage(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyImage:
+    case format::ApiCallId::ApiCall_vkDestroyImage:
         Decode_vkDestroyImage(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetImageSubresourceLayout:
+    case format::ApiCallId::ApiCall_vkGetImageSubresourceLayout:
         Decode_vkGetImageSubresourceLayout(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateImageView:
+    case format::ApiCallId::ApiCall_vkCreateImageView:
         Decode_vkCreateImageView(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyImageView:
+    case format::ApiCallId::ApiCall_vkDestroyImageView:
         Decode_vkDestroyImageView(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateShaderModule:
+    case format::ApiCallId::ApiCall_vkCreateShaderModule:
         Decode_vkCreateShaderModule(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyShaderModule:
+    case format::ApiCallId::ApiCall_vkDestroyShaderModule:
         Decode_vkDestroyShaderModule(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreatePipelineCache:
+    case format::ApiCallId::ApiCall_vkCreatePipelineCache:
         Decode_vkCreatePipelineCache(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyPipelineCache:
+    case format::ApiCallId::ApiCall_vkDestroyPipelineCache:
         Decode_vkDestroyPipelineCache(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPipelineCacheData:
+    case format::ApiCallId::ApiCall_vkGetPipelineCacheData:
         Decode_vkGetPipelineCacheData(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkMergePipelineCaches:
+    case format::ApiCallId::ApiCall_vkMergePipelineCaches:
         Decode_vkMergePipelineCaches(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateGraphicsPipelines:
+    case format::ApiCallId::ApiCall_vkCreateGraphicsPipelines:
         Decode_vkCreateGraphicsPipelines(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateComputePipelines:
+    case format::ApiCallId::ApiCall_vkCreateComputePipelines:
         Decode_vkCreateComputePipelines(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyPipeline:
+    case format::ApiCallId::ApiCall_vkDestroyPipeline:
         Decode_vkDestroyPipeline(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreatePipelineLayout:
+    case format::ApiCallId::ApiCall_vkCreatePipelineLayout:
         Decode_vkCreatePipelineLayout(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyPipelineLayout:
+    case format::ApiCallId::ApiCall_vkDestroyPipelineLayout:
         Decode_vkDestroyPipelineLayout(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateSampler:
+    case format::ApiCallId::ApiCall_vkCreateSampler:
         Decode_vkCreateSampler(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroySampler:
+    case format::ApiCallId::ApiCall_vkDestroySampler:
         Decode_vkDestroySampler(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateDescriptorSetLayout:
+    case format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout:
         Decode_vkCreateDescriptorSetLayout(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyDescriptorSetLayout:
+    case format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout:
         Decode_vkDestroyDescriptorSetLayout(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateDescriptorPool:
+    case format::ApiCallId::ApiCall_vkCreateDescriptorPool:
         Decode_vkCreateDescriptorPool(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyDescriptorPool:
+    case format::ApiCallId::ApiCall_vkDestroyDescriptorPool:
         Decode_vkDestroyDescriptorPool(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkResetDescriptorPool:
+    case format::ApiCallId::ApiCall_vkResetDescriptorPool:
         Decode_vkResetDescriptorPool(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkAllocateDescriptorSets:
+    case format::ApiCallId::ApiCall_vkAllocateDescriptorSets:
         Decode_vkAllocateDescriptorSets(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkFreeDescriptorSets:
+    case format::ApiCallId::ApiCall_vkFreeDescriptorSets:
         Decode_vkFreeDescriptorSets(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkUpdateDescriptorSets:
+    case format::ApiCallId::ApiCall_vkUpdateDescriptorSets:
         Decode_vkUpdateDescriptorSets(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateFramebuffer:
+    case format::ApiCallId::ApiCall_vkCreateFramebuffer:
         Decode_vkCreateFramebuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyFramebuffer:
+    case format::ApiCallId::ApiCall_vkDestroyFramebuffer:
         Decode_vkDestroyFramebuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateRenderPass:
+    case format::ApiCallId::ApiCall_vkCreateRenderPass:
         Decode_vkCreateRenderPass(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyRenderPass:
+    case format::ApiCallId::ApiCall_vkDestroyRenderPass:
         Decode_vkDestroyRenderPass(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetRenderAreaGranularity:
+    case format::ApiCallId::ApiCall_vkGetRenderAreaGranularity:
         Decode_vkGetRenderAreaGranularity(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateCommandPool:
+    case format::ApiCallId::ApiCall_vkCreateCommandPool:
         Decode_vkCreateCommandPool(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyCommandPool:
+    case format::ApiCallId::ApiCall_vkDestroyCommandPool:
         Decode_vkDestroyCommandPool(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkResetCommandPool:
+    case format::ApiCallId::ApiCall_vkResetCommandPool:
         Decode_vkResetCommandPool(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkAllocateCommandBuffers:
+    case format::ApiCallId::ApiCall_vkAllocateCommandBuffers:
         Decode_vkAllocateCommandBuffers(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkFreeCommandBuffers:
+    case format::ApiCallId::ApiCall_vkFreeCommandBuffers:
         Decode_vkFreeCommandBuffers(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkBeginCommandBuffer:
+    case format::ApiCallId::ApiCall_vkBeginCommandBuffer:
         Decode_vkBeginCommandBuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkEndCommandBuffer:
+    case format::ApiCallId::ApiCall_vkEndCommandBuffer:
         Decode_vkEndCommandBuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkResetCommandBuffer:
+    case format::ApiCallId::ApiCall_vkResetCommandBuffer:
         Decode_vkResetCommandBuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBindPipeline:
+    case format::ApiCallId::ApiCall_vkCmdBindPipeline:
         Decode_vkCmdBindPipeline(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetViewport:
+    case format::ApiCallId::ApiCall_vkCmdSetViewport:
         Decode_vkCmdSetViewport(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetScissor:
+    case format::ApiCallId::ApiCall_vkCmdSetScissor:
         Decode_vkCmdSetScissor(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetLineWidth:
+    case format::ApiCallId::ApiCall_vkCmdSetLineWidth:
         Decode_vkCmdSetLineWidth(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetDepthBias:
+    case format::ApiCallId::ApiCall_vkCmdSetDepthBias:
         Decode_vkCmdSetDepthBias(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetBlendConstants:
+    case format::ApiCallId::ApiCall_vkCmdSetBlendConstants:
         Decode_vkCmdSetBlendConstants(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetDepthBounds:
+    case format::ApiCallId::ApiCall_vkCmdSetDepthBounds:
         Decode_vkCmdSetDepthBounds(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetStencilCompareMask:
+    case format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask:
         Decode_vkCmdSetStencilCompareMask(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetStencilWriteMask:
+    case format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask:
         Decode_vkCmdSetStencilWriteMask(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetStencilReference:
+    case format::ApiCallId::ApiCall_vkCmdSetStencilReference:
         Decode_vkCmdSetStencilReference(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBindDescriptorSets:
+    case format::ApiCallId::ApiCall_vkCmdBindDescriptorSets:
         Decode_vkCmdBindDescriptorSets(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBindIndexBuffer:
+    case format::ApiCallId::ApiCall_vkCmdBindIndexBuffer:
         Decode_vkCmdBindIndexBuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBindVertexBuffers:
+    case format::ApiCallId::ApiCall_vkCmdBindVertexBuffers:
         Decode_vkCmdBindVertexBuffers(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDraw:
+    case format::ApiCallId::ApiCall_vkCmdDraw:
         Decode_vkCmdDraw(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDrawIndexed:
+    case format::ApiCallId::ApiCall_vkCmdDrawIndexed:
         Decode_vkCmdDrawIndexed(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDrawIndirect:
+    case format::ApiCallId::ApiCall_vkCmdDrawIndirect:
         Decode_vkCmdDrawIndirect(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDrawIndexedIndirect:
+    case format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect:
         Decode_vkCmdDrawIndexedIndirect(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDispatch:
+    case format::ApiCallId::ApiCall_vkCmdDispatch:
         Decode_vkCmdDispatch(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDispatchIndirect:
+    case format::ApiCallId::ApiCall_vkCmdDispatchIndirect:
         Decode_vkCmdDispatchIndirect(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdCopyBuffer:
+    case format::ApiCallId::ApiCall_vkCmdCopyBuffer:
         Decode_vkCmdCopyBuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdCopyImage:
+    case format::ApiCallId::ApiCall_vkCmdCopyImage:
         Decode_vkCmdCopyImage(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBlitImage:
+    case format::ApiCallId::ApiCall_vkCmdBlitImage:
         Decode_vkCmdBlitImage(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdCopyBufferToImage:
+    case format::ApiCallId::ApiCall_vkCmdCopyBufferToImage:
         Decode_vkCmdCopyBufferToImage(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdCopyImageToBuffer:
+    case format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer:
         Decode_vkCmdCopyImageToBuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdUpdateBuffer:
+    case format::ApiCallId::ApiCall_vkCmdUpdateBuffer:
         Decode_vkCmdUpdateBuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdFillBuffer:
+    case format::ApiCallId::ApiCall_vkCmdFillBuffer:
         Decode_vkCmdFillBuffer(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdClearColorImage:
+    case format::ApiCallId::ApiCall_vkCmdClearColorImage:
         Decode_vkCmdClearColorImage(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdClearDepthStencilImage:
+    case format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage:
         Decode_vkCmdClearDepthStencilImage(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdClearAttachments:
+    case format::ApiCallId::ApiCall_vkCmdClearAttachments:
         Decode_vkCmdClearAttachments(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdResolveImage:
+    case format::ApiCallId::ApiCall_vkCmdResolveImage:
         Decode_vkCmdResolveImage(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetEvent:
+    case format::ApiCallId::ApiCall_vkCmdSetEvent:
         Decode_vkCmdSetEvent(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdResetEvent:
+    case format::ApiCallId::ApiCall_vkCmdResetEvent:
         Decode_vkCmdResetEvent(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdWaitEvents:
+    case format::ApiCallId::ApiCall_vkCmdWaitEvents:
         Decode_vkCmdWaitEvents(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdPipelineBarrier:
+    case format::ApiCallId::ApiCall_vkCmdPipelineBarrier:
         Decode_vkCmdPipelineBarrier(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBeginQuery:
+    case format::ApiCallId::ApiCall_vkCmdBeginQuery:
         Decode_vkCmdBeginQuery(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdEndQuery:
+    case format::ApiCallId::ApiCall_vkCmdEndQuery:
         Decode_vkCmdEndQuery(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdResetQueryPool:
+    case format::ApiCallId::ApiCall_vkCmdResetQueryPool:
         Decode_vkCmdResetQueryPool(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdWriteTimestamp:
+    case format::ApiCallId::ApiCall_vkCmdWriteTimestamp:
         Decode_vkCmdWriteTimestamp(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdCopyQueryPoolResults:
+    case format::ApiCallId::ApiCall_vkCmdCopyQueryPoolResults:
         Decode_vkCmdCopyQueryPoolResults(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdPushConstants:
+    case format::ApiCallId::ApiCall_vkCmdPushConstants:
         Decode_vkCmdPushConstants(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBeginRenderPass:
+    case format::ApiCallId::ApiCall_vkCmdBeginRenderPass:
         Decode_vkCmdBeginRenderPass(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdNextSubpass:
+    case format::ApiCallId::ApiCall_vkCmdNextSubpass:
         Decode_vkCmdNextSubpass(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdEndRenderPass:
+    case format::ApiCallId::ApiCall_vkCmdEndRenderPass:
         Decode_vkCmdEndRenderPass(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdExecuteCommands:
+    case format::ApiCallId::ApiCall_vkCmdExecuteCommands:
         Decode_vkCmdExecuteCommands(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkBindBufferMemory2:
+    case format::ApiCallId::ApiCall_vkBindBufferMemory2:
         Decode_vkBindBufferMemory2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkBindImageMemory2:
+    case format::ApiCallId::ApiCall_vkBindImageMemory2:
         Decode_vkBindImageMemory2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDeviceGroupPeerMemoryFeatures:
+    case format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures:
         Decode_vkGetDeviceGroupPeerMemoryFeatures(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetDeviceMask:
+    case format::ApiCallId::ApiCall_vkCmdSetDeviceMask:
         Decode_vkCmdSetDeviceMask(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDispatchBase:
+    case format::ApiCallId::ApiCall_vkCmdDispatchBase:
         Decode_vkCmdDispatchBase(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkEnumeratePhysicalDeviceGroups:
+    case format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups:
         Decode_vkEnumeratePhysicalDeviceGroups(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetImageMemoryRequirements2:
+    case format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2:
         Decode_vkGetImageMemoryRequirements2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetBufferMemoryRequirements2:
+    case format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2:
         Decode_vkGetBufferMemoryRequirements2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetImageSparseMemoryRequirements2:
+    case format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2:
         Decode_vkGetImageSparseMemoryRequirements2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceFeatures2:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2:
         Decode_vkGetPhysicalDeviceFeatures2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceProperties2:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2:
         Decode_vkGetPhysicalDeviceProperties2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceFormatProperties2:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2:
         Decode_vkGetPhysicalDeviceFormatProperties2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceImageFormatProperties2:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2:
         Decode_vkGetPhysicalDeviceImageFormatProperties2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceQueueFamilyProperties2:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2:
         Decode_vkGetPhysicalDeviceQueueFamilyProperties2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceMemoryProperties2:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2:
         Decode_vkGetPhysicalDeviceMemoryProperties2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceSparseImageFormatProperties2:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2:
         Decode_vkGetPhysicalDeviceSparseImageFormatProperties2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkTrimCommandPool:
+    case format::ApiCallId::ApiCall_vkTrimCommandPool:
         Decode_vkTrimCommandPool(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDeviceQueue2:
+    case format::ApiCallId::ApiCall_vkGetDeviceQueue2:
         Decode_vkGetDeviceQueue2(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateSamplerYcbcrConversion:
+    case format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion:
         Decode_vkCreateSamplerYcbcrConversion(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroySamplerYcbcrConversion:
+    case format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion:
         Decode_vkDestroySamplerYcbcrConversion(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateDescriptorUpdateTemplate:
+    case format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate:
         Decode_vkCreateDescriptorUpdateTemplate(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyDescriptorUpdateTemplate:
+    case format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate:
         Decode_vkDestroyDescriptorUpdateTemplate(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceExternalBufferProperties:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties:
         Decode_vkGetPhysicalDeviceExternalBufferProperties(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceExternalFenceProperties:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties:
         Decode_vkGetPhysicalDeviceExternalFenceProperties(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceExternalSemaphoreProperties:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties:
         Decode_vkGetPhysicalDeviceExternalSemaphoreProperties(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDescriptorSetLayoutSupport:
+    case format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport:
         Decode_vkGetDescriptorSetLayoutSupport(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroySurfaceKHR:
+    case format::ApiCallId::ApiCall_vkDestroySurfaceKHR:
         Decode_vkDestroySurfaceKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceSurfaceSupportKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR:
         Decode_vkGetPhysicalDeviceSurfaceSupportKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceSurfaceCapabilitiesKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR:
         Decode_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceSurfaceFormatsKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR:
         Decode_vkGetPhysicalDeviceSurfaceFormatsKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceSurfacePresentModesKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR:
         Decode_vkGetPhysicalDeviceSurfacePresentModesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateSwapchainKHR:
+    case format::ApiCallId::ApiCall_vkCreateSwapchainKHR:
         Decode_vkCreateSwapchainKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroySwapchainKHR:
+    case format::ApiCallId::ApiCall_vkDestroySwapchainKHR:
         Decode_vkDestroySwapchainKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetSwapchainImagesKHR:
+    case format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR:
         Decode_vkGetSwapchainImagesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkAcquireNextImageKHR:
+    case format::ApiCallId::ApiCall_vkAcquireNextImageKHR:
         Decode_vkAcquireNextImageKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkQueuePresentKHR:
+    case format::ApiCallId::ApiCall_vkQueuePresentKHR:
         Decode_vkQueuePresentKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDeviceGroupPresentCapabilitiesKHR:
+    case format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR:
         Decode_vkGetDeviceGroupPresentCapabilitiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDeviceGroupSurfacePresentModesKHR:
+    case format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR:
         Decode_vkGetDeviceGroupSurfacePresentModesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDevicePresentRectanglesKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR:
         Decode_vkGetPhysicalDevicePresentRectanglesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkAcquireNextImage2KHR:
+    case format::ApiCallId::ApiCall_vkAcquireNextImage2KHR:
         Decode_vkAcquireNextImage2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceDisplayPropertiesKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR:
         Decode_vkGetPhysicalDeviceDisplayPropertiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceDisplayPlanePropertiesKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR:
         Decode_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDisplayPlaneSupportedDisplaysKHR:
+    case format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR:
         Decode_vkGetDisplayPlaneSupportedDisplaysKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDisplayModePropertiesKHR:
+    case format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR:
         Decode_vkGetDisplayModePropertiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateDisplayModeKHR:
+    case format::ApiCallId::ApiCall_vkCreateDisplayModeKHR:
         Decode_vkCreateDisplayModeKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDisplayPlaneCapabilitiesKHR:
+    case format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR:
         Decode_vkGetDisplayPlaneCapabilitiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateDisplayPlaneSurfaceKHR:
+    case format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR:
         Decode_vkCreateDisplayPlaneSurfaceKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateSharedSwapchainsKHR:
+    case format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR:
         Decode_vkCreateSharedSwapchainsKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateXlibSurfaceKHR:
+    case format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR:
         Decode_vkCreateXlibSurfaceKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceXlibPresentationSupportKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR:
         Decode_vkGetPhysicalDeviceXlibPresentationSupportKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateXcbSurfaceKHR:
+    case format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR:
         Decode_vkCreateXcbSurfaceKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceXcbPresentationSupportKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR:
         Decode_vkGetPhysicalDeviceXcbPresentationSupportKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateWaylandSurfaceKHR:
+    case format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR:
         Decode_vkCreateWaylandSurfaceKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceWaylandPresentationSupportKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR:
         Decode_vkGetPhysicalDeviceWaylandPresentationSupportKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateMirSurfaceKHR:
+    case format::ApiCallId::ApiCall_vkCreateMirSurfaceKHR:
         Decode_vkCreateMirSurfaceKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceMirPresentationSupportKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceMirPresentationSupportKHR:
         Decode_vkGetPhysicalDeviceMirPresentationSupportKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateAndroidSurfaceKHR:
+    case format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR:
         Decode_vkCreateAndroidSurfaceKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateWin32SurfaceKHR:
+    case format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR:
         Decode_vkCreateWin32SurfaceKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceWin32PresentationSupportKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR:
         Decode_vkGetPhysicalDeviceWin32PresentationSupportKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceFeatures2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR:
         Decode_vkGetPhysicalDeviceFeatures2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceProperties2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR:
         Decode_vkGetPhysicalDeviceProperties2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceFormatProperties2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR:
         Decode_vkGetPhysicalDeviceFormatProperties2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceImageFormatProperties2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR:
         Decode_vkGetPhysicalDeviceImageFormatProperties2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceQueueFamilyProperties2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR:
         Decode_vkGetPhysicalDeviceQueueFamilyProperties2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceMemoryProperties2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR:
         Decode_vkGetPhysicalDeviceMemoryProperties2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceSparseImageFormatProperties2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR:
         Decode_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDeviceGroupPeerMemoryFeaturesKHR:
+    case format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR:
         Decode_vkGetDeviceGroupPeerMemoryFeaturesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetDeviceMaskKHR:
+    case format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR:
         Decode_vkCmdSetDeviceMaskKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDispatchBaseKHR:
+    case format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR:
         Decode_vkCmdDispatchBaseKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkTrimCommandPoolKHR:
+    case format::ApiCallId::ApiCall_vkTrimCommandPoolKHR:
         Decode_vkTrimCommandPoolKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkEnumeratePhysicalDeviceGroupsKHR:
+    case format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR:
         Decode_vkEnumeratePhysicalDeviceGroupsKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceExternalBufferPropertiesKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR:
         Decode_vkGetPhysicalDeviceExternalBufferPropertiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetMemoryWin32HandleKHR:
+    case format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR:
         Decode_vkGetMemoryWin32HandleKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetMemoryWin32HandlePropertiesKHR:
+    case format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR:
         Decode_vkGetMemoryWin32HandlePropertiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetMemoryFdKHR:
+    case format::ApiCallId::ApiCall_vkGetMemoryFdKHR:
         Decode_vkGetMemoryFdKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetMemoryFdPropertiesKHR:
+    case format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR:
         Decode_vkGetMemoryFdPropertiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR:
         Decode_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkImportSemaphoreWin32HandleKHR:
+    case format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR:
         Decode_vkImportSemaphoreWin32HandleKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetSemaphoreWin32HandleKHR:
+    case format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR:
         Decode_vkGetSemaphoreWin32HandleKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkImportSemaphoreFdKHR:
+    case format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR:
         Decode_vkImportSemaphoreFdKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetSemaphoreFdKHR:
+    case format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR:
         Decode_vkGetSemaphoreFdKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdPushDescriptorSetKHR:
+    case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR:
         Decode_vkCmdPushDescriptorSetKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateDescriptorUpdateTemplateKHR:
+    case format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR:
         Decode_vkCreateDescriptorUpdateTemplateKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyDescriptorUpdateTemplateKHR:
+    case format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR:
         Decode_vkDestroyDescriptorUpdateTemplateKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateRenderPass2KHR:
+    case format::ApiCallId::ApiCall_vkCreateRenderPass2KHR:
         Decode_vkCreateRenderPass2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBeginRenderPass2KHR:
+    case format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR:
         Decode_vkCmdBeginRenderPass2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdNextSubpass2KHR:
+    case format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR:
         Decode_vkCmdNextSubpass2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdEndRenderPass2KHR:
+    case format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR:
         Decode_vkCmdEndRenderPass2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetSwapchainStatusKHR:
+    case format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR:
         Decode_vkGetSwapchainStatusKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceExternalFencePropertiesKHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR:
         Decode_vkGetPhysicalDeviceExternalFencePropertiesKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkImportFenceWin32HandleKHR:
+    case format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR:
         Decode_vkImportFenceWin32HandleKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetFenceWin32HandleKHR:
+    case format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR:
         Decode_vkGetFenceWin32HandleKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkImportFenceFdKHR:
+    case format::ApiCallId::ApiCall_vkImportFenceFdKHR:
         Decode_vkImportFenceFdKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetFenceFdKHR:
+    case format::ApiCallId::ApiCall_vkGetFenceFdKHR:
         Decode_vkGetFenceFdKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceSurfaceCapabilities2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR:
         Decode_vkGetPhysicalDeviceSurfaceCapabilities2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceSurfaceFormats2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR:
         Decode_vkGetPhysicalDeviceSurfaceFormats2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceDisplayProperties2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR:
         Decode_vkGetPhysicalDeviceDisplayProperties2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceDisplayPlaneProperties2KHR:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR:
         Decode_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDisplayModeProperties2KHR:
+    case format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR:
         Decode_vkGetDisplayModeProperties2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDisplayPlaneCapabilities2KHR:
+    case format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR:
         Decode_vkGetDisplayPlaneCapabilities2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetImageMemoryRequirements2KHR:
+    case format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR:
         Decode_vkGetImageMemoryRequirements2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetBufferMemoryRequirements2KHR:
+    case format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR:
         Decode_vkGetBufferMemoryRequirements2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetImageSparseMemoryRequirements2KHR:
+    case format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR:
         Decode_vkGetImageSparseMemoryRequirements2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateSamplerYcbcrConversionKHR:
+    case format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR:
         Decode_vkCreateSamplerYcbcrConversionKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroySamplerYcbcrConversionKHR:
+    case format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR:
         Decode_vkDestroySamplerYcbcrConversionKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkBindBufferMemory2KHR:
+    case format::ApiCallId::ApiCall_vkBindBufferMemory2KHR:
         Decode_vkBindBufferMemory2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkBindImageMemory2KHR:
+    case format::ApiCallId::ApiCall_vkBindImageMemory2KHR:
         Decode_vkBindImageMemory2KHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetDescriptorSetLayoutSupportKHR:
+    case format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR:
         Decode_vkGetDescriptorSetLayoutSupportKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDrawIndirectCountKHR:
+    case format::ApiCallId::ApiCall_vkCmdDrawIndirectCountKHR:
         Decode_vkCmdDrawIndirectCountKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDrawIndexedIndirectCountKHR:
+    case format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR:
         Decode_vkCmdDrawIndexedIndirectCountKHR(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateDebugReportCallbackEXT:
+    case format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT:
         Decode_vkCreateDebugReportCallbackEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyDebugReportCallbackEXT:
+    case format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT:
         Decode_vkDestroyDebugReportCallbackEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDebugReportMessageEXT:
+    case format::ApiCallId::ApiCall_vkDebugReportMessageEXT:
         Decode_vkDebugReportMessageEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDebugMarkerSetObjectTagEXT:
+    case format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT:
         Decode_vkDebugMarkerSetObjectTagEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDebugMarkerSetObjectNameEXT:
+    case format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT:
         Decode_vkDebugMarkerSetObjectNameEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDebugMarkerBeginEXT:
+    case format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT:
         Decode_vkCmdDebugMarkerBeginEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDebugMarkerEndEXT:
+    case format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT:
         Decode_vkCmdDebugMarkerEndEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDebugMarkerInsertEXT:
+    case format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT:
         Decode_vkCmdDebugMarkerInsertEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDrawIndirectCountAMD:
+    case format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD:
         Decode_vkCmdDrawIndirectCountAMD(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDrawIndexedIndirectCountAMD:
+    case format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountAMD:
         Decode_vkCmdDrawIndexedIndirectCountAMD(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetShaderInfoAMD:
+    case format::ApiCallId::ApiCall_vkGetShaderInfoAMD:
         Decode_vkGetShaderInfoAMD(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceExternalImageFormatPropertiesNV:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV:
         Decode_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetMemoryWin32HandleNV:
+    case format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV:
         Decode_vkGetMemoryWin32HandleNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateViSurfaceNN:
+    case format::ApiCallId::ApiCall_vkCreateViSurfaceNN:
         Decode_vkCreateViSurfaceNN(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBeginConditionalRenderingEXT:
+    case format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT:
         Decode_vkCmdBeginConditionalRenderingEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdEndConditionalRenderingEXT:
+    case format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT:
         Decode_vkCmdEndConditionalRenderingEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdProcessCommandsNVX:
+    case format::ApiCallId::ApiCall_vkCmdProcessCommandsNVX:
         Decode_vkCmdProcessCommandsNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdReserveSpaceForCommandsNVX:
+    case format::ApiCallId::ApiCall_vkCmdReserveSpaceForCommandsNVX:
         Decode_vkCmdReserveSpaceForCommandsNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateIndirectCommandsLayoutNVX:
+    case format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNVX:
         Decode_vkCreateIndirectCommandsLayoutNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyIndirectCommandsLayoutNVX:
+    case format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNVX:
         Decode_vkDestroyIndirectCommandsLayoutNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateObjectTableNVX:
+    case format::ApiCallId::ApiCall_vkCreateObjectTableNVX:
         Decode_vkCreateObjectTableNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyObjectTableNVX:
+    case format::ApiCallId::ApiCall_vkDestroyObjectTableNVX:
         Decode_vkDestroyObjectTableNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkUnregisterObjectsNVX:
+    case format::ApiCallId::ApiCall_vkUnregisterObjectsNVX:
         Decode_vkUnregisterObjectsNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX:
         Decode_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetViewportWScalingNV:
+    case format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV:
         Decode_vkCmdSetViewportWScalingNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkReleaseDisplayEXT:
+    case format::ApiCallId::ApiCall_vkReleaseDisplayEXT:
         Decode_vkReleaseDisplayEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkAcquireXlibDisplayEXT:
+    case format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT:
         Decode_vkAcquireXlibDisplayEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetRandROutputDisplayEXT:
+    case format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT:
         Decode_vkGetRandROutputDisplayEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceSurfaceCapabilities2EXT:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT:
         Decode_vkGetPhysicalDeviceSurfaceCapabilities2EXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDisplayPowerControlEXT:
+    case format::ApiCallId::ApiCall_vkDisplayPowerControlEXT:
         Decode_vkDisplayPowerControlEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkRegisterDeviceEventEXT:
+    case format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT:
         Decode_vkRegisterDeviceEventEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkRegisterDisplayEventEXT:
+    case format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT:
         Decode_vkRegisterDisplayEventEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetSwapchainCounterEXT:
+    case format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT:
         Decode_vkGetSwapchainCounterEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetRefreshCycleDurationGOOGLE:
+    case format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE:
         Decode_vkGetRefreshCycleDurationGOOGLE(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPastPresentationTimingGOOGLE:
+    case format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE:
         Decode_vkGetPastPresentationTimingGOOGLE(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetDiscardRectangleEXT:
+    case format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT:
         Decode_vkCmdSetDiscardRectangleEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkSetHdrMetadataEXT:
+    case format::ApiCallId::ApiCall_vkSetHdrMetadataEXT:
         Decode_vkSetHdrMetadataEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateIOSSurfaceMVK:
+    case format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK:
         Decode_vkCreateIOSSurfaceMVK(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateMacOSSurfaceMVK:
+    case format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK:
         Decode_vkCreateMacOSSurfaceMVK(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkSetDebugUtilsObjectNameEXT:
+    case format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT:
         Decode_vkSetDebugUtilsObjectNameEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkSetDebugUtilsObjectTagEXT:
+    case format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT:
         Decode_vkSetDebugUtilsObjectTagEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkQueueBeginDebugUtilsLabelEXT:
+    case format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT:
         Decode_vkQueueBeginDebugUtilsLabelEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkQueueEndDebugUtilsLabelEXT:
+    case format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT:
         Decode_vkQueueEndDebugUtilsLabelEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkQueueInsertDebugUtilsLabelEXT:
+    case format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT:
         Decode_vkQueueInsertDebugUtilsLabelEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBeginDebugUtilsLabelEXT:
+    case format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT:
         Decode_vkCmdBeginDebugUtilsLabelEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdEndDebugUtilsLabelEXT:
+    case format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT:
         Decode_vkCmdEndDebugUtilsLabelEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdInsertDebugUtilsLabelEXT:
+    case format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT:
         Decode_vkCmdInsertDebugUtilsLabelEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateDebugUtilsMessengerEXT:
+    case format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT:
         Decode_vkCreateDebugUtilsMessengerEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyDebugUtilsMessengerEXT:
+    case format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT:
         Decode_vkDestroyDebugUtilsMessengerEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkSubmitDebugUtilsMessageEXT:
+    case format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT:
         Decode_vkSubmitDebugUtilsMessageEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetAndroidHardwareBufferPropertiesANDROID:
+    case format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID:
         Decode_vkGetAndroidHardwareBufferPropertiesANDROID(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetMemoryAndroidHardwareBufferANDROID:
+    case format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID:
         Decode_vkGetMemoryAndroidHardwareBufferANDROID(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetSampleLocationsEXT:
+    case format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT:
         Decode_vkCmdSetSampleLocationsEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetPhysicalDeviceMultisamplePropertiesEXT:
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT:
         Decode_vkGetPhysicalDeviceMultisamplePropertiesEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateValidationCacheEXT:
+    case format::ApiCallId::ApiCall_vkCreateValidationCacheEXT:
         Decode_vkCreateValidationCacheEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyValidationCacheEXT:
+    case format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT:
         Decode_vkDestroyValidationCacheEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkMergeValidationCachesEXT:
+    case format::ApiCallId::ApiCall_vkMergeValidationCachesEXT:
         Decode_vkMergeValidationCachesEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetValidationCacheDataEXT:
+    case format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT:
         Decode_vkGetValidationCacheDataEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBindShadingRateImageNV:
+    case format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV:
         Decode_vkCmdBindShadingRateImageNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetViewportShadingRatePaletteNV:
+    case format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV:
         Decode_vkCmdSetViewportShadingRatePaletteNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetCoarseSampleOrderNV:
+    case format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV:
         Decode_vkCmdSetCoarseSampleOrderNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateAccelerationStructureNVX:
+    case format::ApiCallId::ApiCall_vkCreateAccelerationStructureNVX:
         Decode_vkCreateAccelerationStructureNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkDestroyAccelerationStructureNVX:
+    case format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNVX:
         Decode_vkDestroyAccelerationStructureNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetAccelerationStructureMemoryRequirementsNVX:
+    case format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNVX:
         Decode_vkGetAccelerationStructureMemoryRequirementsNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetAccelerationStructureScratchMemoryRequirementsNVX:
+    case format::ApiCallId::ApiCall_vkGetAccelerationStructureScratchMemoryRequirementsNVX:
         Decode_vkGetAccelerationStructureScratchMemoryRequirementsNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkBindAccelerationStructureMemoryNVX:
+    case format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNVX:
         Decode_vkBindAccelerationStructureMemoryNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdBuildAccelerationStructureNVX:
+    case format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureNVX:
         Decode_vkCmdBuildAccelerationStructureNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdCopyAccelerationStructureNVX:
+    case format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNVX:
         Decode_vkCmdCopyAccelerationStructureNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdTraceRaysNVX:
+    case format::ApiCallId::ApiCall_vkCmdTraceRaysNVX:
         Decode_vkCmdTraceRaysNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateRaytracingPipelinesNVX:
+    case format::ApiCallId::ApiCall_vkCreateRaytracingPipelinesNVX:
         Decode_vkCreateRaytracingPipelinesNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetRaytracingShaderHandlesNVX:
+    case format::ApiCallId::ApiCall_vkGetRaytracingShaderHandlesNVX:
         Decode_vkGetRaytracingShaderHandlesNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetAccelerationStructureHandleNVX:
+    case format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNVX:
         Decode_vkGetAccelerationStructureHandleNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdWriteAccelerationStructurePropertiesNVX:
+    case format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructurePropertiesNVX:
         Decode_vkCmdWriteAccelerationStructurePropertiesNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCompileDeferredNVX:
+    case format::ApiCallId::ApiCall_vkCompileDeferredNVX:
         Decode_vkCompileDeferredNVX(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetMemoryHostPointerPropertiesEXT:
+    case format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT:
         Decode_vkGetMemoryHostPointerPropertiesEXT(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdWriteBufferMarkerAMD:
+    case format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD:
         Decode_vkCmdWriteBufferMarkerAMD(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDrawMeshTasksNV:
+    case format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV:
         Decode_vkCmdDrawMeshTasksNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDrawMeshTasksIndirectNV:
+    case format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV:
         Decode_vkCmdDrawMeshTasksIndirectNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdDrawMeshTasksIndirectCountNV:
+    case format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectCountNV:
         Decode_vkCmdDrawMeshTasksIndirectCountNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetExclusiveScissorNV:
+    case format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV:
         Decode_vkCmdSetExclusiveScissorNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCmdSetCheckpointNV:
+    case format::ApiCallId::ApiCall_vkCmdSetCheckpointNV:
         Decode_vkCmdSetCheckpointNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkGetQueueCheckpointDataNV:
+    case format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV:
         Decode_vkGetQueueCheckpointDataNV(parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCallId_vkCreateImagePipeSurfaceFUCHSIA:
+    case format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA:
         Decode_vkCreateImagePipeSurfaceFUCHSIA(parameter_buffer, buffer_size);
         break;
     }

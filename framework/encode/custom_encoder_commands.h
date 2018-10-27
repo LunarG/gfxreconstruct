@@ -46,7 +46,7 @@ struct CustomEncoderPostCall
 
 // Dispatch custom command for window resize command generation.
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkCreateSwapchainKHR>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -57,7 +57,7 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkCreateSwapchainKHR>
 
 // Dispatch custom commands for fill memory command generation.
 template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkAllocateMemory>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateMemory>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, VkResult result, Args... args)
@@ -67,7 +67,7 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkAllocateMemory>
 };
 
 template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkMapMemory>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, VkResult result, Args... args)
@@ -77,7 +77,7 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkMapMemory>
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkFlushMappedMemoryRanges>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -87,7 +87,7 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkFlushMappedMemoryRang
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkUnmapMemory>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnmapMemory>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -97,7 +97,7 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkUnmapMemory>
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkFreeMemory>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeMemory>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -107,7 +107,7 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkFreeMemory>
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkQueueSubmit>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -117,7 +117,7 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkQueueSubmit>
 };
 
 template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkCreateDescriptorUpdateTemplate>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -127,7 +127,7 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkCreateDescriptorUpda
 };
 
 template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkCreateDescriptorUpdateTemplateKHR>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -137,7 +137,7 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCallId_vkCreateDescriptorUpda
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkDestroyDescriptorUpdateTemplate>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
@@ -147,7 +147,7 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkDestroyDescriptorUpda
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCallId_vkDestroyDescriptorUpdateTemplateKHR>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)

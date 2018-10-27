@@ -84,7 +84,7 @@ bool FileProcessor::ProcessNextFrame()
         {
             if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
             {
-                format::ApiCallId api_call_id = format::ApiCallId::ApiCallId_Unknown;
+                format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
 
                 success = ReadBytes(&api_call_id, sizeof(api_call_id));
 
@@ -488,7 +488,7 @@ bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
 {
     // TODO: IDs of API calls that were treated as frame delimiters by the trace layer should be in the trace file
     // header.
-    return (call_id == format::ApiCallId::ApiCallId_vkQueuePresentKHR) ? true : false;
+    return (call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR) ? true : false;
 }
 
 BRIMSTONE_END_NAMESPACE(decode)
