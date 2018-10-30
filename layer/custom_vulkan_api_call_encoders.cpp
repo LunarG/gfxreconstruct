@@ -1,4 +1,5 @@
 /*
+** Copyright (c) 2018 Valve Corporation
 ** Copyright (c) 2018 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
