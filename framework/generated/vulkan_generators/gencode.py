@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
 # Copyright (c) 2013-2016 The Khronos Group Inc.
+# Copyright (c) 2018 Valve Corporation
 # Copyright (c) 2018 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -81,6 +82,7 @@ def makeGenOpts(args):
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
         '/*',
+        '** Copyright (c) 2018 Valve Corporation',
         '** Copyright (c) 2018 LunarG, Inc.',
         '**',
         '** Licensed under the Apache License, Version 2.0 (the "License");',
