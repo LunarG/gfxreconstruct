@@ -18,6 +18,8 @@
 #ifndef BRIMSTONE_UTIL_PLATFORM_H
 #define BRIMSTONE_UTIL_PLATFORM_H
 
+#include "util/defines.h"
+
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -38,8 +40,6 @@
 #include <unistd.h>
 #include <signal.h>
 #endif // WIN32
-
-#include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

@@ -23,21 +23,20 @@
 #ifndef  BRIMSTONE_GENERATED_VULKAN_STRUCT_DECODERS_H
 #define  BRIMSTONE_GENERATED_VULKAN_STRUCT_DECODERS_H
 
-#include <memory>
-
-#include "vulkan/vulkan.h"
-
-#include "util/defines.h"
-#include "format/format.h"
-#include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/pnext_node.h"
 #include "decode/pointer_decoder.h"
 #include "decode/string_array_decoder.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
-
+#include "format/format.h"
+#include "format/platform_types.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "util/defines.h"
+
+#include "vulkan/vulkan.h"
+
+#include <memory>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

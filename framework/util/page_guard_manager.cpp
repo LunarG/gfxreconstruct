@@ -16,12 +16,13 @@
 ** limitations under the License.
 */
 
-#include <cassert>
-#include <cinttypes>
+#include "util/page_guard_manager.h"
 
 #include "util/logging.h"
-#include "util/page_guard_manager.h"
 #include "util/platform.h"
+
+#include <cassert>
+#include <cinttypes>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

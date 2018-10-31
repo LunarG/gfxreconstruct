@@ -21,9 +21,8 @@
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
-#include "util/defines.h"
-
 #include "generated/generated_vulkan_struct_encoders.h"
+#include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

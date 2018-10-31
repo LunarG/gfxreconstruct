@@ -18,9 +18,9 @@
 #ifndef BRIMSTONE_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
 #define BRIMSTONE_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
 
-#include "vulkan/vulkan.h"
-
 #include "util/defines.h"
+
+#include "vulkan/vulkan.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 

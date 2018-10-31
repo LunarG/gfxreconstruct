@@ -20,19 +20,19 @@
 **
 */
 
-#include <mutex>
+#include "generated/generated_vulkan_api_call_encoders.h"
+
+#include "encode/custom_encoder_commands.h"
+#include "encode/parameter_encoder.h"
+#include "encode/struct_pointer_encoder.h"
+#include "encode/trace_manager.h"
+#include "format/api_call_id.h"
+#include "layer/trace_layer.h"
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
-#include "format/api_call_id.h"
-#include "encode/custom_encoder_commands.h"
-#include "encode/struct_pointer_encoder.h"
-#include "encode/trace_manager.h"
-#include "encode/parameter_encoder.h"
-#include "layer/trace_layer.h"
-
-#include "generated/generated_vulkan_api_call_encoders.h"
+#include <mutex>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 

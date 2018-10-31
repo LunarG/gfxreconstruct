@@ -15,12 +15,13 @@
 ** limitations under the License.
 */
 
+#include "application/wayland_application.h"
+
+#include "application/wayland_window.h"
+#include "util/logging.h"
+
 #include <cstring>
 #include <linux/input.h>
-
-#include "util/logging.h"
-#include "application/wayland_application.h"
-#include "application/wayland_window.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)

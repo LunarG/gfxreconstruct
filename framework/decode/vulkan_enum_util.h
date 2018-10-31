@@ -18,9 +18,9 @@
 #ifndef BRIMSTONE_DECODE_VULKAN_ENUM_UTIL_H
 #define BRIMSTONE_DECODE_VULKAN_ENUM_UTIL_H
 
-#include "vulkan/vulkan.h"
-
 #include "util/defines.h"
+
+#include "vulkan/vulkan.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

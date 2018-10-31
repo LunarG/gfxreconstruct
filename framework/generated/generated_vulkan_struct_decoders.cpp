@@ -20,9 +20,9 @@
 **
 */
 
-#include <cassert>
-
 #include "generated/generated_vulkan_struct_decoders.h"
+
+#include <cassert>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

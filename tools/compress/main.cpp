@@ -15,14 +15,14 @@
 ** limitations under the License.
 */
 
-#include <cassert>
-
-#include "format/format.h"
-#include "decode/file_processor.h"
 #include "decode/compression_converter.h"
-#include "util/compressor.h"
+#include "decode/file_processor.h"
+#include "format/format.h"
 #include "util/argument_parser.h"
+#include "util/compressor.h"
 #include "util/logging.h"
+
+#include <cassert>
 
 void PrintUsage(const char* exe_name)
 {

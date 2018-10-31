@@ -16,6 +16,7 @@
 */
 
 #include "application/win32_application.h"
+
 #include "application/win32_window.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)

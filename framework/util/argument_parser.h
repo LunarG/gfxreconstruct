@@ -18,11 +18,11 @@
 #ifndef BRIMSTONE_ARGUMENT_PARSER_H
 #define BRIMSTONE_ARGUMENT_PARSER_H
 
-#include <string>
-#include <vector>
-#include <unordered_map>
-
 #include "util/defines.h"
+
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

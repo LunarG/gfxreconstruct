@@ -18,9 +18,9 @@
 #ifndef BRIMSTONE_UTIL_OUTPUT_STREAM_H
 #define BRIMSTONE_UTIL_OUTPUT_STREAM_H
 
-#include <cstddef>
-
 #include "util/defines.h"
+
+#include <cstddef>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

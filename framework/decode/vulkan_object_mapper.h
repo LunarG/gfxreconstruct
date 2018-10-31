@@ -18,13 +18,13 @@
 #ifndef BRIMSTONE_DECODE_VULKAN_OBJECT_MAPPER_H
 #define BRIMSTONE_DECODE_VULKAN_OBJECT_MAPPER_H
 
-#include <cassert>
-#include <unordered_map>
+#include "format/format.h"
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "format/format.h"
-#include "util/defines.h"
+#include <cassert>
+#include <unordered_map>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

@@ -18,12 +18,12 @@
 #ifndef BRIMSTONE_FORMAT_FORMAT_H
 #define BRIMSTONE_FORMAT_FORMAT_H
 
-#include <cinttypes>
-#include <type_traits>
-
-#include "util/defines.h"
 #include "format/api_call_id.h"
 #include "util/compressor.h"
+#include "util/defines.h"
+
+#include <cinttypes>
+#include <type_traits>
 
 #define BRIMSTONE_FOURCC BRIMSTONE_MAKE_FOURCC('G', 'C', 'A', 'P')
 #define BRIMSTONE_FILE_EXTENSION ".gcap"

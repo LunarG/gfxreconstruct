@@ -18,12 +18,11 @@
 #ifndef BRIMSTONE_APPLICATION_WAYLAND_WINDOW_H
 #define BRIMSTONE_APPLICATION_WAYLAND_WINDOW_H
 
-#include <wayland-client.h>
-
-#include "decode/window.h"
 #include "application/wayland_application.h"
-
+#include "decode/window.h"
 #include "util/defines.h"
+
+#include <wayland-client.h>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)

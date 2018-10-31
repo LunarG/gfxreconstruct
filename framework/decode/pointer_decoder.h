@@ -18,13 +18,13 @@
 #ifndef BRIMSTONE_DECODE_POINTER_DECODER_H
 #define BRIMSTONE_DECODE_POINTER_DECODER_H
 
-#include <cassert>
-
-#include "util/defines.h"
-#include "util/logging.h"
-#include "format/format.h"
 #include "decode/pointer_decoder_base.h"
 #include "decode/value_decoder.h"
+#include "format/format.h"
+#include "util/defines.h"
+#include "util/logging.h"
+
+#include <cassert>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

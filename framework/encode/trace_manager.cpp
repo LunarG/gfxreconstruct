@@ -15,14 +15,15 @@
 ** limitations under the License.
 */
 
-#include <cassert>
-
 #include "encode/trace_manager.h"
+
 #include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
-#include "util/platform.h"
 #include "util/page_guard_manager.h"
+#include "util/platform.h"
+
+#include <cassert>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

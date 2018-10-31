@@ -15,19 +15,19 @@
 ** limitations under the License.
 */
 
-#include <cstdio>
-#include <exception>
-#include <memory>
-#include <string>
-
 #include "application/application.h"
 #include "decode/file_processor.h"
 #include "decode/window.h"
 #include "format/format.h"
-#include "generated/generated_vulkan_replay_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
+#include "generated/generated_vulkan_replay_consumer.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
+
+#include <cstdio>
+#include <exception>
+#include <memory>
+#include <string>
 
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)

@@ -23,12 +23,12 @@
 #ifndef  BRIMSTONE_GENERATED_VULKAN_STRUCT_ENCODERS_H
 #define  BRIMSTONE_GENERATED_VULKAN_STRUCT_ENCODERS_H
 
-#include <cstdint>
+#include "encode/parameter_encoder.h"
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
-#include "encode/parameter_encoder.h"
+#include <cstdint>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

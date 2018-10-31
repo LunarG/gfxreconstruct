@@ -18,13 +18,13 @@
 #ifndef BRIMSTONE_API_DECODE_DECODER_H
 #define BRIMSTONE_API_DECODE_DECODER_H
 
-#include <string>
+#include "format/api_call_id.h"
+#include "format/format.h"
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
-#include "format/api_call_id.h"
-#include "format/format.h"
+#include <string>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

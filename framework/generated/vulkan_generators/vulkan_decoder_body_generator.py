@@ -52,11 +52,6 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include <cstddef>', file=self.outFile)
-        self.newline()
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
-        self.newline()
-        write('#include "util/defines.h"', file=self.outFile)
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pointer_decoder.h"', file=self.outFile)
         write('#include "decode/string_array_decoder.h"', file=self.outFile)
@@ -65,6 +60,11 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         write('#include "decode/value_decoder.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_decoder.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
+        write('#include "util/defines.h"', file=self.outFile)
+        self.newline()
+        write('#include "vulkan/vulkan.h"', file=self.outFile)
+        self.newline()
+        write('#include <cstddef>', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)

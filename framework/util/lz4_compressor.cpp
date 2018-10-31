@@ -18,6 +18,7 @@
 #ifdef ENABLE_LZ4_COMPRESSION
 
 #include "util/lz4_compressor.h"
+
 #include "lz4.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)

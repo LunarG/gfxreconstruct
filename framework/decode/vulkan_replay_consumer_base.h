@@ -18,21 +18,21 @@
 #ifndef BRIMSTONE_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
 #define BRIMSTONE_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
 
+#include "decode/pointer_decoder.h"
+#include "decode/vulkan_object_mapper.h"
+#include "decode/window.h"
+#include "format/api_call_id.h"
+#include "format/platform_types.h"
+#include "generated/generated_vulkan_consumer.h"
+#include "util/defines.h"
+
+#include "vulkan/vulkan.h"
+
 #include <algorithm>
 #include <cassert>
 #include <functional>
 #include <string>
 #include <unordered_map>
-
-#include "vulkan/vulkan.h"
-
-#include "util/defines.h"
-#include "format/api_call_id.h"
-#include "format/platform_types.h"
-#include "decode/pointer_decoder.h"
-#include "decode/vulkan_object_mapper.h"
-#include "decode/window.h"
-#include "generated/generated_vulkan_consumer.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

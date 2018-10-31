@@ -18,11 +18,11 @@
 #ifndef BRIMSTONE_UTIL_MEMORY_OUTPUT_STREAM_H
 #define BRIMSTONE_UTIL_MEMORY_OUTPUT_STREAM_H
 
-#include <cstdint>
-#include <vector>
-
 #include "util/defines.h"
 #include "util/output_stream.h"
+
+#include <cstdint>
+#include <vector>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

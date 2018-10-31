@@ -18,10 +18,10 @@
 #ifndef BRIMSTONE_UTIL_COMPRESSOR_H
 #define BRIMSTONE_UTIL_COMPRESSOR_H
 
-#include <inttypes.h>
-#include <vector>
-
 #include "util/defines.h"
+
+#include <cinttypes>
+#include <vector>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

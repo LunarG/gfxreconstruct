@@ -18,11 +18,11 @@
 #ifndef BRIMSTONE_DECODE_WINDOW_H
 #define BRIMSTONE_DECODE_WINDOW_H
 
-#include <string>
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
+#include <string>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

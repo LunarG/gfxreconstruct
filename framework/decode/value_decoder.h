@@ -18,13 +18,14 @@
 #ifndef BRIMSTONE_DECODE_VALUE_DECODER_H
 #define BRIMSTONE_DECODE_VALUE_DECODER_H
 
-#include <cassert>
-#include <type_traits>
-#include <memory.h>
+#include "format/format.h"
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
+#include <cassert>
+#include <type_traits>
+#include <memory.h>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

@@ -20,10 +20,11 @@
 **
 */
 
-#include "vulkan/vulkan.h"
+#include "generated/generated_vulkan_ascii_consumer.h"
 
 #include "util/defines.h"
-#include "generated/generated_vulkan_ascii_consumer.h"
+
+#include "vulkan/vulkan.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

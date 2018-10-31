@@ -18,13 +18,13 @@
 #ifndef BRIMSTONE_DECODE_COMPRESSION_CONVERTER_H
 #define BRIMSTONE_DECODE_COMPRESSION_CONVERTER_H
 
-#include <string>
+#include "util/compressor.h"
+#include "util/file_output_stream.h"
+#include "util/memory_output_stream.h"
 
 #include "decode/api_decoder.h"
 
-#include "util/file_output_stream.h"
-#include "util/memory_output_stream.h"
-#include "util/compressor.h"
+#include <string>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

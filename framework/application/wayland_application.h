@@ -18,13 +18,12 @@
 #ifndef BRIMSTONE_APPLICATION_WAYLAND_APPLICATION_H
 #define BRIMSTONE_APPLICATION_WAYLAND_APPLICATION_H
 
-#include <unordered_map>
+#include "application/application.h"
+#include "util/defines.h"
 
 #include <wayland-client.h>
 
-#include "application/application.h"
-
-#include "util/defines.h"
+#include <unordered_map>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)

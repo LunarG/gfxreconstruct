@@ -18,15 +18,15 @@
 #ifndef BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODERS_H
 #define BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODERS_H
 
-#include <memory>
-
-#include "vulkan/vulkan.h"
-
 #include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "util/defines.h"
+
+#include "vulkan/vulkan.h"
+
+#include <memory>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

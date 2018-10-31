@@ -23,11 +23,11 @@
 #ifndef  BRIMSTONE_GENERATED_VULKAN_STRUCT_DECODERS_FORWARD_H
 #define  BRIMSTONE_GENERATED_VULKAN_STRUCT_DECODERS_FORWARD_H
 
-#include <cstdint>
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
+#include <cstdint>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

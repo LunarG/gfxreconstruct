@@ -23,16 +23,9 @@
 #ifndef  BRIMSTONE_GENERATED_VULKAN_API_CALL_ENCODERS_H
 #define  BRIMSTONE_GENERATED_VULKAN_API_CALL_ENCODERS_H
 
-#include "vulkan/vulkan.h"
-
 #include "util/defines.h"
 
-#if defined(CreateSemaphore)
-#undef CreateSemaphore
-#endif
-#if defined(CreateEvent)
-#undef CreateEvent
-#endif
+#include "vulkan/vulkan.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 

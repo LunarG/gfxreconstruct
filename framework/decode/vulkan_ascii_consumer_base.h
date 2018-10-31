@@ -18,14 +18,14 @@
 #ifndef BRIMSTONE_DECODE_VULKAN_ASCII_CONSUMER_BASE_H
 #define BRIMSTONE_DECODE_VULKAN_ASCII_CONSUMER_BASE_H
 
-#include <cstdio>
-#include <string>
+#include "format/platform_types.h"
+#include "generated/generated_vulkan_consumer.h"
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
-#include "format/platform_types.h"
-#include "generated/generated_vulkan_consumer.h"
+#include <cstdio>
+#include <string>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

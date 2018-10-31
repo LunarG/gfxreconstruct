@@ -18,17 +18,17 @@
 #ifndef BRIMSTONE_DECODE_VULKAN_DECODER_BASE_H
 #define BRIMSTONE_DECODE_VULKAN_DECODER_BASE_H
 
-#include <algorithm>
-#include <vector>
-
-#include "vulkan/vulkan.h"
-
-#include "util/defines.h"
+#include "decode/api_decoder.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "format/platform_types.h"
-#include "decode/api_decoder.h"
 #include "generated/generated_vulkan_consumer.h"
+#include "util/defines.h"
+
+#include "vulkan/vulkan.h"
+
+#include <algorithm>
+#include <vector>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

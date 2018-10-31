@@ -24,9 +24,9 @@
 #ifndef BRIMSTONE_FORMAT_API_CALL_ID_H
 #define BRIMSTONE_FORMAT_API_CALL_ID_H
 
-#include <cstdint>
-
 #include "util/defines.h"
+
+#include <cstdint>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)

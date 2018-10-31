@@ -18,17 +18,17 @@
 #ifndef BRIMSTONE_ENCODE_PARAMETER_ENCODER_H
 #define BRIMSTONE_ENCODE_PARAMETER_ENCODER_H
 
+#include "format/format.h"
+#include "util/defines.h"
+#include "util/output_stream.h"
+#include "util/platform.h"
+
+#include "vulkan/vulkan.h"
+
 #include <cstring>
 #include <cwchar>
 #include <memory>
 #include <type_traits>
-
-#include "vulkan/vulkan.h"
-
-#include "util/defines.h"
-#include "util/output_stream.h"
-#include "util/platform.h"
-#include "format/format.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

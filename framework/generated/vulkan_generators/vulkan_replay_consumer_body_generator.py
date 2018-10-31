@@ -54,10 +54,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "volk.h"', file=self.outFile)
-        self.newline()
-        write('#include "util/defines.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_replay_consumer.h"', file=self.outFile)
+        write('#include "util/defines.h"', file=self.outFile)
+        self.newline()
+        write('#include "volk.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)
