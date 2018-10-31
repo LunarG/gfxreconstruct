@@ -18,12 +18,12 @@
 #ifndef BRIMSTONE_DECODE_PNEXT_TYPED_NODE_H
 #define BRIMSTONE_DECODE_PNEXT_TYPED_NODE_H
 
+#include "decode/struct_pointer_decoder.h"
+#include "format/format.h"
+#include "util/defines.h"
+
 #include <cassert>
 #include <memory>
-
-#include "util/defines.h"
-#include "format/format.h"
-#include "decode/struct_pointer_decoder.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

@@ -23,14 +23,14 @@
 #ifndef  BRIMSTONE_GENERATED_LAYER_FUNC_TABLE_H
 #define  BRIMSTONE_GENERATED_LAYER_FUNC_TABLE_H
 
-#include <unordered_map>
-
-#include "vulkan/vulkan.h"
-
-#include "util/defines.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
 #include "layer/custom_vulkan_api_call_encoders.h"
 #include "layer/trace_layer.h"
+#include "util/defines.h"
+
+#include "vulkan/vulkan.h"
+
+#include <unordered_map>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 

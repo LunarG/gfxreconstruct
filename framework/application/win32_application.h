@@ -18,9 +18,9 @@
 #ifndef BRIMSTONE_APPLICATION_WIN32_APPLICATION_H
 #define BRIMSTONE_APPLICATION_WIN32_APPLICATION_H
 
-#include "util/platform.h"
-#include "util/defines.h"
 #include "application/application.h"
+#include "util/defines.h"
+#include "util/platform.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)

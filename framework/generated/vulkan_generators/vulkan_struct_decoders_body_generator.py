@@ -48,9 +48,9 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include <cassert>', file=self.outFile)
-        self.newline()
         write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
+        self.newline()
+        write('#include <cassert>', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)

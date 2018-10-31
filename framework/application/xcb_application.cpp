@@ -15,11 +15,12 @@
 ** limitations under the License.
 */
 
-#include <cstdlib>
-
-#include "util/logging.h"
-#include "application/xcb_application.h"
 #include "application/xcb_window.h"
+
+#include "application/xcb_application.h"
+#include "util/logging.h"
+
+#include <cstdlib>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)

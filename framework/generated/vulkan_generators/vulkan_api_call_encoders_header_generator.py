@@ -48,18 +48,10 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
-        self.newline()
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        write('#if defined(CreateSemaphore)', file=self.outFile)
-        write('#undef CreateSemaphore', file=self.outFile)
-        write('#endif', file=self.outFile)
-        write('#if defined(CreateEvent)', file=self.outFile)
-        write('#undef CreateEvent', file=self.outFile)
-        write('#endif', file=self.outFile)
+        write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
-
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
 
     # Method override

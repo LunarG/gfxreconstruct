@@ -18,9 +18,9 @@
 #ifndef BRIMSTONE_PLATFORM_TYPES_H
 #define BRIMSTONE_PLATFORM_TYPES_H
 
-#include "vulkan/vulkan.h"
-
 #include "util/logging.h"
+
+#include "vulkan/vulkan.h"
 
 // System types for WIN32 platform extensions.
 #if defined(WIN32)

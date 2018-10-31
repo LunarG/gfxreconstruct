@@ -18,6 +18,7 @@
 #ifdef ENABLE_LZ77_COMPRESSION
 
 #include "util/lz77_compressor.h"
+
 #include "zlib.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)

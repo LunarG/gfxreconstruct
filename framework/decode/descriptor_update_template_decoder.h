@@ -18,12 +18,12 @@
 #ifndef BRIMSTONE_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
 #define BRIMSTONE_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
 
-#include <memory>
-
-#include "util/defines.h"
 #include "decode/pointer_decoder_base.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "util/defines.h"
+
+#include <memory>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

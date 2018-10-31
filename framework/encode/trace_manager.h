@@ -18,22 +18,22 @@
 #ifndef BRIMSTONE_ENCODE_FORMAT_TRACE_MANAGER_H
 #define BRIMSTONE_ENCODE_FORMAT_TRACE_MANAGER_H
 
+#include "encode/memory_tracker.h"
+#include "encode/parameter_encoder.h"
+#include "format/api_call_id.h"
+#include "format/format.h"
+#include "util/compressor.h"
+#include "util/defines.h"
+#include "util/file_output_stream.h"
+#include "util/memory_output_stream.h"
+
+#include "vulkan/vulkan.h"
+
 #include <memory>
 #include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#include "vulkan/vulkan.h"
-
-#include "format/api_call_id.h"
-#include "format/format.h"
-#include "encode/memory_tracker.h"
-#include "encode/parameter_encoder.h"
-#include "util/compressor.h"
-#include "util/defines.h"
-#include "util/file_output_stream.h"
-#include "util/memory_output_stream.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

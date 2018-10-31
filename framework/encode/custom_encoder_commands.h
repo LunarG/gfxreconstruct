@@ -18,9 +18,9 @@
 #ifndef BRIMSTONE_ENCODE_CUSTOM_ENCODER_COMMANDS_H
 #define BRIMSTONE_ENCODE_CUSTOM_ENCODER_COMMANDS_H
 
-#include "util/defines.h"
-#include "format/api_call_id.h"
 #include "encode/trace_manager.h"
+#include "format/api_call_id.h"
+#include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

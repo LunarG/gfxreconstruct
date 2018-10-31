@@ -18,16 +18,16 @@
 #ifndef BRIMSTONE_DECODE_FILE_PROCESSOR_H
 #define BRIMSTONE_DECODE_FILE_PROCESSOR_H
 
+#include "format/api_call_id.h"
+#include "format/format.h"
+#include "decode/api_decoder.h"
+#include "util/compressor.h"
+#include "util/defines.h"
+
 #include <algorithm>
 #include <cstdio>
 #include <string>
 #include <vector>
-
-#include "util/defines.h"
-#include "util/compressor.h"
-#include "decode/api_decoder.h"
-#include "format/api_call_id.h"
-#include "format/format.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

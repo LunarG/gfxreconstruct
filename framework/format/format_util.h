@@ -18,9 +18,9 @@
 #ifndef BRIMSTONE_FORMAT_FORMAT_UTIL_H
 #define BRIMSTONE_FORMAT_FORMAT_UTIL_H
 
+#include "format/format.h"
 #include "util/compressor.h"
 #include "util/defines.h"
-#include "format/format.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(format)

@@ -18,12 +18,12 @@
 #ifndef BRIMSTONE_ENCODE_MEMORY_TRACKER_H
 #define BRIMSTONE_ENCODE_MEMORY_TRACKER_H
 
-#include <functional>
-#include <unordered_map>
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
+#include <functional>
+#include <unordered_map>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

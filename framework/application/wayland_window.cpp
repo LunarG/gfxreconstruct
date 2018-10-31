@@ -15,13 +15,14 @@
 ** limitations under the License.
 */
 
-#include <cassert>
-#include <stdexcept>
-
-#include "util/logging.h"
 #include "application/wayland_window.h"
 
+#include "util/logging.h"
+
 #include "volk.h"
+
+#include <cassert>
+#include <stdexcept>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)

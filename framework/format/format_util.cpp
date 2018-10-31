@@ -16,6 +16,7 @@
 */
 
 #include "format/format_util.h"
+
 #include "util/logging.h"
 #include "util/lz4_compressor.h"
 #include "util/lz77_compressor.h"

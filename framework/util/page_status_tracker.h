@@ -19,10 +19,10 @@
 #ifndef BRIMSTONE_UTIL_PAGE_STATUS_TRACKER_H
 #define BRIMSTONE_UTIL_PAGE_STATUS_TRACKER_H
 
+#include "util/defines.h"
+
 #include <cstdint>
 #include <vector>
-
-#include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

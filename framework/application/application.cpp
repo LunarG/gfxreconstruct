@@ -15,11 +15,12 @@
 ** limitations under the License.
 */
 
-#include <algorithm>
-#include <cassert>
+#include "application/application.h"
 
 #include "util/logging.h"
-#include "application/application.h"
+
+#include <algorithm>
+#include <cassert>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)

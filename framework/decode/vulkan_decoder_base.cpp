@@ -15,10 +15,11 @@
 ** limitations under the License.
 */
 
+#include "decode/vulkan_decoder_base.h"
+
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/value_decoder.h"
-#include "decode/vulkan_decoder_base.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

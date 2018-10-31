@@ -20,15 +20,15 @@
 **
 */
 
-#include <cassert>
+#include "generated/generated_vulkan_struct_encoders.h"
+
+#include "encode/parameter_encoder.h"
+#include "encode/struct_pointer_encoder.h"
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
-#include "encode/parameter_encoder.h"
-#include "encode/struct_pointer_encoder.h"
-
-#include "generated/generated_vulkan_struct_encoders.h"
+#include <cassert>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

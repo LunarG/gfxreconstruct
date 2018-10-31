@@ -20,11 +20,6 @@
 **
 */
 
-#include <cstddef>
-
-#include "vulkan/vulkan.h"
-
-#include "util/defines.h"
 #include "decode/pnext_node.h"
 #include "decode/pointer_decoder.h"
 #include "decode/string_array_decoder.h"
@@ -33,6 +28,11 @@
 #include "decode/value_decoder.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
+#include "util/defines.h"
+
+#include "vulkan/vulkan.h"
+
+#include <cstddef>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

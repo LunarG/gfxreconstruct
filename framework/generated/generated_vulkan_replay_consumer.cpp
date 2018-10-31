@@ -20,10 +20,10 @@
 **
 */
 
-#include "volk.h"
-
-#include "util/defines.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+#include "util/defines.h"
+
+#include "volk.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

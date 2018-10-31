@@ -18,12 +18,11 @@
 #ifndef BRIMSTONE_APPLICATION_XCB_WINDOW_H
 #define BRIMSTONE_APPLICATION_XCB_WINDOW_H
 
-#include <xcb/xcb.h>
-
-#include "decode/window.h"
 #include "application/xcb_application.h"
-
+#include "decode/window.h"
 #include "util/defines.h"
+
+#include <xcb/xcb.h>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)

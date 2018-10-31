@@ -15,13 +15,14 @@
 ** limitations under the License.
 */
 
-#include <cassert>
-
-#include "util/defines.h"
-#include "format/format.h"
 #include "decode/descriptor_update_template_decoder.h"
+
 #include "decode/value_decoder.h"
+#include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "util/defines.h"
+
+#include <cassert>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

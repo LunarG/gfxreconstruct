@@ -15,17 +15,19 @@
 ** limitations under the License.
 */
 
+#include "layer/trace_layer.h"
+
+#include "encode/trace_manager.h"
+#include "generated/generated_vulkan_api_call_encoders.h"
+#include "generated/generated_layer_func_table.h"
+#include "layer/custom_vulkan_api_call_encoders.h"
+#include "layer/vk_dispatch_table_helper.h"
+
+#include "vulkan/vk_layer.h"
+
 #include <cstring>
 #include <string>
 #include <unordered_map>
-
-#include "vulkan/vk_layer.h"
-#include "generated/generated_vulkan_api_call_encoders.h"
-#include "generated/generated_layer_func_table.h"
-#include "encode/trace_manager.h"
-#include "layer/custom_vulkan_api_call_encoders.h"
-#include "layer/trace_layer.h"
-#include "layer/vk_dispatch_table_helper.h"
 
 static const VkLayerProperties LayerProps = {
     "VK_LAYER_LUNARG_brimstone",

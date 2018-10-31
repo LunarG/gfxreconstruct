@@ -18,12 +18,12 @@
 #ifndef BRIMSTONE_UTIL_FILE_OUTPUT_STREAM_H
 #define BRIMSTONE_UTIL_FILE_OUTPUT_STREAM_H
 
-#include <cstdio>
-#include <string>
-
 #include "util/defines.h"
 #include "util/output_stream.h"
 #include "util/platform.h"
+
+#include <cstdio>
+#include <string>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

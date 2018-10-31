@@ -15,11 +15,12 @@
 ** limitations under the License.
 */
 
-#include <cstring>
-#include <sstream>
+#include "util/argument_parser.h"
 
 #include "util/logging.h"
-#include "util/argument_parser.h"
+
+#include <cstring>
+#include <sstream>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

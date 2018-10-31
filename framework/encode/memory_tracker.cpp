@@ -15,10 +15,11 @@
 ** limitations under the License.
 */
 
-#include <cassert>
-
 #include "encode/memory_tracker.h"
+
 #include "util/defines.h"
+
+#include <cassert>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

@@ -15,8 +15,9 @@
 ** limitations under the License.
 */
 
-#include "util/platform.h"
 #include "decode/vulkan_ascii_consumer_base.h"
+
+#include "util/platform.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

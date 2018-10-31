@@ -15,8 +15,9 @@
 ** limitations under the License.
 */
 
-#include "util/platform.h"
 #include "util/file_output_stream.h"
+
+#include "util/platform.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

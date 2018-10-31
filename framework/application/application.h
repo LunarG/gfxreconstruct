@@ -18,12 +18,12 @@
 #ifndef BRIMSTONE_APPLICATION_APPLICATION_H
 #define BRIMSTONE_APPLICATION_APPLICATION_H
 
-#include <string>
-#include <vector>
-
-#include "util/defines.h"
 #include "decode/file_processor.h"
 #include "decode/window.h"
+#include "util/defines.h"
+
+#include <string>
+#include <vector>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)

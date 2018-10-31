@@ -15,17 +15,18 @@
 ** limitations under the License.
 */
 
-#include <cstdint>
-#include <limits>
-#include <unordered_set>
+#include "decode/vulkan_replay_consumer_base.h"
+
+#include "decode/descriptor_update_template_decoder.h"
+#include "decode/vulkan_enum_util.h"
+#include "util/logging.h"
+#include "util/platform.h"
 
 #include "volk.h"
 
-#include "util/logging.h"
-#include "util/platform.h"
-#include "decode/descriptor_update_template_decoder.h"
-#include "decode/vulkan_enum_util.h"
-#include "decode/vulkan_replay_consumer_base.h"
+#include <cstdint>
+#include <limits>
+#include <unordered_set>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

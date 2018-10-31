@@ -19,13 +19,13 @@
 #ifndef BRIMSTONE_UTIL_PAGE_GUARD_MANAGER_H
 #define BRIMSTONE_UTIL_PAGE_GUARD_MANAGER_H
 
+#include "util/defines.h"
+#include "util/page_status_tracker.h"
+
 #include <cstdint>
 #include <functional>
 #include <mutex>
 #include <unordered_map>
-
-#include "util/defines.h"
-#include "util/page_status_tracker.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)

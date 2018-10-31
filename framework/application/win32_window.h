@@ -18,10 +18,10 @@
 #ifndef BRIMSTONE_APPLICATION_WIN32_WINDOW_H
 #define BRIMSTONE_APPLICATION_WIN32_WINDOW_H
 
+#include "application/win32_application.h"
+#include "decode/window.h"
 #include "util/defines.h"
 #include "util/platform.h"
-#include "decode/window.h"
-#include "application/win32_application.h"
 
 #define IDI_ICON 101
 

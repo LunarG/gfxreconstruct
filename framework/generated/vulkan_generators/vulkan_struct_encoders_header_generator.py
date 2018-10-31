@@ -48,12 +48,12 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include <cstdint>', file=self.outFile)
+        write('#include "encode/parameter_encoder.h"', file=self.outFile)
+        write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
-        write('#include "util/defines.h"', file=self.outFile)
-        write('#include "encode/parameter_encoder.h"', file=self.outFile)
+        write('#include <cstdint>', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(encode)', file=self.outFile)

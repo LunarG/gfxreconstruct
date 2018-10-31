@@ -18,9 +18,9 @@
 #ifndef BRIMSTONE_DECODE_POINTER_DECODER_BASE_H
 #define BRIMSTONE_DECODE_POINTER_DECODER_BASE_H
 
-#include "util/defines.h"
-#include "format/format.h"
 #include "decode/value_decoder.h"
+#include "format/format.h"
+#include "util/defines.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

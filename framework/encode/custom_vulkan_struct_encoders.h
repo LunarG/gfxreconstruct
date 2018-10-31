@@ -18,11 +18,11 @@
 #ifndef BRIMSTONE_ENCODE_CUSTOM_STRUCT_ENCODERS_H
 #define BRIMSTONE_ENCODE_CUSTOM_STRUCT_ENCODERS_H
 
-#include "vulkan/vulkan.h"
-
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
+
+#include "vulkan/vulkan.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

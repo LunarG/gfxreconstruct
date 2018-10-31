@@ -15,13 +15,13 @@
 ** limitations under the License.
 */
 
-#include <cassert>
-#include <vector>
-
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/struct_pointer_encoder.h"
 #include "util/defines.h"
 #include "util/logging.h"
+
+#include <cassert>
+#include <vector>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(encode)

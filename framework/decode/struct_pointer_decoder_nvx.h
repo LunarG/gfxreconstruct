@@ -18,19 +18,19 @@
 #ifndef BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_NVX_H
 #define BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_NVX_H
 
-#include <cassert>
-#include <memory>
+#include "decode/struct_pointer_decoder.h"
+
+#include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/pointer_decoder_base.h"
+#include "decode/value_decoder.h"
+#include "format/format.h"
+#include "generated/generated_vulkan_struct_decoders.h"
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
-#include "format/format.h"
-#include "decode/pointer_decoder_base.h"
-#include "decode/struct_pointer_decoder.h"
-#include "decode/value_decoder.h"
-
-#include "decode/custom_vulkan_struct_decoders.h"
-#include "generated/generated_vulkan_struct_decoders.h"
+#include <cassert>
+#include <memory>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

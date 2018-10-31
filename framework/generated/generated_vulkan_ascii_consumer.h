@@ -23,10 +23,10 @@
 #ifndef  BRIMSTONE_GENERATED_VULKAN_ASCII_CONSUMER_H
 #define  BRIMSTONE_GENERATED_VULKAN_ASCII_CONSUMER_H
 
-#include "vulkan/vulkan.h"
-
-#include "util/defines.h"
 #include "decode/vulkan_ascii_consumer_base.h"
+#include "util/defines.h"
+
+#include "vulkan/vulkan.h"
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

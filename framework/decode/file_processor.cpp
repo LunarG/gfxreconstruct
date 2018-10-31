@@ -15,13 +15,14 @@
 ** limitations under the License.
 */
 
-#include <cassert>
+#include "decode/file_processor.h"
 
+#include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/platform.h"
-#include "decode/file_processor.h"
-#include "format/format_util.h"
+
+#include <cassert>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(decode)

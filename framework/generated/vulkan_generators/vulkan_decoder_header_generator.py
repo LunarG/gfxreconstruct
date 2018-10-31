@@ -49,10 +49,10 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "vulkan/vulkan.h"', file=self.outFile)
-        self.newline()
-        write('#include "util/defines.h"', file=self.outFile)
         write('#include "decode/vulkan_decoder_base.h"', file=self.outFile)
+        write('#include "util/defines.h"', file=self.outFile)
+        self.newline()
+        write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
         write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)

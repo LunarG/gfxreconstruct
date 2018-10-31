@@ -15,18 +15,18 @@
 ** limitations under the License.
 */
 
-#include <cassert>
+#include "layer/custom_vulkan_api_call_encoders.h"
 
-#include "format/api_call_id.h"
 #include "encode/custom_encoder_commands.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/trace_manager.h"
-#include "layer/custom_vulkan_api_call_encoders.h"
+#include "format/api_call_id.h"
+#include "generated/generated_vulkan_struct_encoders.h"
 #include "layer/trace_layer.h"
 #include "util/defines.h"
 
-#include "generated/generated_vulkan_struct_encoders.h"
+#include <cassert>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 

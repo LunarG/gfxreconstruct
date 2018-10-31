@@ -18,13 +18,13 @@
 #ifndef BRIMSTONE_TRACE_LAYER_H
 #define BRIMSTONE_TRACE_LAYER_H
 
-#include <mutex>
+#include "encode/parameter_encoder.h"
+#include "encode/trace_manager.h"
+#include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-#include "util/defines.h"
-#include "encode/parameter_encoder.h"
-#include "encode/trace_manager.h"
+#include <mutex>
 
 #if defined(CreateSemaphore)
 #undef CreateSemaphore

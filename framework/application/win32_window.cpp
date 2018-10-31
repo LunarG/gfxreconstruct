@@ -15,14 +15,14 @@
 ** limitations under the License.
 */
 
-#include <cassert>
-#include <cstdlib>
-#include <limits>
+#include "application/win32_window.h"
+#include "util/logging.h"
 
 #include "volk.h"
 
-#include "util/logging.h"
-#include "application/win32_window.h"
+#include <cassert>
+#include <cstdlib>
+#include <limits>
 
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(application)
