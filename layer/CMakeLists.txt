@@ -14,7 +14,7 @@ target_sources(brimstone_layer
 
 target_include_directories(brimstone_layer
                            PUBLIC
-                               $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
+                               ${CMAKE_SOURCE_DIR})
 
 target_link_libraries(brimstone_layer brimstone_encode brimstone_format brimstone_util vulkan_registry platform_specific)
 
