@@ -18,7 +18,6 @@ target_sources(brimstone_encode
 
 target_include_directories(brimstone_encode
                            PUBLIC
-                               ${CMAKE_SOURCE_DIR}
                                ${CMAKE_SOURCE_DIR}/framework)
 
 target_link_libraries(brimstone_encode brimstone_format brimstone_util vulkan_registry platform_specific)
