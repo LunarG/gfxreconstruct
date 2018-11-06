@@ -26,6 +26,10 @@
 #include <cstring>
 #include <cstdio>
 
+#if defined(__ANDROID__)
+#include <android/log.h>
+#endif
+
 BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 BRIMSTONE_BEGIN_NAMESPACE(util)
 BRIMSTONE_BEGIN_NAMESPACE(logging)
@@ -181,13 +185,16 @@ LogMessage(Severity severity, const char* file, const char* function, const char
     FILE* log_file_ptr;
 
     // Log message prefix
-    std::string prefix = "";
+    const char  process_tag[] = "Brimstone";
+    std::string prefix        = "";
 
     // If this is a "console write" always output style string, we don't want any
     // decorations before the string.
     if (severity != kNoWritePrefix)
     {
-        prefix += "[Brimstone] ";
+        prefix += "[";
+        prefix += process_tag;
+        prefix += "] ";
         prefix += SeverityToString(severity);
         if (g_settings.output_detailed_log_info)
         {
@@ -204,6 +211,7 @@ LogMessage(Severity severity, const char* file, const char* function, const char
 
     for (uint32_t output_target = 0; output_target < 2; ++output_target)
     {
+        bool write_prefix_and_indents = (severity != kNoWritePrefix);
         switch (output_target)
         {
             case 0: // Output to console
@@ -212,6 +220,10 @@ LogMessage(Severity severity, const char* file, const char* function, const char
                     continue;
                 }
 
+#if defined(__ANDROID__)
+                // Never add prefixes or indents for the Android console logging.
+                write_prefix_and_indents = false;
+#else  // !__ANDROID__
                 if (kErrorSeverity <= severity && g_settings.output_errors_to_stderr)
                 {
                     log_file_ptr = stderr;
@@ -220,6 +232,7 @@ LogMessage(Severity severity, const char* file, const char* function, const char
                 {
                     log_file_ptr = stdout;
                 }
+#endif // !__ANDROID__
                 break;
 
             case 1: // Output to file
@@ -249,9 +262,7 @@ LogMessage(Severity severity, const char* file, const char* function, const char
             continue;
         }
 
-        // Again, if this is a "console write" always output style string, we don't want any
-        // decorations beforehand.  Including index spaces.
-        if (severity != kNoWritePrefix)
+        if (write_prefix_and_indents)
         {
             platform::FilePuts(prefix.c_str(), log_file_ptr);
             if (write_indent)
@@ -268,23 +279,53 @@ LogMessage(Severity severity, const char* file, const char* function, const char
         std::string generated_string = ConvertFormatVaListToString(message, valist);
         va_end(valist);
 
-#ifdef WIN32
-        if (g_settings.output_to_win_debug_string)
+#if defined(WIN32)
+        // Console output on Windows should be sent to OutputDebugString
+        // whenever the user requests it.
+        if (output_target == 0 && g_settings.output_to_win_debug_string)
         {
             OutputDebugStringA(generated_string.c_str());
         }
-#endif // WIN32
-
-        platform::FilePuts(generated_string.c_str(), log_file_ptr);
-        platform::FilePuts("\n", log_file_ptr);
-
-        if (g_settings.flush_after_write)
+        else
+#elif defined(__ANDROID__)
+        // Console output for Android always needs to be sent to Logcat.
+        if (output_target == 0)
         {
-            platform::FileFlush(log_file_ptr);
+            switch (severity)
+            {
+                case kDebugSeverity:
+                    __android_log_print(ANDROID_LOG_DEBUG, process_tag, "%s", generated_string.c_str());
+                    break;
+                case kInfoSeverity:
+                    __android_log_print(ANDROID_LOG_INFO, process_tag, "%s", generated_string.c_str());
+                    break;
+                case kWarningSeverity:
+                    __android_log_print(ANDROID_LOG_WARN, process_tag, "%s", generated_string.c_str());
+                    break;
+                case kErrorSeverity:
+                    __android_log_print(ANDROID_LOG_ERROR, process_tag, "%s", generated_string.c_str());
+                    break;
+                case kFatalSeverity:
+                    __android_log_print(ANDROID_LOG_FATAL, process_tag, "%s", generated_string.c_str());
+                    break;
+                default:
+                    __android_log_print(ANDROID_LOG_VERBOSE, process_tag, "%s", generated_string.c_str());
+                    break;
+            }
         }
-        if (output_target == 1 && opened_file && !g_settings.leave_file_open)
+        else
+#endif // __ANDROID__
         {
-            platform::FileClose(log_file_ptr);
+            platform::FilePuts(generated_string.c_str(), log_file_ptr);
+            platform::FilePuts("\n", log_file_ptr);
+            if (g_settings.flush_after_write)
+            {
+                platform::FileFlush(log_file_ptr);
+            }
+            if (output_target == 1 && opened_file && !g_settings.leave_file_open)
+            {
+                platform::FileClose(log_file_ptr);
+            }
         }
     }
 
