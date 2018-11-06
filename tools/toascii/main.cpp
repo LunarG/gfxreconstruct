@@ -60,11 +60,6 @@ int main(int argc, const char** argv)
         filename = non_optional_arguments[0];
     }
 
-    if (argc > 1)
-    {
-        filename = argv[1];
-    }
-
     std::string text_file_name = filename;
     size_t      suffix_pos     = text_file_name.find(GFXRECON_FILE_EXTENSION);
     if (suffix_pos != std::string::npos)

@@ -69,26 +69,24 @@ int main(int argc, const char** argv)
     }
     else
     {
-        input_file_name  = non_optional_arguments[0];
-        output_file_name = non_optional_arguments[1];
-        if (non_optional_arguments[2] == "NONE")
+        input_file_name        = non_optional_arguments[0];
+        output_file_name       = non_optional_arguments[1];
+        dst_compression_string = non_optional_arguments[2];
+        if (dst_compression_string != "NONE")
         {
-            // Nothing to do here.
-        }
-        else if (non_optional_arguments[2] == "LZ4")
-        {
-            compression_type       = gfxrecon::format::CompressionType::kLz4;
-            dst_compression_string = non_optional_arguments[2];
-        }
-        else if (non_optional_arguments[2] == "LZ77")
-        {
-            compression_type       = gfxrecon::format::CompressionType::kLz77;
-            dst_compression_string = non_optional_arguments[2];
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Unsupported compression format \'%s\'", non_optional_arguments[2].c_str());
-            print_usage = true;
+            if (dst_compression_string == "LZ4")
+            {
+                compression_type = gfxrecon::format::CompressionType::kLz4;
+            }
+            else if (dst_compression_string == "LZ77")
+            {
+                compression_type = gfxrecon::format::CompressionType::kLz77;
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Unsupported compression format \'%s\'", non_optional_arguments[2].c_str());
+                print_usage = true;
+            }
         }
     }
 
@@ -97,7 +95,6 @@ int main(int argc, const char** argv)
         PrintUsage(argv[0]);
         exit(-1);
     }
-
     if (file_processor.Initialize(input_file_name))
     {
         gfxrecon::decode::CompressionConverter decoder;
