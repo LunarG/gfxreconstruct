@@ -29,4 +29,5 @@ target_link_libraries(VkLayer_brimstone
                       brimstone_format
                       brimstone_util
                       vulkan_registry
-                      platform_specific)
+                      platform_specific
+                      log)
