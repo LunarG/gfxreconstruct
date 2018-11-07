@@ -67,14 +67,12 @@ int main(int argc, const char** argv)
 
     std::string text_file_name = filename;
     size_t      suffix_pos     = text_file_name.find(BRIMSTONE_FILE_EXTENSION);
-    if (suffix_pos == std::string::npos)
+    if (suffix_pos != std::string::npos)
     {
-        text_file_name += ".txt";
+        text_file_name = text_file_name.substr(0, suffix_pos);
     }
-    else
-    {
-        text_file_name.replace(suffix_pos, 4, ".txt");
-    }
+
+    text_file_name += ".txt";
 
     if (file_processor.Initialize(filename))
     {
