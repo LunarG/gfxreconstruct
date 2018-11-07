@@ -18,16 +18,15 @@
 #include "application/application.h"
 #include "decode/file_processor.h"
 #include "decode/window.h"
-#include "format/format.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
 
-#include <cstdio>
 #include <exception>
 #include <memory>
 #include <string>
+#include <vector>
 
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -69,8 +68,6 @@ int main(int argc, const char** argv)
 
     brimstone::util::logging::Init();
 
-    brimstone::decode::FileProcessor file_processor;
-    std::string                      filename;
 
     brimstone::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
     const std::vector<std::string>  non_optional_arguments = arg_parser.GetNonOptionalArguments();
@@ -81,10 +78,11 @@ int main(int argc, const char** argv)
     }
     else
     {
-        filename = non_optional_arguments[0];
+        std::string filename = non_optional_arguments[0];
 
         try
         {
+            brimstone::decode::FileProcessor                     file_processor;
             std::unique_ptr<brimstone::application::Application> application;
             std::unique_ptr<brimstone::decode::WindowFactory>    window_factory;
 
