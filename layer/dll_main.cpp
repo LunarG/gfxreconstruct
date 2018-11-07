@@ -66,4 +66,4 @@ __attribute__((destructor)) static void destroy_trace_layer()
     brimstone::destroy_layer();
 }
 
-#endif
+#endif // WIN32
