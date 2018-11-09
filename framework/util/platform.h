@@ -241,12 +241,20 @@ inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
 
 inline size_t FileWriteNoLock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
+#if defined(__ANDROID__) && (__ANDROID_API__ < 28)
+    return fwrite(buffer, element_size, element_count, stream);
+#else
     return fwrite_unlocked(buffer, element_size, element_count, stream);
+#endif
 }
 
 inline size_t FileReadNoLock(void* buffer, size_t element_size, size_t element_count, FILE* stream)
 {
+#if defined(__ANDROID__) && (__ANDROID_API__ < 28)
+    return fread(buffer, element_size, element_count, stream);
+#else
     return fread_unlocked(buffer, element_size, element_count, stream);
+#endif
 }
 
 inline int32_t FileVprintf(FILE* stream, const char* format, va_list vlist)

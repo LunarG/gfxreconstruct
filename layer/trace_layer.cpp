@@ -86,8 +86,11 @@ bool init_layer()
 
     // TODO: load settings from file.
     format::EnabledOptions options;
-    std::string            binary_file_name = "./brimstone_out";
-    binary_file_name += BRIMSTONE_FILE_EXTENSION;
+#if defined(__ANDROID__)
+    std::string binary_file_name = "/sdcard/captures/brimstone_out" BRIMSTONE_FILE_EXTENSION;
+#else
+    std::string binary_file_name = "./brimstone_out" BRIMSTONE_FILE_EXTENSION;
+#endif
 
 #if defined(ENABLE_LZ4_COMPRESSION)
     options.compression_type = format::CompressionType::kLz4;
