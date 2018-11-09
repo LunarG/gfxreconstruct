@@ -82,7 +82,8 @@ class ParameterEncoder
     void EncodeSizeTPtr(const size_t* ptr, bool omit_addr = false, bool omit_data = false)                            { EncodePointerConverted<format::SizeTEncodeType>(ptr, omit_addr, omit_data); }
 
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
-    void EncodeVoidPtrPtr(const void* const* ptr, bool omit_addr = false, bool omit_data = false)                     { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_addr, omit_data); }
+    template<typename T>
+    void EncodeVoidPtrPtr(const T* const* ptr, bool omit_addr = false, bool omit_data = false)                        { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_addr, omit_data); }
 
     template<typename T>
     void EncodeHandleIdPtr(const T* ptr, bool omit_addr = false, bool omit_data = false)                              { EncodePointerConverted<format::HandleEncodeType>(ptr, omit_addr, omit_data); }
