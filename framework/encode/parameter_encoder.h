@@ -293,7 +293,7 @@ class ParameterEncoder
                 for (size_t i = 0; i < len; ++i)
                 {
                     DstT converted = TypeCast<DstT>(arr[i]);
-                    fwrite(&converted, sizeof(DstT), 1, stdout);
+                    output_stream_->Write(&converted, sizeof(DstT));
                 }
             }
         }
