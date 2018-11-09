@@ -518,6 +518,15 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
     }
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(VkInstance                           instance,
+                                                                   const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
+                                                                   const VkAllocationCallbacks*         pAllocator,
+                                                                   VkSurfaceKHR*                        pSurface)
+{
+    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    return CreateSurface(instance, pCreateInfo->flags, pSurface);
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(VkInstance                         instance,
                                                                  const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
                                                                  const VkAllocationCallbacks*       pAllocator,

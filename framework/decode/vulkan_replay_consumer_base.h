@@ -208,6 +208,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
+    VkResult OverrideCreateAndroidSurfaceKHR(VkInstance                           instance,
+                                             const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
+                                             const VkAllocationCallbacks*         pAllocator,
+                                             VkSurfaceKHR*                        pSurface);
+
     VkResult OverrideCreateWin32SurfaceKHR(VkInstance                         instance,
                                            const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
                                            const VkAllocationCallbacks*       pAllocator,
@@ -416,6 +421,21 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         {
             BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateDescriptorUpdateTemplate(func, args...);
+        }
+    };
+
+    template <typename Ret, typename Pfn>
+    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR, Ret, Pfn>
+    {
+        template <typename... Args>
+        static Ret Dispatch(VulkanReplayConsumerBase*     consumer,
+                            VkResult                      original_result,
+                            PFN_vkCreateAndroidSurfaceKHR func,
+                            Args... args)
+        {
+            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            return consumer->OverrideCreateAndroidSurfaceKHR(args...);
         }
     };
 
