@@ -289,6 +289,22 @@ VkResult VulkanReplayConsumerBase::OverrideCreateInstance(const VkInstanceCreate
     modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(filtered_extensions.size());
     modified_create_info.ppEnabledExtensionNames = filtered_extensions.data();
 
+    // Disable layers; any layers needed for replay should be enabled for the replay app with the VK_INSTANCE_LAYERS
+    // environment variable or debug.vulkan.layers Android property.
+    if (modified_create_info.enabledLayerCount > 0)
+    {
+        BRIMSTONE_LOG_INFO(
+            "Replay has removed the following layers from VkInstanceCreateInfo when calling vkCreateInstance:");
+
+        for (uint32_t i = 0; i < modified_create_info.enabledLayerCount; ++i)
+        {
+            BRIMSTONE_LOG_INFO("\t%s", modified_create_info.ppEnabledLayerNames[i]);
+        }
+
+        modified_create_info.enabledLayerCount   = 0;
+        modified_create_info.ppEnabledLayerNames = nullptr;
+    }
+
     VkResult result = vkCreateInstance(&modified_create_info, pAllocator, pInstance);
 
     if ((pInstance != nullptr) && (result == VK_SUCCESS))
