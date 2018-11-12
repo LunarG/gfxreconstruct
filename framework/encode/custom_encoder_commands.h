@@ -157,6 +157,18 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdate
     }
 };
 
+#if defined(__ANDROID__)
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_GetPhysicalDeviceSurfacePresentModesKHR(args...);
+    }
+};
+#endif
+
 BRIMSTONE_END_NAMESPACE(encode)
 BRIMSTONE_END_NAMESPACE(brimstone)
 
