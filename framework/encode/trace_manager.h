@@ -136,6 +136,14 @@ class TraceManager
                                                          VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
                                                          const VkAllocationCallbacks* pAllocator);
 
+#if defined(__ANDROID__)
+    void PreProcess_GetPhysicalDeviceSurfacePresentModesKHR(VkResult          result,
+                                                            VkPhysicalDevice  physicalDevice,
+                                                            VkSurfaceKHR      surface,
+                                                            uint32_t*         pPresentModeCount,
+                                                            VkPresentModeKHR* pPresentModes);
+#endif
+
   protected:
     TraceManager() : memory_tracking_mode_(MemoryTrackingMode::kUnassisted) {}
 
