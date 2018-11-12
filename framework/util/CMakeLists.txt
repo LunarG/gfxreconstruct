@@ -20,6 +20,8 @@ target_sources(brimstone_util
                    page_guard_manager.cpp
                    page_status_tracker.h
                    platform.h
+                   date_time.h
+                   file_path.h
               )
 
 target_compile_definitions(brimstone_util
