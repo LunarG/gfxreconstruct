@@ -23,6 +23,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <ctime>
 #include <cwchar>
 #include <thread>
 
@@ -145,6 +146,16 @@ inline int32_t FileVprintf(FILE* stream, const char* format, va_list vlist)
     return vfprintf_s(stream, format, vlist);
 }
 
+inline int32_t LocalTime(tm* local_time, const time_t* timer)
+{
+    return static_cast<int32_t>(localtime_s(local_time, timer));
+}
+
+inline int32_t GMTime(tm* gm_time, const time_t* timer)
+{
+    return static_cast<int32_t>(gmtime_s(gm_time, timer));
+}
+
 #else // !defined(WIN32)
 
 // Error value indicating string was truncated
@@ -260,6 +271,34 @@ inline size_t FileReadNoLock(void* buffer, size_t element_size, size_t element_c
 inline int32_t FileVprintf(FILE* stream, const char* format, va_list vlist)
 {
     return vfprintf(stream, format, vlist);
+}
+
+inline int32_t LocalTime(tm* local_time, const time_t* timer)
+{
+    tm* result = localtime(timer);
+    if (result != nullptr)
+    {
+        memcpy(local_time, result, sizeof(tm));
+        return 0;
+    }
+    else
+    {
+        return errno;
+    }
+}
+
+inline int32_t GMTime(tm* gm_time, const time_t* timer)
+{
+    tm* result = gmtime(timer);
+    if (result != nullptr)
+    {
+        memcpy(gm_time, result, sizeof(tm));
+        return 0;
+    }
+    else
+    {
+        return errno;
+    }
 }
 
 #endif // WIN32
