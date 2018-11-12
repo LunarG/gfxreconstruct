@@ -272,7 +272,7 @@ void PageGuardManager::SetExceptionHandler()
         sa.sa_sigaction = PageGuardExceptionHandler;
         if (sigaction(SIGSEGV, &sa, &g_old_sigaction) == -1)
         {
-            BRIMSTONE_LOG_ERROR("PageGuardManager failed to register exception handler (errno= %d", errno);
+            BRIMSTONE_LOG_ERROR("PageGuardManager failed to register exception handler (errno = %d)", errno);
         }
         else
         {
@@ -365,7 +365,7 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
 
         BRIMSTONE_LOG_ERROR(
             "PageGuardManager failed to enable page guard for memory region [start address = %p, size = %" PRIu64
-            "] (VirtualProtect() produced error code %d)",
+            "] (mprotect() produced error code %d)",
             protect_address,
             protect_size,
             errno);
@@ -461,7 +461,7 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
     {
         BRIMSTONE_LOG_ERROR(
             "PageGuardManager failed to reset write watch for memory region [start address = %p, size = %" PRIu64
-            "] (GetWriteWatch() produced error code %u)",
+            "] (ResetWriteWatch() produced error code %u)",
             start_address,
             page_range,
             GetLastError());
