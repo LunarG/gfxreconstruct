@@ -1,8 +1,8 @@
-add_executable(gcaptoascii "")
+add_executable(gfxrecon-toascii "")
 
-target_sources(gcaptoascii
+target_sources(gfxrecon-toascii
                PRIVATE
                    main.cpp
               )
 
-target_link_libraries(gcaptoascii brimstone_decode brimstone_format brimstone_util platform_specific)
+target_link_libraries(gfxrecon-toascii gfxrecon_decode gfxrecon_format gfxrecon_util platform_specific)

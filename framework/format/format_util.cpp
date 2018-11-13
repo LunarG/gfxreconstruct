@@ -21,17 +21,16 @@
 #include "util/lz4_compressor.h"
 #include "util/lz77_compressor.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(format)
 
 bool ValidateFileHeader(const FileHeader& header)
 {
     bool valid = true;
 
-    if (header.fourcc != BRIMSTONE_FOURCC)
+    if (header.fourcc != GFXRECON_FOURCC)
     {
-        BRIMSTONE_LOG_ERROR(
-            "Invalid file: File header does not contain the expected unrecognized four character code.");
+        GFXRECON_LOG_ERROR("Invalid file: File header does not contain the expected unrecognized four character code.");
         valid = false;
     }
 
@@ -60,7 +59,7 @@ util::Compressor* CreateCompressor(CompressionType type)
             // Nothing to do here.
             break;
         default:
-            BRIMSTONE_LOG_ERROR("Unsupported compression format %d", type);
+            GFXRECON_LOG_ERROR("Unsupported compression format %d", type);
             assert(false);
             break;
     }
@@ -68,5 +67,5 @@ util::Compressor* CreateCompressor(CompressionType type)
     return compressor;
 }
 
-BRIMSTONE_END_NAMESPACE(format)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(format)
+GFXRECON_END_NAMESPACE(gfxrecon)

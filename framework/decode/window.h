@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_WINDOW_H
-#define BRIMSTONE_DECODE_WINDOW_H
+#ifndef GFXRECON_DECODE_WINDOW_H
+#define GFXRECON_DECODE_WINDOW_H
 
 #include "util/defines.h"
 
@@ -24,8 +24,8 @@
 
 #include <string>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class Window
 {
@@ -72,7 +72,7 @@ class WindowFactory
                                                           uint32_t         queue_family_index) = 0;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_WINDOW_H
+#endif // GFXRECON_DECODE_WINDOW_H

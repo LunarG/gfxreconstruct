@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_TRACE_LAYER_H
-#define BRIMSTONE_TRACE_LAYER_H
+#ifndef GFXRECON_TRACE_LAYER_H
+#define GFXRECON_TRACE_LAYER_H
 
 #include "encode/parameter_encoder.h"
 #include "encode/trace_manager.h"
@@ -34,7 +34,7 @@
 #endif
 #include "layer/vk_layer_dispatch_table.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 extern std::mutex g_create_destroy_mutex;
 
@@ -70,6 +70,6 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
                                const VkAllocationCallbacks* pAllocator,
                                VkDevice*                    pDevice);
 
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_TRACE_LAYER_H
+#endif // GFXRECON_TRACE_LAYER_H

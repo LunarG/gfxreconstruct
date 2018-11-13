@@ -15,14 +15,14 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
-#define BRIMSTONE_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
+#ifndef GFXRECON_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
+#define GFXRECON_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
 
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice                   device,
                                                            VkDescriptorSet            descriptorSet,
@@ -46,6 +46,6 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
                                                   const VkObjectTableEntryNVX* const* ppObjectTableEntries,
                                                   const uint32_t*                     pObjectIndices);
 
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
+#endif // GFXRECON_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H

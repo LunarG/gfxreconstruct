@@ -16,16 +16,16 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_PAGE_STATUS_TRACKER_H
-#define BRIMSTONE_UTIL_PAGE_STATUS_TRACKER_H
+#ifndef GFXRECON_UTIL_PAGE_STATUS_TRACKER_H
+#define GFXRECON_UTIL_PAGE_STATUS_TRACKER_H
 
 #include "util/defines.h"
 
 #include <cstdint>
 #include <vector>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 class PageStatusTracker
 {
@@ -53,7 +53,7 @@ class PageStatusTracker
     PageStatus page_loaded_;   //< Tracks status of pages that have or have not been previously used.
 };
 
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_UTIL_PAGE_STATUS_TRACKER_H
+#endif // GFXRECON_UTIL_PAGE_STATUS_TRACKER_H

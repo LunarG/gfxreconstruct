@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_NVX_H
-#define BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_NVX_H
+#ifndef GFXRECON_DECODE_STRUCT_POINTER_DECODER_NVX_H
+#define GFXRECON_DECODE_STRUCT_POINTER_DECODER_NVX_H
 
 #include "decode/struct_pointer_decoder.h"
 
@@ -32,8 +32,8 @@
 #include <cassert>
 #include <memory>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 template <>
 class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecoderBase
@@ -87,8 +87,8 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
             assert(struct_memory_ == nullptr);
 
             size_t len         = GetLength();
-            decoded_structs_   = std::make_unique<Decoded_VkObjectTableEntryNVX* []>(len);
-            struct_memory_     = std::make_unique<VkObjectTableEntryNVX* []>(len);
+            decoded_structs_   = std::make_unique<Decoded_VkObjectTableEntryNVX*[]>(len);
+            struct_memory_     = std::make_unique<VkObjectTableEntryNVX*[]>(len);
             struct_attributes_ = std::make_unique<uint32_t[]>(len);
             struct_addresses_  = std::make_unique<uint64_t[]>(len);
 
@@ -191,13 +191,13 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
     }
 
   private:
-    std::unique_ptr<Decoded_VkObjectTableEntryNVX* []> decoded_structs_;
-    std::unique_ptr<VkObjectTableEntryNVX* []>         struct_memory_;
-    std::unique_ptr<uint32_t[]>                        struct_attributes_;
-    std::unique_ptr<uint64_t[]>                        struct_addresses_;
+    std::unique_ptr<Decoded_VkObjectTableEntryNVX*[]> decoded_structs_;
+    std::unique_ptr<VkObjectTableEntryNVX*[]>         struct_memory_;
+    std::unique_ptr<uint32_t[]>                       struct_attributes_;
+    std::unique_ptr<uint64_t[]>                       struct_addresses_;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_STRUCT_POINTER_DECODER_NVX_H
+#endif // GFXRECON_DECODE_STRUCT_POINTER_DECODER_NVX_H

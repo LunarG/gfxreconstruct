@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_VULKAN_ASCII_CONSUMER_BASE_H
-#define BRIMSTONE_DECODE_VULKAN_ASCII_CONSUMER_BASE_H
+#ifndef GFXRECON_DECODE_VULKAN_ASCII_CONSUMER_BASE_H
+#define GFXRECON_DECODE_VULKAN_ASCII_CONSUMER_BASE_H
 
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
@@ -27,8 +27,8 @@
 #include <cstdio>
 #include <string>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class VulkanAsciiConsumerBase : public VulkanConsumer
 {
@@ -77,7 +77,7 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
     std::string m_filename;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_VULKAN_ASCII_CONSUMER_BASE_H
+#endif // GFXRECON_DECODE_VULKAN_ASCII_CONSUMER_BASE_H

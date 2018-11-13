@@ -15,13 +15,13 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_LZ77_COMPRESSOR_H
-#define BRIMSTONE_UTIL_LZ77_COMPRESSOR_H
+#ifndef GFXRECON_UTIL_LZ77_COMPRESSOR_H
+#define GFXRECON_UTIL_LZ77_COMPRESSOR_H
 
 #include "util/compressor.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 class Lz77Compressor : public Compressor
 {
@@ -40,7 +40,7 @@ class Lz77Compressor : public Compressor
                               std::vector<uint8_t>*       uncompressed_data) override;
 };
 
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_UTIL_LZ77_COMPRESSOR_H
+#endif // GFXRECON_UTIL_LZ77_COMPRESSOR_H

@@ -34,8 +34,8 @@
 
 #include <cstddef>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 size_t VulkanDecoder::Decode_vkCreateInstance(const uint8_t* parameter_buffer, size_t buffer_size)
 {
@@ -8245,5 +8245,5 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
 }
 
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)

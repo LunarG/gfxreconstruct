@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
-#define BRIMSTONE_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
+#ifndef GFXRECON_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
+#define GFXRECON_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
 
 #include "decode/pointer_decoder_base.h"
 #include "format/format.h"
@@ -25,8 +25,8 @@
 
 #include <memory>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
 {
@@ -67,7 +67,7 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     VkBufferView*                                     texel_buffer_views_;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
+#endif // GFXRECON_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H

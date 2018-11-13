@@ -19,8 +19,8 @@
 
 #include "util/platform.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanAsciiConsumerBase::VulkanAsciiConsumerBase() : m_file(nullptr) {}
 
@@ -59,10 +59,10 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format::
                                                                         format::HandleId descriptorUpdateTemplate,
                                                                         const DescriptorUpdateTemplateDecoder& pData)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(descriptorSet);
-    BRIMSTONE_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pData);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(descriptorSet);
+    GFXRECON_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
+    GFXRECON_UNREFERENCED_PARAMETER(pData);
     fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplate");
 }
 
@@ -73,11 +73,11 @@ void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     uint32_t                               set,
     const DescriptorUpdateTemplateDecoder& pData)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(commandBuffer);
-    BRIMSTONE_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
-    BRIMSTONE_UNREFERENCED_PARAMETER(layout);
-    BRIMSTONE_UNREFERENCED_PARAMETER(set);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pData);
+    GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
+    GFXRECON_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
+    GFXRECON_UNREFERENCED_PARAMETER(layout);
+    GFXRECON_UNREFERENCED_PARAMETER(set);
+    GFXRECON_UNREFERENCED_PARAMETER(pData);
     fprintf(m_file, "%s\n", "vkCmdPushDescriptorSetWithTemplateKHR");
 }
 
@@ -86,10 +86,10 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(forma
                                                                            format::HandleId descriptorUpdateTemplate,
                                                                            const DescriptorUpdateTemplateDecoder& pData)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(descriptorSet);
-    BRIMSTONE_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pData);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(descriptorSet);
+    GFXRECON_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
+    GFXRECON_UNREFERENCED_PARAMETER(pData);
     fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplateKHR");
 }
 
@@ -101,14 +101,14 @@ void VulkanAsciiConsumerBase::Process_vkRegisterObjectsNVX(
     const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
     const PointerDecoder<uint32_t>&                            pObjectIndices)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(returnValue);
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(objectTable);
-    BRIMSTONE_UNREFERENCED_PARAMETER(objectCount);
-    BRIMSTONE_UNREFERENCED_PARAMETER(ppObjectTableEntries);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pObjectIndices);
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(objectTable);
+    GFXRECON_UNREFERENCED_PARAMETER(objectCount);
+    GFXRECON_UNREFERENCED_PARAMETER(ppObjectTableEntries);
+    GFXRECON_UNREFERENCED_PARAMETER(pObjectIndices);
     fprintf(m_file, "%s\n", "vkRegisterObjectsNVX");
 }
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)

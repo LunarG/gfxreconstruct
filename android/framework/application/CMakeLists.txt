@@ -1,24 +1,24 @@
-add_library(brimstone_application STATIC "")
+add_library(gfxrecon_application STATIC "")
 
-target_sources(brimstone_application
+target_sources(gfxrecon_application
                PRIVATE
-                   ${BRIMSTONE_SOURCE_DIR}/framework/application/android_application.h
-                   ${BRIMSTONE_SOURCE_DIR}/framework/application/android_application.cpp
-                   ${BRIMSTONE_SOURCE_DIR}/framework/application/android_window.h
-                   ${BRIMSTONE_SOURCE_DIR}/framework/application/android_window.cpp
-                   ${BRIMSTONE_SOURCE_DIR}/framework/application/application.h
-                   ${BRIMSTONE_SOURCE_DIR}/framework/application/application.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/application/android_application.h
+                   ${GFXRECON_SOURCE_DIR}/framework/application/android_application.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/application/android_window.h
+                   ${GFXRECON_SOURCE_DIR}/framework/application/android_window.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/application/application.h
+                   ${GFXRECON_SOURCE_DIR}/framework/application/application.cpp
               )
 
-target_include_directories(brimstone_application
+target_include_directories(gfxrecon_application
                            PUBLIC
-                               ${BRIMSTONE_SOURCE_DIR}/framework
+                               ${GFXRECON_SOURCE_DIR}/framework
                                ${ANDROID_NDK}/sources/android/native_app_glue)
 
-target_link_libraries(brimstone_application
-                      brimstone_decode
-                      brimstone_format
-                      brimstone_util
+target_link_libraries(gfxrecon_application
+                      gfxrecon_decode
+                      gfxrecon_format
+                      gfxrecon_util
                       volk
                       vulkan_registry
                       platform_specific)

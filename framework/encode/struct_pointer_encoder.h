@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_ENCODE_STRUCT_POINTER_ENCODER_H
-#define BRIMSTONE_ENCODE_STRUCT_POINTER_ENCODER_H
+#ifndef GFXRECON_ENCODE_STRUCT_POINTER_ENCODER_H
+#define GFXRECON_ENCODE_STRUCT_POINTER_ENCODER_H
 
 #include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/parameter_encoder.h"
@@ -24,8 +24,8 @@
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "util/defines.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 template <typename T>
 void encode_struct_ptr(ParameterEncoder* encoder, const T* value)
@@ -50,7 +50,7 @@ void encode_struct_array(ParameterEncoder* encoder, const T* value, size_t len)
     }
 }
 
-BRIMSTONE_END_NAMESPACE(encode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_ENCODE_STRUCT_POINTER_ENCODER_H
+#endif // GFXRECON_ENCODE_STRUCT_POINTER_ENCODER_H

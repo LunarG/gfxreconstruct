@@ -26,8 +26,8 @@
 
 #include <cassert>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 std::mutex                                             TraceManager::ThreadData::count_lock_;
 uint32_t                                               TraceManager::ThreadData::thread_count_ = 0;
@@ -78,24 +78,24 @@ void TraceManager::Create()
         format::EnabledOptions options;
         MemoryTrackingMode     mode = encode::TraceManager::kPageGuard;
 #if defined(__ANDROID__)
-        std::string filename = "/sdcard/captures/brimstone_out" BRIMSTONE_FILE_EXTENSION;
+        std::string filename = "/sdcard/captures/gfxrecon_out" GFXRECON_FILE_EXTENSION;
 #else
-        std::string filename = "./brimstone_out" BRIMSTONE_FILE_EXTENSION;
+        std::string filename = "./gfxrecon_out" GFXRECON_FILE_EXTENSION;
 #endif
 
 #if defined(ENABLE_LZ4_COMPRESSION)
         options.compression_type = format::CompressionType::kLz4;
 #endif
 
-        // Check to see if there's an environment variable overriding the default binary location value.
-        std::string env_variable = brimstone::util::platform::GetEnv("BRIMSTONE_BINARY_FILE");
+        // Check to see if there's an environment variable overriding the default capture location value.
+        std::string env_variable = gfxrecon::util::platform::GetEnv("GFXRECON_CAPTURE_FILE");
         if (!env_variable.empty())
         {
             filename = env_variable;
         }
 
         // Generate a filename that hopefully won't cause collisions.
-        filename = brimstone::util::filepath::GenerateTimestampedFilename(filename);
+        filename = gfxrecon::util::filepath::GenerateTimestampedFilename(filename);
 
         instance_    = new TraceManager();
         bool success = instance_->Initialize(filename, options, mode);
@@ -106,7 +106,7 @@ void TraceManager::Create()
         }
         else
         {
-            BRIMSTONE_LOG_FATAL("Failed to initialize TraceManager");
+            GFXRECON_LOG_FATAL("Failed to initialize TraceManager");
         }
     }
     else
@@ -288,7 +288,7 @@ void TraceManager::WriteFileHeader()
     BuildOptionList(file_options_, &option_list);
 
     format::FileHeader file_header;
-    file_header.fourcc        = BRIMSTONE_FOURCC;
+    file_header.fourcc        = GFXRECON_FOURCC;
     file_header.major_version = 1;
     file_header.minor_version = 0;
     file_header.num_options   = static_cast<uint32_t>(option_list.size());
@@ -350,7 +350,7 @@ void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, ui
 
 void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
-    BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
     format::FillMemoryCommandHeader fill_cmd;
     const uint8_t*                  write_address = (static_cast<const uint8_t*>(data) + offset);
@@ -407,7 +407,7 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
             const VkDescriptorUpdateTemplateEntry* entry = &create_info->pDescriptorUpdateEntries[i];
             VkDescriptorType                       type  = entry->descriptorType;
 
-            // Sort the descriptor update template info by type, so it can be written to the trace file
+            // Sort the descriptor update template info by type, so it can be written to the capture file
             // as tightly packed arrays of structures.  One array will be written for each descriptor info
             // structure/textel buffer view.
             if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) ||
@@ -473,9 +473,9 @@ void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        
                                                 const VkAllocationCallbacks*    pAllocator,
                                                 VkSwapchainKHR*                 pSwapchain)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pSwapchain);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pSwapchain);
 
     assert(pCreateInfo != nullptr);
 
@@ -491,8 +491,8 @@ void TraceManager::PostProcess_vkAllocateMemory(VkResult                     res
                                                 const VkAllocationCallbacks* pAllocator,
                                                 VkDeviceMemory*              pMemory)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
     if ((result == VK_SUCCESS) && (pAllocateInfo != nullptr) && (pMemory != nullptr))
     {
@@ -511,8 +511,8 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
                                            VkMemoryMapFlags flags,
                                            void**           ppData)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(flags);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
 
     // TODO: Get property flags and skip tracking for memory that is not host visible.
     if ((result == VK_SUCCESS) && (ppData != nullptr))
@@ -522,7 +522,7 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
 
         if ((info != nullptr) && (info->mapped_size > 0) && (memory_tracking_mode_ == kPageGuard))
         {
-            BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, info->mapped_size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, info->mapped_size);
 
             util::PageGuardManager* manager = util::PageGuardManager::Get();
 
@@ -538,7 +538,7 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
                                                         uint32_t                   memoryRangeCount,
                                                         const VkMappedMemoryRange* pMemoryRanges)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
 
     if ((memory_tracking_mode_ == MemoryTrackingMode::kAssisted) && (pMemoryRanges != nullptr))
     {
@@ -577,7 +577,7 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
 
 void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
 
     std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
@@ -617,8 +617,8 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
                                            VkDeviceMemory               memory,
                                            const VkAllocationCallbacks* pAllocator)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
     std::lock_guard<std::mutex> lock(memory_tracker_lock_);
     memory_tracker_.RemoveEntry(memory);
@@ -637,10 +637,10 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
                                             const VkSubmitInfo* pSubmits,
                                             VkFence             fence)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(queue);
-    BRIMSTONE_UNREFERENCED_PARAMETER(submitCount);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pSubmits);
-    BRIMSTONE_UNREFERENCED_PARAMETER(fence);
+    GFXRECON_UNREFERENCED_PARAMETER(queue);
+    GFXRECON_UNREFERENCED_PARAMETER(submitCount);
+    GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
+    GFXRECON_UNREFERENCED_PARAMETER(fence);
 
     if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
     {
@@ -674,8 +674,8 @@ void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplate(VkResult         
                                                                const VkAllocationCallbacks*                pAllocator,
                                                                VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
     if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pDescriptorUpdateTemplate != nullptr))
     {
@@ -690,8 +690,8 @@ void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkDescriptorUpdateTemplate*                 pDescriptorUpdateTemplate)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
     if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pDescriptorUpdateTemplate != nullptr))
     {
@@ -703,8 +703,8 @@ void TraceManager::PreProcess_vkDestroyDescriptorUpdateTemplate(VkDevice        
                                                                 VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
                                                                 const VkAllocationCallbacks* pAllocator)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
     RemoveDescriptorUpdateTemplate(descriptorUpdateTemplate);
 }
@@ -713,8 +713,8 @@ void TraceManager::PreProcess_vkDestroyDescriptorUpdateTemplateKHR(VkDevice     
                                                                    VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                                    const VkAllocationCallbacks* pAllocator)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
     RemoveDescriptorUpdateTemplate(descriptorUpdateTemplate);
 }
@@ -726,8 +726,8 @@ void TraceManager::PreProcess_GetPhysicalDeviceSurfacePresentModesKHR(VkResult  
                                                                       uint32_t*         pPresentModeCount,
                                                                       VkPresentModeKHR* pPresentModes)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(physicalDevice);
-    BRIMSTONE_UNREFERENCED_PARAMETER(surface);
+    GFXRECON_UNREFERENCED_PARAMETER(physicalDevice);
+    GFXRECON_UNREFERENCED_PARAMETER(surface);
 
     if ((result == VK_SUCCESS) && (pPresentModeCount != nullptr) && ((*pPresentModeCount) > 0) &&
         (pPresentModes != nullptr))
@@ -740,5 +740,5 @@ void TraceManager::PreProcess_GetPhysicalDeviceSurfacePresentModesKHR(VkResult  
 }
 #endif
 
-BRIMSTONE_END_NAMESPACE(encode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(gfxrecon)

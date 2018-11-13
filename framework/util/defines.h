@@ -19,29 +19,29 @@
 #include <cstdint>
 #include <limits>
 
-#ifndef BRIMSTONE_UTIL_DEFINES_H
-#define BRIMSTONE_UTIL_DEFINES_H
+#ifndef GFXRECON_UTIL_DEFINES_H
+#define GFXRECON_UTIL_DEFINES_H
 
 #if defined(_WIN64) || defined(__LP64__)
-#define BRIMSTONE_ARCH64
+#define GFXRECON_ARCH64
 #endif
 
-#define BRIMSTONE_BEGIN_NAMESPACE(x) \
-    namespace x                      \
+#define GFXRECON_BEGIN_NAMESPACE(x) \
+    namespace x                     \
     {
-#define BRIMSTONE_END_NAMESPACE(x) }
+#define GFXRECON_END_NAMESPACE(x) }
 
-#define BRIMSTONE_UNREFERENCED_PARAMETER(x) ((void)x)
+#define GFXRECON_UNREFERENCED_PARAMETER(x) ((void)x)
 
 // Use two macros for the x is a macro case, to ensure macro expansion is applied to x prior to string conversion.
-#define BRIMSTONE_STR_EXPAND(x) #x
-#define BRIMSTONE_STR(x) BRIMSTONE_STR_EXPAND(x)
+#define GFXRECON_STR_EXPAND(x) #x
+#define GFXRECON_STR(x) GFXRECON_STR_EXPAND(x)
 
-#define BRIMSTONE_MAKE_FOURCC(c0, c1, c2, c3)                                                           \
+#define GFXRECON_MAKE_FOURCC(c0, c1, c2, c3)                                                            \
     (static_cast<uint32_t>(c0) | (static_cast<uint32_t>(c1) << 8) | (static_cast<uint32_t>(c2) << 16) | \
      (static_cast<uint32_t>(c3) << 24))
 
 // Determine if a type conversion would result in a loss of data.  Intended to check uint64_t to size_t conversions.
-#define BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(DstType, Value) assert(std::numeric_limits<DstType>::max() >= Value);
+#define GFXRECON_CHECK_CONVERSION_DATA_LOSS(DstType, Value) assert(std::numeric_limits<DstType>::max() >= Value);
 
-#endif // BRIMSTONE_UTIL_DEFINES_H
+#endif // GFXRECON_UTIL_DEFINES_H

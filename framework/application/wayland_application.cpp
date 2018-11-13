@@ -23,8 +23,8 @@
 #include <cstring>
 #include <linux/input.h>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 struct wl_pointer_listener  WaylandApplication::pointer_listener_;
 struct wl_keyboard_listener WaylandApplication::keyboard_listener_;
@@ -100,7 +100,7 @@ bool WaylandApplication::Initialize(decode::FileProcessor* file_processor)
     display_ = wl_display_connect(nullptr);
     if (display_ == nullptr)
     {
-        BRIMSTONE_LOG_ERROR("Failed to connect to the Wayland display server");
+        GFXRECON_LOG_ERROR("Failed to connect to the Wayland display server");
         success = false;
     }
 
@@ -109,7 +109,7 @@ bool WaylandApplication::Initialize(decode::FileProcessor* file_processor)
         registry_ = wl_display_get_registry(display_);
         if (registry_ == nullptr)
         {
-            BRIMSTONE_LOG_ERROR("Failed to get Wayland registry");
+            GFXRECON_LOG_ERROR("Failed to get Wayland registry");
             success = false;
         }
     }
@@ -121,12 +121,12 @@ bool WaylandApplication::Initialize(decode::FileProcessor* file_processor)
 
         if (compositor_ == nullptr)
         {
-            BRIMSTONE_LOG_ERROR("Failed to bind Wayland compositor");
+            GFXRECON_LOG_ERROR("Failed to bind Wayland compositor");
             success = false;
         }
         else if (shell_ == nullptr)
         {
-            BRIMSTONE_LOG_ERROR("Failed to bind Wayland shell");
+            GFXRECON_LOG_ERROR("Failed to bind Wayland shell");
             success = false;
         }
     }
@@ -302,5 +302,5 @@ void WaylandApplication::HandlePointerAxis(
     void* data, struct wl_pointer* wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value)
 {}
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)

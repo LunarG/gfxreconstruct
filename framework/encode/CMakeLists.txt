@@ -1,6 +1,6 @@
-add_library(brimstone_encode STATIC "")
+add_library(gfxrecon_encode STATIC "")
 
-target_sources(brimstone_encode
+target_sources(gfxrecon_encode
                PRIVATE
                    custom_encoder_commands.h
                    custom_vulkan_struct_encoders.h
@@ -16,8 +16,8 @@ target_sources(brimstone_encode
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp
               )
 
-target_include_directories(brimstone_encode
+target_include_directories(gfxrecon_encode
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(brimstone_encode brimstone_format brimstone_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_encode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)

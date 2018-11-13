@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_APPLICATION_WAYLAND_WINDOW_H
-#define BRIMSTONE_APPLICATION_WAYLAND_WINDOW_H
+#ifndef GFXRECON_APPLICATION_WAYLAND_WINDOW_H
+#define GFXRECON_APPLICATION_WAYLAND_WINDOW_H
 
 #include "application/wayland_application.h"
 #include "decode/window.h"
@@ -24,8 +24,8 @@
 
 #include <wayland-client.h>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 class WaylandWindow : public decode::Window
 {
@@ -99,7 +99,7 @@ class WaylandWindowFactory : public decode::WindowFactory
     WaylandApplication* wayland_application_;
 };
 
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_APPLICATION_WAYLAND_WINDOW_H
+#endif // GFXRECON_APPLICATION_WAYLAND_WINDOW_H

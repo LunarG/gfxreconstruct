@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.lunarg.brimstone.replay">
+    package="com.lunarg.gfxreconstruct.replay">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -18,7 +18,7 @@
                   android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
                   android:screenOrientation="unspecified">
             <meta-data android:name="android.app.lib_name"
-                       android:value="brimstone_replay" />
+                       android:value="gfxrecon-replay" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -1,6 +1,6 @@
-add_library(brimstone_format STATIC "")
+add_library(gfxrecon_format STATIC "")
 
-target_sources(brimstone_format
+target_sources(gfxrecon_format
                PRIVATE
                    api_call_id.h
                    format.h
@@ -9,8 +9,8 @@ target_sources(brimstone_format
                    platform_types.h
               )
 
-target_include_directories(brimstone_format
+target_include_directories(gfxrecon_format
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(brimstone_format brimstone_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_format gfxrecon_util vulkan_registry platform_specific)

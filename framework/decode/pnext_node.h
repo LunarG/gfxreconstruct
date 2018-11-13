@@ -15,16 +15,16 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_PNEXT_NODE_H
-#define BRIMSTONE_DECODE_PNEXT_NODE_H
+#ifndef GFXRECON_DECODE_PNEXT_NODE_H
+#define GFXRECON_DECODE_PNEXT_NODE_H
 
 #include "util/defines.h"
 
 #include <cassert>
 #include <memory>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class PNextNode
 {
@@ -42,7 +42,7 @@ class PNextNode
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) = 0;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_PNEXT_NODE_H
+#endif // GFXRECON_DECODE_PNEXT_NODE_H

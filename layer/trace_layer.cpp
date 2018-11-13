@@ -30,10 +30,10 @@
 #include <unordered_map>
 
 static const VkLayerProperties LayerProps = {
-    "VK_LAYER_LUNARG_brimstone",
+    "VK_LAYER_LUNARG_gfxreconstruct",
     VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),
     1,
-    "LunarG API Capture Layer",
+    "GFXReconstruct Capture Layer",
 };
 
 static const VkLayerInstanceCreateInfo* get_instance_chain_info(const VkInstanceCreateInfo* pCreateInfo,
@@ -73,7 +73,7 @@ static const void* get_dispatch_key(const void* handle)
 static std::unordered_map<const void*, VkLayerInstanceDispatchTable> instance_table;
 static std::unordered_map<const void*, VkLayerDispatchTable>         device_table;
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 std::mutex g_create_destroy_mutex;
 
@@ -181,15 +181,15 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;
-    const auto         entry  = brimstone::func_table.find(pName);
+    const auto         entry  = gfxrecon::func_table.find(pName);
 
-    if (entry != brimstone::func_table.end())
+    if (entry != gfxrecon::func_table.end())
     {
         result = entry->second;
     }
     else
     {
-        const auto table = brimstone::get_instance_table(instance);
+        const auto table = gfxrecon::get_instance_table(instance);
         if (table && table->GetInstanceProcAddr)
         {
             result = table->GetInstanceProcAddr(instance, pName);
@@ -202,15 +202,15 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;
-    const auto         entry  = brimstone::func_table.find(pName);
+    const auto         entry  = gfxrecon::func_table.find(pName);
 
-    if (entry != brimstone::func_table.end())
+    if (entry != gfxrecon::func_table.end())
     {
         result = entry->second;
     }
     else
     {
-        const auto table = brimstone::get_device_table(device);
+        const auto table = gfxrecon::get_device_table(device);
         if (table && table->GetDeviceProcAddr)
         {
             result = table->GetDeviceProcAddr(device, pName);
@@ -224,7 +224,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance in
 {
     PFN_vkVoidFunction result = nullptr;
     assert(instance != VK_NULL_HANDLE);
-    const auto table = brimstone::get_instance_table(instance);
+    const auto table = gfxrecon::get_instance_table(instance);
     if (table && table->GetPhysicalDeviceProcAddr)
     {
         result = table->GetPhysicalDeviceProcAddr(instance, pName);
@@ -251,7 +251,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     {
         // If this function was not called with the layer's name, we expect to dispatch down the chain to obtain the ICD
         // provided extensions.
-        result = brimstone::get_instance_table(physicalDevice)
+        result = gfxrecon::get_instance_table(physicalDevice)
                      ->EnumerateDeviceExtensionProperties(physicalDevice, nullptr, pPropertyCount, pProperties);
     }
 
@@ -311,11 +311,11 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice  
                                                               uint32_t*          pPropertyCount,
                                                               VkLayerProperties* pProperties)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(physicalDevice);
+    GFXRECON_UNREFERENCED_PARAMETER(physicalDevice);
     return EnumerateInstanceLayerProperties(pPropertyCount, pProperties);
 }
 
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 // To be safe, we extern "C" these items to remove name mangling for all the items we want to export for Android and old
 // loaders to find.
@@ -330,9 +330,9 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
     // Fill in the function pointers if our version is at least capable of having the structure contain them.
     if (pVersionStruct->loaderLayerInterfaceVersion >= 2)
     {
-        pVersionStruct->pfnGetInstanceProcAddr       = brimstone::GetInstanceProcAddr;
-        pVersionStruct->pfnGetDeviceProcAddr         = brimstone::GetDeviceProcAddr;
-        pVersionStruct->pfnGetPhysicalDeviceProcAddr = brimstone::GetPhysicalDeviceProcAddr;
+        pVersionStruct->pfnGetInstanceProcAddr       = gfxrecon::GetInstanceProcAddr;
+        pVersionStruct->pfnGetDeviceProcAddr         = gfxrecon::GetDeviceProcAddr;
+        pVersionStruct->pfnGetPhysicalDeviceProcAddr = gfxrecon::GetPhysicalDeviceProcAddr;
     }
 
     if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION)
@@ -347,18 +347,18 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
 // pointers returned by the negotiate function.
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
 {
-    return brimstone::GetInstanceProcAddr(instance, pName);
+    return gfxrecon::GetInstanceProcAddr(instance, pName);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
 {
-    return brimstone::GetDeviceProcAddr(device, pName);
+    return gfxrecon::GetDeviceProcAddr(device, pName);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance  instance,
                                                                                            const char* pName)
 {
-    return brimstone::GetPhysicalDeviceProcAddr(instance, pName);
+    return gfxrecon::GetPhysicalDeviceProcAddr(instance, pName);
 }
 
 // The following four functions are not invoked by the desktop loader, which retrieves the layer specific properties and
@@ -369,19 +369,19 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionPropert
                                                                                     VkExtensionProperties* pProperties)
 {
     assert(physicalDevice == VK_NULL_HANDLE);
-    return brimstone::EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pPropertyCount, pProperties);
+    return gfxrecon::EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pPropertyCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(
     const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
 {
-    return brimstone::EnumerateInstanceExtensionProperties(pLayerName, pPropertyCount, pProperties);
+    return gfxrecon::EnumerateInstanceExtensionProperties(pLayerName, pPropertyCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
                                                                                   VkLayerProperties* pProperties)
 {
-    return brimstone::EnumerateInstanceLayerProperties(pPropertyCount, pProperties);
+    return gfxrecon::EnumerateInstanceLayerProperties(pPropertyCount, pProperties);
 }
 
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
@@ -389,7 +389,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(
                                                                                 VkLayerProperties* pProperties)
 {
     assert(physicalDevice == VK_NULL_HANDLE);
-    return brimstone::EnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
+    return gfxrecon::EnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
 }
 
 } // extern "C"

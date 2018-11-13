@@ -15,15 +15,15 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_FORMAT_UTIL_H
-#define BRIMSTONE_FORMAT_FORMAT_UTIL_H
+#ifndef GFXRECON_FORMAT_FORMAT_UTIL_H
+#define GFXRECON_FORMAT_FORMAT_UTIL_H
 
 #include "format/format.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(format)
 
 // Utilities for converting API handles to the HandleId type.
 template <typename T>
@@ -72,7 +72,7 @@ bool ValidateFileHeader(const FileHeader& header);
 // Utilities for object creation.
 util::Compressor* CreateCompressor(CompressionType type);
 
-BRIMSTONE_END_NAMESPACE(format)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(format)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_FORMAT_FORMAT_UTIL_H
+#endif // GFXRECON_FORMAT_FORMAT_UTIL_H

@@ -20,8 +20,8 @@
 **
 */
 
-#ifndef  BRIMSTONE_GENERATED_VULKAN_STRUCT_DECODERS_H
-#define  BRIMSTONE_GENERATED_VULKAN_STRUCT_DECODERS_H
+#ifndef  GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_H
+#define  GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_H
 
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/pnext_node.h"
@@ -38,8 +38,8 @@
 
 #include <memory>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct Decoded_VkApplicationInfo
 {
@@ -3831,7 +3831,7 @@ struct Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA
     std::unique_ptr<PNextNode> pNext;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif

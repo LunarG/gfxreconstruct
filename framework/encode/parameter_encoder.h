@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_ENCODE_PARAMETER_ENCODER_H
-#define BRIMSTONE_ENCODE_PARAMETER_ENCODER_H
+#ifndef GFXRECON_ENCODE_PARAMETER_ENCODER_H
+#define GFXRECON_ENCODE_PARAMETER_ENCODER_H
 
 #include "format/format.h"
 #include "util/defines.h"
@@ -30,8 +30,8 @@
 #include <memory>
 #include <type_traits>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 class ParameterEncoder
 {
@@ -368,7 +368,7 @@ class ParameterEncoder
     util::OutputStream* output_stream_;
 };
 
-BRIMSTONE_END_NAMESPACE(encode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_ENCODE_PARAMETER_ENCODER_H
+#endif // GFXRECON_ENCODE_PARAMETER_ENCODER_H

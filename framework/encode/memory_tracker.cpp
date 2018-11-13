@@ -21,8 +21,8 @@
 
 #include <cassert>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 void MemoryTracker::AddEntry(VkDeviceMemory memory, VkMemoryPropertyFlags property_flags, VkDeviceSize allocation_size)
 {
@@ -86,5 +86,5 @@ void MemoryTracker::VisitEntries(std::function<void(VkDeviceMemory, const EntryI
     }
 }
 
-BRIMSTONE_END_NAMESPACE(encode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(gfxrecon)

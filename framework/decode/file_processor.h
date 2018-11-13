@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_FILE_PROCESSOR_H
-#define BRIMSTONE_DECODE_FILE_PROCESSOR_H
+#ifndef GFXRECON_DECODE_FILE_PROCESSOR_H
+#define GFXRECON_DECODE_FILE_PROCESSOR_H
 
 #include "format/api_call_id.h"
 #include "format/format.h"
@@ -29,8 +29,8 @@
 #include <string>
 #include <vector>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class FileProcessor
 {
@@ -79,7 +79,7 @@ class FileProcessor
 
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
-    bool IsFileHeaderValid() const { return (file_header_.fourcc == BRIMSTONE_FOURCC) ? true : false; }
+    bool IsFileHeaderValid() const { return (file_header_.fourcc == GFXRECON_FOURCC) ? true : false; }
 
     bool IsFileValid() const
     {
@@ -99,7 +99,7 @@ class FileProcessor
     util::Compressor*                   compressor_;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_FILE_PROCESSOR_H
+#endif // GFXRECON_DECODE_FILE_PROCESSOR_H

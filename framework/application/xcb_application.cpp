@@ -22,8 +22,8 @@
 
 #include <cstdlib>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 XcbApplication::XcbApplication(const std::string& name) : Application(name), connection_(nullptr), screen_(nullptr) {}
 
@@ -42,7 +42,7 @@ bool XcbApplication::Initialize(decode::FileProcessor* file_processor)
 
     if (xcb_connection_has_error(connection_))
     {
-        BRIMSTONE_LOG_ERROR("Failed to connect to X server");
+        GFXRECON_LOG_ERROR("Failed to connect to X server");
         return false;
     }
 
@@ -215,5 +215,5 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
     }
 }
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)

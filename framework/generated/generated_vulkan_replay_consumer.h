@@ -20,16 +20,16 @@
 **
 */
 
-#ifndef  BRIMSTONE_GENERATED_VULKAN_REPLAY_CONSUMER_H
-#define  BRIMSTONE_GENERATED_VULKAN_REPLAY_CONSUMER_H
+#ifndef  GFXRECON_GENERATED_VULKAN_REPLAY_CONSUMER_H
+#define  GFXRECON_GENERATED_VULKAN_REPLAY_CONSUMER_H
 
 #include "decode/vulkan_replay_consumer_base.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class VulkanReplayConsumer : public VulkanReplayConsumerBase
 {
@@ -2030,7 +2030,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const PointerDecoder<format::HandleId>&     pSurface) override;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif

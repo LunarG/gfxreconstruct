@@ -66,8 +66,8 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         self.newline()
         write('#include <cstddef>', file=self.outFile)
         self.newline()
-        write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
     # Method override
     def endFile(self):
@@ -75,8 +75,8 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         # Generate the VulkanDecoder::DecodeFunctionCall method for all of the commands processed by the generator.
         self.generateDecodeCases()
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(decode)', file=self.outFile)
-        write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)

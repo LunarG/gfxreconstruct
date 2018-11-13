@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_APPLICATION_WIN32_WINDOW_H
-#define BRIMSTONE_APPLICATION_WIN32_WINDOW_H
+#ifndef GFXRECON_APPLICATION_WIN32_WINDOW_H
+#define GFXRECON_APPLICATION_WIN32_WINDOW_H
 
 #include "application/win32_application.h"
 #include "decode/window.h"
@@ -25,8 +25,8 @@
 
 #define IDI_ICON 101
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 class Win32Window : public decode::Window
 {
@@ -92,7 +92,7 @@ class Win32WindowFactory : public decode::WindowFactory
     Win32Application* win32_application_;
 };
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_APPLICATION_WIN32_WINDOW_H
+#endif // GFXRECON_APPLICATION_WIN32_WINDOW_H

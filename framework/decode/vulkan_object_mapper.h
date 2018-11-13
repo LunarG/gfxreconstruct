@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_VULKAN_OBJECT_MAPPER_H
-#define BRIMSTONE_DECODE_VULKAN_OBJECT_MAPPER_H
+#ifndef GFXRECON_DECODE_VULKAN_OBJECT_MAPPER_H
+#define GFXRECON_DECODE_VULKAN_OBJECT_MAPPER_H
 
 #include "format/format.h"
 #include "util/defines.h"
@@ -26,8 +26,8 @@
 #include <cassert>
 #include <unordered_map>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class VulkanObjectMapper
 {
@@ -143,7 +143,7 @@ class VulkanObjectMapper
             }
             else
             {
-                BRIMSTONE_LOG_WARNING("Failed to map handle for object id %" PRIx64, id);
+                GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIx64, id);
             }
         }
 
@@ -192,7 +192,7 @@ class VulkanObjectMapper
     std::unordered_map<format::HandleId, VkAccelerationStructureNVX>    acceleration_structure_nvx_map_;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_VULKAN_OBJECT_MAPPER_H
+#endif // GFXRECON_DECODE_VULKAN_OBJECT_MAPPER_H

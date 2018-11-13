@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.1)
-project(brimstone)
+project(GFXReconstruct)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include("FindVulkanVersion")
 
-# Brimstone provided find modules
+# GFXReconstruct provided find modules
 find_package(LZ4)
 if (UNIX)
 find_package(XCB)

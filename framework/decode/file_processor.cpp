@@ -24,8 +24,8 @@
 
 #include <cassert>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() : file_descriptor_(nullptr), bytes_read_(0), compressor_(nullptr) {}
 
@@ -59,14 +59,14 @@ bool FileProcessor::Initialize(const std::string& filename)
         }
         else
         {
-            BRIMSTONE_LOG_ERROR("Failed to load file header from %s", filename.c_str());
+            GFXRECON_LOG_ERROR("Failed to load file header from %s", filename.c_str());
             fclose(file_descriptor_);
             file_descriptor_ = nullptr;
         }
     }
     else
     {
-        BRIMSTONE_LOG_ERROR("Failed to open file %s", filename.c_str());
+        GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
     }
 
     return success;
@@ -74,7 +74,7 @@ bool FileProcessor::Initialize(const std::string& filename)
 
 bool FileProcessor::ProcessNextFrame()
 {
-    // TODO: Frame blocks in trace file.
+    // TODO: Frame blocks in capture file.
     bool                success = IsFileValid();
     format::BlockHeader block_header;
 
@@ -102,7 +102,7 @@ bool FileProcessor::ProcessNextFrame()
                 }
                 else
                 {
-                    BRIMSTONE_LOG_ERROR("Failed to read function call block header");
+                    GFXRECON_LOG_ERROR("Failed to read function call block header");
                 }
             }
             else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
@@ -117,14 +117,14 @@ bool FileProcessor::ProcessNextFrame()
                 }
                 else
                 {
-                    BRIMSTONE_LOG_ERROR("Failed to read meta-data block header");
+                    GFXRECON_LOG_ERROR("Failed to read meta-data block header");
                 }
             }
             else
             {
                 // Unrecognized block type.
-                BRIMSTONE_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
-                BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
                 success = SkipBytes(static_cast<size_t>(block_header.size));
             }
 
@@ -138,7 +138,7 @@ bool FileProcessor::ProcessNextFrame()
         {
             if (!feof(file_descriptor_))
             {
-                BRIMSTONE_LOG_ERROR("Failed to read block header");
+                GFXRECON_LOG_ERROR("Failed to read block header");
             }
         }
     }
@@ -202,7 +202,7 @@ bool FileProcessor::ReadFileHeader()
                         // We currently assume all pointer/address values are encoded as 8 byte values.
                         break;
                     default:
-                        BRIMSTONE_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
+                        GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
                         break;
                 }
             }
@@ -212,7 +212,7 @@ bool FileProcessor::ReadFileHeader()
     compressor_ = format::CreateCompressor(enabled_options_.compression_type);
     if ((nullptr == compressor_) && (format::CompressionType::kNone != enabled_options_.compression_type))
     {
-        BRIMSTONE_LOG_WARNING(
+        GFXRECON_LOG_WARNING(
             "Failed to initialized file compression module (type = %u); replay of compressed data will not be possible",
             enabled_options_.compression_type);
         success = false;
@@ -310,7 +310,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
         else
         {
             success = false;
-            BRIMSTONE_LOG_ERROR("Failed to process compressed function call block; compression is not enabled.");
+            GFXRECON_LOG_ERROR("Failed to process compressed function call block; compression is not enabled.");
         }
     }
 
@@ -332,7 +332,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     {
         if (format::IsBlockCompressed(block_header.type))
         {
-            BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
 
             size_t actual_size = 0;
             success            = ReadCompressedParameterBuffer(
@@ -351,7 +351,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     }
     else
     {
-        BRIMSTONE_LOG_ERROR("Failed to read function call block header");
+        GFXRECON_LOG_ERROR("Failed to read function call block header");
     }
 
     if (success)
@@ -382,7 +382,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, header.memory_size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.memory_size);
 
             if (format::IsBlockCompressed(block_header.type))
             {
@@ -400,7 +400,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 else
                 {
                     success = false;
-                    BRIMSTONE_LOG_ERROR("Failed to process compressed meta-data block; compression is not enabled.");
+                    GFXRECON_LOG_ERROR("Failed to process compressed meta-data block; compression is not enabled.");
                 }
             }
             else
@@ -410,7 +410,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         }
         else
         {
-            BRIMSTONE_LOG_ERROR("Failed to read fill memory meta-data block header");
+            GFXRECON_LOG_ERROR("Failed to read fill memory meta-data block header");
         }
 
         if (success)
@@ -442,7 +442,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         }
         else
         {
-            BRIMSTONE_LOG_ERROR("Failed to read resize window meta-data block");
+            GFXRECON_LOG_ERROR("Failed to read resize window meta-data block");
         }
     }
     else if (meta_type == format::MetaDataType::kDisplayMessageCommand)
@@ -456,12 +456,12 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         if (success)
         {
-            BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, header.message_size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.message_size);
             success = ReadParameterBuffer(static_cast<size_t>(header.message_size));
         }
         else
         {
-            BRIMSTONE_LOG_ERROR("Failed to read display message meta-data block header");
+            GFXRECON_LOG_ERROR("Failed to read display message meta-data block header");
         }
 
         if (success)
@@ -477,8 +477,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     else
     {
         // Unrecognized metadata type.
-        BRIMSTONE_LOG_WARNING("Skipping unrecognized meta-data block with type %u", meta_type);
-        BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+        GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %u", meta_type);
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
 
         success = SkipBytes(static_cast<size_t>(block_header.size) - sizeof(meta_type));
     }
@@ -488,10 +488,10 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
 bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
 {
-    // TODO: IDs of API calls that were treated as frame delimiters by the trace layer should be in the trace file
-    // header.
+    // TODO: IDs of API calls that were treated as frame delimiters by the GFXReconstruct layer should be in the capture
+    // file header.
     return (call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR) ? true : false;
 }
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)

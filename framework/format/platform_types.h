@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_PLATFORM_TYPES_H
-#define BRIMSTONE_PLATFORM_TYPES_H
+#ifndef GFXRECON_PLATFORM_TYPES_H
+#define GFXRECON_PLATFORM_TYPES_H
 
 #include "util/logging.h"
 
@@ -172,21 +172,21 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateAndroidSurfaceKHR(VkInstance,
                                                                 const VkAllocationCallbacks*,
                                                                 VkSurfaceKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateAndroidSurfaceKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateAndroidSurfaceKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkGetAndroidHardwareBufferPropertiesANDROID(
     VkDevice, const struct AHardwareBuffer*, VkAndroidHardwareBufferPropertiesANDROID*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetAndroidHardwareBufferPropertiesANDROID");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetAndroidHardwareBufferPropertiesANDROID");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(
     VkDevice, const VkMemoryGetAndroidHardwareBufferInfoANDROID*, struct AHardwareBuffer**)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryAndroidHardwareBufferANDROID");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryAndroidHardwareBufferANDROID");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 }
@@ -195,7 +195,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(
 #if !defined VK_USE_PLATFORM_FUCHSIA
 #define VK_FUCHSIA_IMAGEPIPE_SURFACE_EXTENSION_NAME "VK_FUCHSIA_imagepipe_surface"
 
-typedef VkFlags  VkImagePipeSurfaceCreateFlagsFUCHSIA;
+typedef VkFlags VkImagePipeSurfaceCreateFlagsFUCHSIA;
 
 typedef uint32_t zx_handle_t;
 
@@ -218,7 +218,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(VkInstance
                                                                       const VkAllocationCallbacks*,
                                                                       VkSurfaceKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateImagePipeSurfaceFUCHSIA");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateImagePipeSurfaceFUCHSIA");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 }
@@ -248,7 +248,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateIOSSurfaceMVK(VkInstance,
                                                             const VkAllocationCallbacks*,
                                                             VkSurfaceKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateIOSSurfaceMVK");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateIOSSurfaceMVK");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 }
@@ -278,7 +278,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMacOSSurfaceMVK(VkInstance,
                                                               const VkAllocationCallbacks*,
                                                               VkSurfaceKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateMacOSSurfaceMVK");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateMacOSSurfaceMVK");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 }
@@ -315,7 +315,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMirSurfaceKHR(VkInstance,
                                                             const VkAllocationCallbacks*,
                                                             VkSurfaceKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateMirSurfaceKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateMirSurfaceKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
@@ -323,7 +323,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceMirPresentationSupportK
                                                                                    uint32_t,
                                                                                    MirConnection*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceMirPresentationSupportKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceMirPresentationSupportKHR");
     return VK_FALSE;
 }
 }
@@ -353,7 +353,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateViSurfaceNN(VkInstance,
                                                           const VkAllocationCallbacks*,
                                                           VkSurfaceKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateViSurfaceNN");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateViSurfaceNN");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 }
@@ -389,7 +389,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateWaylandSurfaceKHR(VkInstance,
                                                                 const VkAllocationCallbacks*,
                                                                 VkSurfaceKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateWaylandSurfaceKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateWaylandSurfaceKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
@@ -397,7 +397,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWaylandPresentationSupp
                                                                                        uint32_t,
                                                                                        struct wl_display*)
 {
-    BRIMSTONE_LOG_ERROR(
+    GFXRECON_LOG_ERROR(
         "Calling unsupported platform extension function vkGetPhysicalDeviceWaylandPresentationSupportKHR");
     return VK_FALSE;
 }
@@ -593,20 +593,20 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance,
                                                               const VkAllocationCallbacks*,
                                                               VkSurfaceKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateWin32SurfaceKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateWin32SurfaceKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice, uint32_t)
 {
-    BRIMSTONE_LOG_ERROR(
+    GFXRECON_LOG_ERROR(
         "Calling unsupported platform extension function vkGetPhysicalDeviceWin32PresentationSupportKHR");
     return VK_FALSE;
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(VkDevice, const VkMemoryGetWin32HandleInfoKHR*, HANDLE*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
@@ -615,14 +615,14 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandlePropertiesKHR(VkDevi
                                                                           HANDLE,
                                                                           VkMemoryWin32HandlePropertiesKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandlePropertiesKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandlePropertiesKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreWin32HandleKHR(VkDevice,
                                                                       const VkImportSemaphoreWin32HandleInfoKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkImportSemaphoreWin32HandleKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkImportSemaphoreWin32HandleKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
@@ -630,19 +630,19 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreWin32HandleKHR(VkDevice,
                                                                    const VkSemaphoreGetWin32HandleInfoKHR*,
                                                                    HANDLE*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetSemaphoreWin32HandleKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetSemaphoreWin32HandleKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceWin32HandleKHR(VkDevice, const VkImportFenceWin32HandleInfoKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkImportFenceWin32HandleKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkImportFenceWin32HandleKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceWin32HandleKHR(VkDevice, const VkFenceGetWin32HandleInfoKHR*, HANDLE*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetFenceWin32HandleKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetFenceWin32HandleKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
@@ -651,7 +651,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleNV(VkDevice,
                                                                VkExternalMemoryHandleTypeFlagsNV,
                                                                HANDLE*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleNV");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleNV");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 }
@@ -691,7 +691,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(VkInstance,
                                                             const VkAllocationCallbacks*,
                                                             VkSurfaceKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateXcbSurfaceKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateXcbSurfaceKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
@@ -700,7 +700,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportK
                                                                                    xcb_connection_t*,
                                                                                    xcb_visualid_t)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceXcbPresentationSupportKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceXcbPresentationSupportKHR");
     return VK_FALSE;
 }
 }
@@ -741,7 +741,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateXlibSurfaceKHR(VkInstance,
                                                              const VkAllocationCallbacks*,
                                                              VkSurfaceKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkCreateXlibSurfaceKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateXlibSurfaceKHR");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
@@ -750,8 +750,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXlibPresentationSupport
                                                                                     Display*,
                                                                                     VisualID)
 {
-    BRIMSTONE_LOG_ERROR(
-        "Calling unsupported platform extension function vkGetPhysicalDeviceXlibPresentationSupportKHR");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceXlibPresentationSupportKHR");
     return VK_FALSE;
 }
 }
@@ -771,16 +770,16 @@ typedef VkResult(VKAPI_PTR* PFN_vkGetRandROutputDisplayEXT)(VkPhysicalDevice phy
 extern "C" {
 static VKAPI_ATTR VkResult VKAPI_CALL vkAcquireXlibDisplayEXT(VkPhysicalDevice, Display*, VkDisplayKHR)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkAcquireXlibDisplayEXT");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkAcquireXlibDisplayEXT");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkGetRandROutputDisplayEXT(VkPhysicalDevice, Display*, RROutput, VkDisplayKHR*)
 {
-    BRIMSTONE_LOG_ERROR("Calling unsupported platform extension function vkGetRandROutputDisplayEXT");
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetRandROutputDisplayEXT");
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 }
 #endif // VK_USE_PLATFORM_XLIB_XRANDR_EXT
 
-#endif // BRIMSTONE_PLATFORM_TYPES_H
+#endif // GFXRECON_PLATFORM_TYPES_H

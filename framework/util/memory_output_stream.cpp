@@ -19,8 +19,8 @@
 
 #include "util/platform.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 MemoryOutputStream::MemoryOutputStream()
 {
@@ -42,5 +42,5 @@ size_t MemoryOutputStream::Write(const void* data, size_t len)
     return len;
 }
 
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)

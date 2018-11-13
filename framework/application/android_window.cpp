@@ -27,8 +27,8 @@
 #include <cstdlib>
 #include <limits>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 AndroidWindow::AndroidWindow(AndroidApplication* application, ANativeWindow* window) :
     android_application_(application), window_(window), width_(0), height_(0)
@@ -67,8 +67,8 @@ void AndroidWindow::SetSize(const uint32_t width, const uint32_t height)
         int32_t result = ANativeWindow_setBuffersGeometry(window_, width, height, ANativeWindow_getFormat(window_));
         if (result != 0)
         {
-            BRIMSTONE_LOG_ERROR("Failed to change native window geometry: ANativeWindow_setBuffersGeometry returned %d",
-                                result);
+            GFXRECON_LOG_ERROR("Failed to change native window geometry: ANativeWindow_setBuffersGeometry returned %d",
+                               result);
         }
     }
 }
@@ -106,10 +106,10 @@ AndroidWindowFactory::~AndroidWindowFactory() {}
 decode::Window*
 AndroidWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(x);
-    BRIMSTONE_UNREFERENCED_PARAMETER(y);
-    BRIMSTONE_UNREFERENCED_PARAMETER(width);
-    BRIMSTONE_UNREFERENCED_PARAMETER(height);
+    GFXRECON_UNREFERENCED_PARAMETER(x);
+    GFXRECON_UNREFERENCED_PARAMETER(y);
+    GFXRECON_UNREFERENCED_PARAMETER(width);
+    GFXRECON_UNREFERENCED_PARAMETER(height);
 
     return android_application_->GetWindow();
 }
@@ -117,11 +117,11 @@ AndroidWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t wi
 VkBool32 AndroidWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                                     uint32_t         queue_family_index)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(physical_device);
-    BRIMSTONE_UNREFERENCED_PARAMETER(queue_family_index);
+    GFXRECON_UNREFERENCED_PARAMETER(physical_device);
+    GFXRECON_UNREFERENCED_PARAMETER(queue_family_index);
 
     return VK_TRUE;
 }
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)

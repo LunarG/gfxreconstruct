@@ -15,15 +15,15 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_ENCODE_CUSTOM_ENCODER_COMMANDS_H
-#define BRIMSTONE_ENCODE_CUSTOM_ENCODER_COMMANDS_H
+#ifndef GFXRECON_ENCODE_CUSTOM_ENCODER_COMMANDS_H
+#define GFXRECON_ENCODE_CUSTOM_ENCODER_COMMANDS_H
 
 #include "encode/trace_manager.h"
 #include "format/api_call_id.h"
 #include "util/defines.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 template <format::ApiCallId Id>
 struct CustomEncoderPreCall
@@ -191,7 +191,7 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfa
 };
 #endif
 
-BRIMSTONE_END_NAMESPACE(encode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_ENCODE_CUSTOM_ENCODER_COMMANDS_H
+#endif // GFXRECON_ENCODE_CUSTOM_ENCODER_COMMANDS_H

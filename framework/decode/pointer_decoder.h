@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_POINTER_DECODER_H
-#define BRIMSTONE_DECODE_POINTER_DECODER_H
+#ifndef GFXRECON_DECODE_POINTER_DECODER_H
+#define GFXRECON_DECODE_POINTER_DECODER_H
 
 #include "decode/pointer_decoder_base.h"
 #include "decode/value_decoder.h"
@@ -26,8 +26,8 @@
 
 #include <cassert>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 template <typename T>
 class PointerDecoder : public PointerDecoderBase
@@ -53,7 +53,7 @@ class PointerDecoder : public PointerDecoderBase
         }
         else
         {
-            BRIMSTONE_LOG_WARNING("Pointer decoder's external memory was initialized with a NULL pointer");
+            GFXRECON_LOG_WARNING("Pointer decoder's external memory was initialized with a NULL pointer");
         }
     }
 
@@ -119,11 +119,11 @@ class PointerDecoder : public PointerDecoderBase
                     ValueDecoder::DecodeArrayFrom<SrcT>(
                         (buffer + bytes_read), (buffer_size - bytes_read), data_, capacity_);
 
-                    BRIMSTONE_LOG_WARNING("Pointer decoder's external memory capacity (%" PRIuPTR
-                                          ") is smaller than the decoded array size (%" PRIuPTR
-                                          "); data will be truncated",
-                                          capacity_,
-                                          len);
+                    GFXRECON_LOG_WARNING("Pointer decoder's external memory capacity (%" PRIuPTR
+                                         ") is smaller than the decoded array size (%" PRIuPTR
+                                         "); data will be truncated",
+                                         capacity_,
+                                         len);
                 }
 
                 // We always need to advance the position within the buffer by the amount of data that was expected to
@@ -141,7 +141,7 @@ class PointerDecoder : public PointerDecoderBase
     bool   is_memory_external_;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_POINTER_DECODER_H
+#endif // GFXRECON_DECODE_POINTER_DECODER_H

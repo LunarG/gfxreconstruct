@@ -1,16 +1,16 @@
-add_library(brimstone_format STATIC "")
+add_library(gfxrecon_format STATIC "")
 
-target_sources(brimstone_format
+target_sources(gfxrecon_format
                PRIVATE
-                   ${BRIMSTONE_SOURCE_DIR}/framework/format/api_call_id.h
-                   ${BRIMSTONE_SOURCE_DIR}/framework/format/format.h
-                   ${BRIMSTONE_SOURCE_DIR}/framework/format/format_util.h
-                   ${BRIMSTONE_SOURCE_DIR}/framework/format/format_util.cpp
-                   ${BRIMSTONE_SOURCE_DIR}/framework/format/platform_types.h
+                   ${GFXRECON_SOURCE_DIR}/framework/format/api_call_id.h
+                   ${GFXRECON_SOURCE_DIR}/framework/format/format.h
+                   ${GFXRECON_SOURCE_DIR}/framework/format/format_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/format/format_util.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/format/platform_types.h
               )
 
-target_include_directories(brimstone_format
+target_include_directories(gfxrecon_format
                            PUBLIC
-                               ${BRIMSTONE_SOURCE_DIR}/framework)
+                               ${GFXRECON_SOURCE_DIR}/framework)
 
-target_link_libraries(brimstone_format brimstone_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_format gfxrecon_util vulkan_registry platform_specific)

@@ -1,6 +1,6 @@
-add_library(brimstone_util STATIC "")
+add_library(gfxrecon_util STATIC "")
 
-target_sources(brimstone_util
+target_sources(gfxrecon_util
                PRIVATE
                    argument_parser.h
                    argument_parser.cpp
@@ -24,18 +24,18 @@ target_sources(brimstone_util
                    file_path.h
               )
 
-target_compile_definitions(brimstone_util
+target_compile_definitions(gfxrecon_util
                            PUBLIC
                                $<$<BOOL:${LZ4_FOUND}>:ENABLE_LZ4_COMPRESSION>
                                $<$<BOOL:${ZLIB_FOUND}>:ENABLE_LZ77_COMPRESSION>)
 
-target_include_directories(brimstone_util
+target_include_directories(gfxrecon_util
                            PUBLIC
                                $<$<BOOL:${LZ4_FOUND}>:${LZ4_INCLUDE_DIRS}>
                                $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_INCLUDE_DIRS}>
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(brimstone_util
+target_link_libraries(gfxrecon_util
                           platform_specific
                           $<$<BOOL:${LZ4_FOUND}>:${LZ4_LIBRARIES}>
                           $<$<BOOL:${ZLIB_FOUND}>:${ZLIB_LIBRARIES}>)

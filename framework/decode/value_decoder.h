@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_VALUE_DECODER_H
-#define BRIMSTONE_DECODE_VALUE_DECODER_H
+#ifndef GFXRECON_DECODE_VALUE_DECODER_H
+#define GFXRECON_DECODE_VALUE_DECODER_H
 
 #include "format/format.h"
 #include "util/defines.h"
@@ -27,8 +27,8 @@
 #include <type_traits>
 #include <memory.h>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class ValueDecoder
 {
@@ -52,7 +52,7 @@ class ValueDecoder
     static size_t DecodeVkSampleMaskValue(const uint8_t* buffer, size_t buffer_size, VkSampleMask* value)           { return DecodeValueFrom<format::SampleMaskEncodeType>(buffer, buffer_size, value); }
     static size_t DecodeVkDeviceSizeValue(const uint8_t* buffer, size_t buffer_size, VkDeviceSize* value)           { return DecodeValueFrom<format::DeviceSizeEncodeType>(buffer, buffer_size, value); }
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, size_t* value)                        { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
-#if defined(VK_USE_PLATFORM_XLIB_KHR) && !defined(BRIMSTONE_ARCH64)
+#if defined(VK_USE_PLATFORM_XLIB_KHR) && !defined(GFXRECON_ARCH64)
     // Oveload for the 32-bit XID type.  Pointers from the 32-bit XID typedef of unsigned long are not compatible with size_t pointers.
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                 { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
 #endif
@@ -193,7 +193,7 @@ class ValueDecoder
     }
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_VALUE_DECODER_H
+#endif // GFXRECON_DECODE_VALUE_DECODER_H

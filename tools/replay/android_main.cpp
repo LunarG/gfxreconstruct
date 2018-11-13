@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-const std::string kApplicationName = "GCAP Player";
+const std::string kApplicationName = "GFXReconstruct Replay";
 
 void    ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event);
@@ -41,11 +41,11 @@ void android_main(struct android_app* app)
 {
     int return_code = 0;
 
-    brimstone::util::logging::Init();
+    gfxrecon::util::logging::Init();
 
     // TODO: Retrieve and process arg string from intent extras, and report invalid usage.
     // std::vector<const char*>        args;
-    // brimstone::util::ArgumentParser arg_parser(args.size(), args.data(), "", "", 1);
+    // gfxrecon::util::ArgumentParser arg_parser(args.size(), args.data(), "", "", 1);
     // const std::vector<std::string>  non_optional_arguments = arg_parser.GetNonOptionalArguments();
     // if (arg_parser.IsInvalid() || non_optional_arguments.size() != 1)
     //{
@@ -55,36 +55,36 @@ void android_main(struct android_app* app)
     // else
     {
         // std::string filename = non_optional_arguments[0];
-        std::string filename = "/sdcard/captures/brimstone_out" BRIMSTONE_FILE_EXTENSION;
+        std::string filename = "/sdcard/captures/gfxrecon_out" GFXRECON_FILE_EXTENSION;
 
         try
         {
-            brimstone::decode::FileProcessor                            file_processor;
-            std::unique_ptr<brimstone::application::AndroidApplication> application;
-            std::unique_ptr<brimstone::decode::WindowFactory>           window_factory;
+            gfxrecon::decode::FileProcessor                            file_processor;
+            std::unique_ptr<gfxrecon::application::AndroidApplication> application;
+            std::unique_ptr<gfxrecon::decode::WindowFactory>           window_factory;
 
             if (!file_processor.Initialize(filename))
             {
-                BRIMSTONE_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
+                GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
                 return_code = -1;
             }
             else
             {
                 // Setup platform specific application and window factory.
-                application    = std::make_unique<brimstone::application::AndroidApplication>(kApplicationName, app);
-                window_factory = std::make_unique<brimstone::application::AndroidWindowFactory>(application.get());
+                application    = std::make_unique<gfxrecon::application::AndroidApplication>(kApplicationName, app);
+                window_factory = std::make_unique<gfxrecon::application::AndroidWindowFactory>(application.get());
 
                 if (!application->Initialize(&file_processor))
                 {
-                    BRIMSTONE_WRITE_CONSOLE(
+                    GFXRECON_WRITE_CONSOLE(
                         "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
                         "Vulkan platform extensions have been enabled.");
                     return_code = -1;
                 }
                 else
                 {
-                    brimstone::decode::VulkanDecoder        decoder;
-                    brimstone::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
+                    gfxrecon::decode::VulkanDecoder        decoder;
+                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
 
                     replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });
@@ -108,17 +108,17 @@ void android_main(struct android_app* app)
         }
         catch (std::runtime_error error)
         {
-            BRIMSTONE_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
+            GFXRECON_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
             return_code = -1;
         }
         catch (...)
         {
-            BRIMSTONE_WRITE_CONSOLE("Replay failed due to an unhandled exception");
+            GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
             return_code = -1;
         }
     }
 
-    brimstone::util::logging::Release();
+    gfxrecon::util::logging::Release();
 
     ANativeActivity_finish(app->activity);
 }
@@ -127,8 +127,8 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
 {
     if (app->userData != nullptr)
     {
-        brimstone::application::AndroidApplication* android_application =
-            reinterpret_cast<brimstone::application::AndroidApplication*>(app->userData);
+        gfxrecon::application::AndroidApplication* android_application =
+            reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
 
         switch (cmd)
         {
@@ -155,8 +155,8 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
 {
     if ((app->userData != nullptr) && (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION))
     {
-        brimstone::application::AndroidApplication* android_application =
-            reinterpret_cast<brimstone::application::AndroidApplication*>(app->userData);
+        gfxrecon::application::AndroidApplication* android_application =
+            reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
 
         // TODO: Distinguish between tap and swipe actions; swipe to advance to next frame when paused.
         int32_t action = AMotionEvent_getAction(event);
@@ -180,10 +180,10 @@ void PrintUsage(const char* exe_name)
         app_name.replace(0, dir_location + 1, "");
     }
 
-    BRIMSTONE_WRITE_CONSOLE("\n%s\tis a trace replay tool designed to playback trace binary files.\n",
-                            app_name.c_str());
-    BRIMSTONE_WRITE_CONSOLE("Usage:");
-    BRIMSTONE_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
-    BRIMSTONE_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the ");
-    BRIMSTONE_WRITE_CONSOLE("\t\t\t\ttrace file to replay");
+    GFXRECON_WRITE_CONSOLE("\n%s\tis a replay tool designed to playback GFXReconstruct capture files.\n",
+                           app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("Usage:");
+    GFXRECON_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the ");
+    GFXRECON_WRITE_CONSOLE("\t\t\t\tcapture file to replay");
 }

@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_VULKAN_CONSUMER_BASE_H
-#define BRIMSTONE_DECODE_VULKAN_CONSUMER_BASE_H
+#ifndef GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
+#define GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
 
 #include "format/platform_types.h"
 #include "decode/descriptor_update_template_decoder.h"
@@ -28,8 +28,8 @@
 
 #include "vulkan/vulkan.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class VulkanConsumerBase
 {
@@ -69,7 +69,7 @@ class VulkanConsumerBase
                                  const PointerDecoder<uint32_t>&                            pObjectIndices) = 0;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_VULKAN_CONSUMER_BASE_H
+#endif // GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H

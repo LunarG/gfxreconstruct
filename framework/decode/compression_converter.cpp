@@ -21,8 +21,8 @@
 
 #include <cassert>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 CompressionConverter::CompressionConverter() :
     bytes_written_(0), compressor_(nullptr), decompressing_(false), write_thread_id_(false),
@@ -61,7 +61,7 @@ bool CompressionConverter::Initialize(std::string                               
 
         if (nullptr == compressor_)
         {
-            BRIMSTONE_LOG_WARNING("Failed to initialized file compression module (type = %u)", target_compression_type);
+            GFXRECON_LOG_WARNING("Failed to initialized file compression module (type = %u)", target_compression_type);
             return false;
         }
     }
@@ -89,7 +89,7 @@ bool CompressionConverter::Initialize(std::string                               
                 // Don't touch these values from the original file
                 break;
             default:
-                BRIMSTONE_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
+                GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
                 break;
         }
     }
@@ -104,7 +104,7 @@ bool CompressionConverter::Initialize(std::string                               
     }
     else
     {
-        BRIMSTONE_LOG_ERROR("Failed to open file %s", filename_.c_str());
+        GFXRECON_LOG_ERROR("Failed to open file %s", filename_.c_str());
     }
 
     return success;
@@ -289,5 +289,5 @@ void CompressionConverter::DispatchResizeWindowCommand(format::HandleId surface_
     bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
 }
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)

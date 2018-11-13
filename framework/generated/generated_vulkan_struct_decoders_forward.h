@@ -20,8 +20,8 @@
 **
 */
 
-#ifndef  BRIMSTONE_GENERATED_VULKAN_STRUCT_DECODERS_FORWARD_H
-#define  BRIMSTONE_GENERATED_VULKAN_STRUCT_DECODERS_FORWARD_H
+#ifndef  GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_FORWARD_H
+#define  GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_FORWARD_H
 
 #include "util/defines.h"
 
@@ -29,8 +29,8 @@
 
 #include <cstdint>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 struct Decoded_VkApplicationInfo;
 struct Decoded_VkInstanceCreateInfo;
@@ -950,7 +950,7 @@ struct Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA;
 
 size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA* wrapper);
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif
