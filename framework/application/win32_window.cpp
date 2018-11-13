@@ -24,8 +24,8 @@
 #include <cstdlib>
 #include <limits>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 // Define a style similar to WS_OVERLAPPEDWINDOW, but without the ability to resize, minimize, or maximize.
 const uint32_t kWindowedStyle   = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
@@ -50,12 +50,12 @@ Win32Window::~Win32Window()
 bool Win32Window::Create(
     const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
 {
-    const char class_name[] = "GCAPPlay Window";
+    const char class_name[] = "GFXReconstruct Window";
 
     hinstance_ = GetModuleHandle(nullptr);
     if (hinstance_ == nullptr)
     {
-        BRIMSTONE_LOG_ERROR("Failed to retrieve instance for window creation");
+        GFXRECON_LOG_ERROR("Failed to retrieve instance for window creation");
         return false;
     }
 
@@ -93,7 +93,7 @@ bool Win32Window::Create(
     {
         if ((screen_height_ < height) || (screen_width_ < width))
         {
-            BRIMSTONE_LOG_WARNING(
+            GFXRECON_LOG_WARNING(
                 "Requested window size (%ux%u) exceeds current screen size (%ux%u); replay may fail due to "
                 "inability to create a window of the appropriate size.",
                 width,
@@ -136,7 +136,7 @@ bool Win32Window::Create(
     }
     else
     {
-        BRIMSTONE_LOG_ERROR("Window creation failed with error code %u", GetLastError());
+        GFXRECON_LOG_ERROR("Window creation failed with error code %u", GetLastError());
         return false;
     }
 
@@ -182,7 +182,7 @@ void Win32Window::SetSize(const uint32_t width, const uint32_t height)
         {
             if ((screen_height_ < height) || (screen_width_ < width))
             {
-                BRIMSTONE_LOG_WARNING(
+                GFXRECON_LOG_WARNING(
                     "Requested window size (%ux%u) exceeds current screen size (%ux%u); replay may fail due to "
                     "inability to create a window of the appropriate size.",
                     width,
@@ -277,5 +277,5 @@ VkBool32 Win32WindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevi
     return vkGetPhysicalDeviceWin32PresentationSupportKHR(physical_device, queue_family_index);
 }
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)

@@ -23,8 +23,8 @@
 #include <cassert>
 #include <vector>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 void encode_struct(ParameterEncoder* encoder, const VkClearColorValue& value)
 {
@@ -59,8 +59,8 @@ void encode_struct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value
                 encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(value));
                 break;
             default:
-                BRIMSTONE_LOG_WARNING("Skipping custom struct encoding for unrecognized VkObjectEntryTypeNVX %u",
-                                      value->type);
+                GFXRECON_LOG_WARNING("Skipping custom struct encoding for unrecognized VkObjectEntryTypeNVX %u",
+                                     value->type);
                 assert(true);
                 break;
         }
@@ -140,5 +140,5 @@ void encode_struct(ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value)
     encoder->EncodeInt32Value(value.bInheritHandle);
 }
 
-BRIMSTONE_END_NAMESPACE(encode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(gfxrecon)

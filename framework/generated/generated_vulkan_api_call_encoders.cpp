@@ -34,7 +34,7 @@
 
 #include <mutex>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(
     const VkInstanceCreateInfo*                 pCreateInfo,
@@ -8207,4 +8207,4 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
 }
 #endif /* VK_USE_PLATFORM_FUCHSIA */
 
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(gfxrecon)

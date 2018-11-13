@@ -25,8 +25,8 @@
 #include <cstdlib>
 #include <limits>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 // Names for protocol and state atoms.
 const char kProtocolName[]           = "WM_PROTOCOLS";
@@ -67,7 +67,7 @@ bool XcbWindow::Create(
     window_ = xcb_generate_id(connection);
     if (window_ == 0)
     {
-        BRIMSTONE_LOG_ERROR("Failed to generate window ID");
+        GFXRECON_LOG_ERROR("Failed to generate window ID");
         return false;
     }
 
@@ -86,7 +86,7 @@ bool XcbWindow::Create(
     }
     else
     {
-        BRIMSTONE_LOG_WARNING("Failed to retrieve screen geometry with error code %u", error->error_code);
+        GFXRECON_LOG_WARNING("Failed to retrieve screen geometry with error code %u", error->error_code);
     }
 
     // Determine if fullscreen mode is required.
@@ -98,7 +98,7 @@ bool XcbWindow::Create(
     {
         if ((screen_height_ < height) || (screen_width_ < width))
         {
-            BRIMSTONE_LOG_WARNING(
+            GFXRECON_LOG_WARNING(
                 "Requested window size (%ux%u) exceeds current screen size (%ux%u); replay may fail due to "
                 "inability to create a window of the appropriate size.",
                 width,
@@ -135,7 +135,7 @@ bool XcbWindow::Create(
     error = xcb_request_check(connection, cookie);
     if (error != nullptr)
     {
-        BRIMSTONE_LOG_ERROR("Failed to create window with error %u", error->error_code);
+        GFXRECON_LOG_ERROR("Failed to create window with error %u", error->error_code);
         window_ = 0;
         return false;
     }
@@ -218,7 +218,7 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
         {
             if ((screen_height_ < height) || (screen_width_ < width))
             {
-                BRIMSTONE_LOG_WARNING(
+                GFXRECON_LOG_WARNING(
                     "Requested window size (%ux%u) exceeds current screen size (%ux%u); replay may fail due to "
                     "inability to create a window of the appropriate size.",
                     width,
@@ -255,7 +255,7 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
             // TODO: We may need to check for any error, not an error for a specific sequence number.
             if (xcb_application_->GetLastErrorSequence() == pending_event_.sequence)
             {
-                BRIMSTONE_LOG_ERROR("Failed to resize window with error %u", xcb_application_->GetLastErrorCode());
+                GFXRECON_LOG_ERROR("Failed to resize window with error %u", xcb_application_->GetLastErrorCode());
                 break;
             }
         }
@@ -314,7 +314,7 @@ void XcbWindow::SetFullscreen(bool fullscreen)
         }
         else
         {
-            BRIMSTONE_LOG_ERROR("Failed to toggle fullscreen mode with error %u", error->error_code);
+            GFXRECON_LOG_ERROR("Failed to toggle fullscreen mode with error %u", error->error_code);
         }
     }
 }
@@ -355,8 +355,8 @@ void XcbWindow::SetVisibility(bool show)
             // TODO: We may need to check for any error, not an error for a specific sequence number.
             if (xcb_application_->GetLastErrorSequence() == pending_event_.sequence)
             {
-                BRIMSTONE_LOG_ERROR("Failed to change window visibility with error %u",
-                                    xcb_application_->GetLastErrorCode());
+                GFXRECON_LOG_ERROR("Failed to change window visibility with error %u",
+                                   xcb_application_->GetLastErrorCode());
                 break;
             }
         }
@@ -412,7 +412,7 @@ xcb_atom_t XcbWindow::GetAtom(const char* name, uint8_t only_if_exists) const
     }
     else
     {
-        BRIMSTONE_LOG_ERROR("Failed to retrieve internal atom for %s with error %u", name, error->error_code);
+        GFXRECON_LOG_ERROR("Failed to retrieve internal atom for %s with error %u", name, error->error_code);
         return false;
     }
 
@@ -462,5 +462,5 @@ VkBool32 XcbWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice
         physical_device, queue_family_index, connection, screen->root_visual);
 }
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)

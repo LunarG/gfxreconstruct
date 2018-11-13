@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
-#define BRIMSTONE_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
+#ifndef GFXRECON_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
+#define GFXRECON_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
 
 #include "decode/pointer_decoder.h"
 #include "decode/vulkan_object_mapper.h"
@@ -34,8 +34,8 @@
 #include <string>
 #include <unordered_map>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class VulkanReplayConsumerBase : public VulkanConsumer
 {
@@ -272,15 +272,15 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, Pfn func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(consumer);
+            GFXRECON_UNREFERENCED_PARAMETER(consumer);
             return func(args...);
         }
 
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, Pfn func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(consumer);
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(consumer);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return func(args...);
         }
     };
@@ -292,8 +292,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkCreateInstance func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateInstance(args...);
         }
     };
@@ -305,8 +305,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkCreateDevice func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateDevice(args...);
         }
     };
@@ -318,7 +318,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkWaitForFences func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideWaitForFences(original_result, args...);
         }
     };
@@ -330,7 +330,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkGetFenceStatus func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetFenceStatus(original_result, args...);
         }
     };
@@ -342,7 +342,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkGetEventStatus func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetEventStatus(original_result, args...);
         }
     };
@@ -356,7 +356,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkGetQueryPoolResults func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetQueryPoolResults(original_result, args...);
         }
     };
@@ -368,8 +368,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkMapMemory func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideMapMemory(args...);
         }
     };
@@ -380,7 +380,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkUnmapMemory func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideUnmapMemory(args...);
         }
     };
@@ -391,7 +391,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkFreeMemory func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideFreeMemory(args...);
         }
     };
@@ -405,7 +405,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateDescriptorUpdateTemplate func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateDescriptorUpdateTemplate(func, args...);
         }
     };
@@ -419,7 +419,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateDescriptorUpdateTemplateKHR func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateDescriptorUpdateTemplate(func, args...);
         }
     };
@@ -433,8 +433,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateAndroidSurfaceKHR func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateAndroidSurfaceKHR(args...);
         }
     };
@@ -448,8 +448,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateWin32SurfaceKHR func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateWin32SurfaceKHR(args...);
         }
     };
@@ -462,7 +462,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetPhysicalDeviceWin32PresentationSupportKHR(args...);
         }
     };
@@ -476,8 +476,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateXcbSurfaceKHR func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateXcbSurfaceKHR(args...);
         }
     };
@@ -490,7 +490,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetPhysicalDeviceXcbPresentationSupportKHR(args...);
         }
     };
@@ -504,8 +504,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateXlibSurfaceKHR func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateXlibSurfaceKHR(args...);
         }
     };
@@ -518,7 +518,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetPhysicalDeviceXlibPresentationSupportKHR(args...);
         }
     };
@@ -532,8 +532,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateWaylandSurfaceKHR func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
-            BRIMSTONE_UNREFERENCED_PARAMETER(original_result);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(original_result);
             return consumer->OverrideCreateWaylandSurfaceKHR(args...);
         }
     };
@@ -546,7 +546,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,
                             Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(args...);
         }
     };
@@ -557,13 +557,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkDestroySurfaceKHR func, Args... args)
         {
-            BRIMSTONE_UNREFERENCED_PARAMETER(func);
+            GFXRECON_UNREFERENCED_PARAMETER(func);
             return consumer->OverrideDestroySurfaceKHR(args...);
         }
     };
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
+#endif // GFXRECON_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H

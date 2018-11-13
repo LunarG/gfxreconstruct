@@ -1,8 +1,8 @@
-add_executable(gcapplay "")
+add_executable(gfxrecon-replay "")
 
-target_sources(gcapplay
+target_sources(gfxrecon-replay
                PRIVATE
                    main.cpp
               )
 
-target_link_libraries(gcapplay brimstone_application brimstone_decode brimstone_format brimstone_util platform_specific)
+target_link_libraries(gfxrecon-replay gfxrecon_application gfxrecon_decode gfxrecon_format gfxrecon_util platform_specific)

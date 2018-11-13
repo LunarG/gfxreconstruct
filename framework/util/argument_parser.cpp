@@ -22,8 +22,8 @@
 #include <cstring>
 #include <sstream>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 ArgumentParser::ArgumentParser(int32_t            argc,
                                const char** const argv,
@@ -168,7 +168,7 @@ ArgumentParser::ArgumentParser(int32_t            argc,
                     // be an invalid value.
                     invalid_values_present_.push_back(current_argument);
                     is_invalid_ = true;
-                    BRIMSTONE_LOG_ERROR("Invalid command-line setting \'%s\'", current_argument.c_str());
+                    GFXRECON_LOG_ERROR("Invalid command-line setting \'%s\'", current_argument.c_str());
                 }
             }
             else
@@ -192,10 +192,10 @@ ArgumentParser::ArgumentParser(int32_t            argc,
     {
         // Expected some number of arguments and didn't get any
         is_invalid_ = true;
-        BRIMSTONE_LOG_ERROR("Error: Different number of non-optional arguments.\n"
-                            "Error:     Requires %d options, but %d provided",
-                            expected_non_opt_args,
-                            (argc - 1));
+        GFXRECON_LOG_ERROR("Error: Different number of non-optional arguments.\n"
+                           "Error:     Requires %d options, but %d provided",
+                           expected_non_opt_args,
+                           (argc - 1));
     }
 }
 
@@ -222,5 +222,5 @@ const std::string& ArgumentParser::GetArgumentValue(const std::string& argument)
     return empty_string;
 }
 
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)

@@ -28,7 +28,7 @@
 
 #include <cassert>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 static void EncodeDescriptorUpdateTemplateInfo(encode::TraceManager*      manager,
                                                encode::ParameterEncoder*  encoder,
@@ -219,4 +219,4 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
     return result;
 }
 
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(gfxrecon)

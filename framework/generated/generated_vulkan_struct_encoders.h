@@ -20,8 +20,8 @@
 **
 */
 
-#ifndef  BRIMSTONE_GENERATED_VULKAN_STRUCT_ENCODERS_H
-#define  BRIMSTONE_GENERATED_VULKAN_STRUCT_ENCODERS_H
+#ifndef  GFXRECON_GENERATED_VULKAN_STRUCT_ENCODERS_H
+#define  GFXRECON_GENERATED_VULKAN_STRUCT_ENCODERS_H
 
 #include "encode/parameter_encoder.h"
 #include "util/defines.h"
@@ -30,8 +30,8 @@
 
 #include <cstdint>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 void encode_pnext_struct(ParameterEncoder* encoder, const void* value);
 
@@ -528,7 +528,7 @@ void encode_struct(ParameterEncoder* encoder, const VkCheckpointDataNV& value);
 void encode_struct(ParameterEncoder* encoder, const VkImagePipeSurfaceCreateInfoFUCHSIA& value);
 #endif /* VK_USE_PLATFORM_FUCHSIA */
 
-BRIMSTONE_END_NAMESPACE(encode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif

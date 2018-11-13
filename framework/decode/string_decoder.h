@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_STRING_DECODER_H
-#define BRIMSTONE_DECODE_STRING_DECODER_H
+#ifndef GFXRECON_DECODE_STRING_DECODER_H
+#define GFXRECON_DECODE_STRING_DECODER_H
 
 #include "decode/pointer_decoder_base.h"
 #include "decode/value_decoder.h"
@@ -26,8 +26,8 @@
 #include <cassert>
 #include <cwchar>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 template <typename CharT, format::PointerAttributes DecodeAttrib>
 class BasicStringDecoder : public PointerDecoderBase
@@ -55,7 +55,7 @@ class BasicStringDecoder : public PointerDecoderBase
         }
         else
         {
-            BRIMSTONE_LOG_WARNING("String decoder's external memory was initialized with a NULL pointer");
+            GFXRECON_LOG_WARNING("String decoder's external memory was initialized with a NULL pointer");
         }
     }
 
@@ -97,11 +97,11 @@ class BasicStringDecoder : public PointerDecoderBase
                         (buffer + bytes_read), (buffer_size - bytes_read), data_, (capacity_ - 1));
                     data_[capacity_] = '\0';
 
-                    BRIMSTONE_LOG_WARNING("String decoder's external memory capacity (%" PRIuPTR
-                                          ") is smaller than the decoded string size (%" PRIuPTR
-                                          "); data will be truncated",
-                                          capacity_,
-                                          alloc_len);
+                    GFXRECON_LOG_WARNING("String decoder's external memory capacity (%" PRIuPTR
+                                         ") is smaller than the decoded string size (%" PRIuPTR
+                                         "); data will be truncated",
+                                         capacity_,
+                                         alloc_len);
                 }
 
                 // We always need to advance the position within the buffer by the amount of data that was expected to
@@ -122,7 +122,7 @@ class BasicStringDecoder : public PointerDecoderBase
 typedef BasicStringDecoder<char, format::PointerAttributes::kIsString>     StringDecoder;
 typedef BasicStringDecoder<wchar_t, format::PointerAttributes::kIsWString> WStringDecoder;
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_STRING_DECODER_H
+#endif // GFXRECON_DECODE_STRING_DECODER_H

@@ -21,8 +21,8 @@
 #include "decode/pointer_decoder.h"
 #include "decode/value_decoder.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 void VulkanDecoderBase::DispatchDisplayMessageCommand(const std::string& message)
 {
@@ -167,7 +167,7 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId             call_id
                                            const uint8_t*                parameter_buffer,
                                            size_t                        buffer_size)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(call_options);
+    GFXRECON_UNREFERENCED_PARAMETER(call_options);
 
     switch (call_id)
     {
@@ -188,5 +188,5 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId             call_id
     }
 }
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)

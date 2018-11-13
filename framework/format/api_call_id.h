@@ -21,15 +21,15 @@
 **
 */
 
-#ifndef BRIMSTONE_FORMAT_API_CALL_ID_H
-#define BRIMSTONE_FORMAT_API_CALL_ID_H
+#ifndef GFXRECON_FORMAT_API_CALL_ID_H
+#define GFXRECON_FORMAT_API_CALL_ID_H
 
 #include "util/defines.h"
 
 #include <cstdint>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(format)
 
 constexpr uint32_t MakeApiCallId(uint16_t family, uint16_t api_call)
 {
@@ -386,7 +386,7 @@ enum ApiCallId : uint32_t
     // clang-format on
 };
 
-BRIMSTONE_END_NAMESPACE(brimstone)
-BRIMSTONE_END_NAMESPACE(format)
+GFXRECON_END_NAMESPACE(gfxrecon)
+GFXRECON_END_NAMESPACE(format)
 
-#endif // BRIMSTONE_FORMAT_API_CALL_ID_H
+#endif // GFXRECON_FORMAT_API_CALL_ID_H

@@ -24,8 +24,8 @@
 #include <cassert>
 #include <stdexcept>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 struct wl_shell_surface_listener WaylandWindow::shell_surface_listener_;
 
@@ -56,22 +56,22 @@ WaylandWindow::~WaylandWindow()
 bool WaylandWindow::Create(
     const std::string& title, const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(x);
-    BRIMSTONE_UNREFERENCED_PARAMETER(y);
-    BRIMSTONE_UNREFERENCED_PARAMETER(width);
-    BRIMSTONE_UNREFERENCED_PARAMETER(height);
+    GFXRECON_UNREFERENCED_PARAMETER(x);
+    GFXRECON_UNREFERENCED_PARAMETER(y);
+    GFXRECON_UNREFERENCED_PARAMETER(width);
+    GFXRECON_UNREFERENCED_PARAMETER(height);
 
     surface_ = wl_compositor_create_surface(wayland_application_->GetCompositor());
     if (surface_ == nullptr)
     {
-        BRIMSTONE_LOG_ERROR("Failed to create Wayland surface");
+        GFXRECON_LOG_ERROR("Failed to create Wayland surface");
         return false;
     }
 
     shell_surface_ = wl_shell_get_shell_surface(wayland_application_->GetShell(), surface_);
     if (!shell_surface_)
     {
-        BRIMSTONE_LOG_ERROR("Failed to create Wayland shell surface");
+        GFXRECON_LOG_ERROR("Failed to create Wayland shell surface");
         return false;
     }
 
@@ -110,21 +110,21 @@ void WaylandWindow::SetTitle(const std::string& title)
 
 void WaylandWindow::SetPosition(const int32_t x, const int32_t y)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(x);
-    BRIMSTONE_UNREFERENCED_PARAMETER(y);
+    GFXRECON_UNREFERENCED_PARAMETER(x);
+    GFXRECON_UNREFERENCED_PARAMETER(y);
     // TODO: May be possible with xdg-shell extension.
 }
 
 void WaylandWindow::SetSize(const uint32_t width, const uint32_t height)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(width);
-    BRIMSTONE_UNREFERENCED_PARAMETER(height);
+    GFXRECON_UNREFERENCED_PARAMETER(width);
+    GFXRECON_UNREFERENCED_PARAMETER(height);
     // The shell surface should be automatically configured to match the VkSurface dimensions.
 }
 
 void WaylandWindow::SetVisibility(bool show)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(show);
+    GFXRECON_UNREFERENCED_PARAMETER(show);
 }
 
 void WaylandWindow::SetForeground() {}
@@ -186,5 +186,5 @@ VkBool32 WaylandWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDe
         physical_device, queue_family_index, wayland_application_->GetDisplay());
 }
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)

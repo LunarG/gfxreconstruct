@@ -15,15 +15,15 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_APPLICATION_WIN32_APPLICATION_H
-#define BRIMSTONE_APPLICATION_WIN32_APPLICATION_H
+#ifndef GFXRECON_APPLICATION_WIN32_APPLICATION_H
+#define GFXRECON_APPLICATION_WIN32_APPLICATION_H
 
 #include "application/application.h"
 #include "util/defines.h"
 #include "util/platform.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 class Win32Application : public Application
 {
@@ -39,7 +39,7 @@ class Win32Application : public Application
     static LRESULT WINAPI WindowProc(HWND window, unsigned int msg, WPARAM wp, LPARAM lp);
 };
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_APPLICATION_WIN32_APPLICATION_H
+#endif // GFXRECON_APPLICATION_WIN32_APPLICATION_H

@@ -10,7 +10,7 @@ add_library(native_app_glue STATIC
 # Refer to: https://github.com/android-ndk/ndk/issues/381.
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
-get_filename_component(BRIMSTONE_SOURCE_DIR ../../.. ABSOLUTE)
+get_filename_component(GFXRECON_SOURCE_DIR ../../.. ABSOLUTE)
 
 include(../../framework/cmake-config/PlatformConfig.cmake)
 add_subdirectory(../../framework/util ${CMAKE_SOURCE_DIR}/../../framework/util/build)
@@ -18,18 +18,18 @@ add_subdirectory(../../framework/format ${CMAKE_SOURCE_DIR}/../../framework/form
 add_subdirectory(../../framework/decode ${CMAKE_SOURCE_DIR}/../../framework/decode/build)
 add_subdirectory(../../framework/application ${CMAKE_SOURCE_DIR}/../../framework/application/build)
 
-add_library(brimstone_replay SHARED ${BRIMSTONE_SOURCE_DIR}/tools/replay/android_main.cpp)
+add_library(gfxrecon-replay SHARED ${GFXRECON_SOURCE_DIR}/tools/replay/android_main.cpp)
 
-target_include_directories(brimstone_replay
+target_include_directories(gfxrecon-replay
                            PUBLIC
                                ${ANDROID_NDK}/sources/android/native_app_glue)
 
 target_link_libraries(
-        brimstone_replay
-        brimstone_application
-        brimstone_decode
-        brimstone_format
-        brimstone_util
+        gfxrecon-replay
+        gfxrecon_application
+        gfxrecon_decode
+        gfxrecon_format
+        gfxrecon_util
         platform_specific
         native_app_glue
         android

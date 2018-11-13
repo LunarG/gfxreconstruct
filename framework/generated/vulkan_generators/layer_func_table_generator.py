@@ -61,7 +61,7 @@ class LayerFuncTableGenerator(BaseGenerator):
         self.newline()
         write('#include <unordered_map>', file=self.outFile)
         self.newline()
-        write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         self.newline()
         write('const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {', file=self.outFile)
 
@@ -74,7 +74,7 @@ class LayerFuncTableGenerator(BaseGenerator):
         write('    { "vk_layerGetPhysicalDeviceProcAddr",%sreinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },' % (' ' * align), file=self.outFile)
         write('};', file=self.outFile)
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)

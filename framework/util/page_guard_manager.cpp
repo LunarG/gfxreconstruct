@@ -24,8 +24,8 @@
 #include <cassert>
 #include <cinttypes>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 #if defined(WIN32)
 #if !defined(WIN32_LEAN_AND_MEAN)
@@ -176,7 +176,7 @@ void PageGuardManager::Create(bool enable_shadow_cached_memory,
     }
     else
     {
-        BRIMSTONE_LOG_WARNING("PageGuardManager creation was attempted more than once");
+        GFXRECON_LOG_WARNING("PageGuardManager creation was attempted more than once");
     }
 }
 
@@ -233,7 +233,7 @@ void* PageGuardManager::AllocateShadowMemory(size_t size)
 
     if (memory == nullptr)
     {
-        BRIMSTONE_LOG_ERROR("PageGuardManager failed to allocate shadow memory with size = %" PRIuPTR, size);
+        GFXRECON_LOG_ERROR("PageGuardManager failed to allocate shadow memory with size = %" PRIuPTR, size);
     }
 
     return memory;
@@ -246,7 +246,7 @@ void PageGuardManager::FreeShadowMemory(void* memory, size_t size)
     if (memory != nullptr)
     {
 #if defined(WIN32)
-        BRIMSTONE_UNREFERENCED_PARAMETER(size);
+        GFXRECON_UNREFERENCED_PARAMETER(size);
         VirtualFree(memory, 0, MEM_RELEASE);
 #else
         munmap(memory, size);
@@ -262,8 +262,8 @@ void PageGuardManager::SetExceptionHandler()
         exception_handler_ = AddVectoredExceptionHandler(1, PageGuardExceptionHandler);
         if (exception_handler_ == nullptr)
         {
-            BRIMSTONE_LOG_ERROR("PageGuardManager failed to register exception handler (GetLastError() returned %d)",
-                                GetLastError());
+            GFXRECON_LOG_ERROR("PageGuardManager failed to register exception handler (GetLastError() returned %d)",
+                               GetLastError());
         }
 #else
         struct sigaction sa;
@@ -272,7 +272,7 @@ void PageGuardManager::SetExceptionHandler()
         sa.sa_sigaction = PageGuardExceptionHandler;
         if (sigaction(SIGSEGV, &sa, &g_old_sigaction) == -1)
         {
-            BRIMSTONE_LOG_ERROR("PageGuardManager failed to register exception handler (errno = %d)", errno);
+            GFXRECON_LOG_ERROR("PageGuardManager failed to register exception handler (errno = %d)", errno);
         }
         else
         {
@@ -289,13 +289,13 @@ void PageGuardManager::RemoveExceptionHandler()
 #if defined(WIN32)
         if (RemoveVectoredExceptionHandler(exception_handler_) == 0)
         {
-            BRIMSTONE_LOG_ERROR("PageGuardManager failed to remove exception handler (GetLastError() returned %d)",
-                                GetLastError());
+            GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (GetLastError() returned %d)",
+                               GetLastError());
         }
 #else
         if (sigaction(SIGSEGV, &g_old_sigaction, nullptr) == -1)
         {
-            BRIMSTONE_LOG_ERROR("PageGuardManager failed to remove exception handler (errno= %d)", errno);
+            GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (errno= %d)", errno);
         }
 #endif
         exception_handler_ = nullptr;
@@ -351,7 +351,7 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
     {
         success = false;
 
-        BRIMSTONE_LOG_ERROR(
+        GFXRECON_LOG_ERROR(
             "PageGuardManager failed to enable page guard for memory region [start address = %p, size = %" PRIu64
             "] (VirtualProtect() produced error code %u)",
             protect_address,
@@ -363,7 +363,7 @@ bool PageGuardManager::SetMemoryProtection(void* protect_address, size_t protect
     {
         success = false;
 
-        BRIMSTONE_LOG_ERROR(
+        GFXRECON_LOG_ERROR(
             "PageGuardManager failed to enable page guard for memory region [start address = %p, size = %" PRIu64
             "] (mprotect() produced error code %d)",
             protect_address,
@@ -459,7 +459,7 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
     // we copy the modified pages and re-enable the page guard.
     if (ResetWriteWatch(start_address, page_range) != 0)
     {
-        BRIMSTONE_LOG_ERROR(
+        GFXRECON_LOG_ERROR(
             "PageGuardManager failed to reset write watch for memory region [start address = %p, size = %" PRIu64
             "] (ResetWriteWatch() produced error code %u)",
             start_address,
@@ -534,10 +534,10 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
         }
         else
         {
-            BRIMSTONE_LOG_ERROR("PageGuardManager failed to retrieve write watch count for page %p"
-                                " (GetWriteWatch() produced error code %u)",
-                                page_address,
-                                GetLastError());
+            GFXRECON_LOG_ERROR("PageGuardManager failed to retrieve write watch count for page %p"
+                               " (GetWriteWatch() produced error code %u)",
+                               page_address,
+                               GetLastError());
         }
     }
 #endif
@@ -783,5 +783,5 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
     return found;
 }
 
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)

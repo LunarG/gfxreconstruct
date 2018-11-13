@@ -15,17 +15,17 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_FILE_PATH_H
-#define BRIMSTONE_UTIL_FILE_PATH_H
+#ifndef GFXRECON_UTIL_FILE_PATH_H
+#define GFXRECON_UTIL_FILE_PATH_H
 
 #include "util/date_time.h"
 #include "util/defines.h"
 
 #include <string>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
-BRIMSTONE_BEGIN_NAMESPACE(filepath)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(filepath)
 
 inline std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false)
 {
@@ -47,8 +47,8 @@ inline std::string GenerateTimestampedFilename(const std::string& filename, bool
     return core_filename + "_" + util::datetime::GetDateTimeString(use_gmt) + file_extension;
 }
 
-BRIMSTONE_END_NAMESPACE(filepath)
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(filepath)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_UTIL_FILE_PATH_H
+#endif // GFXRECON_UTIL_FILE_PATH_H

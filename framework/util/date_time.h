@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_DATE_TIME_H
-#define BRIMSTONE_UTIL_DATE_TIME_H
+#ifndef GFXRECON_UTIL_DATE_TIME_H
+#define GFXRECON_UTIL_DATE_TIME_H
 
 #include "util/defines.h"
 #include "util/logging.h"
@@ -32,9 +32,9 @@
 #include <windows.h>
 #endif // WIN32
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
-BRIMSTONE_BEGIN_NAMESPACE(datetime)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(datetime)
 
 #if defined(WIN32)
 
@@ -105,14 +105,14 @@ inline std::string GetDateTimeString(bool use_gmt)
     }
     else
     {
-        BRIMSTONE_LOG_ERROR("GetDateTimeString failed to retrieve localtime/gmtime");
+        GFXRECON_LOG_ERROR("GetDateTimeString failed to retrieve localtime/gmtime");
     }
 
     return datetime;
 }
 
-BRIMSTONE_END_NAMESPACE(datetime)
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(datetime)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_UTIL_DATE_TIME_H
+#endif // GFXRECON_UTIL_DATE_TIME_H

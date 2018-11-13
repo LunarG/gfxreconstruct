@@ -15,14 +15,14 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
-#define BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
+#ifndef GFXRECON_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
+#define GFXRECON_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
 
 #include "format/platform_types.h"
 #include "util/defines.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 // Decoded unions.
 struct Decoded_VkClearColorValue;
@@ -43,7 +43,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wra
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper);
 size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper);
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H
+#endif // GFXRECON_DECODE_CUSTOM_STRUCT_DECODER_DECLARATIONS_H

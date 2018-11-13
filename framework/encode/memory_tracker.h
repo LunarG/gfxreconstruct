@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_ENCODE_MEMORY_TRACKER_H
-#define BRIMSTONE_ENCODE_MEMORY_TRACKER_H
+#ifndef GFXRECON_ENCODE_MEMORY_TRACKER_H
+#define GFXRECON_ENCODE_MEMORY_TRACKER_H
 
 #include "util/defines.h"
 
@@ -25,8 +25,8 @@
 #include <functional>
 #include <unordered_map>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 class MemoryTracker
 {
@@ -66,7 +66,7 @@ class MemoryTracker
     std::unordered_map<VkDeviceMemory, EntryInfo> mapped_memory_;
 };
 
-BRIMSTONE_END_NAMESPACE(encode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_ENCODE_MEMORY_TRACKER_H
+#endif // GFXRECON_ENCODE_MEMORY_TRACKER_H

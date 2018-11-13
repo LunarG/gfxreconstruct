@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_STRING_ARRAY_DECODER_H
-#define BRIMSTONE_DECODE_STRING_ARRAY_DECODER_H
+#ifndef GFXRECON_DECODE_STRING_ARRAY_DECODER_H
+#define GFXRECON_DECODE_STRING_ARRAY_DECODER_H
 
 #include "decode/pointer_decoder_base.h"
 #include "decode/value_decoder.h"
@@ -27,8 +27,8 @@
 #include <cwchar>
 #include <memory>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 template <typename CharT, format::PointerAttributes DecodeAttrib>
 class BasicStringArrayDecoder : public PointerDecoderBase
@@ -57,7 +57,7 @@ class BasicStringArrayDecoder : public PointerDecoderBase
         if (!IsNull() && HasData())
         {
             size_t len         = GetLength();
-            strings_           = std::make_unique<char* []>(len);
+            strings_           = std::make_unique<char*[]>(len);
             string_attributes_ = std::make_unique<uint32_t[]>(len);
             string_addresses_  = std::make_unique<uint64_t[]>(len);
             string_lengths_    = std::make_unique<size_t[]>(len);
@@ -127,7 +127,7 @@ class BasicStringArrayDecoder : public PointerDecoderBase
     }
 
   private:
-    std::unique_ptr<CharT* []>  strings_;
+    std::unique_ptr<CharT*[]>   strings_;
     std::unique_ptr<uint32_t[]> string_attributes_;
     std::unique_ptr<uint64_t[]> string_addresses_;
     std::unique_ptr<size_t[]>   string_lengths_;
@@ -136,7 +136,7 @@ class BasicStringArrayDecoder : public PointerDecoderBase
 typedef BasicStringArrayDecoder<char, format::PointerAttributes::kIsString>     StringArrayDecoder;
 typedef BasicStringArrayDecoder<wchar_t, format::PointerAttributes::kIsWString> WStringArrayDecoder;
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_STRING_ARRAY_DECODER_H
+#endif // GFXRECON_DECODE_STRING_ARRAY_DECODER_H

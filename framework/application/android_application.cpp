@@ -21,8 +21,8 @@
 
 #include <jni.h>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 AndroidApplication::AndroidApplication(const std::string& name, struct android_app* app) :
     Application(name), window_(nullptr), android_app_(app)
@@ -105,5 +105,5 @@ void AndroidApplication::SetOrientation(ScreenOrientation orientation)
     }
 }
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)

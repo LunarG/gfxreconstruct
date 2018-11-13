@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_PLATFORM_H
-#define BRIMSTONE_UTIL_PLATFORM_H
+#ifndef GFXRECON_UTIL_PLATFORM_H
+#define GFXRECON_UTIL_PLATFORM_H
 
 #include "util/defines.h"
 
@@ -42,9 +42,9 @@
 #include <signal.h>
 #endif // WIN32
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
-BRIMSTONE_BEGIN_NAMESPACE(platform)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(platform)
 
 enum FileSeekOrigin
 {
@@ -348,8 +348,8 @@ inline int32_t FileClose(FILE* stream)
     return fclose(stream);
 }
 
-BRIMSTONE_END_NAMESPACE(platform)
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(platform)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_UTIL_PLATFORM_H
+#endif // GFXRECON_UTIL_PLATFORM_H

@@ -20,16 +20,16 @@
 **
 */
 
-#ifndef  BRIMSTONE_GENERATED_VULKAN_DECODER_H
-#define  BRIMSTONE_GENERATED_VULKAN_DECODER_H
+#ifndef  GFXRECON_GENERATED_VULKAN_DECODER_H
+#define  GFXRECON_GENERATED_VULKAN_DECODER_H
 
 #include "decode/vulkan_decoder_base.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class VulkanDecoder : public VulkanDecoderBase
 {
@@ -693,7 +693,7 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkCreateImagePipeSurfaceFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif

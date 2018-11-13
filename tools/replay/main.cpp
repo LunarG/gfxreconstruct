@@ -44,7 +44,7 @@
 #endif
 #endif
 
-const std::string kApplicationName = "GCAP Player";
+const std::string kApplicationName = "GFXReconstruct Replay";
 
 void PrintUsage(const char* exe_name)
 {
@@ -54,23 +54,22 @@ void PrintUsage(const char* exe_name)
     {
         app_name.replace(0, dir_location + 1, "");
     }
-    BRIMSTONE_WRITE_CONSOLE("\n%s\tis a trace replay tool designed to playback trace binary files.\n",
-                            app_name.c_str());
-    BRIMSTONE_WRITE_CONSOLE("Usage:");
-    BRIMSTONE_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
-    BRIMSTONE_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the ");
-    BRIMSTONE_WRITE_CONSOLE("\t\t\t\ttrace file to replay");
+    GFXRECON_WRITE_CONSOLE("\n%s\tis a replay tool designed to playback GFXReconstruct capture files.\n",
+                           app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("Usage:");
+    GFXRECON_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the ");
+    GFXRECON_WRITE_CONSOLE("\t\t\t\tcapture file to replay");
 }
 
 int main(int argc, const char** argv)
 {
     int return_code = 0;
 
-    brimstone::util::logging::Init();
+    gfxrecon::util::logging::Init();
 
-
-    brimstone::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
-    const std::vector<std::string>  non_optional_arguments = arg_parser.GetNonOptionalArguments();
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
+    const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
     if (arg_parser.IsInvalid() || non_optional_arguments.size() != 1)
     {
         PrintUsage(argv[0]);
@@ -82,13 +81,13 @@ int main(int argc, const char** argv)
 
         try
         {
-            brimstone::decode::FileProcessor                     file_processor;
-            std::unique_ptr<brimstone::application::Application> application;
-            std::unique_ptr<brimstone::decode::WindowFactory>    window_factory;
+            gfxrecon::decode::FileProcessor                     file_processor;
+            std::unique_ptr<gfxrecon::application::Application> application;
+            std::unique_ptr<gfxrecon::decode::WindowFactory>    window_factory;
 
             if (!file_processor.Initialize(filename))
             {
-                BRIMSTONE_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
+                GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
                 return_code = -1;
             }
             else
@@ -96,36 +95,36 @@ int main(int argc, const char** argv)
                 // Setup platform specific application and window factory.
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-                brimstone::application::Win32Application* win32_application =
-                    new brimstone::application::Win32Application(kApplicationName);
-                application    = std::unique_ptr<brimstone::application::Application>(win32_application);
-                window_factory = std::make_unique<brimstone::application::Win32WindowFactory>(win32_application);
+                gfxrecon::application::Win32Application* win32_application =
+                    new gfxrecon::application::Win32Application(kApplicationName);
+                application    = std::unique_ptr<gfxrecon::application::Application>(win32_application);
+                window_factory = std::make_unique<gfxrecon::application::Win32WindowFactory>(win32_application);
 #endif
 #else
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-                brimstone::application::XcbApplication* xcb_application =
-                    new brimstone::application::XcbApplication(kApplicationName);
-                application    = std::unique_ptr<brimstone::application::Application>(xcb_application);
-                window_factory = std::make_unique<brimstone::application::XcbWindowFactory>(xcb_application);
+                gfxrecon::application::XcbApplication* xcb_application =
+                    new gfxrecon::application::XcbApplication(kApplicationName);
+                application    = std::unique_ptr<gfxrecon::application::Application>(xcb_application);
+                window_factory = std::make_unique<gfxrecon::application::XcbWindowFactory>(xcb_application);
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-                brimstone::application::WaylandApplication* wayland_application =
-                    new brimstone::application::WaylandApplication(kApplicationName);
-                application    = std::unique_ptr<brimstone::application::Application>(wayland_application);
-                window_factory = std::make_unique<brimstone::application::WaylandWindowFactory>(wayland_application);
+                gfxrecon::application::WaylandApplication* wayland_application =
+                    new gfxrecon::application::WaylandApplication(kApplicationName);
+                application    = std::unique_ptr<gfxrecon::application::Application>(wayland_application);
+                window_factory = std::make_unique<gfxrecon::application::WaylandWindowFactory>(wayland_application);
 #endif
 #endif
 
                 if (!window_factory || !application || !application->Initialize(&file_processor))
                 {
-                    BRIMSTONE_WRITE_CONSOLE(
+                    GFXRECON_WRITE_CONSOLE(
                         "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
                         "Vulkan platform extensions have been enabled.");
                     return_code = -1;
                 }
                 else
                 {
-                    brimstone::decode::VulkanDecoder        decoder;
-                    brimstone::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
+                    gfxrecon::decode::VulkanDecoder        decoder;
+                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
 
                     replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });
@@ -139,17 +138,17 @@ int main(int argc, const char** argv)
         }
         catch (std::runtime_error error)
         {
-            BRIMSTONE_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
+            GFXRECON_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
             return_code = -1;
         }
         catch (...)
         {
-            BRIMSTONE_WRITE_CONSOLE("Replay failed due to an unhandled exception");
+            GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
             return_code = -1;
         }
     }
 
-    brimstone::util::logging::Release();
+    gfxrecon::util::logging::Release();
 
     return return_code;
 }

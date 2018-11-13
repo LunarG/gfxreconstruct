@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_APPLICATION_XCB_WINDOW_H
-#define BRIMSTONE_APPLICATION_XCB_WINDOW_H
+#ifndef GFXRECON_APPLICATION_XCB_WINDOW_H
+#define GFXRECON_APPLICATION_XCB_WINDOW_H
 
 #include "application/xcb_application.h"
 #include "decode/window.h"
@@ -24,8 +24,8 @@
 
 #include <xcb/xcb.h>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 class XcbWindow : public decode::Window
 {
@@ -132,7 +132,7 @@ class XcbWindowFactory : public decode::WindowFactory
     XcbApplication* xcb_application_;
 };
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_APPLICATION_XCB_WINDOW_H
+#endif // GFXRECON_APPLICATION_XCB_WINDOW_H

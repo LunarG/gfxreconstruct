@@ -1,6 +1,6 @@
-add_library(brimstone_decode STATIC "")
+add_library(gfxrecon_decode STATIC "")
 
-target_sources(brimstone_decode
+target_sources(gfxrecon_decode
                PRIVATE
                    api_decoder.h
                    custom_vulkan_struct_decoders.h
@@ -45,8 +45,8 @@ target_sources(brimstone_decode
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
               )
 
-target_include_directories(brimstone_decode
+target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(brimstone_decode brimstone_format brimstone_util volk vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util volk vulkan_registry platform_specific)

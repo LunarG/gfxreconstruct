@@ -19,8 +19,8 @@
 
 #include "application/win32_window.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 Win32Application::Win32Application(const std::string& name) : Application(name) {}
 
@@ -108,5 +108,5 @@ void Win32Application::ProcessEvents(bool wait_for_input)
     }
 }
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)

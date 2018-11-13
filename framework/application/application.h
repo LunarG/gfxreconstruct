@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_APPLICATION_APPLICATION_H
-#define BRIMSTONE_APPLICATION_APPLICATION_H
+#ifndef GFXRECON_APPLICATION_APPLICATION_H
+#define GFXRECON_APPLICATION_APPLICATION_H
 
 #include "decode/file_processor.h"
 #include "decode/window.h"
@@ -25,8 +25,8 @@
 #include <string>
 #include <vector>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 class Application
 {
@@ -74,7 +74,7 @@ class Application
     // clang-format on
 };
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_APPLICATION_APPLICATION_H
+#endif // GFXRECON_APPLICATION_APPLICATION_H

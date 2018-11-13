@@ -30,24 +30,24 @@ void PrintUsage(const char* exe_name)
     {
         app_name.replace(0, dir_location + 1, "");
     }
-    BRIMSTONE_WRITE_CONSOLE("\n\n%s\tis a trace replay tool designed to output the API commands", app_name.c_str());
-    BRIMSTONE_WRITE_CONSOLE("\t\tfound inside of a trace binary file.\n");
-    BRIMSTONE_WRITE_CONSOLE("Usage:");
-    BRIMSTONE_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
-    BRIMSTONE_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the trace");
-    BRIMSTONE_WRITE_CONSOLE("\t\t\t\tbinary file whose API command contents should be outputted.");
-    BRIMSTONE_WRITE_CONSOLE("\t\t\t\tThe results will be output to a file of the same name but");
-    BRIMSTONE_WRITE_CONSOLE("\t\t\t\twith \'" BRIMSTONE_FILE_EXTENSION "\' suffix replaced with \'.txt\'.");
+    GFXRECON_WRITE_CONSOLE("\n\n%s\tis a replay tool designed to output the API commands", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("\t\tfound inside of a GFXReconstruct capture file.\n");
+    GFXRECON_WRITE_CONSOLE("Usage:");
+    GFXRECON_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the capture");
+    GFXRECON_WRITE_CONSOLE("\t\t\t\tfile whose API command contents should be outputted.");
+    GFXRECON_WRITE_CONSOLE("\t\t\t\tThe results will be output to a file of the same name but");
+    GFXRECON_WRITE_CONSOLE("\t\t\t\twith \'" GFXRECON_FILE_EXTENSION "\' suffix replaced with \'.txt\'.");
 }
 
 int main(int argc, const char** argv)
 {
-    brimstone::decode::FileProcessor file_processor;
-    brimstone::util::ArgumentParser  arg_parser(argc, argv, "", "", 1);
-    std::string                      filename = "brimstone_test";
-    filename += BRIMSTONE_FILE_EXTENSION;
+    gfxrecon::decode::FileProcessor file_processor;
+    gfxrecon::util::ArgumentParser  arg_parser(argc, argv, "", "", 1);
+    std::string                     filename = "gfxrecon_test";
+    filename += GFXRECON_FILE_EXTENSION;
 
-    brimstone::util::logging::Init();
+    gfxrecon::util::logging::Init();
 
     const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
     if (arg_parser.IsInvalid() || non_optional_arguments.size() != 1)
@@ -66,7 +66,7 @@ int main(int argc, const char** argv)
     }
 
     std::string text_file_name = filename;
-    size_t      suffix_pos     = text_file_name.find(BRIMSTONE_FILE_EXTENSION);
+    size_t      suffix_pos     = text_file_name.find(GFXRECON_FILE_EXTENSION);
     if (suffix_pos != std::string::npos)
     {
         text_file_name = text_file_name.substr(0, suffix_pos);
@@ -76,8 +76,8 @@ int main(int argc, const char** argv)
 
     if (file_processor.Initialize(filename))
     {
-        brimstone::decode::VulkanDecoder       decoder;
-        brimstone::decode::VulkanAsciiConsumer ascii_consumer;
+        gfxrecon::decode::VulkanDecoder       decoder;
+        gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
 
         ascii_consumer.Initialize(text_file_name);
         decoder.AddConsumer(&ascii_consumer);

@@ -28,8 +28,8 @@
 #include <limits>
 #include <unordered_set>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 const int32_t  kDefaultWindowPositionX = 0;
 const int32_t  kDefaultWindowPositionY = 0;
@@ -63,7 +63,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
 {
-    BRIMSTONE_LOG_INFO("Trace Message: %s", message.c_str());
+    GFXRECON_LOG_INFO("Trace Message: %s", message.c_str());
 }
 
 void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
@@ -80,18 +80,18 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 
         if ((entry != memory_map_.end()) && (entry->second != nullptr))
         {
-            BRIMSTONE_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
             memcpy(static_cast<uint8_t*>(entry->second) + offset, data, static_cast<size_t>(size));
         }
         else
         {
-            BRIMSTONE_LOG_WARNING("Skipping memory fill for VkDeviceMemory object that is not mapped (%" PRIx64 ")",
-                                  memory_id);
+            GFXRECON_LOG_WARNING("Skipping memory fill for VkDeviceMemory object that is not mapped (%" PRIx64 ")",
+                                 memory_id);
         }
     }
     else
     {
-        BRIMSTONE_LOG_WARNING("Skipping memory fill for unrecognized VkDeviceMemory object (%" PRIx64 ")", memory_id);
+        GFXRECON_LOG_WARNING("Skipping memory fill for unrecognized VkDeviceMemory object (%" PRIx64 ")", memory_id);
     }
 }
 
@@ -111,13 +111,13 @@ void VulkanReplayConsumerBase::ProcessResizeWindowCommand(format::HandleId surfa
         }
         else
         {
-            BRIMSTONE_LOG_WARNING(
+            GFXRECON_LOG_WARNING(
                 "Skipping window resize for VkSurface object (%" PRIx64 ") without an associated window", surface_id);
         }
     }
     else
     {
-        BRIMSTONE_LOG_WARNING("Skipping window resize for unrecognized VkSurface object (%" PRIx64 ")", surface_id);
+        GFXRECON_LOG_WARNING("Skipping window resize for unrecognized VkSurface object (%" PRIx64 ")", surface_id);
     }
 }
 
@@ -147,8 +147,8 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
     }
     else
     {
-        BRIMSTONE_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
-                              call_name);
+        GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
+                             call_name);
     }
 
     return object;
@@ -167,8 +167,8 @@ void VulkanReplayConsumerBase::PostProcessExternalObject(const PointerDecoder<ui
     }
     else
     {
-        BRIMSTONE_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
-                              call_name);
+        GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
+                             call_name);
     }
 }
 
@@ -176,7 +176,7 @@ const VkAllocationCallbacks* VulkanReplayConsumerBase::GetAllocationCallbacks(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks)
 {
     // Replay does not currently attempt emulate the captured application's use of VkAllocationCallbacks.
-    BRIMSTONE_UNREFERENCED_PARAMETER(original_callbacks);
+    GFXRECON_UNREFERENCED_PARAMETER(original_callbacks);
     return nullptr;
 }
 
@@ -186,7 +186,7 @@ void VulkanReplayConsumerBase::CheckResult(const char* func_name, VkResult origi
     {
         // Only raise a fatal error if the device lost error is unique to playback.  If the original application
         // also encountered a device lost error, it may have handled it and continued.
-        BRIMSTONE_LOG_FATAL("API call (%s) returned VK_ERROR_DEVICE_LOST.  Replay cannot continue.", func_name);
+        GFXRECON_LOG_FATAL("API call (%s) returned VK_ERROR_DEVICE_LOST.  Replay cannot continue.", func_name);
         RaiseFatalError(
             "Replay has encountered a fatal error and cannot continue (API call returned VK_ERROR_DEVICE_LOST)");
     }
@@ -197,20 +197,20 @@ void VulkanReplayConsumerBase::CheckResult(const char* func_name, VkResult origi
         if ((original != replay) &&
             !((replay == VK_SUCCESS) && ((original == VK_TIMEOUT) || (original == VK_NOT_READY))))
         {
-            BRIMSTONE_LOG_ERROR("API call (%s) returned value %s that does not match return value from trace file %s.",
-                                func_name,
-                                enumutil::GetResultValueString(replay),
-                                enumutil::GetResultValueString(original));
+            GFXRECON_LOG_ERROR("API call (%s) returned value %s that does not match return value from capture file %s.",
+                               func_name,
+                               enumutil::GetResultValueString(replay),
+                               enumutil::GetResultValueString(original));
         }
 
         // Warn when an API call returned a failure, regardless of original result (excluding format not supported
         // results).
         if ((replay < 0) && (replay != VK_ERROR_FORMAT_NOT_SUPPORTED))
         {
-            BRIMSTONE_LOG_WARNING("API call (%s) returned error result %s: %s",
-                                  func_name,
-                                  enumutil::GetResultValueString(replay),
-                                  enumutil::GetResultDescription(replay));
+            GFXRECON_LOG_WARNING("API call (%s) returned error result %s: %s",
+                                 func_name,
+                                 enumutil::GetResultValueString(replay),
+                                 enumutil::GetResultDescription(replay));
         }
     }
 }
@@ -224,7 +224,7 @@ VkResult VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags fl
     if (window == nullptr)
     {
         // Failure to create a window is a fatal error.
-        BRIMSTONE_LOG_FATAL("Failed to create a window for use with surface creation.  Replay cannot continue.");
+        GFXRECON_LOG_FATAL("Failed to create a window for use with surface creation.  Replay cannot continue.");
         RaiseFatalError("Replay has encountered a fatal error and cannot continue (window creation failed)");
     }
 
@@ -260,9 +260,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateInstance(const VkInstanceCreate
 #else
             const char loader_name[] = "libvulkan.so";
 #endif
-            BRIMSTONE_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
-                                "loader (eg. %s) has been added to the appropriate system path",
-                                loader_name);
+            GFXRECON_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
+                               "loader (eg. %s) has been added to the appropriate system path",
+                               loader_name);
             RaiseFatalError("Failed to load Vulkan runtime library");
         }
     }
@@ -293,12 +293,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateInstance(const VkInstanceCreate
     // environment variable or debug.vulkan.layers Android property.
     if (modified_create_info.enabledLayerCount > 0)
     {
-        BRIMSTONE_LOG_INFO(
+        GFXRECON_LOG_INFO(
             "Replay has removed the following layers from VkInstanceCreateInfo when calling vkCreateInstance:");
 
         for (uint32_t i = 0; i < modified_create_info.enabledLayerCount; ++i)
         {
-            BRIMSTONE_LOG_INFO("\t%s", modified_create_info.ppEnabledLayerNames[i]);
+            GFXRECON_LOG_INFO("\t%s", modified_create_info.ppEnabledLayerNames[i]);
         }
 
         modified_create_info.enabledLayerCount   = 0;
@@ -539,7 +539,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(VkInstance   
                                                                    const VkAllocationCallbacks*         pAllocator,
                                                                    VkSurfaceKHR*                        pSurface)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
@@ -548,7 +548,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(VkInstance     
                                                                  const VkAllocationCallbacks*       pAllocator,
                                                                  VkSurfaceKHR*                      pSurface)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
@@ -563,7 +563,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(VkInstance       
                                                                const VkAllocationCallbacks*     pAllocator,
                                                                VkSurfaceKHR*                    pSurface)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
@@ -572,8 +572,8 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSuppo
                                                                                       xcb_connection_t* connection,
                                                                                       xcb_visualid_t    visual_id)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(connection);
-    BRIMSTONE_UNREFERENCED_PARAMETER(visual_id);
+    GFXRECON_UNREFERENCED_PARAMETER(connection);
+    GFXRECON_UNREFERENCED_PARAMETER(visual_id);
     return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
 }
 
@@ -582,7 +582,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(VkInstance      
                                                                 const VkAllocationCallbacks*      pAllocator,
                                                                 VkSurfaceKHR*                     pSurface)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
@@ -591,8 +591,8 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupp
                                                                                        Display* dpy,
                                                                                        VisualID visualID)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(dpy);
-    BRIMSTONE_UNREFERENCED_PARAMETER(visualID);
+    GFXRECON_UNREFERENCED_PARAMETER(dpy);
+    GFXRECON_UNREFERENCED_PARAMETER(visualID);
     return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
 }
 
@@ -601,14 +601,14 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(VkInstance   
                                                                    const VkAllocationCallbacks*         pAllocator,
                                                                    VkSurfaceKHR*                        pSurface)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(
     VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex, struct wl_display* display)
 {
-    BRIMSTONE_UNREFERENCED_PARAMETER(display);
+    GFXRECON_UNREFERENCED_PARAMETER(display);
     return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
 }
 
@@ -833,14 +833,14 @@ void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
                 else
                 {
                     assert(true);
-                    BRIMSTONE_LOG_ERROR("Skipping entry with unrecognized type at ppObjectTableEntries[%d] when "
-                                        "processing vkRegisterObjectsNVX",
-                                        i);
+                    GFXRECON_LOG_ERROR("Skipping entry with unrecognized type at ppObjectTableEntries[%d] when "
+                                       "processing vkRegisterObjectsNVX",
+                                       i);
                 }
             }
             else
             {
-                BRIMSTONE_LOG_WARNING(
+                GFXRECON_LOG_WARNING(
                     "Skipping null entry at ppObjectTableEntries[%d] when processing vkRegisterObjectsNVX", i);
             }
         }
@@ -860,5 +860,5 @@ void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
     CheckResult("vkRegisterObjectsNVX", returnValue, replay_result);
 }
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)

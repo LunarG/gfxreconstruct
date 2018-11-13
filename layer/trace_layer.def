@@ -1,4 +1,4 @@
-LIBRARY brimstone_layer
+LIBRARY gfxreconstruct_layer
 EXPORTS
 vkGetInstanceProcAddr
 vkGetDeviceProcAddr

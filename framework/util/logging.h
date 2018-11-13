@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_LOGGING_H
-#define BRIMSTONE_UTIL_LOGGING_H
+#ifndef GFXRECON_UTIL_LOGGING_H
+#define GFXRECON_UTIL_LOGGING_H
 
 #include "util/defines.h"
 #include "util/platform.h"
@@ -30,9 +30,9 @@
 #include <android/log.h>
 #endif
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
-BRIMSTONE_BEGIN_NAMESPACE(logging)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(logging)
 
 // Logging types
 enum Severity : uint32_t
@@ -185,7 +185,7 @@ LogMessage(Severity severity, const char* file, const char* function, const char
     FILE* log_file_ptr;
 
     // Log message prefix
-    const char  process_tag[] = "Brimstone";
+    const char  process_tag[] = "gfxrecon";
     std::string prefix        = "";
 
     // If this is a "console write" always output style string, we don't want any
@@ -337,7 +337,7 @@ LogMessage(Severity severity, const char* file, const char* function, const char
     }
 }
 
-#ifdef BRIMSTONE_ENABLE_COMMAND_TRACE
+#ifdef GFXRECON_ENABLE_COMMAND_TRACE
 
 class CommandTrace
 {
@@ -369,64 +369,64 @@ class CommandTrace
 
 #endif
 
-BRIMSTONE_END_NAMESPACE(logging)
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(logging)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 // Functions defined outside of the namespace for easier use
-#define BRIMSTONE_WRITE_CONSOLE(message, ...)                                      \
-    brimstone::util::logging::LogMessage(brimstone::util::logging::kNoWritePrefix, \
-                                         __FILE__,                                 \
-                                         __FUNCTION__,                             \
-                                         BRIMSTONE_STR(__LINE__),                  \
-                                         message,                                  \
-                                         ##__VA_ARGS__)
-#define BRIMSTONE_LOG_FATAL(message, ...)                                          \
-    brimstone::util::logging::LogMessage(brimstone::util::logging::kFatalSeverity, \
-                                         __FILE__,                                 \
-                                         __FUNCTION__,                             \
-                                         BRIMSTONE_STR(__LINE__),                  \
-                                         message,                                  \
-                                         ##__VA_ARGS__)
-#define BRIMSTONE_LOG_ERROR(message, ...)                                          \
-    brimstone::util::logging::LogMessage(brimstone::util::logging::kErrorSeverity, \
-                                         __FILE__,                                 \
-                                         __FUNCTION__,                             \
-                                         BRIMSTONE_STR(__LINE__),                  \
-                                         message,                                  \
-                                         ##__VA_ARGS__)
-#define BRIMSTONE_LOG_WARNING(message, ...)                                          \
-    brimstone::util::logging::LogMessage(brimstone::util::logging::kWarningSeverity, \
-                                         __FILE__,                                   \
-                                         __FUNCTION__,                               \
-                                         BRIMSTONE_STR(__LINE__),                    \
-                                         message,                                    \
-                                         ##__VA_ARGS__)
-#define BRIMSTONE_LOG_INFO(message, ...)                                          \
-    brimstone::util::logging::LogMessage(brimstone::util::logging::kInfoSeverity, \
-                                         __FILE__,                                \
-                                         __FUNCTION__,                            \
-                                         BRIMSTONE_STR(__LINE__),                 \
-                                         message,                                 \
-                                         ##__VA_ARGS__)
-#define BRIMSTONE_LOG_DEBUG(message, ...)                                          \
-    brimstone::util::logging::LogMessage(brimstone::util::logging::kDebugSeverity, \
-                                         __FILE__,                                 \
-                                         __FUNCTION__,                             \
-                                         BRIMSTONE_STR(__LINE__),                  \
-                                         message,                                  \
-                                         ##__VA_ARGS__)
+#define GFXRECON_WRITE_CONSOLE(message, ...)                                     \
+    gfxrecon::util::logging::LogMessage(gfxrecon::util::logging::kNoWritePrefix, \
+                                        __FILE__,                                \
+                                        __FUNCTION__,                            \
+                                        GFXRECON_STR(__LINE__),                  \
+                                        message,                                 \
+                                        ##__VA_ARGS__)
+#define GFXRECON_LOG_FATAL(message, ...)                                         \
+    gfxrecon::util::logging::LogMessage(gfxrecon::util::logging::kFatalSeverity, \
+                                        __FILE__,                                \
+                                        __FUNCTION__,                            \
+                                        GFXRECON_STR(__LINE__),                  \
+                                        message,                                 \
+                                        ##__VA_ARGS__)
+#define GFXRECON_LOG_ERROR(message, ...)                                         \
+    gfxrecon::util::logging::LogMessage(gfxrecon::util::logging::kErrorSeverity, \
+                                        __FILE__,                                \
+                                        __FUNCTION__,                            \
+                                        GFXRECON_STR(__LINE__),                  \
+                                        message,                                 \
+                                        ##__VA_ARGS__)
+#define GFXRECON_LOG_WARNING(message, ...)                                         \
+    gfxrecon::util::logging::LogMessage(gfxrecon::util::logging::kWarningSeverity, \
+                                        __FILE__,                                  \
+                                        __FUNCTION__,                              \
+                                        GFXRECON_STR(__LINE__),                    \
+                                        message,                                   \
+                                        ##__VA_ARGS__)
+#define GFXRECON_LOG_INFO(message, ...)                                         \
+    gfxrecon::util::logging::LogMessage(gfxrecon::util::logging::kInfoSeverity, \
+                                        __FILE__,                               \
+                                        __FUNCTION__,                           \
+                                        GFXRECON_STR(__LINE__),                 \
+                                        message,                                \
+                                        ##__VA_ARGS__)
+#define GFXRECON_LOG_DEBUG(message, ...)                                         \
+    gfxrecon::util::logging::LogMessage(gfxrecon::util::logging::kDebugSeverity, \
+                                        __FILE__,                                \
+                                        __FUNCTION__,                            \
+                                        GFXRECON_STR(__LINE__),                  \
+                                        message,                                 \
+                                        ##__VA_ARGS__)
 
-#ifdef BRIMSTONE_ENABLE_COMMAND_TRACE
+#ifdef GFXRECON_ENABLE_COMMAND_TRACE
 
-#define BRIMSTONE_LOG_COMMAND() brimstone::util::logging CommandTrace command_trace(__FILE__, __FUNCTION__)
+#define GFXRECON_LOG_COMMAND() gfxrecon::util::logging CommandTrace command_trace(__FILE__, __FUNCTION__)
 
 #else
 
 // If not defined, make this a NOOP so we don't waste any time in a standard trace session on
 // creating/destroying a class we don't care about.
-#define BRIMSTONE_LOG_COMMAND()
+#define GFXRECON_LOG_COMMAND()
 
 #endif
 
-#endif // BRIMSTONE_UTIL_LOGGING_H
+#endif // GFXRECON_UTIL_LOGGING_H

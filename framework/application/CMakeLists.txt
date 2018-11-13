@@ -1,6 +1,6 @@
-add_library(brimstone_application STATIC "")
+add_library(gfxrecon_application STATIC "")
 
-target_sources(brimstone_application
+target_sources(gfxrecon_application
                PRIVATE
                     application.h
                     application.cpp
@@ -9,14 +9,14 @@ target_sources(brimstone_application
                     $<$<BOOL:${WIN32}>:win32_application.h win32_window.h win32_application.cpp win32_window.cpp>
               )
 
-target_include_directories(brimstone_application
+target_include_directories(gfxrecon_application
                            PUBLIC
                                $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>)
 
-target_link_libraries(brimstone_application
-                      brimstone_decode
-                      brimstone_format
-                      brimstone_util
+target_link_libraries(gfxrecon_application
+                      gfxrecon_decode
+                      gfxrecon_format
+                      gfxrecon_util
                       volk
                       vulkan_registry
                       platform_specific

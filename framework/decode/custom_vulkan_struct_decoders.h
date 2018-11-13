@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODERS_H
-#define BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODERS_H
+#ifndef GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
+#define GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H
 
 #include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
@@ -28,8 +28,8 @@
 
 #include <memory>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 // Decoded union wrappers.
 struct Decoded_VkClearColorValue
@@ -84,7 +84,7 @@ struct Decoded_SECURITY_ATTRIBUTES
     StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR> lpSecurityDescriptor;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_CUSTOM_STRUCT_DECODERS_H
+#endif // GFXRECON_DECODE_CUSTOM_STRUCT_DECODERS_H

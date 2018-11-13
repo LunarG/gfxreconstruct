@@ -15,16 +15,16 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_COMPRESSOR_H
-#define BRIMSTONE_UTIL_COMPRESSOR_H
+#ifndef GFXRECON_UTIL_COMPRESSOR_H
+#define GFXRECON_UTIL_COMPRESSOR_H
 
 #include "util/defines.h"
 
 #include <cinttypes>
 #include <vector>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 class Compressor
 {
@@ -43,7 +43,7 @@ class Compressor
                               std::vector<uint8_t>*       uncompressed_data) = 0;
 };
 
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_UTIL_COMPRESSOR_H
+#endif // GFXRECON_UTIL_COMPRESSOR_H

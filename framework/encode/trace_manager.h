@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_ENCODE_FORMAT_TRACE_MANAGER_H
-#define BRIMSTONE_ENCODE_FORMAT_TRACE_MANAGER_H
+#ifndef GFXRECON_ENCODE_FORMAT_TRACE_MANAGER_H
+#define GFXRECON_ENCODE_FORMAT_TRACE_MANAGER_H
 
 #include "encode/memory_tracker.h"
 #include "encode/parameter_encoder.h"
@@ -35,8 +35,8 @@
 #include <unordered_map>
 #include <vector>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 class TraceManager
 {
@@ -218,7 +218,7 @@ class TraceManager
     mutable std::mutex                              update_template_map_lock_;
 };
 
-BRIMSTONE_END_NAMESPACE(encode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_ENCODE_FORMAT_TRACE_MANAGER_H
+#endif // GFXRECON_ENCODE_FORMAT_TRACE_MANAGER_H

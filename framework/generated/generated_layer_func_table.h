@@ -20,8 +20,8 @@
 **
 */
 
-#ifndef  BRIMSTONE_GENERATED_LAYER_FUNC_TABLE_H
-#define  BRIMSTONE_GENERATED_LAYER_FUNC_TABLE_H
+#ifndef  GFXRECON_GENERATED_LAYER_FUNC_TABLE_H
+#define  GFXRECON_GENERATED_LAYER_FUNC_TABLE_H
 
 #include "generated/generated_vulkan_api_call_encoders.h"
 #include "layer/custom_vulkan_api_call_encoders.h"
@@ -32,7 +32,7 @@
 
 #include <unordered_map>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCreateInstance",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(CreateInstance) },
@@ -406,6 +406,6 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vk_layerGetPhysicalDeviceProcAddr",                                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },
 };
 
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif

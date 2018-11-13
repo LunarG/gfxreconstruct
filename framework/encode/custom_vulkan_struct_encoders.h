@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_ENCODE_CUSTOM_STRUCT_ENCODERS_H
-#define BRIMSTONE_ENCODE_CUSTOM_STRUCT_ENCODERS_H
+#ifndef GFXRECON_ENCODE_CUSTOM_STRUCT_ENCODERS_H
+#define GFXRECON_ENCODE_CUSTOM_STRUCT_ENCODERS_H
 
 #include "encode/parameter_encoder.h"
 #include "format/platform_types.h"
@@ -24,8 +24,8 @@
 
 #include "vulkan/vulkan.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 // Unions.
 void encode_struct(encode::ParameterEncoder* encoder, const VkClearColorValue& value);
@@ -39,7 +39,7 @@ void encode_struct(encode::ParameterEncoder* encoder, const ACL& value);
 void encode_struct(encode::ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value);
 void encode_struct(encode::ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value);
 
-BRIMSTONE_END_NAMESPACE(encode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(encode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_ENCODE_CUSTOM_STRUCT_ENCODERS_H
+#endif // GFXRECON_ENCODE_CUSTOM_STRUCT_ENCODERS_H

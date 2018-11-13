@@ -15,15 +15,15 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_UTIL_OUTPUT_STREAM_H
-#define BRIMSTONE_UTIL_OUTPUT_STREAM_H
+#ifndef GFXRECON_UTIL_OUTPUT_STREAM_H
+#define GFXRECON_UTIL_OUTPUT_STREAM_H
 
 #include "util/defines.h"
 
 #include <cstddef>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 class OutputStream
 {
@@ -37,7 +37,7 @@ class OutputStream
     virtual size_t Write(const void* data, size_t len) = 0;
 };
 
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_UTIL_OUTPUT_STREAM_H
+#endif // GFXRECON_UTIL_OUTPUT_STREAM_H

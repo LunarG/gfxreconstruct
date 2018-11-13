@@ -21,8 +21,8 @@
 
 #include "zlib.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 size_t Lz77Compressor::Compress(const size_t          uncompressed_size,
                                 const uint8_t*        uncompressed_data,
@@ -102,7 +102,7 @@ size_t Lz77Compressor::Decompress(const size_t                compressed_size,
     return copy_size;
 }
 
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // ENABLE_LZ77_COMPRESSION

@@ -19,8 +19,8 @@
 
 #include "util/platform.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(util)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(util)
 
 FileOutputStream::FileOutputStream(const std::string& filename, bool append) : file_(nullptr), own_file_(true)
 {
@@ -43,5 +43,5 @@ size_t FileOutputStream::Write(const void* data, size_t len)
     return platform::FileWriteNoLock(data, 1, len, file_);
 }
 
-BRIMSTONE_END_NAMESPACE(util)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(util)
+GFXRECON_END_NAMESPACE(gfxrecon)

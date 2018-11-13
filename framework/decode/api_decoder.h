@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_API_DECODE_DECODER_H
-#define BRIMSTONE_API_DECODE_DECODER_H
+#ifndef GFXRECON_API_DECODE_DECODER_H
+#define GFXRECON_API_DECODE_DECODER_H
 
 #include "format/api_call_id.h"
 #include "format/format.h"
@@ -26,8 +26,8 @@
 
 #include <string>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class ApiDecoder
 {
@@ -48,7 +48,7 @@ class ApiDecoder
     virtual void DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) {}
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_API_DECODE_DECODER_H
+#endif // GFXRECON_API_DECODE_DECODER_H

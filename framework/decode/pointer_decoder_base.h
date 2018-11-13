@@ -15,15 +15,15 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_POINTER_DECODER_BASE_H
-#define BRIMSTONE_DECODE_POINTER_DECODER_BASE_H
+#ifndef GFXRECON_DECODE_POINTER_DECODER_BASE_H
+#define GFXRECON_DECODE_POINTER_DECODER_BASE_H
 
 #include "decode/value_decoder.h"
 #include "format/format.h"
 #include "util/defines.h"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class PointerDecoderBase
 {
@@ -88,7 +88,7 @@ class PointerDecoderBase
     uint32_t attrib_;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_POINTER_DECODER_BASE_H
+#endif // GFXRECON_DECODE_POINTER_DECODER_BASE_H

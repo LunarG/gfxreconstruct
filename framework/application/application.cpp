@@ -22,8 +22,8 @@
 #include <algorithm>
 #include <cassert>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(application)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(application)
 
 Application::Application(const std::string& name) :
     file_processor_(nullptr), running_(false), paused_(false), name_(name)
@@ -33,7 +33,7 @@ Application::~Application()
 {
     if (!windows_.empty())
     {
-        BRIMSTONE_LOG_INFO(
+        GFXRECON_LOG_INFO(
             "Application manager is destroying windows that were not previously destroyed by their owner");
 
         for (auto window : windows_)
@@ -82,7 +82,7 @@ bool Application::RegisterWindow(decode::Window* window)
 
     if (std::find(windows_.begin(), windows_.end(), window) != windows_.end())
     {
-        BRIMSTONE_LOG_INFO("A window was registered with the application more than once");
+        GFXRECON_LOG_INFO("A window was registered with the application more than once");
         return false;
     }
 
@@ -99,7 +99,7 @@ bool Application::UnregisterWindow(decode::Window* window)
 
     if (pos == windows_.end())
     {
-        BRIMSTONE_LOG_INFO(
+        GFXRECON_LOG_INFO(
             "A remove window request was made for an window that was never registered with the application");
         return false;
     }
@@ -109,5 +109,5 @@ bool Application::UnregisterWindow(decode::Window* window)
     return true;
 }
 
-BRIMSTONE_END_NAMESPACE(application)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(application)
+GFXRECON_END_NAMESPACE(gfxrecon)

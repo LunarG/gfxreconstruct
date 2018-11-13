@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_DECODE_COMPRESSION_CONVERTER_H
-#define BRIMSTONE_DECODE_COMPRESSION_CONVERTER_H
+#ifndef GFXRECON_DECODE_COMPRESSION_CONVERTER_H
+#define GFXRECON_DECODE_COMPRESSION_CONVERTER_H
 
 #include "util/compressor.h"
 #include "util/file_output_stream.h"
@@ -26,8 +26,8 @@
 
 #include <string>
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
 class CompressionConverter : public ApiDecoder
 {
@@ -74,7 +74,7 @@ class CompressionConverter : public ApiDecoder
     bool                                    write_begin_end_times_;
 };
 
-BRIMSTONE_END_NAMESPACE(decode)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_DECODE_COMPRESSION_CONVERTER_H
+#endif // GFXRECON_DECODE_COMPRESSION_CONVERTER_H

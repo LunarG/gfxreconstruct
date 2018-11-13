@@ -59,14 +59,14 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         self.newline()
         write('#include "volk.h"', file=self.outFile)
         self.newline()
-        write('BRIMSTONE_BEGIN_NAMESPACE(brimstone)', file=self.outFile)
-        write('BRIMSTONE_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
     # Method override
     def endFile(self):
         self.newline()
-        write('BRIMSTONE_END_NAMESPACE(decode)', file=self.outFile)
-        write('BRIMSTONE_END_NAMESPACE(brimstone)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)

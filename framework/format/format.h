@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef BRIMSTONE_FORMAT_FORMAT_H
-#define BRIMSTONE_FORMAT_FORMAT_H
+#ifndef GFXRECON_FORMAT_FORMAT_H
+#define GFXRECON_FORMAT_FORMAT_H
 
 #include "format/api_call_id.h"
 #include "util/compressor.h"
@@ -25,11 +25,11 @@
 #include <cinttypes>
 #include <type_traits>
 
-#define BRIMSTONE_FOURCC BRIMSTONE_MAKE_FOURCC('G', 'C', 'A', 'P')
-#define BRIMSTONE_FILE_EXTENSION ".gcap"
+#define GFXRECON_FOURCC GFXRECON_MAKE_FOURCC('G', 'F', 'X', 'R')
+#define GFXRECON_FILE_EXTENSION ".gfxr"
 
-BRIMSTONE_BEGIN_NAMESPACE(brimstone)
-BRIMSTONE_BEGIN_NAMESPACE(format)
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(format)
 
 // Types to define encoding sizes.
 typedef uint32_t EnumEncodeType;
@@ -212,7 +212,7 @@ struct ResizeWindowCommand
 
 #pragma pack(pop)
 
-BRIMSTONE_END_NAMESPACE(format)
-BRIMSTONE_END_NAMESPACE(brimstone)
+GFXRECON_END_NAMESPACE(format)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // BRIMSTONE_FORMAT_FORMAT_H
+#endif // GFXRECON_FORMAT_FORMAT_H
