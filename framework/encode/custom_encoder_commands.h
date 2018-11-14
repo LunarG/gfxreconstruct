@@ -45,6 +45,28 @@ struct CustomEncoderPostCall
     {}
 };
 
+// Dispatch custom command to initialize capture at instance creation.
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateInstance>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager*, Args...)
+    {
+        TraceManager::Create();
+    }
+};
+
+// Dispatch custom command to finalize capture at instance destruction.
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager*, Args...)
+    {
+        TraceManager::Destroy();
+    }
+};
+
 // Dispatch custom command for window resize command generation.
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>

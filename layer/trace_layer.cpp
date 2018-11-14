@@ -77,40 +77,6 @@ BRIMSTONE_BEGIN_NAMESPACE(brimstone)
 
 std::mutex g_create_destroy_mutex;
 
-bool init_layer()
-{
-    if (brimstone::encode::TraceManager::Get() != nullptr)
-    {
-        return true;
-    }
-
-    // TODO: load settings from file.
-    format::EnabledOptions options;
-#if defined(__ANDROID__)
-    std::string binary_file_name = "/sdcard/captures/brimstone_out" BRIMSTONE_FILE_EXTENSION;
-#else
-    std::string binary_file_name = "./brimstone_out" BRIMSTONE_FILE_EXTENSION;
-#endif
-
-#if defined(ENABLE_LZ4_COMPRESSION)
-    options.compression_type = format::CompressionType::kLz4;
-#endif
-
-    // Check to see if there's an environment variable overriding the default binary location value.
-    std::string env_variable = brimstone::util::platform::GetEnv("BRIMSTONE_BINARY_FILE");
-    if (!env_variable.empty())
-    {
-        binary_file_name = env_variable;
-    }
-
-    return brimstone::encode::TraceManager::Create(binary_file_name, options, encode::TraceManager::kPageGuard);
-}
-
-void destroy_layer()
-{
-    brimstone::encode::TraceManager::Destroy();
-}
-
 void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa)
 {
     auto& table = instance_table[get_dispatch_key(instance)];
