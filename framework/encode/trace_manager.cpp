@@ -19,6 +19,7 @@
 
 #include "format/format_util.h"
 #include "util/compressor.h"
+#include "util/file_path.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
@@ -31,7 +32,10 @@ BRIMSTONE_BEGIN_NAMESPACE(encode)
 std::mutex                                             TraceManager::ThreadData::count_lock_;
 uint32_t                                               TraceManager::ThreadData::thread_count_ = 0;
 std::unordered_map<uint64_t, uint32_t>                 TraceManager::ThreadData::id_map_;
-TraceManager*                                          TraceManager::instance_ = nullptr;
+
+TraceManager*                                          TraceManager::instance_       = nullptr;
+uint32_t                                               TraceManager::instance_count_ = 0;
+std::mutex                                             TraceManager::instance_lock_;
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 
 TraceManager::ThreadData::ThreadData() :
@@ -62,34 +66,76 @@ uint32_t TraceManager::ThreadData::GetThreadId()
     return id;
 }
 
-bool TraceManager::Create(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode)
+void TraceManager::Create()
 {
-    bool success = false;
+    std::lock_guard<std::mutex> instance_lock(instance_lock_);
 
-    if (instance_ == nullptr)
+    if (instance_count_ == 0)
     {
-        instance_ = new TraceManager();
-        success   = instance_->Initialize(filename, file_options, mode);
+        assert(instance_ == nullptr);
+
+        // TODO: load settings from file.
+        format::EnabledOptions options;
+        MemoryTrackingMode     mode = encode::TraceManager::kPageGuard;
+#if defined(__ANDROID__)
+        std::string filename = "/sdcard/captures/brimstone_out" BRIMSTONE_FILE_EXTENSION;
+#else
+        std::string filename = "./brimstone_out" BRIMSTONE_FILE_EXTENSION;
+#endif
+
+#if defined(ENABLE_LZ4_COMPRESSION)
+        options.compression_type = format::CompressionType::kLz4;
+#endif
+
+        // Check to see if there's an environment variable overriding the default binary location value.
+        std::string env_variable = brimstone::util::platform::GetEnv("BRIMSTONE_BINARY_FILE");
+        if (!env_variable.empty())
+        {
+            filename = env_variable;
+        }
+
+        // Generate a filename that hopefully won't cause collisions.
+        filename = brimstone::util::filepath::GenerateTimestampedFilename(filename);
+
+        instance_    = new TraceManager();
+        bool success = instance_->Initialize(filename, options, mode);
+
+        if (success)
+        {
+            ++instance_count_;
+        }
+        else
+        {
+            BRIMSTONE_LOG_FATAL("Failed to initialize TraceManager");
+        }
     }
     else
     {
-        BRIMSTONE_LOG_WARNING("TraceManager creation was attempted more than once");
+        assert(instance_ != nullptr);
+        ++instance_count_;
     }
-
-    return success;
 }
 
 void TraceManager::Destroy()
 {
+    std::lock_guard<std::mutex> instance_lock(instance_lock_);
+
     if (instance_ != nullptr)
     {
-        if (instance_->memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
-        {
-            util::PageGuardManager::Destroy();
-        }
+        assert(instance_count_ > 0);
 
-        delete instance_;
-        instance_ = nullptr;
+        --instance_count_;
+
+        if (instance_count_ == 0)
+        {
+            if (instance_->memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
+            {
+                util::PageGuardManager::Destroy();
+            }
+
+            delete instance_;
+            instance_ = nullptr;
+        }
     }
 }
 
@@ -683,7 +729,8 @@ void TraceManager::PreProcess_GetPhysicalDeviceSurfacePresentModesKHR(VkResult  
     BRIMSTONE_UNREFERENCED_PARAMETER(physicalDevice);
     BRIMSTONE_UNREFERENCED_PARAMETER(surface);
 
-    if ((result == VK_SUCCESS) && (pPresentModeCount != nullptr) && ((*pPresentModeCount) > 0) && (pPresentModes != nullptr))
+    if ((result == VK_SUCCESS) && (pPresentModeCount != nullptr) && ((*pPresentModeCount) > 0) &&
+        (pPresentModes != nullptr))
     {
         for (uint32_t i = 0; i < (*pPresentModeCount); ++i)
         {

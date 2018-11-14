@@ -15,7 +15,7 @@
 ** limitations under the License.
 */
 
-#include "layer/trace_layer.h"
+#include "encode/trace_manager.h"
 
 #if defined(WIN32)
 
@@ -27,16 +27,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
     switch (fdwReason)
     {
-        case DLL_PROCESS_ATTACH:
-            // TODO: Layer initialization will use the CRT, which we assume to be safe here
-            //       because the layer is loaded by a LoadLibrary call made from vkCreateInstance
-            //       and CRT would already be initialized, but this should be confirmed.
-            if (!brimstone::init_layer())
-            {
-                // If initialization fails, return FALSE so that the layer is not loaded.
-                success = FALSE;
-            }
-            break;
         case DLL_PROCESS_DETACH:
             // TODO: We assume that lpvReserved will always be NULL, because FreeLibrary should be
             //       invoked by the loader from vkDestroyInstance.  If this is not always the case,
@@ -46,7 +36,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
             //       not terminating.
             if (lpvReserved == nullptr)
             {
-                brimstone::destroy_layer();
+                // TODO: Ensure that the trace is finalized.
             }
             break;
     }
@@ -56,14 +46,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 #else // WIN32
 
-__attribute__((constructor)) static void initialize_trace_layer()
-{
-    brimstone::init_layer();
-}
-
 __attribute__((destructor)) static void destroy_trace_layer()
 {
-    brimstone::destroy_layer();
+    // TODO: Ensure that the trace is finalized.
 }
 
 #endif // WIN32

@@ -72,7 +72,7 @@ class TraceManager
     };
 
   public:
-    static bool Create(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode);
+    static void Create();
 
     static void Destroy();
 
@@ -202,6 +202,8 @@ class TraceManager
 
   private:
     static TraceManager*                            instance_;
+    static uint32_t                                 instance_count_;
+    static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     format::EnabledOptions                          file_options_;
     std::unique_ptr<util::FileOutputStream>         file_stream_;

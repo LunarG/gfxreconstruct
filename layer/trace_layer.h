@@ -56,9 +56,6 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice  
                                                               uint32_t*          pPropertyCount,
                                                               VkLayerProperties* pProperties);
 
-bool init_layer();
-void destroy_layer();
-
 void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
 void init_device_table(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
 
