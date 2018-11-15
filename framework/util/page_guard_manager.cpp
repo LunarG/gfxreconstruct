@@ -326,6 +326,14 @@ void PageGuardManager::ClearExceptionHandler(void* exception_handler)
     {
         GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (errno= %d)", errno);
     }
+    else
+    {
+        if (current_sa.sa_sigaction != exception_handler)
+        {
+            GFXRECON_LOG_WARNING("PageGuardManager's signal handler has been replaced by the application and may have "
+                                 "caused the application to think it has crashed");
+        }
+    }
 #endif
 }
 
