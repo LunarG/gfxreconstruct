@@ -89,23 +89,22 @@ static uint32_t kGuardNoProtect        = PROT_READ | PROT_WRITE;
 
 static struct sigaction s_old_sigaction;
 
-static void PageGuardExceptionHandler(int id, siginfo_t* info, void*)
+static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 {
     PageGuardManager* manager = PageGuardManager::Get();
     if ((id == SIGSEGV) && (info->si_addr != nullptr) && (manager != nullptr))
     {
         bool is_write = true;
-#if defined(PAGE_GUARD_ENABLE_X86_64_UCONTEXT)
-#if defined(__x86_64__) || defined(__i386__)
+#if defined(PAGE_GUARD_ENABLE_X86_64_UCONTEXT) && (defined(__x86_64__) || defined(__i386__))
         if (data != nullptr)
         {
             // This is a machine-specific method for detecting read vs. write access, and is not portable.
             // So far, it does appear to work with both 32-bit and 64-bit builds running on x86-64 Linux systems.
             ucontext_t* ucontext = reinterpret_cast<ucontext_t*>(data);
             is_write             = (ucontext->uc_mcontext.gregs[REG_ERR] & 0x2) ? true : false;
-            printf("gregs = %" PRIx64 "\n", ucontext->uc_mcontext.gregs[REG_ERR]);
         }
-#endif
+#else
+        GFXRECON_UNREFERENCED_PARAMETER(data);
 #endif
         manager->HandleGuardPageViolation(info->si_addr, is_write, true);
     }

@@ -22,7 +22,7 @@ add_library(windows_specific INTERFACE)
 target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX VK_USE_PLATFORM_WIN32_KHR)
 
 add_library(linux_specific INTERFACE)
-target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64
+target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_X86_64_UCONTEXT
     $<$<BOOL:${X11_FOUND}>:VK_USE_PLATFORM_XLIB_KHR>
     $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
