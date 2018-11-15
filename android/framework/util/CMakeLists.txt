@@ -9,6 +9,7 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/logging.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/logging.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz77_compressor.h

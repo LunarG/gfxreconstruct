@@ -66,7 +66,7 @@ int main(int argc, const char** argv)
 {
     int return_code = 0;
 
-    gfxrecon::util::logging::Init();
+    gfxrecon::util::Log::Init();
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
     const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
@@ -148,7 +148,7 @@ int main(int argc, const char** argv)
         }
     }
 
-    gfxrecon::util::logging::Release();
+    gfxrecon::util::Log::Release();
 
     return return_code;
 }

@@ -41,7 +41,7 @@ void android_main(struct android_app* app)
 {
     int return_code = 0;
 
-    gfxrecon::util::logging::Init();
+    gfxrecon::util::Log::Init();
 
     // TODO: Retrieve and process arg string from intent extras, and report invalid usage.
     // std::vector<const char*>        args;
@@ -118,7 +118,7 @@ void android_main(struct android_app* app)
         }
     }
 
-    gfxrecon::util::logging::Release();
+    gfxrecon::util::Log::Release();
 
     ANativeActivity_finish(app->activity);
 }
