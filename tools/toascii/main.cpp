@@ -47,7 +47,7 @@ int main(int argc, const char** argv)
     std::string                     filename = "gfxrecon_test";
     filename += GFXRECON_FILE_EXTENSION;
 
-    gfxrecon::util::logging::Init();
+    gfxrecon::util::Log::Init();
 
     const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
     if (arg_parser.IsInvalid() || non_optional_arguments.size() != 1)
@@ -86,5 +86,6 @@ int main(int argc, const char** argv)
         file_processor.ProcessAllFrames();
     }
 
+    gfxrecon::util::Log::Release();
     return 0;
 }

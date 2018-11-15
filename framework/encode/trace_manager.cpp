@@ -75,7 +75,7 @@ void TraceManager::Create()
         assert(instance_ == nullptr);
 
         // TODO: load settings from file.
-        util::logging::Init(util::logging::kWarningSeverity);
+        util::Log::Init(util::Log::kWarningSeverity);
 
         format::EnabledOptions options;
         MemoryTrackingMode     mode = encode::TraceManager::kPageGuard;
@@ -140,7 +140,7 @@ void TraceManager::Destroy()
             delete instance_;
             instance_ = nullptr;
 
-            util::logging::Release();
+            util::Log::Release();
         }
 
         GFXRECON_LOG_INFO("vkDestroyInstance(): Current instance count is %u", instance_count_);

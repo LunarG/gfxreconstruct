@@ -9,6 +9,7 @@ target_sources(gfxrecon_util
                    file_output_stream.h
                    file_output_stream.cpp
                    logging.h
+                   logging.cpp
                    lz4_compressor.h
                    lz4_compressor.cpp
                    lz77_compressor.h

@@ -59,7 +59,7 @@ int main(int argc, const char** argv)
     input_file_name += GFXRECON_FILE_EXTENSION;
     output_file_name += GFXRECON_FILE_EXTENSION;
 
-    gfxrecon::util::logging::Init();
+    gfxrecon::util::Log::Init();
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "", 3);
     const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
@@ -161,5 +161,6 @@ int main(int argc, const char** argv)
         }
     }
 
+    gfxrecon::util::Log::Release();
     return 0;
 }
