@@ -75,6 +75,8 @@ void TraceManager::Create()
         assert(instance_ == nullptr);
 
         // TODO: load settings from file.
+        util::logging::Init(util::logging::kWarningSeverity);
+
         format::EnabledOptions options;
         MemoryTrackingMode     mode = encode::TraceManager::kPageGuard;
 #if defined(__ANDROID__)
@@ -135,6 +137,8 @@ void TraceManager::Destroy()
 
             delete instance_;
             instance_ = nullptr;
+
+            util::logging::Release();
         }
     }
 }
