@@ -116,6 +116,8 @@ void TraceManager::Create()
         assert(instance_ != nullptr);
         ++instance_count_;
     }
+
+    GFXRECON_LOG_INFO("vkCreateInstance(): Current instance count is %u", instance_count_);
 }
 
 void TraceManager::Destroy()
@@ -140,6 +142,8 @@ void TraceManager::Destroy()
 
             util::logging::Release();
         }
+
+        GFXRECON_LOG_INFO("vkDestroyInstance(): Current instance count is %u", instance_count_);
     }
 }
 
