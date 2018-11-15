@@ -33,20 +33,28 @@ void MemoryTracker::AddEntry(VkDeviceMemory memory, VkMemoryPropertyFlags proper
                            std::forward_as_tuple(memory, property_flags, allocation_size));
 }
 
-const MemoryTracker::EntryInfo*
-MemoryTracker::MapEntry(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, void* data)
+bool MemoryTracker::MapEntry(
+    VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, void* data, MemoryTracker::EntryInfo** info)
 {
     assert(mapped_memory_.find(memory) != mapped_memory_.end());
+    assert(info != nullptr);
 
-    EntryInfo* result = nullptr;
+    bool result = false;
 
     auto entry = mapped_memory_.find(memory);
     if (entry != mapped_memory_.end())
     {
-        entry->second.mapped_offset = offset;
-        entry->second.mapped_size   = (size != VK_WHOLE_SIZE) ? size : (entry->second.allocation_size - offset);
-        entry->second.data          = data;
-        result                      = &(entry->second);
+        // If mapped_memory is not NULL, this VkDeviceMemory object has already been mapped.
+        if (entry->second.mapped_memory == nullptr)
+        {
+            result                       = true;
+            entry->second.mapped_offset  = offset;
+            entry->second.mapped_size    = (size != VK_WHOLE_SIZE) ? size : (entry->second.allocation_size - offset);
+            entry->second.mapped_memory  = data;
+            entry->second.tracked_memory = nullptr;
+        }
+
+        (*info) = &(entry->second);
     }
 
     return result;
@@ -59,9 +67,10 @@ void MemoryTracker::UnmapEntry(VkDeviceMemory memory)
     auto entry = mapped_memory_.find(memory);
     if (entry != mapped_memory_.end())
     {
-        entry->second.mapped_offset = 0;
-        entry->second.mapped_size   = 0;
-        entry->second.data          = nullptr;
+        entry->second.mapped_offset  = 0;
+        entry->second.mapped_size    = 0;
+        entry->second.mapped_memory  = nullptr;
+        entry->second.tracked_memory = nullptr;
     }
 }
 
