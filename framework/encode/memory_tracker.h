@@ -35,14 +35,15 @@ class MemoryTracker
     {
         EntryInfo(VkDeviceMemory memory, VkMemoryPropertyFlags flags, VkDeviceSize size) :
             memory_handle(memory), property_flags(flags), allocation_size(size), mapped_offset(0), mapped_size(0),
-            data(nullptr)
+            mapped_memory(nullptr), tracked_memory(nullptr)
         {}
         VkDeviceMemory        memory_handle;
         VkMemoryPropertyFlags property_flags;
         VkDeviceSize          allocation_size;
         VkDeviceSize          mapped_offset;
         VkDeviceSize          mapped_size;
-        void*                 data;
+        void*                 mapped_memory;
+        void*                 tracked_memory;
     };
 
   public:
@@ -52,7 +53,9 @@ class MemoryTracker
 
     void AddEntry(VkDeviceMemory memory, VkMemoryPropertyFlags flags, VkDeviceSize size);
 
-    const EntryInfo* MapEntry(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, void* data);
+    // Returns false if memory was already mapped.
+    bool MapEntry(
+        VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, void* data, MemoryTracker::EntryInfo** info);
 
     void UnmapEntry(VkDeviceMemory memory);
 
