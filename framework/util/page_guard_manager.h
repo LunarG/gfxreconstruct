@@ -114,8 +114,9 @@ class PageGuardManager
     void* AllocateShadowMemory(size_t size);
     void  FreeShadowMemory(void* pMemory, size_t size);
 
-    void SetExceptionHandler();
+    void AddExceptionHandler();
     void RemoveExceptionHandler();
+    void ClearExceptionHandler(void* exception_handler);
 
     size_t GetMemorySegmentSize(const MemoryInfo* memory_info, size_t page_index) const;
     void   MemoryCopy(void* destination, const void* source, size_t size);
@@ -143,6 +144,7 @@ class PageGuardManager
     MemoryInfoMap            memory_info_;
     std::mutex               tracked_memory_lock_;
     void*                    exception_handler_;
+    uint32_t                 exception_handler_count_;
     const size_t             system_page_size_;
     bool                     enable_shadow_cached_memory_;
     bool                     enable_uncached_read_;

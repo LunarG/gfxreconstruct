@@ -87,8 +87,9 @@ static uint32_t kGuardReadWriteProtect = PROT_NONE;
 static uint32_t kGuardReadOnlyProtect  = PROT_READ;
 static uint32_t kGuardNoProtect        = PROT_READ | PROT_WRITE;
 
-static struct sigaction g_old_sigaction;
-static void             PageGuardExceptionHandler(int id, siginfo_t* info, void*)
+static struct sigaction s_old_sigaction;
+
+static void PageGuardExceptionHandler(int id, siginfo_t* info, void*)
 {
     PageGuardManager* manager = PageGuardManager::Get();
     if ((id == SIGSEGV) && (info->si_addr != nullptr) && (manager != nullptr))
@@ -114,13 +115,12 @@ static void             PageGuardExceptionHandler(int id, siginfo_t* info, void*
 PageGuardManager* PageGuardManager::instance_ = nullptr;
 
 PageGuardManager::PageGuardManager() :
-    exception_handler_(nullptr), system_page_size_(GetSystemPageSize()),
+    exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
     enable_shadow_cached_memory_(kDefaultEnableShadowCachedMemory), enable_uncached_read_(kDefaultEnableUncachedRead),
     enable_copy_on_map_(kDefaultEnableCopyOnMap), enable_lazy_copy_(kDefaultEnableLazyCopy),
     enable_separate_read_tracking_(kDefaultEnableSeparateReadTracking),
     enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
 {
-    SetExceptionHandler();
 }
 
 PageGuardManager::PageGuardManager(bool enable_shadow_cached_memory,
@@ -130,17 +130,20 @@ PageGuardManager::PageGuardManager(bool enable_shadow_cached_memory,
                                    bool enable_separate_read_tracking,
                                    bool expect_read_write_same_page) :
     exception_handler_(nullptr),
-    system_page_size_(GetSystemPageSize()), enable_shadow_cached_memory_(enable_shadow_cached_memory),
-    enable_uncached_read_(enable_uncached_read), enable_copy_on_map_(enable_copy_on_map),
-    enable_lazy_copy_(enable_lazy_copy), enable_separate_read_tracking_(enable_separate_read_tracking),
+    exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
+    enable_shadow_cached_memory_(enable_shadow_cached_memory), enable_uncached_read_(enable_uncached_read),
+    enable_copy_on_map_(enable_copy_on_map), enable_lazy_copy_(enable_lazy_copy),
+    enable_separate_read_tracking_(enable_separate_read_tracking),
     enable_read_write_same_page_(expect_read_write_same_page)
 {
-    SetExceptionHandler();
 }
 
 PageGuardManager::~PageGuardManager()
 {
-    RemoveExceptionHandler();
+    if (exception_handler_ != nullptr)
+    {
+        ClearExceptionHandler(exception_handler_);
+    }
 
     for (auto entry = memory_info_.begin(); entry != memory_info_.end(); ++entry)
     {
@@ -254,10 +257,12 @@ void PageGuardManager::FreeShadowMemory(void* memory, size_t size)
     }
 }
 
-void PageGuardManager::SetExceptionHandler()
+void PageGuardManager::AddExceptionHandler()
 {
     if (exception_handler_ == nullptr)
     {
+        assert(exception_handler_count_ == 0);
+
 #if defined(WIN32)
         exception_handler_ = AddVectoredExceptionHandler(1, PageGuardExceptionHandler);
         if (exception_handler_ == nullptr)
@@ -265,41 +270,63 @@ void PageGuardManager::SetExceptionHandler()
             GFXRECON_LOG_ERROR("PageGuardManager failed to register exception handler (GetLastError() returned %d)",
                                GetLastError());
         }
+        else
+        {
+            exception_handler_count_ = 1;
+        }
 #else
         struct sigaction sa;
         sa.sa_flags = SA_SIGINFO;
         sigemptyset(&sa.sa_mask);
         sa.sa_sigaction = PageGuardExceptionHandler;
-        if (sigaction(SIGSEGV, &sa, &g_old_sigaction) == -1)
+        if (sigaction(SIGSEGV, &sa, &s_old_sigaction) == -1)
         {
             GFXRECON_LOG_ERROR("PageGuardManager failed to register exception handler (errno = %d)", errno);
         }
         else
         {
-            exception_handler_ = (void*)PageGuardExceptionHandler;
+            exception_handler_       = reinterpret_cast<void*>(PageGuardExceptionHandler);
+            exception_handler_count_ = 1;
         }
 #endif
+    }
+    else
+    {
+        ++exception_handler_count_;
     }
 }
 
 void PageGuardManager::RemoveExceptionHandler()
 {
-    if (exception_handler_)
+    if (exception_handler_ != nullptr)
     {
-#if defined(WIN32)
-        if (RemoveVectoredExceptionHandler(exception_handler_) == 0)
+        assert(exception_handler_count_ > 0);
+
+        --exception_handler_count_;
+
+        if (exception_handler_count_ == 0)
         {
-            GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (GetLastError() returned %d)",
-                               GetLastError());
+            ClearExceptionHandler(exception_handler_);
+            exception_handler_ = nullptr;
         }
-#else
-        if (sigaction(SIGSEGV, &g_old_sigaction, nullptr) == -1)
-        {
-            GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (errno= %d)", errno);
-        }
-#endif
-        exception_handler_ = nullptr;
     }
+}
+
+void PageGuardManager::ClearExceptionHandler(void* exception_handler)
+{
+#if defined(WIN32)
+    if (RemoveVectoredExceptionHandler(exception_handler) == 0)
+    {
+        GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (GetLastError() returned %d)",
+                           GetLastError());
+    }
+#else
+    struct sigaction current_sa;
+    if (sigaction(SIGSEGV, &s_old_sigaction, &current_sa) == -1)
+    {
+        GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (errno= %d)", errno);
+    }
+#endif
 }
 
 size_t PageGuardManager::GetMemorySegmentSize(const MemoryInfo* memory_info, size_t page_index) const
@@ -595,6 +622,8 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
     {
         std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 
+        AddExceptionHandler();
+
         // Enable page guard for read and write operations.
         if (SetMemoryProtection(aligned_address, guard_range, kGuardReadWriteProtect))
         {
@@ -638,6 +667,8 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
 void PageGuardManager::RemoveMemory(uint64_t memory_id)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    RemoveExceptionHandler();
 
     auto entry = memory_info_.find(memory_id);
     if (entry != memory_info_.end())
