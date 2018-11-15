@@ -20,7 +20,7 @@ target_link_libraries(VkLayer_gfxreconstruct gfxrecon_encode gfxrecon_format gfx
 
 # Generate the JSON file for this library
 include("GenerateLayerJson")
-GENERATE_LAYER_JSON_FILE(gfxreconstruct_layer_json
+GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
                          $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
                          ${CMAKE_CURRENT_SOURCE_DIR}/json/VK_LAYER_LUNARG_gfxreconstruct.json.in
                          $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VK_LAYER_LUNARG_gfxreconstruct.json
