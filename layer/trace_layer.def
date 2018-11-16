@@ -1,4 +1,4 @@
-LIBRARY gfxreconstruct_layer
+LIBRARY VkLayer_gfxreconstruct
 EXPORTS
 vkGetInstanceProcAddr
 vkGetDeviceProcAddr
