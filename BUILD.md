@@ -6,11 +6,11 @@ Instructions for building this repository on Linux, Windows, and Android
 ## Index
 
 1. [Contributing](#contributing-to-the-repository)
-1. [Repository Content](#repository-content)
-1. [Repository Set-Up](#repository-set-up)
-1. [Windows Build](#building-on-windows)
-1. [Linux Build](#building-on-linux)
-1. [Android Build](#building-on-android)
+2. [Repository Content](#repository-content)
+3. [Repository Set-Up](#repository-set-up)
+4. [Windows Build](#building-on-windows)
+5. [Linux Build](#building-on-linux)
+6. [Android Build](#android)
 
 
 ## Contributing to the Repository
@@ -60,7 +60,9 @@ Vulkan applications.
 
 To create your local git repository:
 
-    git clone https://github.com/LunarG/gfxreconstruct.git
+```
+git clone https://github.com/LunarG/gfxreconstruct.git
+```
 
 ### Repository Dependencies
 
@@ -83,7 +85,7 @@ However, occasionally the submodules will be updated and you will need to
 update the submodules using the following command:
 
 ```
-git submodule update --init --recursive
+git submodule update --recursive
 ```
 
 
@@ -121,17 +123,19 @@ solution interactively.
 Change your current directory to the top of the cloned repository directory,
 create a build directory and generate the Visual Studio project files:
 
-    cd gfxreconstruct
-    mkdir build
-    cmake -H. -Bbuild -A x64
+```
+cd gfxreconstruct
+mkdir build
+cmake -H. -Bbuild -A x64
+```
 
 The `-A` option is used to select either the "Win32" or "x64" architecture.
 
 If a generator for a specific version of Visual Studio is required, you can
 specify it for Visual Studio 2015, for example, with:
 
-    64-bit: -G "Visual Studio 14 2015 Win64"
-    32-bit: -G "Visual Studio 14 2015"
+ * 64-bit: -G "Visual Studio 14 2015 Win64"
+ * 32-bit: -G "Visual Studio 14 2015"
 
 The above steps create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
@@ -143,11 +147,15 @@ generated solution with Visual Studio.
 
 While still in the build directory:
 
-    cmake --build .
+```
+cmake --build .
+```
 
 to build the Debug configuration (the default), or:
 
-    cmake --build . --config Release
+```
+cmake --build . --config Release
+```
 
 to make a Release build.
 
@@ -171,8 +179,37 @@ repository to other Linux distributions.
 
 #### Required Package List
 
-    sudo apt-get install git cmake build-essential libx11-xcb-dev \
+Building on Linux requires the installation of the following packages:
+
+* A C++ compiler
+* GIT
+* CMake
+* X11, XCB and Wayland development libraries
+
+Additional recommended tools packages include:
+
+* Python 3
+
+##### Ubuntu
+
+On Ubuntu, the required packages can be installed with the following
+command:
+
+```
+sudo apt-get install git cmake build-essential libx11-xcb-dev \
         libxkbcommon-dev libwayland-dev libxrandr-dev
+```
+
+##### Fedora Core
+
+On Fedora Core, the required packages can be installed with the following
+command:
+
+```
+sudo dnf install git cmake libxcb-devel libxkbcommon-devel \
+        libXrandr-devel wayland-devel
+```
+
 
 ### Linux Build
 
@@ -185,9 +222,11 @@ CMake with the `--build` option or `make` to build from the command line.
 Change your current directory to the top of the cloned repository directory,
 create a build directory and generate the make files.
 
-    cd gfxreconstruct
-    mkdir build
-    cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug
+```
+cd gfxreconstruct
+mkdir build
+cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug
+```
 
 Use `-DCMAKE_BUILD_TYPE` to specify a Debug or Release build.
 
@@ -198,18 +237,87 @@ You can just run `make` to begin the build.
 To speed up the build on a multi-core machine, use the `-j` option for `make`
 to specify the number of cores to use for the build. For example:
 
-    make -j4
+```
+make -j4
+```
 
 You can also use
 
-    cmake --build .
+```
+cmake --build .
+```
 
 If your build system supports ccache, you can enable that via CMake option `-DUSE_CCACHE=On`
 
 
-## Building On Android
+## Android
+
+### Android Preparation
 
 Install the required tools for Linux and Windows covered above, then add the
-following.
+following:
 
-**TBD** 
+ * The latest version of [Android Studio](https://developer.android.com/studio/) with additional items:
+   * The [Android Platform tools](https://developer.android.com/studio/releases/platform-tools) for your specific platform
+   * The [Android NDK](https://developer.android.com/ndk/guides/)
+   * [Android SDK 23 (6.0 Marshmallow) or newer](https://guides.codepath.com/android/installing-android-sdk-tools)
+ * Set the following `ANDROID_*` environment variables appropriately in your user environment if building outside of Android Studio:
+   * `ANDROID_NDK_HOME`
+   * `ANDROID_SDK_HOME`
+
+### Android Build Process
+
+In the following snippets you will see the following defines.  Replace them with the item described next to them in the table:
+
+
+| Tag | Replace With  |
+|---|---|
+| `{gfxreconstruct_root}` | Substitute in the path to the GFXReconstruct source folder on your system |
+
+
+**TODO:** Add something here about running gradlew from the command line to build
+
+
+#### Building Stand-alone
+
+1. Open Android Studio
+2. Choose "Import Project" and browse to the `{gfxreconstruct_root}/android` folder and click "OK".
+ * This option may appear in either the opening Dialog box, or if you choose `File -> New -> Import Project...`
+ * Once imported, you should see at least 2 project modules:
+   * layer  - The GFXReconstruct layer that is used to record capture files
+   * replay - The GFXReconstruct capture file replay tool
+3. Build the project
+
+#### Building With Your Existing App
+
+If you are building your app with Android Studio or with gradle, you can do the following to add the layer module as a dependency of your app.
+Adding the layer as a dependency will make gradle build the layer when building your app and add the layer to your app's APK.
+It will also merge the layer module's Manifest file with your app's Manifest file, automatically including the permissions that the layer requires (currently just access to storage).
+
+1. In your app's settings.gradle file, add something like the following:
+
+```
+include ':VkLayer_gfxreconstruct'
+project(':VkLayer_gfxreconstruct').projectDir = file('{gfxreconstruct_root}/android/layer')
+```
+
+2.  In your app's build.gradle file, add this:
+
+```
+    dependencies {
+        implementation project(':VkLayer_gfxreconstruct')
+    }
+```
+
+##### Possible Errors with Merging
+
+If you get errors on the merging of the manifest files, you should open the
+AndroidManifest.xml file associated with your source project and click the
+"Merged Manifest" button at the bottom of the text editor.
+This should show what errors have occurred.
+
+One common error is when your app Min Android SDK version is different than
+the GFXReconstruct layer's Min Android SDK version.
+You can correct this by updating the Min Android SDK version in one
+AndroidManifest.xml or the other.
+
