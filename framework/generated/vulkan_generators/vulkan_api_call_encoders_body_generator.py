@@ -60,8 +60,6 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
-        write('#include <mutex>', file=self.outFile)
-        self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
 
     # Method override
@@ -141,42 +139,42 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     #
     # Command definition
     def makeCmdBody(self, returnType, name, values):
-        is_create_destroy = False
+        encodeAfter = self.hasOutputs(returnType, values)
         indent = ' ' * self.INDENT_SIZE
 
         argList = self.makeArgList(values)
 
         body = ''
 
-        if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree'):
-            is_create_destroy = True
-
-            # Need to delcare the return type outside of the lock scope.
-            if returnType and returnType != 'void':
-                body += indent + '{} result;\n'.format(returnType)
-                body += '\n'
-
         body += indent + 'encode::CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(encode::TraceManager::Get(), {});\n'.format(name, argList)
-        body += '\n'
 
-        # Add a resource create/destroy lock
-        if is_create_destroy:
-            body += indent + '{\n'
-            indent += ' ' * self.INDENT_SIZE
-            body += indent + 'std::lock_guard<std::mutex> create_destroy_lock(g_create_destroy_mutex);\n'
-            body += '\n'
+        if not encodeAfter:
+            body += self.makeParameterEncoding(name, values, returnType, indent)
+
+        body += '\n'
 
         # Construct the function call to dispatch to the next layer.
         callExpr = self.makeLayerDispatchCall(name, values, argList)
         if returnType and returnType != 'void':
-            if not is_create_destroy:
-                body += indent + '{} result = {};\n'.format(returnType, callExpr)
-            else:
-                body += indent + 'result = {};\n'.format(callExpr)
+            body += indent + '{} result = {};\n'.format(returnType, callExpr)
         else:
             body += indent + '{};\n'.format(callExpr)
 
+        if encodeAfter:
+            body += self.makeParameterEncoding(name, values, returnType, indent)
+
         body += '\n'
+        if returnType and returnType != 'void':
+            body += '    encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(encode::TraceManager::Get(), result, {});\n'.format(name, argList)
+            body += '\n'
+            body += '    return result;\n'
+        else:
+            body += '    encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(encode::TraceManager::Get(), {});\n'.format(name, argList)
+
+        return body
+
+    def makeParameterEncoding(self, name, values, returnType, indent):
+        body = '\n'
         body += indent + 'auto encoder = encode::TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
         body += indent + 'if (encoder)\n'
         body += indent + '{\n'
@@ -192,19 +190,19 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         body += indent + 'encode::TraceManager::Get()->EndApiCallTrace(encoder);\n'
         indent = indent[0:-self.INDENT_SIZE]
         body += indent + '}\n'
-
-        if is_create_destroy:
-            indent = indent[0:-self.INDENT_SIZE]
-            body += indent + '}\n'
-
-        body += '\n'
-        if returnType and returnType != 'void':
-            body += '    encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(encode::TraceManager::Get(), result, {});\n'.format(name, argList)
-            body += '\n'
-            body += '    return result;\n'
-        else:
-            body += '    encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(encode::TraceManager::Get(), {});\n'.format(name, argList)
-
         return body
 
+    def isOutputParameter(self, value, values):
+        # Check for an output pointer/array or an in-out pointer.
+        if (value.isPointer or value.isArray) and not self.isInputPointer(value):
+            return True
+        return False
 
+    def hasOutputs(self, returnValue, parameterValues):
+        if returnValue != 'void':
+            return True
+        else:
+            for value in parameterValues:
+                if self.isOutputParameter(value, parameterValues):
+                    return True
+        return False

@@ -36,8 +36,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-extern std::mutex g_create_destroy_mutex;
-
 // The following prototype declarations are required so the dispatch table can find these
 // functions which are defined in trace_layer.cpp
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName);

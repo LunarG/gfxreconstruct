@@ -75,8 +75,6 @@ static std::unordered_map<const void*, VkLayerDispatchTable>         device_tabl
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-std::mutex g_create_destroy_mutex;
-
 void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa)
 {
     auto& table = instance_table[get_dispatch_key(instance)];
