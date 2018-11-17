@@ -38,6 +38,7 @@ const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTE
 std::string GetIntentExtra(struct android_app* app, const char* key);
 void        ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
+void        DestroyActivity(struct android_app* app);
 void        PrintUsage(const char* exe_name);
 
 void android_main(struct android_app* app)
@@ -47,6 +48,9 @@ void android_main(struct android_app* app)
     std::string                    args = GetIntentExtra(app, kArgsExtentKey);
     gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), "", "", 1);
     const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
+
+    app->onAppCmd     = ProcessAppCmd;
+    app->onInputEvent = ProcessInputEvent;
 
     if (arg_parser.IsInvalid())
     {
@@ -99,12 +103,8 @@ void android_main(struct android_app* app)
                     // focus event is received.
                     application->SetPaused(true);
 
-                    app->userData     = application.get();
-                    app->onAppCmd     = ProcessAppCmd;
-                    app->onInputEvent = ProcessInputEvent;
-
+                    app->userData = application.get();
                     application->Run();
-
                     app->userData = nullptr;
                 }
             }
@@ -121,7 +121,7 @@ void android_main(struct android_app* app)
 
     gfxrecon::util::Log::Release();
 
-    ANativeActivity_finish(app->activity);
+    DestroyActivity(app);
 }
 
 // Retrieve the program argument string from the intent extras
@@ -220,6 +220,28 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
     }
 
     return 0;
+}
+
+void DestroyActivity(struct android_app* app)
+{
+    ANativeActivity_finish(app->activity);
+
+    // Wait for APP_CMD_DESTROY
+    while (app->destroyRequested == 0)
+    {
+        struct android_poll_source* source = nullptr;
+        int                         events = 0;
+        int                         result = ALooper_pollAll(-1, nullptr, &events, reinterpret_cast<void**>(&source));
+
+        if ((result >= 0) && (source))
+        {
+            source->process(app, source);
+        }
+        else
+        {
+            break;
+        }
+    }
 }
 
 void PrintUsage(const char* exe_name)
