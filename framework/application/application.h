@@ -65,7 +65,7 @@ class Application
     std::vector<decode::Window*> windows_;          ///< List of windows that have been registered with the application.
     decode::FileProcessor*       file_processor_;   ///< The FileProcessor object responsible for decoding and processing
                                                     ///< capture file data.
-    bool                         running_;          ///< Indicatess that the application is actively processing system
+    bool                         running_;          ///< Indicates that the application is actively processing system
                                                     ///< events for playback.
     bool                         paused_;           ///< Indicates that the playback has been paused.  When paused the
                                                     ///< application will stop rendering, but will continue processing
