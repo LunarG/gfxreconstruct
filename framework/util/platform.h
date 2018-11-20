@@ -25,6 +25,7 @@
 #include <cstring>
 #include <ctime>
 #include <cwchar>
+#include <string>
 #include <thread>
 
 #if defined(WIN32)
@@ -52,6 +53,10 @@ enum FileSeekOrigin
     FileSeekEnd     = SEEK_END,
     FileSeekSet     = SEEK_SET
 };
+
+#if defined(__ANDROID__)
+const int32_t kMaxPropertyLength = 255;
+#endif
 
 #if defined(WIN32)
 
@@ -178,12 +183,36 @@ inline void TriggerDebugBreak()
 
 inline std::string GetEnv(const char* name)
 {
+    std::string env_value;
+
+#if defined(__ANDROID__)
+    std::string command = "getprop ";
+    command += name;
+
+    FILE* pipe = popen(command.c_str(), "r");
+    if (pipe != nullptr)
+    {
+        char result[kMaxPropertyLength];
+        result[0] = '\0';
+
+        fgets(result, kMaxPropertyLength, pipe);
+        pclose(pipe);
+
+        size_t count = strcspn(result, "\r\n");
+        if (count > 0)
+        {
+            env_value = std::string(result, count);
+        }
+    }
+#else
     const char* ret_value = getenv(name);
     if (nullptr != ret_value)
     {
-        return std::string(ret_value);
+        env_value = ret_value;
     }
-    return std::string("");
+#endif
+
+    return env_value;
 }
 
 inline int32_t MemoryCopy(void* destination, size_t destination_size, const void* source, size_t source_size)
