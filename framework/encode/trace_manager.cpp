@@ -644,9 +644,11 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
     std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-    memory_tracker_.RemoveEntry(memory);
 
-    if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
+    bool is_mapped = false;
+    memory_tracker_.RemoveEntry(memory, &is_mapped);
+
+    if ((memory_tracking_mode_ == MemoryTrackingMode::kPageGuard) && is_mapped)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);

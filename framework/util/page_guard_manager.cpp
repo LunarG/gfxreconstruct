@@ -675,13 +675,13 @@ void PageGuardManager::RemoveMemory(uint64_t memory_id)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 
-    RemoveExceptionHandler();
-
     auto entry = memory_info_.find(memory_id);
     if (entry != memory_info_.end())
     {
         bool              success     = true;
         const MemoryInfo& memory_info = entry->second;
+
+        RemoveExceptionHandler();
 
         if (memory_info.shadow_memory)
         {

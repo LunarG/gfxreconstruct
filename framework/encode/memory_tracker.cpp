@@ -74,9 +74,25 @@ void MemoryTracker::UnmapEntry(VkDeviceMemory memory)
     }
 }
 
-void MemoryTracker::RemoveEntry(VkDeviceMemory memory)
+void MemoryTracker::RemoveEntry(VkDeviceMemory memory, bool* is_mapped)
 {
-    mapped_memory_.erase(memory);
+    auto entry = mapped_memory_.find(memory);
+    if (entry != mapped_memory_.end())
+    {
+        if (is_mapped != nullptr)
+        {
+            if (entry->second.mapped_memory == nullptr)
+            {
+                (*is_mapped) = false;
+            }
+            else
+            {
+                (*is_mapped) = true;
+            }
+        }
+
+        mapped_memory_.erase(entry);
+    }
 }
 
 const MemoryTracker::EntryInfo* MemoryTracker::GetEntryInfo(VkDeviceMemory memory) const

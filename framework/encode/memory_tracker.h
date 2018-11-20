@@ -59,7 +59,7 @@ class MemoryTracker
 
     void UnmapEntry(VkDeviceMemory memory);
 
-    void RemoveEntry(VkDeviceMemory memory);
+    void RemoveEntry(VkDeviceMemory memory, bool* is_mapped);
 
     const EntryInfo* GetEntryInfo(VkDeviceMemory memory) const;
 
