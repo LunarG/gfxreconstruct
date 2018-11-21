@@ -29,6 +29,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+#if defined(__ANDROID__)
+const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
+const char kCaptureFileEnvVar[]  = "debug.gfxrecon.capture_file";
+#else
+const char kDefaultCaptureFile[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
+const char kCaptureFileEnvVar[]  = "GFXRECON_CAPTURE_FILE";
+#endif
+
 std::mutex                                             TraceManager::ThreadData::count_lock_;
 uint32_t                                               TraceManager::ThreadData::thread_count_ = 0;
 std::unordered_map<uint64_t, uint32_t>                 TraceManager::ThreadData::id_map_;
@@ -79,18 +87,14 @@ void TraceManager::Create()
 
         format::EnabledOptions options;
         MemoryTrackingMode     mode = encode::TraceManager::kPageGuard;
-#if defined(__ANDROID__)
-        std::string filename = "/sdcard/captures/gfxrecon_out" GFXRECON_FILE_EXTENSION;
-#else
-        std::string filename = "./gfxrecon_out" GFXRECON_FILE_EXTENSION;
-#endif
+        std::string            filename = kDefaultCaptureFile;
 
 #if defined(ENABLE_LZ4_COMPRESSION)
         options.compression_type = format::CompressionType::kLz4;
 #endif
 
         // Check to see if there's an environment variable overriding the default capture location value.
-        std::string env_variable = gfxrecon::util::platform::GetEnv("GFXRECON_CAPTURE_FILE");
+        std::string env_variable = gfxrecon::util::platform::GetEnv(kCaptureFileEnvVar);
         if (!env_variable.empty())
         {
             filename = env_variable;
