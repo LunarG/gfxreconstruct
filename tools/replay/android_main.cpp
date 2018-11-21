@@ -31,31 +31,36 @@
 #include <string>
 #include <vector>
 
-const std::string kApplicationName = "GFXReconstruct Replay";
+const char kApplicationName[]    = "GFXReconstruct Replay";
+const char kArgsExtentKey[]      = "args";
+const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
 
-void    ProcessAppCmd(struct android_app* app, int32_t cmd);
-int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event);
-void    PrintUsage(const char* exe_name);
+std::string GetIntentExtra(struct android_app* app, const char* key);
+void        ProcessAppCmd(struct android_app* app, int32_t cmd);
+int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
+void        PrintUsage(const char* exe_name);
 
 void android_main(struct android_app* app)
 {
-    int return_code = 0;
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kInfoSeverity);
 
-    gfxrecon::util::Log::Init();
+    std::string                    args = GetIntentExtra(app, kArgsExtentKey);
+    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), "", "", 1);
+    const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
 
-    // TODO: Retrieve and process arg string from intent extras, and report invalid usage.
-    // std::vector<const char*>        args;
-    // gfxrecon::util::ArgumentParser arg_parser(args.size(), args.data(), "", "", 1);
-    // const std::vector<std::string>  non_optional_arguments = arg_parser.GetNonOptionalArguments();
-    // if (arg_parser.IsInvalid() || non_optional_arguments.size() != 1)
-    //{
-    //    PrintUsage(kApplicationName);
-    //    return_code = -1;
-    //}
-    // else
+    if (arg_parser.IsInvalid())
+    {
+        PrintUsage(kApplicationName);
+    }
+    else
     {
         // std::string filename = non_optional_arguments[0];
-        std::string filename = "/sdcard/captures/gfxrecon_out" GFXRECON_FILE_EXTENSION;
+        std::string filename = kDefaultCaptureFile;
+
+        if (non_optional_arguments.size() == 1)
+        {
+            filename = non_optional_arguments[0];
+        }
 
         try
         {
@@ -66,7 +71,6 @@ void android_main(struct android_app* app)
             if (!file_processor.Initialize(filename))
             {
                 GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
-                return_code = -1;
             }
             else
             {
@@ -79,7 +83,6 @@ void android_main(struct android_app* app)
                     GFXRECON_WRITE_CONSOLE(
                         "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
                         "Vulkan platform extensions have been enabled.");
-                    return_code = -1;
                 }
                 else
                 {
@@ -109,18 +112,67 @@ void android_main(struct android_app* app)
         catch (std::runtime_error error)
         {
             GFXRECON_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
-            return_code = -1;
         }
         catch (...)
         {
             GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
-            return_code = -1;
         }
     }
 
     gfxrecon::util::Log::Release();
 
     ANativeActivity_finish(app->activity);
+}
+
+// Retrieve the program argument string from the intent extras
+std::string GetIntentExtra(struct android_app* app, const char* key)
+{
+    std::string value;
+    JavaVM*     jni_vm       = nullptr;
+    jobject     jni_activity = nullptr;
+    JNIEnv*     env          = nullptr;
+
+    if ((app != nullptr) && (app->activity != nullptr))
+    {
+        jni_vm       = app->activity->vm;
+        jni_activity = app->activity->clazz;
+    }
+
+    if ((jni_vm != nullptr) && (jni_activity != 0) && (jni_vm->AttachCurrentThread(&env, nullptr) == JNI_OK))
+    {
+        jclass    activity_class = env->GetObjectClass(jni_activity);
+        jmethodID get_intent     = env->GetMethodID(activity_class, "getIntent", "()Landroid/content/Intent;");
+        jobject   intent         = env->CallObjectMethod(jni_activity, get_intent);
+
+        if (intent)
+        {
+            jclass    intent_class = env->GetObjectClass(intent);
+            jmethodID get_string_extra =
+                env->GetMethodID(intent_class, "getStringExtra", "(Ljava/lang/String;)Ljava/lang/String;");
+
+            jvalue extra_key;
+            extra_key.l = env->NewStringUTF(key);
+
+            jstring extra = static_cast<jstring>(env->CallObjectMethodA(intent, get_string_extra, &extra_key));
+
+            if (extra)
+            {
+                const char* utf_chars = env->GetStringUTFChars(extra, nullptr);
+
+                value = utf_chars;
+
+                env->ReleaseStringUTFChars(extra, utf_chars);
+                env->DeleteLocalRef(extra);
+            }
+
+            env->DeleteLocalRef(extra_key.l);
+            env->DeleteLocalRef(intent);
+        }
+
+        jni_vm->DetachCurrentThread();
+    }
+
+    return value;
 }
 
 void ProcessAppCmd(struct android_app* app, int32_t cmd)
