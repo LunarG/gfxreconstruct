@@ -17,6 +17,7 @@
 
 #include "util/file_output_stream.h"
 
+#include "util/logging.h"
 #include "util/platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -24,8 +25,13 @@ GFXRECON_BEGIN_NAMESPACE(util)
 
 FileOutputStream::FileOutputStream(const std::string& filename, bool append) : file_(nullptr), own_file_(true)
 {
-    // TODO: Log an error if file open failed.
-    platform::FileOpen(&file_, filename.c_str(), append ? "ab" : "wb");
+    const char* mode   = append ? "ab" : "wb";
+    int32_t     result = platform::FileOpen(&file_, filename.c_str(), mode);
+
+    if (file_ == nullptr)
+    {
+        GFXRECON_LOG_ERROR("fopen(%s, %s) failed (errno = %d)", filename.c_str(), mode, result);
+    }
 }
 
 FileOutputStream::FileOutputStream(FILE* file, bool owned) : file_(file), own_file_(owned) {}
