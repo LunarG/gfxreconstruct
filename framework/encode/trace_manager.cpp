@@ -83,7 +83,7 @@ void TraceManager::Create()
         assert(instance_ == nullptr);
 
         // TODO: load settings from file.
-        util::Log::Init(util::Log::kWarningSeverity);
+        util::Log::Init(util::Log::kInfoSeverity);
 
         format::EnabledOptions options;
         MemoryTrackingMode     mode = encode::TraceManager::kPageGuard;
@@ -108,6 +108,7 @@ void TraceManager::Create()
 
         if (success)
         {
+            GFXRECON_LOG_INFO("Recording graphics API capture to %s", filename.c_str());
             ++instance_count_;
         }
         else
