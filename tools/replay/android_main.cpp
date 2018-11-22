@@ -23,6 +23,7 @@
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
+#include "util/platform.h"
 
 #include <android_native_app_glue.h>
 
@@ -34,10 +35,13 @@
 const char kApplicationName[]    = "GFXReconstruct Replay";
 const char kArgsExtentKey[]      = "args";
 const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
+const char kLayerProperty[]      = "debug.vulkan.layers";
+const char kCaptureLayer[]       = "VK_LAYER_LUNARG_gfxreconstruct";
 
 std::string GetIntentExtra(struct android_app* app, const char* key);
 void        ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
+void        CheckActiveLayers();
 void        DestroyActivity(struct android_app* app);
 void        PrintUsage(const char* exe_name);
 
@@ -98,6 +102,9 @@ void android_main(struct android_app* app)
 
                     decoder.AddConsumer(&replay_consumer);
                     file_processor.AddDecoder(&decoder);
+
+                    // Warn if the capture layer is active.
+                    CheckActiveLayers();
 
                     // Start the application in the paused state, preventing replay from starting before the app gained
                     // focus event is received.
@@ -220,6 +227,19 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
     }
 
     return 0;
+}
+
+void CheckActiveLayers()
+{
+    std::string result = gfxrecon::util::platform::GetEnv(kLayerProperty);
+
+    if (!result.empty())
+    {
+        if (result.find(kCaptureLayer) != std::string::npos)
+        {
+            GFXRECON_LOG_WARNING("Replay tool has detected that the capture layer is enabled");
+        }
+    }
 }
 
 void DestroyActivity(struct android_app* app)
