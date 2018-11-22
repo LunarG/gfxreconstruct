@@ -45,6 +45,21 @@
 #endif
 
 const std::string kApplicationName = "GFXReconstruct Replay";
+const char        kLayerEnvVar[]   = "VK_INSTANCE_LAYERS";
+const char        kCaptureLayer[]  = "VK_LAYER_LUNARG_gfxreconstruct";
+
+void CheckActiveLayers()
+{
+    std::string result = gfxrecon::util::platform::GetEnv(kLayerEnvVar);
+
+    if (!result.empty())
+    {
+        if (result.find(kCaptureLayer) != std::string::npos)
+        {
+            GFXRECON_LOG_WARNING("Replay tool has detected that the capture layer is enabled");
+        }
+    }
+}
 
 void PrintUsage(const char* exe_name)
 {
@@ -66,7 +81,7 @@ int main(int argc, const char** argv)
 {
     int return_code = 0;
 
-    gfxrecon::util::Log::Init();
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kInfoSeverity);
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
     const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
@@ -131,6 +146,9 @@ int main(int argc, const char** argv)
 
                     decoder.AddConsumer(&replay_consumer);
                     file_processor.AddDecoder(&decoder);
+
+                    // Warn if the capture layer is active.
+                    CheckActiveLayers();
 
                     application->Run();
                 }
