@@ -114,6 +114,12 @@ AndroidWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t wi
     return android_application_->GetWindow();
 }
 
+void AndroidWindowFactory::Destroy(decode::Window* window)
+{
+    // Android currently has a single window whose lifetime is managed by AndroidApplication.
+    GFXRECON_UNREFERENCED_PARAMETER(window);
+}
+
 VkBool32 AndroidWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                                     uint32_t         queue_family_index)
 {

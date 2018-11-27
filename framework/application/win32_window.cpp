@@ -271,6 +271,15 @@ Win32WindowFactory::Create(const int32_t x, const int32_t y, const uint32_t widt
     return window;
 }
 
+void Win32WindowFactory::Destroy(decode::Window* window)
+{
+    if (window != nullptr)
+    {
+        window->Destroy();
+        delete window;
+    }
+}
+
 VkBool32 Win32WindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                                   uint32_t         queue_family_index)
 {

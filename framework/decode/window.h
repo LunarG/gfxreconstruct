@@ -68,6 +68,8 @@ class WindowFactory
 
     virtual Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) = 0;
 
+    virtual void Destroy(Window* window) = 0;
+
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                           uint32_t         queue_family_index) = 0;
 };

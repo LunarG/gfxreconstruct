@@ -52,12 +52,7 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     // Destroy any windows that were created for Vulkan surfaces.
     for (const auto& entry : window_map_)
     {
-        Window* window = entry.second;
-
-        assert(window != nullptr);
-
-        window->Destroy();
-        delete window;
+        window_factory_->Destroy(entry.second);
     }
 }
 
@@ -624,12 +619,7 @@ void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(VkInstance             
 
         if (entry != window_map_.end())
         {
-            Window* window = entry->second;
-
-            assert(window != nullptr);
-
-            window->Destroy();
-            delete window;
+            window_factory_->Destroy(entry->second);
             window_map_.erase(entry);
         }
     }

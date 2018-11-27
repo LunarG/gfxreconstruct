@@ -178,6 +178,15 @@ WaylandWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t wi
     return window;
 }
 
+void WaylandWindowFactory::Destroy(decode::Window* window)
+{
+    if (window != nullptr)
+    {
+        window->Destroy();
+        delete window;
+    }
+}
+
 VkBool32 WaylandWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                                     uint32_t         queue_family_index)
 {
