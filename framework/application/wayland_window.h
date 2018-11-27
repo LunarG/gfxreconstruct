@@ -92,6 +92,8 @@ class WaylandWindowFactory : public decode::WindowFactory
     virtual decode::Window*
     Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
 
+    void Destroy(decode::Window* window) override;
+
     virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                           uint32_t         queue_family_index) override;
 

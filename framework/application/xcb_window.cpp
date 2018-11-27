@@ -450,6 +450,15 @@ decode::Window* XcbWindowFactory::Create(const int32_t x, const int32_t y, const
     return window;
 }
 
+void XcbWindowFactory::Destroy(decode::Window* window)
+{
+    if (window != nullptr)
+    {
+        window->Destroy();
+        delete window;
+    }
+}
+
 VkBool32 XcbWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
                                                                 uint32_t         queue_family_index)
 {
