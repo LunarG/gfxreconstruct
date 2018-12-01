@@ -24,6 +24,7 @@
 #define  GFXRECON_GENERATED_VULKAN_STRUCT_ENCODERS_H
 
 #include "encode/parameter_encoder.h"
+#include "format/platform_types.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -232,51 +233,33 @@ void encode_struct(ParameterEncoder* encoder, const VkDisplaySurfaceCreateInfoKH
 
 void encode_struct(ParameterEncoder* encoder, const VkDisplayPresentInfoKHR& value);
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
 void encode_struct(ParameterEncoder* encoder, const VkXlibSurfaceCreateInfoKHR& value);
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
 void encode_struct(ParameterEncoder* encoder, const VkXcbSurfaceCreateInfoKHR& value);
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
 void encode_struct(ParameterEncoder* encoder, const VkWaylandSurfaceCreateInfoKHR& value);
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
 void encode_struct(ParameterEncoder* encoder, const VkMirSurfaceCreateInfoKHR& value);
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 void encode_struct(ParameterEncoder* encoder, const VkAndroidSurfaceCreateInfoKHR& value);
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkWin32SurfaceCreateInfoKHR& value);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkExportMemoryWin32HandleInfoKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkMemoryWin32HandlePropertiesKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkMemoryGetWin32HandleInfoKHR& value);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void encode_struct(ParameterEncoder* encoder, const VkImportMemoryFdInfoKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkMemoryFdPropertiesKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkMemoryGetFdInfoKHR& value);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkWin32KeyedMutexAcquireReleaseInfoKHR& value);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkImportSemaphoreWin32HandleInfoKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkExportSemaphoreWin32HandleInfoKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkD3D12FenceSubmitInfoKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkSemaphoreGetWin32HandleInfoKHR& value);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void encode_struct(ParameterEncoder* encoder, const VkImportSemaphoreFdInfoKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkSemaphoreGetFdInfoKHR& value);
@@ -297,11 +280,9 @@ void encode_struct(ParameterEncoder* encoder, const VkSubpassEndInfoKHR& value);
 
 void encode_struct(ParameterEncoder* encoder, const VkSharedPresentSurfaceCapabilitiesKHR& value);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkImportFenceWin32HandleInfoKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkExportFenceWin32HandleInfoKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkFenceGetWin32HandleInfoKHR& value);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void encode_struct(ParameterEncoder* encoder, const VkImportFenceFdInfoKHR& value);
 void encode_struct(ParameterEncoder* encoder, const VkFenceGetFdInfoKHR& value);
@@ -351,20 +332,14 @@ void encode_struct(ParameterEncoder* encoder, const VkExternalImageFormatPropert
 void encode_struct(ParameterEncoder* encoder, const VkExternalMemoryImageCreateInfoNV& value);
 void encode_struct(ParameterEncoder* encoder, const VkExportMemoryAllocateInfoNV& value);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoNV& value);
 void encode_struct(ParameterEncoder* encoder, const VkExportMemoryWin32HandleInfoNV& value);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkWin32KeyedMutexAcquireReleaseInfoNV& value);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void encode_struct(ParameterEncoder* encoder, const VkValidationFlagsEXT& value);
 
-#ifdef VK_USE_PLATFORM_VI_NN
 void encode_struct(ParameterEncoder* encoder, const VkViSurfaceCreateInfoNN& value);
-#endif /* VK_USE_PLATFORM_VI_NN */
 
 void encode_struct(ParameterEncoder* encoder, const VkImageViewASTCDecodeModeEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceASTCDecodeFeaturesEXT& value);
@@ -416,13 +391,9 @@ void encode_struct(ParameterEncoder* encoder, const VkPipelineRasterizationConse
 void encode_struct(ParameterEncoder* encoder, const VkXYColorEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkHdrMetadataEXT& value);
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
 void encode_struct(ParameterEncoder* encoder, const VkIOSSurfaceCreateInfoMVK& value);
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
 void encode_struct(ParameterEncoder* encoder, const VkMacOSSurfaceCreateInfoMVK& value);
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
 void encode_struct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value);
@@ -430,14 +401,12 @@ void encode_struct(ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value)
 void encode_struct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateInfoEXT& value);
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 void encode_struct(ParameterEncoder* encoder, const VkAndroidHardwareBufferUsageANDROID& value);
 void encode_struct(ParameterEncoder* encoder, const VkAndroidHardwareBufferPropertiesANDROID& value);
 void encode_struct(ParameterEncoder* encoder, const VkAndroidHardwareBufferFormatPropertiesANDROID& value);
 void encode_struct(ParameterEncoder* encoder, const VkImportAndroidHardwareBufferInfoANDROID& value);
 void encode_struct(ParameterEncoder* encoder, const VkMemoryGetAndroidHardwareBufferInfoANDROID& value);
 void encode_struct(ParameterEncoder* encoder, const VkExternalFormatANDROID& value);
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
 void encode_struct(ParameterEncoder* encoder, const VkSamplerReductionModeCreateInfoEXT& value);
 void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT& value);
@@ -524,9 +493,7 @@ void encode_struct(ParameterEncoder* encoder, const VkPhysicalDeviceExclusiveSci
 void encode_struct(ParameterEncoder* encoder, const VkQueueFamilyCheckpointPropertiesNV& value);
 void encode_struct(ParameterEncoder* encoder, const VkCheckpointDataNV& value);
 
-#ifdef VK_USE_PLATFORM_FUCHSIA
 void encode_struct(ParameterEncoder* encoder, const VkImagePipeSurfaceCreateInfoFUCHSIA& value);
-#endif /* VK_USE_PLATFORM_FUCHSIA */
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

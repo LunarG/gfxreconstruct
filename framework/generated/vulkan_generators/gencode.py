@@ -266,7 +266,7 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = True,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     genOpts['generated_vulkan_api_call_encoders.cpp'] = [
@@ -278,7 +278,7 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     genOpts['generated_layer_func_table.h'] = [
@@ -288,7 +288,7 @@ def makeGenOpts(args):
             directory         = directory,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = True,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     #
@@ -302,7 +302,7 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     genOpts['generated_vulkan_struct_encoders.h'] = [
@@ -314,7 +314,7 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = True,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
     genOpts['generated_encode_pnext_struct.cpp'] = [
@@ -324,7 +324,7 @@ def makeGenOpts(args):
             directory         = directory,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
-            protectFeature    = True)
+            protectFeature    = False)
         ]
 
 # Generate a target based on the options in the matching genOpts{} object.

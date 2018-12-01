@@ -1932,7 +1932,6 @@ void encode_struct(ParameterEncoder* encoder, const VkDisplayPresentInfoKHR& val
     encoder->EncodeVkBool32Value(value.persistent);
 }
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
 void encode_struct(ParameterEncoder* encoder, const VkXlibSurfaceCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1941,9 +1940,7 @@ void encode_struct(ParameterEncoder* encoder, const VkXlibSurfaceCreateInfoKHR& 
     encoder->EncodeVoidPtr(value.dpy);
     encoder->EncodeSizeTValue(value.window);
 }
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
 void encode_struct(ParameterEncoder* encoder, const VkXcbSurfaceCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1952,9 +1949,7 @@ void encode_struct(ParameterEncoder* encoder, const VkXcbSurfaceCreateInfoKHR& v
     encoder->EncodeVoidPtr(value.connection);
     encoder->EncodeUInt32Value(value.window);
 }
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
 void encode_struct(ParameterEncoder* encoder, const VkWaylandSurfaceCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1963,9 +1958,7 @@ void encode_struct(ParameterEncoder* encoder, const VkWaylandSurfaceCreateInfoKH
     encoder->EncodeVoidPtr(value.display);
     encoder->EncodeVoidPtr(value.surface);
 }
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
 void encode_struct(ParameterEncoder* encoder, const VkMirSurfaceCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1974,9 +1967,7 @@ void encode_struct(ParameterEncoder* encoder, const VkMirSurfaceCreateInfoKHR& v
     encoder->EncodeVoidPtr(value.connection);
     encoder->EncodeVoidPtr(value.mirSurface);
 }
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 void encode_struct(ParameterEncoder* encoder, const VkAndroidSurfaceCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1984,9 +1975,7 @@ void encode_struct(ParameterEncoder* encoder, const VkAndroidSurfaceCreateInfoKH
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeVoidPtr(value.window);
 }
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkWin32SurfaceCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -1995,9 +1984,7 @@ void encode_struct(ParameterEncoder* encoder, const VkWin32SurfaceCreateInfoKHR&
     encoder->EncodeVoidPtr(value.hinstance);
     encoder->EncodeVoidPtr(value.hwnd);
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -2030,7 +2017,6 @@ void encode_struct(ParameterEncoder* encoder, const VkMemoryGetWin32HandleInfoKH
     encoder->EncodeHandleIdValue(value.memory);
     encoder->EncodeEnumValue(value.handleType);
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void encode_struct(ParameterEncoder* encoder, const VkImportMemoryFdInfoKHR& value)
 {
@@ -2055,7 +2041,6 @@ void encode_struct(ParameterEncoder* encoder, const VkMemoryGetFdInfoKHR& value)
     encoder->EncodeEnumValue(value.handleType);
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkWin32KeyedMutexAcquireReleaseInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -2068,9 +2053,7 @@ void encode_struct(ParameterEncoder* encoder, const VkWin32KeyedMutexAcquireRele
     encoder->EncodeHandleIdArray(value.pReleaseSyncs, value.releaseCount);
     encoder->EncodeUInt64Array(value.pReleaseKeys, value.releaseCount);
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkImportSemaphoreWin32HandleInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -2108,7 +2091,6 @@ void encode_struct(ParameterEncoder* encoder, const VkSemaphoreGetWin32HandleInf
     encoder->EncodeHandleIdValue(value.semaphore);
     encoder->EncodeEnumValue(value.handleType);
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void encode_struct(ParameterEncoder* encoder, const VkImportSemaphoreFdInfoKHR& value)
 {
@@ -2246,7 +2228,6 @@ void encode_struct(ParameterEncoder* encoder, const VkSharedPresentSurfaceCapabi
     encoder->EncodeFlagsValue(value.sharedPresentSupportedUsageFlags);
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkImportFenceWin32HandleInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -2274,7 +2255,6 @@ void encode_struct(ParameterEncoder* encoder, const VkFenceGetWin32HandleInfoKHR
     encoder->EncodeHandleIdValue(value.fence);
     encoder->EncodeEnumValue(value.handleType);
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void encode_struct(ParameterEncoder* encoder, const VkImportFenceFdInfoKHR& value)
 {
@@ -2524,7 +2504,6 @@ void encode_struct(ParameterEncoder* encoder, const VkExportMemoryAllocateInfoNV
     encoder->EncodeFlagsValue(value.handleTypes);
 }
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkImportMemoryWin32HandleInfoNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -2540,9 +2519,7 @@ void encode_struct(ParameterEncoder* encoder, const VkExportMemoryWin32HandleInf
     encode_struct_ptr(encoder, value.pAttributes);
     encoder->EncodeUInt32Value(value.dwAccess);
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 void encode_struct(ParameterEncoder* encoder, const VkWin32KeyedMutexAcquireReleaseInfoNV& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -2555,7 +2532,6 @@ void encode_struct(ParameterEncoder* encoder, const VkWin32KeyedMutexAcquireRele
     encoder->EncodeHandleIdArray(value.pReleaseSyncs, value.releaseCount);
     encoder->EncodeUInt64Array(value.pReleaseKeys, value.releaseCount);
 }
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 void encode_struct(ParameterEncoder* encoder, const VkValidationFlagsEXT& value)
 {
@@ -2565,7 +2541,6 @@ void encode_struct(ParameterEncoder* encoder, const VkValidationFlagsEXT& value)
     encoder->EncodeEnumArray(value.pDisabledValidationChecks, value.disabledValidationCheckCount);
 }
 
-#ifdef VK_USE_PLATFORM_VI_NN
 void encode_struct(ParameterEncoder* encoder, const VkViSurfaceCreateInfoNN& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -2573,7 +2548,6 @@ void encode_struct(ParameterEncoder* encoder, const VkViSurfaceCreateInfoNN& val
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeVoidPtr(value.window);
 }
-#endif /* VK_USE_PLATFORM_VI_NN */
 
 void encode_struct(ParameterEncoder* encoder, const VkImageViewASTCDecodeModeEXT& value)
 {
@@ -2907,7 +2881,6 @@ void encode_struct(ParameterEncoder* encoder, const VkHdrMetadataEXT& value)
     encoder->EncodeFloatValue(value.maxFrameAverageLightLevel);
 }
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
 void encode_struct(ParameterEncoder* encoder, const VkIOSSurfaceCreateInfoMVK& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -2915,9 +2888,7 @@ void encode_struct(ParameterEncoder* encoder, const VkIOSSurfaceCreateInfoMVK& v
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeVoidPtr(value.pView);
 }
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
 void encode_struct(ParameterEncoder* encoder, const VkMacOSSurfaceCreateInfoMVK& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -2925,7 +2896,6 @@ void encode_struct(ParameterEncoder* encoder, const VkMacOSSurfaceCreateInfoMVK&
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeVoidPtr(value.pView);
 }
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
 void encode_struct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT& value)
 {
@@ -2982,7 +2952,6 @@ void encode_struct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateI
     encoder->EncodeVoidPtr(value.pUserData);
 }
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 void encode_struct(ParameterEncoder* encoder, const VkAndroidHardwareBufferUsageANDROID& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -3032,7 +3001,6 @@ void encode_struct(ParameterEncoder* encoder, const VkExternalFormatANDROID& val
     encode_pnext_struct(encoder, value.pNext);
     encoder->EncodeUInt64Value(value.externalFormat);
 }
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
 void encode_struct(ParameterEncoder* encoder, const VkSamplerReductionModeCreateInfoEXT& value)
 {
@@ -3625,7 +3593,6 @@ void encode_struct(ParameterEncoder* encoder, const VkCheckpointDataNV& value)
     encoder->EncodeVoidPtr(value.pCheckpointMarker);
 }
 
-#ifdef VK_USE_PLATFORM_FUCHSIA
 void encode_struct(ParameterEncoder* encoder, const VkImagePipeSurfaceCreateInfoFUCHSIA& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -3633,7 +3600,6 @@ void encode_struct(ParameterEncoder* encoder, const VkImagePipeSurfaceCreateInfo
     encoder->EncodeFlagsValue(value.flags);
     encoder->EncodeUInt32Value(value.imagePipeHandle);
 }
-#endif /* VK_USE_PLATFORM_FUCHSIA */
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

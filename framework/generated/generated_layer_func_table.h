@@ -221,29 +221,17 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetDisplayPlaneCapabilitiesKHR",                                                                    reinterpret_cast<PFN_vkVoidFunction>(GetDisplayPlaneCapabilitiesKHR) },
     { "vkCreateDisplayPlaneSurfaceKHR",                                                                      reinterpret_cast<PFN_vkVoidFunction>(CreateDisplayPlaneSurfaceKHR) },
     { "vkCreateSharedSwapchainsKHR",                                                                         reinterpret_cast<PFN_vkVoidFunction>(CreateSharedSwapchainsKHR) },
-#ifdef VK_USE_PLATFORM_XLIB_KHR
     { "vkCreateXlibSurfaceKHR",                                                                              reinterpret_cast<PFN_vkVoidFunction>(CreateXlibSurfaceKHR) },
     { "vkGetPhysicalDeviceXlibPresentationSupportKHR",                                                       reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceXlibPresentationSupportKHR) },
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
-#ifdef VK_USE_PLATFORM_XCB_KHR
     { "vkCreateXcbSurfaceKHR",                                                                               reinterpret_cast<PFN_vkVoidFunction>(CreateXcbSurfaceKHR) },
     { "vkGetPhysicalDeviceXcbPresentationSupportKHR",                                                        reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceXcbPresentationSupportKHR) },
-#endif /* VK_USE_PLATFORM_XCB_KHR */
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
     { "vkCreateWaylandSurfaceKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(CreateWaylandSurfaceKHR) },
     { "vkGetPhysicalDeviceWaylandPresentationSupportKHR",                                                    reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceWaylandPresentationSupportKHR) },
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
-#ifdef VK_USE_PLATFORM_MIR_KHR
     { "vkCreateMirSurfaceKHR",                                                                               reinterpret_cast<PFN_vkVoidFunction>(CreateMirSurfaceKHR) },
     { "vkGetPhysicalDeviceMirPresentationSupportKHR",                                                        reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceMirPresentationSupportKHR) },
-#endif /* VK_USE_PLATFORM_MIR_KHR */
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
     { "vkCreateAndroidSurfaceKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(CreateAndroidSurfaceKHR) },
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     { "vkCreateWin32SurfaceKHR",                                                                             reinterpret_cast<PFN_vkVoidFunction>(CreateWin32SurfaceKHR) },
     { "vkGetPhysicalDeviceWin32PresentationSupportKHR",                                                      reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceWin32PresentationSupportKHR) },
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
     { "vkGetPhysicalDeviceFeatures2KHR",                                                                     reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceFeatures2KHR) },
     { "vkGetPhysicalDeviceProperties2KHR",                                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProperties2KHR) },
     { "vkGetPhysicalDeviceFormatProperties2KHR",                                                             reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceFormatProperties2KHR) },
@@ -257,17 +245,13 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkTrimCommandPoolKHR",                                                                                reinterpret_cast<PFN_vkVoidFunction>(TrimCommandPoolKHR) },
     { "vkEnumeratePhysicalDeviceGroupsKHR",                                                                  reinterpret_cast<PFN_vkVoidFunction>(EnumeratePhysicalDeviceGroupsKHR) },
     { "vkGetPhysicalDeviceExternalBufferPropertiesKHR",                                                      reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceExternalBufferPropertiesKHR) },
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     { "vkGetMemoryWin32HandleKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(GetMemoryWin32HandleKHR) },
     { "vkGetMemoryWin32HandlePropertiesKHR",                                                                 reinterpret_cast<PFN_vkVoidFunction>(GetMemoryWin32HandlePropertiesKHR) },
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
     { "vkGetMemoryFdKHR",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(GetMemoryFdKHR) },
     { "vkGetMemoryFdPropertiesKHR",                                                                          reinterpret_cast<PFN_vkVoidFunction>(GetMemoryFdPropertiesKHR) },
     { "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR",                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceExternalSemaphorePropertiesKHR) },
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     { "vkImportSemaphoreWin32HandleKHR",                                                                     reinterpret_cast<PFN_vkVoidFunction>(ImportSemaphoreWin32HandleKHR) },
     { "vkGetSemaphoreWin32HandleKHR",                                                                        reinterpret_cast<PFN_vkVoidFunction>(GetSemaphoreWin32HandleKHR) },
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
     { "vkImportSemaphoreFdKHR",                                                                              reinterpret_cast<PFN_vkVoidFunction>(ImportSemaphoreFdKHR) },
     { "vkGetSemaphoreFdKHR",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(GetSemaphoreFdKHR) },
     { "vkCmdPushDescriptorSetKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(CmdPushDescriptorSetKHR) },
@@ -281,10 +265,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdEndRenderPass2KHR",                                                                              reinterpret_cast<PFN_vkVoidFunction>(CmdEndRenderPass2KHR) },
     { "vkGetSwapchainStatusKHR",                                                                             reinterpret_cast<PFN_vkVoidFunction>(GetSwapchainStatusKHR) },
     { "vkGetPhysicalDeviceExternalFencePropertiesKHR",                                                       reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceExternalFencePropertiesKHR) },
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     { "vkImportFenceWin32HandleKHR",                                                                         reinterpret_cast<PFN_vkVoidFunction>(ImportFenceWin32HandleKHR) },
     { "vkGetFenceWin32HandleKHR",                                                                            reinterpret_cast<PFN_vkVoidFunction>(GetFenceWin32HandleKHR) },
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
     { "vkImportFenceFdKHR",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(ImportFenceFdKHR) },
     { "vkGetFenceFdKHR",                                                                                     reinterpret_cast<PFN_vkVoidFunction>(GetFenceFdKHR) },
     { "vkGetPhysicalDeviceSurfaceCapabilities2KHR",                                                          reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceSurfaceCapabilities2KHR) },
@@ -315,12 +297,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdDrawIndexedIndirectCountAMD",                                                                    reinterpret_cast<PFN_vkVoidFunction>(CmdDrawIndexedIndirectCountAMD) },
     { "vkGetShaderInfoAMD",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(GetShaderInfoAMD) },
     { "vkGetPhysicalDeviceExternalImageFormatPropertiesNV",                                                  reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceExternalImageFormatPropertiesNV) },
-#ifdef VK_USE_PLATFORM_WIN32_KHR
     { "vkGetMemoryWin32HandleNV",                                                                            reinterpret_cast<PFN_vkVoidFunction>(GetMemoryWin32HandleNV) },
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
-#ifdef VK_USE_PLATFORM_VI_NN
     { "vkCreateViSurfaceNN",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(CreateViSurfaceNN) },
-#endif /* VK_USE_PLATFORM_VI_NN */
     { "vkCmdBeginConditionalRenderingEXT",                                                                   reinterpret_cast<PFN_vkVoidFunction>(CmdBeginConditionalRenderingEXT) },
     { "vkCmdEndConditionalRenderingEXT",                                                                     reinterpret_cast<PFN_vkVoidFunction>(CmdEndConditionalRenderingEXT) },
     { "vkCmdProcessCommandsNVX",                                                                             reinterpret_cast<PFN_vkVoidFunction>(CmdProcessCommandsNVX) },
@@ -334,10 +312,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX",                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceGeneratedCommandsPropertiesNVX) },
     { "vkCmdSetViewportWScalingNV",                                                                          reinterpret_cast<PFN_vkVoidFunction>(CmdSetViewportWScalingNV) },
     { "vkReleaseDisplayEXT",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(ReleaseDisplayEXT) },
-#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
     { "vkAcquireXlibDisplayEXT",                                                                             reinterpret_cast<PFN_vkVoidFunction>(AcquireXlibDisplayEXT) },
     { "vkGetRandROutputDisplayEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(GetRandROutputDisplayEXT) },
-#endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
     { "vkGetPhysicalDeviceSurfaceCapabilities2EXT",                                                          reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceSurfaceCapabilities2EXT) },
     { "vkDisplayPowerControlEXT",                                                                            reinterpret_cast<PFN_vkVoidFunction>(DisplayPowerControlEXT) },
     { "vkRegisterDeviceEventEXT",                                                                            reinterpret_cast<PFN_vkVoidFunction>(RegisterDeviceEventEXT) },
@@ -347,12 +323,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetPastPresentationTimingGOOGLE",                                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPastPresentationTimingGOOGLE) },
     { "vkCmdSetDiscardRectangleEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(CmdSetDiscardRectangleEXT) },
     { "vkSetHdrMetadataEXT",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(SetHdrMetadataEXT) },
-#ifdef VK_USE_PLATFORM_IOS_MVK
     { "vkCreateIOSSurfaceMVK",                                                                               reinterpret_cast<PFN_vkVoidFunction>(CreateIOSSurfaceMVK) },
-#endif /* VK_USE_PLATFORM_IOS_MVK */
-#ifdef VK_USE_PLATFORM_MACOS_MVK
     { "vkCreateMacOSSurfaceMVK",                                                                             reinterpret_cast<PFN_vkVoidFunction>(CreateMacOSSurfaceMVK) },
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
     { "vkSetDebugUtilsObjectNameEXT",                                                                        reinterpret_cast<PFN_vkVoidFunction>(SetDebugUtilsObjectNameEXT) },
     { "vkSetDebugUtilsObjectTagEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(SetDebugUtilsObjectTagEXT) },
     { "vkQueueBeginDebugUtilsLabelEXT",                                                                      reinterpret_cast<PFN_vkVoidFunction>(QueueBeginDebugUtilsLabelEXT) },
@@ -364,10 +336,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCreateDebugUtilsMessengerEXT",                                                                      reinterpret_cast<PFN_vkVoidFunction>(CreateDebugUtilsMessengerEXT) },
     { "vkDestroyDebugUtilsMessengerEXT",                                                                     reinterpret_cast<PFN_vkVoidFunction>(DestroyDebugUtilsMessengerEXT) },
     { "vkSubmitDebugUtilsMessageEXT",                                                                        reinterpret_cast<PFN_vkVoidFunction>(SubmitDebugUtilsMessageEXT) },
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
     { "vkGetAndroidHardwareBufferPropertiesANDROID",                                                         reinterpret_cast<PFN_vkVoidFunction>(GetAndroidHardwareBufferPropertiesANDROID) },
     { "vkGetMemoryAndroidHardwareBufferANDROID",                                                             reinterpret_cast<PFN_vkVoidFunction>(GetMemoryAndroidHardwareBufferANDROID) },
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
     { "vkCmdSetSampleLocationsEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(CmdSetSampleLocationsEXT) },
     { "vkGetPhysicalDeviceMultisamplePropertiesEXT",                                                         reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceMultisamplePropertiesEXT) },
     { "vkCreateValidationCacheEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(CreateValidationCacheEXT) },
@@ -398,9 +368,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdSetExclusiveScissorNV",                                                                          reinterpret_cast<PFN_vkVoidFunction>(CmdSetExclusiveScissorNV) },
     { "vkCmdSetCheckpointNV",                                                                                reinterpret_cast<PFN_vkVoidFunction>(CmdSetCheckpointNV) },
     { "vkGetQueueCheckpointDataNV",                                                                          reinterpret_cast<PFN_vkVoidFunction>(GetQueueCheckpointDataNV) },
-#ifdef VK_USE_PLATFORM_FUCHSIA
     { "vkCreateImagePipeSurfaceFUCHSIA",                                                                     reinterpret_cast<PFN_vkVoidFunction>(CreateImagePipeSurfaceFUCHSIA) },
-#endif /* VK_USE_PLATFORM_FUCHSIA */
 
     // Special case handling of "vk_layerGetPhysicalDeviceProcAddr"
     { "vk_layerGetPhysicalDeviceProcAddr",                                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },

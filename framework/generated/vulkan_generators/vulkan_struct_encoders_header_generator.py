@@ -49,6 +49,7 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
+        write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
