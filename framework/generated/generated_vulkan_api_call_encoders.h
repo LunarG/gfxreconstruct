@@ -23,6 +23,7 @@
 #ifndef  GFXRECON_GENERATED_VULKAN_API_CALL_ENCODERS_H
 #define  GFXRECON_GENERATED_VULKAN_API_CALL_ENCODERS_H
 
+#include "format/platform_types.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -1059,7 +1060,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkSwapchainKHR*                             pSwapchains);
 
-#ifdef VK_USE_PLATFORM_XLIB_KHR
 VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(
     VkInstance                                  instance,
     const VkXlibSurfaceCreateInfoKHR*           pCreateInfo,
@@ -1071,9 +1071,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(
     uint32_t                                    queueFamilyIndex,
     Display*                                    dpy,
     VisualID                                    visualID);
-#endif /* VK_USE_PLATFORM_XLIB_KHR */
 
-#ifdef VK_USE_PLATFORM_XCB_KHR
 VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(
     VkInstance                                  instance,
     const VkXcbSurfaceCreateInfoKHR*            pCreateInfo,
@@ -1085,9 +1083,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXcbPresentationSupportKHR(
     uint32_t                                    queueFamilyIndex,
     xcb_connection_t*                           connection,
     xcb_visualid_t                              visual_id);
-#endif /* VK_USE_PLATFORM_XCB_KHR */
 
-#ifdef VK_USE_PLATFORM_WAYLAND_KHR
 VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(
     VkInstance                                  instance,
     const VkWaylandSurfaceCreateInfoKHR*        pCreateInfo,
@@ -1098,9 +1094,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWaylandPresentationSupportKHR(
     VkPhysicalDevice                            physicalDevice,
     uint32_t                                    queueFamilyIndex,
     struct wl_display*                          display);
-#endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
-#ifdef VK_USE_PLATFORM_MIR_KHR
 VKAPI_ATTR VkResult VKAPI_CALL CreateMirSurfaceKHR(
     VkInstance                                  instance,
     const VkMirSurfaceCreateInfoKHR*            pCreateInfo,
@@ -1111,17 +1105,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceMirPresentationSupportKHR(
     VkPhysicalDevice                            physicalDevice,
     uint32_t                                    queueFamilyIndex,
     MirConnection*                              connection);
-#endif /* VK_USE_PLATFORM_MIR_KHR */
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(
     VkInstance                                  instance,
     const VkAndroidSurfaceCreateInfoKHR*        pCreateInfo,
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface);
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
     VkInstance                                  instance,
     const VkWin32SurfaceCreateInfoKHR*          pCreateInfo,
@@ -1131,7 +1121,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
 VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWin32PresentationSupportKHR(
     VkPhysicalDevice                            physicalDevice,
     uint32_t                                    queueFamilyIndex);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(
     VkPhysicalDevice                            physicalDevice,
@@ -1201,7 +1190,6 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferPropertiesKHR(
     const VkPhysicalDeviceExternalBufferInfo*   pExternalBufferInfo,
     VkExternalBufferProperties*                 pExternalBufferProperties);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(
     VkDevice                                    device,
     const VkMemoryGetWin32HandleInfoKHR*        pGetWin32HandleInfo,
@@ -1212,7 +1200,6 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(
     VkExternalMemoryHandleTypeFlagBits          handleType,
     HANDLE                                      handle,
     VkMemoryWin32HandlePropertiesKHR*           pMemoryWin32HandleProperties);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHR(
     VkDevice                                    device,
@@ -1230,7 +1217,6 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphorePropertiesKHR(
     const VkPhysicalDeviceExternalSemaphoreInfo* pExternalSemaphoreInfo,
     VkExternalSemaphoreProperties*              pExternalSemaphoreProperties);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreWin32HandleKHR(
     VkDevice                                    device,
     const VkImportSemaphoreWin32HandleInfoKHR*  pImportSemaphoreWin32HandleInfo);
@@ -1239,7 +1225,6 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(
     VkDevice                                    device,
     const VkSemaphoreGetWin32HandleInfoKHR*     pGetWin32HandleInfo,
     HANDLE*                                     pHandle);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreFdKHR(
     VkDevice                                    device,
@@ -1298,7 +1283,6 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFencePropertiesKHR(
     const VkPhysicalDeviceExternalFenceInfo*    pExternalFenceInfo,
     VkExternalFenceProperties*                  pExternalFenceProperties);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 VKAPI_ATTR VkResult VKAPI_CALL ImportFenceWin32HandleKHR(
     VkDevice                                    device,
     const VkImportFenceWin32HandleInfoKHR*      pImportFenceWin32HandleInfo);
@@ -1307,7 +1291,6 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(
     VkDevice                                    device,
     const VkFenceGetWin32HandleInfoKHR*         pGetWin32HandleInfo,
     HANDLE*                                     pHandle);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(
     VkDevice                                    device,
@@ -1486,21 +1469,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(
     VkExternalMemoryHandleTypeFlagsNV           externalHandleType,
     VkExternalImageFormatPropertiesNV*          pExternalImageFormatProperties);
 
-#ifdef VK_USE_PLATFORM_WIN32_KHR
 VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
     VkDevice                                    device,
     VkDeviceMemory                              memory,
     VkExternalMemoryHandleTypeFlagsNV           handleType,
     HANDLE*                                     pHandle);
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-#ifdef VK_USE_PLATFORM_VI_NN
 VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(
     VkInstance                                  instance,
     const VkViSurfaceCreateInfoNN*              pCreateInfo,
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface);
-#endif /* VK_USE_PLATFORM_VI_NN */
 
 VKAPI_ATTR void VKAPI_CALL CmdBeginConditionalRenderingEXT(
     VkCommandBuffer                             commandBuffer,
@@ -1561,7 +1540,6 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleaseDisplayEXT(
     VkPhysicalDevice                            physicalDevice,
     VkDisplayKHR                                display);
 
-#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
 VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(
     VkPhysicalDevice                            physicalDevice,
     Display*                                    dpy,
@@ -1572,7 +1550,6 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
     Display*                                    dpy,
     RROutput                                    rrOutput,
     VkDisplayKHR*                               pDisplay);
-#endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
 
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(
     VkPhysicalDevice                            physicalDevice,
@@ -1626,21 +1603,17 @@ VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(
     const VkSwapchainKHR*                       pSwapchains,
     const VkHdrMetadataEXT*                     pMetadata);
 
-#ifdef VK_USE_PLATFORM_IOS_MVK
 VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
     VkInstance                                  instance,
     const VkIOSSurfaceCreateInfoMVK*            pCreateInfo,
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface);
-#endif /* VK_USE_PLATFORM_IOS_MVK */
 
-#ifdef VK_USE_PLATFORM_MACOS_MVK
 VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(
     VkInstance                                  instance,
     const VkMacOSSurfaceCreateInfoMVK*          pCreateInfo,
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface);
-#endif /* VK_USE_PLATFORM_MACOS_MVK */
 
 VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(
     VkDevice                                    device,
@@ -1689,7 +1662,6 @@ VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(
     VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData);
 
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
 VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(
     VkDevice                                    device,
     const struct AHardwareBuffer*               buffer,
@@ -1699,7 +1671,6 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryAndroidHardwareBufferANDROID(
     VkDevice                                    device,
     const VkMemoryGetAndroidHardwareBufferInfoANDROID* pInfo,
     struct AHardwareBuffer**                    pBuffer);
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
 VKAPI_ATTR void VKAPI_CALL CmdSetSampleLocationsEXT(
     VkCommandBuffer                             commandBuffer,
@@ -1893,13 +1864,11 @@ VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(
     uint32_t*                                   pCheckpointDataCount,
     VkCheckpointDataNV*                         pCheckpointData);
 
-#ifdef VK_USE_PLATFORM_FUCHSIA
 VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
     VkInstance                                  instance,
     const VkImagePipeSurfaceCreateInfoFUCHSIA*  pCreateInfo,
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface);
-#endif /* VK_USE_PLATFORM_FUCHSIA */
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 

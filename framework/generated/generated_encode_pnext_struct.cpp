@@ -183,30 +183,24 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkDisplayPresentInfoKHR*>(value));
             break;
-#ifdef VK_USE_PLATFORM_WIN32_KHR
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkImportMemoryWin32HandleInfoKHR*>(value));
             break;
         case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkExportMemoryWin32HandleInfoKHR*>(value));
             break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkImportMemoryFdInfoKHR*>(value));
             break;
-#ifdef VK_USE_PLATFORM_WIN32_KHR
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoKHR*>(value));
             break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
-#ifdef VK_USE_PLATFORM_WIN32_KHR
         case VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkExportSemaphoreWin32HandleInfoKHR*>(value));
             break;
         case VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkD3D12FenceSubmitInfoKHR*>(value));
             break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDevicePushDescriptorPropertiesKHR*>(value));
             break;
@@ -216,11 +210,9 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkSharedPresentSurfaceCapabilitiesKHR*>(value));
             break;
-#ifdef VK_USE_PLATFORM_WIN32_KHR
         case VK_STRUCTURE_TYPE_EXPORT_FENCE_WIN32_HANDLE_INFO_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkExportFenceWin32HandleInfoKHR*>(value));
             break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
         case VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkImageFormatListCreateInfoKHR*>(value));
             break;
@@ -263,19 +255,15 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV:
             encode_struct_ptr(encoder, reinterpret_cast<const VkExportMemoryAllocateInfoNV*>(value));
             break;
-#ifdef VK_USE_PLATFORM_WIN32_KHR
         case VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV:
             encode_struct_ptr(encoder, reinterpret_cast<const VkImportMemoryWin32HandleInfoNV*>(value));
             break;
         case VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV:
             encode_struct_ptr(encoder, reinterpret_cast<const VkExportMemoryWin32HandleInfoNV*>(value));
             break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
-#ifdef VK_USE_PLATFORM_WIN32_KHR
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
             encode_struct_ptr(encoder, reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoNV*>(value));
             break;
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
         case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
             encode_struct_ptr(encoder, reinterpret_cast<const VkValidationFlagsEXT*>(value));
             break;
@@ -321,7 +309,6 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT:
             encode_struct_ptr(encoder, reinterpret_cast<const VkDebugUtilsMessengerCreateInfoEXT*>(value));
             break;
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
         case VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID:
             encode_struct_ptr(encoder, reinterpret_cast<const VkAndroidHardwareBufferUsageANDROID*>(value));
             break;
@@ -334,7 +321,6 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID:
             encode_struct_ptr(encoder, reinterpret_cast<const VkExternalFormatANDROID*>(value));
             break;
-#endif /* VK_USE_PLATFORM_ANDROID_KHR */
         case VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO_EXT:
             encode_struct_ptr(encoder, reinterpret_cast<const VkSamplerReductionModeCreateInfoEXT*>(value));
             break;

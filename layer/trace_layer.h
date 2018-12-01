@@ -20,6 +20,7 @@
 
 #include "encode/parameter_encoder.h"
 #include "encode/trace_manager.h"
+#include "format/platform_types.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
