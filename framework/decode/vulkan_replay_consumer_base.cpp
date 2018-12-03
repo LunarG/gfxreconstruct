@@ -264,25 +264,34 @@ VkResult VulkanReplayConsumerBase::OverrideCreateInstance(const VkInstanceCreate
 
     // Replace WSI extension in extension list.
     std::vector<const char*> filtered_extensions;
-    if ((pCreateInfo != nullptr) && (pCreateInfo->ppEnabledExtensionNames))
+    VkInstanceCreateInfo     modified_create_info{};
+
+    if (pCreateInfo != nullptr)
     {
-        for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; ++i)
+        if (pCreateInfo->ppEnabledExtensionNames)
         {
-            const char* current_extension = pCreateInfo->ppEnabledExtensionNames[i];
-            if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
+            for (uint32_t i = 0; i < pCreateInfo->enabledExtensionCount; ++i)
             {
-                filtered_extensions.push_back(window_factory_->GetSurfaceExtensionName());
-            }
-            else
-            {
-                filtered_extensions.push_back(current_extension);
+                const char* current_extension = pCreateInfo->ppEnabledExtensionNames[i];
+                if (kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end())
+                {
+                    filtered_extensions.push_back(window_factory_->GetSurfaceExtensionName());
+                }
+                else
+                {
+                    filtered_extensions.push_back(current_extension);
+                }
             }
         }
-    }
 
-    VkInstanceCreateInfo modified_create_info    = (*pCreateInfo);
-    modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(filtered_extensions.size());
-    modified_create_info.ppEnabledExtensionNames = filtered_extensions.data();
+        modified_create_info    = (*pCreateInfo);
+        modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(filtered_extensions.size());
+        modified_create_info.ppEnabledExtensionNames = filtered_extensions.data();
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("The vkCreateInstance parameter pCreateInfo is NULL.");
+    }
 
     // Disable layers; any layers needed for replay should be enabled for the replay app with the VK_INSTANCE_LAYERS
     // environment variable or debug.vulkan.layers Android property.
