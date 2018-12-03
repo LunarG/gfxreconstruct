@@ -325,7 +325,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
         parameter_buffer_size -= sizeof(call_options.begin_time) + sizeof(call_options.end_time);
 
         success = ReadBytes(&call_options.begin_time, sizeof(call_options.begin_time));
-        success |= ReadBytes(&call_options.end_time, sizeof(call_options.end_time));
+        success = success && ReadBytes(&call_options.end_time, sizeof(call_options.end_time));
     }
 
     if (success)
@@ -377,8 +377,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         format::FillMemoryCommandHeader header;
 
         success = ReadBytes(&header.memory_id, sizeof(header.memory_id));
-        success |= ReadBytes(&header.memory_offset, sizeof(header.memory_offset));
-        success |= ReadBytes(&header.memory_size, sizeof(header.memory_size));
+        success = success && ReadBytes(&header.memory_offset, sizeof(header.memory_offset));
+        success = success && ReadBytes(&header.memory_size, sizeof(header.memory_size));
 
         if (success)
         {
@@ -430,8 +430,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         format::ResizeWindowCommand command;
 
         success = ReadBytes(&command.surface_id, sizeof(command.surface_id));
-        success |= ReadBytes(&command.width, sizeof(command.width));
-        success |= ReadBytes(&command.height, sizeof(command.height));
+        success = success && ReadBytes(&command.width, sizeof(command.width));
+        success = success && ReadBytes(&command.height, sizeof(command.height));
 
         if (success)
         {
