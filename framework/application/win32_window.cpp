@@ -52,6 +52,10 @@ bool Win32Window::Create(
 {
     const char class_name[] = "GFXReconstruct Window";
 
+    // Inform Windows that we can handle monitor resolutions above 2560x1440.  Otherwise,
+    // GetWindowRect() will always clamp the desktop size to 2560x1440.
+    SetProcessDPIAware();
+
     hinstance_ = GetModuleHandle(nullptr);
     if (hinstance_ == nullptr)
     {
