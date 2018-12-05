@@ -80,90 +80,92 @@ void PrintUsage(const char* exe_name)
 int main(int argc, const char** argv)
 {
     int return_code = 0;
+    std::string filename;
 
     gfxrecon::util::Log::Init(gfxrecon::util::Log::kInfoSeverity);
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
-    const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
-    if (arg_parser.IsInvalid() || non_optional_arguments.size() != 1)
+
+    if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
-        return_code = -1;
+        gfxrecon::util::Log::Release();
+        exit(-1);
     }
     else
     {
-        std::string filename = non_optional_arguments[0];
+        const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
+        filename                                             = positional_arguments[0];
+    }
 
-        try
+    try
+    {
+        gfxrecon::decode::FileProcessor                     file_processor;
+        std::unique_ptr<gfxrecon::application::Application> application;
+        std::unique_ptr<gfxrecon::decode::WindowFactory>    window_factory;
+
+        if (!file_processor.Initialize(filename))
         {
-            gfxrecon::decode::FileProcessor                     file_processor;
-            std::unique_ptr<gfxrecon::application::Application> application;
-            std::unique_ptr<gfxrecon::decode::WindowFactory>    window_factory;
+            GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
+            return_code = -1;
+        }
+        else
+        {
+            // Setup platform specific application and window factory.
+#if defined(WIN32)
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+            gfxrecon::application::Win32Application* win32_application =
+                new gfxrecon::application::Win32Application(kApplicationName);
+            application    = std::unique_ptr<gfxrecon::application::Application>(win32_application);
+            window_factory = std::make_unique<gfxrecon::application::Win32WindowFactory>(win32_application);
+#endif
+#else
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+            gfxrecon::application::XcbApplication* xcb_application =
+                new gfxrecon::application::XcbApplication(kApplicationName);
+            application    = std::unique_ptr<gfxrecon::application::Application>(xcb_application);
+            window_factory = std::make_unique<gfxrecon::application::XcbWindowFactory>(xcb_application);
+#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
+            gfxrecon::application::WaylandApplication* wayland_application =
+                new gfxrecon::application::WaylandApplication(kApplicationName);
+            application    = std::unique_ptr<gfxrecon::application::Application>(wayland_application);
+            window_factory = std::make_unique<gfxrecon::application::WaylandWindowFactory>(wayland_application);
+#endif
+#endif
 
-            if (!file_processor.Initialize(filename))
+            if (!window_factory || !application || !application->Initialize(&file_processor))
             {
-                GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
+                GFXRECON_WRITE_CONSOLE(
+                    "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
+                    "Vulkan platform extensions have been enabled.");
                 return_code = -1;
             }
             else
             {
-                // Setup platform specific application and window factory.
-#if defined(WIN32)
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-                gfxrecon::application::Win32Application* win32_application =
-                    new gfxrecon::application::Win32Application(kApplicationName);
-                application    = std::unique_ptr<gfxrecon::application::Application>(win32_application);
-                window_factory = std::make_unique<gfxrecon::application::Win32WindowFactory>(win32_application);
-#endif
-#else
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-                gfxrecon::application::XcbApplication* xcb_application =
-                    new gfxrecon::application::XcbApplication(kApplicationName);
-                application    = std::unique_ptr<gfxrecon::application::Application>(xcb_application);
-                window_factory = std::make_unique<gfxrecon::application::XcbWindowFactory>(xcb_application);
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-                gfxrecon::application::WaylandApplication* wayland_application =
-                    new gfxrecon::application::WaylandApplication(kApplicationName);
-                application    = std::unique_ptr<gfxrecon::application::Application>(wayland_application);
-                window_factory = std::make_unique<gfxrecon::application::WaylandWindowFactory>(wayland_application);
-#endif
-#endif
+                gfxrecon::decode::VulkanDecoder        decoder;
+                gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
 
-                if (!window_factory || !application || !application->Initialize(&file_processor))
-                {
-                    GFXRECON_WRITE_CONSOLE(
-                        "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
-                        "Vulkan platform extensions have been enabled.");
-                    return_code = -1;
-                }
-                else
-                {
-                    gfxrecon::decode::VulkanDecoder        decoder;
-                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
+                replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 
-                    replay_consumer.SetFatalErrorHandler(
-                        [](const char* message) { throw std::runtime_error(message); });
+                decoder.AddConsumer(&replay_consumer);
+                file_processor.AddDecoder(&decoder);
 
-                    decoder.AddConsumer(&replay_consumer);
-                    file_processor.AddDecoder(&decoder);
+                // Warn if the capture layer is active.
+                CheckActiveLayers();
 
-                    // Warn if the capture layer is active.
-                    CheckActiveLayers();
-
-                    application->Run();
-                }
+                application->Run();
             }
         }
-        catch (std::runtime_error error)
-        {
-            GFXRECON_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
-            return_code = -1;
-        }
-        catch (...)
-        {
-            GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
-            return_code = -1;
-        }
+    }
+    catch (std::runtime_error error)
+    {
+        GFXRECON_WRITE_CONSOLE("Replay failed with error message: %s", error.what());
+        return_code = -1;
+    }
+    catch (...)
+    {
+        GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
+        return_code = -1;
     }
 
     gfxrecon::util::Log::Release();

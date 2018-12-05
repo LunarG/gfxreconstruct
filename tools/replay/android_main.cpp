@@ -50,24 +50,23 @@ void android_main(struct android_app* app)
     gfxrecon::util::Log::Init(gfxrecon::util::Log::kInfoSeverity);
 
     std::string                    args = GetIntentExtra(app, kArgsExtentKey);
-    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), "", "", 1);
-    const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
+    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), "", "", 0);
 
     app->onAppCmd     = ProcessAppCmd;
     app->onInputEvent = ProcessInputEvent;
 
-    if (arg_parser.IsInvalid())
+    if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() > 1))
     {
         PrintUsage(kApplicationName);
     }
     else
     {
-        // std::string filename = non_optional_arguments[0];
         std::string filename = kDefaultCaptureFile;
 
-        if (non_optional_arguments.size() == 1)
+        if (arg_parser.GetPositionalArgumentsCount() == 1)
         {
-            filename = non_optional_arguments[0];
+            const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
+            filename                                             = positional_arguments[0];
         }
 
         try

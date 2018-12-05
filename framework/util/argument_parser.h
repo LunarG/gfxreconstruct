@@ -15,8 +15,8 @@
 ** limitations under the License.
 */
 
-#ifndef GFXRECON_ARGUMENT_PARSER_H
-#define GFXRECON_ARGUMENT_PARSER_H
+#ifndef GFXRECON_UTIL_ARGUMENT_PARSER_H
+#define GFXRECON_UTIL_ARGUMENT_PARSER_H
 
 #include "util/defines.h"
 
@@ -39,26 +39,26 @@ class ArgumentParser
                    const char** const argv,
                    const std::string& options,
                    const std::string& arguments,
-                   const int32_t      expected_non_opt_args);
+                   const int32_t      min_positional_args);
     ArgumentParser(bool               first_is_exe_name,
                    const char*        args,
                    const std::string& options,
                    const std::string& arguments,
-                   const int32_t      expected_non_opt_args);
+                   const int32_t      min_positional_args);
     ~ArgumentParser() {}
 
     bool                            IsInvalid() { return is_invalid_; }
     const std::vector<std::string>& GetInvalidArgumentOrOptions() { return invalid_values_present_; };
     bool                            IsOptionSet(const std::string& option);
     const std::string&              GetArgumentValue(const std::string& argument);
-    size_t                          GetNonOptionArgumentsCount() { return non_option_arguments_present_.size(); }
-    const std::vector<std::string>& GetNonOptionalArguments() { return non_option_arguments_present_; }
+    size_t                          GetPositionalArgumentsCount() { return positional_arguments_present_.size(); }
+    const std::vector<std::string>& GetPositionalArguments() { return positional_arguments_present_; }
 
   private:
     void Init(std::vector<std::string> command_line_args,
               const std::string&       options,
               const std::string&       arguments,
-              const int32_t            expected_non_opt_args);
+              const int32_t            min_positional_args);
 
     bool                     is_invalid_;
     std::vector<std::string> invalid_values_present_;
@@ -72,10 +72,10 @@ class ArgumentParser
     std::vector<bool>                         options_present_;
     std::unordered_map<std::string, uint32_t> arguments_indices_;
     std::vector<std::string>                  argument_values_;
-    std::vector<std::string>                  non_option_arguments_present_;
+    std::vector<std::string>                  positional_arguments_present_;
 };
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ARGUMENT_PARSER_H
+#endif // GFXRECON_UTIL_ARGUMENT_PARSER_H
