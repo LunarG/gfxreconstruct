@@ -53,25 +53,25 @@ int main(int argc, const char** argv)
     gfxrecon::format::CompressionType compression_type       = gfxrecon::format::kNone;
     std::string                       dst_compression_string = "NONE";
     bool                              print_usage            = false;
-    std::string                       input_file_name        = "gfxrecon_out";
-    std::string                       output_file_name       = "compress_out";
+    std::string                       input_filename;
+    std::string                       output_filename;
 
-    input_file_name += GFXRECON_FILE_EXTENSION;
-    output_file_name += GFXRECON_FILE_EXTENSION;
-
-    gfxrecon::util::Log::Init();
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kInfoSeverity);
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "", 3);
-    const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
-    if (arg_parser.IsInvalid() || non_optional_arguments.size() != 3)
+
+    if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 3))
     {
         print_usage = true;
     }
     else
     {
-        input_file_name        = non_optional_arguments[0];
-        output_file_name       = non_optional_arguments[1];
-        dst_compression_string = non_optional_arguments[2];
+        const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
+
+        input_filename         = positional_arguments[0];
+        output_filename        = positional_arguments[1];
+        dst_compression_string = positional_arguments[2];
+
         if (dst_compression_string != "NONE")
         {
             if (dst_compression_string == "LZ4")
@@ -84,7 +84,7 @@ int main(int argc, const char** argv)
             }
             else
             {
-                GFXRECON_LOG_ERROR("Unsupported compression format \'%s\'", non_optional_arguments[2].c_str());
+                GFXRECON_LOG_ERROR("Unsupported compression format \'%s\'", positional_arguments[2].c_str());
                 print_usage = true;
             }
         }
@@ -93,14 +93,16 @@ int main(int argc, const char** argv)
     if (print_usage)
     {
         PrintUsage(argv[0]);
+        gfxrecon::util::Log::Release();
         exit(-1);
     }
-    if (file_processor.Initialize(input_file_name))
+
+    if (file_processor.Initialize(input_filename))
     {
         gfxrecon::decode::CompressionConverter decoder;
 
         if (decoder.Initialize(
-                output_file_name, file_processor.GetFileHeader(), file_processor.GetFileOptions(), compression_type))
+                output_filename, file_processor.GetFileHeader(), file_processor.GetFileOptions(), compression_type))
         {
             std::string src_compression = "NONE";
             file_processor.AddDecoder(&decoder);

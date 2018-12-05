@@ -42,39 +42,39 @@ void PrintUsage(const char* exe_name)
 
 int main(int argc, const char** argv)
 {
+    std::string                     input_filename;
     gfxrecon::decode::FileProcessor file_processor;
     gfxrecon::util::ArgumentParser  arg_parser(argc, argv, "", "", 1);
-    std::string                     filename = "gfxrecon_test";
-    filename += GFXRECON_FILE_EXTENSION;
 
-    gfxrecon::util::Log::Init();
+    gfxrecon::util::Log::Init(gfxrecon::util::Log::kInfoSeverity);
 
-    const std::vector<std::string> non_optional_arguments = arg_parser.GetNonOptionalArguments();
-    if (arg_parser.IsInvalid() || non_optional_arguments.size() != 1)
+    if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
+        gfxrecon::util::Log::Release();
         exit(-1);
     }
     else
     {
-        filename = non_optional_arguments[0];
+        const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
+        input_filename                                       = positional_arguments[0];
     }
 
-    std::string text_file_name = filename;
-    size_t      suffix_pos     = text_file_name.find(GFXRECON_FILE_EXTENSION);
+    std::string output_filename = input_filename;
+    size_t      suffix_pos      = output_filename.find(GFXRECON_FILE_EXTENSION);
     if (suffix_pos != std::string::npos)
     {
-        text_file_name = text_file_name.substr(0, suffix_pos);
+        output_filename = output_filename.substr(0, suffix_pos);
     }
 
-    text_file_name += ".txt";
+    output_filename += ".txt";
 
-    if (file_processor.Initialize(filename))
+    if (file_processor.Initialize(input_filename))
     {
         gfxrecon::decode::VulkanDecoder       decoder;
         gfxrecon::decode::VulkanAsciiConsumer ascii_consumer;
 
-        ascii_consumer.Initialize(text_file_name);
+        ascii_consumer.Initialize(output_filename);
         decoder.AddConsumer(&ascii_consumer);
 
         file_processor.AddDecoder(&decoder);

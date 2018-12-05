@@ -19,6 +19,7 @@
 
 #include "util/logging.h"
 
+#include <cinttypes>
 #include <cstring>
 #include <sstream>
 
@@ -29,11 +30,9 @@ ArgumentParser::ArgumentParser(int32_t            argc,
                                const char** const argv,
                                const std::string& options,
                                const std::string& arguments,
-                               const int32_t      expected_non_opt_args)
+                               const int32_t      min_positional_args) :
+    is_invalid_(false)
 {
-    // NOTE: Do not initialize the logging functionality here since we rely on the
-    //       main application to do this.
-
     if (argc > 1 && nullptr != argv)
     {
         std::vector<std::string> command_line_args;
@@ -43,7 +42,11 @@ ArgumentParser::ArgumentParser(int32_t            argc,
             command_line_args[cur_arg - 1] = argv[cur_arg];
         }
 
-        Init(command_line_args, options, arguments, expected_non_opt_args);
+        Init(command_line_args, options, arguments, min_positional_args);
+    }
+    else if (min_positional_args > 0)
+    {
+        is_invalid_ = true;
     }
 }
 
@@ -51,15 +54,14 @@ ArgumentParser::ArgumentParser(bool               first_is_exe_name,
                                const char*        args,
                                const std::string& options,
                                const std::string& arguments,
-                               const int32_t      expected_non_opt_args)
+                               const int32_t      min_positional_args) :
+    is_invalid_(false)
 {
-    // NOTE: Do not initialize the logging functionality here since we rely on the
-    //       main application to do this.
-
+    std::vector<std::string> command_line_args;
     size_t args_len = strlen(args);
+
     if (nullptr != args && args_len > 0)
     {
-        std::vector<std::string> command_line_args;
         std::string              arg_string = args;
         size_t                   last_start = 0;
 
@@ -109,20 +111,26 @@ ArgumentParser::ArgumentParser(bool               first_is_exe_name,
         {
             command_line_args.push_back(arg_string.substr(last_start, arg_string.size() - last_start));
         }
-        Init(command_line_args, options, arguments, expected_non_opt_args);
+    }
+
+    if (!command_line_args.empty())
+    {
+        Init(command_line_args, options, arguments, min_positional_args);
+    }
+    else if (min_positional_args > 0)
+    {
+        is_invalid_ = true;
     }
 }
 
 void ArgumentParser::Init(std::vector<std::string> command_line_args,
                           const std::string&       options,
                           const std::string&       arguments,
-                          const int32_t            expected_non_opt_args)
+                          const int32_t            min_positional_args)
 {
     std::vector<std::string> valid_options;
     std::string              sub_string;
     std::string              sub_string2;
-
-    is_invalid_ = false;
 
     uint32_t option_index = 0;
     if (options.size() > 0)
@@ -255,28 +263,17 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
         }
         else
         {
-            if (non_option_arguments_present_.size() < static_cast<size_t>(expected_non_opt_args))
-            {
-                non_option_arguments_present_.push_back(current_argument);
-            }
-            else
-            {
-                // Past the valid number of non-optional arguments, this must
-                // be an invalid value.
-                invalid_values_present_.push_back(current_argument);
-                is_invalid_ = true;
-            }
+            positional_arguments_present_.push_back(current_argument);
         }
     }
 
-    if (expected_non_opt_args > non_option_arguments_present_.size())
+    if (min_positional_args > positional_arguments_present_.size())
     {
         // Expected some number of arguments and didn't get any
         is_invalid_ = true;
-        GFXRECON_LOG_FATAL("Error: Different number of non-optional arguments.\n"
-                           "Error:     Requires %d options, but %d provided",
-                           expected_non_opt_args,
-                           non_option_arguments_present_.size());
+        GFXRECON_LOG_FATAL("Error: Expected a minimum of %d positional arguments, but received %" PRIdPTR,
+                           min_positional_args,
+                           positional_arguments_present_.size());
     }
 }
 
