@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) 2018 LunarG, Inc.
 #
@@ -52,9 +52,10 @@ def InstallApk():
     if argc != 3:
         PrintUsage()
     else:
-        cmd = '{} {}'.format(adb_install, argv[2])
-        print('Executing: ', cmd)
-        subprocess.call(cmd, shell=False)
+        print('Executing:', adb_install, argv[2])
+        cmd = adb_install.split()
+        cmd.append(argv[2])
+        subprocess.call(cmd)
 
 def Replay():
     filename = ''
@@ -73,16 +74,20 @@ def Replay():
 
     if filename:
         if push_source:
-            cmd = '{} {} {}'.format(adb_push, push_source, filename)
-            print('Executing: ', cmd)
-            subprocess.call(cmd, shell=False)
+            print('Executing:', adb_push, push_source, filename)
+            cmd = adb_push.split()
+            cmd.append(push_source)
+            cmd.append(filename)
+            subprocess.call(cmd)
 
-        print('Executing: ', adb_stop)
-        subprocess.call(adb_stop, shell=False)
+        print('Executing:', adb_stop)
+        subprocess.call(adb_stop.split())
 
-        cmd = '{} --es "args" "{}"'.format(adb_start, filename)
-        print('Executing: ', cmd)
-        subprocess.call(cmd, shell=False)
+        extras = '--es "args" "{}"'.format(filename)
+        print('Executing:', adb_start, extras)
+        cmd = adb_start.split()
+        cmd.append(extras)
+        subprocess.call(cmd)
     else:
         PrintUsage()
 
