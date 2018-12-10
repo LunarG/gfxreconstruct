@@ -622,7 +622,21 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
         // Align the mapped memory pointer to the start of its page.
         aligned_offset  = GetOffsetFromPageStart(mapped_memory);
         aligned_address = AlignToPageStart(mapped_memory);
-        guard_range += aligned_offset;
+
+        if (aligned_offset > 0)
+        {
+            // The guard range and last segment size were computed for a page aligned address.
+            // If the memory address is not page aligned, these values need to be adjusted with
+            // the offset from the memory address to the start of its page.
+            guard_range += aligned_offset;
+
+            last_segment_size += aligned_offset;
+            if (last_segment_size > system_page_size_)
+            {
+                ++total_pages;
+                last_segment_size -= system_page_size_;
+            }
+        }
     }
 
     if (success)
