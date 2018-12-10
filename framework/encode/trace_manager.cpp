@@ -568,36 +568,68 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
 
-    if ((memory_tracking_mode_ == MemoryTrackingMode::kAssisted) && (pMemoryRanges != nullptr))
+    if (pMemoryRanges != nullptr)
     {
-        VkDeviceMemory                  current_memory = VK_NULL_HANDLE;
-        const MemoryTracker::EntryInfo* info           = nullptr;
-
-        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-
-        for (uint32_t i = 0; i < memoryRangeCount; ++i)
+        if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
         {
-            if (current_memory != pMemoryRanges[i].memory)
-            {
-                current_memory = pMemoryRanges[i].memory;
-                info           = memory_tracker_.GetEntryInfo(current_memory);
-            }
+            // TODO: Determine if this can be deferred to vkQueueSubmit for memory types with the HOST_COHERENT
+            // property.
+            VkDeviceMemory          current_memory = VK_NULL_HANDLE;
+            util::PageGuardManager* manager        = util::PageGuardManager::Get();
+            assert(manager != nullptr);
 
-            if ((info != nullptr) && (info->mapped_memory != nullptr))
-            {
-                assert(pMemoryRanges[i].offset >= info->mapped_offset);
+            std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
-                // The mapped pointer already includes the mapped offset.  Because the memory range
-                // offset is realtive to the start of the memory object, we need to adjust it to be
-                // realitve to the start of the mapped pointer.
-                VkDeviceSize relative_offset = pMemoryRanges[i].offset - info->mapped_offset;
-                VkDeviceSize size            = pMemoryRanges[i].size;
-                if (size == VK_WHOLE_SIZE)
+            for (uint32_t i = 0; i < memoryRangeCount; ++i)
+            {
+                if (current_memory != pMemoryRanges[i].memory)
                 {
-                    size = info->allocation_size - pMemoryRanges[i].offset;
+                    current_memory = pMemoryRanges[i].memory;
+                    auto info      = memory_tracker_.GetEntryInfo(current_memory);
+
+                    if ((info != nullptr) && (info->mapped_memory != nullptr))
+                    {
+                        manager->ProcessMemoryEntry(
+                            format::ToHandleId(current_memory),
+                            [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                                WriteFillMemoryCmd(
+                                    format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
+                            });
+                    }
+                }
+            }
+        }
+        else if (memory_tracking_mode_ == MemoryTrackingMode::kAssisted)
+        {
+            VkDeviceMemory                  current_memory = VK_NULL_HANDLE;
+            const MemoryTracker::EntryInfo* info           = nullptr;
+
+            std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+
+            for (uint32_t i = 0; i < memoryRangeCount; ++i)
+            {
+                if (current_memory != pMemoryRanges[i].memory)
+                {
+                    current_memory = pMemoryRanges[i].memory;
+                    info           = memory_tracker_.GetEntryInfo(current_memory);
                 }
 
-                WriteFillMemoryCmd(pMemoryRanges[i].memory, relative_offset, size, info->mapped_memory);
+                if ((info != nullptr) && (info->mapped_memory != nullptr))
+                {
+                    assert(pMemoryRanges[i].offset >= info->mapped_offset);
+
+                    // The mapped pointer already includes the mapped offset.  Because the memory range
+                    // offset is realtive to the start of the memory object, we need to adjust it to be
+                    // realitve to the start of the mapped pointer.
+                    VkDeviceSize relative_offset = pMemoryRanges[i].offset - info->mapped_offset;
+                    VkDeviceSize size            = pMemoryRanges[i].size;
+                    if (size == VK_WHOLE_SIZE)
+                    {
+                        size = info->allocation_size - pMemoryRanges[i].offset;
+                    }
+
+                    WriteFillMemoryCmd(pMemoryRanges[i].memory, relative_offset, size, info->mapped_memory);
+                }
             }
         }
     }
