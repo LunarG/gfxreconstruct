@@ -22,7 +22,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
-Win32Application::Win32Application(const std::string& name) : Application(name) {}
+Win32Application::Win32Application(const std::string& name, bool dpi_aware) : Application(name)
+{
+    if (dpi_aware)
+    {
+        SetProcessDPIAware();
+    }
+}
 
 bool Win32Application::Initialize(decode::FileProcessor* file_processor)
 {

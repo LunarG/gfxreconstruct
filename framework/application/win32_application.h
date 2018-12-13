@@ -28,7 +28,7 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class Win32Application : public Application
 {
   public:
-    Win32Application(const std::string& name);
+    Win32Application(const std::string& name, bool dpi_aware = true);
 
     virtual ~Win32Application() {}
 
