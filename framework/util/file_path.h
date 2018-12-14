@@ -18,7 +18,6 @@
 #ifndef GFXRECON_UTIL_FILE_PATH_H
 #define GFXRECON_UTIL_FILE_PATH_H
 
-#include "util/date_time.h"
 #include "util/defines.h"
 
 #include <string>
@@ -27,25 +26,15 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(filepath)
 
-inline std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false)
-{
-    std::string file_extension;
-    std::string core_filename;
-    size_t      period_loc = filename.rfind('.');
+bool Exists(const std::string& path);
 
-    if (period_loc != std::string::npos)
-    {
-        file_extension = filename.substr(period_loc, filename.length() - period_loc + 1);
-        core_filename  = filename.substr(0, period_loc);
-    }
-    else
-    {
-        file_extension = "";
-        core_filename  = filename;
-    }
+bool IsFile(const std::string& path);
 
-    return core_filename + "_" + util::datetime::GetDateTimeString(use_gmt) + file_extension;
-}
+bool IsDirectory(const std::string& path);
+
+std::string Join(const std::string& lhs, const std::string& rhs);
+
+std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false);
 
 GFXRECON_END_NAMESPACE(filepath)
 GFXRECON_END_NAMESPACE(util)
