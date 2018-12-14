@@ -24,6 +24,8 @@ target_sources(gfxrecon_util
                    page_guard_manager.cpp
                    page_status_tracker.h
                    platform.h
+                   settings_loader.h
+                   settings_loader.cpp
               )
 
 target_compile_definitions(gfxrecon_util
