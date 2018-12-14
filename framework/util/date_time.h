@@ -70,6 +70,18 @@ inline int64_t DiffTimestamps(int64_t start, int64_t end)
     return end - start;
 }
 
+inline double ConvertTimestampToMilliseconds(int64_t timestamp)
+{
+    // Timestamp is in nano-seconds, so convert to milliseconds
+    return static_cast<double>(timestamp) / 1000000.0;
+}
+
+inline double ConvertTimestampToSeconds(int64_t timestamp)
+{
+    // Timestamp is in nano-seconds, so convert to seconds
+    return static_cast<double>(timestamp) / 1000000000.0;
+}
+
 inline std::string GetDateTimeString(bool use_gmt)
 {
     tm          now;

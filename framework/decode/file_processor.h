@@ -52,6 +52,8 @@ class FileProcessor
 
     bool ProcessAllFrames();
 
+    uint32_t CurrentFrameNumber() { return current_frame_number_; }
+
     const format::FileHeader& GetFileHeader() const { return file_header_; }
 
     const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
@@ -92,6 +94,7 @@ class FileProcessor
     format::FileHeader                  file_header_;
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
+    uint32_t                            current_frame_number_;
     uint64_t                            bytes_read_;
     std::vector<ApiDecoder*>            decoders_;
     std::vector<uint8_t>                parameter_buffer_;
