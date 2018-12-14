@@ -5,9 +5,12 @@ target_sources(gfxrecon_util
                    argument_parser.h
                    argument_parser.cpp
                    compressor.h
+                   date_time.h
                    defines.h
                    file_output_stream.h
                    file_output_stream.cpp
+                   file_path.h
+                   file_path.cpp
                    logging.h
                    logging.cpp
                    lz4_compressor.h
@@ -21,8 +24,6 @@ target_sources(gfxrecon_util
                    page_guard_manager.cpp
                    page_status_tracker.h
                    platform.h
-                   date_time.h
-                   file_path.h
               )
 
 target_compile_definitions(gfxrecon_util
