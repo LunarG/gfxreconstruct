@@ -27,7 +27,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-FileProcessor::FileProcessor() : file_descriptor_(nullptr), bytes_read_(0), compressor_(nullptr) {}
+FileProcessor::FileProcessor() :
+    file_descriptor_(nullptr), current_frame_number_(1), bytes_read_(0), compressor_(nullptr)
+{}
 
 FileProcessor::~FileProcessor()
 {
@@ -97,6 +99,8 @@ bool FileProcessor::ProcessNextFrame()
                     // Break from loop on frame delimiter.
                     if (IsFrameDelimiter(api_call_id))
                     {
+                        // Make sure to increment the frame number on the way out.
+                        ++current_frame_number_;
                         break;
                     }
                 }

@@ -21,6 +21,7 @@
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "util/argument_parser.h"
+#include "util/date_time.h"
 #include "util/logging.h"
 
 #include <exception>
@@ -153,7 +154,26 @@ int main(int argc, const char** argv)
                 // Warn if the capture layer is active.
                 CheckActiveLayers();
 
+                // Grab the start frame/time information for the FPS result.
+                uint32_t start_frame = file_processor.CurrentFrameNumber();
+                int64_t  start_time  = gfxrecon::util::datetime::GetTimestamp();
+
                 application->Run();
+
+                // Grab the end frame/time information and calculate out FPS.
+                int64_t end_time      = gfxrecon::util::datetime::GetTimestamp();
+                double  diff_time_sec = gfxrecon::util::datetime::ConvertTimestampToSeconds(
+                    gfxrecon::util::datetime::DiffTimestamps(start_time, end_time));
+                uint32_t end_frame    = file_processor.CurrentFrameNumber();
+                uint32_t total_frames = end_frame - start_frame;
+                double   fps          = static_cast<double>(total_frames) / diff_time_sec;
+                GFXRECON_WRITE_CONSOLE("%f fps, %f seconds, %u frame%s, 1 loop, framerange %u-%u",
+                                       fps,
+                                       diff_time_sec,
+                                       total_frames,
+                                       total_frames > 1 ? "s" : "",
+                                       start_frame,
+                                       end_frame - 1);
             }
         }
     }
