@@ -110,6 +110,26 @@ inline int32_t MemoryCompare(const void* memory_1, const void* memory_2, size_t 
     return memcmp(memory_1, memory_2, compare_size);
 }
 
+inline int32_t StringCompareNoCase(const char* string_1, const char* string_2)
+{
+    return _stricmp(string_1, string_2);
+}
+
+inline int32_t StringCompareNoCase(const wchar_t* string_1, const wchar_t* string_2)
+{
+    return _wcsicmp(string_1, string_2);
+}
+
+inline int32_t StringCompareNoCase(const char* string_1, const char* string_2, size_t compare_size)
+{
+    return _strnicmp(string_1, string_2, compare_size);
+}
+
+inline int32_t StringCompareNoCase(const wchar_t* string_1, const wchar_t* string_2, size_t compare_size)
+{
+    return _wcsnicmp(string_1, string_2, compare_size);
+}
+
 inline int32_t StringCopy(char* destination, size_t destination_size, const char* source, size_t source_size)
 {
     return strncpy_s(destination, destination_size, source, source_size);
@@ -234,6 +254,26 @@ inline int32_t MemoryCompare(const void* memory_1, const void* memory_2, size_t 
     return memcmp(memory_1, memory_2, compare_size);
 }
 
+inline int32_t StringCompareNoCase(const char* string_1, const char* string_2)
+{
+    return strcasecmp(string_1, string_2);
+}
+
+inline int32_t StringCompareNoCase(const wchar_t* string_1, const wchar_t* string_2)
+{
+    return wcscasecmp(string_1, string_2);
+}
+
+inline int32_t StringCompareNoCase(const char* string_1, const char* string_2, size_t compare_size)
+{
+    return strncasecmp(string_1, string_2, compare_size);
+}
+
+inline int32_t StringCompareNoCase(const wchar_t* string_1, const wchar_t* string_2, size_t compare_size)
+{
+    return wcsncasecmp(string_1, string_2, compare_size);
+}
+
 inline int32_t StringCopy(char* destination, size_t destination_size, const char* source, size_t source_size)
 {
     if (source_size > destination_size)
@@ -340,6 +380,16 @@ inline size_t StringLength(const char* s)
 inline size_t StringLength(const wchar_t* s)
 {
     return wcslen(s);
+}
+
+inline int32_t StringCompare(const char* string_1, const char* string_2)
+{
+    return strcmp(string_1, string_2);
+}
+
+inline int32_t StringCompare(const wchar_t* string_1, const wchar_t* string_2)
+{
+    return wcscmp(string_1, string_2);
 }
 
 inline int32_t StringCompare(const char* string_1, const char* string_2, size_t compare_size)
