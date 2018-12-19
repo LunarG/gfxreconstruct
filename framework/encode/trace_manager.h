@@ -139,9 +139,8 @@ class TraceManager
 
     ~TraceManager() {}
 
-    bool Initialize(std::string                         filename,
-                    const format::EnabledOptions&       file_options,
-                    CaptureSettings::MemoryTrackingMode mode);
+    bool Initialize(std::string                           filename,
+                    const CaptureSettings::TraceSettings& trace_settings);
 
   private:
     class ThreadData
@@ -199,6 +198,7 @@ class TraceManager
     std::unique_ptr<util::FileOutputStream>         file_stream_;
     std::string                                     filename_;
     std::mutex                                      file_lock_;
+    bool                                            force_file_flush_;
     uint64_t                                        bytes_written_;
     std::unique_ptr<util::Compressor>               compressor_;
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;

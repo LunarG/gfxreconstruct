@@ -41,6 +41,8 @@ class FileOutputStream : public OutputStream
 
     virtual size_t Write(const void* data, size_t len) override;
 
+    virtual void Flush() override { platform::FileFlush(file_); }
+
   private:
     FILE* file_;
     bool  own_file_;

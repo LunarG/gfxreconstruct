@@ -55,7 +55,7 @@ Debugger > LLDP Post Attach Commands
 
 Where you can click the `+` and add it manually.
 
-
+<br></br>
 
 ## Globally Enabling the Layer
 
@@ -70,6 +70,46 @@ When done, disable the layer using:
 ```
 adb shell "setprop debug.vulkan.layers ''"
 ```
+
+<br></br>
+
+## GFXRecon Debug Options
+
+THe GFXReconstruct has multiple options that can be adjusted by using
+Android properties.
+Each property **must** begin with the prefix `debug.gfxrecon.`.
+This may be done by performed by using `adb shell` in the following way:
+
+```
+adb shell "setprop <option> '<value>'"
+```
+
+For example, to set the log_level to "warning", you would call:
+
+```
+adb shell "setprop debug.gfxrecon.log_level 'warning'"
+```
+
+<br></br>
+
+Option | Property | Type | Description
+------| ------------- |------|-------------
+Capture Compression Type | debug.gfxrecon.capture_compression_type | STRING | Define a specific compression type to use when capturing content.  Valid values are: "LZ4", "LZ77", and "NONE".
+Capture File | debug.gfxrecon.capture_file | STRING | This option allows you to override the default path and name of the capture file.
+Capture File Timestamp | debug.gfxrecon.capture_file_timestamp | BOOL | This option lets you indicate if you want the capture file name to include the timestamp at creation time. This is important if your application could generate more than one and would normally clobber the original file's contents.
+Log Allow Indents | debug.gfxrecon.log_allow_indents | BOOL | This is an option to allow indent formatting in the strings to attempt to make things easier to read. Although indenting is used in very limited circumstances currently.
+Log Break On Error | debug.gfxrecon.log_break_on_error | BOOL | This option allows you to force the layer to break if it encounters an error so you can debug it easily.
+Log Detailed | debug.gfxrecon.log_detailed | BOOL | Enable detailed logging messages (includes file name and location where triggered from).
+Errors To Stderr | debug.gfxrecon.log_errors_to_stderr | BOOL | This option allows you to force all error messages that would be normally logged to also output to stderr.
+Log File | debug.gfxrecon.log_file | STRING | This option allows you to define the path and name of a log file that will be generated with log messages.
+Log File Create New | debug.gfxrecon.log_file_create_new | BOOL | This option indicates that you want to either create a new file every time the layer is triggered, or append to the old log file.
+Log File Flush After Write | debug.gfxrecon.log_file_flush_after_write | BOOL | This option allows you to force a flush after every log file write to make sure you don't loose messages in a buffer.
+Log File Keep Open | debug.gfxrecon.log_file_keep_open | BOOL | This option forces the log file to remain open after it's created to allow for faster recording of log messages.
+Log Level | debug.gfxrecon.log_level | STRING | This option allows you to choose what log level you desire to trigger.  Available options include: "debug", "info", "warning", "error", and "fatal".  Any level selected will include all levels listed after it.  For example, choosing "warning" will also log out "error" and "fatal" messages.
+Log Output To Console | debug.gfxrecon.log_output_to_console | BOOL | This option allows log messages to be written out to stdout (or whatever debug console is available on the target platform.
+Memory Tracking Mode | debug.gfxrecon.memory_tracking_mode | STRING | This option allows the user to determine what memory tracking mode the layer uses when handling memory.  Available options are: "page_guard", "assisted" and "unassisted".  <ul><li>"unassisted" assumes the application does not flush, so writes all mapped data on an `vkUnmapMemory` or `vkQueueSubmit` call.</li> <li>"assisted" assumes the application will always flush after writing to mapped memory, so will only write on a flush.</li> <li>"page_guard" is used to determine which regions of memory to write on an `vkUnmapMemory` or `vkQueueSubmit` call.  "page_guard" also shadows uncached memory so as to properly provide all memory it can.</li></ul>
+
+<br></br>
 
 ## Capture Files
 
@@ -91,7 +131,7 @@ has completed which can result in overwritten capture data.
 
 You may override the name and location of the capture file by setting the
 property `debug.gfxrecon.capture_file` to point to what you would like to
-output.
+output as defined above in [GFXRecon Debug Options](#gfxrecon-debug-options).
 
 This may be done by performed by using `adb shell` in the following way:
 
