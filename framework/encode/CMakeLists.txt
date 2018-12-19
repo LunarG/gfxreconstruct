@@ -2,6 +2,8 @@ add_library(gfxrecon_encode STATIC "")
 
 target_sources(gfxrecon_encode
                PRIVATE
+                   capture_settings.h
+                   capture_settings.cpp
                    custom_encoder_commands.h
                    custom_vulkan_struct_encoders.h
                    custom_vulkan_struct_encoders.cpp

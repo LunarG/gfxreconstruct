@@ -206,9 +206,9 @@ int32_t LoadLayerSettingsFile(const std::string&                            file
 
             // This is the same format string that the Vulkan validation layers use.
 #if defined(WIN32)
-            if (sscanf_s(line.c_str(), " %511[^\n\t =] = %511[^\n \t]", key, 512, value, 512) == 2)
+            if (sscanf_s(line.c_str(), " %511[^\r\n\t =] = %511[^\r\n \t]", key, 512, value, 512) == 2)
 #else
-            if (sscanf(line.c_str(), " %511[^\n\t =] = %511[^\n \t]", key, value) == 2)
+            if (sscanf(line.c_str(), " %511[^\r\n\t =] = %511[^\r\n \t]", key, value) == 2)
 #endif
             {
                 // Ignore entries with keys that do not start with the filter prefix.
