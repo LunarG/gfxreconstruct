@@ -116,7 +116,7 @@ VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
 
     if (fpGetInstanceProcAddr)
     {
-        fpCreateInstance = reinterpret_cast<PFN_vkCreateInstance>(fpGetInstanceProcAddr(NULL, "vkCreateInstance"));
+        fpCreateInstance = reinterpret_cast<PFN_vkCreateInstance>(fpGetInstanceProcAddr(nullptr, "vkCreateInstance"));
     }
 
     if (fpCreateInstance)
@@ -156,7 +156,7 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
 
     if (fpGetInstanceProcAddr && fpGetDeviceProcAddr)
     {
-        fpCreateDevice = reinterpret_cast<PFN_vkCreateDevice>(fpGetInstanceProcAddr(NULL, "vkCreateDevice"));
+        fpCreateDevice = reinterpret_cast<PFN_vkCreateDevice>(fpGetInstanceProcAddr(nullptr, "vkCreateDevice"));
     }
 
     if (fpCreateDevice)
@@ -179,18 +179,26 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;
-    const auto         entry  = gfxrecon::func_table.find(pName);
 
-    if (entry != gfxrecon::func_table.end())
-    {
-        result = entry->second;
-    }
-    else
+    if (instance != nullptr)
     {
         const auto table = gfxrecon::get_instance_table(instance);
         if (table && table->GetInstanceProcAddr)
         {
             result = table->GetInstanceProcAddr(instance, pName);
+        }
+    }
+
+    if ((result != nullptr) || (instance == nullptr))
+    {
+        // Only check for a layer implementation of the requested function if it is available from the next level, or if
+        // the instance handle is null and we can't determine if it is available from the next level (eg. a query for
+        // vkCreateInstance).
+        const auto entry = gfxrecon::func_table.find(pName);
+
+        if (entry != gfxrecon::func_table.end())
+        {
+            result = entry->second;
         }
     }
 
@@ -200,18 +208,23 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;
-    const auto         entry  = gfxrecon::func_table.find(pName);
 
-    if (entry != gfxrecon::func_table.end())
-    {
-        result = entry->second;
-    }
-    else
+    if (device != nullptr)
     {
         const auto table = gfxrecon::get_device_table(device);
         if (table && table->GetDeviceProcAddr)
         {
             result = table->GetDeviceProcAddr(device, pName);
+        }
+    }
+
+    if (result != nullptr)
+    {
+        // Only check for a layer implementation of the requested function if it is available from the next level.
+        const auto entry = gfxrecon::func_table.find(pName);
+        if (entry != gfxrecon::func_table.end())
+        {
+            result = entry->second;
         }
     }
 
