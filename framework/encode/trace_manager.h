@@ -15,9 +15,10 @@
 ** limitations under the License.
 */
 
-#ifndef GFXRECON_ENCODE_FORMAT_TRACE_MANAGER_H
-#define GFXRECON_ENCODE_FORMAT_TRACE_MANAGER_H
+#ifndef GFXRECON_ENCODE_TRACE_MANAGER_H
+#define GFXRECON_ENCODE_TRACE_MANAGER_H
 
+#include "encode/capture_settings.h"
 #include "encode/memory_tracker.h"
 #include "encode/parameter_encoder.h"
 #include "format/api_call_id.h"
@@ -41,17 +42,6 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class TraceManager
 {
   public:
-    enum MemoryTrackingMode
-    {
-        // Assume the application does not flush, so write all mapped data on unmap and queue submit.
-        kUnassisted = 0,
-        // Assume the application will always flush after writing to mapped memory, so only write on flush.
-        kAssisted = 1,
-        // Use pageguard to determine which regions of memory to wrtie on unmap and queue submit.  This
-        // mode shadows uncached memory.
-        kPageGuard = 2
-    };
-
     struct UpdateTemplateEntryInfo
     {
         UpdateTemplateEntryInfo(uint32_t c, size_t o, size_t s) : count(c), offset(o), stride(s) {}
@@ -145,11 +135,13 @@ class TraceManager
 #endif
 
   protected:
-    TraceManager() : memory_tracking_mode_(MemoryTrackingMode::kUnassisted) {}
+    TraceManager() : bytes_written_(0), memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kUnassisted) {}
 
     ~TraceManager() {}
 
-    bool Initialize(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode);
+    bool Initialize(std::string                         filename,
+                    const format::EnabledOptions&       file_options,
+                    CaptureSettings::MemoryTrackingMode mode);
 
   private:
     class ThreadData
@@ -211,7 +203,7 @@ class TraceManager
     std::mutex                                      file_lock_;
     uint64_t                                        bytes_written_;
     std::unique_ptr<util::Compressor>               compressor_;
-    MemoryTrackingMode                              memory_tracking_mode_;
+    CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
     MemoryTracker                                   memory_tracker_;
     mutable std::mutex                              memory_tracker_lock_;
     UpdateTemplateMap                               update_template_map_;
@@ -221,4 +213,4 @@ class TraceManager
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_ENCODE_FORMAT_TRACE_MANAGER_H
+#endif // GFXRECON_ENCODE_TRACE_MANAGER_H

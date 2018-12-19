@@ -29,17 +29,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-#if defined(__ANDROID__)
-const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
-const char kCaptureFileEnvVar[]  = "debug.gfxrecon.capture_file";
-#else
-const char kDefaultCaptureFile[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
-const char kCaptureFileEnvVar[]  = "GFXRECON_CAPTURE_FILE";
-#endif
+const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
 
-std::mutex                                             TraceManager::ThreadData::count_lock_;
-uint32_t                                               TraceManager::ThreadData::thread_count_ = 0;
-std::unordered_map<uint64_t, uint32_t>                 TraceManager::ThreadData::id_map_;
+std::mutex                             TraceManager::ThreadData::count_lock_;
+uint32_t                               TraceManager::ThreadData::thread_count_ = 0;
+std::unordered_map<uint64_t, uint32_t> TraceManager::ThreadData::id_map_;
 
 TraceManager*                                          TraceManager::instance_       = nullptr;
 uint32_t                                               TraceManager::instance_count_ = 0;
@@ -82,29 +76,27 @@ void TraceManager::Create()
     {
         assert(instance_ == nullptr);
 
-        // TODO: load settings from file.
-        util::Log::Init(util::Log::kInfoSeverity);
+        // Default initialize logging to report issues while loading settings.
+        util::Log::Init(kDefaultLogLevel);
 
-        format::EnabledOptions options;
-        MemoryTrackingMode     mode = encode::TraceManager::kPageGuard;
-        std::string            filename = kDefaultCaptureFile;
+        CaptureSettings settings;
+        CaptureSettings::LoadSettings(&settings);
 
-#if defined(ENABLE_LZ4_COMPRESSION)
-        options.compression_type = format::CompressionType::kLz4;
-#endif
+        // Reinitialize logging with values retrieved from settings.
+        const util::Log::Settings& log_settings = settings.GetLogSettings();
+        util::Log::Release();
+        util::Log::Init(log_settings.min_severity, log_settings.file_name.c_str());
 
-        // Check to see if there's an environment variable overriding the default capture location value.
-        std::string env_variable = gfxrecon::util::platform::GetEnv(kCaptureFileEnvVar);
-        if (!env_variable.empty())
+        std::string filename = settings.GetCaptureFile();
+
+        if (settings.GetTimestampedFilename())
         {
-            filename = env_variable;
+            filename = util::filepath::GenerateTimestampedFilename(filename);
         }
 
-        // Generate a filename that hopefully won't cause collisions.
-        filename = gfxrecon::util::filepath::GenerateTimestampedFilename(filename);
-
         instance_    = new TraceManager();
-        bool success = instance_->Initialize(filename, options, mode);
+        bool success =
+            instance_->Initialize(filename, settings.GetCaptureFileOptions(), settings.GetMemoryTrackingMode());
 
         if (success)
         {
@@ -137,7 +129,7 @@ void TraceManager::Destroy()
 
         if (instance_count_ == 0)
         {
-            if (instance_->memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
+            if (instance_->memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
             {
                 util::PageGuardManager::Destroy();
             }
@@ -152,7 +144,9 @@ void TraceManager::Destroy()
     }
 }
 
-bool TraceManager::Initialize(std::string filename, format::EnabledOptions file_options, MemoryTrackingMode mode)
+bool TraceManager::Initialize(std::string                         filename,
+                              const format::EnabledOptions&       file_options,
+                              CaptureSettings::MemoryTrackingMode mode)
 {
     bool success = false;
 
@@ -178,7 +172,7 @@ bool TraceManager::Initialize(std::string filename, format::EnabledOptions file_
         }
     }
 
-    if (success && (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard))
+    if (success && (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard))
     {
         util::PageGuardManager::Create(true, false, true, true, true, true);
     }
@@ -533,7 +527,8 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
         MemoryTracker::EntryInfo*   info      = nullptr;
         bool                        first_map = memory_tracker_.MapEntry(memory, offset, size, (*ppData), &info);
 
-        if ((info != nullptr) && (info->mapped_size > 0) && (memory_tracking_mode_ == kPageGuard))
+        if ((info != nullptr) && (info->mapped_size > 0) &&
+            (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard))
         {
             if (first_map)
             {
@@ -570,7 +565,7 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
 
     if (pMemoryRanges != nullptr)
     {
-        if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             // TODO: Determine if this can be deferred to vkQueueSubmit for memory types with the HOST_COHERENT
             // property.
@@ -599,7 +594,7 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
                 }
             }
         }
-        else if (memory_tracking_mode_ == MemoryTrackingMode::kAssisted)
+        else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kAssisted)
         {
             VkDeviceMemory                  current_memory = VK_NULL_HANDLE;
             const MemoryTracker::EntryInfo* info           = nullptr;
@@ -641,7 +636,7 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
 
     std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
-    if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
+    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
@@ -659,7 +654,7 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
             manager->RemoveMemory(format::ToHandleId(memory));
         }
     }
-    else if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
+    else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
     {
         // Write the entire mapped region.
         auto info = memory_tracker_.GetEntryInfo(memory);
@@ -685,7 +680,7 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     bool is_mapped = false;
     memory_tracker_.RemoveEntry(memory, &is_mapped);
 
-    if ((memory_tracking_mode_ == MemoryTrackingMode::kPageGuard) && is_mapped)
+    if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) && is_mapped)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
@@ -704,7 +699,7 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     GFXRECON_UNREFERENCED_PARAMETER(pSubmits);
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
-    if (memory_tracking_mode_ == MemoryTrackingMode::kPageGuard)
+    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
         std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
@@ -715,7 +710,7 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
             WriteFillMemoryCmd(format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
         });
     }
-    else if (memory_tracking_mode_ == MemoryTrackingMode::kUnassisted)
+    else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
     {
         std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
