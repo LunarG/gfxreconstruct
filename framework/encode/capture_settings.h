@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 class CaptureSettings
 {
+  private:
+    const static char kDefaultCaptureFileName[];
+
   public:
     enum MemoryTrackingMode
     {
@@ -41,18 +44,21 @@ class CaptureSettings
         kPageGuard = 2
     };
 
+    struct TraceSettings
+    {
+        std::string            capture_file{ kDefaultCaptureFileName };
+        format::EnabledOptions capture_file_options;
+        bool                   time_stamp_file{ true };
+        MemoryTrackingMode     memory_tracking_mode{ kPageGuard };
+        bool                   force_flush{ false };
+    };
+
   public:
     CaptureSettings();
 
     ~CaptureSettings();
 
-    const std::string& GetCaptureFile() const { return capture_file_; }
-
-    bool GetTimestampedFilename() const { return timestamped_filename_; }
-
-    MemoryTrackingMode GetMemoryTrackingMode() const { return memory_tracking_mode_; }
-
-    const format::EnabledOptions& GetCaptureFileOptions() const { return capture_file_options_; }
+    const TraceSettings& GetTraceSettings() const { return trace_settings_; }
 
     const util::Log::Settings& GetLogSettings() const { return log_settings_; }
 
@@ -62,14 +68,16 @@ class CaptureSettings
     typedef std::unordered_map<std::string, std::string> OptionsMap;
 
   private:
+    static void
+    LoadSingleOptionEnvVar(OptionsMap* options, const std::string& environment_variable, const std::string& option_key);
+
     static void LoadOptionsEnvVar(OptionsMap* options);
 
     static void LoadOptionsFile(OptionsMap* options);
 
-    static void ProcessOptions(const OptionsMap& options, CaptureSettings* settings);
+    static void ProcessOptions(OptionsMap* options, CaptureSettings* settings);
 
-    static std::string
-    FindOption(const OptionsMap& options, const std::string& key, const std::string& default_value = "");
+    static std::string FindOption(OptionsMap* options, const std::string& key, const std::string& default_value = "");
 
     static bool ParseBoolString(const std::string& value_string, bool default_value);
 
@@ -82,11 +90,8 @@ class CaptureSettings
     static util::Log::Severity ParseLogLevelString(const std::string& value_string, util::Log::Severity default_value);
 
   private:
-    std::string            capture_file_;
-    bool                   timestamped_filename_;
-    MemoryTrackingMode     memory_tracking_mode_;
-    format::EnabledOptions capture_file_options_;
-    util::Log::Settings    log_settings_;
+    TraceSettings       trace_settings_;
+    util::Log::Settings log_settings_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -52,36 +52,38 @@ class Log
 
         // File settings
         bool        write_to_file;   // Write info to a file
+        bool        create_new;      // Overwrite any previous version of the file every Init call.
         bool        leave_file_open; // When we write, keep the file open for more efficient writing
         std::string file_name;       // Name of the file (including path)
         FILE*       file_pointer;    // Pointer to opened file
 
         // Console settings
-        bool write_to_console;           // Write info out to the console
-        bool output_errors_to_stderr;    // Output errors to stderr versus stdout
-        bool output_to_win_debug_string; // Windows-specific output messages to OutputDebugString
+        bool write_to_console;          // Write info out to the console
+        bool output_errors_to_stderr;   // Output errors to stderr versus stdout
+        bool output_to_os_debug_string; // Windows-specific output messages to OutputDebugString
 
         // Constructor used for default initialization
         Settings() :
             min_severity(kErrorSeverity), output_detailed_log_info(false), flush_after_write(false), use_indent(false),
-            indent(0), indent_spaces(std::string("   ")), break_on_error(false), write_to_file(false),
+            indent(0), indent_spaces(std::string("   ")), break_on_error(false), write_to_file(false), create_new(true),
             leave_file_open(true), file_name(std::string("")), file_pointer(nullptr), write_to_console(true),
-            output_errors_to_stderr(true), output_to_win_debug_string(false)
+            output_errors_to_stderr(true), output_to_os_debug_string(false)
         {}
     };
 
     static inline std::string SeverityToString(Severity severity);
-    static void               Init(Severity    min_severity               = kErrorSeverity,
-                                   const char* log_file_name              = NULL,
-                                   bool        leave_file_open            = true,
-                                   bool        create_new_file_on_open    = true,
-                                   bool        flush_after_write          = false,
-                                   bool        break_on_error             = false,
-                                   bool        output_detailed_log_info   = false,
-                                   bool        write_to_console           = true,
-                                   bool        errors_to_stderr           = true,
-                                   bool        output_to_win_debug_string = false,
-                                   bool        use_indent                 = false);
+    static void               Init(const util::Log::Settings& settings);
+    static void               Init(Severity    min_severity              = kErrorSeverity,
+                                   const char* log_file_name             = nullptr,
+                                   bool        leave_file_open           = true,
+                                   bool        create_new_file_on_open   = true,
+                                   bool        flush_after_write         = false,
+                                   bool        break_on_error            = false,
+                                   bool        output_detailed_log_info  = false,
+                                   bool        write_to_console          = true,
+                                   bool        errors_to_stderr          = true,
+                                   bool        output_to_os_debug_string = false,
+                                   bool        use_indent                = false);
     static void               Release();
     static inline bool        WillOutputMessage(Severity severity);
     static void
@@ -159,14 +161,16 @@ class CommandTrace
     {
         _file     = file;
         _function = function;
-        LogMessage(kCommandSeverity, _file.c_str(), _function.c_str(), "", "Entering %s", _function.c_str());
+        Log::LogMessage(
+            Log::Severity::kCommandSeverity, _file.c_str(), _function.c_str(), "", "Entering %s", _function.c_str());
         Log::IncreaseIndent();
     }
 
     ~CommandTrace()
     {
         Log::DecreaseIndent();
-        LogMessage(kCommandSeverity, _file.c_str(), _function.c_str(), "", "Exiting %s", _function.c_str());
+        Log::LogMessage(
+            Log::Severity::kCommandSeverity, _file.c_str(), _function.c_str(), "", "Exiting %s", _function.c_str());
     }
 
   private:
@@ -243,7 +247,7 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 #ifdef GFXRECON_ENABLE_COMMAND_TRACE
 
-#define GFXRECON_LOG_COMMAND() gfxrecon::util::CommandTrace command_trace(__FILE__, __FUNCTION__)
+#define GFXRECON_LOG_COMMAND() gfxrecon::util::CommandTrace command_trace(__FILE__, __FUNCTION__);
 
 #else
 

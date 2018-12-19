@@ -35,6 +35,8 @@ class OutputStream
     virtual void Reset() {}
 
     virtual size_t Write(const void* data, size_t len) = 0;
+
+    virtual void Flush() {}
 };
 
 GFXRECON_END_NAMESPACE(util)

@@ -63,7 +63,7 @@ void Log::Init(Severity    min_severity,
                bool        output_detailed_log_info,
                bool        write_to_console,
                bool        errors_to_stderr,
-               bool        output_to_win_debug_string,
+               bool        output_to_os_debug_string,
                bool        use_indent)
 {
     settings_.min_severity = min_severity;
@@ -86,13 +86,44 @@ void Log::Init(Severity    min_severity,
             }
         }
     }
-    settings_.flush_after_write          = flush_after_write;
-    settings_.break_on_error             = break_on_error;
-    settings_.output_detailed_log_info   = output_detailed_log_info;
-    settings_.write_to_console           = write_to_console;
-    settings_.output_errors_to_stderr    = errors_to_stderr;
-    settings_.output_to_win_debug_string = output_to_win_debug_string;
-    settings_.use_indent                 = use_indent;
+    settings_.create_new                = create_new_file_on_open;
+    settings_.flush_after_write         = flush_after_write;
+    settings_.break_on_error            = break_on_error;
+    settings_.output_detailed_log_info  = output_detailed_log_info;
+    settings_.write_to_console          = write_to_console;
+    settings_.output_errors_to_stderr   = errors_to_stderr;
+    settings_.output_to_os_debug_string = output_to_os_debug_string;
+    settings_.use_indent                = use_indent;
+    if (use_indent)
+    {
+        settings_.indent_spaces = 4;
+    }
+}
+
+void Log::Init(const util::Log::Settings& settings)
+{
+    settings_ = settings;
+    if (!settings.file_name.empty())
+    {
+        // Erase any previous contents
+        char file_modifiers[8] = "w";
+        if (!settings.create_new)
+        {
+            file_modifiers[0] = 'a';
+        }
+        if (!platform::FileOpen(&settings_.file_pointer, settings.file_name.c_str(), &file_modifiers[0]))
+        {
+            settings_.write_to_file = true;
+            if (!settings_.leave_file_open)
+            {
+                platform::FileClose(settings_.file_pointer);
+            }
+        }
+    }
+    if (settings_.use_indent)
+    {
+        settings_.indent_spaces = 4;
+    }
 }
 
 void Log::Release()
@@ -100,6 +131,8 @@ void Log::Release()
     if (settings_.write_to_file && settings_.leave_file_open)
     {
         platform::FileClose(settings_.file_pointer);
+        settings_.file_pointer  = nullptr;
+        settings_.write_to_file = false;
     }
 }
 
@@ -154,7 +187,12 @@ void Log::LogMessage(
         switch (output_target)
         {
             case 0: // Output to console
+#if defined(WIN32)
+                // On Windows, pass 0 should output to console or debug string if enabled.
+                if (!settings_.write_to_console && !settings_.output_to_os_debug_string)
+#else
                 if (!settings_.write_to_console)
+#endif
                 {
                     continue;
                 }
@@ -195,57 +233,65 @@ void Log::LogMessage(
                 break;
         }
 
+        std::string output_message;
         if (write_prefix_and_indents)
         {
-            platform::FilePuts(prefix.c_str(), log_file_ptr);
+            output_message = prefix;
             if (write_indent)
             {
                 for (uint32_t iii = 0; iii < settings_.indent; ++iii)
                 {
-                    platform::FilePuts(settings_.indent_spaces.c_str(), log_file_ptr);
+                    output_message += settings_.indent_spaces;
                 }
             }
         }
+        output_message += generated_string;
 
 #if defined(WIN32)
         // Console output on Windows should be sent to OutputDebugString
         // whenever the user requests it.
-        if (output_target == 0 && settings_.output_to_win_debug_string)
+        if (output_target == 0 && settings_.output_to_os_debug_string)
         {
-            OutputDebugStringA(generated_string.c_str());
+            OutputDebugStringA(output_message.c_str());
         }
         else
 #elif defined(__ANDROID__)
         // Console output for Android always needs to be sent to Logcat.
+        // So, ignore the "output_to_os_debug_string" flag and just always do it.
         if (output_target == 0)
         {
             switch (severity)
             {
                 case kDebugSeverity:
-                    __android_log_print(ANDROID_LOG_DEBUG, process_tag, "%s", generated_string.c_str());
+                    __android_log_print(ANDROID_LOG_DEBUG, process_tag, "%s", output_message.c_str());
                     break;
                 case kInfoSeverity:
-                    __android_log_print(ANDROID_LOG_INFO, process_tag, "%s", generated_string.c_str());
+                    __android_log_print(ANDROID_LOG_INFO, process_tag, "%s", output_message.c_str());
                     break;
                 case kWarningSeverity:
-                    __android_log_print(ANDROID_LOG_WARN, process_tag, "%s", generated_string.c_str());
+                    __android_log_print(ANDROID_LOG_WARN, process_tag, "%s", output_message.c_str());
                     break;
                 case kErrorSeverity:
-                    __android_log_print(ANDROID_LOG_ERROR, process_tag, "%s", generated_string.c_str());
+                    __android_log_print(ANDROID_LOG_ERROR, process_tag, "%s", output_message.c_str());
                     break;
                 case kFatalSeverity:
-                    __android_log_print(ANDROID_LOG_FATAL, process_tag, "%s", generated_string.c_str());
+                    __android_log_print(ANDROID_LOG_FATAL, process_tag, "%s", output_message.c_str());
                     break;
                 default:
-                    __android_log_print(ANDROID_LOG_VERBOSE, process_tag, "%s", generated_string.c_str());
+                    __android_log_print(ANDROID_LOG_VERBOSE, process_tag, "%s", output_message.c_str());
                     break;
             }
         }
         else
 #endif // __ANDROID__
         {
-            platform::FilePuts(generated_string.c_str(), log_file_ptr);
-            platform::FilePuts("\n", log_file_ptr);
+            platform::FilePuts(output_message.c_str(), log_file_ptr);
+
+            // Write the newline since we want to separate each log-line but don't
+            // want the messages themselves to have to add it.
+            output_message = "\n";
+            platform::FileWrite(output_message.c_str(), 1, 1, log_file_ptr);
+
             if (settings_.flush_after_write || settings_.leave_file_open)
             {
                 platform::FileFlush(log_file_ptr);

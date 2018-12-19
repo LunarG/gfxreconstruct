@@ -79,25 +79,23 @@ void TraceManager::Create()
         // Default initialize logging to report issues while loading settings.
         util::Log::Init(kDefaultLogLevel);
 
-        CaptureSettings settings;
+        CaptureSettings settings = {};
         CaptureSettings::LoadSettings(&settings);
 
         // Reinitialize logging with values retrieved from settings.
         const util::Log::Settings& log_settings = settings.GetLogSettings();
         util::Log::Release();
-        util::Log::Init(log_settings.min_severity, log_settings.file_name.c_str());
+        util::Log::Init(log_settings);
 
-        std::string filename = settings.GetCaptureFile();
-
-        if (settings.GetTimestampedFilename())
+        CaptureSettings::TraceSettings trace_settings = settings.GetTraceSettings();
+        std::string                    filename       = trace_settings.capture_file;
+        if (trace_settings.time_stamp_file)
         {
             filename = util::filepath::GenerateTimestampedFilename(filename);
         }
 
         instance_    = new TraceManager();
-        bool success =
-            instance_->Initialize(filename, settings.GetCaptureFileOptions(), settings.GetMemoryTrackingMode());
-
+        bool success = instance_->Initialize(filename, trace_settings);
         if (success)
         {
             GFXRECON_LOG_INFO("Recording graphics API capture to %s", filename.c_str());
@@ -144,15 +142,14 @@ void TraceManager::Destroy()
     }
 }
 
-bool TraceManager::Initialize(std::string                         filename,
-                              const format::EnabledOptions&       file_options,
-                              CaptureSettings::MemoryTrackingMode mode)
+bool TraceManager::Initialize(std::string filename, const CaptureSettings::TraceSettings& trace_settings)
 {
     bool success = false;
 
     filename_             = filename;
-    file_options_         = file_options;
-    memory_tracking_mode_ = mode;
+    file_options_         = trace_settings.capture_file_options;
+    memory_tracking_mode_ = trace_settings.memory_tracking_mode;
+    force_file_flush_     = trace_settings.force_flush;
 
     file_stream_ = std::make_unique<util::FileOutputStream>(filename_);
 
@@ -165,8 +162,8 @@ bool TraceManager::Initialize(std::string                         filename,
 
     if (success)
     {
-        compressor_ = std::unique_ptr<util::Compressor>(format::CreateCompressor(file_options.compression_type));
-        if ((nullptr == compressor_) && (format::CompressionType::kNone != file_options.compression_type))
+        compressor_ = std::unique_ptr<util::Compressor>(format::CreateCompressor(file_options_.compression_type));
+        if ((nullptr == compressor_) && (format::CompressionType::kNone != file_options_.compression_type))
         {
             success = false;
         }
@@ -268,6 +265,11 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 
         // Write parameter data.
         bytes_written_ += file_stream_->Write(data_pointer, data_size);
+    }
+
+    if (force_file_flush_)
+    {
+        file_stream_->Flush();
     }
 
     parameter_encoder->Reset();
