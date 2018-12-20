@@ -191,15 +191,6 @@ bool FileProcessor::ReadFileHeader()
                     case format::FileOption::kHaveThreadId:
                         enabled_options_.record_thread_id = option.value ? true : false;
                         break;
-                    case format::FileOption::kHaveBeginEndTimestamp:
-                        enabled_options_.record_begin_end_timestamp = option.value ? true : false;
-                        break;
-                    case format::FileOption::kOmitTextures:
-                        enabled_options_.omit_textures = option.value ? true : false;
-                        break;
-                    case format::FileOption::kOmitBuffers:
-                        enabled_options_.omit_buffers = option.value ? true : false;
-                        break;
                     case format::FileOption::kAddressEncodingSize:
                     case format::FileOption::kObjectEncodingSize:
                     case format::FileOption::kHandleEncodingSize:
@@ -322,14 +313,6 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     {
         parameter_buffer_size -= sizeof(call_options.thread_id);
         success = ReadBytes(&call_options.thread_id, sizeof(call_options.thread_id));
-    }
-
-    if (success && enabled_options_.record_begin_end_timestamp)
-    {
-        parameter_buffer_size -= sizeof(call_options.begin_time) + sizeof(call_options.end_time);
-
-        success = ReadBytes(&call_options.begin_time, sizeof(call_options.begin_time));
-        success = success && ReadBytes(&call_options.end_time, sizeof(call_options.end_time));
     }
 
     if (success)

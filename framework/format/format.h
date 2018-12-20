@@ -88,15 +88,11 @@ enum FileOption : uint32_t
     kCompressionType       = 1, // One of the CompressionType values defining the compression algorithm used with parameter
                                 // encoding. Default = CompressionType::kNone.
     kHaveThreadId          = 2, // Boolean value: true if the thread ID was included with the API call block header. Default = true.
-    kHaveBeginEndTimestamp = 3, // Boolean value: true if begin and end timestamps were included with the API call block
-                                // header. Default = false.
-    kOmitTextures          = 4, // Boolean value: true if textures were omitted. Default = false.
-    kOmitBuffers           = 5, // Boolean value: true if bufferes were omitted. Default = false.
-    kAddressEncodingSize   = 6, // Unsigned integer value: defines number of bits used for address encoding, valid values
+    kAddressEncodingSize   = 3, // Unsigned integer value: defines number of bits used for address encoding, valid values
                                 // are 32 and 64. Default = 64.
-    kObjectEncodingSize    = 7, // Unsigned integer value: defines number of bits used for size_t encoding, valid values
+    kObjectEncodingSize    = 4, // Unsigned integer value: defines number of bits used for size_t encoding, valid values
                                 // are 32 and 64. Default = 64.
-    kHandleEncodingSize    = 8  // Unsigned integer value: defines number of bits used for API handle encoding, valid values
+    kHandleEncodingSize    = 5  // Unsigned integer value: defines number of bits used for API handle encoding, valid values
                                 // are 32 and 64. Default = 64.
 };
 
@@ -123,9 +119,6 @@ struct EnabledOptions
 {
     CompressionType compression_type{ CompressionType::kNone };
     bool            record_thread_id{ true };
-    bool            record_begin_end_timestamp{ false };
-    bool            omit_textures{ false };
-    bool            omit_buffers{ false };
 };
 
 #pragma pack(push)
@@ -155,8 +148,6 @@ struct BlockHeader
 struct ApiCallOptions
 {
     uint32_t thread_id;
-    uint32_t begin_time;
-    uint32_t end_time;
 };
 
 struct FunctionCallHeader

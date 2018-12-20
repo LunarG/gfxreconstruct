@@ -41,7 +41,7 @@ std::mutex                                             TraceManager::instance_lo
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 
 TraceManager::ThreadData::ThreadData() :
-    thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown), call_begin_time_(0), call_end_time_(0)
+    thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
 {
     parameter_buffer_  = std::make_unique<util::MemoryOutputStream>();
     parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
@@ -229,10 +229,6 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
                 packet_size += sizeof(thread_data->thread_id_);
             }
 
-            if (file_options_.record_begin_end_timestamp)
-            {
-                packet_size += sizeof(thread_data->call_begin_time_) + sizeof(thread_data->call_end_time_);
-            }
             compressed_header.block_header.size = packet_size;
             not_compressed                      = false;
         }
@@ -255,10 +251,6 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
             packet_size += sizeof(thread_data->thread_id_);
         }
 
-        if (file_options_.record_begin_end_timestamp)
-        {
-            packet_size += sizeof(thread_data->call_begin_time_) + sizeof(thread_data->call_end_time_);
-        }
         uncompressed_header.block_header.size = packet_size;
     }
 
@@ -272,13 +264,6 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
         if (file_options_.record_thread_id)
         {
             bytes_written_ += file_stream_->Write(&thread_data->thread_id_, sizeof(thread_data->thread_id_));
-        }
-
-        if (file_options_.record_begin_end_timestamp)
-        {
-            bytes_written_ +=
-                file_stream_->Write(&thread_data->call_begin_time_, sizeof(thread_data->call_begin_time_));
-            bytes_written_ += file_stream_->Write(&thread_data->call_end_time_, sizeof(thread_data->call_end_time_));
         }
 
         // Write parameter data.
@@ -311,10 +296,6 @@ void TraceManager::BuildOptionList(const format::EnabledOptions&        enabled_
 
     option_list->push_back({ format::FileOption::kCompressionType, enabled_options.compression_type });
     option_list->push_back({ format::FileOption::kHaveThreadId, enabled_options.record_thread_id ? 1u : 0u });
-    option_list->push_back(
-        { format::FileOption::kHaveBeginEndTimestamp, enabled_options.record_begin_end_timestamp ? 1u : 0u });
-    option_list->push_back({ format::FileOption::kOmitTextures, enabled_options.omit_textures ? 1u : 0u });
-    option_list->push_back({ format::FileOption::kOmitBuffers, enabled_options.omit_buffers ? 1u : 0u });
 }
 
 void TraceManager::WriteDisplayMessageCmd(const char* message)
