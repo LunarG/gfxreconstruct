@@ -25,8 +25,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 CompressionConverter::CompressionConverter() :
-    bytes_written_(0), compressor_(nullptr), decompressing_(false), write_thread_id_(false),
-    write_begin_end_times_(false)
+    bytes_written_(0), compressor_(nullptr), decompressing_(false), write_thread_id_(false)
 {}
 
 CompressionConverter::~CompressionConverter()
@@ -46,8 +45,7 @@ bool CompressionConverter::Initialize(std::string                               
     file_stream_ = std::make_unique<util::FileOutputStream>(filename_);
 
     // Set the default for some other options
-    write_thread_id_       = false;
-    write_begin_end_times_ = false;
+    write_thread_id_ = false;
 
     if (format::CompressionType::kNone == target_compression_type)
     {
@@ -78,11 +76,6 @@ bool CompressionConverter::Initialize(std::string                               
             case format::FileOption::kHaveThreadId:
                 write_thread_id_ = (option.value != 0);
                 break;
-            case format::FileOption::kHaveBeginEndTimestamp:
-                write_begin_end_times_ = (option.value != 0);
-                break;
-            case format::FileOption::kOmitTextures:
-            case format::FileOption::kOmitBuffers:
             case format::FileOption::kAddressEncodingSize:
             case format::FileOption::kObjectEncodingSize:
             case format::FileOption::kHandleEncodingSize:
@@ -146,10 +139,6 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call
             {
                 packet_size += sizeof(call_options.thread_id);
             }
-            if (write_begin_end_times_)
-            {
-                packet_size += sizeof(call_options.begin_time) + sizeof(call_options.end_time);
-            }
 
             compressed_func_call_header.block_header.size = packet_size;
 
@@ -160,12 +149,6 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call
             if (write_thread_id_)
             {
                 bytes_written_ += file_stream_->Write(&call_options.thread_id, sizeof(call_options.thread_id));
-            }
-
-            if (write_begin_end_times_)
-            {
-                bytes_written_ += file_stream_->Write(&call_options.begin_time, sizeof(call_options.begin_time));
-                bytes_written_ += file_stream_->Write(&call_options.end_time, sizeof(call_options.end_time));
             }
 
             // Write parameter data.
@@ -193,10 +176,6 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call
         {
             packet_size += sizeof(call_options.thread_id);
         }
-        if (write_begin_end_times_)
-        {
-            packet_size += sizeof(call_options.begin_time) + sizeof(call_options.end_time);
-        }
 
         func_call_header.block_header.size = packet_size;
 
@@ -207,12 +186,6 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call
         if (write_thread_id_)
         {
             bytes_written_ += file_stream_->Write(&call_options.thread_id, sizeof(call_options.thread_id));
-        }
-
-        if (write_begin_end_times_)
-        {
-            bytes_written_ += file_stream_->Write(&call_options.begin_time, sizeof(call_options.begin_time));
-            bytes_written_ += file_stream_->Write(&call_options.end_time, sizeof(call_options.end_time));
         }
 
         // Write parameter data.

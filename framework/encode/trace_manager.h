@@ -154,8 +154,6 @@ class TraceManager
       public:
         const uint32_t                            thread_id_;
         format::ApiCallId                         call_id_;
-        uint32_t                                  call_begin_time_;
-        uint32_t                                  call_end_time_;
         std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
         std::unique_ptr<ParameterEncoder>         parameter_encoder_;
         std::vector<uint8_t>                      compressed_buffer_;
