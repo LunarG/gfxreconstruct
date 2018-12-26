@@ -70,15 +70,28 @@ static const void* get_dispatch_key(const void* handle)
     return static_cast<const void*>(*dispatch_table);
 }
 
-static std::unordered_map<const void*, VkLayerInstanceDispatchTable> instance_table;
-static std::unordered_map<const void*, VkLayerDispatchTable>         device_table;
+// Structure to store the layer's instance information (instance value with a corresponding
+// dispatch table.  In most cases, we only need the table, but in a few cases we will need
+// the instance as well.  Typically, this is when the structure is accessed by a non-instance
+// handle.
+struct LayerInstanceInfo
+{
+    VkInstance                   instance;
+    VkLayerInstanceDispatchTable table;
+};
+
+static std::unordered_map<const void*, LayerInstanceInfo>    instance_info;
+static std::unordered_map<const void*, VkLayerDispatchTable> device_table;
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa)
 {
-    auto& table = instance_table[get_dispatch_key(instance)];
-    layer_init_instance_dispatch_table(instance, &table, gpa);
+    // We need to save the instance value as well since vkCreateDevice will need
+    // to grab it from the physical device info.
+    auto inst_info     = &instance_info[get_dispatch_key(instance)];
+    inst_info->instance = instance;
+    layer_init_instance_dispatch_table(instance, &inst_info->table, gpa);
 }
 
 void init_device_table(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
@@ -87,10 +100,16 @@ void init_device_table(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
     layer_init_device_dispatch_table(device, &table, gpa);
 }
 
+LayerInstanceInfo* get_instance_info(const void* handle)
+{
+    auto inst_info = instance_info.find(get_dispatch_key(handle));
+    return (inst_info != instance_info.end()) ? &inst_info->second : nullptr;
+}
+
 VkLayerInstanceDispatchTable* get_instance_table(const void* instance)
 {
-    auto table = instance_table.find(get_dispatch_key(instance));
-    return (table != instance_table.end()) ? &table->second : nullptr;
+    auto inst_info = instance_info.find(get_dispatch_key(instance));
+    return (inst_info != instance_info.end()) ? &inst_info->second.table : nullptr;
 }
 
 VkLayerDispatchTable* get_device_table(const void* device)
@@ -116,7 +135,8 @@ VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
 
     if (fpGetInstanceProcAddr)
     {
-        fpCreateInstance = reinterpret_cast<PFN_vkCreateInstance>(fpGetInstanceProcAddr(nullptr, "vkCreateInstance"));
+        fpCreateInstance =
+            reinterpret_cast<PFN_vkCreateInstance>(fpGetInstanceProcAddr(VK_NULL_HANDLE, "vkCreateInstance"));
     }
 
     if (fpCreateInstance)
@@ -144,6 +164,7 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
     VkResult                  result                = VK_ERROR_INITIALIZATION_FAILED;
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = nullptr;
     PFN_vkGetDeviceProcAddr   fpGetDeviceProcAddr   = nullptr;
+    LayerInstanceInfo*        layer_instance_info   = gfxrecon::get_instance_info(physicalDevice);
     PFN_vkCreateDevice        fpCreateDevice        = nullptr;
     VkLayerDeviceCreateInfo*  chain_info =
         const_cast<VkLayerDeviceCreateInfo*>(get_device_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
@@ -154,11 +175,8 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
         fpGetDeviceProcAddr   = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
     }
 
-    if (fpGetInstanceProcAddr && fpGetDeviceProcAddr)
-    {
-        fpCreateDevice = reinterpret_cast<PFN_vkCreateDevice>(fpGetInstanceProcAddr(nullptr, "vkCreateDevice"));
-    }
-
+    // Additional functions needing to be queried that aren't done by default.
+    fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(layer_instance_info->instance, "vkCreateDevice");
     if (fpCreateDevice)
     {
         // Advance the link info for the next element on the chain
@@ -180,7 +198,14 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
 {
     PFN_vkVoidFunction result = nullptr;
 
-    if (instance != nullptr)
+    // This is required by the loader and is called directly with an "instance" actually
+    // set to the internal "loader_instance".  Detect that case and return
+    if (!strcmp(pName, "vkCreateInstance"))
+    {
+        return reinterpret_cast<PFN_vkVoidFunction>(CreateInstance);
+    }
+
+    if (instance != VK_NULL_HANDLE)
     {
         const auto table = gfxrecon::get_instance_table(instance);
         if (table && table->GetInstanceProcAddr)
@@ -189,11 +214,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
         }
     }
 
-    if ((result != nullptr) || (instance == nullptr))
+    if ((result != nullptr) || (instance == VK_NULL_HANDLE))
     {
         // Only check for a layer implementation of the requested function if it is available from the next level, or if
-        // the instance handle is null and we can't determine if it is available from the next level (eg. a query for
-        // vkCreateInstance).
+        // the instance handle is null and we can't determine if it is available from the next level.
         const auto entry = gfxrecon::func_table.find(pName);
 
         if (entry != gfxrecon::func_table.end())
@@ -209,7 +233,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
 {
     PFN_vkVoidFunction result = nullptr;
 
-    if (device != nullptr)
+    if (device != VK_NULL_HANDLE)
     {
         const auto table = gfxrecon::get_device_table(device);
         if (table && table->GetDeviceProcAddr)
