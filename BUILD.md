@@ -126,16 +126,14 @@ create a build directory and generate the Visual Studio project files:
 ```
 cd gfxreconstruct
 mkdir build
-cmake -H. -Bbuild -A x64
+cmake -H. -Bbuild -G "Visual Studio 15 Win64"
 ```
 
-The `-A` option is used to select either the "Win32" or "x64" architecture.
+The above is for building 64-bit binaries using Visual Studio 2017. If you want to build 32-bit binaries or want to build using a different version of Visual Studio, you can use one of the following variations:
 
-If a generator for a specific version of Visual Studio is required, you can
-specify it for Visual Studio 2015, for example, with:
-
- * 64-bit: -G "Visual Studio 14 2015 Win64"
- * 32-bit: -G "Visual Studio 14 2015"
+ * 64-bit for VS 2015: cmake -H. -Bbuild -G "Visual Studio 14 Win64"
+ * 32-bit for VS 2017: cmake -H. -Bbuild -G "Visual Studio 15"
+ * 32-bit for VS 2015: cmake -H. -Bbuild -G "Visual Studio 14"
 
 The above steps create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
