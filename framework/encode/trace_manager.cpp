@@ -281,7 +281,7 @@ void TraceManager::WriteFileHeader()
 
     format::FileHeader file_header;
     file_header.fourcc        = GFXRECON_FOURCC;
-    file_header.major_version = 1;
+    file_header.major_version = 0;
     file_header.minor_version = 0;
     file_header.num_options   = static_cast<uint32_t>(option_list.size());
 
