@@ -45,6 +45,8 @@ class PointerDecoder : public PointerDecoderBase
 
     void SetExternalMemory(T* data, size_t capacity)
     {
+        assert(data_ == nullptr);
+
         if ((data != nullptr) && (capacity > 0))
         {
             data_               = data;

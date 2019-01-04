@@ -12,6 +12,7 @@ target_sources(gfxrecon_decode
                    descriptor_update_template_decoder.cpp
                    file_processor.h
                    file_processor.cpp
+                   handle_pointer_decoder.h
                    pnext_node.h
                    pnext_null_node.h
                    pnext_typed_node.h
