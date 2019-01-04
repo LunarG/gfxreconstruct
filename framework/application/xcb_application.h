@@ -35,7 +35,7 @@ class XcbApplication : public Application
   public:
     XcbApplication(const std::string& name);
 
-    virtual ~XcbApplication();
+    virtual ~XcbApplication() override;
 
     xcb_connection_t* GetConnection() const { return connection_; }
 

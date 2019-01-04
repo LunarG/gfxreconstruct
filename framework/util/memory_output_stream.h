@@ -37,7 +37,7 @@ class MemoryOutputStream : public OutputStream
 
     MemoryOutputStream(size_t initial_size);
 
-    virtual ~MemoryOutputStream();
+    virtual ~MemoryOutputStream() override;
 
     virtual bool IsValid() override { return true; }
 

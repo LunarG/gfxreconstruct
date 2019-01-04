@@ -43,7 +43,7 @@ class AndroidApplication : public Application
   public:
     AndroidApplication(const std::string& name, struct android_app* app);
 
-    virtual ~AndroidApplication() {}
+    virtual ~AndroidApplication() override {}
 
     virtual bool Initialize(decode::FileProcessor* file_processor) override;
 

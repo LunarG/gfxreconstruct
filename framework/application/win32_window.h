@@ -40,7 +40,7 @@ class Win32Window : public decode::Window
   public:
     Win32Window(Win32Application* application);
 
-    virtual ~Win32Window();
+    virtual ~Win32Window() override;
 
     virtual bool Create(const std::string& title,
                         const int32_t      xpos,

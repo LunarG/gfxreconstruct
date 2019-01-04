@@ -28,7 +28,7 @@ class Lz4Compressor : public Compressor
   public:
     Lz4Compressor() {}
 
-    ~Lz4Compressor() {}
+    virtual ~Lz4Compressor() override {}
 
     virtual size_t Compress(const size_t          uncompressed_size,
                             const uint8_t*        uncompressed_data,

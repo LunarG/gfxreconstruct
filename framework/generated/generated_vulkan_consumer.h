@@ -36,7 +36,7 @@ class VulkanConsumer : public VulkanConsumerBase
   public:
     VulkanConsumer() { }
 
-    virtual ~VulkanConsumer() { }
+    virtual ~VulkanConsumer() override { }
 
     virtual void Process_vkCreateInstance(
         VkResult                                    returnValue,

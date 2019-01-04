@@ -35,7 +35,7 @@ class WaylandApplication : public Application
   public:
     WaylandApplication(const std::string& name);
 
-    virtual ~WaylandApplication();
+    virtual ~WaylandApplication() override;
 
     struct wl_display* GetDisplay() const { return display_; }
 

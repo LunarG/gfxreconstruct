@@ -36,7 +36,7 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
   public:
     VulkanAsciiConsumer() { }
 
-    virtual ~VulkanAsciiConsumer() { }
+    virtual ~VulkanAsciiConsumer() override { }
 
     virtual void Process_vkCreateInstance(
         VkResult                                    returnValue,

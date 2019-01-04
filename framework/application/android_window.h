@@ -39,7 +39,7 @@ class AndroidWindow : public decode::Window
   public:
     AndroidWindow(AndroidApplication* application, ANativeWindow* window);
 
-    virtual ~AndroidWindow() {}
+    virtual ~AndroidWindow() override {}
 
     virtual bool Create(const std::string&, const int32_t, const int32_t, const uint32_t, const uint32_t) override
     {

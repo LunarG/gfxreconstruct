@@ -36,7 +36,7 @@ class VulkanDecoder : public VulkanDecoderBase
   public:
     VulkanDecoder() { }
 
-    virtual ~VulkanDecoder() { }
+    virtual ~VulkanDecoder() override { }
 
     virtual void DecodeFunctionCall(format::ApiCallId             call_id,
                                     const format::ApiCallOptions& call_options,

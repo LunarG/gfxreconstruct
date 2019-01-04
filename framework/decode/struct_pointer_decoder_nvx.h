@@ -41,7 +41,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
   public:
     StructPointerDecoder() {}
 
-    ~StructPointerDecoder()
+    virtual ~StructPointerDecoder() override
     {
         if (struct_memory_ != nullptr)
         {

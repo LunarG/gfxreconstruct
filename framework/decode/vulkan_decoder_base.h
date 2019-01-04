@@ -38,7 +38,7 @@ class VulkanDecoderBase : public ApiDecoder
   public:
     VulkanDecoderBase() {}
 
-    virtual ~VulkanDecoderBase() {}
+    virtual ~VulkanDecoderBase() override {}
 
     void AddConsumer(VulkanConsumer* consumer) { consumers_.push_back(consumer); }
 
