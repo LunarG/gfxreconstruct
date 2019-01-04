@@ -52,6 +52,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
+        write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pointer_decoder.h"', file=self.outFile)
         write('#include "decode/string_array_decoder.h"', file=self.outFile)
@@ -159,6 +160,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         isStruct = False
         isString = False
         isFuncp = False
+        isHandle = False
 
         typeName = self.makeInvocationTypeName(value.baseType)
 
@@ -168,6 +170,8 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
             isString = True
         elif typeName == 'FunctionPtr':
             isFuncp = True
+        elif typeName == 'HandleId':
+            isHandle = True
 
         # isPointer will be False for static arrays.
         if value.isPointer or value.isArray:
@@ -179,9 +183,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
                     # Pointer to an unknown object type, encoded as a 64-bit integer ID.
                     body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(bufferArgs, value.name)
             else:
-                if isStruct:
-                    body += '    bytes_read += {}.Decode({});\n'.format(value.name, bufferArgs)
-                elif isString:
+                if isStruct or isString or isHandle:
                     body += '    bytes_read += {}.Decode({});\n'.format(value.name, bufferArgs)
                 else:
                     body += '    bytes_read += {}.Decode{}({});\n'.format(value.name, typeName, bufferArgs)

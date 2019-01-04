@@ -33,7 +33,7 @@ void VulkanAsciiConsumer::Process_vkCreateInstance(
     VkResult                                    returnValue,
     const StructPointerDecoder<Decoded_VkInstanceCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pInstance)
+    const HandlePointerDecoder<VkInstance>&     pInstance)
 {
     fprintf(GetFile(), "%s\n", "vkCreateInstance");
 }
@@ -49,7 +49,7 @@ void VulkanAsciiConsumer::Process_vkEnumeratePhysicalDevices(
     VkResult                                    returnValue,
     format::HandleId                            instance,
     const PointerDecoder<uint32_t>&             pPhysicalDeviceCount,
-    const PointerDecoder<format::HandleId>&     pPhysicalDevices)
+    const HandlePointerDecoder<VkPhysicalDevice>& pPhysicalDevices)
 {
     fprintf(GetFile(), "%s\n", "vkEnumeratePhysicalDevices");
 }
@@ -109,7 +109,7 @@ void VulkanAsciiConsumer::Process_vkCreateDevice(
     format::HandleId                            physicalDevice,
     const StructPointerDecoder<Decoded_VkDeviceCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pDevice)
+    const HandlePointerDecoder<VkDevice>&       pDevice)
 {
     fprintf(GetFile(), "%s\n", "vkCreateDevice");
 }
@@ -125,7 +125,7 @@ void VulkanAsciiConsumer::Process_vkGetDeviceQueue(
     format::HandleId                            device,
     uint32_t                                    queueFamilyIndex,
     uint32_t                                    queueIndex,
-    const PointerDecoder<format::HandleId>&     pQueue)
+    const HandlePointerDecoder<VkQueue>&        pQueue)
 {
     fprintf(GetFile(), "%s\n", "vkGetDeviceQueue");
 }
@@ -159,7 +159,7 @@ void VulkanAsciiConsumer::Process_vkAllocateMemory(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pMemory)
+    const HandlePointerDecoder<VkDeviceMemory>& pMemory)
 {
     fprintf(GetFile(), "%s\n", "vkAllocateMemory");
 }
@@ -290,7 +290,7 @@ void VulkanAsciiConsumer::Process_vkCreateFence(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkFenceCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pFence)
+    const HandlePointerDecoder<VkFence>&        pFence)
 {
     fprintf(GetFile(), "%s\n", "vkCreateFence");
 }
@@ -307,7 +307,7 @@ void VulkanAsciiConsumer::Process_vkResetFences(
     VkResult                                    returnValue,
     format::HandleId                            device,
     uint32_t                                    fenceCount,
-    const PointerDecoder<format::HandleId>&     pFences)
+    const HandlePointerDecoder<VkFence>&        pFences)
 {
     fprintf(GetFile(), "%s\n", "vkResetFences");
 }
@@ -324,7 +324,7 @@ void VulkanAsciiConsumer::Process_vkWaitForFences(
     VkResult                                    returnValue,
     format::HandleId                            device,
     uint32_t                                    fenceCount,
-    const PointerDecoder<format::HandleId>&     pFences,
+    const HandlePointerDecoder<VkFence>&        pFences,
     VkBool32                                    waitAll,
     uint64_t                                    timeout)
 {
@@ -336,7 +336,7 @@ void VulkanAsciiConsumer::Process_vkCreateSemaphore(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkSemaphoreCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSemaphore)
+    const HandlePointerDecoder<VkSemaphore>&    pSemaphore)
 {
     fprintf(GetFile(), "%s\n", "vkCreateSemaphore");
 }
@@ -354,7 +354,7 @@ void VulkanAsciiConsumer::Process_vkCreateEvent(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkEventCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pEvent)
+    const HandlePointerDecoder<VkEvent>&        pEvent)
 {
     fprintf(GetFile(), "%s\n", "vkCreateEvent");
 }
@@ -396,7 +396,7 @@ void VulkanAsciiConsumer::Process_vkCreateQueryPool(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkQueryPoolCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pQueryPool)
+    const HandlePointerDecoder<VkQueryPool>&    pQueryPool)
 {
     fprintf(GetFile(), "%s\n", "vkCreateQueryPool");
 }
@@ -428,7 +428,7 @@ void VulkanAsciiConsumer::Process_vkCreateBuffer(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkBufferCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pBuffer)
+    const HandlePointerDecoder<VkBuffer>&       pBuffer)
 {
     fprintf(GetFile(), "%s\n", "vkCreateBuffer");
 }
@@ -446,7 +446,7 @@ void VulkanAsciiConsumer::Process_vkCreateBufferView(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkBufferViewCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pView)
+    const HandlePointerDecoder<VkBufferView>&   pView)
 {
     fprintf(GetFile(), "%s\n", "vkCreateBufferView");
 }
@@ -464,7 +464,7 @@ void VulkanAsciiConsumer::Process_vkCreateImage(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkImageCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pImage)
+    const HandlePointerDecoder<VkImage>&        pImage)
 {
     fprintf(GetFile(), "%s\n", "vkCreateImage");
 }
@@ -491,7 +491,7 @@ void VulkanAsciiConsumer::Process_vkCreateImageView(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkImageViewCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pView)
+    const HandlePointerDecoder<VkImageView>&    pView)
 {
     fprintf(GetFile(), "%s\n", "vkCreateImageView");
 }
@@ -509,7 +509,7 @@ void VulkanAsciiConsumer::Process_vkCreateShaderModule(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pShaderModule)
+    const HandlePointerDecoder<VkShaderModule>& pShaderModule)
 {
     fprintf(GetFile(), "%s\n", "vkCreateShaderModule");
 }
@@ -527,7 +527,7 @@ void VulkanAsciiConsumer::Process_vkCreatePipelineCache(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pPipelineCache)
+    const HandlePointerDecoder<VkPipelineCache>& pPipelineCache)
 {
     fprintf(GetFile(), "%s\n", "vkCreatePipelineCache");
 }
@@ -555,7 +555,7 @@ void VulkanAsciiConsumer::Process_vkMergePipelineCaches(
     format::HandleId                            device,
     format::HandleId                            dstCache,
     uint32_t                                    srcCacheCount,
-    const PointerDecoder<format::HandleId>&     pSrcCaches)
+    const HandlePointerDecoder<VkPipelineCache>& pSrcCaches)
 {
     fprintf(GetFile(), "%s\n", "vkMergePipelineCaches");
 }
@@ -567,7 +567,7 @@ void VulkanAsciiConsumer::Process_vkCreateGraphicsPipelines(
     uint32_t                                    createInfoCount,
     const StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>& pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pPipelines)
+    const HandlePointerDecoder<VkPipeline>&     pPipelines)
 {
     fprintf(GetFile(), "%s\n", "vkCreateGraphicsPipelines");
 }
@@ -579,7 +579,7 @@ void VulkanAsciiConsumer::Process_vkCreateComputePipelines(
     uint32_t                                    createInfoCount,
     const StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>& pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pPipelines)
+    const HandlePointerDecoder<VkPipeline>&     pPipelines)
 {
     fprintf(GetFile(), "%s\n", "vkCreateComputePipelines");
 }
@@ -597,7 +597,7 @@ void VulkanAsciiConsumer::Process_vkCreatePipelineLayout(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkPipelineLayoutCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pPipelineLayout)
+    const HandlePointerDecoder<VkPipelineLayout>& pPipelineLayout)
 {
     fprintf(GetFile(), "%s\n", "vkCreatePipelineLayout");
 }
@@ -615,7 +615,7 @@ void VulkanAsciiConsumer::Process_vkCreateSampler(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkSamplerCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSampler)
+    const HandlePointerDecoder<VkSampler>&      pSampler)
 {
     fprintf(GetFile(), "%s\n", "vkCreateSampler");
 }
@@ -633,7 +633,7 @@ void VulkanAsciiConsumer::Process_vkCreateDescriptorSetLayout(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSetLayout)
+    const HandlePointerDecoder<VkDescriptorSetLayout>& pSetLayout)
 {
     fprintf(GetFile(), "%s\n", "vkCreateDescriptorSetLayout");
 }
@@ -651,7 +651,7 @@ void VulkanAsciiConsumer::Process_vkCreateDescriptorPool(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pDescriptorPool)
+    const HandlePointerDecoder<VkDescriptorPool>& pDescriptorPool)
 {
     fprintf(GetFile(), "%s\n", "vkCreateDescriptorPool");
 }
@@ -677,7 +677,7 @@ void VulkanAsciiConsumer::Process_vkAllocateDescriptorSets(
     VkResult                                    returnValue,
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>& pAllocateInfo,
-    const PointerDecoder<format::HandleId>&     pDescriptorSets)
+    const HandlePointerDecoder<VkDescriptorSet>& pDescriptorSets)
 {
     fprintf(GetFile(), "%s\n", "vkAllocateDescriptorSets");
 }
@@ -687,7 +687,7 @@ void VulkanAsciiConsumer::Process_vkFreeDescriptorSets(
     format::HandleId                            device,
     format::HandleId                            descriptorPool,
     uint32_t                                    descriptorSetCount,
-    const PointerDecoder<format::HandleId>&     pDescriptorSets)
+    const HandlePointerDecoder<VkDescriptorSet>& pDescriptorSets)
 {
     fprintf(GetFile(), "%s\n", "vkFreeDescriptorSets");
 }
@@ -707,7 +707,7 @@ void VulkanAsciiConsumer::Process_vkCreateFramebuffer(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkFramebufferCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pFramebuffer)
+    const HandlePointerDecoder<VkFramebuffer>&  pFramebuffer)
 {
     fprintf(GetFile(), "%s\n", "vkCreateFramebuffer");
 }
@@ -725,7 +725,7 @@ void VulkanAsciiConsumer::Process_vkCreateRenderPass(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkRenderPassCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pRenderPass)
+    const HandlePointerDecoder<VkRenderPass>&   pRenderPass)
 {
     fprintf(GetFile(), "%s\n", "vkCreateRenderPass");
 }
@@ -751,7 +751,7 @@ void VulkanAsciiConsumer::Process_vkCreateCommandPool(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pCommandPool)
+    const HandlePointerDecoder<VkCommandPool>&  pCommandPool)
 {
     fprintf(GetFile(), "%s\n", "vkCreateCommandPool");
 }
@@ -777,7 +777,7 @@ void VulkanAsciiConsumer::Process_vkAllocateCommandBuffers(
     VkResult                                    returnValue,
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>& pAllocateInfo,
-    const PointerDecoder<format::HandleId>&     pCommandBuffers)
+    const HandlePointerDecoder<VkCommandBuffer>& pCommandBuffers)
 {
     fprintf(GetFile(), "%s\n", "vkAllocateCommandBuffers");
 }
@@ -786,7 +786,7 @@ void VulkanAsciiConsumer::Process_vkFreeCommandBuffers(
     format::HandleId                            device,
     format::HandleId                            commandPool,
     uint32_t                                    commandBufferCount,
-    const PointerDecoder<format::HandleId>&     pCommandBuffers)
+    const HandlePointerDecoder<VkCommandBuffer>& pCommandBuffers)
 {
     fprintf(GetFile(), "%s\n", "vkFreeCommandBuffers");
 }
@@ -901,7 +901,7 @@ void VulkanAsciiConsumer::Process_vkCmdBindDescriptorSets(
     format::HandleId                            layout,
     uint32_t                                    firstSet,
     uint32_t                                    descriptorSetCount,
-    const PointerDecoder<format::HandleId>&     pDescriptorSets,
+    const HandlePointerDecoder<VkDescriptorSet>& pDescriptorSets,
     uint32_t                                    dynamicOffsetCount,
     const PointerDecoder<uint32_t>&             pDynamicOffsets)
 {
@@ -921,7 +921,7 @@ void VulkanAsciiConsumer::Process_vkCmdBindVertexBuffers(
     format::HandleId                            commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
-    const PointerDecoder<format::HandleId>&     pBuffers,
+    const HandlePointerDecoder<VkBuffer>&       pBuffers,
     const PointerDecoder<VkDeviceSize>&         pOffsets)
 {
     fprintf(GetFile(), "%s\n", "vkCmdBindVertexBuffers");
@@ -1125,7 +1125,7 @@ void VulkanAsciiConsumer::Process_vkCmdResetEvent(
 void VulkanAsciiConsumer::Process_vkCmdWaitEvents(
     format::HandleId                            commandBuffer,
     uint32_t                                    eventCount,
-    const PointerDecoder<format::HandleId>&     pEvents,
+    const HandlePointerDecoder<VkEvent>&        pEvents,
     VkPipelineStageFlags                        srcStageMask,
     VkPipelineStageFlags                        dstStageMask,
     uint32_t                                    memoryBarrierCount,
@@ -1236,7 +1236,7 @@ void VulkanAsciiConsumer::Process_vkCmdEndRenderPass(
 void VulkanAsciiConsumer::Process_vkCmdExecuteCommands(
     format::HandleId                            commandBuffer,
     uint32_t                                    commandBufferCount,
-    const PointerDecoder<format::HandleId>&     pCommandBuffers)
+    const HandlePointerDecoder<VkCommandBuffer>& pCommandBuffers)
 {
     fprintf(GetFile(), "%s\n", "vkCmdExecuteCommands");
 }
@@ -1388,7 +1388,7 @@ void VulkanAsciiConsumer::Process_vkTrimCommandPool(
 void VulkanAsciiConsumer::Process_vkGetDeviceQueue2(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDeviceQueueInfo2>& pQueueInfo,
-    const PointerDecoder<format::HandleId>&     pQueue)
+    const HandlePointerDecoder<VkQueue>&        pQueue)
 {
     fprintf(GetFile(), "%s\n", "vkGetDeviceQueue2");
 }
@@ -1398,7 +1398,7 @@ void VulkanAsciiConsumer::Process_vkCreateSamplerYcbcrConversion(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkSamplerYcbcrConversionCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pYcbcrConversion)
+    const HandlePointerDecoder<VkSamplerYcbcrConversion>& pYcbcrConversion)
 {
     fprintf(GetFile(), "%s\n", "vkCreateSamplerYcbcrConversion");
 }
@@ -1416,7 +1416,7 @@ void VulkanAsciiConsumer::Process_vkCreateDescriptorUpdateTemplate(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pDescriptorUpdateTemplate)
+    const HandlePointerDecoder<VkDescriptorUpdateTemplate>& pDescriptorUpdateTemplate)
 {
     fprintf(GetFile(), "%s\n", "vkCreateDescriptorUpdateTemplate");
 }
@@ -1513,7 +1513,7 @@ void VulkanAsciiConsumer::Process_vkCreateSwapchainKHR(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSwapchain)
+    const HandlePointerDecoder<VkSwapchainKHR>& pSwapchain)
 {
     fprintf(GetFile(), "%s\n", "vkCreateSwapchainKHR");
 }
@@ -1531,7 +1531,7 @@ void VulkanAsciiConsumer::Process_vkGetSwapchainImagesKHR(
     format::HandleId                            device,
     format::HandleId                            swapchain,
     const PointerDecoder<uint32_t>&             pSwapchainImageCount,
-    const PointerDecoder<format::HandleId>&     pSwapchainImages)
+    const HandlePointerDecoder<VkImage>&        pSwapchainImages)
 {
     fprintf(GetFile(), "%s\n", "vkGetSwapchainImagesKHR");
 }
@@ -1615,7 +1615,7 @@ void VulkanAsciiConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
     format::HandleId                            physicalDevice,
     uint32_t                                    planeIndex,
     const PointerDecoder<uint32_t>&             pDisplayCount,
-    const PointerDecoder<format::HandleId>&     pDisplays)
+    const HandlePointerDecoder<VkDisplayKHR>&   pDisplays)
 {
     fprintf(GetFile(), "%s\n", "vkGetDisplayPlaneSupportedDisplaysKHR");
 }
@@ -1636,7 +1636,7 @@ void VulkanAsciiConsumer::Process_vkCreateDisplayModeKHR(
     format::HandleId                            display,
     const StructPointerDecoder<Decoded_VkDisplayModeCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pMode)
+    const HandlePointerDecoder<VkDisplayModeKHR>& pMode)
 {
     fprintf(GetFile(), "%s\n", "vkCreateDisplayModeKHR");
 }
@@ -1656,7 +1656,7 @@ void VulkanAsciiConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkDisplaySurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateDisplayPlaneSurfaceKHR");
 }
@@ -1667,7 +1667,7 @@ void VulkanAsciiConsumer::Process_vkCreateSharedSwapchainsKHR(
     uint32_t                                    swapchainCount,
     const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>& pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSwapchains)
+    const HandlePointerDecoder<VkSwapchainKHR>& pSwapchains)
 {
     fprintf(GetFile(), "%s\n", "vkCreateSharedSwapchainsKHR");
 }
@@ -1677,7 +1677,7 @@ void VulkanAsciiConsumer::Process_vkCreateXlibSurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkXlibSurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateXlibSurfaceKHR");
 }
@@ -1697,7 +1697,7 @@ void VulkanAsciiConsumer::Process_vkCreateXcbSurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkXcbSurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateXcbSurfaceKHR");
 }
@@ -1717,7 +1717,7 @@ void VulkanAsciiConsumer::Process_vkCreateWaylandSurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkWaylandSurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateWaylandSurfaceKHR");
 }
@@ -1736,7 +1736,7 @@ void VulkanAsciiConsumer::Process_vkCreateAndroidSurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateAndroidSurfaceKHR");
 }
@@ -1746,7 +1746,7 @@ void VulkanAsciiConsumer::Process_vkCreateWin32SurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkWin32SurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateWin32SurfaceKHR");
 }
@@ -1964,7 +1964,7 @@ void VulkanAsciiConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pDescriptorUpdateTemplate)
+    const HandlePointerDecoder<VkDescriptorUpdateTemplate>& pDescriptorUpdateTemplate)
 {
     fprintf(GetFile(), "%s\n", "vkCreateDescriptorUpdateTemplateKHR");
 }
@@ -1982,7 +1982,7 @@ void VulkanAsciiConsumer::Process_vkCreateRenderPass2KHR(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkRenderPassCreateInfo2KHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pRenderPass)
+    const HandlePointerDecoder<VkRenderPass>&   pRenderPass)
 {
     fprintf(GetFile(), "%s\n", "vkCreateRenderPass2KHR");
 }
@@ -2146,7 +2146,7 @@ void VulkanAsciiConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkSamplerYcbcrConversionCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pYcbcrConversion)
+    const HandlePointerDecoder<VkSamplerYcbcrConversion>& pYcbcrConversion)
 {
     fprintf(GetFile(), "%s\n", "vkCreateSamplerYcbcrConversionKHR");
 }
@@ -2214,7 +2214,7 @@ void VulkanAsciiConsumer::Process_vkCreateDebugReportCallbackEXT(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkDebugReportCallbackCreateInfoEXT>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pCallback)
+    const HandlePointerDecoder<VkDebugReportCallbackEXT>& pCallback)
 {
     fprintf(GetFile(), "%s\n", "vkCreateDebugReportCallbackEXT");
 }
@@ -2280,7 +2280,7 @@ void VulkanAsciiConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
-    const PointerDecoder<format::HandleId>&     pBuffers,
+    const HandlePointerDecoder<VkBuffer>&       pBuffers,
     const PointerDecoder<VkDeviceSize>&         pOffsets,
     const PointerDecoder<VkDeviceSize>&         pSizes)
 {
@@ -2291,7 +2291,7 @@ void VulkanAsciiConsumer::Process_vkCmdBeginTransformFeedbackEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    firstCounterBuffer,
     uint32_t                                    counterBufferCount,
-    const PointerDecoder<format::HandleId>&     pCounterBuffers,
+    const HandlePointerDecoder<VkBuffer>&       pCounterBuffers,
     const PointerDecoder<VkDeviceSize>&         pCounterBufferOffsets)
 {
     fprintf(GetFile(), "%s\n", "vkCmdBeginTransformFeedbackEXT");
@@ -2301,7 +2301,7 @@ void VulkanAsciiConsumer::Process_vkCmdEndTransformFeedbackEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    firstCounterBuffer,
     uint32_t                                    counterBufferCount,
-    const PointerDecoder<format::HandleId>&     pCounterBuffers,
+    const HandlePointerDecoder<VkBuffer>&       pCounterBuffers,
     const PointerDecoder<VkDeviceSize>&         pCounterBufferOffsets)
 {
     fprintf(GetFile(), "%s\n", "vkCmdEndTransformFeedbackEXT");
@@ -2403,7 +2403,7 @@ void VulkanAsciiConsumer::Process_vkCreateViSurfaceNN(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkViSurfaceCreateInfoNN>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateViSurfaceNN");
 }
@@ -2440,7 +2440,7 @@ void VulkanAsciiConsumer::Process_vkCreateIndirectCommandsLayoutNVX(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkIndirectCommandsLayoutCreateInfoNVX>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pIndirectCommandsLayout)
+    const HandlePointerDecoder<VkIndirectCommandsLayoutNVX>& pIndirectCommandsLayout)
 {
     fprintf(GetFile(), "%s\n", "vkCreateIndirectCommandsLayoutNVX");
 }
@@ -2458,7 +2458,7 @@ void VulkanAsciiConsumer::Process_vkCreateObjectTableNVX(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkObjectTableCreateInfoNVX>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pObjectTable)
+    const HandlePointerDecoder<VkObjectTableNVX>& pObjectTable)
 {
     fprintf(GetFile(), "%s\n", "vkCreateObjectTableNVX");
 }
@@ -2521,7 +2521,7 @@ void VulkanAsciiConsumer::Process_vkGetRandROutputDisplayEXT(
     format::HandleId                            physicalDevice,
     uint64_t                                    dpy,
     size_t                                      rrOutput,
-    const PointerDecoder<format::HandleId>&     pDisplay)
+    const HandlePointerDecoder<VkDisplayKHR>&   pDisplay)
 {
     fprintf(GetFile(), "%s\n", "vkGetRandROutputDisplayEXT");
 }
@@ -2549,7 +2549,7 @@ void VulkanAsciiConsumer::Process_vkRegisterDeviceEventEXT(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDeviceEventInfoEXT>& pDeviceEventInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pFence)
+    const HandlePointerDecoder<VkFence>&        pFence)
 {
     fprintf(GetFile(), "%s\n", "vkRegisterDeviceEventEXT");
 }
@@ -2560,7 +2560,7 @@ void VulkanAsciiConsumer::Process_vkRegisterDisplayEventEXT(
     format::HandleId                            display,
     const StructPointerDecoder<Decoded_VkDisplayEventInfoEXT>& pDisplayEventInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pFence)
+    const HandlePointerDecoder<VkFence>&        pFence)
 {
     fprintf(GetFile(), "%s\n", "vkRegisterDisplayEventEXT");
 }
@@ -2606,7 +2606,7 @@ void VulkanAsciiConsumer::Process_vkCmdSetDiscardRectangleEXT(
 void VulkanAsciiConsumer::Process_vkSetHdrMetadataEXT(
     format::HandleId                            device,
     uint32_t                                    swapchainCount,
-    const PointerDecoder<format::HandleId>&     pSwapchains,
+    const HandlePointerDecoder<VkSwapchainKHR>& pSwapchains,
     const StructPointerDecoder<Decoded_VkHdrMetadataEXT>& pMetadata)
 {
     fprintf(GetFile(), "%s\n", "vkSetHdrMetadataEXT");
@@ -2617,7 +2617,7 @@ void VulkanAsciiConsumer::Process_vkCreateIOSSurfaceMVK(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkIOSSurfaceCreateInfoMVK>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateIOSSurfaceMVK");
 }
@@ -2627,7 +2627,7 @@ void VulkanAsciiConsumer::Process_vkCreateMacOSSurfaceMVK(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkMacOSSurfaceCreateInfoMVK>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateMacOSSurfaceMVK");
 }
@@ -2693,7 +2693,7 @@ void VulkanAsciiConsumer::Process_vkCreateDebugUtilsMessengerEXT(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkDebugUtilsMessengerCreateInfoEXT>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pMessenger)
+    const HandlePointerDecoder<VkDebugUtilsMessengerEXT>& pMessenger)
 {
     fprintf(GetFile(), "%s\n", "vkCreateDebugUtilsMessengerEXT");
 }
@@ -2762,7 +2762,7 @@ void VulkanAsciiConsumer::Process_vkCreateValidationCacheEXT(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkValidationCacheCreateInfoEXT>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pValidationCache)
+    const HandlePointerDecoder<VkValidationCacheEXT>& pValidationCache)
 {
     fprintf(GetFile(), "%s\n", "vkCreateValidationCacheEXT");
 }
@@ -2780,7 +2780,7 @@ void VulkanAsciiConsumer::Process_vkMergeValidationCachesEXT(
     format::HandleId                            device,
     format::HandleId                            dstCache,
     uint32_t                                    srcCacheCount,
-    const PointerDecoder<format::HandleId>&     pSrcCaches)
+    const HandlePointerDecoder<VkValidationCacheEXT>& pSrcCaches)
 {
     fprintf(GetFile(), "%s\n", "vkMergeValidationCachesEXT");
 }
@@ -2826,7 +2826,7 @@ void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureNV(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoNV>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pAccelerationStructure)
+    const HandlePointerDecoder<VkAccelerationStructureNV>& pAccelerationStructure)
 {
     fprintf(GetFile(), "%s\n", "vkCreateAccelerationStructureNV");
 }
@@ -2906,7 +2906,7 @@ void VulkanAsciiConsumer::Process_vkCreateRayTracingPipelinesNV(
     uint32_t                                    createInfoCount,
     const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoNV>& pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pPipelines)
+    const HandlePointerDecoder<VkPipeline>&     pPipelines)
 {
     fprintf(GetFile(), "%s\n", "vkCreateRayTracingPipelinesNV");
 }
@@ -2936,7 +2936,7 @@ void VulkanAsciiConsumer::Process_vkGetAccelerationStructureHandleNV(
 void VulkanAsciiConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesNV(
     format::HandleId                            commandBuffer,
     uint32_t                                    accelerationStructureCount,
-    const PointerDecoder<format::HandleId>&     pAccelerationStructures,
+    const HandlePointerDecoder<VkAccelerationStructureNV>& pAccelerationStructures,
     VkQueryType                                 queryType,
     format::HandleId                            queryPool,
     uint32_t                                    firstQuery)
@@ -3052,7 +3052,7 @@ void VulkanAsciiConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateImagePipeSurfaceFUCHSIA");
 }
