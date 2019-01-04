@@ -146,9 +146,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
                     # Handles are a special case that decode as 64-bit integer IDs into a separate allocation.
                     body += '    wrapper->{name}.SetExternalMemory(value->{name}, {arraylen});\n'.format(name=value.name, arraylen=value.arrayCapacity)
 
-                if isStruct:
-                    body += '    bytes_read += wrapper->{}.Decode({});\n'.format(value.name, bufferArgs)
-                elif isString:
+                if isStruct or isString or isHandle:
                     body += '    bytes_read += wrapper->{}.Decode({});\n'.format(value.name, bufferArgs)
                 else:
                     body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(value.name, typeName, bufferArgs)

@@ -24,6 +24,7 @@
 #define  GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_H
 
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/handle_pointer_decoder.h"
 #include "decode/pnext_node.h"
 #include "decode/pointer_decoder.h"
 #include "decode/string_array_decoder.h"
@@ -223,10 +224,10 @@ struct Decoded_VkSubmitInfo
     VkSubmitInfo* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<format::HandleId> pWaitSemaphores;
+    HandlePointerDecoder<VkSemaphore> pWaitSemaphores;
     PointerDecoder<VkPipelineStageFlags> pWaitDstStageMask;
-    PointerDecoder<format::HandleId> pCommandBuffers;
-    PointerDecoder<format::HandleId> pSignalSemaphores;
+    HandlePointerDecoder<VkCommandBuffer> pCommandBuffers;
+    HandlePointerDecoder<VkSemaphore> pSignalSemaphores;
 };
 
 struct Decoded_VkMemoryAllocateInfo
@@ -345,11 +346,11 @@ struct Decoded_VkBindSparseInfo
     VkBindSparseInfo* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<format::HandleId> pWaitSemaphores;
+    HandlePointerDecoder<VkSemaphore> pWaitSemaphores;
     StructPointerDecoder<Decoded_VkSparseBufferMemoryBindInfo> pBufferBinds;
     StructPointerDecoder<Decoded_VkSparseImageOpaqueMemoryBindInfo> pImageOpaqueBinds;
     StructPointerDecoder<Decoded_VkSparseImageMemoryBindInfo> pImageBinds;
-    PointerDecoder<format::HandleId> pSignalSemaphores;
+    HandlePointerDecoder<VkSemaphore> pSignalSemaphores;
 };
 
 struct Decoded_VkFenceCreateInfo
@@ -699,7 +700,7 @@ struct Decoded_VkPipelineLayoutCreateInfo
     VkPipelineLayoutCreateInfo* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<format::HandleId> pSetLayouts;
+    HandlePointerDecoder<VkDescriptorSetLayout> pSetLayouts;
     StructPointerDecoder<Decoded_VkPushConstantRange> pPushConstantRanges;
 };
 
@@ -718,7 +719,7 @@ struct Decoded_VkDescriptorSetLayoutBinding
 
     VkDescriptorSetLayoutBinding* value{ nullptr };
 
-    PointerDecoder<format::HandleId> pImmutableSamplers;
+    HandlePointerDecoder<VkSampler> pImmutableSamplers;
 };
 
 struct Decoded_VkDescriptorSetLayoutCreateInfo
@@ -756,7 +757,7 @@ struct Decoded_VkDescriptorSetAllocateInfo
 
     std::unique_ptr<PNextNode> pNext;
     format::HandleId descriptorPool;
-    PointerDecoder<format::HandleId> pSetLayouts;
+    HandlePointerDecoder<VkDescriptorSetLayout> pSetLayouts;
 };
 
 struct Decoded_VkDescriptorImageInfo
@@ -788,7 +789,7 @@ struct Decoded_VkWriteDescriptorSet
     format::HandleId dstSet;
     StructPointerDecoder<Decoded_VkDescriptorImageInfo> pImageInfo;
     StructPointerDecoder<Decoded_VkDescriptorBufferInfo> pBufferInfo;
-    PointerDecoder<format::HandleId> pTexelBufferView;
+    HandlePointerDecoder<VkBufferView> pTexelBufferView;
 };
 
 struct Decoded_VkCopyDescriptorSet
@@ -810,7 +811,7 @@ struct Decoded_VkFramebufferCreateInfo
 
     std::unique_ptr<PNextNode> pNext;
     format::HandleId renderPass;
-    PointerDecoder<format::HandleId> pAttachments;
+    HandlePointerDecoder<VkImageView> pAttachments;
 };
 
 struct Decoded_VkAttachmentDescription
@@ -1188,7 +1189,7 @@ struct Decoded_VkPhysicalDeviceGroupProperties
     VkPhysicalDeviceGroupProperties* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<format::HandleId> physicalDevices;
+    HandlePointerDecoder<VkPhysicalDevice> physicalDevices;
 };
 
 struct Decoded_VkDeviceGroupDeviceCreateInfo
@@ -1198,7 +1199,7 @@ struct Decoded_VkDeviceGroupDeviceCreateInfo
     VkDeviceGroupDeviceCreateInfo* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<format::HandleId> pPhysicalDevices;
+    HandlePointerDecoder<VkPhysicalDevice> pPhysicalDevices;
 };
 
 struct Decoded_VkBufferMemoryRequirementsInfo2
@@ -1738,8 +1739,8 @@ struct Decoded_VkPresentInfoKHR
     VkPresentInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<format::HandleId> pWaitSemaphores;
-    PointerDecoder<format::HandleId> pSwapchains;
+    HandlePointerDecoder<VkSemaphore> pWaitSemaphores;
+    HandlePointerDecoder<VkSwapchainKHR> pSwapchains;
     PointerDecoder<uint32_t> pImageIndices;
     PointerDecoder<VkResult> pResults;
 };
@@ -2081,10 +2082,10 @@ struct Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR
     VkWin32KeyedMutexAcquireReleaseInfoKHR* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<format::HandleId> pAcquireSyncs;
+    HandlePointerDecoder<VkDeviceMemory> pAcquireSyncs;
     PointerDecoder<uint64_t> pAcquireKeys;
     PointerDecoder<uint32_t> pAcquireTimeouts;
-    PointerDecoder<format::HandleId> pReleaseSyncs;
+    HandlePointerDecoder<VkDeviceMemory> pReleaseSyncs;
     PointerDecoder<uint64_t> pReleaseKeys;
 };
 
@@ -2755,10 +2756,10 @@ struct Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV
     VkWin32KeyedMutexAcquireReleaseInfoNV* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<format::HandleId> pAcquireSyncs;
+    HandlePointerDecoder<VkDeviceMemory> pAcquireSyncs;
     PointerDecoder<uint64_t> pAcquireKeys;
     PointerDecoder<uint32_t> pAcquireTimeoutMilliseconds;
-    PointerDecoder<format::HandleId> pReleaseSyncs;
+    HandlePointerDecoder<VkDeviceMemory> pReleaseSyncs;
     PointerDecoder<uint64_t> pReleaseKeys;
 };
 
@@ -3737,7 +3738,7 @@ struct Decoded_VkWriteDescriptorSetAccelerationStructureNV
     VkWriteDescriptorSetAccelerationStructureNV* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<format::HandleId> pAccelerationStructures;
+    HandlePointerDecoder<VkAccelerationStructureNV> pAccelerationStructures;
 };
 
 struct Decoded_VkAccelerationStructureMemoryRequirementsInfoNV

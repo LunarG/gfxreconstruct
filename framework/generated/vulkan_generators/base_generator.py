@@ -626,7 +626,7 @@ class BaseGenerator(OutputGenerator):
                     # If this was a pointer to an unknown object (void*), it was encoded as a 64-bit address value.
                     typeName = 'uint64_t'
             elif self.isHandle(typeName):
-                typeName = 'PointerDecoder<format::HandleId>'
+                typeName = 'HandlePointerDecoder<{}>'.format(typeName)
             else:
                 typeName = 'PointerDecoder<{}>'.format(typeName)
         elif self.isFunctionPtr(typeName):

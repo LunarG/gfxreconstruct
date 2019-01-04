@@ -32,7 +32,7 @@ void VulkanReplayConsumer::Process_vkCreateInstance(
     VkResult                                    returnValue,
     const StructPointerDecoder<Decoded_VkInstanceCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pInstance)
+    const HandlePointerDecoder<VkInstance>&     pInstance)
 {
     const VkInstanceCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
@@ -59,7 +59,7 @@ void VulkanReplayConsumer::Process_vkEnumeratePhysicalDevices(
     VkResult                                    returnValue,
     format::HandleId                            instance,
     const PointerDecoder<uint32_t>&             pPhysicalDeviceCount,
-    const PointerDecoder<format::HandleId>&     pPhysicalDevices)
+    const HandlePointerDecoder<VkPhysicalDevice>& pPhysicalDevices)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     uint32_t out_pPhysicalDeviceCount_value = pPhysicalDeviceCount.IsNull() ? static_cast<uint32_t>(0) : *(pPhysicalDeviceCount.GetPointer());
@@ -156,7 +156,7 @@ void VulkanReplayConsumer::Process_vkCreateDevice(
     format::HandleId                            physicalDevice,
     const StructPointerDecoder<Decoded_VkDeviceCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pDevice)
+    const HandlePointerDecoder<VkDevice>&       pDevice)
 {
     VkPhysicalDevice in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     const VkDeviceCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -184,7 +184,7 @@ void VulkanReplayConsumer::Process_vkGetDeviceQueue(
     format::HandleId                            device,
     uint32_t                                    queueFamilyIndex,
     uint32_t                                    queueIndex,
-    const PointerDecoder<format::HandleId>&     pQueue)
+    const HandlePointerDecoder<VkQueue>&        pQueue)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkQueue out_pQueue_value = static_cast<VkQueue>(0);
@@ -265,7 +265,7 @@ void VulkanReplayConsumer::Process_vkAllocateMemory(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pMemory)
+    const HandlePointerDecoder<VkDeviceMemory>& pMemory)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkMemoryAllocateInfo* in_pAllocateInfo = pAllocateInfo.GetPointer();
@@ -596,7 +596,7 @@ void VulkanReplayConsumer::Process_vkCreateFence(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkFenceCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pFence)
+    const HandlePointerDecoder<VkFence>&        pFence)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkFenceCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -626,7 +626,7 @@ void VulkanReplayConsumer::Process_vkResetFences(
     VkResult                                    returnValue,
     format::HandleId                            device,
     uint32_t                                    fenceCount,
-    const PointerDecoder<format::HandleId>&     pFences)
+    const HandlePointerDecoder<VkFence>&        pFences)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkFence* in_pFences = pFences.IsNull() ? nullptr : AllocateArray<VkFence>(fenceCount);
@@ -654,7 +654,7 @@ void VulkanReplayConsumer::Process_vkWaitForFences(
     VkResult                                    returnValue,
     format::HandleId                            device,
     uint32_t                                    fenceCount,
-    const PointerDecoder<format::HandleId>&     pFences,
+    const HandlePointerDecoder<VkFence>&        pFences,
     VkBool32                                    waitAll,
     uint64_t                                    timeout)
 {
@@ -673,7 +673,7 @@ void VulkanReplayConsumer::Process_vkCreateSemaphore(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkSemaphoreCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSemaphore)
+    const HandlePointerDecoder<VkSemaphore>&    pSemaphore)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkSemaphoreCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -704,7 +704,7 @@ void VulkanReplayConsumer::Process_vkCreateEvent(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkEventCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pEvent)
+    const HandlePointerDecoder<VkEvent>&        pEvent)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkEventCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -771,7 +771,7 @@ void VulkanReplayConsumer::Process_vkCreateQueryPool(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkQueryPoolCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pQueryPool)
+    const HandlePointerDecoder<VkQueryPool>&    pQueryPool)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkQueryPoolCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -823,7 +823,7 @@ void VulkanReplayConsumer::Process_vkCreateBuffer(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkBufferCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pBuffer)
+    const HandlePointerDecoder<VkBuffer>&       pBuffer)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkBufferCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -854,7 +854,7 @@ void VulkanReplayConsumer::Process_vkCreateBufferView(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkBufferViewCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pView)
+    const HandlePointerDecoder<VkBufferView>&   pView)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkBufferViewCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -890,7 +890,7 @@ void VulkanReplayConsumer::Process_vkCreateImage(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkImageCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pImage)
+    const HandlePointerDecoder<VkImage>&        pImage)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkImageCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -936,7 +936,7 @@ void VulkanReplayConsumer::Process_vkCreateImageView(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkImageViewCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pView)
+    const HandlePointerDecoder<VkImageView>&    pView)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkImageViewCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -972,7 +972,7 @@ void VulkanReplayConsumer::Process_vkCreateShaderModule(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pShaderModule)
+    const HandlePointerDecoder<VkShaderModule>& pShaderModule)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkShaderModuleCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -1003,7 +1003,7 @@ void VulkanReplayConsumer::Process_vkCreatePipelineCache(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pPipelineCache)
+    const HandlePointerDecoder<VkPipelineCache>& pPipelineCache)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkPipelineCacheCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -1053,7 +1053,7 @@ void VulkanReplayConsumer::Process_vkMergePipelineCaches(
     format::HandleId                            device,
     format::HandleId                            dstCache,
     uint32_t                                    srcCacheCount,
-    const PointerDecoder<format::HandleId>&     pSrcCaches)
+    const HandlePointerDecoder<VkPipelineCache>& pSrcCaches)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkPipelineCache in_dstCache = GetObjectMapper().MapVkPipelineCache(dstCache);
@@ -1073,7 +1073,7 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     uint32_t                                    createInfoCount,
     const StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>& pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pPipelines)
+    const HandlePointerDecoder<VkPipeline>&     pPipelines)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkPipelineCache in_pipelineCache = GetObjectMapper().MapVkPipelineCache(pipelineCache);
@@ -1122,7 +1122,7 @@ void VulkanReplayConsumer::Process_vkCreateComputePipelines(
     uint32_t                                    createInfoCount,
     const StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>& pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pPipelines)
+    const HandlePointerDecoder<VkPipeline>&     pPipelines)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkPipelineCache in_pipelineCache = GetObjectMapper().MapVkPipelineCache(pipelineCache);
@@ -1168,7 +1168,7 @@ void VulkanReplayConsumer::Process_vkCreatePipelineLayout(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkPipelineLayoutCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pPipelineLayout)
+    const HandlePointerDecoder<VkPipelineLayout>& pPipelineLayout)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkPipelineLayoutCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -1210,7 +1210,7 @@ void VulkanReplayConsumer::Process_vkCreateSampler(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkSamplerCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSampler)
+    const HandlePointerDecoder<VkSampler>&      pSampler)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkSamplerCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -1241,7 +1241,7 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorSetLayout(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSetLayout)
+    const HandlePointerDecoder<VkDescriptorSetLayout>& pSetLayout)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkDescriptorSetLayoutCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -1300,7 +1300,7 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorPool(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDescriptorPoolCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pDescriptorPool)
+    const HandlePointerDecoder<VkDescriptorPool>& pDescriptorPool)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkDescriptorPoolCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -1343,7 +1343,7 @@ void VulkanReplayConsumer::Process_vkAllocateDescriptorSets(
     VkResult                                    returnValue,
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>& pAllocateInfo,
-    const PointerDecoder<format::HandleId>&     pDescriptorSets)
+    const HandlePointerDecoder<VkDescriptorSet>& pDescriptorSets)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkDescriptorSetAllocateInfo* in_pAllocateInfo = pAllocateInfo.GetPointer();
@@ -1374,7 +1374,7 @@ void VulkanReplayConsumer::Process_vkFreeDescriptorSets(
     format::HandleId                            device,
     format::HandleId                            descriptorPool,
     uint32_t                                    descriptorSetCount,
-    const PointerDecoder<format::HandleId>&     pDescriptorSets)
+    const HandlePointerDecoder<VkDescriptorSet>& pDescriptorSets)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkDescriptorPool in_descriptorPool = GetObjectMapper().MapVkDescriptorPool(descriptorPool);
@@ -1468,7 +1468,7 @@ void VulkanReplayConsumer::Process_vkCreateFramebuffer(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkFramebufferCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pFramebuffer)
+    const HandlePointerDecoder<VkFramebuffer>&  pFramebuffer)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkFramebufferCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -1512,7 +1512,7 @@ void VulkanReplayConsumer::Process_vkCreateRenderPass(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkRenderPassCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pRenderPass)
+    const HandlePointerDecoder<VkRenderPass>&   pRenderPass)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkRenderPassCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -1556,7 +1556,7 @@ void VulkanReplayConsumer::Process_vkCreateCommandPool(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkCommandPoolCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pCommandPool)
+    const HandlePointerDecoder<VkCommandPool>&  pCommandPool)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkCommandPoolCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -1599,7 +1599,7 @@ void VulkanReplayConsumer::Process_vkAllocateCommandBuffers(
     VkResult                                    returnValue,
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>& pAllocateInfo,
-    const PointerDecoder<format::HandleId>&     pCommandBuffers)
+    const HandlePointerDecoder<VkCommandBuffer>& pCommandBuffers)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkCommandBufferAllocateInfo* in_pAllocateInfo = pAllocateInfo.GetPointer();
@@ -1621,7 +1621,7 @@ void VulkanReplayConsumer::Process_vkFreeCommandBuffers(
     format::HandleId                            device,
     format::HandleId                            commandPool,
     uint32_t                                    commandBufferCount,
-    const PointerDecoder<format::HandleId>&     pCommandBuffers)
+    const HandlePointerDecoder<VkCommandBuffer>& pCommandBuffers)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkCommandPool in_commandPool = GetObjectMapper().MapVkCommandPool(commandPool);
@@ -1790,7 +1790,7 @@ void VulkanReplayConsumer::Process_vkCmdBindDescriptorSets(
     format::HandleId                            layout,
     uint32_t                                    firstSet,
     uint32_t                                    descriptorSetCount,
-    const PointerDecoder<format::HandleId>&     pDescriptorSets,
+    const HandlePointerDecoder<VkDescriptorSet>& pDescriptorSets,
     uint32_t                                    dynamicOffsetCount,
     const PointerDecoder<uint32_t>&             pDynamicOffsets)
 {
@@ -1821,7 +1821,7 @@ void VulkanReplayConsumer::Process_vkCmdBindVertexBuffers(
     format::HandleId                            commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
-    const PointerDecoder<format::HandleId>&     pBuffers,
+    const HandlePointerDecoder<VkBuffer>&       pBuffers,
     const PointerDecoder<VkDeviceSize>&         pOffsets)
 {
     VkCommandBuffer in_commandBuffer = GetObjectMapper().MapVkCommandBuffer(commandBuffer);
@@ -2104,7 +2104,7 @@ void VulkanReplayConsumer::Process_vkCmdResetEvent(
 void VulkanReplayConsumer::Process_vkCmdWaitEvents(
     format::HandleId                            commandBuffer,
     uint32_t                                    eventCount,
-    const PointerDecoder<format::HandleId>&     pEvents,
+    const HandlePointerDecoder<VkEvent>&        pEvents,
     VkPipelineStageFlags                        srcStageMask,
     VkPipelineStageFlags                        dstStageMask,
     uint32_t                                    memoryBarrierCount,
@@ -2303,7 +2303,7 @@ void VulkanReplayConsumer::Process_vkCmdEndRenderPass(
 void VulkanReplayConsumer::Process_vkCmdExecuteCommands(
     format::HandleId                            commandBuffer,
     uint32_t                                    commandBufferCount,
-    const PointerDecoder<format::HandleId>&     pCommandBuffers)
+    const HandlePointerDecoder<VkCommandBuffer>& pCommandBuffers)
 {
     VkCommandBuffer in_commandBuffer = GetObjectMapper().MapVkCommandBuffer(commandBuffer);
     VkCommandBuffer* in_pCommandBuffers = pCommandBuffers.IsNull() ? nullptr : AllocateArray<VkCommandBuffer>(commandBufferCount);
@@ -2582,7 +2582,7 @@ void VulkanReplayConsumer::Process_vkTrimCommandPool(
 void VulkanReplayConsumer::Process_vkGetDeviceQueue2(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDeviceQueueInfo2>& pQueueInfo,
-    const PointerDecoder<format::HandleId>&     pQueue)
+    const HandlePointerDecoder<VkQueue>&        pQueue)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkDeviceQueueInfo2* in_pQueueInfo = pQueueInfo.GetPointer();
@@ -2599,7 +2599,7 @@ void VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversion(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkSamplerYcbcrConversionCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pYcbcrConversion)
+    const HandlePointerDecoder<VkSamplerYcbcrConversion>& pYcbcrConversion)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkSamplerYcbcrConversionCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -2630,7 +2630,7 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplate(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pDescriptorUpdateTemplate)
+    const HandlePointerDecoder<VkDescriptorUpdateTemplate>& pDescriptorUpdateTemplate)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkDescriptorUpdateTemplateCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -2830,7 +2830,7 @@ void VulkanReplayConsumer::Process_vkCreateSwapchainKHR(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSwapchain)
+    const HandlePointerDecoder<VkSwapchainKHR>& pSwapchain)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkSwapchainCreateInfoKHR* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -2868,7 +2868,7 @@ void VulkanReplayConsumer::Process_vkGetSwapchainImagesKHR(
     format::HandleId                            device,
     format::HandleId                            swapchain,
     const PointerDecoder<uint32_t>&             pSwapchainImageCount,
-    const PointerDecoder<format::HandleId>&     pSwapchainImages)
+    const HandlePointerDecoder<VkImage>&        pSwapchainImages)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkSwapchainKHR in_swapchain = GetObjectMapper().MapVkSwapchainKHR(swapchain);
@@ -3042,7 +3042,7 @@ void VulkanReplayConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
     format::HandleId                            physicalDevice,
     uint32_t                                    planeIndex,
     const PointerDecoder<uint32_t>&             pDisplayCount,
-    const PointerDecoder<format::HandleId>&     pDisplays)
+    const HandlePointerDecoder<VkDisplayKHR>&   pDisplays)
 {
     VkPhysicalDevice in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     uint32_t out_pDisplayCount_value = pDisplayCount.IsNull() ? static_cast<uint32_t>(0) : *(pDisplayCount.GetPointer());
@@ -3081,7 +3081,7 @@ void VulkanReplayConsumer::Process_vkCreateDisplayModeKHR(
     format::HandleId                            display,
     const StructPointerDecoder<Decoded_VkDisplayModeCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pMode)
+    const HandlePointerDecoder<VkDisplayModeKHR>& pMode)
 {
     VkPhysicalDevice in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     VkDisplayKHR in_display = GetObjectMapper().MapVkDisplayKHR(display);
@@ -3117,7 +3117,7 @@ void VulkanReplayConsumer::Process_vkCreateDisplayPlaneSurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkDisplaySurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     VkDisplaySurfaceCreateInfoKHR* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -3142,7 +3142,7 @@ void VulkanReplayConsumer::Process_vkCreateSharedSwapchainsKHR(
     uint32_t                                    swapchainCount,
     const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>& pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSwapchains)
+    const HandlePointerDecoder<VkSwapchainKHR>& pSwapchains)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkSwapchainCreateInfoKHR* in_pCreateInfos = pCreateInfos.GetPointer();
@@ -3173,7 +3173,7 @@ void VulkanReplayConsumer::Process_vkCreateXlibSurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkXlibSurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkXlibSurfaceCreateInfoKHR* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -3205,7 +3205,7 @@ void VulkanReplayConsumer::Process_vkCreateXcbSurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkXcbSurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkXcbSurfaceCreateInfoKHR* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -3237,7 +3237,7 @@ void VulkanReplayConsumer::Process_vkCreateWaylandSurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkWaylandSurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkWaylandSurfaceCreateInfoKHR* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -3268,7 +3268,7 @@ void VulkanReplayConsumer::Process_vkCreateAndroidSurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkAndroidSurfaceCreateInfoKHR* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -3287,7 +3287,7 @@ void VulkanReplayConsumer::Process_vkCreateWin32SurfaceKHR(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkWin32SurfaceCreateInfoKHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkWin32SurfaceCreateInfoKHR* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -3713,7 +3713,7 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pDescriptorUpdateTemplate)
+    const HandlePointerDecoder<VkDescriptorUpdateTemplate>& pDescriptorUpdateTemplate)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkDescriptorUpdateTemplateCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -3751,7 +3751,7 @@ void VulkanReplayConsumer::Process_vkCreateRenderPass2KHR(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkRenderPassCreateInfo2KHR>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pRenderPass)
+    const HandlePointerDecoder<VkRenderPass>&   pRenderPass)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkRenderPassCreateInfo2KHR* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -4087,7 +4087,7 @@ void VulkanReplayConsumer::Process_vkCreateSamplerYcbcrConversionKHR(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkSamplerYcbcrConversionCreateInfo>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pYcbcrConversion)
+    const HandlePointerDecoder<VkSamplerYcbcrConversion>& pYcbcrConversion)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkSamplerYcbcrConversionCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -4242,7 +4242,7 @@ void VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkDebugReportCallbackCreateInfoEXT>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pCallback)
+    const HandlePointerDecoder<VkDebugReportCallbackEXT>& pCallback)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkDebugReportCallbackCreateInfoEXT* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -4341,7 +4341,7 @@ void VulkanReplayConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    firstBinding,
     uint32_t                                    bindingCount,
-    const PointerDecoder<format::HandleId>&     pBuffers,
+    const HandlePointerDecoder<VkBuffer>&       pBuffers,
     const PointerDecoder<VkDeviceSize>&         pOffsets,
     const PointerDecoder<VkDeviceSize>&         pSizes)
 {
@@ -4360,7 +4360,7 @@ void VulkanReplayConsumer::Process_vkCmdBeginTransformFeedbackEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    firstCounterBuffer,
     uint32_t                                    counterBufferCount,
-    const PointerDecoder<format::HandleId>&     pCounterBuffers,
+    const HandlePointerDecoder<VkBuffer>&       pCounterBuffers,
     const PointerDecoder<VkDeviceSize>&         pCounterBufferOffsets)
 {
     VkCommandBuffer in_commandBuffer = GetObjectMapper().MapVkCommandBuffer(commandBuffer);
@@ -4377,7 +4377,7 @@ void VulkanReplayConsumer::Process_vkCmdEndTransformFeedbackEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    firstCounterBuffer,
     uint32_t                                    counterBufferCount,
-    const PointerDecoder<format::HandleId>&     pCounterBuffers,
+    const HandlePointerDecoder<VkBuffer>&       pCounterBuffers,
     const PointerDecoder<VkDeviceSize>&         pCounterBufferOffsets)
 {
     VkCommandBuffer in_commandBuffer = GetObjectMapper().MapVkCommandBuffer(commandBuffer);
@@ -4525,7 +4525,7 @@ void VulkanReplayConsumer::Process_vkCreateViSurfaceNN(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkViSurfaceCreateInfoNN>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkViSurfaceCreateInfoNN* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -4620,7 +4620,7 @@ void VulkanReplayConsumer::Process_vkCreateIndirectCommandsLayoutNVX(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkIndirectCommandsLayoutCreateInfoNVX>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pIndirectCommandsLayout)
+    const HandlePointerDecoder<VkIndirectCommandsLayoutNVX>& pIndirectCommandsLayout)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkIndirectCommandsLayoutCreateInfoNVX* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -4651,7 +4651,7 @@ void VulkanReplayConsumer::Process_vkCreateObjectTableNVX(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkObjectTableCreateInfoNVX>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pObjectTable)
+    const HandlePointerDecoder<VkObjectTableNVX>& pObjectTable)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkObjectTableCreateInfoNVX* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -4751,7 +4751,7 @@ void VulkanReplayConsumer::Process_vkGetRandROutputDisplayEXT(
     format::HandleId                            physicalDevice,
     uint64_t                                    dpy,
     size_t                                      rrOutput,
-    const PointerDecoder<format::HandleId>&     pDisplay)
+    const HandlePointerDecoder<VkDisplayKHR>&   pDisplay)
 {
     VkPhysicalDevice in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     Display* in_dpy = static_cast<Display*>(PreProcessExternalObject(dpy, format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT, "vkGetRandROutputDisplayEXT"));
@@ -4798,7 +4798,7 @@ void VulkanReplayConsumer::Process_vkRegisterDeviceEventEXT(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkDeviceEventInfoEXT>& pDeviceEventInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pFence)
+    const HandlePointerDecoder<VkFence>&        pFence)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkDeviceEventInfoEXT* in_pDeviceEventInfo = pDeviceEventInfo.GetPointer();
@@ -4818,7 +4818,7 @@ void VulkanReplayConsumer::Process_vkRegisterDisplayEventEXT(
     format::HandleId                            display,
     const StructPointerDecoder<Decoded_VkDisplayEventInfoEXT>& pDisplayEventInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pFence)
+    const HandlePointerDecoder<VkFence>&        pFence)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkDisplayKHR in_display = GetObjectMapper().MapVkDisplayKHR(display);
@@ -4898,7 +4898,7 @@ void VulkanReplayConsumer::Process_vkCmdSetDiscardRectangleEXT(
 void VulkanReplayConsumer::Process_vkSetHdrMetadataEXT(
     format::HandleId                            device,
     uint32_t                                    swapchainCount,
-    const PointerDecoder<format::HandleId>&     pSwapchains,
+    const HandlePointerDecoder<VkSwapchainKHR>& pSwapchains,
     const StructPointerDecoder<Decoded_VkHdrMetadataEXT>& pMetadata)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
@@ -4916,7 +4916,7 @@ void VulkanReplayConsumer::Process_vkCreateIOSSurfaceMVK(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkIOSSurfaceCreateInfoMVK>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkIOSSurfaceCreateInfoMVK* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -4935,7 +4935,7 @@ void VulkanReplayConsumer::Process_vkCreateMacOSSurfaceMVK(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkMacOSSurfaceCreateInfoMVK>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkMacOSSurfaceCreateInfoMVK* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -5034,7 +5034,7 @@ void VulkanReplayConsumer::Process_vkCreateDebugUtilsMessengerEXT(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkDebugUtilsMessengerCreateInfoEXT>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pMessenger)
+    const HandlePointerDecoder<VkDebugUtilsMessengerEXT>& pMessenger)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkDebugUtilsMessengerCreateInfoEXT* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -5151,7 +5151,7 @@ void VulkanReplayConsumer::Process_vkCreateValidationCacheEXT(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkValidationCacheCreateInfoEXT>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pValidationCache)
+    const HandlePointerDecoder<VkValidationCacheEXT>& pValidationCache)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     const VkValidationCacheCreateInfoEXT* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -5182,7 +5182,7 @@ void VulkanReplayConsumer::Process_vkMergeValidationCachesEXT(
     format::HandleId                            device,
     format::HandleId                            dstCache,
     uint32_t                                    srcCacheCount,
-    const PointerDecoder<format::HandleId>&     pSrcCaches)
+    const HandlePointerDecoder<VkValidationCacheEXT>& pSrcCaches)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkValidationCacheEXT in_dstCache = GetObjectMapper().MapVkValidationCacheEXT(dstCache);
@@ -5254,7 +5254,7 @@ void VulkanReplayConsumer::Process_vkCreateAccelerationStructureNV(
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoNV>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pAccelerationStructure)
+    const HandlePointerDecoder<VkAccelerationStructureNV>& pAccelerationStructure)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkAccelerationStructureCreateInfoNV* in_pCreateInfo = pCreateInfo.GetPointer();
@@ -5428,7 +5428,7 @@ void VulkanReplayConsumer::Process_vkCreateRayTracingPipelinesNV(
     uint32_t                                    createInfoCount,
     const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoNV>& pCreateInfos,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pPipelines)
+    const HandlePointerDecoder<VkPipeline>&     pPipelines)
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkPipelineCache in_pipelineCache = GetObjectMapper().MapVkPipelineCache(pipelineCache);
@@ -5507,7 +5507,7 @@ void VulkanReplayConsumer::Process_vkGetAccelerationStructureHandleNV(
 void VulkanReplayConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesNV(
     format::HandleId                            commandBuffer,
     uint32_t                                    accelerationStructureCount,
-    const PointerDecoder<format::HandleId>&     pAccelerationStructures,
+    const HandlePointerDecoder<VkAccelerationStructureNV>& pAccelerationStructures,
     VkQueryType                                 queryType,
     format::HandleId                            queryPool,
     uint32_t                                    firstQuery)
@@ -5682,7 +5682,7 @@ void VulkanReplayConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     format::HandleId                            instance,
     const StructPointerDecoder<Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA>& pCreateInfo,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-    const PointerDecoder<format::HandleId>&     pSurface)
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
     const VkImagePipeSurfaceCreateInfoFUCHSIA* in_pCreateInfo = pCreateInfo.GetPointer();
