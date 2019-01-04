@@ -34,7 +34,7 @@ class PNextTypedNode : public PNextNode
   public:
     PNextTypedNode() {}
 
-    ~PNextTypedNode() {}
+    virtual ~PNextTypedNode() override {}
 
     virtual uint32_t GetAttributeMask() const override { return struct_pointer_.GetAttributeMask(); }
 

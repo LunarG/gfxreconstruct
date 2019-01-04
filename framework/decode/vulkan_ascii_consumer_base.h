@@ -35,7 +35,7 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
   public:
     VulkanAsciiConsumerBase();
 
-    virtual ~VulkanAsciiConsumerBase();
+    virtual ~VulkanAsciiConsumerBase() override;
 
     bool Initialize(const std::string& filename);
 

@@ -39,7 +39,7 @@ class WaylandWindow : public decode::Window
   public:
     WaylandWindow(WaylandApplication* application);
 
-    virtual ~WaylandWindow();
+    virtual ~WaylandWindow() override;
 
     struct wl_surface* GetSurface() const { return surface_; }
 

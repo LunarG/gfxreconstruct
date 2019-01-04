@@ -30,7 +30,7 @@ class PointerDecoderBase
   public:
     PointerDecoderBase() : len_(0), address_(0), attrib_(format::PointerAttributes::kIsNull) {}
 
-    ~PointerDecoderBase() {}
+    virtual ~PointerDecoderBase() {}
 
     bool IsNull() const
     {

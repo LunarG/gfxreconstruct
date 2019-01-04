@@ -35,7 +35,7 @@ class FileOutputStream : public OutputStream
 
     FileOutputStream(FILE* file, bool owned = false);
 
-    virtual ~FileOutputStream();
+    virtual ~FileOutputStream() override;
 
     virtual bool IsValid() override { return (file_ != nullptr); }
 

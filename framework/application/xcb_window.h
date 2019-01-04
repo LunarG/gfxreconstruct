@@ -39,7 +39,7 @@ class XcbWindow : public decode::Window
   public:
     XcbWindow(XcbApplication* application);
 
-    virtual ~XcbWindow();
+    virtual ~XcbWindow() override;
 
     xcb_window_t GetWindowId() const { return window_; }
 

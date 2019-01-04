@@ -39,7 +39,7 @@ class StructPointerDecoder : public PointerDecoderBase
         decoded_structs_(nullptr), struct_memory_(nullptr), capacity_(0), is_memory_external_(false)
     {}
 
-    ~StructPointerDecoder()
+    virtual ~StructPointerDecoder() override
     {
         if ((struct_memory_ != nullptr) && !is_memory_external_)
         {

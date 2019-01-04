@@ -76,7 +76,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
             write('    {className}({}) : {className}Base({}) {{ }}\n'.format(genOpts.constructorArgs, argList, className=genOpts.className), file=self.outFile)
         else:
             write('    {}() {{ }}\n'.format(genOpts.className), file=self.outFile)
-        write('    virtual ~{}() {{ }}'.format(genOpts.className), file=self.outFile)
+        write('    virtual ~{}() override {{ }}'.format(genOpts.className), file=self.outFile)
 
     # Method override
     def endFile(self):

@@ -42,7 +42,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
   public:
     VulkanReplayConsumerBase(WindowFactory* window_factory);
 
-    virtual ~VulkanReplayConsumerBase();
+    virtual ~VulkanReplayConsumerBase() override;
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
 

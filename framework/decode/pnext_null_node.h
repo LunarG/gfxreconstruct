@@ -33,7 +33,7 @@ class PNextNullNode : public PNextNode
   public:
     PNextNullNode() {}
 
-    virtual ~PNextNullNode() {}
+    virtual ~PNextNullNode() override {}
 
     virtual uint32_t GetAttributeMask() const
     {

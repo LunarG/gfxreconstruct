@@ -28,7 +28,7 @@ class ZlibCompressor : public Compressor
   public:
     ZlibCompressor() {}
 
-    virtual ~ZlibCompressor() {}
+    virtual ~ZlibCompressor() override {}
 
     virtual size_t Compress(const size_t          uncompressed_size,
                             const uint8_t*        uncompressed_data,

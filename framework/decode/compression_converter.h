@@ -34,7 +34,7 @@ class CompressionConverter : public ApiDecoder
   public:
     CompressionConverter();
 
-    virtual ~CompressionConverter();
+    virtual ~CompressionConverter() override;
 
     bool Initialize(std::string                                filename,
                     const format::FileHeader&                  file_header,

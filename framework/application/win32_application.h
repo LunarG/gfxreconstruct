@@ -30,7 +30,7 @@ class Win32Application : public Application
   public:
     Win32Application(const std::string& name, bool dpi_aware = true);
 
-    virtual ~Win32Application() {}
+    virtual ~Win32Application() override {}
 
     virtual bool Initialize(decode::FileProcessor* file_processor) override;
 

@@ -35,7 +35,7 @@ class PointerDecoder : public PointerDecoderBase
   public:
     PointerDecoder() : data_(nullptr), capacity_(0), is_memory_external_(false) {}
 
-    ~PointerDecoder()
+    virtual ~PointerDecoder() override
     {
         if ((data_ != nullptr) && !is_memory_external_)
             delete[] data_;

@@ -36,7 +36,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
   public:
     VulkanReplayConsumer(WindowFactory* window_factory) : VulkanReplayConsumerBase(window_factory) { }
 
-    virtual ~VulkanReplayConsumer() { }
+    virtual ~VulkanReplayConsumer() override { }
 
     virtual void Process_vkCreateInstance(
         VkResult                                    returnValue,
