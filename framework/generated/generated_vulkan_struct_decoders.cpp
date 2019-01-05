@@ -517,15 +517,15 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSubmit
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->waitSemaphoreCount));
     bytes_read += wrapper->pWaitSemaphores.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pWaitSemaphores = nullptr;
+    value->pWaitSemaphores = wrapper->pWaitSemaphores.GetHandlePointer();
     bytes_read += wrapper->pWaitDstStageMask.DecodeFlags((buffer + bytes_read), (buffer_size - bytes_read));
     value->pWaitDstStageMask = wrapper->pWaitDstStageMask.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->commandBufferCount));
     bytes_read += wrapper->pCommandBuffers.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pCommandBuffers = nullptr;
+    value->pCommandBuffers = wrapper->pCommandBuffers.GetHandlePointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->signalSemaphoreCount));
     bytes_read += wrapper->pSignalSemaphores.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSignalSemaphores = nullptr;
+    value->pSignalSemaphores = wrapper->pSignalSemaphores.GetHandlePointer();
 
     return bytes_read;
 }
@@ -736,7 +736,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBindSp
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->waitSemaphoreCount));
     bytes_read += wrapper->pWaitSemaphores.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pWaitSemaphores = nullptr;
+    value->pWaitSemaphores = wrapper->pWaitSemaphores.GetHandlePointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bufferBindCount));
     bytes_read += wrapper->pBufferBinds.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBufferBinds = wrapper->pBufferBinds.GetPointer();
@@ -748,7 +748,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBindSp
     value->pImageBinds = wrapper->pImageBinds.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->signalSemaphoreCount));
     bytes_read += wrapper->pSignalSemaphores.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSignalSemaphores = nullptr;
+    value->pSignalSemaphores = wrapper->pSignalSemaphores.GetHandlePointer();
 
     return bytes_read;
 }
@@ -1450,7 +1450,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipeli
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->setLayoutCount));
     bytes_read += wrapper->pSetLayouts.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSetLayouts = nullptr;
+    value->pSetLayouts = wrapper->pSetLayouts.GetHandlePointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->pushConstantRangeCount));
     bytes_read += wrapper->pPushConstantRanges.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pPushConstantRanges = wrapper->pPushConstantRanges.GetPointer();
@@ -1500,7 +1500,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescri
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorCount));
     bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->stageFlags));
     bytes_read += wrapper->pImmutableSamplers.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pImmutableSamplers = nullptr;
+    value->pImmutableSamplers = wrapper->pImmutableSamplers.GetHandlePointer();
 
     return bytes_read;
 }
@@ -1569,7 +1569,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescri
     value->descriptorPool = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorSetCount));
     bytes_read += wrapper->pSetLayouts.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSetLayouts = nullptr;
+    value->pSetLayouts = wrapper->pSetLayouts.GetHandlePointer();
 
     return bytes_read;
 }
@@ -1626,7 +1626,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWriteD
     bytes_read += wrapper->pBufferInfo.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pBufferInfo = wrapper->pBufferInfo.GetPointer();
     bytes_read += wrapper->pTexelBufferView.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pTexelBufferView = nullptr;
+    value->pTexelBufferView = wrapper->pTexelBufferView.GetHandlePointer();
 
     return bytes_read;
 }
@@ -1669,7 +1669,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkFrameb
     value->renderPass = VK_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->attachmentCount));
     bytes_read += wrapper->pAttachments.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pAttachments = nullptr;
+    value->pAttachments = wrapper->pAttachments.GetHandlePointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->width));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->height));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layers));
@@ -2378,6 +2378,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysic
     bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->physicalDeviceCount));
+    wrapper->physicalDevices.SetExternalMemory(value->physicalDevices, VK_MAX_DEVICE_GROUP_SIZE);
     bytes_read += wrapper->physicalDevices.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subsetAllocation));
 
@@ -2396,7 +2397,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDevice
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->physicalDeviceCount));
     bytes_read += wrapper->pPhysicalDevices.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pPhysicalDevices = nullptr;
+    value->pPhysicalDevices = wrapper->pPhysicalDevices.GetHandlePointer();
 
     return bytes_read;
 }
@@ -3350,10 +3351,10 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPresen
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->waitSemaphoreCount));
     bytes_read += wrapper->pWaitSemaphores.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pWaitSemaphores = nullptr;
+    value->pWaitSemaphores = wrapper->pWaitSemaphores.GetHandlePointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->swapchainCount));
     bytes_read += wrapper->pSwapchains.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pSwapchains = nullptr;
+    value->pSwapchains = wrapper->pSwapchains.GetHandlePointer();
     bytes_read += wrapper->pImageIndices.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
     value->pImageIndices = wrapper->pImageIndices.GetPointer();
     bytes_read += wrapper->pResults.DecodeEnum((buffer + bytes_read), (buffer_size - bytes_read));
@@ -3841,14 +3842,14 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32K
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->acquireCount));
     bytes_read += wrapper->pAcquireSyncs.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pAcquireSyncs = nullptr;
+    value->pAcquireSyncs = wrapper->pAcquireSyncs.GetHandlePointer();
     bytes_read += wrapper->pAcquireKeys.DecodeUInt64((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAcquireKeys = wrapper->pAcquireKeys.GetPointer();
     bytes_read += wrapper->pAcquireTimeouts.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAcquireTimeouts = wrapper->pAcquireTimeouts.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->releaseCount));
     bytes_read += wrapper->pReleaseSyncs.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pReleaseSyncs = nullptr;
+    value->pReleaseSyncs = wrapper->pReleaseSyncs.GetHandlePointer();
     bytes_read += wrapper->pReleaseKeys.DecodeUInt64((buffer + bytes_read), (buffer_size - bytes_read));
     value->pReleaseKeys = wrapper->pReleaseKeys.GetPointer();
 
@@ -4954,14 +4955,14 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWin32K
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->acquireCount));
     bytes_read += wrapper->pAcquireSyncs.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pAcquireSyncs = nullptr;
+    value->pAcquireSyncs = wrapper->pAcquireSyncs.GetHandlePointer();
     bytes_read += wrapper->pAcquireKeys.DecodeUInt64((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAcquireKeys = wrapper->pAcquireKeys.GetPointer();
     bytes_read += wrapper->pAcquireTimeoutMilliseconds.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
     value->pAcquireTimeoutMilliseconds = wrapper->pAcquireTimeoutMilliseconds.GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->releaseCount));
     bytes_read += wrapper->pReleaseSyncs.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pReleaseSyncs = nullptr;
+    value->pReleaseSyncs = wrapper->pReleaseSyncs.GetHandlePointer();
     bytes_read += wrapper->pReleaseKeys.DecodeUInt64((buffer + bytes_read), (buffer_size - bytes_read));
     value->pReleaseKeys = wrapper->pReleaseKeys.GetPointer();
 
@@ -6784,7 +6785,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWriteD
     value->pNext = wrapper->pNext->GetPointer();
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->accelerationStructureCount));
     bytes_read += wrapper->pAccelerationStructures.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->pAccelerationStructures = nullptr;
+    value->pAccelerationStructures = wrapper->pAccelerationStructures.GetHandlePointer();
 
     return bytes_read;
 }

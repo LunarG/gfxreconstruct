@@ -141,9 +141,8 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
             else:
                 isStaticArray = True if (value.isArray and not value.isDynamic) else False
 
-                if isStaticArray and not isHandle:
+                if isStaticArray:
                     # The pointer decoder will write directly to the struct member's memory.
-                    # Handles are a special case that decode as 64-bit integer IDs into a separate allocation.
                     body += '    wrapper->{name}.SetExternalMemory(value->{name}, {arraylen});\n'.format(name=value.name, arraylen=value.arrayCapacity)
 
                 if isStruct or isString or isHandle:
@@ -153,9 +152,8 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
 
                 if not isStaticArray:
                     if isHandle:
-                        # The handle pointers are initialized as NULL.
-                        # The consumer is responisble for mapping the decoded handle ID to a usable object handle on replay.
-                        body += '    value->{} = nullptr;\n'.format(value.name)
+                        # Point the real struct's member pointer to the handle pointer decoder's handle memory.
+                        body += '    value->{name} = wrapper->{name}.GetHandlePointer();\n'.format(name=value.name)
                     else:
                         # Point the real struct's member pointer to the pointer decoder's memory.
                         body += '    value->{name} = wrapper->{name}.GetPointer();\n'.format(name=value.name)

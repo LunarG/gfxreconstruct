@@ -109,16 +109,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     template <typename T>
-    void FreeArray(const T** arr) const
-    {
-        if ((*arr) != nullptr)
-        {
-            delete[](*arr);
-            *arr = nullptr;
-        }
-    }
-
-    template <typename T>
     void MapHandles(const format::HandleId* ids,
                     size_t                  ids_len,
                     T*                      handles,

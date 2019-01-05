@@ -199,10 +199,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     elif self.isHandle(value.baseType):
                         # We received an array of 64-bit integer IDs from the decoder.
                         # We now need to allocate memory to hold handles, which we map from the IDs.
-                        expr = expr.replace('const', '').lstrip() + '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(value.name, value.baseType, lengthName)
+                        expr = expr.replace('const', '').lstrip() + '{}.GetHandlePointer();'.format(value.name)
                         preexpr.append(expr)
                         expr = 'MapHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Map{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType)
-                        postexpr.append('FreeArray<{}>(&{});'.format(value.baseType, argName))
                     else:
                         expr += '{}.GetPointer();'.format(value.name)
                         if value.baseType in self.structsWithHandles:
@@ -211,9 +210,8 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                             preexpr.append(expr)
                             expr = ''
                             # We need to map the handles.  The current expr will be modified and appended to the appropriate pre and post lists.
-                            newdecls, newpreexpr, newpostexpr = self.makeStructHandleMappings(value, argName, lengthName, [], [], [], '', '', '')
+                            newdecls, newpreexpr = self.makeStructHandleMappings(value, argName, lengthName, [], [], '', '', '')
                             preexpr += newdecls + newpreexpr
-                            postexpr += newpostexpr
                 else:
                     # Initialize output pointer.
                     # Note on output structures with handles: These strucutres are used in queries such as
@@ -223,11 +221,12 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         if value.baseType in self.EXTERNAL_OBJECT_TYPES:
                             expr = 'uint8_t* {} = {}.IsNull() ? nullptr : AllocateArray<uint8_t>({});'.format(argName, value.name, lengthName)
                             postexpr.append('FreeArray<uint8_t>(&{});'.format(argName))
+                        elif self.isHandle(value.baseType):
+                            # Add mappings for the newly created handles
+                            expr += '{}.GetHandlePointer();'.format(value.name)
+                            postexpr.append('AddHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
                         else:
                             expr += '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(value.name, value.baseType, lengthName)
-                            if self.isHandle(value.baseType):
-                                # Add mappings for the newly created handles
-                                postexpr.append('AddHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
                             postexpr.append('FreeArray<{}>(&{});'.format(value.baseType, argName))
                     else:
                         if value.baseType in self.EXTERNAL_OBJECT_TYPES:
@@ -279,10 +278,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
 
     #
     #
-    def makeStructHandleMappings(self, value, argName, lengthName, predecls = [], preexpr = [], postexpr = [], srcPrefix = '', initIndent = '', initCounter = ''):
+    def makeStructHandleMappings(self, value, argName, lengthName, predecls = [], preexpr = [], srcPrefix = '', initIndent = '', initCounter = ''):
         handleValues = self.structsWithHandles[value.baseType]
         wrapperName = argName + '_wrapper'
-        deallocations = []
         indent = initIndent
         counter = ''
 
@@ -305,17 +303,11 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
             preexpr.append(indent + '{')
             indent += ' ' * self.INDENT_SIZE
 
-        first = True
         for handleValue in handleValues:
             srcName = ''
             dstName = argName
 
             if value.isPointer or value.isArray:
-                if not first:
-                    preexpr.append('')
-                else:
-                    first = False
-
                 # Access fields of pointer or array members
                 srcName = wrapperName
                 if value.isArray:
@@ -344,13 +336,13 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     preexpr.append(nextExpr)
 
                     nextLength = dstName + handleValue.arrayLength if handleValue.arrayLength else None
-                    predecls, preexpr, postexpr = self.makeStructHandleMappings(handleValue, nextName, nextLength, predecls, preexpr, postexpr, srcName, indent, counter)
+                    predecls, preexpr = self.makeStructHandleMappings(handleValue, nextName, nextLength, predecls, preexpr, srcName, indent, counter)
                 else:
                     nextValues = self.structsWithHandles[handleValue.baseType]
                     for nextValue in nextValues:
                         if not self.isStruct(nextValue.baseType):
                             # We have a handle to map
-                            self.makeStructHandleMappingExpr(value, nextValue, srcName + handleValue.name + '.', dstName + handleValue.name + '.', preexpr, postexpr, deallocations, indent)
+                            self.makeStructHandleMappingExpr(nextValue, srcName + handleValue.name + '.', dstName + handleValue.name + '.', preexpr, indent)
                         else:
                             # We have a struct that contains one or more handles, so we need to process the struct
                             nextLength = None
@@ -371,9 +363,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 # Create an expression to access a member of the current struct.
                                nextName = dstName + handleValue.name + '.' + nextValue.name
 
-                            predecls, preexpr, postexpr = self.makeStructHandleMappings(nextValue, nextName, nextLength, predecls, preexpr, postexpr, srcName + handleValue.name + '.', indent, counter)
+                            predecls, preexpr = self.makeStructHandleMappings(nextValue, nextName, nextLength, predecls, preexpr, srcName + handleValue.name + '.', indent, counter)
             else:
-                self.makeStructHandleMappingExpr(value, handleValue, srcName, dstName, preexpr, postexpr, deallocations, indent)
+                self.makeStructHandleMappingExpr(handleValue, srcName, dstName, preexpr, indent)
 
         if value.isArray:
             # End the for loop.
@@ -384,44 +376,12 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
             indent = initIndent
             preexpr.append(indent + '}')
 
-        # Free any temporary allocations that were made.
-        if postexpr or deallocations:
-            postexpr = [indent + 'if ({} != nullptr)'.format(argName), indent + '{'] + postexpr
-            indent = initIndent + ' ' * self.INDENT_SIZE
+        return predecls, preexpr
 
-            if value.isArray:
-                postexpr.append(indent + 'for (size_t {counter} = 0; {counter} < {}; ++{counter})'.format(lengthName, counter=counter))
-                postexpr.append(indent + '{')
-                indent += ' ' * self.INDENT_SIZE
-
-            for deallocation in deallocations:
-                postexpr.append(indent + deallocation)
-
-            if value.isArray:
-                indent = initIndent + ' ' * self.INDENT_SIZE
-                postexpr.append(indent + '}')
-
-            indent = initIndent
-            postexpr.append(indent + '}')
-
-        return predecls, preexpr, postexpr
-
-    def makeStructHandleMappingExpr(self, parentValue, value, srcname, dstname, preexpr, postexpr, deallocations, indent):
+    def makeStructHandleMappingExpr(self, value, srcname, dstname, preexpr, indent):
         if value.isArray:
-            # Allocate memory for the handles.
-            allocation_name = value.name + '_memory'
-            allocation_expr = indent + '{}* {} = '.format(value.baseType, allocation_name)
-            if value.isDynamic:
-                allocation_expr += '{}{}.IsNull() ? nullptr : AllocateArray<{}>({}{});'.format(srcname, value.name, value.baseType, dstname, value.arrayLength)
-                preexpr.append(allocation_expr)
-                preexpr.append(indent + '{}{} = {};'.format(dstname, value.name, allocation_name))
-                deallocations.append('FreeArray<{}>(&{}{});'.format(value.baseType, dstname, value.name))
-            else:
-                allocation_expr += 'const_cast<{}*>({}{});'.format(value.baseType, dstname, value.name)
-                preexpr.append(allocation_expr)
-
             # Mapping an array of handles.
-            preexpr.append(indent + 'MapHandles<{handletype}>({srcname}{handlename}.GetPointer(), {srcname}{handlename}.GetLength(), {}, {argname}{}, &VulkanObjectMapper::Map{handletype});'.format(allocation_name, value.arrayLength, srcname=srcname, handlename=value.name, argname=dstname, handletype=value.baseType))
+            preexpr.append(indent + 'MapHandles<{handletype}>({srcname}{handlename}.GetPointer(), {srcname}{handlename}.GetLength(), {srcname}{handlename}.GetHandlePointer(), {argname}{}, &VulkanObjectMapper::Map{handletype});'.format(value.arrayLength, srcname=srcname, handlename=value.name, argname=dstname, handletype=value.baseType))
         else:
             # Mapping a single handle.
             preexpr.append(indent + '{}{membername} = GetObjectMapper().Map{}({}{membername});'.format(dstname, value.baseType, srcname, membername=value.name))
