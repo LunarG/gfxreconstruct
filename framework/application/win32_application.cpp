@@ -92,7 +92,7 @@ void Win32Application::ProcessEvents(bool wait_for_input)
         }
         else
         {
-            found_message = PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
+            found_message = (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) != 0);
         }
 
         if (found_message)
