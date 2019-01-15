@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -414,10 +414,6 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetPhysicalDeviceWaylandPresentationSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkCreateMirSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-
-    size_t Decode_vkGetPhysicalDeviceMirPresentationSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);
-
     size_t Decode_vkCreateAndroidSurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateWin32SurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -542,6 +538,18 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdDebugMarkerInsertEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdBindTransformFeedbackBuffersEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBeginTransformFeedbackEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdEndTransformFeedbackEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBeginQueryIndexedEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdEndQueryIndexedEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawIndirectByteCountEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCmdDrawIndirectCountAMD(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdDrawIndexedIndirectCountAMD(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -634,6 +642,8 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetPhysicalDeviceMultisamplePropertiesEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetImageDrmFormatModifierPropertiesEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCreateValidationCacheEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkDestroyValidationCacheEXT(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -648,35 +658,37 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdSetCoarseSampleOrderNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkCreateAccelerationStructureNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkCreateAccelerationStructureNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkDestroyAccelerationStructureNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkDestroyAccelerationStructureNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkGetAccelerationStructureMemoryRequirementsNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkGetAccelerationStructureMemoryRequirementsNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkGetAccelerationStructureScratchMemoryRequirementsNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkBindAccelerationStructureMemoryNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkBindAccelerationStructureMemoryNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkCmdBuildAccelerationStructureNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkCmdBuildAccelerationStructureNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkCmdCopyAccelerationStructureNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkCmdCopyAccelerationStructureNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkCmdTraceRaysNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkCmdTraceRaysNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkCreateRayTracingPipelinesNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkCreateRaytracingPipelinesNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkGetRayTracingShaderGroupHandlesNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkGetRaytracingShaderHandlesNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkGetAccelerationStructureHandleNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkGetAccelerationStructureHandleNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkCmdWriteAccelerationStructuresPropertiesNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkCmdWriteAccelerationStructurePropertiesNVX(const uint8_t* parameter_buffer, size_t buffer_size);
-
-    size_t Decode_vkCompileDeferredNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_vkCompileDeferredNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetMemoryHostPointerPropertiesEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdWriteBufferMarkerAMD(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetCalibratedTimestampsEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdDrawMeshTasksNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -691,6 +703,8 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkGetQueueCheckpointDataNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateImagePipeSurfaceFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetBufferDeviceAddressEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 };
 
 GFXRECON_END_NAMESPACE(decode)

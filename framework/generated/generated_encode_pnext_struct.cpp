@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -204,6 +204,9 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDevicePushDescriptorPropertiesKHR*>(value));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT16_INT8_FEATURES_KHR:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceFloat16Int8FeaturesKHR*>(value));
+            break;
         case VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPresentRegionsKHR*>(value));
             break;
@@ -225,6 +228,15 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceDriverPropertiesKHR*>(value));
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES_KHR:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceFloatControlsPropertiesKHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE_KHR:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkSubpassDescriptionDepthStencilResolveKHR*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES_KHR:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceDepthStencilResolvePropertiesKHR*>(value));
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES_KHR:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceVulkanMemoryModelFeaturesKHR*>(value));
             break;
@@ -242,6 +254,15 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
             encode_struct_ptr(encoder, reinterpret_cast<const VkDedicatedAllocationMemoryAllocateInfoNV*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceTransformFeedbackFeaturesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceTransformFeedbackPropertiesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPipelineRasterizationStateStreamCreateInfoEXT*>(value));
             break;
         case VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD:
             encode_struct_ptr(encoder, reinterpret_cast<const VkTextureLODGatherFormatPropertiesAMD*>(value));
@@ -366,6 +387,18 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPipelineCoverageModulationStateCreateInfoNV*>(value));
             break;
+        case VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkDrmFormatModifierPropertiesListEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceImageDrmFormatModifierInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkImageDrmFormatModifierListCreateInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkImageDrmFormatModifierExplicitCreateInfoEXT*>(value));
+            break;
         case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
             encode_struct_ptr(encoder, reinterpret_cast<const VkShaderModuleValidationCacheCreateInfoEXT*>(value));
             break;
@@ -396,11 +429,11 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
         case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_COARSE_SAMPLE_ORDER_STATE_CREATE_INFO_NV:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPipelineViewportCoarseSampleOrderStateCreateInfoNV*>(value));
             break;
-        case VK_STRUCTURE_TYPE_DESCRIPTOR_ACCELERATION_STRUCTURE_INFO_NVX:
-            encode_struct_ptr(encoder, reinterpret_cast<const VkDescriptorAccelerationStructureInfoNVX*>(value));
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(value));
             break;
-        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAYTRACING_PROPERTIES_NVX:
-            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceRaytracingPropertiesNVX*>(value));
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceRayTracingPropertiesNV*>(value));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_REPRESENTATIVE_FRAGMENT_TEST_FEATURES_NV:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV*>(value));
@@ -419,6 +452,9 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceShaderCorePropertiesAMD*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkDeviceMemoryOverallocationCreateInfoAMD*>(value));
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT*>(value));
@@ -452,6 +488,42 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
             break;
         case VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV:
             encode_struct_ptr(encoder, reinterpret_cast<const VkQueueFamilyCheckpointPropertiesNV*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDevicePCIBusInfoPropertiesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_FEATURES_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapFeaturesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceFragmentDensityMapPropertiesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_CREATE_INFO_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkRenderPassFragmentDensityMapCreateInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceScalarBlockLayoutFeaturesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceMemoryBudgetPropertiesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceMemoryPriorityFeaturesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkMemoryPriorityAllocateInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_ADDRESS_FEATURES_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceBufferAddressFeaturesEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkBufferDeviceAddressCreateInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkImageStencilUsageCreateInfoEXT*>(value));
+            break;
+        case VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT:
+            encode_struct_ptr(encoder, reinterpret_cast<const VkValidationFeaturesEXT*>(value));
             break;
         }
     }

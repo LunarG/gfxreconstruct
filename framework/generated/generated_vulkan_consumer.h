@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -1185,19 +1185,6 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    queueFamilyIndex,
         uint64_t                                    display) = 0;
 
-    virtual void Process_vkCreateMirSurfaceKHR(
-        VkResult                                    returnValue,
-        format::HandleId                            instance,
-        const StructPointerDecoder<Decoded_VkMirSurfaceCreateInfoKHR>& pCreateInfo,
-        const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
-        const PointerDecoder<format::HandleId>&     pSurface) = 0;
-
-    virtual void Process_vkGetPhysicalDeviceMirPresentationSupportKHR(
-        VkBool32                                    returnValue,
-        format::HandleId                            physicalDevice,
-        uint32_t                                    queueFamilyIndex,
-        uint64_t                                    connection) = 0;
-
     virtual void Process_vkCreateAndroidSurfaceKHR(
         VkResult                                    returnValue,
         format::HandleId                            instance,
@@ -1557,6 +1544,50 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            commandBuffer,
         const StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>& pMarkerInfo) = 0;
 
+    virtual void Process_vkCmdBindTransformFeedbackBuffersEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstBinding,
+        uint32_t                                    bindingCount,
+        const PointerDecoder<format::HandleId>&     pBuffers,
+        const PointerDecoder<VkDeviceSize>&         pOffsets,
+        const PointerDecoder<VkDeviceSize>&         pSizes) = 0;
+
+    virtual void Process_vkCmdBeginTransformFeedbackEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstCounterBuffer,
+        uint32_t                                    counterBufferCount,
+        const PointerDecoder<format::HandleId>&     pCounterBuffers,
+        const PointerDecoder<VkDeviceSize>&         pCounterBufferOffsets) = 0;
+
+    virtual void Process_vkCmdEndTransformFeedbackEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstCounterBuffer,
+        uint32_t                                    counterBufferCount,
+        const PointerDecoder<format::HandleId>&     pCounterBuffers,
+        const PointerDecoder<VkDeviceSize>&         pCounterBufferOffsets) = 0;
+
+    virtual void Process_vkCmdBeginQueryIndexedEXT(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
+        uint32_t                                    query,
+        VkQueryControlFlags                         flags,
+        uint32_t                                    index) = 0;
+
+    virtual void Process_vkCmdEndQueryIndexedEXT(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            queryPool,
+        uint32_t                                    query,
+        uint32_t                                    index) = 0;
+
+    virtual void Process_vkCmdDrawIndirectByteCountEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    instanceCount,
+        uint32_t                                    firstInstance,
+        format::HandleId                            counterBuffer,
+        VkDeviceSize                                counterBufferOffset,
+        uint32_t                                    counterOffset,
+        uint32_t                                    vertexStride) = 0;
+
     virtual void Process_vkCmdDrawIndirectCountAMD(
         format::HandleId                            commandBuffer,
         format::HandleId                            buffer,
@@ -1829,6 +1860,12 @@ class VulkanConsumer : public VulkanConsumerBase
         VkSampleCountFlagBits                       samples,
         const StructPointerDecoder<Decoded_VkMultisamplePropertiesEXT>& pMultisampleProperties) = 0;
 
+    virtual void Process_vkGetImageDrmFormatModifierPropertiesEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            image,
+        const StructPointerDecoder<Decoded_VkImageDrmFormatModifierPropertiesEXT>& pProperties) = 0;
+
     virtual void Process_vkCreateValidationCacheEXT(
         VkResult                                    returnValue,
         format::HandleId                            device,
@@ -1872,56 +1909,47 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    customSampleOrderCount,
         const StructPointerDecoder<Decoded_VkCoarseSampleOrderCustomNV>& pCustomSampleOrders) = 0;
 
-    virtual void Process_vkCreateAccelerationStructureNVX(
+    virtual void Process_vkCreateAccelerationStructureNV(
         VkResult                                    returnValue,
         format::HandleId                            device,
-        const StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoNVX>& pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoNV>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const PointerDecoder<format::HandleId>&     pAccelerationStructure) = 0;
 
-    virtual void Process_vkDestroyAccelerationStructureNVX(
+    virtual void Process_vkDestroyAccelerationStructureNV(
         format::HandleId                            device,
         format::HandleId                            accelerationStructure,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator) = 0;
 
-    virtual void Process_vkGetAccelerationStructureMemoryRequirementsNVX(
+    virtual void Process_vkGetAccelerationStructureMemoryRequirementsNV(
         format::HandleId                            device,
-        const StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNVX>& pInfo,
+        const StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>& pInfo,
         const StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>& pMemoryRequirements) = 0;
 
-    virtual void Process_vkGetAccelerationStructureScratchMemoryRequirementsNVX(
-        format::HandleId                            device,
-        const StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNVX>& pInfo,
-        const StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>& pMemoryRequirements) = 0;
-
-    virtual void Process_vkBindAccelerationStructureMemoryNVX(
+    virtual void Process_vkBindAccelerationStructureMemoryNV(
         VkResult                                    returnValue,
         format::HandleId                            device,
         uint32_t                                    bindInfoCount,
-        const StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNVX>& pBindInfos) = 0;
+        const StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV>& pBindInfos) = 0;
 
-    virtual void Process_vkCmdBuildAccelerationStructureNVX(
+    virtual void Process_vkCmdBuildAccelerationStructureNV(
         format::HandleId                            commandBuffer,
-        VkAccelerationStructureTypeNVX              type,
-        uint32_t                                    instanceCount,
+        const StructPointerDecoder<Decoded_VkAccelerationStructureInfoNV>& pInfo,
         format::HandleId                            instanceData,
         VkDeviceSize                                instanceOffset,
-        uint32_t                                    geometryCount,
-        const StructPointerDecoder<Decoded_VkGeometryNVX>& pGeometries,
-        VkBuildAccelerationStructureFlagsNVX        flags,
         VkBool32                                    update,
         format::HandleId                            dst,
         format::HandleId                            src,
         format::HandleId                            scratch,
         VkDeviceSize                                scratchOffset) = 0;
 
-    virtual void Process_vkCmdCopyAccelerationStructureNVX(
+    virtual void Process_vkCmdCopyAccelerationStructureNV(
         format::HandleId                            commandBuffer,
         format::HandleId                            dst,
         format::HandleId                            src,
-        VkCopyAccelerationStructureModeNVX          mode) = 0;
+        VkCopyAccelerationStructureModeNV           mode) = 0;
 
-    virtual void Process_vkCmdTraceRaysNVX(
+    virtual void Process_vkCmdTraceRaysNV(
         format::HandleId                            commandBuffer,
         format::HandleId                            raygenShaderBindingTableBuffer,
         VkDeviceSize                                raygenShaderBindingOffset,
@@ -1931,19 +1959,23 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            hitShaderBindingTableBuffer,
         VkDeviceSize                                hitShaderBindingOffset,
         VkDeviceSize                                hitShaderBindingStride,
+        format::HandleId                            callableShaderBindingTableBuffer,
+        VkDeviceSize                                callableShaderBindingOffset,
+        VkDeviceSize                                callableShaderBindingStride,
         uint32_t                                    width,
-        uint32_t                                    height) = 0;
+        uint32_t                                    height,
+        uint32_t                                    depth) = 0;
 
-    virtual void Process_vkCreateRaytracingPipelinesNVX(
+    virtual void Process_vkCreateRayTracingPipelinesNV(
         VkResult                                    returnValue,
         format::HandleId                            device,
         format::HandleId                            pipelineCache,
         uint32_t                                    createInfoCount,
-        const StructPointerDecoder<Decoded_VkRaytracingPipelineCreateInfoNVX>& pCreateInfos,
+        const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoNV>& pCreateInfos,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const PointerDecoder<format::HandleId>&     pPipelines) = 0;
 
-    virtual void Process_vkGetRaytracingShaderHandlesNVX(
+    virtual void Process_vkGetRayTracingShaderGroupHandlesNV(
         VkResult                                    returnValue,
         format::HandleId                            device,
         format::HandleId                            pipeline,
@@ -1952,21 +1984,22 @@ class VulkanConsumer : public VulkanConsumerBase
         size_t                                      dataSize,
         const PointerDecoder<uint8_t>&              pData) = 0;
 
-    virtual void Process_vkGetAccelerationStructureHandleNVX(
+    virtual void Process_vkGetAccelerationStructureHandleNV(
         VkResult                                    returnValue,
         format::HandleId                            device,
         format::HandleId                            accelerationStructure,
         size_t                                      dataSize,
         const PointerDecoder<uint8_t>&              pData) = 0;
 
-    virtual void Process_vkCmdWriteAccelerationStructurePropertiesNVX(
+    virtual void Process_vkCmdWriteAccelerationStructuresPropertiesNV(
         format::HandleId                            commandBuffer,
-        format::HandleId                            accelerationStructure,
+        uint32_t                                    accelerationStructureCount,
+        const PointerDecoder<format::HandleId>&     pAccelerationStructures,
         VkQueryType                                 queryType,
         format::HandleId                            queryPool,
-        uint32_t                                    query) = 0;
+        uint32_t                                    firstQuery) = 0;
 
-    virtual void Process_vkCompileDeferredNVX(
+    virtual void Process_vkCompileDeferredNV(
         VkResult                                    returnValue,
         format::HandleId                            device,
         format::HandleId                            pipeline,
@@ -1985,6 +2018,20 @@ class VulkanConsumer : public VulkanConsumerBase
         format::HandleId                            dstBuffer,
         VkDeviceSize                                dstOffset,
         uint32_t                                    marker) = 0;
+
+    virtual void Process_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        const PointerDecoder<uint32_t>&             pTimeDomainCount,
+        const PointerDecoder<VkTimeDomainEXT>&      pTimeDomains) = 0;
+
+    virtual void Process_vkGetCalibratedTimestampsEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        uint32_t                                    timestampCount,
+        const StructPointerDecoder<Decoded_VkCalibratedTimestampInfoEXT>& pTimestampInfos,
+        const PointerDecoder<uint64_t>&             pTimestamps,
+        const PointerDecoder<uint64_t>&             pMaxDeviation) = 0;
 
     virtual void Process_vkCmdDrawMeshTasksNV(
         format::HandleId                            commandBuffer,
@@ -2028,6 +2075,11 @@ class VulkanConsumer : public VulkanConsumerBase
         const StructPointerDecoder<Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const PointerDecoder<format::HandleId>&     pSurface) = 0;
+
+    virtual void Process_vkGetBufferDeviceAddressEXT(
+        VkDeviceAddress                             returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkBufferDeviceAddressInfoEXT>& pInfo) = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)

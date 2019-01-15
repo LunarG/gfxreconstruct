@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -227,8 +227,6 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetPhysicalDeviceXcbPresentationSupportKHR",                                                        reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceXcbPresentationSupportKHR) },
     { "vkCreateWaylandSurfaceKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(CreateWaylandSurfaceKHR) },
     { "vkGetPhysicalDeviceWaylandPresentationSupportKHR",                                                    reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceWaylandPresentationSupportKHR) },
-    { "vkCreateMirSurfaceKHR",                                                                               reinterpret_cast<PFN_vkVoidFunction>(CreateMirSurfaceKHR) },
-    { "vkGetPhysicalDeviceMirPresentationSupportKHR",                                                        reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceMirPresentationSupportKHR) },
     { "vkCreateAndroidSurfaceKHR",                                                                           reinterpret_cast<PFN_vkVoidFunction>(CreateAndroidSurfaceKHR) },
     { "vkCreateWin32SurfaceKHR",                                                                             reinterpret_cast<PFN_vkVoidFunction>(CreateWin32SurfaceKHR) },
     { "vkGetPhysicalDeviceWin32PresentationSupportKHR",                                                      reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceWin32PresentationSupportKHR) },
@@ -293,6 +291,12 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdDebugMarkerBeginEXT",                                                                            reinterpret_cast<PFN_vkVoidFunction>(CmdDebugMarkerBeginEXT) },
     { "vkCmdDebugMarkerEndEXT",                                                                              reinterpret_cast<PFN_vkVoidFunction>(CmdDebugMarkerEndEXT) },
     { "vkCmdDebugMarkerInsertEXT",                                                                           reinterpret_cast<PFN_vkVoidFunction>(CmdDebugMarkerInsertEXT) },
+    { "vkCmdBindTransformFeedbackBuffersEXT",                                                                reinterpret_cast<PFN_vkVoidFunction>(CmdBindTransformFeedbackBuffersEXT) },
+    { "vkCmdBeginTransformFeedbackEXT",                                                                      reinterpret_cast<PFN_vkVoidFunction>(CmdBeginTransformFeedbackEXT) },
+    { "vkCmdEndTransformFeedbackEXT",                                                                        reinterpret_cast<PFN_vkVoidFunction>(CmdEndTransformFeedbackEXT) },
+    { "vkCmdBeginQueryIndexedEXT",                                                                           reinterpret_cast<PFN_vkVoidFunction>(CmdBeginQueryIndexedEXT) },
+    { "vkCmdEndQueryIndexedEXT",                                                                             reinterpret_cast<PFN_vkVoidFunction>(CmdEndQueryIndexedEXT) },
+    { "vkCmdDrawIndirectByteCountEXT",                                                                       reinterpret_cast<PFN_vkVoidFunction>(CmdDrawIndirectByteCountEXT) },
     { "vkCmdDrawIndirectCountAMD",                                                                           reinterpret_cast<PFN_vkVoidFunction>(CmdDrawIndirectCountAMD) },
     { "vkCmdDrawIndexedIndirectCountAMD",                                                                    reinterpret_cast<PFN_vkVoidFunction>(CmdDrawIndexedIndirectCountAMD) },
     { "vkGetShaderInfoAMD",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(GetShaderInfoAMD) },
@@ -340,6 +344,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetMemoryAndroidHardwareBufferANDROID",                                                             reinterpret_cast<PFN_vkVoidFunction>(GetMemoryAndroidHardwareBufferANDROID) },
     { "vkCmdSetSampleLocationsEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(CmdSetSampleLocationsEXT) },
     { "vkGetPhysicalDeviceMultisamplePropertiesEXT",                                                         reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceMultisamplePropertiesEXT) },
+    { "vkGetImageDrmFormatModifierPropertiesEXT",                                                            reinterpret_cast<PFN_vkVoidFunction>(GetImageDrmFormatModifierPropertiesEXT) },
     { "vkCreateValidationCacheEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(CreateValidationCacheEXT) },
     { "vkDestroyValidationCacheEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(DestroyValidationCacheEXT) },
     { "vkMergeValidationCachesEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(MergeValidationCachesEXT) },
@@ -347,21 +352,22 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdBindShadingRateImageNV",                                                                         reinterpret_cast<PFN_vkVoidFunction>(CmdBindShadingRateImageNV) },
     { "vkCmdSetViewportShadingRatePaletteNV",                                                                reinterpret_cast<PFN_vkVoidFunction>(CmdSetViewportShadingRatePaletteNV) },
     { "vkCmdSetCoarseSampleOrderNV",                                                                         reinterpret_cast<PFN_vkVoidFunction>(CmdSetCoarseSampleOrderNV) },
-    { "vkCreateAccelerationStructureNVX",                                                                    reinterpret_cast<PFN_vkVoidFunction>(CreateAccelerationStructureNVX) },
-    { "vkDestroyAccelerationStructureNVX",                                                                   reinterpret_cast<PFN_vkVoidFunction>(DestroyAccelerationStructureNVX) },
-    { "vkGetAccelerationStructureMemoryRequirementsNVX",                                                     reinterpret_cast<PFN_vkVoidFunction>(GetAccelerationStructureMemoryRequirementsNVX) },
-    { "vkGetAccelerationStructureScratchMemoryRequirementsNVX",                                              reinterpret_cast<PFN_vkVoidFunction>(GetAccelerationStructureScratchMemoryRequirementsNVX) },
-    { "vkBindAccelerationStructureMemoryNVX",                                                                reinterpret_cast<PFN_vkVoidFunction>(BindAccelerationStructureMemoryNVX) },
-    { "vkCmdBuildAccelerationStructureNVX",                                                                  reinterpret_cast<PFN_vkVoidFunction>(CmdBuildAccelerationStructureNVX) },
-    { "vkCmdCopyAccelerationStructureNVX",                                                                   reinterpret_cast<PFN_vkVoidFunction>(CmdCopyAccelerationStructureNVX) },
-    { "vkCmdTraceRaysNVX",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(CmdTraceRaysNVX) },
-    { "vkCreateRaytracingPipelinesNVX",                                                                      reinterpret_cast<PFN_vkVoidFunction>(CreateRaytracingPipelinesNVX) },
-    { "vkGetRaytracingShaderHandlesNVX",                                                                     reinterpret_cast<PFN_vkVoidFunction>(GetRaytracingShaderHandlesNVX) },
-    { "vkGetAccelerationStructureHandleNVX",                                                                 reinterpret_cast<PFN_vkVoidFunction>(GetAccelerationStructureHandleNVX) },
-    { "vkCmdWriteAccelerationStructurePropertiesNVX",                                                        reinterpret_cast<PFN_vkVoidFunction>(CmdWriteAccelerationStructurePropertiesNVX) },
-    { "vkCompileDeferredNVX",                                                                                reinterpret_cast<PFN_vkVoidFunction>(CompileDeferredNVX) },
+    { "vkCreateAccelerationStructureNV",                                                                     reinterpret_cast<PFN_vkVoidFunction>(CreateAccelerationStructureNV) },
+    { "vkDestroyAccelerationStructureNV",                                                                    reinterpret_cast<PFN_vkVoidFunction>(DestroyAccelerationStructureNV) },
+    { "vkGetAccelerationStructureMemoryRequirementsNV",                                                      reinterpret_cast<PFN_vkVoidFunction>(GetAccelerationStructureMemoryRequirementsNV) },
+    { "vkBindAccelerationStructureMemoryNV",                                                                 reinterpret_cast<PFN_vkVoidFunction>(BindAccelerationStructureMemoryNV) },
+    { "vkCmdBuildAccelerationStructureNV",                                                                   reinterpret_cast<PFN_vkVoidFunction>(CmdBuildAccelerationStructureNV) },
+    { "vkCmdCopyAccelerationStructureNV",                                                                    reinterpret_cast<PFN_vkVoidFunction>(CmdCopyAccelerationStructureNV) },
+    { "vkCmdTraceRaysNV",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(CmdTraceRaysNV) },
+    { "vkCreateRayTracingPipelinesNV",                                                                       reinterpret_cast<PFN_vkVoidFunction>(CreateRayTracingPipelinesNV) },
+    { "vkGetRayTracingShaderGroupHandlesNV",                                                                 reinterpret_cast<PFN_vkVoidFunction>(GetRayTracingShaderGroupHandlesNV) },
+    { "vkGetAccelerationStructureHandleNV",                                                                  reinterpret_cast<PFN_vkVoidFunction>(GetAccelerationStructureHandleNV) },
+    { "vkCmdWriteAccelerationStructuresPropertiesNV",                                                        reinterpret_cast<PFN_vkVoidFunction>(CmdWriteAccelerationStructuresPropertiesNV) },
+    { "vkCompileDeferredNV",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(CompileDeferredNV) },
     { "vkGetMemoryHostPointerPropertiesEXT",                                                                 reinterpret_cast<PFN_vkVoidFunction>(GetMemoryHostPointerPropertiesEXT) },
     { "vkCmdWriteBufferMarkerAMD",                                                                           reinterpret_cast<PFN_vkVoidFunction>(CmdWriteBufferMarkerAMD) },
+    { "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT",                                                      reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceCalibrateableTimeDomainsEXT) },
+    { "vkGetCalibratedTimestampsEXT",                                                                        reinterpret_cast<PFN_vkVoidFunction>(GetCalibratedTimestampsEXT) },
     { "vkCmdDrawMeshTasksNV",                                                                                reinterpret_cast<PFN_vkVoidFunction>(CmdDrawMeshTasksNV) },
     { "vkCmdDrawMeshTasksIndirectNV",                                                                        reinterpret_cast<PFN_vkVoidFunction>(CmdDrawMeshTasksIndirectNV) },
     { "vkCmdDrawMeshTasksIndirectCountNV",                                                                   reinterpret_cast<PFN_vkVoidFunction>(CmdDrawMeshTasksIndirectCountNV) },
@@ -369,6 +375,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdSetCheckpointNV",                                                                                reinterpret_cast<PFN_vkVoidFunction>(CmdSetCheckpointNV) },
     { "vkGetQueueCheckpointDataNV",                                                                          reinterpret_cast<PFN_vkVoidFunction>(GetQueueCheckpointDataNV) },
     { "vkCreateImagePipeSurfaceFUCHSIA",                                                                     reinterpret_cast<PFN_vkVoidFunction>(CreateImagePipeSurfaceFUCHSIA) },
+    { "vkGetBufferDeviceAddressEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(GetBufferDeviceAddressEXT) },
 
     // Special case handling of "vk_layerGetPhysicalDeviceProcAddr"
     { "vk_layerGetPhysicalDeviceProcAddr",                                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },
