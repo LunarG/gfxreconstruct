@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ class ValueDecoder
 
     static size_t DecodeVkSampleMaskValue(const uint8_t* buffer, size_t buffer_size, VkSampleMask* value)           { return DecodeValueFrom<format::SampleMaskEncodeType>(buffer, buffer_size, value); }
     static size_t DecodeVkDeviceSizeValue(const uint8_t* buffer, size_t buffer_size, VkDeviceSize* value)           { return DecodeValueFrom<format::DeviceSizeEncodeType>(buffer, buffer_size, value); }
+    static size_t DecodeVkDeviceAddressValue(const uint8_t* buffer, size_t buffer_size, VkDeviceAddress* value)     { return DecodeValueFrom<format::DeviceSizeEncodeType>(buffer, buffer_size, value); }
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, size_t* value)                        { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
 #if defined(VK_USE_PLATFORM_XLIB_KHR) && !defined(GFXRECON_ARCH64)
     // Oveload for the 32-bit XID type.  Pointers from the 32-bit XID typedef of unsigned long are not compatible with size_t pointers.

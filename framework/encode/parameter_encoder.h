@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ class ParameterEncoder
     void EncodeVkBool32Value(VkBool32 value)                                                                          { EncodeValue(value); }
     void EncodeVkSampleMaskValue(VkSampleMask value)                                                                  { EncodeValue(static_cast<format::SampleMaskEncodeType>(value)); }
     void EncodeVkDeviceSizeValue(VkDeviceSize value)                                                                  { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }
+    void EncodeVkDeviceAddressValue(VkDeviceAddress value)                                                            { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }
     void EncodeSizeTValue(size_t value)                                                                               { EncodeValue(static_cast<format::SizeTEncodeType>(value)); }
 
     // Encode the address values for pointers to non-Vulkan objects to be used as object IDs.

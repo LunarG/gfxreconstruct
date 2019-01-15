@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -363,26 +363,35 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdBindShadingRateImageNV                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1138),
     ApiCall_vkCmdSetViewportShadingRatePaletteNV                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1139),
     ApiCall_vkCmdSetCoarseSampleOrderNV                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x113a),
-    ApiCall_vkCreateAccelerationStructureNVX                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x113b),
-    ApiCall_vkDestroyAccelerationStructureNVX                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x113c),
-    ApiCall_vkGetAccelerationStructureMemoryRequirementsNVX                                       = MakeApiCallId(ApiFamily_Vulkan, 0x113d),
-    ApiCall_vkGetAccelerationStructureScratchMemoryRequirementsNVX                                = MakeApiCallId(ApiFamily_Vulkan, 0x113e),
-    ApiCall_vkBindAccelerationStructureMemoryNVX                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x113f),
-    ApiCall_vkCmdBuildAccelerationStructureNVX                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1140),
-    ApiCall_vkCmdCopyAccelerationStructureNVX                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1141),
-    ApiCall_vkCmdTraceRaysNVX                                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1142),
-    ApiCall_vkCreateRaytracingPipelinesNVX                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1143),
-    ApiCall_vkGetRaytracingShaderHandlesNVX                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1144),
-    ApiCall_vkGetAccelerationStructureHandleNVX                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1145),
-    ApiCall_vkCmdWriteAccelerationStructurePropertiesNVX                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1146),
-    ApiCall_vkCompileDeferredNVX                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1147),
+    ApiCall_vkGetImageDrmFormatModifierPropertiesEXT                                              = MakeApiCallId(ApiFamily_Vulkan, 0x113b),
+    ApiCall_vkCreateAccelerationStructureNV                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x113c),
+    ApiCall_vkDestroyAccelerationStructureNV                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x113d),
+    ApiCall_vkGetAccelerationStructureMemoryRequirementsNV                                        = MakeApiCallId(ApiFamily_Vulkan, 0x113e),
+    ApiCall_vkBindAccelerationStructureMemoryNV                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x113f),
+    ApiCall_vkCmdBuildAccelerationStructureNV                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1140),
+    ApiCall_vkCmdCopyAccelerationStructureNV                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1141),
+    ApiCall_vkCmdTraceRaysNV                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1142),
+    ApiCall_vkCreateRayTracingPipelinesNV                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1143),
+    ApiCall_vkGetRayTracingShaderGroupHandlesNV                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1144),
+    ApiCall_vkGetAccelerationStructureHandleNV                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1145),
+    ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1146),
+    ApiCall_vkCompileDeferredNV                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1147),
     ApiCall_vkCmdDrawMeshTasksNV                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1148),
     ApiCall_vkCmdDrawMeshTasksIndirectNV                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1149),
     ApiCall_vkCmdDrawMeshTasksIndirectCountNV                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x114a),
     ApiCall_vkCmdSetExclusiveScissorNV                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x114b),
     ApiCall_vkCmdSetCheckpointNV                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x114c),
     ApiCall_vkGetQueueCheckpointDataNV                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x114d),
-    ApiCall_vkCreateImagePipeSurfaceFUCHSIA                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x114e)
+    ApiCall_vkCreateImagePipeSurfaceFUCHSIA                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x114e),
+    ApiCall_vkCmdBindTransformFeedbackBuffersEXT                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x114f),
+    ApiCall_vkCmdBeginTransformFeedbackEXT                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1150),
+    ApiCall_vkCmdEndTransformFeedbackEXT                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1151),
+    ApiCall_vkCmdBeginQueryIndexedEXT                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x1152),
+    ApiCall_vkCmdEndQueryIndexedEXT                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1153),
+    ApiCall_vkCmdDrawIndirectByteCountEXT                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1154),
+    ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1155),
+    ApiCall_vkGetCalibratedTimestampsEXT                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1156),
+    ApiCall_vkGetBufferDeviceAddressEXT                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1157),
     // clang-format on
 };
 

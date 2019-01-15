@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ class VulkanObjectMapper
     void AddVkIndirectCommandsLayoutNVX(format::HandleId id, VkIndirectCommandsLayoutNVX handle)     { AddObject<VkIndirectCommandsLayoutNVX>(id, handle, &indirect_commands_layout_nvx_map_); }
     void AddVkDebugUtilsMessengerEXT(format::HandleId id, VkDebugUtilsMessengerEXT handle)           { AddObject<VkDebugUtilsMessengerEXT>(id, handle, &debug_utils_messenger_ext_map_); }
     void AddVkValidationCacheEXT(format::HandleId id, VkValidationCacheEXT handle)                   { AddObject<VkValidationCacheEXT>(id, handle, &validation_cache_ext_map_); }
-    void AddVkAccelerationStructureNVX(format::HandleId id, VkAccelerationStructureNVX handle)       { AddObject<VkAccelerationStructureNVX>(id, handle, &acceleration_structure_nvx_map_); }
+    void AddVkAccelerationStructureNV(format::HandleId id, VkAccelerationStructureNV handle)         { AddObject<VkAccelerationStructureNV>(id, handle, &acceleration_structure_nv_map_); }
 
     VkInstance                    MapVkInstance(format::HandleId id) const                    { return MapObject<VkInstance>(id, &instance_map_); }
     VkPhysicalDevice              MapVkPhysicalDevice(format::HandleId id) const              { return MapObject<VkPhysicalDevice>(id, &physical_device_map_); }
@@ -111,7 +111,7 @@ class VulkanObjectMapper
     VkIndirectCommandsLayoutNVX   MapVkIndirectCommandsLayoutNVX(format::HandleId id) const   { return MapObject<VkIndirectCommandsLayoutNVX>(id, &indirect_commands_layout_nvx_map_); }
     VkDebugUtilsMessengerEXT      MapVkDebugUtilsMessengerEXT(format::HandleId id) const      { return MapObject<VkDebugUtilsMessengerEXT>(id, &debug_utils_messenger_ext_map_); }
     VkValidationCacheEXT          MapVkValidationCacheEXT(format::HandleId id) const          { return MapObject<VkValidationCacheEXT>(id, &validation_cache_ext_map_); }
-    VkAccelerationStructureNVX    MapVkAccelerationStructureNVX(format::HandleId id) const    { return MapObject<VkAccelerationStructureNVX>(id, &acceleration_structure_nvx_map_); }
+    VkAccelerationStructureNV     MapVkAccelerationStructureNV(format::HandleId id) const     { return MapObject<VkAccelerationStructureNV>(id, &acceleration_structure_nv_map_); }
     // clang-format on
 
   private:
@@ -189,7 +189,7 @@ class VulkanObjectMapper
     std::unordered_map<format::HandleId, VkIndirectCommandsLayoutNVX>   indirect_commands_layout_nvx_map_;
     std::unordered_map<format::HandleId, VkDebugUtilsMessengerEXT>      debug_utils_messenger_ext_map_;
     std::unordered_map<format::HandleId, VkValidationCacheEXT>          validation_cache_ext_map_;
-    std::unordered_map<format::HandleId, VkAccelerationStructureNVX>    acceleration_structure_nvx_map_;
+    std::unordered_map<format::HandleId, VkAccelerationStructureNV>     acceleration_structure_nv_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
