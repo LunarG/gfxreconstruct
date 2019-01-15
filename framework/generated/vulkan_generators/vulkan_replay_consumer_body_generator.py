@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2019 Valve Corporation
+# Copyright (c) 2018-2019 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -117,6 +117,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
     # Return VulkanReplayConsumer class member function definition.
     def makeConsumerFuncBody(self, returnType, name, values):
         body = ''
+
         args, preexpr, postexpr = self.makeBodyExpressions(name, values)
         arglist = ', '.join(args)
 
@@ -352,8 +353,25 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                             self.makeStructHandleMappingExpr(value, nextValue, srcName + handleValue.name + '.', dstName + handleValue.name + '.', preexpr, postexpr, deallocations, indent)
                         else:
                             # We have a struct that contains one or more handles, so we need to process the struct
-                            nextName = dstName + handleValue.name + '.' + nextValue.name
-                            predecls, preexpr, postexpr = self.makeStructHandleMappings(nextValue, nextName, None, predecls, preexpr, postexpr, srcName + handleValue.name + '.', indent, counter)
+                            nextLength = None
+                            if nextValue.isPointer or nextValue.isArray:
+                                # The next member in the current struct is a struct pointer, which needs a temporary value to retrieve and process the decoded struct data.
+                                fullType = nextValue.fullType.replace('const ', '').lstrip()
+                                nextName = argName + '_' + handleValue.name + '_' + nextValue.name
+
+                                nextDecl = '{} {} = nullptr;'.format(fullType, nextName)
+                                predecls.append(nextDecl)
+
+                                nextExpr = indent + '{} = {}.{}.GetPointer();'.format(nextName, srcName + handleValue.name, nextValue.name)
+                                preexpr.append(nextExpr)
+
+                                if nextValue.arrayLength:
+                                    nextLength = dstName + handleValue.name + '.' + nextValue.arrayLength
+                            else:
+                                # Create an expression to access a member of the current struct.
+                               nextName = dstName + handleValue.name + '.' + nextValue.name
+
+                            predecls, preexpr, postexpr = self.makeStructHandleMappings(nextValue, nextName, nextLength, predecls, preexpr, postexpr, srcName + handleValue.name + '.', indent, counter)
             else:
                 self.makeStructHandleMappingExpr(value, handleValue, srcName, dstName, preexpr, postexpr, deallocations, indent)
 
