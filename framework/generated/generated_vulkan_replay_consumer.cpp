@@ -5258,15 +5258,17 @@ void VulkanReplayConsumer::Process_vkCreateAccelerationStructureNV(
 {
     VkDevice in_device = GetObjectMapper().MapVkDevice(device);
     VkAccelerationStructureCreateInfoNV* in_pCreateInfo = pCreateInfo.GetPointer();
+    VkGeometryNV* in_pCreateInfo_info_pGeometries = nullptr;
     if (in_pCreateInfo != nullptr)
     {
         const Decoded_VkAccelerationStructureCreateInfoNV* in_pCreateInfo_wrapper = pCreateInfo.GetMetaStructPointer();
+        in_pCreateInfo_info_pGeometries = in_pCreateInfo_wrapper->info.pGeometries.GetPointer();
         if (in_pCreateInfo_info_pGeometries != nullptr)
         {
             const Decoded_VkGeometryNV* in_pCreateInfo_info_pGeometries_wrapper = in_pCreateInfo_wrapper->info.pGeometries.GetMetaStructPointer();
-            assert(None == in_pCreateInfo_wrapper->info.pGeometries.GetLength());
+            assert(in_pCreateInfo->info.geometryCount == in_pCreateInfo_wrapper->info.pGeometries.GetLength());
 
-            for (size_t i = 0; i < None; ++i)
+            for (size_t i = 0; i < in_pCreateInfo->info.geometryCount; ++i)
             {
                 in_pCreateInfo_info_pGeometries[i].geometry.triangles.vertexData = GetObjectMapper().MapVkBuffer(in_pCreateInfo_info_pGeometries_wrapper[i].geometry.triangles.vertexData);
                 in_pCreateInfo_info_pGeometries[i].geometry.triangles.indexData = GetObjectMapper().MapVkBuffer(in_pCreateInfo_info_pGeometries_wrapper[i].geometry.triangles.indexData);
