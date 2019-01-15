@@ -1,8 +1,8 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2013-2016 The Khronos Group Inc.
-# Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2019 Valve Corporation
+# Copyright (c) 2018-2019 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -66,6 +66,7 @@ class ValueInfo():
                  fullType,
                  pointerCount = 0,
                  arrayLength = None,
+                 altArrayLength = None,
                  arrayCapacity = None,
                  platformBaseType = None,
                  platformFullType = None):
@@ -74,6 +75,7 @@ class ValueInfo():
         self.fullType = fullType
         self.pointerCount = pointerCount
         self.arrayLength = arrayLength
+        self.altArrayLength = altArrayLength
         self.arrayCapacity = arrayCapacity
         self.platformBaseType = platformBaseType
         self.platformFullType = platformFullType
@@ -380,6 +382,7 @@ class BaseGenerator(OutputGenerator):
 
             # Get array length
             arrayLength = self.getArrayLen(param)
+            altArrayLength =  param.attrib.get('altlen')
             arrayCapacity = None
             if self.isStaticArray(param):
                 arrayCapacity = arrayLength
@@ -391,6 +394,7 @@ class BaseGenerator(OutputGenerator):
                 fullType = fullType,
                 pointerCount = self.getPointerCount(fullType),
                 arrayLength = arrayLength,
+                altArrayLength = altArrayLength,
                 arrayCapacity = arrayCapacity,
                 platformBaseType = platformBaseType,
                 platformFullType = platformFullType))
@@ -508,25 +512,21 @@ class BaseGenerator(OutputGenerator):
         return capacity
 
     #
-    # Extract length values from latexmath.  Currently an inflexible solution that looks for specific
+    # Extract length value from latexmath expression.  Currently an inflexible solution that looks for specific
     # patterns that are found in vk.xml.  Will need to be updated when new patterns are introduced.
     def parseLateXMath(self, source):
-        name = 'ERROR'
-        decoratedName = 'ERROR'
-        if 'mathit' in source:
-            # Matches expressions similar to 'latexmath:[\lceil{\mathit{rasterizationSamples} \over 32}\rceil]'
-            match = re.match(r'latexmath\s*\:\s*\[\s*\\l(\w+)\s*\{\s*\\mathit\s*\{\s*(\w+)\s*\}\s*\\over\s*(\d+)\s*\}\s*\\r(\w+)\s*\]', source)
-            if not match or match.group(1) != match.group(4):
-                raise 'Unrecognized latexmath expression'
+        name = None
+
+        # Extracts a parameter name from expressions similar to:
+        #    'latexmath:[\lceil{\mathit{rasterizationSamples} \over 32}\rceil]'
+        #    'latexmath:[\textrm{dataSize} \over 4]'
+        match = re.match(r'latexmath.*\\(mathit|textrm)\s*\{\s*(\w+)\s*\}.*', source)
+        if match:
             name = match.group(2)
-            # TODO: More flexible typecasting support
-            nameExpr = 'static_cast<size_t>({}(static_cast<double>({})/static_cast<double>({})))'.format(*match.group(1, 2, 3))
         else:
-            # Matches expressions similar to 'latexmath : [dataSize \over 4]'
-            match = re.match(r'latexmath\s*\:\s*\[\s*(\w+)\s*\\over\s*(\d+)\s*\]', source)
-            name = match.group(1)
-            nameExpr = '{}/{}'.format(*match.group(1, 2))
-        return name, nameExpr
+            raise ValueError('Unrecognized latexmath expression: "' + source + '"')
+
+        return name
 
     #
     # Indent all lines in a string.
@@ -718,7 +718,8 @@ class BaseGenerator(OutputGenerator):
             lengthName = value.arrayLength         # The parameter name that appears in the length expression
             lengthExpr = value.arrayLength         # The expression that produces the array length (needed for the latexmath case where param name != param expr)
             if 'latexmath' in value.arrayLength:
-                lengthName, lengthExpr = self.parseLateXMath(value.arrayLength)
+                lengthName = self.parseLateXMath(value.arrayLength)
+                lengthExpr = value.altArrayLength
 
             if isStruct:
                 methodCall += '_array'
