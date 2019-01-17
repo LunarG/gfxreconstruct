@@ -278,6 +278,19 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
         result = encode::GetInstanceTable(physicalDevice)
                      ->EnumerateDeviceExtensionProperties(
                          encode::GetWrappedHandle(physicalDevice), nullptr, pPropertyCount, pProperties);
+
+        if (pPropertyCount && pProperties)
+        {
+            for (uint32_t i = 0; i < (*pPropertyCount); ++i)
+            {
+                GFXRECON_LOG_INFO("\t%s", pProperties[i].extensionName);
+                if (strcmp(pProperties[i].extensionName, "VK_GOOGLE_display_timing") == 0)
+                {
+                    pProperties[i].extensionName[0] = '\0';
+                    GFXRECON_LOG_INFO("Cleared display_timing extension: \"%s\"", pProperties[i].extensionName);
+                }
+            }
+        }
     }
 
     return result;
