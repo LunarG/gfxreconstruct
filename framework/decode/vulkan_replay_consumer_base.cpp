@@ -193,10 +193,25 @@ void VulkanReplayConsumerBase::CheckResult(const char* func_name, VkResult origi
         if ((original != replay) &&
             !((replay == VK_SUCCESS) && ((original == VK_TIMEOUT) || (original == VK_NOT_READY))))
         {
-            GFXRECON_LOG_ERROR("API call (%s) returned value %s that does not match return value from capture file %s.",
-                               func_name,
-                               enumutil::GetResultValueString(replay),
-                               enumutil::GetResultValueString(original));
+            // VK_INCOMPLETE is generated when replaying a 'vkGet' function with a size value read from the capture file
+            // that is smaller than the size expected by the replay device.  Replay does not make use of the values
+            // retrieved by this function, so the error should be safe to ignore.  Log this case as a debug message
+            // until replay is modified to adjust sizes used when replaying.
+            if (replay == VK_INCOMPLETE)
+            {
+                GFXRECON_LOG_DEBUG("API call (%s) returned value VK_INCOMPLETE that does not match return value from "
+                                   "capture file %s.  This may be caused by platform differences.",
+                                   func_name,
+                                   enumutil::GetResultValueString(original));
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR(
+                    "API call (%s) returned value %s that does not match return value from capture file %s.",
+                    func_name,
+                    enumutil::GetResultValueString(replay),
+                    enumutil::GetResultValueString(original));
+            }
         }
 
         // Warn when an API call returned a failure, regardless of original result (excluding format not supported
