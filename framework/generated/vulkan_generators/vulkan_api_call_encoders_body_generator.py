@@ -185,7 +185,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             body += indent + '{};\n'.format(methodCall)
 
         if returnType and returnType != 'void':
-            body += indent + 'encoder->EncodeEnumValue(result);\n'
+            methodCall = self.makeEncoderMethodCall(ValueInfo('result', returnType, returnType), [], '')
+            body += indent + '{};\n'.format(methodCall)
 
         body += indent + 'encode::TraceManager::Get()->EndApiCallTrace(encoder);\n'
         indent = indent[0:-self.INDENT_SIZE]

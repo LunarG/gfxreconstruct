@@ -4334,7 +4334,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeVoidPtr(dpy);
         encoder->EncodeSizeTValue(visualID);
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeVkBool32Value(result);
         encode::TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
@@ -4386,7 +4386,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXcbPresentationSupportKHR(
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeVoidPtr(connection);
         encoder->EncodeUInt32Value(visual_id);
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeVkBool32Value(result);
         encode::TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
@@ -4436,7 +4436,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWaylandPresentationSupportKHR(
         encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
         encoder->EncodeVoidPtr(display);
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeVkBool32Value(result);
         encode::TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
@@ -4510,7 +4510,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWin32PresentationSupportKHR(
     {
         encoder->EncodeHandleIdValue(physicalDevice);
         encoder->EncodeUInt32Value(queueFamilyIndex);
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeVkBool32Value(result);
         encode::TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
@@ -7905,7 +7905,7 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(
     {
         encoder->EncodeHandleIdValue(device);
         encode_struct_ptr(encoder, pInfo);
-        encoder->EncodeEnumValue(result);
+        encoder->EncodeVkDeviceAddressValue(result);
         encode::TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
