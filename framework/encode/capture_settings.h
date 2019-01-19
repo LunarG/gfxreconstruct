@@ -81,14 +81,6 @@ class CaptureSettings
 
     static bool ParseBoolString(const std::string& value_string, bool default_value);
 
-    static MemoryTrackingMode ParseMemoryTrackingModeString(const std::string& value_string,
-                                                            MemoryTrackingMode default_value);
-
-    static format::CompressionType ParseCompressionTypeString(const std::string&      value_string,
-                                                              format::CompressionType default_value);
-
-    static util::Log::Severity ParseLogLevelString(const std::string& value_string, util::Log::Severity default_value);
-
   private:
     TraceSettings       trace_settings_;
     util::Log::Settings log_settings_;

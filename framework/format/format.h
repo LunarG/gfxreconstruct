@@ -119,6 +119,7 @@ struct EnabledOptions
 {
     CompressionType compression_type{ CompressionType::kNone };
     bool            record_thread_id{ true };
+    bool            force_flush{ false };
 };
 
 #pragma pack(push)
