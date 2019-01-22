@@ -2,20 +2,31 @@ cmake_minimum_required(VERSION 3.1)
 project(GFXReconstruct)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include("FindVulkanVersion")
+
+if(MSVC)
+    # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
+    set (PRECOMPILED_ARCH "64")
+    if(NOT CMAKE_CL_64)
+        set (PRECOMPILED_ARCH "32")
+    endif(NOT CMAKE_CL_64)
+
+    set(ZLIB_ROOT "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
+    set(LZ4_ROOT "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
+endif(MSVC)
 
 # GFXReconstruct provided find modules
 find_package(LZ4)
-if (UNIX)
-find_package(XCB)
-find_package(WAYLAND)
+if(UNIX)
+    find_package(XCB)
+    find_package(WAYLAND)
 endif(UNIX)
 
 # CMake provided find modules
 find_package(ZLIB)
-if (UNIX)
-find_package(X11)
+if(UNIX)
+    find_package(X11)
 endif(UNIX)
 
 add_library(windows_specific INTERFACE)
