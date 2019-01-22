@@ -94,7 +94,7 @@ adb shell "setprop debug.gfxrecon.log_level 'warning'"
 
 Option | Property | Type | Description
 ------| ------------- |------|-------------
-Capture Compression Type | debug.gfxrecon.capture_compression_type | STRING | Define a specific compression type to use when capturing content.  Valid values are: "LZ4", "LZ77", and "NONE".
+Capture Compression Type | debug.gfxrecon.capture_compression_type | STRING | Define a specific compression type to use when capturing content.  Valid values are: "LZ4", "ZLIB", and "NONE".
 Capture File | debug.gfxrecon.capture_file | STRING | This option allows you to override the default path and name of the capture file.
 Capture File Timestamp | debug.gfxrecon.capture_file_timestamp | BOOL | This option lets you indicate if you want the capture file name to include the timestamp at creation time. This is important if your application could generate more than one and would normally clobber the original file's contents.
 Log Allow Indents | debug.gfxrecon.log_allow_indents | BOOL | This is an option to allow indent formatting in the strings to attempt to make things easier to read. Although indenting is used in very limited circumstances currently.

@@ -15,8 +15,8 @@ target_sources(gfxrecon_util
                    logging.cpp
                    lz4_compressor.h
                    lz4_compressor.cpp
-                   lz77_compressor.h
-                   lz77_compressor.cpp
+                   zlib_compressor.h
+                   zlib_compressor.cpp
                    memory_output_stream.h
                    memory_output_stream.cpp
                    output_stream.h
@@ -31,7 +31,7 @@ target_sources(gfxrecon_util
 target_compile_definitions(gfxrecon_util
                            PUBLIC
                                $<$<BOOL:${LZ4_FOUND}>:ENABLE_LZ4_COMPRESSION>
-                               $<$<BOOL:${ZLIB_FOUND}>:ENABLE_LZ77_COMPRESSION>)
+                               $<$<BOOL:${ZLIB_FOUND}>:ENABLE_ZLIB_COMPRESSION>)
 
 target_include_directories(gfxrecon_util
                            PUBLIC

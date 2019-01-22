@@ -80,7 +80,7 @@ export GFXRECON_LOG_LEVEL=warning
 
 Option | Environment Variable | Type | Description
 ------| ------------- |------|-------------
-Capture Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Define a specific compression type to use when capturing content.  Valid values are: "LZ4", "LZ77", and "NONE".
+Capture Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Define a specific compression type to use when capturing content.  Valid values are: "LZ4", "ZLIB", and "NONE".
 Capture File | GFXRECON_CAPTURE_FILE | STRING | This option allows you to override the default path and name of the capture file.
 Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | This option lets you indicate if you want the capture file name to include the timestamp at creation time. This is important if your application could generate more than one and would normally clobber the original file's contents.
 Log Allow Indents | GFXRECON_LOG_ALLOW_INDENTS | BOOL | This is an option to allow indent formatting in the strings to attempt to make things easier to read. Although indenting is used in very limited circumstances currently.

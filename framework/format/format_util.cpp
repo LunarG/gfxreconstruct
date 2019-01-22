@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 #include "util/logging.h"
 #include "util/lz4_compressor.h"
-#include "util/lz77_compressor.h"
+#include "util/zlib_compressor.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(format)
@@ -50,11 +50,11 @@ util::Compressor* CreateCompressor(CompressionType type)
             compressor = new util::Lz4Compressor();
             break;
 #endif // ENABLE_LZ4_COMPRESSION
-#ifdef ENABLE_LZ77_COMPRESSION
-        case kLz77:
-            compressor = new util::Lz77Compressor();
+#ifdef ENABLE_ZLIB_COMPRESSION
+        case kZlib:
+            compressor = new util::ZlibCompressor();
             break;
-#endif // ENABLE_LZ77_COMPRESSION
+#endif // ENABLE_ZLIB_COMPRESSION
         case kNone:
             // Nothing to do here.
             break;

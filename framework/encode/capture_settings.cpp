@@ -350,9 +350,9 @@ format::CompressionType CaptureSettings::ParseCompressionTypeString(const std::s
     {
         result = format::CompressionType::kLz4;
     }
-    else if (util::platform::StringCompareNoCase("lz77", value_string.c_str()) == 0)
+    else if (util::platform::StringCompareNoCase("zlib", value_string.c_str()) == 0)
     {
-        result = format::CompressionType::kLz77;
+        result = format::CompressionType::kZlib;
     }
     else
     {

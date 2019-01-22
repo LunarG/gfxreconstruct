@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t<compression_format>\tThe compression format to use when generating");
     GFXRECON_WRITE_CONSOLE("\t\t\t\tthe output file.  Possible values are: ");
     GFXRECON_WRITE_CONSOLE("\t\t\t\t\tLZ4  - To output using LZ4 compression");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\t\tLZ77 - To output using LZ77 compression");
+    GFXRECON_WRITE_CONSOLE("\t\t\t\t\tZLIB - To output using Zlib compression");
     GFXRECON_WRITE_CONSOLE("\t\t\t\t\tNONE - To output without using compression");
 }
 
@@ -78,9 +78,9 @@ int main(int argc, const char** argv)
             {
                 compression_type = gfxrecon::format::CompressionType::kLz4;
             }
-            else if (dst_compression_string == "LZ77")
+            else if (dst_compression_string == "ZLIB")
             {
-                compression_type = gfxrecon::format::CompressionType::kLz77;
+                compression_type = gfxrecon::format::CompressionType::kZlib;
             }
             else
             {
@@ -120,8 +120,8 @@ int main(int argc, const char** argv)
                         case gfxrecon::format::CompressionType::kLz4:
                             src_compression = "LZ4";
                             break;
-                        case gfxrecon::format::CompressionType::kLz77:
-                            src_compression = "LZ77";
+                        case gfxrecon::format::CompressionType::kZlib:
+                            src_compression = "ZLIB";
                             break;
                         default:
                             GFXRECON_LOG_ERROR("Unknown source compression type %d", option.value);
