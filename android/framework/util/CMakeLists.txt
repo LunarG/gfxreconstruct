@@ -30,15 +30,15 @@ target_sources(gfxrecon_util
 
 target_compile_definitions(gfxrecon_util
                            PUBLIC
-                               $<$<BOOL:${LZ4_FOUND}>:ENABLE_LZ4_COMPRESSION>
+                               ENABLE_LZ4_COMPRESSION
                                ENABLE_ZLIB_COMPRESSION)
 
 target_include_directories(gfxrecon_util
                            PUBLIC
-                               $<$<BOOL:${LZ4_FOUND}>:${LZ4_INCLUDE_DIRS}>
+                               ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/framework)
 
 target_link_libraries(gfxrecon_util
                           platform_specific
-                          $<$<BOOL:${LZ4_FOUND}>:${LZ4_LIBRARIES}>
+                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
                           z)
