@@ -1,101 +1,99 @@
-# Helper to try to find installed LZ4 libraries and headers
-# This should generate 3 items of use when looking for LZ4 in CMake:
-#   LZ4_FOUND        : indicates that it found LZ4 libraries and headers
-#                      installed on the local system.
-#   LZ4_INCLUDE_DIRS : The discoverd include directories (including the location of lz4.h)
-#   LZ4_LIBRARIES    : The locations of the static lz4 libraries.
+# FindLZ4
+# -------
 #
+# Find the LZ4 includes and library.
+#
+# This module is derived from the CMake FindZLIB.cmake module.
+#
+# IMPORTED Targets
+# ^^^^^^^^^^^^^^^^
+#
+# This module defines :prop_tgt:`IMPORTED` target ``LZ4::LZ4``, if LZ4 has been found.
+#
+# Result Variables
+# ^^^^^^^^^^^^^^^^
+#
+# This module defines the following variables:
+#
+#  LZ4_FOUND        : True if LZ4 was found.
+#  LZ4_INCLUDE_DIRS : The locatio of the LZ4 header files.
+#  LZ4_LIBRARIES    : List of the LZ4 libraries.
+#
+# Hints
+# ^^^^^
+#
+# The ``LZ4_ROOT`` value may be set to tell this module where to look.
 
-# Look for the top-level directory definition for the LZ4 items.  Just look for
-# a bunch of different possibilities because there is no standard.
-if (DEFINED ENV{LZ4_DIR})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_DIR})
-endif()
-if (DEFINED ENV{LZ4_PATH})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_PATH})
-endif()
-if (DEFINED ENV{LZ4_FOLDER})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_FOLDER})
-endif()
-if (DEFINED ENV{LZ4_ROOT})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_ROOT})
-endif()
-if (DEFINED ENV{LZ4_BASE})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_BASE})
-endif()
-if (DEFINED ENV{LZ4_ROOT_DIR})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_ROOT_DIR})
-endif()
-if (DEFINED ENV{LZ4_ROOT_PATH})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_ROOT_PATH})
-endif()
-if (DEFINED ENV{LZ4_ROOT_FOLDER})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_ROOT_FOLDER})
-endif()
-if (DEFINED ENV{LZ4_BASE_DIR})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_BASE_DIR})
-endif()
-if (DEFINED ENV{LZ4_BASE_PATH})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_BASE_PATH})
-endif()
-if (DEFINED ENV{LZ4_BASE_FOLDER})
-    set(LZ4_SEARCH_PATH $ENV{LZ4_BASE_FOLDER})
+set(_LZ4_SEARCH_PATH)
+
+if (LZ4_ROOT)
+    set(_LZ4_SEARCH_ROOT PATHS ${LZ4_ROOT} NO_DEFAULT_PATH)
+    list(APPEND _LZ4_SEARCH_PATH _LZ4_SEARCH_ROOT)
 endif()
 
-# Look for lz4.h in some standard paths based on the found search above
-FIND_PATH(LZ4_INCLUDE_DIRS
-          NAMES lz4.h
-          HINTS
-             ${LZ4_SEARCH_PATH} ${LZ4_SEARCH_PATH}/include  # LZ4 generated install binary folders
-             ${LZ4_SEARCH_PATH}/lib                         # LZ4 build folder
-        )
+# Normal search.
+set(_LZ4_x86 "(x86)")
+set(_LZ4_SEARCH_NORMAL
+    PATHS "$ENV{ProgramFiles}/lz4"
+          "$ENV{ProgramFiles${_LZ4_x86}}/lz4")
+unset(_LZ4_x86)
+list(APPEND _LZ4_SEARCH_PATH _LZ4_SEARCH_NORMAL)
 
-# Look for liblz4 static library in some standard paths based on the found search above
-FIND_LIBRARY(LZ4_LIBRARIES
-             NAMES lz4 liblz4 liblz4_static
-             HINTS
-                 ${LZ4_SEARCH_PATH} ${LZ4_SEARCH_PATH}/static ${LZ4_SEARCH_PATH}/lib # LZ4 generated install library folders
-                 ${LZ4_SEARCH_PATH}/visual                                           # LZ4 visual studio build folder (top-level)
-            )
+set(LZ4_NAMES lz4 lz4_static liblz4 liblz4_static)
+set(LZ4_NAMES_DEBUG lz4d lz4_staticd liblz4d liblz4_staticd)
 
-if (WIN32 AND LZ4_SEARCH_PATH)
-    # The build for LZ4 on Windows is in an odd location, it is under a
-    # sub-directory based on the version of visual studio used.  So, use
-    # a recursive search to find the generated liblz4.lib file.
-    if (NOT LZ4_LIBRARIES)
-        FUNCTION(SEARCH_FOR_LZ4LIB lz4_search_paths lz4_library_filename lz4_return_list)
-            FOREACH(lz4_search_path ${lz4_search_paths})
-                # POINT A
-                SEARCH_FOR_LZ4LIB_INNER(${lz4_search_path} ${lz4_library_filename} lz4_inner_return)
-                SET(lz4_path_all_list ${lz4_path_all_list} ${lz4_inner_return})
-            ENDFOREACH()
-            SET(${lz4_return_list} ${lz4_path_all_list} PARENT_SCOPE)
-        ENDFUNCTION(SEARCH_FOR_LZ4LIB)
-        FUNCTION(SEARCH_FOR_LZ4LIB_INNER lz4_search_path lz4_library_filename lz4_return_list)
-            FILE(GLOB_RECURSE lz4_new_list ${lz4_search_path}/${lz4_library_filename})
-            SET(lz4_dir_list "")
-            FOREACH(lz4_file_path ${lz4_new_list})
-                SET(lz4_dir_list ${lz4_dir_list} ${lz4_file_path})
-            ENDFOREACH()
-            LIST(REMOVE_DUPLICATES lz4_dir_list)
-            SET(${lz4_return_list} ${lz4_dir_list} PARENT_SCOPE)
-        ENDFUNCTION(SEARCH_FOR_LZ4LIB_INNER)
-        SEARCH_FOR_LZ4LIB(${LZ4_SEARCH_PATH} liblz4_static.lib LZ4_LIBRARIES)
-        if (NOT LZ4_LIBRARIES)
-            SEARCH_FOR_LZ4LIB(${LZ4_SEARCH_PATH} liblz4.lib LZ4_LIBRARIES)
-        endif()
-    endif()
+foreach(search ${_LZ4_SEARCH_PATH})
+    find_path(LZ4_INCLUDE_DIR NAMES lz4.h ${${search}} PATH_SUFFIXES include)
+endforeach()
+
+# Allow LZ4_LIBRARY to be set manually, as the location of the lz4 library
+if(NOT LZ4_LIBRARY)
+    foreach(search ${_LZ4_SEARCH_PATH})
+        find_library(LZ4_LIBRARY_RELEASE NAMES ${LZ4_NAMES} NAMES_PER_DIR ${${search}} PATH_SUFFIXES lib)
+        find_library(LZ4_LIBRARY_DEBUG NAMES ${LZ4_NAMES_DEBUG} NAMES_PER_DIR ${${search}} PATH_SUFFIXES lib)
+    endforeach()
+
+    include(SelectLibraryConfigurations)
+    select_library_configurations(LZ4)
 endif()
 
-# MESSAGE(STATUS "Lz4 Include = ${LZ4_INCLUDE_DIRS}")
-# MESSAGE(STATUS "Lz4 Library = ${LZ4_LIBRARIES}")
+unset(LZ4_NAMES)
+unset(LZ4_NAMES_DEBUG)
+
+mark_as_advanced(LZ4_INCLUDE_DIR)
 
 include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(LZ4 DEFAULT_MSG
-                                  LZ4_LIBRARIES
-                                  LZ4_INCLUDE_DIRS)
+find_package_handle_standard_args(LZ4 REQUIRED_VARS LZ4_LIBRARY LZ4_INCLUDE_DIR)
 
-if (LZ4_FOUND)
-  include(CheckIncludeFile)
-  include(CMakePushCheckState)
+if(LZ4_FOUND)
+    set(LZ4_INCLUDE_DIRS ${LZ4_INCLUDE_DIR})
+
+    if(NOT LZ4_LIBRARIES)
+        set(LZ4_LIBRARIES ${LZ4_LIBRARY})
+    endif()
+
+    if(NOT TARGET LZ4::LZ4)
+        add_library(LZ4::LZ4 UNKNOWN IMPORTED)
+        set_target_properties(LZ4::LZ4 PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${LZ4_INCLUDE_DIRS}")
+
+        if(LZ4_LIBRARY_RELEASE)
+            set_property(TARGET LZ4::LZ4 APPEND PROPERTY
+                IMPORTED_CONFIGURATIONS RELEASE)
+            set_target_properties(LZ4::LZ4 PROPERTIES
+                IMPORTED_LOCATION_RELEASE "${LZ4_LIBRARY_RELEASE}")
+        endif()
+
+        if(LZ4_LIBRARY_DEBUG)
+            set_property(TARGET LZ4::LZ4 APPEND PROPERTY
+                IMPORTED_CONFIGURATIONS DEBUG)
+            set_target_properties(LZ4::LZ4 PROPERTIES
+                IMPORTED_LOCATION_DEBUG "${LZ4_LIBRARY_DEBUG}")
+        endif()
+
+        if(NOT LZ4_LIBRARY_RELEASE AND NOT LZ4_LIBRARY_DEBUG)
+            set_property(TARGET LZ4::LZ4 APPEND PROPERTY
+                IMPORTED_LOCATION "${LZ4_LIBRARY}")
+        endif()
+    endif()
 endif()
