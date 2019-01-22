@@ -15,8 +15,8 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/logging.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/util/lz77_compressor.h
-                   ${GFXRECON_SOURCE_DIR}/framework/util/lz77_compressor.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/zlib_compressor.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/zlib_compressor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/memory_output_stream.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/memory_output_stream.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/output_stream.h
@@ -31,7 +31,7 @@ target_sources(gfxrecon_util
 target_compile_definitions(gfxrecon_util
                            PUBLIC
                                $<$<BOOL:${LZ4_FOUND}>:ENABLE_LZ4_COMPRESSION>
-                               $<$<BOOL:${ZLIB_FOUND}>:ENABLE_LZ77_COMPRESSION>)
+                               $<$<BOOL:${ZLIB_FOUND}>:ENABLE_ZLIB_COMPRESSION>)
 
 target_include_directories(gfxrecon_util
                            PUBLIC

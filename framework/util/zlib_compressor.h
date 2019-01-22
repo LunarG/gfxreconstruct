@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -15,20 +15,20 @@
 ** limitations under the License.
 */
 
-#ifndef GFXRECON_UTIL_LZ77_COMPRESSOR_H
-#define GFXRECON_UTIL_LZ77_COMPRESSOR_H
+#ifndef GFXRECON_UTIL_ZLIB_COMPRESSOR_H
+#define GFXRECON_UTIL_ZLIB_COMPRESSOR_H
 
 #include "util/compressor.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-class Lz77Compressor : public Compressor
+class ZlibCompressor : public Compressor
 {
   public:
-    Lz77Compressor() {}
+    ZlibCompressor() {}
 
-    virtual ~Lz77Compressor() {}
+    virtual ~ZlibCompressor() {}
 
     virtual size_t Compress(const size_t          uncompressed_size,
                             const uint8_t*        uncompressed_data,
@@ -43,4 +43,4 @@ class Lz77Compressor : public Compressor
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_UTIL_LZ77_COMPRESSOR_H
+#endif // GFXRECON_UTIL_ZLIB_COMPRESSOR_H

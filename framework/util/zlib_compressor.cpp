@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
 ** limitations under the License.
 */
 
-#ifdef ENABLE_LZ77_COMPRESSION
+#ifdef ENABLE_ZLIB_COMPRESSION
 
-#include "util/lz77_compressor.h"
+#include "util/zlib_compressor.h"
 
 #include "zlib.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-size_t Lz77Compressor::Compress(const size_t          uncompressed_size,
+size_t ZlibCompressor::Compress(const size_t          uncompressed_size,
                                 const uint8_t*        uncompressed_data,
                                 std::vector<uint8_t>* compressed_data)
 {
@@ -65,7 +65,7 @@ size_t Lz77Compressor::Compress(const size_t          uncompressed_size,
     return copy_size;
 }
 
-size_t Lz77Compressor::Decompress(const size_t                compressed_size,
+size_t ZlibCompressor::Decompress(const size_t                compressed_size,
                                   const std::vector<uint8_t>& compressed_data,
                                   const size_t                expected_uncompressed_size,
                                   std::vector<uint8_t>*       uncompressed_data)
@@ -105,4 +105,4 @@ size_t Lz77Compressor::Decompress(const size_t                compressed_size,
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // ENABLE_LZ77_COMPRESSION
+#endif // ENABLE_ZLIB_COMPRESSION
