@@ -30,7 +30,7 @@ ArgumentParser::ArgumentParser(int32_t            argc,
                                const char** const argv,
                                const std::string& options,
                                const std::string& arguments,
-                               const int32_t      min_positional_args) :
+                               const uint32_t     min_positional_args) :
     is_invalid_(false)
 {
     if (argc > 1 && nullptr != argv)
@@ -54,7 +54,7 @@ ArgumentParser::ArgumentParser(bool               first_is_exe_name,
                                const char*        args,
                                const std::string& options,
                                const std::string& arguments,
-                               const int32_t      min_positional_args) :
+                               const uint32_t     min_positional_args) :
     is_invalid_(false)
 {
     std::vector<std::string> command_line_args;
@@ -126,7 +126,7 @@ ArgumentParser::ArgumentParser(bool               first_is_exe_name,
 void ArgumentParser::Init(std::vector<std::string> command_line_args,
                           const std::string&       options,
                           const std::string&       arguments,
-                          const int32_t            min_positional_args)
+                          const uint32_t           min_positional_args)
 {
     std::vector<std::string> valid_options;
     std::string              sub_string;
@@ -192,7 +192,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
     }
     argument_values_.resize(argument_index);
 
-    for (int32_t cur_arg = 0; cur_arg < command_line_args.size(); ++cur_arg)
+    for (size_t cur_arg = 0; cur_arg < command_line_args.size(); ++cur_arg)
     {
         bool is_option   = false;
         bool is_argument = false;
