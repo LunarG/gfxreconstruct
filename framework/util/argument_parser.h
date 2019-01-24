@@ -39,12 +39,12 @@ class ArgumentParser
                    const char** const argv,
                    const std::string& options,
                    const std::string& arguments,
-                   const int32_t      min_positional_args);
+                   const uint32_t     min_positional_args);
     ArgumentParser(bool               first_is_exe_name,
                    const char*        args,
                    const std::string& options,
                    const std::string& arguments,
-                   const int32_t      min_positional_args);
+                   const uint32_t     min_positional_args);
     ~ArgumentParser() {}
 
     bool                            IsInvalid() { return is_invalid_; }
@@ -58,7 +58,7 @@ class ArgumentParser
     void Init(std::vector<std::string> command_line_args,
               const std::string&       options,
               const std::string&       arguments,
-              const int32_t            min_positional_args);
+              const uint32_t           min_positional_args);
 
     bool                     is_invalid_;
     std::vector<std::string> invalid_values_present_;

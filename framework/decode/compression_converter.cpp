@@ -216,19 +216,21 @@ void CompressionConverter::DispatchFillMemoryCommand(uint64_t       memory_id,
     // NOTE: Don't apply the offset to the write_address here since it's coming from the file_processor
     //       at the start of the stream.  We only need to record the writing offset for future info.
     format::FillMemoryCommandHeader fill_cmd;
-    const uint8_t*                  write_address = static_cast<const uint8_t*>(data);
-    size_t                          write_size    = size;
+    const uint8_t*                  write_address = data;
+
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+    size_t write_size = static_cast<size_t>(size);
 
     fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
     fill_cmd.memory_id                     = memory_id;
     fill_cmd.memory_offset                 = offset;
-    fill_cmd.memory_size                   = size;
+    fill_cmd.memory_size                   = write_size;
 
     if ((!decompressing_) && (compressor_ != nullptr))
     {
-        size_t compressed_size = compressor_->Compress(size, write_address, &compressed_buffer_);
-        if ((compressed_size > 0) && (compressed_size < size))
+        size_t compressed_size = compressor_->Compress(write_size, write_address, &compressed_buffer_);
+        if ((compressed_size > 0) && (compressed_size < write_size))
         {
             // We don't have a special header for compressed fill commands because the header always includes
             // the uncompressed size, so we just change the type to indicate the data is compressed.

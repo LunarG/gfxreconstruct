@@ -135,7 +135,10 @@ class TraceManager
 #endif
 
   protected:
-    TraceManager() : bytes_written_(0), memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kUnassisted) {}
+    TraceManager() :
+        force_file_flush_(false), bytes_written_(0),
+        memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kUnassisted)
+    {}
 
     ~TraceManager() {}
 
