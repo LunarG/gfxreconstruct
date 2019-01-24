@@ -16,6 +16,7 @@
 
 import os
 import sys
+import shlex
 import subprocess
 
 argv = sys.argv
@@ -52,10 +53,9 @@ def InstallApk():
     if argc != 3:
         PrintUsage()
     else:
-        print('Executing:', adb_install, argv[2])
-        cmd = adb_install.split()
-        cmd.append(argv[2])
-        subprocess.call(cmd)
+        cmd = adb_install + ' ' + argv[2]
+        print('Executing:', cmd)
+        subprocess.check_call(shlex.split(cmd))
 
 def Replay():
     filename = ''
@@ -74,20 +74,18 @@ def Replay():
 
     if filename:
         if push_source:
-            print('Executing:', adb_push, push_source, filename)
-            cmd = adb_push.split()
-            cmd.append(push_source)
-            cmd.append(filename)
-            subprocess.call(cmd)
+            cmd = adb_push + ' ' + push_source + ' ' + filename
+            print('Executing:', cmd)
+            subprocess.check_call(shlex.split(cmd))
 
         print('Executing:', adb_stop)
-        subprocess.call(adb_stop.split())
+        subprocess.check_call(shlex.split(adb_stop))
 
-        extras = '--es "args" "{}"'.format(filename)
-        print('Executing:', adb_start, extras)
-        cmd = adb_start.split()
-        cmd.append(extras)
-        subprocess.call(cmd)
+        cmd = adb_start + ' ' + '--es' + ' ' + '"args"' + ' "' + filename + '"'
+        print('Executing:', cmd)
+
+        # Specify posix=False to prevent removal of quotes from adb extras.
+        subprocess.check_call(shlex.split(cmd, posix=False))
     else:
         PrintUsage()
 
