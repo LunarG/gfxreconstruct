@@ -41,9 +41,11 @@ generate_targets = [
     'generated_decode_pnext_struct.cpp',
     'generated_vulkan_consumer.h',
     'generated_vulkan_ascii_consumer.h',
-    'generated_vulkan_replay_consumer.h',
     'generated_vulkan_ascii_consumer.cpp',
-    'generated_vulkan_replay_consumer.cpp'
+    'generated_vulkan_replay_consumer.h',
+    'generated_vulkan_replay_consumer.cpp',
+    'generated_vulkan_struct_handle_mappers.h',
+    'generated_vulkan_struct_handle_mappers.cpp'
 ]
 
 if __name__ == '__main__':

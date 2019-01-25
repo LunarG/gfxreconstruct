@@ -25,7 +25,7 @@ from generator import *
 # Turn a list of strings into a regexp string matching exactly those strings.
 # From Khronos genvk.py
 def _makeREstring(list, default = None):
-    if len(list) > 0 or default == None:
+    if (len(list) > 0) or (default is None):
         return '^(' + '|'.join(list) + ')$'
     else:
         return default
@@ -274,12 +274,12 @@ class BaseGenerator(OutputGenerator):
             if self.featureBreak:
                 self.newline()
 
-            if (self.featureExtraProtect != None):
+            if (self.featureExtraProtect is not None):
                 write('#ifdef', self.featureExtraProtect, file=self.outFile)
 
             self.generateFeature()
 
-            if (self.featureExtraProtect != None):
+            if (self.featureExtraProtect is not None):
                 write('#endif /*', self.featureExtraProtect, '*/', file=self.outFile)
 
         # Finish processing in superclass
