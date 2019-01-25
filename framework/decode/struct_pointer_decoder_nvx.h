@@ -70,7 +70,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
 
     uint64_t* GetAddresses() const { return struct_addresses_.get(); }
 
-    const Decoded_VkObjectTableEntryNVX* const* GetMetaStructPointer() const { return decoded_structs_.get(); }
+    Decoded_VkObjectTableEntryNVX** GetMetaStructPointer() const { return decoded_structs_.get(); }
 
     VkObjectTableEntryNVX** GetPointer() const { return struct_memory_.get(); }
 

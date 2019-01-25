@@ -19,6 +19,7 @@
 
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/vulkan_enum_util.h"
+#include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
@@ -642,40 +643,19 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(const Descript
 
     if (image_info_count > 0)
     {
-        VkDescriptorImageInfo*               image_info         = decoder.GetImageInfoPointer();
-        const Decoded_VkDescriptorImageInfo* decoded_image_info = decoder.GetImageInfoMetaStructPointer();
-
-        assert((image_info != nullptr) && (decoded_image_info != nullptr));
-        for (size_t i = 0; i < image_info_count; ++i)
-        {
-            image_info[i].sampler   = object_mapper_.MapVkSampler(decoded_image_info[i].sampler);
-            image_info[i].imageView = object_mapper_.MapVkImageView(decoded_image_info[i].imageView);
-        }
+        MapStructArrayHandles(decoder.GetImageInfoMetaStructPointer(), image_info_count, object_mapper_);
     }
 
     if (buffer_info_count > 0)
     {
-        VkDescriptorBufferInfo*               buffer_info         = decoder.GetBufferInfoPointer();
-        const Decoded_VkDescriptorBufferInfo* decoded_buffer_info = decoder.GetBufferInfoMetaStructPointer();
-
-        assert((buffer_info != nullptr) && (decoded_buffer_info != nullptr));
-
-        for (size_t i = 0; i < buffer_info_count; ++i)
-        {
-            buffer_info[i].buffer = object_mapper_.MapVkBuffer(decoded_buffer_info[i].buffer);
-        }
+        MapStructArrayHandles(decoder.GetBufferInfoMetaStructPointer(), buffer_info_count, object_mapper_);
     }
 
     if (texel_buffer_view_count > 0)
     {
-        VkBufferView*           texel_buffer_views = decoder.GetTexelBufferViewPointer();
-        const format::HandleId* handle_ids         = decoder.GetTexelBufferViewHandleIdsPointer();
-
-        assert((texel_buffer_views != nullptr) && (handle_ids != nullptr));
-
-        MapHandles<VkBufferView>(handle_ids,
+        MapHandles<VkBufferView>(decoder.GetTexelBufferViewHandleIdsPointer(),
                                  texel_buffer_view_count,
-                                 texel_buffer_views,
+                                 decoder.GetTexelBufferViewPointer(),
                                  texel_buffer_view_count,
                                  &VulkanObjectMapper::MapVkBufferView);
     }
@@ -766,68 +746,46 @@ void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
     assert(objectCount == ppObjectTableEntries.GetLength());
 
     VkObjectTableEntryNVX**                     in_ppObjectTableEntries = ppObjectTableEntries.GetPointer();
-    const Decoded_VkObjectTableEntryNVX* const* in_ppObjectTableEntries_wrapper =
-        ppObjectTableEntries.GetMetaStructPointer();
+    Decoded_VkObjectTableEntryNVX** in_ppObjectTableEntries_wrapper     = ppObjectTableEntries.GetMetaStructPointer();
 
     // Map the object table entry handles.
     if ((in_ppObjectTableEntries != nullptr) && (in_ppObjectTableEntries_wrapper != nullptr))
     {
         for (size_t i = 0; i < objectCount; ++i)
         {
-            if ((in_ppObjectTableEntries[i] != nullptr) && (in_ppObjectTableEntries_wrapper[i] != nullptr))
+            if (in_ppObjectTableEntries[i] != nullptr)
             {
                 VkObjectEntryTypeNVX type = in_ppObjectTableEntries[i]->type;
 
                 if (type == VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX)
                 {
-                    const Decoded_VkObjectTableDescriptorSetEntryNVX* wrapper =
-                        reinterpret_cast<const Decoded_VkObjectTableDescriptorSetEntryNVX*>(
-                            in_ppObjectTableEntries_wrapper[i]);
-                    VkObjectTableDescriptorSetEntryNVX* value =
-                        reinterpret_cast<VkObjectTableDescriptorSetEntryNVX*>(in_ppObjectTableEntries[i]);
-
-                    value->pipelineLayout = object_mapper_.MapVkPipelineLayout(wrapper->pipelineLayout);
-                    value->descriptorSet  = object_mapper_.MapVkDescriptorSet(wrapper->descriptorSet);
+                    MapStructHandles(reinterpret_cast<Decoded_VkObjectTableDescriptorSetEntryNVX*>(
+                                         in_ppObjectTableEntries_wrapper[i]),
+                                     object_mapper_);
                 }
                 else if (type == VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX)
                 {
-                    const Decoded_VkObjectTablePipelineEntryNVX* wrapper =
-                        reinterpret_cast<const Decoded_VkObjectTablePipelineEntryNVX*>(
-                            in_ppObjectTableEntries_wrapper[i]);
-                    VkObjectTablePipelineEntryNVX* value =
-                        reinterpret_cast<VkObjectTablePipelineEntryNVX*>(in_ppObjectTableEntries[i]);
-
-                    value->pipeline = object_mapper_.MapVkPipeline(wrapper->pipeline);
+                    MapStructHandles(
+                        reinterpret_cast<Decoded_VkObjectTablePipelineEntryNVX*>(in_ppObjectTableEntries_wrapper[i]),
+                        object_mapper_);
                 }
                 else if (type == VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX)
                 {
-                    const Decoded_VkObjectTableIndexBufferEntryNVX* wrapper =
-                        reinterpret_cast<const Decoded_VkObjectTableIndexBufferEntryNVX*>(
-                            in_ppObjectTableEntries_wrapper[i]);
-                    VkObjectTableIndexBufferEntryNVX* value =
-                        reinterpret_cast<VkObjectTableIndexBufferEntryNVX*>(in_ppObjectTableEntries[i]);
-
-                    value->buffer = object_mapper_.MapVkBuffer(wrapper->buffer);
+                    MapStructHandles(
+                        reinterpret_cast<Decoded_VkObjectTableIndexBufferEntryNVX*>(in_ppObjectTableEntries_wrapper[i]),
+                        object_mapper_);
                 }
                 else if (type == VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX)
                 {
-                    const Decoded_VkObjectTableVertexBufferEntryNVX* wrapper =
-                        reinterpret_cast<const Decoded_VkObjectTableVertexBufferEntryNVX*>(
-                            in_ppObjectTableEntries_wrapper[i]);
-                    VkObjectTableVertexBufferEntryNVX* value =
-                        reinterpret_cast<VkObjectTableVertexBufferEntryNVX*>(in_ppObjectTableEntries[i]);
-
-                    value->buffer = object_mapper_.MapVkBuffer(wrapper->buffer);
+                    MapStructHandles(reinterpret_cast<Decoded_VkObjectTableVertexBufferEntryNVX*>(
+                                         in_ppObjectTableEntries_wrapper[i]),
+                                     object_mapper_);
                 }
                 else if (type == VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX)
                 {
-                    const Decoded_VkObjectTablePushConstantEntryNVX* wrapper =
-                        reinterpret_cast<const Decoded_VkObjectTablePushConstantEntryNVX*>(
-                            in_ppObjectTableEntries_wrapper[i]);
-                    VkObjectTablePushConstantEntryNVX* value =
-                        reinterpret_cast<VkObjectTablePushConstantEntryNVX*>(in_ppObjectTableEntries[i]);
-
-                    value->pipelineLayout = object_mapper_.MapVkPipelineLayout(wrapper->pipelineLayout);
+                    MapStructHandles(reinterpret_cast<Decoded_VkObjectTablePushConstantEntryNVX*>(
+                                         in_ppObjectTableEntries_wrapper[i]),
+                                     object_mapper_);
                 }
                 else
                 {
