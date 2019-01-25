@@ -41,12 +41,9 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     size_t GetBufferInfoCount() const { return buffer_info_count_; }
     size_t GetTexelBufferViewCount() const { return texel_buffer_view_count_; }
 
-    const Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() const { return decoded_image_info_.get(); }
-    const Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() const { return decoded_buffer_info_.get(); }
-    const format::HandleId*               GetTexelBufferViewHandleIdsPointer() const
-    {
-        return decoded_texel_buffer_view_handle_ids_.get();
-    }
+    Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() const { return decoded_image_info_.get(); }
+    Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() const { return decoded_buffer_info_.get(); }
+    format::HandleId* GetTexelBufferViewHandleIdsPointer() const { return decoded_texel_buffer_view_handle_ids_.get(); }
 
     VkDescriptorImageInfo*  GetImageInfoPointer() const { return image_info_; }
     VkDescriptorBufferInfo* GetBufferInfoPointer() const { return buffer_info_; }

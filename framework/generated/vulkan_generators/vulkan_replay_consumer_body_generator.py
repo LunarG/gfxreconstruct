@@ -55,6 +55,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "generated/generated_vulkan_replay_consumer.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_struct_handle_mappers.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "volk.h"', file=self.outFile)
@@ -205,13 +206,11 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     else:
                         expr += '{}.GetPointer();'.format(value.name)
                         if value.baseType in self.structsWithHandles:
-                            # Strip the const from the type declaration.
-                            expr = expr.replace('const ', '').lstrip()
                             preexpr.append(expr)
-                            expr = ''
-                            # We need to map the handles.  The current expr will be modified and appended to the appropriate pre and post lists.
-                            newdecls, newpreexpr = self.makeStructHandleMappings(value, argName, lengthName, [], [], '', '', '')
-                            preexpr += newdecls + newpreexpr
+                            if value.isArray:
+                                expr = 'MapStructArrayHandles({name}.GetMetaStructPointer(), {name}.GetLength(), GetObjectMapper());'.format(name=value.name)
+                            else:
+                                expr = 'MapStructHandles({}.GetMetaStructPointer(), GetObjectMapper());'.format(value.name)
                 else:
                     # Initialize output pointer.
                     # Note on output structures with handles: These strucutres are used in queries such as
@@ -275,113 +274,3 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                 # Only need to append the parameter name to the args list; no other expressions are necessary.
                 args.append(value.name)
         return args, preexpr, postexpr
-
-    #
-    #
-    def makeStructHandleMappings(self, value, argName, lengthName, predecls = [], preexpr = [], srcPrefix = '', initIndent = '', initCounter = ''):
-        handleValues = self.structsWithHandles[value.baseType]
-        wrapperName = argName + '_wrapper'
-        indent = initIndent
-        counter = ''
-
-        valueName = srcPrefix + value.name
-
-        if value.isPointer or value.isArray:
-            # Allocate memory for handles and perform mapping when the struct pointer or array is not NULL.
-            preexpr.append(indent + 'if ({} != nullptr)'.format(argName))
-            preexpr.append(indent + '{')
-            indent = initIndent + ' ' * self.INDENT_SIZE
-
-            preexpr.append(indent + 'const Decoded_{}* {} = {}.GetMetaStructPointer();'.format(value.baseType, wrapperName, valueName))
-
-        if value.isArray:
-            # Start a for loop to process all of the structures in the array.
-            counter = initCounter + 'i'
-            preexpr.append(indent + 'assert({} == {}.GetLength());'.format(lengthName, valueName))
-            preexpr.append('')
-            preexpr.append(indent + 'for (size_t {counter} = 0; {counter} < {}; ++{counter})'.format(lengthName, counter=counter))
-            preexpr.append(indent + '{')
-            indent += ' ' * self.INDENT_SIZE
-
-        for handleValue in handleValues:
-            srcName = ''
-            dstName = argName
-
-            if value.isPointer or value.isArray:
-                # Access fields of pointer or array members
-                srcName = wrapperName
-                if value.isArray:
-                    # Index the array
-                    srcName += '[{}].'.format(counter)
-                    dstName += '[{}].'.format(counter)
-                else:
-                    # Dereference the pointer
-                    srcName += '->'
-                    dstName += '->'
-            else:
-                # Access fields of a struct member
-                srcName = valueName
-                srcName += '.'
-                dstName += '.'
-
-            if self.isStruct(handleValue.baseType):
-                if handleValue.isPointer or handleValue.isArray:
-                    fullType = handleValue.fullType.replace('const ', '').lstrip()
-                    nextName = argName + '_' + handleValue.name
-
-                    nextDecl = '{} {} = nullptr;'.format(fullType, nextName)
-                    predecls.append(nextDecl)
-
-                    nextExpr = indent + '{} = {}.GetPointer();'.format(nextName, srcName + handleValue.name)
-                    preexpr.append(nextExpr)
-
-                    nextLength = dstName + handleValue.arrayLength if handleValue.arrayLength else None
-                    predecls, preexpr = self.makeStructHandleMappings(handleValue, nextName, nextLength, predecls, preexpr, srcName, indent, counter)
-                else:
-                    nextValues = self.structsWithHandles[handleValue.baseType]
-                    for nextValue in nextValues:
-                        if not self.isStruct(nextValue.baseType):
-                            # We have a handle to map
-                            self.makeStructHandleMappingExpr(nextValue, srcName + handleValue.name + '.', dstName + handleValue.name + '.', preexpr, indent)
-                        else:
-                            # We have a struct that contains one or more handles, so we need to process the struct
-                            nextLength = None
-                            if nextValue.isPointer or nextValue.isArray:
-                                # The next member in the current struct is a struct pointer, which needs a temporary value to retrieve and process the decoded struct data.
-                                fullType = nextValue.fullType.replace('const ', '').lstrip()
-                                nextName = argName + '_' + handleValue.name + '_' + nextValue.name
-
-                                nextDecl = '{} {} = nullptr;'.format(fullType, nextName)
-                                predecls.append(nextDecl)
-
-                                nextExpr = indent + '{} = {}.{}.GetPointer();'.format(nextName, srcName + handleValue.name, nextValue.name)
-                                preexpr.append(nextExpr)
-
-                                if nextValue.arrayLength:
-                                    nextLength = dstName + handleValue.name + '.' + nextValue.arrayLength
-                            else:
-                                # Create an expression to access a member of the current struct.
-                               nextName = dstName + handleValue.name + '.' + nextValue.name
-
-                            predecls, preexpr = self.makeStructHandleMappings(nextValue, nextName, nextLength, predecls, preexpr, srcName + handleValue.name + '.', indent, counter)
-            else:
-                self.makeStructHandleMappingExpr(handleValue, srcName, dstName, preexpr, indent)
-
-        if value.isArray:
-            # End the for loop.
-            indent = initIndent + ' ' * self.INDENT_SIZE
-            preexpr.append(indent + '}')
-
-        if value.isPointer or value.isArray:
-            indent = initIndent
-            preexpr.append(indent + '}')
-
-        return predecls, preexpr
-
-    def makeStructHandleMappingExpr(self, value, srcname, dstname, preexpr, indent):
-        if value.isArray:
-            # Mapping an array of handles.
-            preexpr.append(indent + 'MapHandles<{handletype}>({srcname}{handlename}.GetPointer(), {srcname}{handlename}.GetLength(), {srcname}{handlename}.GetHandlePointer(), {argname}{}, &VulkanObjectMapper::Map{handletype});'.format(value.arrayLength, srcname=srcname, handlename=value.name, argname=dstname, handletype=value.baseType))
-        else:
-            # Mapping a single handle.
-            preexpr.append(indent + '{}{membername} = GetObjectMapper().Map{}({}{membername});'.format(dstname, value.baseType, srcname, membername=value.name))
