@@ -34,6 +34,8 @@ from decode_pnext_struct_generator import DecodePNextStructGenerator,DecodePNext
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator,VulkanConsumerHeaderGeneratorOptions
 from vulkan_ascii_consumer_body_generator import VulkanAsciiConsumerBodyGenerator,VulkanAsciiConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator,VulkanReplayConsumerBodyGeneratorOptions
+from vulkan_struct_handle_mappers_header_generator import VulkanStructHandleMappersHeaderGenerator,VulkanStructHandleMappersHeaderGeneratorOptions
+from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMappersBodyGenerator,VulkanStructHandleMappersBodyGeneratorOptions
 
 # API Call Encoders
 from vulkan_api_call_encoders_body_generator import VulkanApiCallEncodersBodyGenerator,VulkanApiCallEncodersBodyGeneratorOptions
@@ -254,6 +256,26 @@ def makeGenOpts(args):
         protectFile       = False,
         protectFeature    = False)
     ]
+
+    genOpts['generated_vulkan_struct_handle_mappers.h'] = [
+          VulkanStructHandleMappersHeaderGenerator,
+          VulkanStructHandleMappersHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_struct_handle_mappers.h',
+            directory         = directory,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_struct_handle_mappers.cpp'] = [
+          VulkanStructHandleMappersBodyGenerator,
+          VulkanStructHandleMappersBodyGeneratorOptions(
+            filename          = 'generated_vulkan_struct_handle_mappers.cpp',
+            directory         = directory,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False)
+        ]
 
     #
     # API call encoder generators
