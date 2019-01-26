@@ -54,6 +54,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
+        write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/vulkan_object_mapper.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
@@ -65,6 +66,8 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
 
     # Method override
     def endFile(self):
+        self.newline()
+        write('void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectMapper& object_mapper);', file=self.outFile)
         self.newline()
         write('template <typename T>', file=self.outFile)
         write('void MapStructArrayHandles(T* structs, size_t len, const VulkanObjectMapper& object_mapper)', file=self.outFile)
@@ -97,6 +100,10 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
                     handles.append(value)
                 elif self.isStruct(value.baseType) and value.baseType in self.structsWithHandles:
                     # The member is a struct that contains a handle.
+                    handles.append(value)
+                elif 'pNext' in value.name:
+                    # The pNext member may point to a struct that contains handles to map.
+                    # TODO: Make this conditional on the struct being extended by structs with handles.
                     handles.append(value)
             if handles:
                 self.structsWithHandles[typename] = handles

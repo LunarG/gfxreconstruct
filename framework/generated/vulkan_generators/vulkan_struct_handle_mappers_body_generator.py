@@ -49,6 +49,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
+        self.pNextStructs = dict()          # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
 
     # Method override
     def beginFile(self, genOpts):
@@ -80,6 +81,27 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
 
     # Method override
     def endFile(self):
+        # Generate the pNext handle mapping code.
+        self.newline()
+        write('void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectMapper& object_mapper)', file=self.outFile)
+        write('{', file=self.outFile)
+        write('    if ((value != nullptr) && (wrapper != nullptr))', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('        const VkBaseInStructure* base = reinterpret_cast<const VkBaseInStructure*>(value);', file=self.outFile)
+        write('', file=self.outFile)
+        write('        switch (base->sType)', file=self.outFile)
+        write('        {', file=self.outFile)
+        write('        default:', file=self.outFile)
+        write('            // TODO: Report or raise fatal error for unrecongized sType?', file=self.outFile)
+        write('            break;', file=self.outFile)
+        for baseType in self.pNextStructs:
+            write('        case {}:'.format(self.pNextStructs[baseType]), file=self.outFile)
+            write('            MapStructHandles(reinterpret_cast<Decoded_{}*>(wrapper), object_mapper);'.format(baseType), file=self.outFile)
+            write('            break;', file=self.outFile)
+        write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -101,8 +123,19 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                 elif self.isStruct(value.baseType) and value.baseType in self.structsWithHandles:
                     # The member is a struct that contains a handle.
                     handles.append(value)
+                elif 'pNext' in value.name:
+                    # The pNext member may point to a struct that contains handles to map.
+                    # TODO: Make this conditional on the struct being extended by structs with handles.
+                    handles.append(value)
             if handles:
                 self.structsWithHandles[typename] = handles
+
+                # Track this struct if it can be present in a pNext chain, for generating the MapPNextStructHandles code.
+                parentStructs = typeinfo.elem.get('structextends')
+                if parentStructs:
+                    sType = self.makeStructureTypeEnum(typeinfo, typename)
+                    if sType:
+                        self.pNextStructs[typename] = sType
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -125,17 +158,31 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                         structsOnly = False
                         break
 
+                # Determine if the struct contains a pNext member.
+                hasPNext = False
+                for member in members:
+                    if 'pNext' in member.name:
+                        hasPNext = True
+                        break
+
                 body = '\n'
                 body += 'void MapStructHandles(Decoded_{}* wrapper, const VulkanObjectMapper& object_mapper)\n'.format(struct)
                 body += '{\n'
 
-                if structsOnly:
+                if structsOnly and not hasPNext:
                     body += '    if (wrapper != nullptr)\n'
                     body += '    {'
                 else:
                     body += '    if ((wrapper != nullptr) && (wrapper->value != nullptr))\n'
                     body += '    {\n'
                     body += '        {}* value = wrapper->value;\n'.format(struct)
+
+                    if hasPNext:
+                        body += '\n'
+                        body += '        if (value->pNext != nullptr)\n'
+                        body += '        {\n'
+                        body += '            MapPNextStructHandles(value->pNext, wrapper->pNext->GetMetaStructPointer(), object_mapper);\n'
+                        body += '        }\n'
 
                 body += self.makeStructHandleMappings(struct, members)
                 body += '    }\n'
@@ -149,6 +196,10 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         body = ''
 
         for member in members:
+            if 'pNext' in member.name:
+                # Ignore the pNext pointer, which has already been processed.
+                continue
+
             body += '\n'
             if self.isStruct(member.baseType):
                 # This is a struct that includes handles
