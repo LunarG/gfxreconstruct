@@ -39,6 +39,8 @@ class PNextNode
 
     virtual void* GetPointer() const = 0;
 
+    virtual void* GetMetaStructPointer() const = 0;
+
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) = 0;
 };
 

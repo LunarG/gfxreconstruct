@@ -262,6 +262,7 @@ def makeGenOpts(args):
           VulkanStructHandleMappersHeaderGeneratorOptions(
             filename          = 'generated_vulkan_struct_handle_mappers.h',
             directory         = directory,
+            blacklists        = blacklists,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = True,
             protectFeature    = False)
@@ -272,6 +273,7 @@ def makeGenOpts(args):
           VulkanStructHandleMappersBodyGeneratorOptions(
             filename          = 'generated_vulkan_struct_handle_mappers.cpp',
             directory         = directory,
+            blacklists        = blacklists,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = False)

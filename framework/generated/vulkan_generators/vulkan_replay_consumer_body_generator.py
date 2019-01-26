@@ -86,6 +86,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                 elif self.isStruct(value.baseType) and value.baseType in self.structsWithHandles:
                     # The member is a struct that contains a handle.
                     handles.append(value)
+                elif 'pNext' in value.name:
+                    # The pNext member may point to a struct that contains handles to map.
+                    # TODO: Make this conditional on the struct being extended by structs with handles.
+                    handles.append(value)
             if handles:
                 self.structsWithHandles[typename] = handles
 

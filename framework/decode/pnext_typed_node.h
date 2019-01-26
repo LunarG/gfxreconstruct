@@ -42,6 +42,8 @@ class PNextTypedNode : public PNextNode
 
     virtual void* GetPointer() const override { return struct_pointer_.GetPointer(); }
 
+    virtual void* GetMetaStructPointer() const override { return struct_pointer_.GetMetaStructPointer(); }
+
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) override
     {
         return struct_pointer_.Decode(buffer, buffer_size);

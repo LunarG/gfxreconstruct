@@ -45,6 +45,8 @@ class PNextNullNode : public PNextNode
 
     virtual void* GetPointer() const { return nullptr; }
 
+    virtual void* GetMetaStructPointer() const { return nullptr; }
+
     virtual size_t Decode(const uint8_t*, size_t) { return 0; };
 };
 
