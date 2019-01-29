@@ -14,7 +14,6 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_processor.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/handle_pointer_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_node.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_null_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_typed_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder.h

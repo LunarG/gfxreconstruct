@@ -103,7 +103,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
             # pNext fields require special treatment and are not processed by type name
             if 'pNext' in value.name:
                 body += '    bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(value.name)
-                body += '    value->pNext = wrapper->pNext->GetPointer();\n'
+                body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
             else:
                 body += self.makeDecodeInvocation(value)
 

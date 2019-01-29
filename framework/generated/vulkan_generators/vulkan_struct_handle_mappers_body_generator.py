@@ -158,31 +158,17 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                         structsOnly = False
                         break
 
-                # Determine if the struct contains a pNext member.
-                hasPNext = False
-                for member in members:
-                    if 'pNext' in member.name:
-                        hasPNext = True
-                        break
-
                 body = '\n'
                 body += 'void MapStructHandles(Decoded_{}* wrapper, const VulkanObjectMapper& object_mapper)\n'.format(struct)
                 body += '{\n'
 
-                if structsOnly and not hasPNext:
+                if structsOnly:
                     body += '    if (wrapper != nullptr)\n'
                     body += '    {'
                 else:
                     body += '    if ((wrapper != nullptr) && (wrapper->value != nullptr))\n'
                     body += '    {\n'
                     body += '        {}* value = wrapper->value;\n'.format(struct)
-
-                    if hasPNext:
-                        body += '\n'
-                        body += '        if (value->pNext != nullptr)\n'
-                        body += '        {\n'
-                        body += '            MapPNextStructHandles(value->pNext, wrapper->pNext->GetMetaStructPointer(), object_mapper);\n'
-                        body += '        }\n'
 
                 body += self.makeStructHandleMappings(struct, members)
                 body += '    }\n'
@@ -196,13 +182,15 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         body = ''
 
         for member in members:
-            if 'pNext' in member.name:
-                # Ignore the pNext pointer, which has already been processed.
-                continue
-
             body += '\n'
-            if self.isStruct(member.baseType):
-                # This is a struct that includes handles
+
+            if 'pNext' in member.name:
+                body += '        if (wrapper->pNext)\n'
+                body += '        {\n'
+                body += '            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);\n'
+                body += '        }\n'
+            elif self.isStruct(member.baseType):
+                # This is a struct that includes handles.
                 if member.isArray:
                     body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{name}.GetMetaStructPointer(), wrapper->{name}.GetLength(), object_mapper);\n'.format(member.baseType, name=member.name)
                 elif member.isPointer:
@@ -210,7 +198,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                 else:
                     body += '        MapStructHandles(&wrapper->{}, object_mapper);\n'.format(member.name)
             else:
-                # If it is an array or pointer
+                # If it is an array or pointer, map with the utility function.
                 if (member.isArray or member.isPointer):
                     if member.isArray:
                         body += '        MapHandleArray<{type}>(wrapper->{name}.GetPointer(), wrapper->{name}.GetHandlePointer(), wrapper->{name}.GetLength(), object_mapper, &VulkanObjectMapper::Map{type});\n'.format(type=member.baseType, name=member.name);

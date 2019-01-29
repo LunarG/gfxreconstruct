@@ -23,7 +23,6 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 
 #include "decode/pnext_node.h"
-#include "decode/pnext_null_node.h"
 #include "decode/pnext_typed_node.h"
 
 #include <cassert>
@@ -701,16 +700,11 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
         }
     }
 
-    if (bytes_read == 0)
+    if ((bytes_read == 0) && (attrib != 0))
     {
-        // The buffer was too small, the encoded pointer attribute mask included kIsNull, or the sType was unrecognized.
-        // We will report that we read the attribute mask and return a PNextNullNode.
-        if (attrib != 0)
-        {
-            bytes_read = sizeof(attrib);
-        }
-
-        (*pNext) = std::make_unique<PNextNullNode>();
+        // The encoded pointer attribute mask included kIsNull, or the sType was unrecognized.
+        // We will report that we read the attribute mask, but nothing else was decoded.
+        bytes_read = sizeof(attrib);
     }
 
     return bytes_read;
