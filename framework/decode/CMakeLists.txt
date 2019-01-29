@@ -14,7 +14,6 @@ target_sources(gfxrecon_decode
                    file_processor.cpp
                    handle_pointer_decoder.h
                    pnext_node.h
-                   pnext_null_node.h
                    pnext_typed_node.h
                    pointer_decoder_base.h
                    pointer_decoder.h
