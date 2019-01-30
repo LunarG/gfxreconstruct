@@ -24,6 +24,7 @@
 
 #include "decode/pnext_node.h"
 #include "decode/pnext_typed_node.h"
+#include "util/logging.h"
 
 #include <cassert>
 
@@ -62,7 +63,8 @@ size_t decode_pnext_struct(const uint8_t* parameter_buffer, size_t buffer_size, 
             switch (*sType)
             {
             default:
-                // TODO: Report or raise fatal error for unrecongized sType?
+                // TODO: This may need to be a fatal error
+                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructurType = %x", (*sType));
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceSubgroupProperties>>();

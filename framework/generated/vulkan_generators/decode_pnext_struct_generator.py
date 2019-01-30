@@ -55,6 +55,7 @@ class DecodePNextStructGenerator(BaseGenerator):
         self.newline()
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pnext_typed_node.h"', file=self.outFile)
+        write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include <cassert>', file=self.outFile)
         self.newline()
@@ -93,7 +94,8 @@ class DecodePNextStructGenerator(BaseGenerator):
         write('            switch (*sType)', file=self.outFile)
         write('            {', file=self.outFile)
         write('            default:', file=self.outFile)
-        write('                // TODO: Report or raise fatal error for unrecongized sType?', file=self.outFile)
+        write('                // TODO: This may need to be a fatal error', file=self.outFile)
+        write('                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructurType = %x", (*sType));', file=self.outFile)
         write('                break;', file=self.outFile)
 
     # Method override

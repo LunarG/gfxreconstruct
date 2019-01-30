@@ -24,11 +24,14 @@
 
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
+#include "encode/trace_manager.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
 
 #include <cassert>
+#include <cstdio>
+#include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -47,9 +50,14 @@ void encode_pnext_struct(ParameterEncoder* encoder, const void* value)
         switch (header->sType)
         {
         default:
-            // TODO: Write metadata message with unrecongized sType?
-            // pNext is unrecongized.  Write an encoding for a NULL pointer.
-            encoder->EncodeStructPtrPreamble(nullptr);
+            {
+                // pNext is unrecongized.  Write warning message and encode it as a NULL pointer.
+                int32_t message_size = std::snprintf(nullptr, 0, "A pNext value with unrecognized VkStructureType = %x was omitted from the capture file, which may cause replay to fail.", header->sType);
+                std::unique_ptr<char[]> message = std::make_unique<char[]>(message_size + 1); // Add 1 for null-terminator.
+                std::snprintf(message.get(), (message_size + 1), "A pNext value with unrecognized VkStructureType = %x was omitted from the capture file, which may cause replay to fail.", header->sType);
+                TraceManager::Get()->WriteDisplayMessageCmd(message.get());
+                encoder->EncodeStructPtrPreamble(nullptr);
+            }
             break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES:
             encode_struct_ptr(encoder, reinterpret_cast<const VkPhysicalDeviceSubgroupProperties*>(value));
