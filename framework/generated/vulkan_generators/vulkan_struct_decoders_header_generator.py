@@ -126,6 +126,14 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
         return False
 
     #
+    # Determines if the struct member requires default initalization and determines the value to use.
+    def getDefaultInitValue(self, type):
+        if type in ['uint64_t',  'format::HandleId']:
+            # These types represent values recorded for Vulkan handles, function pointers, and void pointers to non-Vulkan objects.
+            return '0'
+        return None
+
+    #
     # Generate the struct member declarations for the decoded struct wrapper.
     def makeMemberDeclarations(self, name, values):
         body = ''
@@ -136,6 +144,10 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
                 body += '    std::unique_ptr<PNextNode> pNext;\n'
             elif self.needsMemberDeclaration(value):
                 typeName = self.makeDecodedParamType(value)
-                body += '    {} {};\n'.format(typeName, value.name)
+                defaultValue = self.getDefaultInitValue(typeName)
+                if defaultValue:
+                    body += '    {} {}{{ {} }};\n'.format(typeName, value.name, defaultValue)
+                else:
+                    body += '    {} {};\n'.format(typeName, value.name)
 
         return body
