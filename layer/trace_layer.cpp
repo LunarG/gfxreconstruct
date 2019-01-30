@@ -164,7 +164,7 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
     VkResult                  result                = VK_ERROR_INITIALIZATION_FAILED;
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = nullptr;
     PFN_vkGetDeviceProcAddr   fpGetDeviceProcAddr   = nullptr;
-    LayerInstanceInfo*        layer_instance_info   = gfxrecon::get_instance_info(physicalDevice);
+    LayerInstanceInfo*        layer_instance_info   = nullptr;
     PFN_vkCreateDevice        fpCreateDevice        = nullptr;
     VkLayerDeviceCreateInfo*  chain_info =
         const_cast<VkLayerDeviceCreateInfo*>(get_device_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
@@ -173,10 +173,15 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
     {
         fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
         fpGetDeviceProcAddr   = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
+        layer_instance_info   = gfxrecon::get_instance_info(physicalDevice);
     }
 
-    // Additional functions needing to be queried that aren't done by default.
-    fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(layer_instance_info->instance, "vkCreateDevice");
+    if (fpGetInstanceProcAddr && fpGetDeviceProcAddr && layer_instance_info)
+    {
+        fpCreateDevice = reinterpret_cast<PFN_vkCreateDevice>(
+            fpGetInstanceProcAddr(layer_instance_info->instance, "vkCreateDevice"));
+    }
+
     if (fpCreateDevice)
     {
         // Advance the link info for the next element on the chain
