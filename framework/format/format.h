@@ -88,12 +88,6 @@ enum FileOption : uint32_t
     kUnknownFileOption     = 0,
     kCompressionType       = 1, // One of the CompressionType values defining the compression algorithm used with parameter
                                 // encoding. Default = CompressionType::kNone.
-    kAddressEncodingSize   = 2, // Unsigned integer value: defines number of bits used for address encoding, valid values
-                                // are 32 and 64. Default = 64.
-    kObjectEncodingSize    = 3, // Unsigned integer value: defines number of bits used for size_t encoding, valid values
-                                // are 32 and 64. Default = 64.
-    kHandleEncodingSize    = 4  // Unsigned integer value: defines number of bits used for API handle encoding, valid values
-                                // are 32 and 64. Default = 64.
 };
 
 enum PointerAttributes : uint32_t

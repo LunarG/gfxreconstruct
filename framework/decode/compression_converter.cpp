@@ -68,11 +68,6 @@ bool CompressionConverter::Initialize(std::string                               
                 // Change the file option to the new compression type
                 option.value = static_cast<uint32_t>(target_compression_type);
                 break;
-            case format::FileOption::kAddressEncodingSize:
-            case format::FileOption::kObjectEncodingSize:
-            case format::FileOption::kHandleEncodingSize:
-                // Don't touch these values from the original file
-                break;
             default:
                 GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
                 break;

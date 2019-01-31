@@ -188,11 +188,6 @@ bool FileProcessor::ReadFileHeader()
                     case format::FileOption::kCompressionType:
                         enabled_options_.compression_type = static_cast<format::CompressionType>(option.value);
                         break;
-                    case format::FileOption::kAddressEncodingSize:
-                    case format::FileOption::kObjectEncodingSize:
-                    case format::FileOption::kHandleEncodingSize:
-                        // We currently assume all pointer/address values are encoded as 8 byte values.
-                        break;
                     default:
                         GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
                         break;
