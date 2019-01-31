@@ -87,12 +87,11 @@ enum FileOption : uint32_t
     kUnknownFileOption     = 0,
     kCompressionType       = 1, // One of the CompressionType values defining the compression algorithm used with parameter
                                 // encoding. Default = CompressionType::kNone.
-    kHaveThreadId          = 2, // Boolean value: true if the thread ID was included with the API call block header. Default = true.
-    kAddressEncodingSize   = 3, // Unsigned integer value: defines number of bits used for address encoding, valid values
+    kAddressEncodingSize   = 2, // Unsigned integer value: defines number of bits used for address encoding, valid values
                                 // are 32 and 64. Default = 64.
-    kObjectEncodingSize    = 4, // Unsigned integer value: defines number of bits used for size_t encoding, valid values
+    kObjectEncodingSize    = 3, // Unsigned integer value: defines number of bits used for size_t encoding, valid values
                                 // are 32 and 64. Default = 64.
-    kHandleEncodingSize    = 5  // Unsigned integer value: defines number of bits used for API handle encoding, valid values
+    kHandleEncodingSize    = 4  // Unsigned integer value: defines number of bits used for API handle encoding, valid values
                                 // are 32 and 64. Default = 64.
 };
 
@@ -118,7 +117,6 @@ enum PointerAttributes : uint32_t
 struct EnabledOptions
 {
     CompressionType compression_type{ CompressionType::kNone };
-    bool            record_thread_id{ true };
 };
 
 #pragma pack(push)
@@ -144,22 +142,18 @@ struct BlockHeader
     BlockType type;
 };
 
-// API call block headers.
-struct ApiCallOptions
-{
-    uint32_t thread_id;
-};
-
 struct FunctionCallHeader
 {
     BlockHeader block_header;
     ApiCallId   api_call_id;
+    uint64_t    thread_id;
 };
 
 struct CompressedFunctionCallHeader
 {
     BlockHeader block_header;
     ApiCallId   api_call_id;
+    uint64_t    thread_id;
     uint64_t    uncompressed_size;
 };
 
@@ -168,6 +162,7 @@ struct MethodCallHeader
     BlockHeader block_header;
     ApiCallId   api_call_id;
     uint64_t    object_id;
+    uint64_t    thread_id;
 };
 
 // Metadata block headers and data types.

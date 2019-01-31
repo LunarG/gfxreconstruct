@@ -188,9 +188,6 @@ bool FileProcessor::ReadFileHeader()
                     case format::FileOption::kCompressionType:
                         enabled_options_.compression_type = static_cast<format::CompressionType>(option.value);
                         break;
-                    case format::FileOption::kHaveThreadId:
-                        enabled_options_.record_thread_id = option.value ? true : false;
-                        break;
                     case format::FileOption::kAddressEncodingSize:
                     case format::FileOption::kObjectEncodingSize:
                     case format::FileOption::kHandleEncodingSize:
@@ -289,67 +286,71 @@ bool FileProcessor::SkipBytes(size_t skip_size)
 
 bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
 {
-    bool                   success               = true;
-    size_t                 parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
-    uint64_t               uncompressed_size     = 0;
-    format::ApiCallOptions call_options          = {};
+    size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
+    uint64_t    uncompressed_size     = 0;
+    ApiCallInfo call_info             = {};
 
-    if (format::IsBlockCompressed(block_header.type))
-    {
-        assert(compressor_ != nullptr);
-        if (compressor_ != nullptr)
-        {
-            parameter_buffer_size -= sizeof(uncompressed_size);
-            success = ReadBytes(&uncompressed_size, sizeof(uncompressed_size));
-        }
-        else
-        {
-            success = false;
-            GFXRECON_LOG_ERROR("Failed to process compressed function call block; compression is not enabled.");
-        }
-    }
-
-    if (success && enabled_options_.record_thread_id)
-    {
-        parameter_buffer_size -= sizeof(call_options.thread_id);
-        success = ReadBytes(&call_options.thread_id, sizeof(call_options.thread_id));
-    }
+    bool success = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
 
     if (success)
     {
+        parameter_buffer_size -= sizeof(call_info.thread_id);
+
         if (format::IsBlockCompressed(block_header.type))
         {
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
+            // This should only be null if initialization failed.
+            assert(compressor_ != nullptr);
 
-            size_t actual_size = 0;
-            success            = ReadCompressedParameterBuffer(
-                parameter_buffer_size, static_cast<size_t>(uncompressed_size), &actual_size);
+            parameter_buffer_size -= sizeof(uncompressed_size);
+            success = ReadBytes(&uncompressed_size, sizeof(uncompressed_size));
 
             if (success)
             {
-                assert(actual_size == uncompressed_size);
-                parameter_buffer_size = static_cast<size_t>(uncompressed_size);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
+
+                size_t actual_size = 0;
+                success            = ReadCompressedParameterBuffer(
+                    parameter_buffer_size, static_cast<size_t>(uncompressed_size), &actual_size);
+
+                if (success)
+                {
+                    assert(actual_size == uncompressed_size);
+                    parameter_buffer_size = static_cast<size_t>(uncompressed_size);
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to read compressed function call block data");
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to read compressed function call block header");
             }
         }
         else
         {
             success = ReadParameterBuffer(parameter_buffer_size);
+
+            if (!success)
+            {
+                GFXRECON_LOG_ERROR("Failed to read function call block data");
+            }
+        }
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                if (decoder->SupportsApiCall(call_id))
+                {
+                    decoder->DecodeFunctionCall(call_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
+                }
+            }
         }
     }
     else
     {
         GFXRECON_LOG_ERROR("Failed to read function call block header");
-    }
-
-    if (success)
-    {
-        for (auto decoder : decoders_)
-        {
-            if (decoder->SupportsApiCall(call_id))
-            {
-                decoder->DecodeFunctionCall(call_id, call_options, parameter_buffer_.data(), parameter_buffer_size);
-            }
-        }
     }
 
     return success;

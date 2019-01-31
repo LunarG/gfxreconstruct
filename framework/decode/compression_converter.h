@@ -49,10 +49,10 @@ class CompressionConverter : public ApiDecoder
         return true;
     }
 
-    virtual void DecodeFunctionCall(format::ApiCallId             call_id,
-                                    const format::ApiCallOptions& call_options,
-                                    const uint8_t*                buffer,
-                                    size_t                        buffer_size) override;
+    virtual void DecodeFunctionCall(format::ApiCallId  call_id,
+                                    const ApiCallInfo& call_info,
+                                    const uint8_t*     buffer,
+                                    size_t             buffer_size) override;
 
     virtual void DispatchDisplayMessageCommand(const std::string& message) override;
 
@@ -70,7 +70,6 @@ class CompressionConverter : public ApiDecoder
     std::vector<uint8_t>                    compressed_buffer_;
     util::Compressor*                       compressor_;
     bool                                    decompressing_;
-    bool                                    write_thread_id_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -217,14 +217,11 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 
             compressed_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
             compressed_header.api_call_id       = thread_data->call_id_;
+            compressed_header.thread_id         = thread_data->thread_id_;
             compressed_header.uncompressed_size = uncompressed_size;
 
-            packet_size +=
-                sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) + compressed_size;
-            if (file_options_.record_thread_id)
-            {
-                packet_size += sizeof(thread_data->thread_id_);
-            }
+            packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) +
+                           sizeof(thread_data->thread_id_) + compressed_size;
 
             compressed_header.block_header.size = packet_size;
             not_compressed                      = false;
@@ -241,12 +238,9 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 
         uncompressed_header.block_header.type = format::BlockType::kFunctionCallBlock;
         uncompressed_header.api_call_id       = thread_data->call_id_;
+        uncompressed_header.thread_id         = thread_data->thread_id_;
 
-        packet_size += sizeof(uncompressed_header.api_call_id) + data_size;
-        if (file_options_.record_thread_id)
-        {
-            packet_size += sizeof(thread_data->thread_id_);
-        }
+        packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + data_size;
 
         uncompressed_header.block_header.size = packet_size;
     }
@@ -256,12 +250,6 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 
         // Write appropriate function call block header.
         bytes_written_ += file_stream_->Write(header_pointer, header_size);
-
-        // Add optional call items.
-        if (file_options_.record_thread_id)
-        {
-            bytes_written_ += file_stream_->Write(&thread_data->thread_id_, sizeof(thread_data->thread_id_));
-        }
 
         // Write parameter data.
         bytes_written_ += file_stream_->Write(data_pointer, data_size);
@@ -297,7 +285,6 @@ void TraceManager::BuildOptionList(const format::EnabledOptions&        enabled_
     assert(option_list != nullptr);
 
     option_list->push_back({ format::FileOption::kCompressionType, enabled_options.compression_type });
-    option_list->push_back({ format::FileOption::kHaveThreadId, enabled_options.record_thread_id ? 1u : 0u });
 }
 
 void TraceManager::WriteDisplayMessageCmd(const char* message)

@@ -29,6 +29,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+struct ApiCallInfo
+{
+    uint64_t thread_id{ 0 };
+};
+
 class ApiDecoder
 {
   public:
@@ -36,10 +41,10 @@ class ApiDecoder
 
     virtual bool SupportsApiCall(format::ApiCallId id) = 0;
 
-    virtual void DecodeFunctionCall(format::ApiCallId             id,
-                                    const format::ApiCallOptions& call_options,
-                                    const uint8_t*                buffer,
-                                    size_t                        buffer_size) = 0;
+    virtual void DecodeFunctionCall(format::ApiCallId  id,
+                                    const ApiCallInfo& call_info,
+                                    const uint8_t*     buffer,
+                                    size_t             buffer_size) = 0;
 
     virtual void DispatchDisplayMessageCommand(const std::string& message) {}
 

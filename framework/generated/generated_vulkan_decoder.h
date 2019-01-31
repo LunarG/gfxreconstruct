@@ -38,10 +38,10 @@ class VulkanDecoder : public VulkanDecoderBase
 
     virtual ~VulkanDecoder() override { }
 
-    virtual void DecodeFunctionCall(format::ApiCallId             call_id,
-                                    const format::ApiCallOptions& call_options,
-                                    const uint8_t*                parameter_buffer,
-                                    size_t                        buffer_size) override;
+    virtual void DecodeFunctionCall(format::ApiCallId  call_id,
+                                    const ApiCallInfo& call_info,
+                                    const uint8_t*     parameter_buffer,
+                                    size_t             buffer_size) override;
 
   private:
     size_t Decode_vkCreateInstance(const uint8_t* parameter_buffer, size_t buffer_size);

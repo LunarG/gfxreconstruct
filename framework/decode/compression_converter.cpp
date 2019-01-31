@@ -24,9 +24,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-CompressionConverter::CompressionConverter() :
-    bytes_written_(0), compressor_(nullptr), decompressing_(false), write_thread_id_(false)
-{}
+CompressionConverter::CompressionConverter() : bytes_written_(0), compressor_(nullptr), decompressing_(false) {}
 
 CompressionConverter::~CompressionConverter()
 {
@@ -43,9 +41,6 @@ bool CompressionConverter::Initialize(std::string                               
     // Modify compression setting and write file header to a new file.
     filename_    = filename;
     file_stream_ = std::make_unique<util::FileOutputStream>(filename_);
-
-    // Set the default for some other options
-    write_thread_id_ = false;
 
     if (format::CompressionType::kNone == target_compression_type)
     {
@@ -72,9 +67,6 @@ bool CompressionConverter::Initialize(std::string                               
             case format::FileOption::kCompressionType:
                 // Change the file option to the new compression type
                 option.value = static_cast<uint32_t>(target_compression_type);
-                break;
-            case format::FileOption::kHaveThreadId:
-                write_thread_id_ = (option.value != 0);
                 break;
             case format::FileOption::kAddressEncodingSize:
             case format::FileOption::kObjectEncodingSize:
@@ -112,10 +104,10 @@ void CompressionConverter::Destroy()
     }
 }
 
-void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call_id,
-                                              const format::ApiCallOptions& call_options,
-                                              const uint8_t*                buffer,
-                                              size_t                        buffer_size)
+void CompressionConverter::DecodeFunctionCall(format::ApiCallId  call_id,
+                                              const ApiCallInfo& call_info,
+                                              const uint8_t*     buffer,
+                                              size_t             buffer_size)
 {
     bool write_uncompressed = decompressing_;
 
@@ -130,26 +122,17 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call
         {
             compressed_func_call_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
             compressed_func_call_header.api_call_id       = call_id;
+            compressed_func_call_header.thread_id         = call_info.thread_id;
             compressed_func_call_header.uncompressed_size = buffer_size;
 
             packet_size += sizeof(compressed_func_call_header.api_call_id) +
+                           sizeof(compressed_func_call_header.thread_id) +
                            sizeof(compressed_func_call_header.uncompressed_size) + compressed_size;
-
-            if (write_thread_id_)
-            {
-                packet_size += sizeof(call_options.thread_id);
-            }
 
             compressed_func_call_header.block_header.size = packet_size;
 
             // Write compressed function call block header.
             bytes_written_ += file_stream_->Write(&compressed_func_call_header, sizeof(compressed_func_call_header));
-
-            // Add optional call items
-            if (write_thread_id_)
-            {
-                bytes_written_ += file_stream_->Write(&call_options.thread_id, sizeof(call_options.thread_id));
-            }
 
             // Write parameter data.
             bytes_written_ += file_stream_->Write(compressed_buffer_.data(), compressed_size);
@@ -169,24 +152,14 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call
 
         func_call_header.block_header.type = format::BlockType::kFunctionCallBlock;
         func_call_header.api_call_id       = call_id;
+        func_call_header.thread_id         = call_info.thread_id;
 
-        packet_size += sizeof(func_call_header.api_call_id) + buffer_size;
-
-        if (write_thread_id_)
-        {
-            packet_size += sizeof(call_options.thread_id);
-        }
+        packet_size += sizeof(func_call_header.api_call_id) + sizeof(func_call_header.thread_id) + buffer_size;
 
         func_call_header.block_header.size = packet_size;
 
         // Write compressed function call block header.
-        bytes_written_ += file_stream_->Write(&func_call_header, sizeof(format::FunctionCallHeader));
-
-        // Add optional call items
-        if (write_thread_id_)
-        {
-            bytes_written_ += file_stream_->Write(&call_options.thread_id, sizeof(call_options.thread_id));
-        }
+        bytes_written_ += file_stream_->Write(&func_call_header, sizeof(func_call_header));
 
         // Write parameter data.
         bytes_written_ += file_stream_->Write(buffer, buffer_size);

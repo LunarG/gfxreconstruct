@@ -63,7 +63,7 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
         write('    VulkanDecoder() { }\n', file=self.outFile)
         write('    virtual ~VulkanDecoder() override { }\n', file=self.outFile)
         write('    virtual void DecodeFunctionCall(format::ApiCallId             call_id,', file=self.outFile)
-        write('                                    const format::ApiCallOptions& call_options,', file=self.outFile)
+        write('                                    const ApiCallInfo&            call_info,', file=self.outFile)
         write('                                    const uint8_t*                parameter_buffer,', file=self.outFile)
         write('                                    size_t                        buffer_size) override;\n', file=self.outFile)
         write('  private:', end='', file=self.outFile)

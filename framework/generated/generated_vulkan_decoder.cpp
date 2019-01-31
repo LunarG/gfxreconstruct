@@ -7434,15 +7434,15 @@ size_t VulkanDecoder::Decode_vkGetBufferDeviceAddressEXT(const uint8_t* paramete
     return bytes_read;
 }
 
-void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
-                                       const format::ApiCallOptions& call_options,
-                                       const uint8_t*                parameter_buffer,
-                                       size_t                        buffer_size)
+void VulkanDecoder::DecodeFunctionCall(format::ApiCallId  call_id,
+                                       const ApiCallInfo& call_info,
+                                       const uint8_t*     parameter_buffer,
+                                       size_t             buffer_size)
 {
     switch(call_id)
     {
     default:
-        VulkanDecoderBase::DecodeFunctionCall(call_id, call_options, parameter_buffer, buffer_size);
+        VulkanDecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCreateInstance:
         Decode_vkCreateInstance(parameter_buffer, buffer_size);
