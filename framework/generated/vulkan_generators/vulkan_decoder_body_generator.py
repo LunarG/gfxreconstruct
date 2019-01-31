@@ -201,14 +201,14 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
     # Generate the VulkanDecoder::DecodeFunctionCall method.
     def generateDecodeCases(self):
         write('void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,', file=self.outFile)
-        write('                                       const format::ApiCallOptions& call_options,', file=self.outFile)
+        write('                                       const ApiCallInfo&            call_info,', file=self.outFile)
         write('                                       const uint8_t*                parameter_buffer,', file=self.outFile)
         write('                                       size_t                        buffer_size)', file=self.outFile)
         write('{', file=self.outFile)
         write('    switch(call_id)', file=self.outFile)
         write('    {', file=self.outFile)
         write('    default:', file=self.outFile)
-        write('        VulkanDecoderBase::DecodeFunctionCall(call_id, call_options, parameter_buffer, buffer_size);', file=self.outFile)
+        write('        VulkanDecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);', file=self.outFile)
         write('        break;', file=self.outFile)
 
         for cmd in self.cmdNames:

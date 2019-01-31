@@ -162,12 +162,12 @@ size_t VulkanDecoderBase::Decode_vkRegisterObjectsNVX(const uint8_t* parameter_b
     return bytes_read;
 }
 
-void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId             call_id,
-                                           const format::ApiCallOptions& call_options,
-                                           const uint8_t*                parameter_buffer,
-                                           size_t                        buffer_size)
+void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
+                                           const ApiCallInfo& call_info,
+                                           const uint8_t*     parameter_buffer,
+                                           size_t             buffer_size)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(call_options);
+    GFXRECON_UNREFERENCED_PARAMETER(call_info);
 
     switch (call_id)
     {
