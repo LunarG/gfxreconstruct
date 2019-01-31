@@ -26,37 +26,37 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void encode_struct(ParameterEncoder* encoder, const VkClearColorValue& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkClearColorValue& value)
 {
     encoder->EncodeUInt32Array(value.uint32, 4);
 }
 
-void encode_struct(ParameterEncoder* encoder, const VkClearValue& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkClearValue& value)
 {
     // VkClearColorValue is used becaue it is the larger of the two union members.
-    encode_struct(encoder, value.color);
+    EncodeStruct(encoder, value.color);
 }
 
-void encode_struct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
+void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
 {
     if (value != nullptr)
     {
         switch (value->type)
         {
             case VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX:
-                encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(value));
+                EncodeStructPtr(encoder, reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(value));
                 break;
             case VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX:
-                encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(value));
+                EncodeStructPtr(encoder, reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(value));
                 break;
             case VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX:
-                encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(value));
+                EncodeStructPtr(encoder, reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(value));
                 break;
             case VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX:
-                encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(value));
+                EncodeStructPtr(encoder, reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(value));
                 break;
             case VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX:
-                encode_struct_ptr(encoder, reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(value));
+                EncodeStructPtr(encoder, reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(value));
                 break;
             default:
                 GFXRECON_LOG_WARNING("Skipping custom struct encoding for unrecognized VkObjectEntryTypeNVX %u",
@@ -89,7 +89,7 @@ static void pack_sid_struct(const SID* sid, std::vector<uint8_t>* buffer)
     buffer->insert(buffer->end(), sub_authority, sub_authority + sub_authority_size);
 }
 
-void encode_struct(ParameterEncoder* encoder, const ACL& value)
+void EncodeStruct(ParameterEncoder* encoder, const ACL& value)
 {
     encoder->EncodeUInt8Value(value.AclRevision);
     encoder->EncodeUInt8Value(value.Sbz1);
@@ -98,7 +98,7 @@ void encode_struct(ParameterEncoder* encoder, const ACL& value)
     encoder->EncodeUInt16Value(value.Sbz2);
 }
 
-void encode_struct(ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value)
+void EncodeStruct(ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value)
 {
     encoder->EncodeUInt8Value(value.Revision);
     encoder->EncodeUInt8Value(value.Sbz1);
@@ -129,14 +129,14 @@ void encode_struct(ParameterEncoder* encoder, const SECURITY_DESCRIPTOR& value)
         encoder->EncodeUInt8Array(nullptr, 0);
     }
 
-    encode_struct_ptr(encoder, value.Sacl);
-    encode_struct_ptr(encoder, value.Dacl);
+    EncodeStructPtr(encoder, value.Sacl);
+    EncodeStructPtr(encoder, value.Dacl);
 }
 
-void encode_struct(ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value)
+void EncodeStruct(ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value)
 {
     encoder->EncodeUInt32Value(value.nLength);
-    encode_struct_ptr(encoder, reinterpret_cast<SECURITY_DESCRIPTOR*>(value.lpSecurityDescriptor));
+    EncodeStructPtr(encoder, reinterpret_cast<SECURITY_DESCRIPTOR*>(value.lpSecurityDescriptor));
     encoder->EncodeInt32Value(value.bInheritHandle);
 }
 

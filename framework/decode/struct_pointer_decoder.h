@@ -116,7 +116,7 @@ class StructPointerDecoder : public PointerDecoderBase
                 // Note: We only expect this class to be used with structs that have a decode_struct function.
                 //       If an error is encoutered here due to a new struct type, the struct decoders need to be
                 //       updated to support the new type.
-                bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &decoded_structs_[i]);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &decoded_structs_[i]);
             }
         }
 

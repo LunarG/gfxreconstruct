@@ -28,24 +28,24 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 template <typename T>
-void encode_struct_ptr(ParameterEncoder* encoder, const T* value)
+void EncodeStructPtr(ParameterEncoder* encoder, const T* value)
 {
     encoder->EncodeStructPtrPreamble(value);
     if (value != nullptr)
     {
-        encode_struct(encoder, *value);
+        EncodeStruct(encoder, *value);
     }
 }
 
 template <typename T>
-void encode_struct_array(ParameterEncoder* encoder, const T* value, size_t len)
+void EncodeStructArray(ParameterEncoder* encoder, const T* value, size_t len)
 {
     encoder->EncodeStructArrayPreamble(value, len);
     if ((value != nullptr) && (len > 0))
     {
         for (size_t i = 0; i < len; ++i)
         {
-            encode_struct(encoder, value[i]);
+            EncodeStruct(encoder, value[i]);
         }
     }
 }

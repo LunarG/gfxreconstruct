@@ -55,7 +55,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
-        write('size_t decode_pnext_struct(const uint8_t* buffer, size_t buffer_size, std::unique_ptr<PNextNode>* pNext);', file=self.outFile)
+        write('size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, std::unique_ptr<PNextNode>* pNext);', file=self.outFile)
 
     # Method override
     def endFile(self):
@@ -79,7 +79,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         first = True
         for struct in self.featureStructMembers:
             body = '' if first else '\n'
-            body += 'size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(struct)
+            body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(struct)
             body += '{\n'
             body += '    assert((wrapper != nullptr) && (wrapper->value != nullptr));\n'
             body += '\n'
@@ -102,7 +102,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         for value in values:
             # pNext fields require special treatment and are not processed by type name
             if 'pNext' in value.name:
-                body += '    bytes_read += decode_pnext_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(value.name)
+                body += '    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(value.name)
                 body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
             else:
                 body += self.makeDecodeInvocation(value)
@@ -160,7 +160,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         else:
             if isStruct:
                 body += '    wrapper->{name}.value = &(value->{name});\n'.format(name=value.name)
-                body += '    bytes_read += decode_struct({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+                body += '    bytes_read += DecodeStruct({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
             elif isFuncp:
                 body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
                 body += '    value->{} = nullptr;\n'.format(value.name)

@@ -82,4 +82,4 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
         self.newline()
 
         for struct in self.featureStructMembers:
-            write('size_t decode_struct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'.format(struct), file=self.outFile)
+            write('size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'.format(struct), file=self.outFile)

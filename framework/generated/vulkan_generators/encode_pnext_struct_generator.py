@@ -67,7 +67,7 @@ class EncodePNextStructGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
-        write('void encode_pnext_struct(ParameterEncoder* encoder, const void* value)', file=self.outFile)
+        write('void EncodePNextStruct(ParameterEncoder* encoder, const void* value)', file=self.outFile)
         write('{', file=self.outFile)
         write('    assert(encoder != nullptr);', file=self.outFile)
         self.newline()
@@ -130,6 +130,6 @@ class EncodePNextStructGenerator(BaseGenerator):
     def generateFeature(self):
         for struct in self.sTypeValues:
             write('        case {}:'.format(self.sTypeValues[struct]), file=self.outFile)
-            write('            encode_struct_ptr(encoder, reinterpret_cast<const {}*>(value));'.format(struct), file=self.outFile)
+            write('            EncodeStructPtr(encoder, reinterpret_cast<const {}*>(value));'.format(struct), file=self.outFile)
             write('            break;', file=self.outFile)
         self.sTypeValues = dict()
