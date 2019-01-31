@@ -175,14 +175,17 @@ struct MetaDataHeader
 struct FillMemoryCommandHeader
 {
     MetaDataHeader meta_header;
-    HandleId       memory_id;
-    uint64_t       memory_offset; // Offset from the start of the mapped pointer, not the start of the memory object.
-    uint64_t       memory_size;   // Uncompressed size of the data encoded after the header.
+    uint64_t thread_id; // NOTE: This is currently the ID of the thread that processed the dirty pages and wrote them to
+                        // the file, which may not be the thread that originally modified the memory pages.
+    HandleId memory_id;
+    uint64_t memory_offset; // Offset from the start of the mapped pointer, not the start of the memory object.
+    uint64_t memory_size;   // Uncompressed size of the data encoded after the header.
 };
 
 struct DisplayMessageCommandHeader
 {
     MetaDataHeader meta_header;
+    uint64_t       thread_id;
     uint64_t       message_size; // Number of bytes in message string, not including a null terminator.
 };
 
@@ -191,6 +194,7 @@ struct DisplayMessageCommandHeader
 struct ResizeWindowCommand
 {
     MetaDataHeader meta_header;
+    uint64_t       thread_id;
     HandleId       surface_id;
     uint32_t       width;
     uint32_t       height;

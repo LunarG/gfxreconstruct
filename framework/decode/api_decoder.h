@@ -46,11 +46,15 @@ class ApiDecoder
                                     const uint8_t*     buffer,
                                     size_t             buffer_size) = 0;
 
-    virtual void DispatchDisplayMessageCommand(const std::string& message) {}
+    virtual void DispatchDisplayMessageCommand(uint64_t thread_id, const std::string& message) {}
 
-    virtual void DispatchFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
+    virtual void DispatchFillMemoryCommand(
+        uint64_t thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data)
+    {}
 
-    virtual void DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) {}
+    virtual void
+    DispatchResizeWindowCommand(uint64_t thread_id, format::HandleId surface_id, uint32_t width, uint32_t height)
+    {}
 };
 
 GFXRECON_END_NAMESPACE(decode)

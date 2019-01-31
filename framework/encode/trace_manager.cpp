@@ -293,9 +293,11 @@ void TraceManager::WriteDisplayMessageCmd(const char* message)
     format::DisplayMessageCommandHeader message_cmd;
 
     message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    message_cmd.meta_header.block_header.size =
-        sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.message_size) + message_length;
+    message_cmd.meta_header.block_header.size = sizeof(message_cmd.meta_header.meta_data_type) +
+                                                sizeof(message_cmd.thread_id) + sizeof(message_cmd.message_size) +
+                                                message_length;
     message_cmd.meta_header.meta_data_type = format::MetaDataType::kDisplayMessageCommand;
+    message_cmd.thread_id                  = GetThreadData()->thread_id_;
     message_cmd.message_size               = message_length;
 
     {
@@ -311,9 +313,10 @@ void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, ui
     format::ResizeWindowCommand resize_cmd;
     resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
-                                               sizeof(resize_cmd.surface_id) + sizeof(resize_cmd.width) +
-                                               sizeof(resize_cmd.height);
+                                               sizeof(resize_cmd.thread_id) + sizeof(resize_cmd.surface_id) +
+                                               sizeof(resize_cmd.width) + sizeof(resize_cmd.height);
     resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
+    resize_cmd.thread_id                  = GetThreadData()->thread_id_;
 
     resize_cmd.surface_id = format::ToHandleId(surface);
     resize_cmd.width      = width;
@@ -335,6 +338,7 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
 
     fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
+    fill_cmd.thread_id                     = GetThreadData()->thread_id_;
     fill_cmd.memory_id                     = format::ToHandleId(memory);
     fill_cmd.memory_offset                 = offset;
     fill_cmd.memory_size                   = size;
@@ -358,8 +362,9 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
     }
 
     // Calculate size of packet with compressed or uncompressed data size.
-    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.memory_id) +
-                                             sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + write_size;
+    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.thread_id) +
+                                             sizeof(fill_cmd.memory_id) + sizeof(fill_cmd.memory_offset) +
+                                             sizeof(fill_cmd.memory_size) + write_size;
 
     {
         std::lock_guard<std::mutex> lock(file_lock_);

@@ -358,13 +358,14 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
 
 bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type)
 {
-    bool success = true;
+    bool success = false;
 
     if (meta_type == format::MetaDataType::kFillMemoryCommand)
     {
         format::FillMemoryCommandHeader header;
 
-        success = ReadBytes(&header.memory_id, sizeof(header.memory_id));
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.memory_id, sizeof(header.memory_id));
         success = success && ReadBytes(&header.memory_offset, sizeof(header.memory_offset));
         success = success && ReadBytes(&header.memory_size, sizeof(header.memory_size));
 
@@ -374,40 +375,40 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (format::IsBlockCompressed(block_header.type))
             {
+                // This should only be null if initialization failed.
                 assert(compressor_ != nullptr);
-                if (compressor_ != nullptr)
-                {
-                    size_t uncompressed_size = 0;
-                    size_t compressed_size   = static_cast<size_t>(block_header.size) - sizeof(meta_type) -
-                                             sizeof(header.memory_id) - sizeof(header.memory_offset) -
-                                             sizeof(header.memory_size);
+                size_t uncompressed_size = 0;
+                size_t compressed_size   = static_cast<size_t>(block_header.size) - sizeof(meta_type) -
+                                         sizeof(header.thread_id) - sizeof(header.memory_id) -
+                                         sizeof(header.memory_offset) - sizeof(header.memory_size);
 
-                    success = ReadCompressedParameterBuffer(
-                        compressed_size, static_cast<size_t>(header.memory_size), &uncompressed_size);
-                }
-                else
-                {
-                    success = false;
-                    GFXRECON_LOG_ERROR("Failed to process compressed meta-data block; compression is not enabled.");
-                }
+                success = ReadCompressedParameterBuffer(
+                    compressed_size, static_cast<size_t>(header.memory_size), &uncompressed_size);
             }
             else
             {
                 success = ReadParameterBuffer(static_cast<size_t>(header.memory_size));
             }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchFillMemoryCommand(header.thread_id,
+                                                       header.memory_id,
+                                                       header.memory_offset,
+                                                       header.memory_size,
+                                                       parameter_buffer_.data());
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to read fill memory meta-data block");
+            }
         }
         else
         {
             GFXRECON_LOG_ERROR("Failed to read fill memory meta-data block header");
-        }
-
-        if (success)
-        {
-            for (auto decoder : decoders_)
-            {
-                decoder->DispatchFillMemoryCommand(
-                    header.memory_id, header.memory_offset, header.memory_size, parameter_buffer_.data());
-            }
         }
     }
     else if (meta_type == format::MetaDataType::kResizeWindowCommand)
@@ -417,7 +418,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         format::ResizeWindowCommand command;
 
-        success = ReadBytes(&command.surface_id, sizeof(command.surface_id));
+        success = ReadBytes(&command.thread_id, sizeof(command.thread_id));
+        success = success && ReadBytes(&command.surface_id, sizeof(command.surface_id));
         success = success && ReadBytes(&command.width, sizeof(command.width));
         success = success && ReadBytes(&command.height, sizeof(command.height));
 
@@ -425,7 +427,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchResizeWindowCommand(command.surface_id, command.width, command.height);
+                decoder->DispatchResizeWindowCommand(command.thread_id, command.surface_id, command.width, command.height);
             }
         }
         else
@@ -440,26 +442,31 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
         format::DisplayMessageCommandHeader header;
 
-        success = ReadBytes(&header.message_size, sizeof(header.message_size));
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.message_size, sizeof(header.message_size));
 
         if (success)
         {
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.message_size);
             success = ReadParameterBuffer(static_cast<size_t>(header.message_size));
+
+            if (success)
+            {
+                std::string message(parameter_buffer_.begin(), parameter_buffer_.end());
+
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchDisplayMessageCommand(header.thread_id, message);
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to read display message meta-data block");
+            }
         }
         else
         {
             GFXRECON_LOG_ERROR("Failed to read display message meta-data block header");
-        }
-
-        if (success)
-        {
-            std::string message(parameter_buffer_.begin(), parameter_buffer_.end());
-
-            for (auto decoder : decoders_)
-            {
-                decoder->DispatchDisplayMessageCommand(message);
-            }
         }
     }
     else
