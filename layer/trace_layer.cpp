@@ -122,35 +122,33 @@ VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                  const VkAllocationCallbacks* pAllocator,
                                  VkInstance*                  pInstance)
 {
-    VkResult                   result                = VK_ERROR_INITIALIZATION_FAILED;
-    PFN_vkGetInstanceProcAddr  fpGetInstanceProcAddr = nullptr;
-    PFN_vkCreateInstance       fpCreateInstance      = nullptr;
+    VkResult                   result = VK_ERROR_INITIALIZATION_FAILED;
     VkLayerInstanceCreateInfo* chain_info =
         const_cast<VkLayerInstanceCreateInfo*>(get_instance_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
 
     if (chain_info && chain_info->u.pLayerInfo)
     {
-        fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
-    }
+        PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
 
-    if (fpGetInstanceProcAddr)
-    {
-        fpCreateInstance =
-            reinterpret_cast<PFN_vkCreateInstance>(fpGetInstanceProcAddr(VK_NULL_HANDLE, "vkCreateInstance"));
-    }
+        if (fpGetInstanceProcAddr)
+        {
+            PFN_vkCreateInstance fpCreateInstance =
+                reinterpret_cast<PFN_vkCreateInstance>(fpGetInstanceProcAddr(VK_NULL_HANDLE, "vkCreateInstance"));
 
-    if (fpCreateInstance)
-    {
-        // Advance the link info for the next element on the chain
-        chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
+            if (fpCreateInstance)
+            {
+                // Advance the link info for the next element on the chain
+                chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
-        result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
-    }
+                result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
 
-    if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
-    {
-        // TODO: Additional vktrace initialization.
-        init_instance_table(*pInstance, fpGetInstanceProcAddr);
+                if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
+                {
+                    // TODO: Additional vktrace initialization.
+                    init_instance_table(*pInstance, fpGetInstanceProcAddr);
+                }
+            }
+        }
     }
 
     return result;
@@ -161,39 +159,36 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
                                const VkAllocationCallbacks* pAllocator,
                                VkDevice*                    pDevice)
 {
-    VkResult                  result                = VK_ERROR_INITIALIZATION_FAILED;
-    PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = nullptr;
-    PFN_vkGetDeviceProcAddr   fpGetDeviceProcAddr   = nullptr;
-    LayerInstanceInfo*        layer_instance_info   = nullptr;
-    PFN_vkCreateDevice        fpCreateDevice        = nullptr;
-    VkLayerDeviceCreateInfo*  chain_info =
+    VkResult                 result = VK_ERROR_INITIALIZATION_FAILED;
+    VkLayerDeviceCreateInfo* chain_info =
         const_cast<VkLayerDeviceCreateInfo*>(get_device_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
 
     if (chain_info && chain_info->u.pLayerInfo)
     {
-        fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
-        fpGetDeviceProcAddr   = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
-        layer_instance_info   = gfxrecon::get_instance_info(physicalDevice);
-    }
+        LayerInstanceInfo* layer_instance_info = gfxrecon::get_instance_info(physicalDevice);
 
-    if (fpGetInstanceProcAddr && fpGetDeviceProcAddr && layer_instance_info)
-    {
-        fpCreateDevice = reinterpret_cast<PFN_vkCreateDevice>(
-            fpGetInstanceProcAddr(layer_instance_info->instance, "vkCreateDevice"));
-    }
+        PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+        PFN_vkGetDeviceProcAddr   fpGetDeviceProcAddr   = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
 
-    if (fpCreateDevice)
-    {
-        // Advance the link info for the next element on the chain
-        chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
+        if (fpGetInstanceProcAddr && fpGetDeviceProcAddr && layer_instance_info)
+        {
+            PFN_vkCreateDevice fpCreateDevice = reinterpret_cast<PFN_vkCreateDevice>(
+                fpGetInstanceProcAddr(layer_instance_info->instance, "vkCreateDevice"));
 
-        result = fpCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
-    }
+            if (fpCreateDevice)
+            {
+                // Advance the link info for the next element on the chain
+                chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
-    if ((result == VK_SUCCESS) && pDevice && (*pDevice != nullptr))
-    {
-        // TODO: Additional vktrace initialization.
-        init_device_table(*pDevice, fpGetDeviceProcAddr);
+                result = fpCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
+
+                if ((result == VK_SUCCESS) && pDevice && (*pDevice != nullptr))
+                {
+                    // TODO: Additional vktrace initialization.
+                    init_device_table(*pDevice, fpGetDeviceProcAddr);
+                }
+            }
+        }
     }
 
     return result;
@@ -244,16 +239,17 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
         if (table && table->GetDeviceProcAddr)
         {
             result = table->GetDeviceProcAddr(device, pName);
-        }
-    }
 
-    if (result != nullptr)
-    {
-        // Only check for a layer implementation of the requested function if it is available from the next level.
-        const auto entry = gfxrecon::func_table.find(pName);
-        if (entry != gfxrecon::func_table.end())
-        {
-            result = entry->second;
+            if (result != nullptr)
+            {
+                // Only check for a layer implementation of the requested function if it is available from the next
+                // level.
+                const auto entry = gfxrecon::func_table.find(pName);
+                if (entry != gfxrecon::func_table.end())
+                {
+                    result = entry->second;
+                }
+            }
         }
     }
 
@@ -263,12 +259,16 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;
-    assert(instance != VK_NULL_HANDLE);
-    const auto table = gfxrecon::get_instance_table(instance);
-    if (table && table->GetPhysicalDeviceProcAddr)
+
+    if (instance != VK_NULL_HANDLE)
     {
-        result = table->GetPhysicalDeviceProcAddr(instance, pName);
+        const auto table = gfxrecon::get_instance_table(instance);
+        if (table && table->GetPhysicalDeviceProcAddr)
+        {
+            result = table->GetPhysicalDeviceProcAddr(instance, pName);
+        }
     }
+
     return result;
 }
 
