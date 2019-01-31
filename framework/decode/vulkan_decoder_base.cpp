@@ -24,27 +24,34 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void VulkanDecoderBase::DispatchDisplayMessageCommand(const std::string& message)
+void VulkanDecoderBase::DispatchDisplayMessageCommand(uint64_t thread_id, const std::string& message)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
     for (auto consumer : consumers_)
     {
         consumer->ProcessDisplayMessageCommand(message);
     }
 }
 
-void VulkanDecoderBase::DispatchFillMemoryCommand(uint64_t       memory_id,
-                                                  uint64_t       offset,
-                                                  uint64_t       size,
-                                                  const uint8_t* data)
+void VulkanDecoderBase::DispatchFillMemoryCommand(
+    uint64_t thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
     for (auto consumer : consumers_)
     {
         consumer->ProcessFillMemoryCommand(memory_id, offset, size, data);
     }
 }
 
-void VulkanDecoderBase::DispatchResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
+void VulkanDecoderBase::DispatchResizeWindowCommand(uint64_t         thread_id,
+                                                    format::HandleId surface_id,
+                                                    uint32_t         width,
+                                                    uint32_t         height)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
     for (auto consumer : consumers_)
     {
         consumer->ProcessResizeWindowCommand(surface_id, width, height);
