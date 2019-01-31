@@ -31,28 +31,27 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
 
-std::mutex                             TraceManager::ThreadData::count_lock_;
-uint32_t                               TraceManager::ThreadData::thread_count_ = 0;
-std::unordered_map<uint64_t, uint32_t> TraceManager::ThreadData::id_map_;
+std::mutex                                     TraceManager::ThreadData::count_lock_;
+format::ThreadId                               TraceManager::ThreadData::thread_count_ = 0;
+std::unordered_map<uint64_t, format::ThreadId> TraceManager::ThreadData::id_map_;
 
 TraceManager*                                          TraceManager::instance_       = nullptr;
 uint32_t                                               TraceManager::instance_count_ = 0;
 std::mutex                                             TraceManager::instance_lock_;
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 
-TraceManager::ThreadData::ThreadData() :
-    thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
+TraceManager::ThreadData::ThreadData() : thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
 {
     parameter_buffer_  = std::make_unique<util::MemoryOutputStream>();
     parameter_encoder_ = std::make_unique<ParameterEncoder>(parameter_buffer_.get());
 }
 
-uint32_t TraceManager::ThreadData::GetThreadId()
+format::ThreadId TraceManager::ThreadData::GetThreadId()
 {
-    uint32_t id  = 0;
-    uint64_t tid = util::platform::GetCurrentThreadId();
+    format::ThreadId id  = 0;
+    uint64_t         tid = util::platform::GetCurrentThreadId();
 
-    // Using a uint32_t sequence number associated with the thread ID.
+    // Using a uint64_t sequence number associated with the thread ID.
     std::lock_guard<std::mutex> lock(count_lock_);
     auto                        entry = id_map_.find(tid);
     if (entry != id_map_.end())

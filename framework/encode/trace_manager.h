@@ -154,19 +154,19 @@ class TraceManager
         ~ThreadData() {}
 
       public:
-        const uint32_t                            thread_id_;
+        const format::ThreadId                    thread_id_;
         format::ApiCallId                         call_id_;
         std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
         std::unique_ptr<ParameterEncoder>         parameter_encoder_;
         std::vector<uint8_t>                      compressed_buffer_;
 
       private:
-        static uint32_t GetThreadId();
+        static format::ThreadId GetThreadId();
 
       private:
-        static std::mutex                             count_lock_;
-        static uint32_t                               thread_count_;
-        static std::unordered_map<uint64_t, uint32_t> id_map_;
+        static std::mutex                                     count_lock_;
+        static format::ThreadId                               thread_count_;
+        static std::unordered_map<uint64_t, format::ThreadId> id_map_;
     };
 
     typedef std::unordered_map<VkDescriptorUpdateTemplate, UpdateTemplateInfo> UpdateTemplateMap;
