@@ -67,7 +67,7 @@ static void EncodeDescriptorUpdateTemplateInfo(encode::TraceManager*      manage
             {
                 size_t                       offset = entry_info.offset + (entry_info.stride * i);
                 const VkDescriptorImageInfo* entry  = reinterpret_cast<const VkDescriptorImageInfo*>(bytes + offset);
-                encode_struct(encoder, (*entry));
+                EncodeStruct(encoder, (*entry));
             }
         }
 
@@ -78,7 +78,7 @@ static void EncodeDescriptorUpdateTemplateInfo(encode::TraceManager*      manage
             {
                 size_t                        offset = entry_info.offset + (entry_info.stride * i);
                 const VkDescriptorBufferInfo* entry  = reinterpret_cast<const VkDescriptorBufferInfo*>(bytes + offset);
-                encode_struct(encoder, (*entry));
+                EncodeStruct(encoder, (*entry));
             }
         }
 
@@ -207,7 +207,7 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
         encoder->EncodeHandleIdValue(device);
         encoder->EncodeHandleIdValue(objectTable);
         encoder->EncodeUInt32Value(objectCount);
-        encode_struct_array(encoder, ppObjectTableEntries, objectCount);
+        EncodeStructArray(encoder, ppObjectTableEntries, objectCount);
         encoder->EncodeUInt32Array(pObjectIndices, objectCount);
         encoder->EncodeEnumValue(result);
         trace_manager->EndApiCallTrace(encoder);

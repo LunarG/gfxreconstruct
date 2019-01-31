@@ -125,7 +125,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
                         struct_memory_[i]   = reinterpret_cast<VkObjectTableEntryNVX*>(value);
                         wrapper->value      = value;
 
-                        bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
+                        bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
                     }
                     else if (base_type->type == VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX)
                     {
@@ -136,7 +136,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
                         struct_memory_[i]   = reinterpret_cast<VkObjectTableEntryNVX*>(value);
                         wrapper->value      = value;
 
-                        bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
+                        bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
                     }
                     else if (base_type->type == VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX)
                     {
@@ -148,7 +148,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
                         struct_memory_[i]   = reinterpret_cast<VkObjectTableEntryNVX*>(value);
                         wrapper->value      = value;
 
-                        bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
+                        bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
                     }
                     else if (base_type->type == VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX)
                     {
@@ -160,7 +160,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
                         struct_memory_[i]   = reinterpret_cast<VkObjectTableEntryNVX*>(value);
                         wrapper->value      = value;
 
-                        bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
+                        bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
                     }
                     else if (base_type->type == VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX)
                     {
@@ -172,7 +172,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
                         struct_memory_[i]   = reinterpret_cast<VkObjectTableEntryNVX*>(value);
                         wrapper->value      = value;
 
-                        bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
+                        bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
                     }
                     else
                     {

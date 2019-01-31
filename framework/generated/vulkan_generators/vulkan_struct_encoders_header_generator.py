@@ -59,7 +59,7 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
         self.newline()
-        write('void encode_pnext_struct(ParameterEncoder* encoder, const void* value);', file=self.outFile)
+        write('void EncodePNextStruct(ParameterEncoder* encoder, const void* value);', file=self.outFile)
 
     # Method override
     def endFile(self):
@@ -81,4 +81,4 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         for struct in self.featureStructMembers:
-            write('void encode_struct(ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)
+            write('void EncodeStruct(ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)

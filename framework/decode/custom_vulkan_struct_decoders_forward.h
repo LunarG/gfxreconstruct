@@ -28,8 +28,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 struct Decoded_VkClearColorValue;
 struct Decoded_VkClearValue;
 
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper);
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper);
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
 struct Decoded_VkObjectTableEntryNVX;
@@ -39,9 +39,9 @@ struct Decoded_ACL;
 struct Decoded_SECURITY_DESCRIPTOR;
 struct Decoded_SECURITY_ATTRIBUTES;
 
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wrapper);
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper);
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

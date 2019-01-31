@@ -82,7 +82,7 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
         first = True
         for struct in self.featureStructMembers:
             body = '' if first else '\n'
-            body += 'void encode_struct(ParameterEncoder* encoder, const {}& value)\n'.format(struct)
+            body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& value)\n'.format(struct)
             body += '{\n'
             body += self.makeStructBody(self.featureStructMembers[struct], 'value.')
             body += '}'
@@ -99,7 +99,7 @@ class VulkanStructEncodersBodyGenerator(BaseGenerator):
         for value in values:
             # pNext fields require special treatment and are not processed by typename
             if 'pNext' in value.name:
-                body += '    encode_pnext_struct(encoder, {});\n'.format(prefix + value.name)
+                body += '    EncodePNextStruct(encoder, {});\n'.format(prefix + value.name)
             else:
                 methodCall = self.makeEncoderMethodCall(value, values, prefix)
                 body += '    {};\n'.format(methodCall)

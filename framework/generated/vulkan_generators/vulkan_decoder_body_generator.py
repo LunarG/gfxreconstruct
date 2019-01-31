@@ -189,7 +189,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
                     body += '    bytes_read += {}.Decode{}({});\n'.format(value.name, typeName, bufferArgs)
         else:
             if isStruct:
-                body += '    bytes_read += decode_struct({}, &{});\n'.format(bufferArgs, value.name)
+                body += '    bytes_read += DecodeStruct({}, &{});\n'.format(bufferArgs, value.name)
             elif isFuncp:
                 body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(bufferArgs, value.name)
             else:

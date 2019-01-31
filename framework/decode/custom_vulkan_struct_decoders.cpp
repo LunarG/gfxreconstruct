@@ -25,7 +25,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper)
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
 
@@ -38,7 +38,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearC
     return bytes_read;
 }
 
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper)
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
 
@@ -46,7 +46,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearV
     VkClearValue* value      = wrapper->value;
 
     wrapper->color.value = &(value->color);
-    bytes_read += decode_struct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->color));
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->color));
 
     return bytes_read;
 }
@@ -74,7 +74,7 @@ static std::unique_ptr<uint8_t[]> unpack_sid_struct(const PointerDecoder<uint8_t
     return unpacked_memory;
 }
 
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wrapper)
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
 
@@ -92,7 +92,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wra
     return bytes_read;
 }
 
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper)
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
 
@@ -121,7 +121,7 @@ size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY
     return bytes_read;
 }
 
-size_t decode_struct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper)
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
 

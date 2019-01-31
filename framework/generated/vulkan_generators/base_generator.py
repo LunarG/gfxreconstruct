@@ -704,7 +704,7 @@ class BaseGenerator(OutputGenerator):
         if self.isStruct(typeName):
             args = ['encoder'] + args
             isStruct = True
-            methodCall = 'encode_struct'
+            methodCall = 'EncodeStruct'
         else:
             if typeName in ['String', 'WString']:
                 isString = True
@@ -721,10 +721,7 @@ class BaseGenerator(OutputGenerator):
                 lengthName = self.parseLateXMath(value.arrayLength)
                 lengthExpr = value.altArrayLength
 
-            if isStruct:
-                methodCall += '_array'
-            else:
-                methodCall += 'Array'
+            methodCall += 'Array'
 
             # Build a list of parameter names and search for the array length value.
             lengthValue = None
@@ -744,7 +741,7 @@ class BaseGenerator(OutputGenerator):
                 args.append(lengthExpr)     # Length is a constant value, not a parameter
         elif isStruct:
             if value.isPointer:
-                methodCall += '_ptr'
+                methodCall += 'Ptr'
         elif not (isString or isFuncp):
             # Ignore string and function names, which do not use the Ptr/Value suffix
             if value.isPointer:
