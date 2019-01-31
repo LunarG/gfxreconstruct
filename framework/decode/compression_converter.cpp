@@ -166,7 +166,7 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId  call_id,
     }
 }
 
-void CompressionConverter::DispatchDisplayMessageCommand(uint64_t thread_id, const std::string& message)
+void CompressionConverter::DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message)
 {
     size_t                              message_length = message.size();
     format::DisplayMessageCommandHeader message_cmd;
@@ -184,7 +184,7 @@ void CompressionConverter::DispatchDisplayMessageCommand(uint64_t thread_id, con
 }
 
 void CompressionConverter::DispatchFillMemoryCommand(
-    uint64_t thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data)
+    format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data)
 {
     // NOTE: Don't apply the offset to the write_address here since it's coming from the file_processor
     //       at the start of the stream.  We only need to record the writing offset for future info.
@@ -224,7 +224,7 @@ void CompressionConverter::DispatchFillMemoryCommand(
     bytes_written_ += file_stream_->Write(write_address, write_size);
 }
 
-void CompressionConverter::DispatchResizeWindowCommand(uint64_t         thread_id,
+void CompressionConverter::DispatchResizeWindowCommand(format::ThreadId thread_id,
                                                        format::HandleId surface_id,
                                                        uint32_t         width,
                                                        uint32_t         height)

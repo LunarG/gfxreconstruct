@@ -41,6 +41,7 @@ typedef uint64_t SizeTEncodeType;
 typedef uint64_t AddressEncodeType;
 
 typedef HandleEncodeType HandleId;
+typedef uint64_t         ThreadId;
 
 const uint32_t kCompressedBlockTypeBit = 0x80000000;
 
@@ -144,25 +145,25 @@ struct BlockHeader
 
 struct FunctionCallHeader
 {
-    BlockHeader block_header;
-    ApiCallId   api_call_id;
-    uint64_t    thread_id;
+    BlockHeader      block_header;
+    ApiCallId        api_call_id;
+    format::ThreadId thread_id;
 };
 
 struct CompressedFunctionCallHeader
 {
-    BlockHeader block_header;
-    ApiCallId   api_call_id;
-    uint64_t    thread_id;
-    uint64_t    uncompressed_size;
+    BlockHeader      block_header;
+    ApiCallId        api_call_id;
+    format::ThreadId thread_id;
+    uint64_t         uncompressed_size;
 };
 
 struct MethodCallHeader
 {
-    BlockHeader block_header;
-    ApiCallId   api_call_id;
-    uint64_t    object_id;
-    uint64_t    thread_id;
+    BlockHeader      block_header;
+    ApiCallId        api_call_id;
+    uint64_t         object_id;
+    format::ThreadId thread_id;
 };
 
 // Metadata block headers and data types.
@@ -175,8 +176,9 @@ struct MetaDataHeader
 struct FillMemoryCommandHeader
 {
     MetaDataHeader meta_header;
-    uint64_t thread_id; // NOTE: This is currently the ID of the thread that processed the dirty pages and wrote them to
-                        // the file, which may not be the thread that originally modified the memory pages.
+    format::ThreadId
+        thread_id; // NOTE: This is currently the ID of the thread that processed the dirty pages and wrote them to
+                   // the file, which may not be the thread that originally modified the memory pages.
     HandleId memory_id;
     uint64_t memory_offset; // Offset from the start of the mapped pointer, not the start of the memory object.
     uint64_t memory_size;   // Uncompressed size of the data encoded after the header.
@@ -184,20 +186,20 @@ struct FillMemoryCommandHeader
 
 struct DisplayMessageCommandHeader
 {
-    MetaDataHeader meta_header;
-    uint64_t       thread_id;
-    uint64_t       message_size; // Number of bytes in message string, not including a null terminator.
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    uint64_t         message_size; // Number of bytes in message string, not including a null terminator.
 };
 
 // Not a header because this command does not include a variable length data payload.
 // All of the command data is present in the struct.
 struct ResizeWindowCommand
 {
-    MetaDataHeader meta_header;
-    uint64_t       thread_id;
-    HandleId       surface_id;
-    uint32_t       width;
-    uint32_t       height;
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    HandleId         surface_id;
+    uint32_t         width;
+    uint32_t         height;
 };
 
 #pragma pack(pop)

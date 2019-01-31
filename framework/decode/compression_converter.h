@@ -54,12 +54,12 @@ class CompressionConverter : public ApiDecoder
                                     const uint8_t*     buffer,
                                     size_t             buffer_size) override;
 
-    virtual void DispatchDisplayMessageCommand(uint64_t thread_id, const std::string& message) override;
+    virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override;
 
     virtual void DispatchFillMemoryCommand(
-        uint64_t thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
+        format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
-    virtual void DispatchResizeWindowCommand(uint64_t         thread_id,
+    virtual void DispatchResizeWindowCommand(format::ThreadId thread_id,
                                              format::HandleId surface_id,
                                              uint32_t         width,
                                              uint32_t         height) override;
