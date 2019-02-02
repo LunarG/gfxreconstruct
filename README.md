@@ -46,12 +46,5 @@ can be found in the following places:
 
 ## License
 
-This work is released as open source under a Apache-style license from
-Khronos including a Khronos copyright.
-
-See COPYRIGHT.txt for a full list of licenses used in this repository.
-
-
-## Acknowledgements
-While this project has been developed primarily by LunarG, Inc., 
-Valve Corporation, has provided the funding behind this project's development
+This work is licensed under the Apache License, Version 2.0; see
+[LICENSE](LICENSE.txt) for more information.
