@@ -53,7 +53,7 @@ bool FileProcessor::Initialize(const std::string& filename)
 
     if ((result == 0) && (file_descriptor_ != nullptr))
     {
-        success = ReadFileHeader();
+        success = ProcessFileHeader();
 
         if (success)
         {
@@ -61,7 +61,6 @@ bool FileProcessor::Initialize(const std::string& filename)
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to load file header from %s", filename.c_str());
             fclose(file_descriptor_);
             file_descriptor_ = nullptr;
         }
@@ -162,47 +161,52 @@ bool FileProcessor::ProcessAllFrames()
     return success;
 }
 
-bool FileProcessor::ReadFileHeader()
+bool FileProcessor::ProcessFileHeader()
 {
     bool success = false;
 
     if (ReadBytes(&file_header_, sizeof(file_header_)))
     {
         success = format::ValidateFileHeader(file_header_);
-    }
 
-    if (success)
-    {
-        file_options_.resize(file_header_.num_options);
-
-        size_t option_data_size = file_header_.num_options * sizeof(format::FileOptionPair);
-
-        if (ReadBytes(file_options_.data(), option_data_size))
+        if (success)
         {
-            success = true;
+            file_options_.resize(file_header_.num_options);
 
-            for (const auto& option : file_options_)
+            size_t option_data_size = file_header_.num_options * sizeof(format::FileOptionPair);
+
+            success = ReadBytes(file_options_.data(), option_data_size);
+
+            if (success)
             {
-                switch (option.key)
+                for (const auto& option : file_options_)
                 {
-                    case format::FileOption::kCompressionType:
-                        enabled_options_.compression_type = static_cast<format::CompressionType>(option.value);
-                        break;
-                    default:
-                        GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
-                        break;
+                    switch (option.key)
+                    {
+                        case format::FileOption::kCompressionType:
+                            enabled_options_.compression_type = static_cast<format::CompressionType>(option.value);
+                            break;
+                        default:
+                            GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
+                            break;
+                    }
+                }
+
+                compressor_ = format::CreateCompressor(enabled_options_.compression_type);
+
+                if ((compressor_ == nullptr) && (enabled_options_.compression_type != format::CompressionType::kNone))
+                {
+                    GFXRECON_LOG_ERROR("Failed to initialized file compression module (type = %u); replay of "
+                                       "compressed data will not be possible",
+                                       enabled_options_.compression_type);
+                    success = false;
                 }
             }
         }
     }
-
-    compressor_ = format::CreateCompressor(enabled_options_.compression_type);
-    if ((nullptr == compressor_) && (format::CompressionType::kNone != enabled_options_.compression_type))
+    else
     {
-        GFXRECON_LOG_WARNING(
-            "Failed to initialized file compression module (type = %u); replay of compressed data will not be possible",
-            enabled_options_.compression_type);
-        success = false;
+        GFXRECON_LOG_ERROR("Failed to read file header");
     }
 
     return success;
@@ -236,6 +240,9 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
                                                   size_t  expected_uncompressed_size,
                                                   size_t* uncompressed_buffer_size)
 {
+    // This should only be null if initialization failed.
+    assert(compressor_ != nullptr);
+
     if (compressed_buffer_size > compressed_parameter_buffer_.size())
     {
         compressed_parameter_buffer_.resize(compressed_buffer_size);
@@ -293,9 +300,6 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
 
         if (format::IsBlockCompressed(block_header.type))
         {
-            // This should only be null if initialization failed.
-            assert(compressor_ != nullptr);
-
             parameter_buffer_size -= sizeof(uncompressed_size);
             success = ReadBytes(&uncompressed_size, sizeof(uncompressed_size));
 
@@ -370,8 +374,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (format::IsBlockCompressed(block_header.type))
             {
-                // This should only be null if initialization failed.
-                assert(compressor_ != nullptr);
                 size_t uncompressed_size = 0;
                 size_t compressed_size   = static_cast<size_t>(block_header.size) - sizeof(meta_type) -
                                          sizeof(header.thread_id) - sizeof(header.memory_id) -
