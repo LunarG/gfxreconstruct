@@ -107,7 +107,6 @@ int main(int argc, const char** argv)
 
         if (!file_processor.Initialize(filename))
         {
-            GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
             return_code = -1;
         }
         else

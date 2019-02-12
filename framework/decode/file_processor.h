@@ -61,7 +61,7 @@ class FileProcessor
     uint64_t NumBytesRead() { return bytes_read_; }
 
   private:
-    bool ReadFileHeader();
+    bool ProcessFileHeader();
 
     bool ReadBlockHeader(format::BlockHeader* block_header);
 
