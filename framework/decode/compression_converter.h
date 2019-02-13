@@ -71,6 +71,7 @@ class CompressionConverter : public ApiDecoder
     util::Compressor*                       compressor_;
     bool                                    decompressing_;
     bool                                    write_thread_id_;
+    bool                                    write_timestamp_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

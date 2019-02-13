@@ -83,6 +83,7 @@ Option | Environment Variable | Type | Description
 Capture Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Define a specific compression type to use when capturing content.  Valid values are: "LZ4", "ZLIB", and "NONE".
 Capture File | GFXRECON_CAPTURE_FILE | STRING | This option allows you to override the default path and name of the capture file.
 Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | This option lets you indicate if you want the capture file name to include the timestamp at creation time. This is important if your application could generate more than one and would normally clobber the original file's contents.
+Packet Timestamps | GFXRECON_CAPTURE_PACKET_TIMESTAMPS | BOOL | This option lets you indicate if you want packets to include timestamps.
 Log Allow Indents | GFXRECON_LOG_ALLOW_INDENTS | BOOL | This is an option to allow indent formatting in the strings to attempt to make things easier to read. Although indenting is used in very limited circumstances currently.
 Log Break On Error | GFXRECON_LOG_BREAK_ON_ERROR | BOOL | This option allows you to force the layer to break if it encounters an error so you can debug it easily.
 Log Detailed | GFXRECON_LOG_DETAILED | BOOL | Enable detailed logging messages (includes file name and location where triggered from).

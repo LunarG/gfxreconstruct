@@ -23,6 +23,7 @@
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
+#include "util/date_time.h"
 
 #include <cassert>
 
@@ -89,7 +90,7 @@ void TraceManager::Create()
 
         CaptureSettings::TraceSettings trace_settings = settings.GetTraceSettings();
         std::string                    filename       = trace_settings.capture_file;
-        if (trace_settings.time_stamp_file)
+        if (trace_settings.time_stamp_file_name)
         {
             filename = util::filepath::GenerateTimestampedFilename(filename);
         }
@@ -225,6 +226,10 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
             {
                 packet_size += sizeof(thread_data->thread_id_);
             }
+            if (file_options_.record_packet_timestamps)
+            {
+                packet_size += sizeof(uint64_t);
+            }
 
             compressed_header.block_header.size = packet_size;
             not_compressed                      = false;
@@ -247,6 +252,10 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
         {
             packet_size += sizeof(thread_data->thread_id_);
         }
+        if (file_options_.record_packet_timestamps)
+        {
+            packet_size += sizeof(uint64_t);
+        }
 
         uncompressed_header.block_header.size = packet_size;
     }
@@ -261,6 +270,12 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
         if (file_options_.record_thread_id)
         {
             bytes_written_ += file_stream_->Write(&thread_data->thread_id_, sizeof(thread_data->thread_id_));
+        }
+        if (file_options_.record_packet_timestamps)
+        {
+            uint64_t current_timestamp;
+            current_timestamp = gfxrecon::util::datetime::GetTimestamp();
+            bytes_written_ += file_stream_->Write(&current_timestamp, sizeof(uint64_t));
         }
 
         // Write parameter data.
@@ -298,6 +313,8 @@ void TraceManager::BuildOptionList(const format::EnabledOptions&        enabled_
 
     option_list->push_back({ format::FileOption::kCompressionType, enabled_options.compression_type });
     option_list->push_back({ format::FileOption::kHaveThreadId, enabled_options.record_thread_id ? 1u : 0u });
+    option_list->push_back(
+        { format::FileOption::kHavePacketTimestamps, enabled_options.record_packet_timestamps ? 1u : 0u });
 }
 
 void TraceManager::WriteDisplayMessageCmd(const char* message)

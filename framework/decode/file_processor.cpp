@@ -191,6 +191,9 @@ bool FileProcessor::ReadFileHeader()
                     case format::FileOption::kHaveThreadId:
                         enabled_options_.record_thread_id = option.value ? true : false;
                         break;
+                    case format::FileOption::kHavePacketTimestamps:
+                        enabled_options_.record_packet_timestamps = option.value ? true : false;
+                        break;
                     case format::FileOption::kAddressEncodingSize:
                     case format::FileOption::kObjectEncodingSize:
                     case format::FileOption::kHandleEncodingSize:
@@ -313,6 +316,12 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     {
         parameter_buffer_size -= sizeof(call_options.thread_id);
         success = ReadBytes(&call_options.thread_id, sizeof(call_options.thread_id));
+    }
+
+    if (success && enabled_options_.record_packet_timestamps)
+    {
+        parameter_buffer_size -= sizeof(uint64_t);
+        success = ReadBytes(&call_options.timestamp, sizeof(call_options.timestamp));
     }
 
     if (success)

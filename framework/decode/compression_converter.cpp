@@ -25,7 +25,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 CompressionConverter::CompressionConverter() :
-    bytes_written_(0), compressor_(nullptr), decompressing_(false), write_thread_id_(false)
+    bytes_written_(0), compressor_(nullptr), decompressing_(false), write_thread_id_(false), write_timestamp_(false)
 {}
 
 CompressionConverter::~CompressionConverter()
@@ -46,6 +46,7 @@ bool CompressionConverter::Initialize(std::string                               
 
     // Set the default for some other options
     write_thread_id_ = false;
+    write_timestamp_ = false;
 
     if (format::CompressionType::kNone == target_compression_type)
     {
@@ -75,6 +76,9 @@ bool CompressionConverter::Initialize(std::string                               
                 break;
             case format::FileOption::kHaveThreadId:
                 write_thread_id_ = (option.value != 0);
+                break;
+            case format::FileOption::kHavePacketTimestamps:
+                write_timestamp_ = (option.value != 0);
                 break;
             case format::FileOption::kAddressEncodingSize:
             case format::FileOption::kObjectEncodingSize:
@@ -140,6 +144,11 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call
                 packet_size += sizeof(call_options.thread_id);
             }
 
+            if (write_timestamp_)
+            {
+                packet_size += sizeof(call_options.timestamp);
+            }
+
             compressed_func_call_header.block_header.size = packet_size;
 
             // Write compressed function call block header.
@@ -149,6 +158,10 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call
             if (write_thread_id_)
             {
                 bytes_written_ += file_stream_->Write(&call_options.thread_id, sizeof(call_options.thread_id));
+            }
+            if (write_timestamp_)
+            {
+                bytes_written_ += file_stream_->Write(&call_options.timestamp, sizeof(call_options.timestamp));
             }
 
             // Write parameter data.
@@ -175,6 +188,11 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId             call
         if (write_thread_id_)
         {
             packet_size += sizeof(call_options.thread_id);
+        }
+
+        if (write_timestamp_)
+        {
+            packet_size += sizeof(call_options.timestamp);
         }
 
         func_call_header.block_header.size = packet_size;

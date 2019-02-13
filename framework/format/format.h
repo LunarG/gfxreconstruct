@@ -92,8 +92,9 @@ enum FileOption : uint32_t
                                 // are 32 and 64. Default = 64.
     kObjectEncodingSize    = 4, // Unsigned integer value: defines number of bits used for size_t encoding, valid values
                                 // are 32 and 64. Default = 64.
-    kHandleEncodingSize    = 5  // Unsigned integer value: defines number of bits used for API handle encoding, valid values
+    kHandleEncodingSize    = 5, // Unsigned integer value: defines number of bits used for API handle encoding, valid values
                                 // are 32 and 64. Default = 64.
+    kHavePacketTimestamps  = 6  // Boolean value: true if a timestamp was included with the API call block header. Default = false.
 };
 
 enum PointerAttributes : uint32_t
@@ -119,6 +120,7 @@ struct EnabledOptions
 {
     CompressionType compression_type{ CompressionType::kNone };
     bool            record_thread_id{ true };
+    bool            record_packet_timestamps{ false };
 };
 
 #pragma pack(push)
@@ -147,6 +149,7 @@ struct BlockHeader
 // API call block headers.
 struct ApiCallOptions
 {
+    uint64_t timestamp;
     uint32_t thread_id;
 };
 

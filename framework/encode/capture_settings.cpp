@@ -35,6 +35,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define CAPTURE_FILE_NAME_UPPER             "CAPTURE_FILE"
 #define CAPTURE_FILE_USE_TIMESTAMP_LOWER    "capture_file_timestamp"
 #define CAPTURE_FILE_USE_TIMESTAMP_UPPER    "CAPTURE_FILE_TIMESTAMP"
+#define CAPTURE_PACKET_USE_TIMESTAMPS_LOWER "capture_packet_timestamps"
+#define CAPTURE_PACKET_USE_TIMESTAMPS_UPPER "CAPTURE_PACKET_TIMESTAMPS"
 #define CAPTURE_FILE_FORCE_FLUSH_LOWER      "capture_file_force_flush"
 #define CAPTURE_FILE_FORCE_FLUSH_UPPER      "CAPTURE_FILE_FORCE_FLUSH"
 #define LOG_ALLOW_INDENTS_LOWER             "log_allow_indents"
@@ -72,6 +74,7 @@ const char kCaptureCompressionTypeEnvVar[]   = GFXRECON_ENV_VAR_PREFIX CAPTURE_C
 const char kCaptureFileForceFlushEnvVar[]    = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FORCE_FLUSH_LOWER;
 const char kCaptureFileNameEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_LOWER;
 const char kCaptureFileUseTimestampEnvVar[]  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_LOWER;
+const char kCapturePacketUseTimestampsEnvVar[] = GFXRECON_ENV_VAR_PREFIX CAPTURE_PACKET_USE_TIMESTAMPS_LOWER;
 const char kLogAllowIndentsEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_LOWER;
 const char kLogBreakOnErrorEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_LOWER;
 const char kLogDetailedEnvVar[]              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_LOWER;
@@ -93,6 +96,7 @@ const char kCaptureCompressionTypeEnvVar[]           = GFXRECON_ENV_VAR_PREFIX C
 const char kCaptureFileForceFlushEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FORCE_FLUSH_UPPER;
 const char kCaptureFileNameEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
 const char kCaptureFileUseTimestampEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_UPPER;
+const char kCapturePacketUseTimestampsEnvVar[]        = GFXRECON_ENV_VAR_PREFIX CAPTURE_PACKET_USE_TIMESTAMPS_UPPER;
 const char kLogAllowIndentsEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
 const char kLogBreakOnErrorEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
 const char kLogDetailedEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
@@ -114,6 +118,7 @@ const std::string kOptionKeyCaptureCompressionType   = std::string(kSettingsFilt
 const std::string kOptionKeyCaptureFile              = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_NAME_LOWER);
 const std::string kOptionKeyCaptureFileForceFlush    = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_FORCE_FLUSH_LOWER);
 const std::string kOptionKeyCaptureFileUseTimestamp  = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_USE_TIMESTAMP_LOWER);
+const std::string kOptionKeyCapturePacketTimestamps  = std::string(kSettingsFilter) + std::string(CAPTURE_PACKET_USE_TIMESTAMPS_LOWER);
 const std::string kOptionKeyLogAllowIndents          = std::string(kSettingsFilter) + std::string(LOG_ALLOW_INDENTS_LOWER);
 const std::string kOptionKeyLogBreakOnError          = std::string(kSettingsFilter) + std::string(LOG_BREAK_ON_ERROR_LOWER);
 const std::string kOptionKeyLogDetailed              = std::string(kSettingsFilter) + std::string(LOG_DETAILED_LOWER);
@@ -133,6 +138,8 @@ const format::CompressionType kDefaultCompressionType = format::CompressionType:
 #else
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kNone;
 #endif
+
+const bool kDefaultCapturePacketTimestamps = false;
 
 CaptureSettings::CaptureSettings() {}
 
@@ -182,6 +189,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     // Capture file environment variables
     LoadSingleOptionEnvVar(options, kCaptureFileNameEnvVar, kOptionKeyCaptureFile);
     LoadSingleOptionEnvVar(options, kCaptureFileUseTimestampEnvVar, kOptionKeyCaptureFileUseTimestamp);
+    LoadSingleOptionEnvVar(options, kCaptureFileUseTimestampEnvVar, kOptionKeyCaptureFileUseTimestamp);
     LoadSingleOptionEnvVar(options, kCaptureCompressionTypeEnvVar, kOptionKeyCaptureCompressionType);
     LoadSingleOptionEnvVar(options, kCaptureFileForceFlushEnvVar, kOptionKeyCaptureFileForceFlush);
     // Logging environment variables
@@ -230,10 +238,12 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // Capture file options
     settings->trace_settings_.capture_file_options.compression_type =
         ParseCompressionTypeString(FindOption(options, kOptionKeyCaptureCompressionType), kDefaultCompressionType);
+    settings->trace_settings_.capture_file_options.record_packet_timestamps =
+        ParseBoolString(FindOption(options, kOptionKeyCapturePacketTimestamps), kDefaultCapturePacketTimestamps);
     settings->trace_settings_.capture_file =
         FindOption(options, kOptionKeyCaptureFile, settings->trace_settings_.capture_file);
-    settings->trace_settings_.time_stamp_file = ParseBoolString(FindOption(options, kOptionKeyCaptureFileUseTimestamp),
-                                                                settings->trace_settings_.time_stamp_file);
+    settings->trace_settings_.time_stamp_file_name = ParseBoolString(
+        FindOption(options, kOptionKeyCaptureFileUseTimestamp), settings->trace_settings_.time_stamp_file_name);
     settings->trace_settings_.force_flush =
         ParseBoolString(FindOption(options, kOptionKeyCaptureFileForceFlush), settings->trace_settings_.force_flush);
     settings->trace_settings_.memory_tracking_mode = ParseMemoryTrackingModeString(

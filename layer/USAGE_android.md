@@ -97,6 +97,7 @@ Option | Property | Type | Description
 Capture Compression Type | debug.gfxrecon.capture_compression_type | STRING | Define a specific compression type to use when capturing content.  Valid values are: "LZ4", "ZLIB", and "NONE".
 Capture File | debug.gfxrecon.capture_file | STRING | This option allows you to override the default path and name of the capture file.
 Capture File Timestamp | debug.gfxrecon.capture_file_timestamp | BOOL | This option lets you indicate if you want the capture file name to include the timestamp at creation time. This is important if your application could generate more than one and would normally clobber the original file's contents.
+Packet Timestamps | debug.gfxrecon.capture_packet_timestamps | BOOL | This option lets you indicate if you want packets to include timestamps.
 Log Allow Indents | debug.gfxrecon.log_allow_indents | BOOL | This is an option to allow indent formatting in the strings to attempt to make things easier to read. Although indenting is used in very limited circumstances currently.
 Log Break On Error | debug.gfxrecon.log_break_on_error | BOOL | This option allows you to force the layer to break if it encounters an error so you can debug it easily.
 Log Detailed | debug.gfxrecon.log_detailed | BOOL | Enable detailed logging messages (includes file name and location where triggered from).
@@ -120,7 +121,7 @@ use the name `gfxrecon_capture.gfxr`:
 /sdcard/gfxrecon_capture.gfxr
 ```
 
-Enabling timestamps may be needed since many applications create Vulkan items in
+Enabling filename timestamps may be needed since many applications create Vulkan items in
 one thread to validate available functionality.
 Those same apps, then exit that thread, and start a new thread creating items.
 Some applications even create additional Vulkan items after the main functionality
@@ -139,10 +140,10 @@ This may be done by performed by using `adb shell` in the following way:
 adb shell "setprop debug.gfxrecon.capture_file '<your_path_and_file_name_here>.gfxr'"
 ```
 
-### Timestamps
+### Filename Timestamps
 
-If you enable file timestamps, this file will actually be created new every
-call based on the time the application first access the layer in its
+If you enable filename timestamps, the trace file name will include the
+time the application first accessed the layer in its
 `vkCreateInstance` call:
 
  ```
