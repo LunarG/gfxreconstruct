@@ -143,7 +143,7 @@ int main(int argc, const char** argv)
                 GFXRECON_WRITE_CONSOLE("  Compressed Size [Compression: %5s] = %" PRIu64 " bytes",
                                        dst_compression_string.c_str(),
                                        bytes_written);
-                printf("  Percent Reduction                    = %.2f%%", percent_reduction);
+                GFXRECON_WRITE_CONSOLE("  Percent Reduction                    = %.2f%%", percent_reduction);
             }
             else
             {
