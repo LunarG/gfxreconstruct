@@ -99,6 +99,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     template <typename T>
+    T* AllocateArray(size_t len, const T& init) const
+    {
+        T* data = new T[len];
+
+        for (size_t i = 0; i < len; ++i)
+        {
+            data[i] = init;
+        }
+
+        return data;
+    }
+
+    template <typename T>
     void FreeArray(T** arr) const
     {
         if ((*arr) != nullptr)
