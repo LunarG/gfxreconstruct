@@ -154,7 +154,7 @@ int main(int argc, const char** argv)
                 CheckActiveLayers();
 
                 // Grab the start frame/time information for the FPS result.
-                uint32_t start_frame = file_processor.CurrentFrameNumber();
+                uint32_t start_frame = file_processor.GetCurrentFrameNumber();
                 int64_t  start_time  = gfxrecon::util::datetime::GetTimestamp();
 
                 application->Run();
@@ -163,7 +163,7 @@ int main(int argc, const char** argv)
                 int64_t end_time      = gfxrecon::util::datetime::GetTimestamp();
                 double  diff_time_sec = gfxrecon::util::datetime::ConvertTimestampToSeconds(
                     gfxrecon::util::datetime::DiffTimestamps(start_time, end_time));
-                uint32_t end_frame    = file_processor.CurrentFrameNumber();
+                uint32_t end_frame    = file_processor.GetCurrentFrameNumber();
                 uint32_t total_frames = end_frame - start_frame;
                 double   fps          = static_cast<double>(total_frames) / diff_time_sec;
                 GFXRECON_WRITE_CONSOLE("%f fps, %f seconds, %u frame%s, 1 loop, framerange %u-%u",

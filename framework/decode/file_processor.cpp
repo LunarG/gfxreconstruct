@@ -270,7 +270,7 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
     size_t bytes_read = util::platform::FileRead(buffer, 1, buffer_size, file_descriptor_);
     bytes_read_ += bytes_read;
-    return (bytes_read == buffer_size) ? true : false;
+    return (bytes_read == buffer_size);
 }
 
 bool FileProcessor::SkipBytes(size_t skip_size)
@@ -484,7 +484,7 @@ bool FileProcessor::IsFrameDelimiter(format::ApiCallId call_id) const
 {
     // TODO: IDs of API calls that were treated as frame delimiters by the GFXReconstruct layer should be in the capture
     // file header.
-    return (call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR) ? true : false;
+    return (call_id == format::ApiCallId::ApiCall_vkQueuePresentKHR);
 }
 
 GFXRECON_END_NAMESPACE(decode)

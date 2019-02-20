@@ -52,13 +52,13 @@ class FileProcessor
 
     bool ProcessAllFrames();
 
-    uint32_t CurrentFrameNumber() { return current_frame_number_; }
-
     const format::FileHeader& GetFileHeader() const { return file_header_; }
 
     const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
 
-    uint64_t NumBytesRead() { return bytes_read_; }
+    uint32_t GetCurrentFrameNumber() const { return current_frame_number_; }
+
+    uint64_t GetNumBytesRead() const { return bytes_read_; }
 
   private:
     bool ProcessFileHeader();
@@ -81,12 +81,9 @@ class FileProcessor
 
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
-    bool IsFileHeaderValid() const { return (file_header_.fourcc == GFXRECON_FOURCC) ? true : false; }
+    bool IsFileHeaderValid() const { return (file_header_.fourcc == GFXRECON_FOURCC); }
 
-    bool IsFileValid() const
-    {
-        return (file_descriptor_ && !feof(file_descriptor_) && !ferror(file_descriptor_)) ? true : false;
-    }
+    bool IsFileValid() const { return (file_descriptor_ && !feof(file_descriptor_) && !ferror(file_descriptor_)); }
 
   private:
     FILE*                               file_descriptor_;
