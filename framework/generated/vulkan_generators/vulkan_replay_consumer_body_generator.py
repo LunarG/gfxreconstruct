@@ -49,6 +49,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
+        # Map of struct types to associated VkStructureType.
+        self.sTypeValues = dict()
+
 
     # Method override
     def beginFile(self, genOpts):
@@ -79,6 +82,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
 
         handles = []
         if (typename not in self.STRUCT_BLACKLIST) and not alias:
+            sType = self.makeStructureTypeEnum(typeinfo, typename)
+            if sType:
+                self.sTypeValues[typename] = sType
+
             for value in self.featureStructMembers[typename]:
                 if self.isHandle(value.baseType):
                     # The member is a handle.
@@ -228,6 +235,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                             # Add mappings for the newly created handles
                             expr += '{}.GetHandlePointer();'.format(value.name)
                             postexpr.append('AddHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
+                        elif self.isStruct(value.baseType) and (value.baseType in self.sTypeValues):
+                            # TODO: recreate pNext value read from the capture file.
+                            expr += '{}.IsNull() ? nullptr : AllocateArray<{basetype}>({}, {basetype}{{ {}, nullptr }});'.format(value.name, lengthName, self.sTypeValues[value.baseType], basetype=value.baseType)
+                            postexpr.append('FreeArray<{}>(&{});'.format(value.baseType, argName))
                         else:
                             expr += '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(value.name, value.baseType, lengthName)
                             postexpr.append('FreeArray<{}>(&{});'.format(value.baseType, argName))
@@ -252,7 +263,12 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 # Need to store the name of the intermediate value for use with allocating the array associated with this length.
                                 arrayLengths[value.name] = outName
                             elif self.isStruct(value.baseType):
-                                preexpr.append('{basetype} {} = {{}};'.format(outName, basetype=value.baseType))
+                                # If this is a struct with sType and pNext fields, we need to initialize them.
+                                if value.baseType in self.sTypeValues:
+                                    # TODO: recreate pNext value read from the capture file.
+                                    preexpr.append('{basetype} {} = {{ {}, nullptr }};'.format(outName, self.sTypeValues[value.baseType], basetype=value.baseType))
+                                else:
+                                    preexpr.append('{basetype} {} = {{}};'.format(outName, basetype=value.baseType))
                             else:
                                 preexpr.append('{basetype} {} = static_cast<{basetype}>(0);'.format(outName, basetype=value.baseType))
 
