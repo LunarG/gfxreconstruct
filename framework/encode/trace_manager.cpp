@@ -292,12 +292,10 @@ void TraceManager::WriteDisplayMessageCmd(const char* message)
     format::DisplayMessageCommandHeader message_cmd;
 
     message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    message_cmd.meta_header.block_header.size = sizeof(message_cmd.meta_header.meta_data_type) +
-                                                sizeof(message_cmd.thread_id) + sizeof(message_cmd.message_size) +
-                                                message_length;
+    message_cmd.meta_header.block_header.size =
+        sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.thread_id) + message_length;
     message_cmd.meta_header.meta_data_type = format::MetaDataType::kDisplayMessageCommand;
     message_cmd.thread_id                  = GetThreadData()->thread_id_;
-    message_cmd.message_size               = message_length;
 
     {
         std::lock_guard<std::mutex> lock(file_lock_);

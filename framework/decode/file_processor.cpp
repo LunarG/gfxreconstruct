@@ -438,12 +438,14 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         format::DisplayMessageCommandHeader header;
 
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && ReadBytes(&header.message_size, sizeof(header.message_size));
 
         if (success)
         {
-            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.message_size);
-            success = ReadParameterBuffer(static_cast<size_t>(header.message_size));
+            uint64_t message_size = block_header.size - sizeof(meta_type) - sizeof(header.thread_id);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, message_size);
+
+            success = ReadParameterBuffer(static_cast<size_t>(message_size));
 
             if (success)
             {

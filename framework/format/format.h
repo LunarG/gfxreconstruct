@@ -182,7 +182,9 @@ struct DisplayMessageCommandHeader
 {
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
-    uint64_t         message_size; // Number of bytes in message string, not including a null terminator.
+    // NOTE: Message size is determined by subtracting the sizeof(MetaDataType) + sizeof(ThreadId) from
+    // BlockHeader::size.  This computed size is the length of the ASCII message string, not including the null
+    // terminator.
 };
 
 // Not a header because this command does not include a variable length data payload.
