@@ -12,8 +12,10 @@ if(MSVC)
         set (PRECOMPILED_ARCH "32")
     endif(NOT CMAKE_CL_64)
 
-    set(ZLIB_ROOT "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
-    set(LZ4_ROOT "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
+    set(CMAKE_PREFIX_PATH
+        ${CMAKE_PREFIX_PATH}
+       "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
+       "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}")
 endif(MSVC)
 
 # GFXReconstruct provided find modules
