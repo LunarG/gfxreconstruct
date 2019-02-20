@@ -133,7 +133,7 @@ int main(int argc, const char** argv)
 
             if (gfxrecon::format::CompressionType::kNone != compression_type)
             {
-                uint64_t bytes_read    = file_processor.NumBytesRead();
+                uint64_t bytes_read    = file_processor.GetNumBytesRead();
                 uint64_t bytes_written = decoder.NumBytesWritten();
                 float    percent_reduction =
                     100.f * (1.f - (static_cast<float>(bytes_written) / static_cast<float>(bytes_read)));
@@ -147,7 +147,7 @@ int main(int argc, const char** argv)
             }
             else
             {
-                uint64_t bytes_read    = file_processor.NumBytesRead();
+                uint64_t bytes_read    = file_processor.GetNumBytesRead();
                 uint64_t bytes_written = decoder.NumBytesWritten();
                 float    percent_increase =
                     100.f * ((static_cast<float>(bytes_written) / static_cast<float>(bytes_read)) - 1.f);
