@@ -28,7 +28,8 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
-    file_descriptor_(nullptr), current_frame_number_(1), bytes_read_(0), compressor_(nullptr)
+    file_descriptor_(nullptr), current_frame_number_(1), bytes_read_(0), error_state_(kErrorInvalidFileDescriptor),
+    compressor_(nullptr)
 {}
 
 FileProcessor::~FileProcessor()
@@ -58,6 +59,7 @@ bool FileProcessor::Initialize(const std::string& filename)
         if (success)
         {
             filename_ = filename;
+            error_state_ = kErrorNone;
         }
         else
         {
@@ -68,6 +70,7 @@ bool FileProcessor::Initialize(const std::string& filename)
     else
     {
         GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
+        error_state_ = kErrorOpeningFile;
     }
 
     return success;
@@ -75,74 +78,22 @@ bool FileProcessor::Initialize(const std::string& filename)
 
 bool FileProcessor::ProcessNextFrame()
 {
-    // TODO: Frame blocks in capture file.
-    bool                success = IsFileValid();
-    format::BlockHeader block_header;
+    bool success = IsFileValid();
 
-    while (success)
+    if (success)
     {
-        success = ReadBlockHeader(&block_header);
-
-        if (success)
+        success = ProcessBlocks();
+    }
+    else
+    {
+        // If not EOF, determine reason for invalid state.
+        if (file_descriptor_ == nullptr)
         {
-            if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
-            {
-                format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
-
-                success = ReadBytes(&api_call_id, sizeof(api_call_id));
-
-                if (success)
-                {
-                    success = ProcessFunctionCall(block_header, api_call_id);
-
-                    // Break from loop on frame delimiter.
-                    if (IsFrameDelimiter(api_call_id))
-                    {
-                        // Make sure to increment the frame number on the way out.
-                        ++current_frame_number_;
-                        break;
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_ERROR("Failed to read function call block header");
-                }
-            }
-            else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
-            {
-                format::MetaDataType meta_type = format::MetaDataType::kUnknownMetaDataType;
-
-                success = ReadBytes(&meta_type, sizeof(meta_type));
-
-                if (success)
-                {
-                    success = ProcessMetaData(block_header, meta_type);
-                }
-                else
-                {
-                    GFXRECON_LOG_ERROR("Failed to read meta-data block header");
-                }
-            }
-            else
-            {
-                // Unrecognized block type.
-                GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-                success = SkipBytes(static_cast<size_t>(block_header.size));
-            }
-
-            if (success)
-            {
-                // Check for EOF.
-                success = IsFileValid();
-            }
+            error_state_ = kErrorInvalidFileDescriptor;
         }
-        else
+        else if (ferror(file_descriptor_))
         {
-            if (!feof(file_descriptor_))
-            {
-                GFXRECON_LOG_ERROR("Failed to read block header");
-            }
+            error_state_ = kErrorReadingFile;
         }
     }
 
@@ -151,14 +102,14 @@ bool FileProcessor::ProcessNextFrame()
 
 bool FileProcessor::ProcessAllFrames()
 {
-    bool success = IsFileValid();
+    bool success = true;
 
     while (success)
     {
         success = ProcessNextFrame();
     }
 
-    return success;
+    return (error_state_ == kErrorNone);
 }
 
 bool FileProcessor::ProcessFileHeader()
@@ -200,13 +151,92 @@ bool FileProcessor::ProcessFileHeader()
                                        "compressed data will not be possible",
                                        enabled_options_.compression_type);
                     success = false;
+                    error_state_ = kErrorUnsupportedCompressionType;
                 }
             }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("File header contains invalid four character code");
+            error_state_ = kErrorInvalidFourCC;
         }
     }
     else
     {
         GFXRECON_LOG_ERROR("Failed to read file header");
+        error_state_ = kErrorReadingFileHeader;
+    }
+
+    return success;
+}
+
+bool FileProcessor::ProcessBlocks()
+{
+    format::BlockHeader block_header;
+    bool                success = true;
+
+    while (success)
+    {
+        success = ReadBlockHeader(&block_header);
+
+        if (success)
+        {
+            if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
+            {
+                format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
+
+                success = ReadBytes(&api_call_id, sizeof(api_call_id));
+
+                if (success)
+                {
+                    success = ProcessFunctionCall(block_header, api_call_id);
+
+                    // Break from loop on frame delimiter.
+                    if (IsFrameDelimiter(api_call_id))
+                    {
+                        // Make sure to increment the frame number on the way out.
+                        ++current_frame_number_;
+                        break;
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to read function call block header");
+                    error_state_ = kErrorReadingBlockHeader;
+                }
+            }
+            else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
+            {
+                format::MetaDataType meta_type = format::MetaDataType::kUnknownMetaDataType;
+
+                success = ReadBytes(&meta_type, sizeof(meta_type));
+
+                if (success)
+                {
+                    success = ProcessMetaData(block_header, meta_type);
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to read meta-data block header");
+                    error_state_ = kErrorReadingBlockHeader;
+                }
+            }
+            else
+            {
+                // Unrecognized block type.
+                GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                success = SkipBytes(static_cast<size_t>(block_header.size));
+            }
+        }
+        else
+        {
+            if (!feof(file_descriptor_))
+            {
+                GFXRECON_LOG_ERROR("Failed to read block header");
+                error_state_ = kErrorReadingBlockHeader;
+            }
+        }
     }
 
     return success;
@@ -319,11 +349,13 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
                 else
                 {
                     GFXRECON_LOG_ERROR("Failed to read compressed function call block data");
+                    error_state_ = kErrorReadingCompressedBlockData;
                 }
             }
             else
             {
                 GFXRECON_LOG_ERROR("Failed to read compressed function call block header");
+                error_state_ = kErrorReadingCompressedBlockHeader;
             }
         }
         else
@@ -333,6 +365,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
             if (!success)
             {
                 GFXRECON_LOG_ERROR("Failed to read function call block data");
+                error_state_ = kErrorReadingBlockData;
             }
         }
 
@@ -350,6 +383,7 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
     else
     {
         GFXRECON_LOG_ERROR("Failed to read function call block header");
+        error_state_ = kErrorReadingBlockHeader;
     }
 
     return success;
@@ -401,6 +435,15 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             else
             {
                 GFXRECON_LOG_ERROR("Failed to read fill memory meta-data block");
+
+                if (format::IsBlockCompressed(block_header.type))
+                {
+                    error_state_ = kErrorReadingCompressedBlockData;
+                }
+                else
+                {
+                    error_state_ = kErrorReadingBlockData;
+                }
             }
         }
         else
@@ -430,6 +473,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         else
         {
             GFXRECON_LOG_ERROR("Failed to read resize window meta-data block");
+            error_state_ = kErrorReadingBlockData;
         }
     }
     else if (meta_type == format::MetaDataType::kDisplayMessageCommand)
@@ -461,11 +505,13 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             else
             {
                 GFXRECON_LOG_ERROR("Failed to read display message meta-data block");
+                error_state_ = kErrorReadingBlockData;
             }
         }
         else
         {
             GFXRECON_LOG_ERROR("Failed to read display message meta-data block header");
+            error_state_ = kErrorReadingBlockHeader;
         }
     }
     else
