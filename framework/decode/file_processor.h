@@ -35,6 +35,22 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class FileProcessor
 {
   public:
+    enum Error : int32_t
+    {
+        kErrorNone                         = 0,
+        kErrorInvalidFileDescriptor        = -1,
+        kErrorOpeningFile                  = -2,
+        kErrorReadingFile                  = -3, // ferror() returned true at start of frame processing.
+        kErrorReadingFileHeader            = -4,
+        kErrorReadingBlockHeader           = -5,
+        kErrorReadingCompressedBlockHeader = -6,
+        kErrorReadingBlockData             = -7,
+        kErrorReadingCompressedBlockData   = -8,
+        kErrorInvalidFourCC                = -9,
+        kErrorUnsupportedCompressionType   = -10
+    };
+
+  public:
     FileProcessor();
 
     ~FileProcessor();
@@ -48,8 +64,11 @@ class FileProcessor
 
     bool Initialize(const std::string& filename);
 
+    // Returns true if there are more frames to process, false if all frames have been processed or an error has
+    // occurred.  Use GetErrorState() to determine error condition.
     bool ProcessNextFrame();
 
+    // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
     const format::FileHeader& GetFileHeader() const { return file_header_; }
@@ -60,8 +79,12 @@ class FileProcessor
 
     uint64_t GetNumBytesRead() const { return bytes_read_; }
 
+    Error GetErrorState() const { return error_state_; }
+
   private:
     bool ProcessFileHeader();
+
+    bool ProcessBlocks();
 
     bool ReadBlockHeader(format::BlockHeader* block_header);
 
@@ -93,6 +116,7 @@ class FileProcessor
     format::EnabledOptions              enabled_options_;
     uint32_t                            current_frame_number_;
     uint64_t                            bytes_read_;
+    Error                               error_state_;
     std::vector<ApiDecoder*>            decoders_;
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
