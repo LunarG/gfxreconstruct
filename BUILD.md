@@ -25,7 +25,7 @@ more details.
 ## Repository Content
 
 This repository contains the source code necessary to build the LunarG
-GFXReoncstruct layer and applications.
+GFXReconstruct layer and applications.
 The folders contain the following content:
 
 | Top Folder  | Sub-Folder | Description  |
@@ -36,13 +36,13 @@ The folders contain the following content:
 | framework | | Top-level folder containing framework files for this repository.|
 | | application | Application framework files for abstracting key information away from the main application code. |
 | | decode | Various functionality to assist in decoding the content of an application.  This is typically used by replay consumers. |
-| | encode | Various functionality to assist in the encoding of content for an application.  This is typically used by the GFXReoncstruct layer. |
+| | encode | Various functionality to assist in the encoding of content for an application.  This is typically used by the GFXReconstruct layer. |
 | | format | Functionality used to define the various formats and containers for the basic bits of functionality. |
 | | generated | Generated source files and generator scripts (in Python) used to assist in the encode and decode of supported APIs. |
 | | util | General utility functionality to assist in platform portability. |
 | layer | | Contains the code that produces the GFXReconstruct Vulkan layer used to capture Vulkan commands. |
 | tools | | Top-level folder containing the application tools for this repository. |
-| | compress | A tool used to compress or uncompress GFXReconstruct capture files. |
+| | compress | A tool used to compress or decompress GFXReconstruct capture files. |
 | | replay | A tool used to replay commands in a GFXReconstruct capture file. |
 | | toascii | A tool used to dump out the contents of the commands in a GFXReconstruct capture file as ascii content. |
 
@@ -73,7 +73,7 @@ repositories.
 Both of these repositories are added to the project as Git Submodules.
 
 Once the repository has been cloned, you must enter the gfxreconstruct 
-source directory you create and pull down the submodule information using
+source directory you created and pull down the submodule information using
 the following command:
 
 ```
@@ -273,10 +273,24 @@ In the following snippets you will see the following defines.  Replace them with
 | `{gfxreconstruct_root}` | Substitute in the path to the GFXReconstruct source folder on your system |
 
 
-**TODO:** Add something here about running gradlew from the command line to build
+#### Building With Gradle
 
+To perform a debug build from the command line with Gradle, run the following command from the
+`{gfxreconstruct_root}/android` folder:
 
-#### Building Stand-alone
+On Windows:
+```
+gradlew assembleDebug
+```
+
+On Linux:
+```
+./gradlew assembleDebug
+```
+
+To perform a release build, replace the `assembleDebug` task-name with `assembleRelease`.
+
+#### Building Stand-alone With Android Studio
 
 1. Open Android Studio
 2. Choose "Import Project" and browse to the `{gfxreconstruct_root}/android` folder and click "OK".
@@ -286,7 +300,7 @@ In the following snippets you will see the following defines.  Replace them with
    * replay - The GFXReconstruct capture file replay tool
 3. Build the project
 
-#### Building With Your Existing App
+#### Building With Your Existing App and Android Studio
 
 If you are building your app with Android Studio or with gradle, you can do the following to add the layer module as a dependency of your app.
 Adding the layer as a dependency will make gradle build the layer when building your app and add the layer to your app's APK.
