@@ -7,7 +7,7 @@
 You will need to grant permissions to your application to write to
 system storage, even if it normally does not.
 This is due to the fact that the GFXReconstruct layer generates a
-capture file which is written out to the `/sdcard` folder by default.
+capture file which is written to the `/sdcard` folder by default.
 
 If you're building with Android Studio, you do this by:
  * Click on "Run" in the menu
@@ -19,7 +19,7 @@ If you're building with Android Studio, you do this by:
 If this does not work, you may still require enabling permissions for
 your application from the settings menu.
 
-**Failure to do so** will result in your application crashign during `vkCreateInstance`
+**Failure to do so** will result in your application crashing during `vkCreateInstance`
 since the layer will attempt, but fail, to create the capture file.
 
 ### Disabling Memory Tracking Seg-Faults
@@ -55,8 +55,6 @@ Debugger > LLDP Post Attach Commands
 
 Where you can click the `+` and add it manually.
 
-<br></br>
-
 ## Globally Enabling the Layer
 
 Use ADB to enable the layer for your project by:
@@ -70,8 +68,6 @@ When done, disable the layer using:
 ```
 adb shell "setprop debug.vulkan.layers ''"
 ```
-
-<br></br>
 
 ## GFXRecon Debug Options
 
@@ -90,8 +86,6 @@ For example, to set the log_level to "warning", you would call:
 adb shell "setprop debug.gfxrecon.log_level 'warning'"
 ```
 
-<br></br>
-
 Option | Property | Type | Description
 ------| ------------- |------|-------------
 Capture Compression Type | debug.gfxrecon.capture_compression_type | STRING | Define a specific compression type to use when capturing content.  Valid values are: "LZ4", "ZLIB", and "NONE".
@@ -107,9 +101,7 @@ Log File Flush After Write | debug.gfxrecon.log_file_flush_after_write | BOOL | 
 Log File Keep Open | debug.gfxrecon.log_file_keep_open | BOOL | This option forces the log file to remain open after it's created to allow for faster recording of log messages.
 Log Level | debug.gfxrecon.log_level | STRING | This option allows you to choose what log level you desire to trigger.  Available options include: "debug", "info", "warning", "error", and "fatal".  Any level selected will include all levels listed after it.  For example, choosing "warning" will also log out "error" and "fatal" messages.
 Log Output To Console | debug.gfxrecon.log_output_to_console | BOOL | This option allows log messages to be written out to stdout (or whatever debug console is available on the target platform.
-Memory Tracking Mode | debug.gfxrecon.memory_tracking_mode | STRING | This option allows the user to determine what memory tracking mode the layer uses when handling memory.  Available options are: "page_guard", "assisted" and "unassisted".  <ul><li>"unassisted" assumes the application does not flush, so writes all mapped data on an `vkUnmapMemory` or `vkQueueSubmit` call.</li> <li>"assisted" assumes the application will always flush after writing to mapped memory, so will only write on a flush.</li> <li>"page_guard" is used to determine which regions of memory to write on an `vkUnmapMemory` or `vkQueueSubmit` call.  "page_guard" also shadows uncached memory so as to properly provide all memory it can.</li></ul>
-
-<br></br>
+Memory Tracking Mode | debug.gfxrecon.memory_tracking_mode | STRING | This option allows the user to determine what memory tracking mode the layer uses when handling memory.  Available options are: "page_guard", "assisted" and "unassisted".  <ul><li>"page_guard" is used to determine which regions of memory to write on an `vkUnmapMemory` or `vkQueueSubmit` call.  "page_guard" also shadows uncached memory so as to properly provide all memory it can.</li><li>"assisted" assumes the application will always flush after writing to mapped memory, so will only write on a flush.</li><li>"unassisted" assumes the application does not flush, so writes all mapped data on an `vkUnmapMemory` or `vkQueueSubmit` call.</li></ul>
 
 ## Capture Files
 
@@ -120,12 +112,8 @@ use the name `gfxrecon_capture.gfxr`:
 /sdcard/gfxrecon_capture.gfxr
 ```
 
-Enabling timestamps may be needed since many applications create Vulkan items in
-one thread to validate available functionality.
-Those same apps, then exit that thread, and start a new thread creating items.
-Some applications even create additional Vulkan items after the main functionality
-has completed which can result in overwritten capture data.
-
+Enabling timestamps may be needed to prevent apps that create multiple files from
+overwriting existing files.
 
 ### Overriding the Default Name
 
@@ -142,15 +130,14 @@ adb shell "setprop debug.gfxrecon.capture_file '<your_path_and_file_name_here>.g
 ### Timestamps
 
 If you enable file timestamps, this file will actually be created new every
-call based on the time the application first access the layer in its
+call based on the time the application first accesses the layer in its
 `vkCreateInstance` call:
 
  ```
 /sdcard/gfxrecon_capture_yyyymmddThhmmss.gfxr
 ```
 
-Where the lower-case letters stand for: Year, Month, Day, Hour, Minute, Second.
+where the lower-case letters stand for: Year, Month, Day, Hour, Minute, Second.
 The `T` is left alone to indicate that this is a date/time.
 
 For example:  `gfxrecon_capture_20181125T083227.gfxr`
-
