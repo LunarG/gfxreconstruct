@@ -56,7 +56,7 @@ int main(int argc, const char** argv)
     std::string                       input_filename;
     std::string                       output_filename;
 
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kInfoSeverity);
+    gfxrecon::util::Log::Init();
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "", 3);
 

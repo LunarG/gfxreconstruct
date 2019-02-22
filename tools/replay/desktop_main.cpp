@@ -83,7 +83,7 @@ int main(int argc, const char** argv)
     int return_code = 0;
     std::string filename;
 
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kInfoSeverity);
+    gfxrecon::util::Log::Init();
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
 
