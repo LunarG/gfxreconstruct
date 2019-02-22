@@ -64,7 +64,7 @@ class Log
 
         // Constructor used for default initialization
         Settings() :
-            min_severity(kErrorSeverity), output_detailed_log_info(false), flush_after_write(false), use_indent(false),
+            min_severity(kInfoSeverity), output_detailed_log_info(false), flush_after_write(false), use_indent(false),
             indent(0), indent_spaces(std::string("   ")), break_on_error(false), write_to_file(false), create_new(true),
             leave_file_open(true), file_name(std::string("")), file_pointer(nullptr), write_to_console(true),
             output_errors_to_stderr(true), output_to_os_debug_string(false)
@@ -73,7 +73,7 @@ class Log
 
     static inline std::string SeverityToString(Severity severity);
     static void               Init(const util::Log::Settings& settings);
-    static void               Init(Severity    min_severity              = kErrorSeverity,
+    static void               Init(Severity    min_severity              = kInfoSeverity,
                                    const char* log_file_name             = nullptr,
                                    bool        leave_file_open           = true,
                                    bool        create_new_file_on_open   = true,

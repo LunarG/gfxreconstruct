@@ -46,7 +46,7 @@ int main(int argc, const char** argv)
     gfxrecon::decode::FileProcessor file_processor;
     gfxrecon::util::ArgumentParser  arg_parser(argc, argv, "", "", 1);
 
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kInfoSeverity);
+    gfxrecon::util::Log::Init();
 
     if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {

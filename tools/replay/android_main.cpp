@@ -47,7 +47,7 @@ void        PrintUsage(const char* exe_name);
 
 void android_main(struct android_app* app)
 {
-    gfxrecon::util::Log::Init(gfxrecon::util::Log::kInfoSeverity);
+    gfxrecon::util::Log::Init();
 
     std::string                    args = GetIntentExtra(app, kArgsExtentKey);
     gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), "", "", 0);
