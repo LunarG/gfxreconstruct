@@ -152,7 +152,7 @@ inline int64_t FileTell(FILE* stream)
 inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
 {
     int32_t result = _fseeki64(stream, offset, origin);
-    return (result == 0) ? true : false;
+    return (result == 0);
 }
 
 inline size_t FileWriteNoLock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
@@ -303,8 +303,21 @@ inline int32_t StringCopy(wchar_t* destination, size_t destination_size, const w
 
 inline int32_t FileOpen(FILE** stream, const char* filename, const char* mode)
 {
-    (*stream) = fopen(filename, mode);
-    return errno;
+    if (stream == nullptr)
+    {
+        return EINVAL;
+    }
+
+    FILE* result = fopen(filename, mode);
+    if (result != nullptr)
+    {
+        (*stream) = result;
+        return 0;
+    }
+    else
+    {
+        return errno;
+    }
 }
 
 inline int64_t FileTell(FILE* stream)
@@ -315,7 +328,7 @@ inline int64_t FileTell(FILE* stream)
 inline bool FileSeek(FILE* stream, int64_t offset, FileSeekOrigin origin)
 {
     int32_t result = fseeko(stream, offset, origin);
-    return (result == 0) ? true : false;
+    return (result == 0);
 }
 
 inline size_t FileWriteNoLock(const void* buffer, size_t element_size, size_t element_count, FILE* stream)
@@ -343,10 +356,15 @@ inline int32_t FileVprintf(FILE* stream, const char* format, va_list vlist)
 
 inline int32_t LocalTime(tm* local_time, const time_t* timer)
 {
+    if (local_time == nullptr)
+    {
+        return EINVAL;
+    }
+
     tm* result = localtime(timer);
     if (result != nullptr)
     {
-        memcpy(local_time, result, sizeof(tm));
+        (*local_time) = (*result);
         return 0;
     }
     else
@@ -357,10 +375,15 @@ inline int32_t LocalTime(tm* local_time, const time_t* timer)
 
 inline int32_t GMTime(tm* gm_time, const time_t* timer)
 {
+    if (gm_time == nullptr)
+    {
+        return EINVAL;
+    }
+
     tm* result = gmtime(timer);
     if (result != nullptr)
     {
-        memcpy(gm_time, result, sizeof(tm));
+        (*gm_time) = (*result);
         return 0;
     }
     else
