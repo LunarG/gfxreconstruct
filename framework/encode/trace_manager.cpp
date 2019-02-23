@@ -512,7 +512,7 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
                 assert(manager != nullptr);
 
                 info->tracked_memory = manager->AddMemory(
-                    format::ToHandleId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false, true);
+                    format::ToHandleId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false);
             }
             else
             {

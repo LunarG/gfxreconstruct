@@ -58,7 +58,7 @@ class PageGuardManager
 
     static PageGuardManager* Get() { return instance_; }
 
-    void* AddMemory(uint64_t memory_id, void* mapped_memory, size_t size, bool is_cached, bool shadow);
+    void* AddMemory(uint64_t memory_id, void* mapped_memory, size_t size, bool is_cached);
 
     void RemoveMemory(uint64_t memory_id);
 
@@ -83,10 +83,9 @@ class PageGuardManager
   private:
     struct MemoryInfo
     {
-        MemoryInfo(void* mm, size_t mr, void* sm, size_t sr, void* aa, size_t ao, size_t tp, size_t lss, bool ic) :
+        MemoryInfo(void* mm, size_t mr, void* sm, size_t sr, size_t tp, size_t lss, bool ic) :
             status_tracker(tp), mapped_memory(mm), mapped_range(mr), shadow_memory(sm), shadow_range(sr),
-            aligned_address(aa), aligned_offset(ao), total_pages(tp), last_segment_size(lss), is_cached(ic),
-            is_modified(false)
+            total_pages(tp), last_segment_size(lss), is_cached(ic), is_modified(false)
         {}
 
         PageStatusTracker status_tracker;
@@ -96,9 +95,6 @@ class PageGuardManager
         void*  shadow_memory;  // Shadow memory for mapped memory types that cannot be tracked by guard pages.
         size_t shadow_range;   // Size of the shadow memory allocation, which is the mapped memory size adjusted to be a
                                // multiple of system page size.
-        void* aligned_address; // Mapped memory pointer aligned to start of page when shadow memory is disabled, or
-                               // shadow memory pointer when enabled.
-        size_t aligned_offset; // Difference between #aligned_memory and #mapped_memory.
         size_t total_pages;    // Total number of pages contained by the mapped memory.
         size_t last_segment_size; // Size of the last segment of the mapped memory, which may not be a full page.
         bool   is_cached;

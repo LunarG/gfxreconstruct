@@ -151,12 +151,6 @@ PageGuardManager::~PageGuardManager()
         {
             FreeShadowMemory(memory_info.shadow_memory, memory_info.shadow_range);
         }
-        else
-        {
-            // Disable page guard.
-            size_t guard_range = memory_info.mapped_range + memory_info.aligned_offset;
-            SetMemoryProtection(memory_info.aligned_address, guard_range, kGuardNoProtect);
-        }
     }
 }
 
@@ -245,15 +239,12 @@ void PageGuardManager::FreeShadowMemory(void* memory, size_t size)
 {
     assert(memory != nullptr);
 
-    if (memory != nullptr)
-    {
 #if defined(WIN32)
-        GFXRECON_UNREFERENCED_PARAMETER(size);
-        VirtualFree(memory, 0, MEM_RELEASE);
+    GFXRECON_UNREFERENCED_PARAMETER(size);
+    VirtualFree(memory, 0, MEM_RELEASE);
 #else
-        munmap(memory, size);
+    munmap(memory, size);
 #endif
-    }
 }
 
 void PageGuardManager::AddExceptionHandler()
@@ -443,7 +434,7 @@ void PageGuardManager::ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info,
             if (memory_info->status_tracker.IsActiveReadBlock(i))
             {
 
-                void*  page_address = static_cast<uint8_t*>(memory_info->aligned_address) + (i * system_page_size_);
+                void*  page_address = static_cast<uint8_t*>(memory_info->shadow_memory) + (i * system_page_size_);
                 size_t segment_size = GetMemorySegmentSize(memory_info, i);
 
                 memory_info->status_tracker.SetActiveReadBlock(i, false);
@@ -472,13 +463,13 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
                                           size_t             end_index,
                                           ModifiedMemoryFunc handle_modified)
 {
-    assert(memory_info != nullptr);
+    assert((memory_info != nullptr) && (memory_info->shadow_memory != nullptr));
     assert(end_index > start_index);
 
     size_t page_count    = end_index - start_index;
     size_t page_offset   = start_index * system_page_size_;
     size_t page_range    = page_count * system_page_size_;
-    void*  start_address = static_cast<uint8_t*>(memory_info->aligned_address) + page_offset;
+    void*  start_address = static_cast<uint8_t*>(memory_info->shadow_memory) + page_offset;
 
     if (end_index == memory_info->total_pages)
     {
@@ -507,41 +498,13 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
     SetMemoryProtection(start_address, page_range, kGuardReadOnlyProtect);
 #endif
 
-    // Source address, offset, and range values to be provided to the callback.
-    // For shadow memory, they are the shadow memory pointer with the actual page offset and page range.
-    // For non-shadow memory, the page offset and range need to be adjusted when the source address is not aligned to
-    // the start of a page.
-    void*  source_address = nullptr;
-    size_t source_offset  = page_offset;
-    size_t source_range   = page_range;
+    // Copy from shadow memory to the original mapped memory
+    void* destination_address = static_cast<uint8_t*>(memory_info->mapped_memory) + page_offset;
+    MemoryCopy(destination_address, start_address, page_range);
 
-    if (memory_info->shadow_memory != nullptr)
-    {
-        // Copy from shadow memory to the original mapped memory
-        void* destination_address = static_cast<uint8_t*>(memory_info->mapped_memory) + page_offset;
-        MemoryCopy(destination_address, start_address, page_range);
-
-        source_address = static_cast<uint8_t*>(memory_info->shadow_memory);
-    }
-    else
-    {
-        source_address = static_cast<uint8_t*>(memory_info->mapped_memory);
-
-        if (start_index == 0)
-        {
-            // If the watch pointer was aligned to the start of a page, the alignment offset needs to be
-            // deducted from the page size.
-            source_range -= memory_info->aligned_offset;
-        }
-        else
-        {
-            // If the watch pointer was aligned to the start of a page, the alignment offset needs to be
-            // deducted from the start offset.
-            source_offset -= memory_info->aligned_offset;
-        }
-    }
-
-    handle_modified(memory_id, source_address, source_offset, source_range);
+    // The shadow memory address, page offset, and range values to be provided to the callback, which will process the
+    // memory range.
+    handle_modified(memory_id, memory_info->shadow_memory, page_offset, page_range);
 
     // Reset page guard.
     SetMemoryProtection(start_address, page_range, kGuardReadWriteProtect);
@@ -577,14 +540,12 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
 #endif
 }
 
-void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_t size, bool is_cached, bool shadow)
+void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_t size, bool is_cached)
 {
     bool success = true;
 
-    void*  aligned_address   = nullptr;
     void*  shadow_memory     = nullptr;
     size_t shadow_size       = 0;
-    size_t aligned_offset    = 0;
     size_t guard_range       = size;
     size_t total_pages       = size / system_page_size_;
     size_t last_segment_size = size % system_page_size_;
@@ -598,45 +559,19 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
         last_segment_size = system_page_size_;
     }
 
-    if (shadow)
+    shadow_size   = GetAdjustedSize(size);
+    shadow_memory = AllocateShadowMemory(shadow_size);
+
+    if (shadow_memory != nullptr)
     {
-        shadow_size   = GetAdjustedSize(size);
-        shadow_memory = AllocateShadowMemory(shadow_size);
-
-        if (shadow_memory != nullptr)
+        if (enable_copy_on_map_ && !enable_lazy_copy_)
         {
-            if (enable_copy_on_map_ && !enable_lazy_copy_)
-            {
-                MemoryCopy(shadow_memory, mapped_memory, size);
-            }
-
-            aligned_address = shadow_memory;
-        }
-        else
-        {
-            success = false;
+            MemoryCopy(shadow_memory, mapped_memory, size);
         }
     }
     else
     {
-        // Align the mapped memory pointer to the start of its page.
-        aligned_offset  = GetOffsetFromPageStart(mapped_memory);
-        aligned_address = AlignToPageStart(mapped_memory);
-
-        if (aligned_offset > 0)
-        {
-            // The guard range and last segment size were computed for a page aligned address.
-            // If the memory address is not page aligned, these values need to be adjusted with
-            // the offset from the memory address to the start of its page.
-            guard_range += aligned_offset;
-
-            last_segment_size += aligned_offset;
-            if (last_segment_size > system_page_size_)
-            {
-                ++total_pages;
-                last_segment_size -= system_page_size_;
-            }
-        }
+        success = false;
     }
 
     if (success)
@@ -646,7 +581,7 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
         AddExceptionHandler();
 
         // Enable page guard for read and write operations.
-        if (SetMemoryProtection(aligned_address, guard_range, kGuardReadWriteProtect))
+        if (SetMemoryProtection(shadow_memory, guard_range, kGuardReadWriteProtect))
         {
             assert(memory_info_.find(memory_id) == memory_info_.end());
 
@@ -656,8 +591,6 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
                                                                     size,
                                                                     shadow_memory,
                                                                     shadow_size,
-                                                                    aligned_address,
-                                                                    aligned_offset,
                                                                     total_pages,
                                                                     last_segment_size,
                                                                     is_cached));
@@ -669,17 +602,10 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
         }
     }
 
-    if (!success)
+    if (!success && shadow_memory)
     {
-        if (shadow_memory)
-        {
-            FreeShadowMemory(shadow_memory, shadow_size);
-            shadow_memory = nullptr;
-        }
-        else
-        {
-            SetMemoryProtection(aligned_address, guard_range, kGuardNoProtect);
-        }
+        FreeShadowMemory(shadow_memory, shadow_size);
+        shadow_memory = nullptr;
     }
 
     return (shadow_memory != nullptr) ? shadow_memory : mapped_memory;
@@ -700,12 +626,6 @@ void PageGuardManager::RemoveMemory(uint64_t memory_id)
         if (memory_info.shadow_memory)
         {
             FreeShadowMemory(memory_info.shadow_memory, memory_info.shadow_range);
-        }
-        else
-        {
-            // Disable page guard.
-            size_t guard_range = memory_info.mapped_range + memory_info.aligned_offset;
-            SetMemoryProtection(memory_info.aligned_address, guard_range, kGuardNoProtect);
         }
 
         memory_info_.erase(entry);
@@ -751,13 +671,13 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
     bool found = FindMemory(address, &start_address, &memory_info);
     if (found)
     {
-        assert((start_address != nullptr) && (memory_info != nullptr) && (memory_info->aligned_address != nullptr));
-        assert(reinterpret_cast<uintptr_t>(address) >= reinterpret_cast<uintptr_t>(memory_info->aligned_address));
+        assert((start_address != nullptr) && (memory_info != nullptr) && (memory_info->shadow_memory != nullptr));
+        assert(reinterpret_cast<uintptr_t>(address) >= reinterpret_cast<uintptr_t>(memory_info->shadow_memory));
 
         memory_info->is_modified = true;
 
         // Get the offset from the start of the first protected memory page to the current address.
-        size_t start_offset = static_cast<uint8_t*>(address) - static_cast<uint8_t*>(memory_info->aligned_address);
+        size_t start_offset = static_cast<uint8_t*>(address) - static_cast<uint8_t*>(memory_info->shadow_memory);
 
         size_t page_index   = start_offset / system_page_size_;
         size_t page_offset  = GetOffsetFromPageStart(address);
