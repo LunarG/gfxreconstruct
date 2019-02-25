@@ -15,12 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os,re,sys
+import os,re,sys,json
 from base_generator import *
 
 class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating a C++ class for Vulkan capture file replay"""
     def __init__(self,
+                 replayOverrides = None,    # Path to JSON file listing Vulkan API calls to override on replay.
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
@@ -31,12 +32,18 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
+        self.replayOverrides = replayOverrides
 
 # VulkanReplayConsumerBodyGenerator - subclass of BaseGenerator.
 # Generates C++ member definitions for the VulkanReplayConsumer class responsible for
 # replaying decoded Vulkan API call parameter data.
 class VulkanReplayConsumerBodyGenerator(BaseGenerator):
     """Generate a C++ class for Vulkan capture file replay"""
+
+    # Map of Vulkan function names to override function names.  Calls to Vulkan functions in the map
+    # will be replaced by the override value.
+    REPLAY_OVERRIDES = {}
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -56,6 +63,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
+
+        if genOpts.replayOverrides:
+            self.__loadReplayOverrides(genOpts.replayOverrides)
 
         write('#include "generated/generated_vulkan_replay_consumer.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_handle_mappers.h"', file=self.outFile)
@@ -120,15 +130,25 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         args, preexpr, postexpr = self.makeBodyExpressions(name, values)
         arglist = ', '.join(args)
 
+        callExpr = ''
+        if name in self.REPLAY_OVERRIDES:
+            if returnType == 'VkResult':
+                # Override functions receive the decoded return value in addition to parameters.
+                callExpr = '{}({}, returnValue, {})'.format(self.REPLAY_OVERRIDES[name], name, arglist)
+            else:
+                callExpr = '{}({}, {})'.format(self.REPLAY_OVERRIDES[name], name, arglist)
+        else:
+                callExpr = '{}({})'.format(name, arglist)
+
         if preexpr:
             body += '\n'.join(['    ' + val if val else val for val in preexpr])
             body += '\n'
             body += '\n'
         if returnType == 'VkResult':
-            body += '    VkResult replay_result = Dispatcher<format::ApiCallId::ApiCall_{name}, {}, PFN_{name}>::Dispatch(this, returnValue, {name}, {});\n'.format(returnType, arglist, name=name)
+            body += '    VkResult replay_result = {};\n'.format(callExpr)
             body += '    CheckResult("{}", returnValue, replay_result);\n'.format(name)
         else:
-            body += '    Dispatcher<format::ApiCallId::ApiCall_{name}, {}, PFN_{name}>::Dispatch(this, {name}, {});\n'.format(returnType, arglist, name=name)
+            body += '    {};\n'.format(callExpr)
         if postexpr:
             body += '\n'
             body += '\n'.join(['    ' + val if val else val for val in postexpr])
@@ -281,3 +301,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                 # Only need to append the parameter name to the args list; no other expressions are necessary.
                 args.append(value.name)
         return args, preexpr, postexpr
+
+    def __loadReplayOverrides(self, filename):
+        overrides = json.loads(open(filename, 'r').read())
+        self.REPLAY_OVERRIDES = overrides['functions']
