@@ -162,48 +162,62 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
 
-    VkResult OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+    VkResult OverrideCreateInstance(PFN_vkCreateInstance         func,
+                                    VkResult                     original_result,
+                                    const VkInstanceCreateInfo*  pCreateInfo,
                                     const VkAllocationCallbacks* pAllocator,
                                     VkInstance*                  pInstance);
 
-    VkResult OverrideCreateDevice(VkPhysicalDevice             physicalDevice,
+    VkResult OverrideCreateDevice(PFN_vkCreateDevice           func,
+                                  VkResult                     original_result,
+                                  VkPhysicalDevice             physicalDevice,
                                   const VkDeviceCreateInfo*    pCreateInfo,
                                   const VkAllocationCallbacks* pAllocator,
                                   VkDevice*                    pDevice);
 
-    VkResult OverrideWaitForFences(VkResult       original_result,
-                                   VkDevice       device,
-                                   uint32_t       fenceCount,
-                                   const VkFence* pFences,
-                                   VkBool32       waitAll,
-                                   uint64_t       timeout);
+    VkResult OverrideWaitForFences(PFN_vkWaitForFences func,
+                                   VkResult            original_result,
+                                   VkDevice            device,
+                                   uint32_t            fenceCount,
+                                   const VkFence*      pFences,
+                                   VkBool32            waitAll,
+                                   uint64_t            timeout);
 
-    VkResult OverrideGetFenceStatus(VkResult original_result, VkDevice device, VkFence fence);
+    VkResult
+    OverrideGetFenceStatus(PFN_vkGetFenceStatus func, VkResult original_result, VkDevice device, VkFence fence);
 
-    VkResult OverrideGetEventStatus(VkResult original_result, VkDevice device, VkEvent event);
+    VkResult
+    OverrideGetEventStatus(PFN_vkGetEventStatus func, VkResult original_result, VkDevice device, VkEvent event);
 
-    VkResult OverrideGetQueryPoolResults(VkResult           original_result,
-                                         VkDevice           device,
-                                         VkQueryPool        queryPool,
-                                         uint32_t           firstQuery,
-                                         uint32_t           queryCount,
-                                         size_t             dataSize,
-                                         void*              pData,
-                                         VkDeviceSize       stride,
-                                         VkQueryResultFlags flags);
+    VkResult OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults func,
+                                         VkResult                  original_result,
+                                         VkDevice                  device,
+                                         VkQueryPool               queryPool,
+                                         uint32_t                  firstQuery,
+                                         uint32_t                  queryCount,
+                                         size_t                    dataSize,
+                                         void*                     pData,
+                                         VkDeviceSize              stride,
+                                         VkQueryResultFlags        flags);
 
-    VkResult OverrideMapMemory(VkDevice         device,
+    VkResult OverrideMapMemory(PFN_vkMapMemory  func,
+                               VkResult         original_result,
+                               VkDevice         device,
                                VkDeviceMemory   memory,
                                VkDeviceSize     offset,
                                VkDeviceSize     size,
                                VkMemoryMapFlags flags,
                                void**           ppData);
 
-    void OverrideUnmapMemory(VkDevice device, VkDeviceMemory memory);
+    void OverrideUnmapMemory(PFN_vkUnmapMemory func, VkDevice device, VkDeviceMemory memory);
 
-    void OverrideFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
+    void OverrideFreeMemory(PFN_vkFreeMemory             func,
+                            VkDevice                     device,
+                            VkDeviceMemory               memory,
+                            const VkAllocationCallbacks* pAllocator);
 
     VkResult OverrideCreateDescriptorUpdateTemplate(PFN_vkCreateDescriptorUpdateTemplate        func,
+                                                    VkResult                                    original_result,
                                                     VkDevice                                    device,
                                                     const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
                                                     const VkAllocationCallbacks*                pAllocator,
@@ -211,49 +225,68 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
-    VkResult OverrideCreateAndroidSurfaceKHR(VkInstance                           instance,
+    VkResult OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR        func,
+                                             VkResult                             original_result,
+                                             VkInstance                           instance,
                                              const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
                                              const VkAllocationCallbacks*         pAllocator,
                                              VkSurfaceKHR*                        pSurface);
 
-    VkResult OverrideCreateWin32SurfaceKHR(VkInstance                         instance,
+    VkResult OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR        func,
+                                           VkResult                           original_result,
+                                           VkInstance                         instance,
                                            const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
                                            const VkAllocationCallbacks*       pAllocator,
                                            VkSurfaceKHR*                      pSurface);
 
-    VkBool32 OverrideGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physicalDevice,
-                                                                  uint32_t         queueFamilyIndex);
+    VkBool32
+    OverrideGetPhysicalDeviceWin32PresentationSupportKHR(PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func,
+                                                         VkPhysicalDevice physicalDevice,
+                                                         uint32_t         queueFamilyIndex);
 
-    VkResult OverrideCreateXcbSurfaceKHR(VkInstance                       instance,
+    VkResult OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR        func,
+                                         VkResult                         original_result,
+                                         VkInstance                       instance,
                                          const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
                                          const VkAllocationCallbacks*     pAllocator,
                                          VkSurfaceKHR*                    pSurface);
 
-    VkBool32 OverrideGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice  physicalDevice,
+    VkBool32 OverrideGetPhysicalDeviceXcbPresentationSupportKHR(PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func,
+                                                                VkPhysicalDevice  physicalDevice,
                                                                 uint32_t          queueFamilyIndex,
                                                                 xcb_connection_t* connection,
                                                                 xcb_visualid_t    visual_id);
 
-    VkResult OverrideCreateXlibSurfaceKHR(VkInstance                        instance,
+    VkResult OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR        func,
+                                          VkResult                          original_result,
+                                          VkInstance                        instance,
                                           const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
                                           const VkAllocationCallbacks*      pAllocator,
                                           VkSurfaceKHR*                     pSurface);
 
-    VkBool32 OverrideGetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice physicalDevice,
+    VkBool32 OverrideGetPhysicalDeviceXlibPresentationSupportKHR(PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR func,
+                                                                 VkPhysicalDevice physicalDevice,
                                                                  uint32_t         queueFamilyIndex,
                                                                  Display*         dpy,
                                                                  VisualID         visualID);
 
-    VkResult OverrideCreateWaylandSurfaceKHR(VkInstance                           instance,
+    VkResult OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR        func,
+                                             VkResult                             original_result,
+                                             VkInstance                           instance,
                                              const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
                                              const VkAllocationCallbacks*         pAllocator,
                                              VkSurfaceKHR*                        pSurface);
 
-    VkBool32 OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice   physicalDevice,
-                                                                    uint32_t           queueFamilyIndex,
-                                                                    struct wl_display* display);
+    VkBool32
+    OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,
+                                                           VkPhysicalDevice   physicalDevice,
+                                                           uint32_t           queueFamilyIndex,
+                                                           struct wl_display* display);
 
-    void OverrideDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface, const VkAllocationCallbacks* pAllocator);
+    void OverrideDestroySurfaceKHR(PFN_vkDestroySurfaceKHR      func,
+                                   VkInstance                   instance,
+                                   VkSurfaceKHR                 surface,
+                                   const VkAllocationCallbacks* pAllocator);
 
     void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder);
 
@@ -295,9 +328,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkCreateInstance func, Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateInstance(args...);
+            return consumer->OverrideCreateInstance(func, original_result, args...);
         }
     };
 
@@ -308,9 +339,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkCreateDevice func, Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateDevice(args...);
+            return consumer->OverrideCreateDevice(func, original_result, args...);
         }
     };
 
@@ -321,8 +350,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkWaitForFences func, Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideWaitForFences(original_result, args...);
+            return consumer->OverrideWaitForFences(func, original_result, args...);
         }
     };
 
@@ -333,8 +361,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkGetFenceStatus func, Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetFenceStatus(original_result, args...);
+            return consumer->OverrideGetFenceStatus(func, original_result, args...);
         }
     };
 
@@ -345,8 +372,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkGetEventStatus func, Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetEventStatus(original_result, args...);
+            return consumer->OverrideGetEventStatus(func, original_result, args...);
         }
     };
 
@@ -359,8 +385,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkGetQueryPoolResults func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetQueryPoolResults(original_result, args...);
+            return consumer->OverrideGetQueryPoolResults(func, original_result, args...);
         }
     };
 
@@ -371,9 +396,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         static Ret
         Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkMapMemory func, Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideMapMemory(args...);
+            return consumer->OverrideMapMemory(func, original_result, args...);
         }
     };
 
@@ -383,8 +406,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkUnmapMemory func, Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideUnmapMemory(args...);
+            return consumer->OverrideUnmapMemory(func, args...);
         }
     };
 
@@ -394,8 +416,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkFreeMemory func, Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideFreeMemory(args...);
+            return consumer->OverrideFreeMemory(func, args...);
         }
     };
 
@@ -408,8 +429,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateDescriptorUpdateTemplate func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateDescriptorUpdateTemplate(func, args...);
+            return consumer->OverrideCreateDescriptorUpdateTemplate(func, original_result, args...);
         }
     };
 
@@ -422,8 +442,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateDescriptorUpdateTemplateKHR func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateDescriptorUpdateTemplate(func, args...);
+            return consumer->OverrideCreateDescriptorUpdateTemplate(func, original_result, args...);
         }
     };
 
@@ -436,9 +455,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateAndroidSurfaceKHR func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateAndroidSurfaceKHR(args...);
+            return consumer->OverrideCreateAndroidSurfaceKHR(func, original_result, args...);
         }
     };
 
@@ -451,9 +468,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateWin32SurfaceKHR func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateWin32SurfaceKHR(args...);
+            return consumer->OverrideCreateWin32SurfaceKHR(func, original_result, args...);
         }
     };
 
@@ -465,8 +480,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetPhysicalDeviceWin32PresentationSupportKHR(args...);
+            return consumer->OverrideGetPhysicalDeviceWin32PresentationSupportKHR(func, args...);
         }
     };
 
@@ -479,9 +493,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateXcbSurfaceKHR func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateXcbSurfaceKHR(args...);
+            return consumer->OverrideCreateXcbSurfaceKHR(func, original_result, args...);
         }
     };
 
@@ -493,8 +505,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetPhysicalDeviceXcbPresentationSupportKHR(args...);
+            return consumer->OverrideGetPhysicalDeviceXcbPresentationSupportKHR(func, args...);
         }
     };
 
@@ -507,9 +518,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateXlibSurfaceKHR func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateXlibSurfaceKHR(args...);
+            return consumer->OverrideCreateXlibSurfaceKHR(func, original_result, args...);
         }
     };
 
@@ -521,8 +530,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetPhysicalDeviceXlibPresentationSupportKHR(args...);
+            return consumer->OverrideGetPhysicalDeviceXlibPresentationSupportKHR(func, args...);
         }
     };
 
@@ -535,9 +543,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkCreateWaylandSurfaceKHR func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateWaylandSurfaceKHR(args...);
+            return consumer->OverrideCreateWaylandSurfaceKHR(func, original_result, args...);
         }
     };
 
@@ -549,8 +555,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,
                             Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(args...);
+            return consumer->OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(func, args...);
         }
     };
 
@@ -560,8 +565,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         template <typename... Args>
         static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkDestroySurfaceKHR func, Args... args)
         {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideDestroySurfaceKHR(args...);
+            return consumer->OverrideDestroySurfaceKHR(func, args...);
         }
     };
 };
