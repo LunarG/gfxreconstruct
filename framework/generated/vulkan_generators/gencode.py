@@ -65,6 +65,7 @@ def endTimer(timeit, msg):
 # JSON files for customizing code generation
 defaultBlacklists = 'blacklists.json'
 defaultPlatformTypes = 'platform_types.json'
+defaultReplayOverrides = 'replay_overrides.json'
 
 # Returns a directory of [ generator function, generator options ] indexed
 # by specified short names. The generator options incorporate the following
@@ -81,6 +82,7 @@ def makeGenOpts(args):
     # JSON configuration files
     blacklists = os.path.join(args.configs, defaultBlacklists)
     platformTypes = os.path.join(args.configs, defaultPlatformTypes)
+    replayOverrides = os.path.join(args.configs, defaultReplayOverrides)
 
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
@@ -252,6 +254,7 @@ def makeGenOpts(args):
         filename          = 'generated_vulkan_replay_consumer.cpp',
         directory         = directory,
         blacklists        = blacklists,
+        replayOverrides   = replayOverrides,
         platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
