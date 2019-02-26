@@ -356,6 +356,10 @@ inline int32_t FileVprintf(FILE* stream, const char* format, va_list vlist)
 
 inline int32_t LocalTime(tm* local_time, const time_t* timer)
 {
+#if defined(__ANDROID__) || defined(__USE_POSIX)
+    tm* result = localtime_r(timer, local_time);
+    return (result != nullptr) ? 0 : errno;
+#else
     if (local_time == nullptr)
     {
         return EINVAL;
@@ -371,10 +375,15 @@ inline int32_t LocalTime(tm* local_time, const time_t* timer)
     {
         return errno;
     }
+#endif
 }
 
 inline int32_t GMTime(tm* gm_time, const time_t* timer)
 {
+#if defined(__ANDROID__) || defined(__USE_POSIX)
+    tm* result = gmtime_r(timer, gm_time);
+    return (result != nullptr) ? 0 : errno;
+#else
     if (gm_time == nullptr)
     {
         return EINVAL;
@@ -390,6 +399,7 @@ inline int32_t GMTime(tm* gm_time, const time_t* timer)
     {
         return errno;
     }
+#endif
 }
 
 #endif // WIN32
