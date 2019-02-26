@@ -38,6 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(datetime)
 
 #if defined(WIN32)
 
+// Retrieve a timestamp, relative to an undefined reference point, suitable for computing time intervals.
 inline uint64_t GetTimestamp()
 {
     LARGE_INTEGER StartingTime;
@@ -55,10 +56,19 @@ inline uint64_t GetTimestamp()
 
 #else // !defined(WIN32)
 
+// Retrieve a timestamp, relative to an undefined reference point, suitable for computing time intervals.
 inline int64_t GetTimestamp()
 {
+#if defined(CLOCK_MONOTONIC_RAW)
+    const clockid_t clock_id = CLOCK_MONOTONIC_RAW;
+#elif defined(CLOCK_MONOTONIC)
+    const clockid_t clock_id = CLOCK_MONOTONIC;
+#else
+    const clockid_t clock_id = CLOCK_REALTIME;
+#endif
+
     timespec time;
-    clock_gettime(CLOCK_REALTIME, &time);
+    clock_gettime(clock_id, &time);
     int64_t timestamp = (1000000000 * static_cast<int64_t>(time.tv_sec)) + static_cast<int64_t>(time.tv_nsec);
     return timestamp;
 }
