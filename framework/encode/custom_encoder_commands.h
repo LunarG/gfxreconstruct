@@ -47,12 +47,12 @@ struct CustomEncoderPostCall
 
 // Dispatch custom command to initialize capture at instance creation.
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateInstance>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateInstance>
 {
     template <typename... Args>
-    static void Dispatch(TraceManager*, Args...)
+    static void Dispatch(TraceManager*, VkResult result, Args...)
     {
-        TraceManager::Create();
+        TraceManager::CheckCreateInstanceStatus(result);
     }
 };
 
@@ -63,7 +63,7 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>
     template <typename... Args>
     static void Dispatch(TraceManager*, Args...)
     {
-        TraceManager::Destroy();
+        TraceManager::DestroyInstance();
     }
 };
 

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -68,8 +68,9 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
     return id;
 }
 
-void TraceManager::Create()
+bool TraceManager::CreateInstance()
 {
+    bool                        success = true;
     std::lock_guard<std::mutex> instance_lock(instance_lock_);
 
     if (instance_count_ == 0)
@@ -95,7 +96,7 @@ void TraceManager::Create()
         }
 
         instance_    = new TraceManager();
-        bool success = instance_->Initialize(filename, trace_settings);
+        success      = instance_->Initialize(filename, trace_settings);
         if (success)
         {
             GFXRECON_LOG_INFO("Recording graphics API capture to %s", filename.c_str());
@@ -112,10 +113,20 @@ void TraceManager::Create()
         ++instance_count_;
     }
 
-    GFXRECON_LOG_INFO("vkCreateInstance(): Current instance count is %u", instance_count_);
+    GFXRECON_LOG_DEBUG("vkCreateInstance(): Current instance count is %u", instance_count_);
+
+    return success;
 }
 
-void TraceManager::Destroy()
+void TraceManager::CheckCreateInstanceStatus(VkResult result)
+{
+    if (result != VK_SUCCESS)
+    {
+        DestroyInstance();
+    }
+}
+
+void TraceManager::DestroyInstance()
 {
     std::lock_guard<std::mutex> instance_lock(instance_lock_);
 
@@ -138,7 +149,7 @@ void TraceManager::Destroy()
             util::Log::Release();
         }
 
-        GFXRECON_LOG_INFO("vkDestroyInstance(): Current instance count is %u", instance_count_);
+        GFXRECON_LOG_DEBUG("vkDestroyInstance(): Current instance count is %u", instance_count_);
     }
 }
 
