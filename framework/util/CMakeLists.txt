@@ -34,15 +34,29 @@ target_include_directories(gfxrecon_util
 
 target_link_libraries(gfxrecon_util platform_specific)
 
+if (UNIX AND NOT APPLE)
+    # Check for clock_gettime in libc
+    check_library_exists(c clock_gettime "" HAVE_GETTIME)
+    if (NOT HAVE_GETTIME)
+        # If not in libc, check librt
+        check_library_exists(rt clock_gettime "" HAVE_GETTIME)
+        if (HAVE_GETTIME)
+            target_link_libraries(gfxrecon_util rt)
+        else()
+            message(WARNING "Function clock_gettime not found in either libc or librt")
+        endif()
+    endif()
+endif()
+
 if (TARGET LZ4::LZ4)
-target_compile_definitions(gfxrecon_util PUBLIC ENABLE_LZ4_COMPRESSION)
-target_link_libraries(gfxrecon_util LZ4::LZ4)
+    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_LZ4_COMPRESSION)
+    target_link_libraries(gfxrecon_util LZ4::LZ4)
 endif()
 
 if (TARGET ZLIB::ZLIB)
-target_compile_definitions(gfxrecon_util
-                           PUBLIC
-                               ENABLE_ZLIB_COMPRESSION
-                               $<$<BOOL:${WIN32}>:ZLIB_WINAPI>)
-target_link_libraries(gfxrecon_util ZLIB::ZLIB)
+    target_compile_definitions(gfxrecon_util
+                               PUBLIC
+                                   ENABLE_ZLIB_COMPRESSION
+                                   $<$<BOOL:${WIN32}>:ZLIB_WINAPI>)
+    target_link_libraries(gfxrecon_util ZLIB::ZLIB)
 endif()
