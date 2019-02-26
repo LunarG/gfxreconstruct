@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -122,30 +122,34 @@ VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                  const VkAllocationCallbacks* pAllocator,
                                  VkInstance*                  pInstance)
 {
-    VkResult                   result = VK_ERROR_INITIALIZATION_FAILED;
-    VkLayerInstanceCreateInfo* chain_info =
-        const_cast<VkLayerInstanceCreateInfo*>(get_instance_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
-    if (chain_info && chain_info->u.pLayerInfo)
+    if (encode::TraceManager::CreateInstance())
     {
-        PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+        VkLayerInstanceCreateInfo* chain_info =
+            const_cast<VkLayerInstanceCreateInfo*>(get_instance_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
 
-        if (fpGetInstanceProcAddr)
+        if (chain_info && chain_info->u.pLayerInfo)
         {
-            PFN_vkCreateInstance fpCreateInstance =
-                reinterpret_cast<PFN_vkCreateInstance>(fpGetInstanceProcAddr(VK_NULL_HANDLE, "vkCreateInstance"));
+            PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
 
-            if (fpCreateInstance)
+            if (fpGetInstanceProcAddr)
             {
-                // Advance the link info for the next element on the chain
-                chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
+                PFN_vkCreateInstance fpCreateInstance =
+                    reinterpret_cast<PFN_vkCreateInstance>(fpGetInstanceProcAddr(VK_NULL_HANDLE, "vkCreateInstance"));
 
-                result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
-
-                if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
+                if (fpCreateInstance)
                 {
-                    // TODO: Additional vktrace initialization.
-                    init_instance_table(*pInstance, fpGetInstanceProcAddr);
+                    // Advance the link info for the next element on the chain
+                    chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
+
+                    result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
+
+                    if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
+                    {
+                        // TODO: Additional vktrace initialization.
+                        init_instance_table(*pInstance, fpGetInstanceProcAddr);
+                    }
                 }
             }
         }

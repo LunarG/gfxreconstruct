@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -62,9 +62,20 @@ class TraceManager
     };
 
   public:
-    static void Create();
+    // Creates an instance if none exists, or increments a reference count if an instance already exists.  Intended to
+    // be called by the layer's vkCreateInstance function, before the driver's vkCreateInstance has been called, to
+    // initialize capture resources.
+    static bool CreateInstance();
 
-    static void Destroy();
+    // Called by the layer's vkCreateInstance function, after the driver's vkCreateInstance function has been called, to
+    // check for failure.  If vkCreateInstance failed, the reference count will be decremented and resources will be
+    // released as necessry.  Allows a failed vkCreateInstance call to be logged to the capture file while performing
+    // the appropriate resource cleanup.
+    static void CheckCreateInstanceStatus(VkResult result);
+
+    // Dectement the instance reference count, releasing reources when the count reaches zero.  Ignored if the count is
+    // already zero.
+    static void DestroyInstance();
 
     static TraceManager* Get() { return instance_; }
 
