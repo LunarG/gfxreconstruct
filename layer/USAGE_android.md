@@ -26,8 +26,8 @@ It may also be possible to grant external storage permissions to
 an installed application through the device Settings.
 
 **Failure to enable the write external storage permission** can cause
-the layer to crash if it tries and fails to create a capture file on
-the external storage device.
+the layer to return `VK_ERROR_INITIALIZATION_FAILED` from its
+`vkCreateInstance` function if it fails to create a capture file.
 
 ### Disabling Debug Breaks Triggered by the GFXReconstruct Layer
 The Vulkan API allows Vulkan memory objects to be mapped by an application
@@ -89,29 +89,33 @@ For example, to set the log_level to "warning", specify:
 adb shell "setprop debug.gfxrecon.log_level 'warning'"
 ```
 
+### Supported Options
 Options with the BOOL type accept the following values:
 * A case-insensitive string value 'true' or a non-zero integer value indicate true.
 * A case-insensitive string value 'false' or a zero integer value indicate false.
+
+The capture layer will generate a warning message for unrecognized or invalid
+option values.
 
 Option | Property | Type | Description
 ------| ------------- |------|-------------
 Capture File Name | debug.gfxrecon.capture_file | STRING | Path to use when creating the capture file.  Default is: `/sdcard/gfxrecon_capture.gfxr`
 Capture File Compression Type | debug.gfxrecon.capture_compression_type | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, and `NONE`. Default is: `LZ4`
-Capture File Timestamp | debug.gfxrecon.capture_file_timestamp | BOOL | Add a timestamp to the capture file with the form: "gfxrecon_capture_yyyymmddThhmmss.gfxr".  Default is: `true`
+Capture File Timestamp | debug.gfxrecon.capture_file_timestamp | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
 Log Level | debug.gfxrecon.log_level | STRING | Specify the highest level message to log.  Options are: `debug`, `info`, `warning`, `error`, and `fatal`.  The specified level and all levels listed after it will be enabled for logging.  For example, choosing the `warning` level will also enable the `error` and `fatal` levels. Default is: `info`
 Log Output To Console | debug.gfxrecon.log_output_to_console | BOOL | Log messages will be written to Logcat. Default is: `true`
-Log File | debug.gfxrecon.log_file | STRING | When set, log messages will be written to a file at the specified path. Default is: Not set (file logging disabled).
+Log File | debug.gfxrecon.log_file | STRING | When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).
 Log Detailed | debug.gfxrecon.log_detailed | BOOL | Include name and line number from the file responsible for the log message. Default is: `false`
 Log Allow Indents | debug.gfxrecon.log_allow_indents | BOOL | Apply additional indentation formatting to log messages. Default is: `false`
 Log Break On Error | debug.gfxrecon.log_break_on_error | BOOL | Trigger a debug break when logging an error. Default is: `false`
 Log File Create New | debug.gfxrecon.log_file_create_new | BOOL | Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false. Default is: `true`
 Log File Flush After Write | debug.gfxrecon.log_file_flush_after_write | BOOL | Flush the log file to disk after each write when true. Default is: `false`
-Log File Keep Open | debug.gfxrecon.log_file_keep_open | BOOL | Keep the log file open between log messages when true, close and reopen the log file for each message when false. Default is: `true`
+Log File Keep Open | debug.gfxrecon.log_file_keep_open | BOOL | Keep the log file open between log messages when true, or close and reopen the log file for each message when false. Default is: `true`
 Memory Tracking Mode | debug.gfxrecon.memory_tracking_mode | STRING | Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: `page_guard`, `assisted`, and `unassisted`. Default is `page_guard` <ul><li>`page_guard` tracks modifications to individual memory pages, which are written to the capture file on calls to `vkFlushMappedMemoryRanges`, `vkUnmapMemory`, and `vkQueueSubmit`. Tracking modifications requires allocating shadow memory for all mapped memory.</li><li>`assisted` expects the application to call `vkFlushMappedMemoryRanges` after memory is modified; the memory ranges specified to the `vkFlushMappedMemoryRanges` call will be written to the capture file during the call.</li><li>`unassisted` writes the full content of mapped memory to the capture file on calls to `vkUnmapMemory` and `vkQueueSubmit`. It is very inefficient and may be unusable with real world applications that map large amounts of memory.</li></ul>
 
 ## Capture Files
 Capture files are created on the first call to `vkCreateInstance`, when the
-Vulkan loader loads the capture layer, and are closed on vkDestroyInstance,
+Vulkan loader loads the capture layer, and are closed on `vkDestroyInstance`,
 when the last active instance is destroyed and the layer is unloaded.
 
 If multiple instances are active concurrently, only one capture file will be
@@ -122,31 +126,30 @@ instances consecutively, it will be necessary to enable capture file timestamps
 to prevent each new instance from overwriting the file created by the previous
 instance.
 
+If the layer fails to open the capture file, it will make the call to
+`vkCreateInstance` fail, returning `VK_ERROR_INITIALIZATION_FAILED`.
+
 ### Specifying Capture File Location
 The capture file's save location can be specified by setting the
 `debug.gfxrecon.capture_file` system property, described above in
-the [GFXRecon Debug Options](#gfxrecon-debug-options) section.
-
-The property may be set through ADB with the following command:
-```
-adb shell "setprop debug.gfxrecon.capture_file '<path_to_file>'"
-```
+the [Layer Options](#layer-options) section.
 
 ### Timestamps
-When capture file timestamps are enabled, a timestamp with an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) based
+When capture file timestamps are enabled, a timestamp with an
+[ISO 8601-based](https://en.wikipedia.org/wiki/ISO_8601)
 format will be added to the name of every file created by the layer. The
 timestamp is generated when the capture file is created by the layer's
 `vkCreateInstance` function and is added to the base filename specified
-through the `debug.gfxrecon.capture_file` system property. Timestamped
-filenames have the form:
+through the `debug.gfxrecon.capture_file` system property. Timestamps have
+the form:
  ```
-gfxrecon_capture_yyyymmddThhmmss.gfxr
+_yyyymmddThhmmss
 ```
-
 where the lower-case letters stand for: Year, Month, Day, Hour, Minute, Second.
 The `T` is a designator that separates the date and time components. Time is
 reported for the local timezone and is specified with the 24-hour format.
 
-The following example shows a timestamp for a file that was created at 2:35 PM
+The following example shows a timestamp that was added to a file that was
+originally named `gfxrecon_capture.gfxr` and was created at 2:35 PM
 on November 25, 2018:
   `gfxrecon_capture_20181125T143527.gfxr`
