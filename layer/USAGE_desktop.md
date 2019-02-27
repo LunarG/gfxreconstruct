@@ -1,106 +1,142 @@
-# Using the Vulkan GFXReconstruct Layer on Desktop
+# Using the GFXReconstruct Layer on the Desktop
 
-## Enabling
+## Enabling the GFXReconstruct Capture Layer
+The path to the layer's `VK_LAYER_LUNARG_gfxreconstruct.json` file and
+corresponding `VkLayer_gfxreconstruct` library must be added to
+`VK_LAYER_PATH` environment variable for the Vulkan loader to find the layer.
 
-You must add the location of the generated
-`VK_LAYER_LUNARG_gfxreconstruct.json` file and corresponding
-`VkLayer_gfxreconstruct` library to your
-`VK_LAYER_PATH` in order for the Vulkan loader to be able
-to find the layer.
-Then, you must also enable the layer in one of two ways:
-  * Directly in your application using the
-layer's name during `vkCreateInstance`
-  * Indirectly by using the
-`VK_INSTANCE_LAYERS` environment variable.
+After `VK_LAYER_PATH` has been updated, the layer may be enabled through
+one of the following methods:
+  * Adding the `VK_LAYER_LUNARG_gfxreconstruct` name string to the `VkInstanceCreateInfo::ppEnabledLayerNames` value when calling `vkCreateInstance`
+  * Adding the `VK_LAYER_LUNARG_gfxreconstruct` name string to the list of layer names specified through the `VK_INSTANCE_LAYERS` environment variable.
 
-### Setting the VK_LAYER_PATH
+### Setting VK_LAYER_PATH
+The `VK_LAYER_PATH` environment variable should be used to tell the Vulkan
+loader where to find the GFXReconstruct layer.
 
 #### Windows
-
-If your source was located in: `C:\my_folder\gfxreconstruct`
-and your build folder was `build64`,
-then you would add it to the layer path in the following way:
-
+The following example demonstrates how to update the Windows `VK_LAYER_PATH`
+environment variable for the GFXReconstruct capture layer. The example uses
+the `C:\gfxreconstruct` path to represent the location of directory containing
+the GFXReconstruct project source, and the `build` folder name to represent
+the sub-directory specified to CMake as the location to place the build
+binaries. The following command would be executed from the command prompt to
+add the Debug build of the layer to `VK_LAYER_PATH`:
 ```
-set VK_LAYER_PATH=C:\my_folder\gfxreconstruct\build64\layer\Debug;%VK_LAYER_PATH%
+set VK_LAYER_PATH=C:\gfxreconstruct\build\layer\Debug;%VK_LAYER_PATH%
 ```
 
 #### Linux
-
-If your source was located in: `/my_folder/gfxreconstruct`
-and your build folder was `build`,
-then you would add it to the layer path in the following way:
-
+The following example demonstrates how to update the Windows `VK_LAYER_PATH`
+environment variable for the GFXReconstruct capture layer. The example uses
+the `/gfxreconstruct` path to represent the location of directory containing
+the GFXReconstruct project source, and the `build` folder name to represent
+the sub-directory specified to CMake as the location to place the build
+binaries. The following command would be executed from the command line to
+add the layer to `VK_LAYER_PATH`:
 ```
-export VK_LAYER_PATH=/my_folder/gfxreconstruct/build/layer;$VK_LAYER_PATH
+export VK_LAYER_PATH=/gfxreconstruct/build/layer:$VK_LAYER_PATH
 ```
 
-### Forcing the layer with VK_INSTANCE_LAYERS
-
-To force the layer to be enabled for Vulkan applications, you can
-set the `VK_INSTANCE_LAYERS` environment variable in the following way:
+### Enabling the layer with VK_INSTANCE_LAYERS
+The `VK_INSTANCE_LAYERS` environment variable may be used to force the Vulkan
+loader to load the GFXReconstruct layer.
 
 #### Windows
-
+The following command would be executed from the command prompt to set the
+`VK_INSTANCE_LAYERS` environment variable:
 ```
 set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct
 ```
 
 #### Linux
-
+The following command would be executed from the command line to set the
+`VK_INSTANCE_LAYERS` environment variable:
 ```
 export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct
 ```
 
-## GFXRecon Debug Options
-
-THe GFXReconstruct has multiple options that can be adjusted by using
-environment variables.
-Just as above, you use "set" or "export" (depending upon your platform) to
-define an environment variable.
-Each environment variable **must** begin with the prefix `GFXRECON_`.
-
-For example, to set the log_level to "warning", you would call:
+## Layer Options
+The GFXReconstruct layer supports the following options, which may be enabled
+with environment variables.  Each environment variable begins with the prefix
+`GFXRECON_`.
 
 #### Windows
-
+The following example demonstrates how to set the layer's log level to
+"warning" from the Windows command prompt:
 ```
 set GFXRECON_LOG_LEVEL=warning
 ```
 
 #### Linux
-
+The following example demonstrates how to set the layer's log level to
+"warning" from the Linux command line:
 ```
 export GFXRECON_LOG_LEVEL=warning
 ```
 
+### Supported Options
+Options with the BOOL type accept the following values:
+* A case-insensitive string value 'true' or a non-zero integer value indicate true.
+* A case-insensitive string value 'false' or a zero integer value indicate false.
+
+The capture layer will generate a warning message for unrecognized or invalid
+option values.
+
 Option | Environment Variable | Type | Description
 ------| ------------- |------|-------------
-Capture Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Define a specific compression type to use when capturing content.  Valid values are: "LZ4", "ZLIB", and "NONE".
-Capture File | GFXRECON_CAPTURE_FILE | STRING | This option allows you to override the default path and name of the capture file.
-Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | This option lets you indicate if you want the capture file name to include the timestamp at creation time. This is important if your application could generate more than one and would normally clobber the original file's contents.
-Log Allow Indents | GFXRECON_LOG_ALLOW_INDENTS | BOOL | This is an option to allow indent formatting in the strings to attempt to make things easier to read. Although indenting is used in very limited circumstances currently.
-Log Break On Error | GFXRECON_LOG_BREAK_ON_ERROR | BOOL | This option triggers a debug break whenever an error is logged.
-Log Detailed | GFXRECON_LOG_DETAILED | BOOL | Enable detailed logging messages (includes file name and location where triggered from).
-Errors To Stderr | GFXRECON_LOG_ERRORS_TO_STDERR | BOOL | This option allows you to force all error messages that would be normally logged to also output to stderr.
-Log File | GFXRECON_LOG_FILE | STRING | This option allows you to define the path and name of a log file that will be generated with log messages.
-Log File Create New | GFXRECON_LOG_FILE_CREATE_NEW | BOOL | This option indicates that you want to either create a new file every time the layer is triggered, or append to the old log file.
-Log File Flush After Write | GFXRECON_LOG_FILE_FLUSH_AFTER_WRITE | BOOL | This option allows you to force a flush after every log file write to make sure you don't lose messages in a buffer.
-Log File Keep Open | GFXRECON_LOG_FILE_KEEP_OPEN | BOOL | This option forces the log file to remain open after it's created to allow for faster recording of log messages.
-Log Level | GFXRECON_LOG_LEVEL | STRING | This option allows you to choose what log level you desire to trigger.  Available options include: "debug", "info", "warning", "error", and "fatal".  Any level selected will include all levels listed after it.  For example, choosing "warning" will also log out "error" and "fatal" messages.
-Log Output To Console | GFXRECON_LOG_OUTPUT_TO_CONSOLE | BOOL | This option allows log messages to be written out to stdout (or whatever debug console is available on the target platform).
-Log Output To OS Debug String | GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING | BOOL | This option allows log messages to be written out to the OS-specific logging mechanism.  Currently only works for Windows, but allows debug messages to re-direct from the console to `OutputDebugStringA`.
-Memory Tracking Mode | GFXRECON_MEMORY_TRACKING_MODE | STRING | This option allows the user to determine what memory tracking mode the layer uses when handling memory.  Available options are: "page_guard", "assisted" and "unassisted".  <ul><li>"page_guard" is used to determine which regions of memory to write on an `vkUnmapMemory` or `vkQueueSubmit` call.</li><li>"assisted" assumes the application will always flush after writing to mapped memory, so will only write on a flush.</li><li>"unassisted" assumes the application does not flush, so writes all mapped data on an `vkUnmapMemory` or `vkQueueSubmit` call.</li></ul>
+Capture File Name | GFXRECON_CAPTURE_FILE | STRING | Path to use when creating the capture file.  Default is: `gfxrecon_capture.gfxr`
+Capture File Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, and `NONE`. Default is: `LZ4`
+Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
+Log Level | GFXRECON_LOG_LEVEL | STRING | Specify the highest level message to log.  Options are: `debug`, `info`, `warning`, `error`, and `fatal`.  The specified level and all levels listed after it will be enabled for logging.  For example, choosing the `warning` level will also enable the `error` and `fatal` levels. Default is: `info`
+Log Output To Console | GFXRECON_LOG_OUTPUT_TO_CONSOLE | BOOL | Log messages will be written to stdout. Default is: `true`
+Log File | GFXRECON_LOG_FILE | STRING | When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).
+Log Detailed | GFXRECON_LOG_DETAILED | BOOL | Include name and line number from the file responsible for the log message. Default is: `false`
+Log Allow Indents | GFXRECON_LOG_ALLOW_INDENTS | BOOL | Apply additional indentation formatting to log messages. Default is: `false`
+Log Break On Error | GFXRECON_LOG_BREAK_ON_ERROR | BOOL | Trigger a debug break when logging an error. Default is: `false`
+Log File Create New | GFXRECON_LOG_FILE_CREATE_NEW | BOOL | Specifies that log file initialization should overwrite an existing file when true, or append to an existing file when false. Default is: `true`
+Log File Flush After Write | GFXRECON_LOG_FILE_FLUSH_AFTER_WRITE | BOOL | Flush the log file to disk after each write when true. Default is: `false`
+Log File Keep Open | GFXRECON_LOG_FILE_KEEP_OPEN | BOOL | Keep the log file open between log messages when true, or close and reopen the log file for each message when false. Default is: `true`
+Log Output To Debug Console | GFXRECON_LOG_OUTPUT_TO_OS_DEBUG_STRING | BOOL | Windows only option.  Log messages will be written to the Debug Console with `OutputDebugStringA`. Default is: `false`
+Memory Tracking Mode | GFXRECON_MEMORY_TRACKING_MODE | STRING | Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: `page_guard`, `assisted`, and `unassisted`. Default is `page_guard` <ul><li>`page_guard` tracks modifications to individual memory pages, which are written to the capture file on calls to `vkFlushMappedMemoryRanges`, `vkUnmapMemory`, and `vkQueueSubmit`. Tracking modifications requires allocating shadow memory for all mapped memory.</li><li>`assisted` expects the application to call `vkFlushMappedMemoryRanges` after memory is modified; the memory ranges specified to the `vkFlushMappedMemoryRanges` call will be written to the capture file during the call.</li><li>`unassisted` writes the full content of mapped memory to the capture file on calls to `vkUnmapMemory` and `vkQueueSubmit`. It is very inefficient and may be unusable with real world applications that map large amounts of memory.</li></ul>
 
-## Defining the Output Location
+## Capture Files
+Capture files are created on the first call to `vkCreateInstance`, when the
+Vulkan loader loads the capture layer, and are closed on `vkDestroyInstance`,
+when the last active instance is destroyed and the layer is unloaded.
 
-By default, the layer will generate a file called `gfxrecon_capture.gfxr` in
-the current working directory.
-However, you may define the environment variable `GFXRECON_CAPTURE_FILE` on
-desktop to indicate the location and name of the resulting capture file
-as defined above in [GFXRecon Debug Options](#gfxrecon-debug-options).
+If multiple instances are active concurrently, only one capture file will be
+created. If multiple instances are active consecutively (i.e. an instance is
+created and destroyed before the next instance is created), the creation of
+each instance will generate a new file. For applications that create multiple
+instances consecutively, it will be necessary to enable capture file timestamps
+to prevent each new instance from overwriting the file created by the previous
+instance.
 
-## Using
+If the layer fails to open the capture file, it will make the call to
+`vkCreateInstance` fail, returning `VK_ERROR_INITIALIZATION_FAILED`.
 
-Simply run the Vulkan application as normal after defining the above items.
+### Specifying Capture File Location
+The capture file's save location can be specified by setting the
+`GFXRECON_CAPTURE_FILE` environment variable, described above in
+the [Layer Options](#layer-options) section.
 
+### Timestamps
+When capture file timestamps are enabled, a timestamp with an
+[ISO 8601-based](https://en.wikipedia.org/wiki/ISO_8601)
+format will be added to the name of every file created by the layer. The
+timestamp is generated when the capture file is created by the layer's
+`vkCreateInstance` function and is added to the base filename specified
+through the `GFXRECON_CAPTURE_FILE` environment variable. Timestamps have
+the form:
+ ```
+_yyyymmddThhmmss
+```
+where the lower-case letters stand for: Year, Month, Day, Hour, Minute, Second.
+The `T` is a designator that separates the date and time components. Time is
+reported for the local timezone and is specified with the 24-hour format.
+
+The following example shows a timestamp that was added to a file that was
+originally named `gfxrecon_capture.gfxr` and was created at 2:35 PM
+on November 25, 2018:
+  `gfxrecon_capture_20181125T143527.gfxr`
