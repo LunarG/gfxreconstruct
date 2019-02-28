@@ -21,6 +21,7 @@
 
 #include "util/defines.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
