@@ -22,6 +22,7 @@
 #include "util/defines.h"
 #include "util/page_status_tracker.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <mutex>

@@ -20,7 +20,8 @@
 
 #include "util/defines.h"
 
-#include <cinttypes>
+#include <cstddef>
+#include <cstdint>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
