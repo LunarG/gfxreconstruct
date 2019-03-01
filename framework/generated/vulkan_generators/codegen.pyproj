@@ -27,6 +27,7 @@
     <Compile Include="vulkan_decoder_header_generator.py" />
     <Compile Include="vulkan_api_call_encoders_body_generator.py" />
     <Compile Include="vulkan_api_call_encoders_header_generator.py" />
+    <Compile Include="vulkan_dispatch_table_generator.py" />
     <Compile Include="vulkan_replay_consumer_body_generator.py" />
     <Compile Include="base_generator.py" />
     <Compile Include="vulkan_struct_decoders_header_generator.py" />

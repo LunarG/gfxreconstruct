@@ -40,6 +40,7 @@ from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMapper
 # API Call Encoders
 from vulkan_api_call_encoders_body_generator import VulkanApiCallEncodersBodyGenerator,VulkanApiCallEncodersBodyGeneratorOptions
 from vulkan_api_call_encoders_header_generator import VulkanApiCallEncodersHeaderGenerator,VulkanApiCallEncodersHeaderGeneratorOptions
+from vulkan_dispatch_table_generator import VulkanDispatchTableGenerator, VulkanDispatchTableGeneratorOptions
 from layer_func_table_generator import LayerFuncTableGenerator,LayerFuncTableGeneratorOptions
 
 # Struct Encoders
@@ -302,6 +303,16 @@ def makeGenOpts(args):
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_dispatch_table.h'] = [
+            VulkanDispatchTableGenerator,
+            VulkanDispatchTableGeneratorOptions(
+            filename          = 'generated_vulkan_dispatch_table.h',
+            directory         = directory,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
             protectFeature    = False)
         ]
 

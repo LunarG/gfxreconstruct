@@ -32,6 +32,7 @@ generate_targets = [
     'generated_vulkan_struct_encoders.cpp',
     'generated_vulkan_api_call_encoders.h',
     'generated_vulkan_api_call_encoders.cpp',
+    'generated_vulkan_dispatch_table.h',
     'generated_layer_func_table.h',
     'generated_vulkan_struct_decoders.h',
     'generated_vulkan_struct_decoders.cpp',
@@ -62,3 +63,4 @@ if __name__ == '__main__':
     for target in generate_targets:
         print('Generating', target)
         subprocess.call([sys.executable, os.path.join(generator_dir, 'gencode.py'), '-o', current_dir, '-configs', generator_dir, '-registry', os.path.join(registry_dir, 'vk.xml'), target], shell=False, env=env)
+
