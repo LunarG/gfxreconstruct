@@ -33,7 +33,7 @@
 #if defined(CreateEvent)
 #undef CreateEvent
 #endif
-#include "layer/vk_layer_dispatch_table.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
@@ -55,11 +55,11 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice  
                                                               uint32_t*          pPropertyCount,
                                                               VkLayerProperties* pProperties);
 
-void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
+void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa, PFN_GetPhysicalDeviceProcAddr gpdpa);
 void init_device_table(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
 
-VkLayerInstanceDispatchTable* get_instance_table(const void* instance);
-VkLayerDispatchTable*         get_device_table(const void* device);
+encode::InstanceTable* get_instance_table(const void* instance);
+encode::DeviceTable*   get_device_table(const void* device);
 
 VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                  const VkAllocationCallbacks* pAllocator,
