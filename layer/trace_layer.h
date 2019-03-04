@@ -22,8 +22,6 @@
 
 #include "vulkan/vulkan.h"
 
-#include <mutex>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 // The following prototype declarations are required so the dispatch table can find these
@@ -44,13 +42,13 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(VkPhysicalDevice  
                                                               uint32_t*          pPropertyCount,
                                                               VkLayerProperties* pProperties);
 
-VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
-                                 const VkAllocationCallbacks* pAllocator,
-                                 VkInstance*                  pInstance);
-VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
-                               const VkDeviceCreateInfo*    pCreateInfo,
-                               const VkAllocationCallbacks* pAllocator,
-                               VkDevice*                    pDevice);
+VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                                       const VkAllocationCallbacks* pAllocator,
+                                                       VkInstance*                  pInstance);
+VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
+                                                     const VkDeviceCreateInfo*    pCreateInfo,
+                                                     const VkAllocationCallbacks* pAllocator,
+                                                     VkDevice*                    pDevice);
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 

@@ -5,6 +5,8 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_encoder_commands.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/memory_tracker.h
@@ -13,6 +15,9 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/struct_pointer_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/trace_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/trace_manager.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp

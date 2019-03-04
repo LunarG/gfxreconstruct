@@ -55,16 +55,17 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "encode/trace_manager.h"', file=self.outFile)
         write('#include "format/api_call_id.h"', file=self.outFile)
-        write('#include "layer/trace_layer.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
     # Method override
     def endFile(self):
         self.newline()
+        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
@@ -128,12 +129,12 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     def makeLayerDispatchCall(self, name, values, argList):
         if name == 'vkCreateInstance':
             # CreateInstance requires special processing for VkLayerInstanceCreateInfo.
-            return 'dispatch_CreateInstance({})'.format(argList)
+            return 'TraceManager::GetLayerTable()->CreateInstance({})'.format(argList)
         elif name == 'vkCreateDevice':
             # CreateDevice requires special processing for VkLayerDeviceCreateInfo.
-            return 'dispatch_CreateDevice({})'.format(argList)
+            return 'TraceManager::GetLayerTable()->CreateDevice({})'.format(argList)
 
-        dispatchfunc = 'encode::TraceManager::Get()->GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'encode::TraceManager::Get()->GetDeviceTable'
+        dispatchfunc = 'TraceManager::Get()->GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'TraceManager::Get()->GetDeviceTable'
         return '{}({})->{}({})'.format(dispatchfunc, values[0].name, name[2:], argList)
 
     #
@@ -146,7 +147,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         body = ''
 
-        body += indent + 'encode::CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(encode::TraceManager::Get(), {});\n'.format(name, argList)
+        body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), {});\n'.format(name, argList)
 
         if not encodeAfter:
             body += self.makeParameterEncoding(name, values, returnType, indent)
@@ -165,17 +166,17 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         body += '\n'
         if returnType and returnType != 'void':
-            body += '    encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(encode::TraceManager::Get(), result, {});\n'.format(name, argList)
+            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), result, {});\n'.format(name, argList)
             body += '\n'
             body += '    return result;\n'
         else:
-            body += '    encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(encode::TraceManager::Get(), {});\n'.format(name, argList)
+            body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), {});\n'.format(name, argList)
 
         return body
 
     def makeParameterEncoding(self, name, values, returnType, indent):
         body = '\n'
-        body += indent + 'auto encoder = encode::TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
+        body += indent + 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
         body += indent + 'if (encoder)\n'
         body += indent + '{\n'
         indent += ' ' * self.INDENT_SIZE
@@ -188,7 +189,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             methodCall = self.makeEncoderMethodCall(ValueInfo('result', returnType, returnType), [], '')
             body += indent + '{};\n'.format(methodCall)
 
-        body += indent + 'encode::TraceManager::Get()->EndApiCallTrace(encoder);\n'
+        body += indent + 'TraceManager::Get()->EndApiCallTrace(encoder);\n'
         indent = indent[0:-self.INDENT_SIZE]
         body += indent + '}\n'
         return body

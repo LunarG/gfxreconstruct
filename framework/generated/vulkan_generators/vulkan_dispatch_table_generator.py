@@ -88,6 +88,14 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         self.newline()
         self.generateNoOpFuncs()
         self.newline()
+
+        write('struct LayerTable', file=self.outFile)
+        write('{', file=self.outFile)
+        write('    PFN_vkCreateInstance CreateInstance{ nullptr };', file=self.outFile)
+        write('    PFN_vkCreateDevice CreateDevice{ nullptr };', file=self.outFile)
+        write('};', file=self.outFile)
+
+        self.newline()
         self.generateInstanceCmdTable()
         self.newline()
         self.generateDeviceCmdTable()
