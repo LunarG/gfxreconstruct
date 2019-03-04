@@ -65,57 +65,26 @@ static const VkLayerDeviceCreateInfo* get_device_chain_info(const VkDeviceCreate
     return chain_info;
 }
 
-static const void* get_dispatch_key(const void* handle)
-{
-    const encode::DeviceTable* const* dispatch_table = reinterpret_cast<const encode::DeviceTable* const*>(handle);
-    return static_cast<const void*>(*dispatch_table);
-}
-
-// Structure to store the layer's instance information (instance value with a corresponding
-// dispatch table.  In most cases, we only need the table, but in a few cases we will need
-// the instance as well.  Typically, this is when the structure is accessed by a non-instance
-// handle.
 struct LayerInstanceInfo
 {
     VkInstance                    instance;
     PFN_GetPhysicalDeviceProcAddr get_physical_device_proc_addr;
-    encode::InstanceTable         table;
 };
 
 static std::unordered_map<const void*, LayerInstanceInfo>   instance_info;
-static std::unordered_map<const void*, encode::DeviceTable> device_table;
 
-void init_instance_table(VkInstance instance, PFN_vkGetInstanceProcAddr gpa, PFN_GetPhysicalDeviceProcAddr gpdpa)
+static void add_instance_info(VkInstance instance, PFN_GetPhysicalDeviceProcAddr gpdpa)
 {
     // Store the instance for use with vkCreateDevice.
-    auto inst_info                           = &instance_info[get_dispatch_key(instance)];
+    auto inst_info                           = &instance_info[encode::GetDispatchKey(instance)];
     inst_info->instance                      = instance;
     inst_info->get_physical_device_proc_addr = gpdpa;
-    encode::LoadInstanceTable(gpa, instance, &inst_info->table);
-}
-
-void init_device_table(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
-{
-    auto& table = device_table[get_dispatch_key(device)];
-    encode::LoadDeviceTable(gpa, device, &table);
 }
 
 static LayerInstanceInfo* get_instance_info(const void* handle)
 {
-    auto inst_info = instance_info.find(get_dispatch_key(handle));
+    auto inst_info = instance_info.find(encode::GetDispatchKey(handle));
     return (inst_info != instance_info.end()) ? &inst_info->second : nullptr;
-}
-
-encode::InstanceTable* get_instance_table(const void* instance)
-{
-    auto inst_info = instance_info.find(get_dispatch_key(instance));
-    return (inst_info != instance_info.end()) ? &inst_info->second.table : nullptr;
-}
-
-encode::DeviceTable* get_device_table(const void* device)
-{
-    auto table = device_table.find(get_dispatch_key(device));
-    return (table != device_table.end()) ? &table->second : nullptr;
 }
 
 VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
@@ -149,7 +118,11 @@ VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
 
                     if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
                     {
-                        init_instance_table(*pInstance, fpGetInstanceProcAddr, fpGetPhysicalDeviceProcAddr);
+                        add_instance_info(*pInstance, fpGetPhysicalDeviceProcAddr);
+
+                        encode::TraceManager* manager = encode::TraceManager::Get();
+                        assert(manager != nullptr);
+                        manager->AddInstanceTable(*pInstance, fpGetInstanceProcAddr);
                     }
                 }
             }
@@ -170,7 +143,7 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
 
     if (chain_info && chain_info->u.pLayerInfo)
     {
-        LayerInstanceInfo* layer_instance_info = gfxrecon::get_instance_info(physicalDevice);
+        LayerInstanceInfo* layer_instance_info = get_instance_info(physicalDevice);
 
         PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
         PFN_vkGetDeviceProcAddr   fpGetDeviceProcAddr   = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
@@ -189,8 +162,9 @@ VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
 
                 if ((result == VK_SUCCESS) && pDevice && (*pDevice != nullptr))
                 {
-                    // TODO: Additional vktrace initialization.
-                    init_device_table(*pDevice, fpGetDeviceProcAddr);
+                    encode::TraceManager* manager = encode::TraceManager::Get();
+                    assert(manager != nullptr);
+                    manager->AddDeviceTable(*pDevice, fpGetDeviceProcAddr);
                 }
             }
         }
@@ -212,7 +186,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
 
     if (instance != VK_NULL_HANDLE)
     {
-        const auto table = gfxrecon::get_instance_table(instance);
+        encode::TraceManager* manager = encode::TraceManager::Get();
+        assert(manager != nullptr);
+
+        const auto table = manager->GetInstanceTable(instance);
         if (table && table->GetInstanceProcAddr)
         {
             result = table->GetInstanceProcAddr(instance, pName);
@@ -223,9 +200,9 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     {
         // Only check for a layer implementation of the requested function if it is available from the next level, or if
         // the instance handle is null and we can't determine if it is available from the next level.
-        const auto entry = gfxrecon::func_table.find(pName);
+        const auto entry = func_table.find(pName);
 
-        if (entry != gfxrecon::func_table.end())
+        if (entry != func_table.end())
         {
             result = entry->second;
         }
@@ -240,7 +217,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
 
     if (device != VK_NULL_HANDLE)
     {
-        const auto table = gfxrecon::get_device_table(device);
+        encode::TraceManager* manager = encode::TraceManager::Get();
+        assert(manager != nullptr);
+
+        const auto table = manager->GetDeviceTable(device);
         if (table && table->GetDeviceProcAddr)
         {
             result = table->GetDeviceProcAddr(device, pName);
@@ -249,8 +229,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
             {
                 // Only check for a layer implementation of the requested function if it is available from the next
                 // level.
-                const auto entry = gfxrecon::func_table.find(pName);
-                if (entry != gfxrecon::func_table.end())
+                const auto entry = func_table.find(pName);
+                if (entry != func_table.end())
                 {
                     result = entry->second;
                 }
@@ -267,7 +247,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance in
 
     if (instance != VK_NULL_HANDLE)
     {
-        const auto info = gfxrecon::get_instance_info(instance);
+        const auto info = get_instance_info(instance);
         if (info && info->get_physical_device_proc_addr)
         {
             result = info->get_physical_device_proc_addr(instance, pName);
@@ -296,7 +276,10 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     {
         // If this function was not called with the layer's name, we expect to dispatch down the chain to obtain the ICD
         // provided extensions.
-        result = gfxrecon::get_instance_table(physicalDevice)
+        encode::TraceManager* manager = encode::TraceManager::Get();
+        assert(manager != nullptr);
+
+        result = manager->GetInstanceTable(physicalDevice)
                      ->EnumerateDeviceExtensionProperties(physicalDevice, nullptr, pPropertyCount, pProperties);
     }
 

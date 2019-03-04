@@ -95,8 +95,8 @@ bool TraceManager::CreateInstance()
             filename = util::filepath::GenerateTimestampedFilename(filename);
         }
 
-        instance_    = new TraceManager();
-        success      = instance_->Initialize(filename, trace_settings);
+        instance_ = new TraceManager();
+        success   = instance_->Initialize(filename, trace_settings);
         if (success)
         {
             GFXRECON_LOG_INFO("Recording graphics API capture to %s", filename.c_str());
@@ -151,6 +151,32 @@ void TraceManager::DestroyInstance()
 
         GFXRECON_LOG_DEBUG("vkDestroyInstance(): Current instance count is %u", instance_count_);
     }
+}
+
+void TraceManager::AddInstanceTable(VkInstance instance, PFN_vkGetInstanceProcAddr gpa)
+{
+    InstanceTable& table = instance_tables_[GetDispatchKey(instance)];
+    LoadInstanceTable(gpa, instance, &table);
+}
+
+void TraceManager::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
+{
+    DeviceTable& table = device_tables_[GetDispatchKey(device)];
+    LoadDeviceTable(gpa, device, &table);
+}
+
+const encode::InstanceTable* TraceManager::GetInstanceTable(const void* handle) const
+{
+    auto table = instance_tables_.find(GetDispatchKey(handle));
+    assert(table != instance_tables_.end());
+    return (table != instance_tables_.end()) ? &table->second : nullptr;
+}
+
+const encode::DeviceTable* TraceManager::GetDeviceTable(const void* handle) const
+{
+    auto table = device_tables_.find(GetDispatchKey(handle));
+    assert(table != device_tables_.end());
+    return (table != device_tables_.end()) ? &table->second : nullptr;
 }
 
 bool TraceManager::Initialize(std::string filename, const CaptureSettings::TraceSettings& trace_settings)

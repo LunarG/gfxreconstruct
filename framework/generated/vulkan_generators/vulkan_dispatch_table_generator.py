@@ -53,6 +53,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
+        write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vk_layer.h"', file=self.outFile)
@@ -74,6 +75,17 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     def endFile(self):
         self.newline()
 
+        write('typedef const void* DispatchKey;', file=self.outFile)
+        self.newline()
+
+        write('// Retrieve a dispatch key from a dispatchable handle', file=self.outFile)
+        write('static DispatchKey GetDispatchKey(const void* handle)', file=self.outFile)
+        write('{', file=self.outFile)
+        write('    const DispatchKey* dispatch_key = reinterpret_cast<const DispatchKey*>(handle);', file=self.outFile)
+        write('    return (*dispatch_key);', file=self.outFile)
+        write('}', file=self.outFile)
+
+        self.newline()
         self.generateNoOpFuncs()
         self.newline()
         self.generateInstanceCmdTable()

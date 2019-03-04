@@ -23,6 +23,7 @@
 #include "encode/parameter_encoder.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_output_stream.h"
@@ -78,6 +79,14 @@ class TraceManager
     static void DestroyInstance();
 
     static TraceManager* Get() { return instance_; }
+
+    void AddInstanceTable(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
+
+    void AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
+
+    const InstanceTable* GetInstanceTable(const void* handle) const;
+
+    const DeviceTable* GetDeviceTable(const void* handle) const;
 
     ParameterEncoder* BeginApiCallTrace(format::ApiCallId call_id);
 
@@ -208,6 +217,8 @@ class TraceManager
     static uint32_t                                 instance_count_;
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
+    std::unordered_map<DispatchKey, InstanceTable>  instance_tables_;
+    std::unordered_map<DispatchKey, DeviceTable>    device_tables_;
     format::EnabledOptions                          file_options_;
     std::unique_ptr<util::FileOutputStream>         file_stream_;
     std::string                                     filename_;
