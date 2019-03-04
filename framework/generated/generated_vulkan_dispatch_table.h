@@ -392,6 +392,12 @@ static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(VkDevice,
 // clang-format on
 GFXRECON_END_NAMESPACE(noop)
 
+struct LayerTable
+{
+    PFN_vkCreateInstance CreateInstance{ nullptr };
+    PFN_vkCreateDevice CreateDevice{ nullptr };
+};
+
 struct InstanceTable
 {
     PFN_vkDestroyInstance DestroyInstance{ noop::DestroyInstance };

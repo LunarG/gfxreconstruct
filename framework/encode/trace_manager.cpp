@@ -40,6 +40,7 @@ TraceManager*                                          TraceManager::instance_  
 uint32_t                                               TraceManager::instance_count_ = 0;
 std::mutex                                             TraceManager::instance_lock_;
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
+LayerTable                                             TraceManager::layer_table_;
 
 TraceManager::ThreadData::ThreadData() : thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
 {
@@ -66,6 +67,13 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
     }
 
     return id;
+}
+
+void TraceManager::SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device)
+{
+    assert((create_instance != nullptr) && (create_device != nullptr));
+    layer_table_.CreateInstance = create_instance;
+    layer_table_.CreateDevice   = create_device;
 }
 
 bool TraceManager::CreateInstance()

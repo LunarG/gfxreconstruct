@@ -48,12 +48,20 @@ class LayerFuncTableGenerator(BaseGenerator):
         # The trace layer does not currently implement or export the instance version query
         self.APICALL_BLACKLIST = ['vkEnumerateInstanceVersion']
 
+        # These functions are provided directly by the layer, and are not encoded
+        self.LAYER_FUNCTIONS = ['vkGetInstanceProcAddr',
+                                'vkGetDeviceProcAddr',
+                                'vkEnumerateInstanceLayerProperties',
+                                'vkEnumerateDeviceLayerProperties',
+                                'vkEnumerateInstanceExtensionProperties',
+                                'vkEnumerateDeviceExtensionProperties']
+
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
+        write('#include "encode/custom_vulkan_api_call_encoders.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_api_call_encoders.h"', file=self.outFile)
-        write('#include "layer/custom_vulkan_api_call_encoders.h"', file=self.outFile)
         write('#include "layer/trace_layer.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
@@ -91,6 +99,9 @@ class LayerFuncTableGenerator(BaseGenerator):
     def generateFeature(self):
         for cmd in self.featureCmdParams:
             align = 100 - len(cmd)
-            body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>({}) }},'.format(cmd, (' ' * align), cmd[2:])
+            if (cmd in self.LAYER_FUNCTIONS):
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>({}) }},'.format(cmd, (' ' * align), cmd[2:])
+            else:
+                body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>(encode::{}) }},'.format(cmd, (' ' * align), cmd[2:])
             write(body, file=self.outFile)
 

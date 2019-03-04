@@ -2,13 +2,10 @@ add_library(VkLayer_gfxreconstruct SHARED "")
 
 target_sources(VkLayer_gfxreconstruct
                PRIVATE
-                   custom_vulkan_api_call_encoders.h
-                   custom_vulkan_api_call_encoders.cpp
                    dll_main.cpp
                    trace_layer.h
                    trace_layer.cpp
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_layer_func_table.h
                    $<$<BOOL:WIN32>:trace_layer.def>
               )
 

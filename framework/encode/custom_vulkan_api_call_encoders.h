@@ -23,6 +23,7 @@
 #include "vulkan/vulkan.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
 VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice                   device,
                                                            VkDescriptorSet            descriptorSet,
@@ -46,6 +47,7 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
                                                   const VkObjectTableEntryNVX* const* ppObjectTableEntries,
                                                   const uint32_t*                     pObjectIndices);
 
+GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H

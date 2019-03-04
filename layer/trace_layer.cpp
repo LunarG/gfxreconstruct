@@ -18,9 +18,8 @@
 #include "layer/trace_layer.h"
 
 #include "encode/trace_manager.h"
-#include "generated/generated_vulkan_api_call_encoders.h"
 #include "generated/generated_layer_func_table.h"
-#include "layer/custom_vulkan_api_call_encoders.h"
+#include "generated/generated_vulkan_api_call_encoders.h"
 
 #include "vulkan/vk_layer.h"
 
@@ -181,7 +180,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     // set to the internal "loader_instance".  Detect that case and return
     if (!strcmp(pName, "vkCreateInstance"))
     {
-        return reinterpret_cast<PFN_vkVoidFunction>(CreateInstance);
+        return reinterpret_cast<PFN_vkVoidFunction>(encode::CreateInstance);
     }
 
     if (instance != VK_NULL_HANDLE)

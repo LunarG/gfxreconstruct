@@ -5,6 +5,8 @@ target_sources(gfxrecon_encode
                    capture_settings.h
                    capture_settings.cpp
                    custom_encoder_commands.h
+                   custom_vulkan_api_call_encoders.h
+                   custom_vulkan_api_call_encoders.cpp
                    custom_vulkan_struct_encoders.h
                    custom_vulkan_struct_encoders.cpp
                    memory_tracker.h
@@ -13,6 +15,9 @@ target_sources(gfxrecon_encode
                    struct_pointer_encoder.h
                    trace_manager.h
                    trace_manager.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp

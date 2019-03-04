@@ -63,9 +63,13 @@ class TraceManager
     };
 
   public:
-    // Creates an instance if none exists, or increments a reference count if an instance already exists.  Intended to
-    // be called by the layer's vkCreateInstance function, before the driver's vkCreateInstance has been called, to
-    // initialize capture resources.
+    // Register special layer provided functions, which perform layer specific initialization.
+    // These must be set before the application calls vkCreateInstance.
+    static void SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device);
+
+    // Creates the trace manager instance if none exists, or increments a reference count if an instance already exists.
+    // Intended to be called by the layer's vkCreateInstance function, before the driver's vkCreateInstance has been
+    // called, to initialize capture resources.
     static bool CreateInstance();
 
     // Called by the layer's vkCreateInstance function, after the driver's vkCreateInstance function has been called, to
@@ -79,6 +83,8 @@ class TraceManager
     static void DestroyInstance();
 
     static TraceManager* Get() { return instance_; }
+
+    static const LayerTable* GetLayerTable() { return &layer_table_; }
 
     void AddInstanceTable(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
 
@@ -162,8 +168,7 @@ class TraceManager
 
     ~TraceManager() {}
 
-    bool Initialize(std::string                           filename,
-                    const CaptureSettings::TraceSettings& trace_settings);
+    bool Initialize(std::string filename, const CaptureSettings::TraceSettings& trace_settings);
 
   private:
     class ThreadData
@@ -217,6 +222,7 @@ class TraceManager
     static uint32_t                                 instance_count_;
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
+    static LayerTable                               layer_table_;
     std::unordered_map<DispatchKey, InstanceTable>  instance_tables_;
     std::unordered_map<DispatchKey, DeviceTable>    device_tables_;
     format::EnabledOptions                          file_options_;
