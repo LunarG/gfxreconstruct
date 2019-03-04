@@ -133,7 +133,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             # CreateDevice requires special processing for VkLayerDeviceCreateInfo.
             return 'dispatch_CreateDevice({})'.format(argList)
 
-        dispatchfunc = 'get_instance_table' if self.useInstanceTable(values[0].baseType) else 'get_device_table'
+        dispatchfunc = 'encode::TraceManager::Get()->GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'encode::TraceManager::Get()->GetDeviceTable'
         return '{}({})->{}({})'.format(dispatchfunc, values[0].name, name[2:], argList)
 
     #

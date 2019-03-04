@@ -104,27 +104,29 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
                                                            VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                            const void*                pData)
 {
-    encode::TraceManager* trace_manager = encode::TraceManager::Get();
+    encode::TraceManager* manager = encode::TraceManager::Get();
+    assert(manager != nullptr);
 
     encode::CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate>::Dispatch(
-        trace_manager, device, descriptorSet, descriptorUpdateTemplate, pData);
+        manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 
-    get_device_table(device)->UpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData);
+    manager->GetDeviceTable(device)->UpdateDescriptorSetWithTemplate(
+        device, descriptorSet, descriptorUpdateTemplate, pData);
 
-    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
+    auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
     if (encoder)
     {
         encoder->EncodeHandleIdValue(device);
         encoder->EncodeHandleIdValue(descriptorSet);
         encoder->EncodeHandleIdValue(descriptorUpdateTemplate);
 
-        EncodeDescriptorUpdateTemplateInfo(trace_manager, encoder, descriptorUpdateTemplate, pData);
+        EncodeDescriptorUpdateTemplateInfo(manager, encoder, descriptorUpdateTemplate, pData);
 
-        trace_manager->EndApiCallTrace(encoder);
+        manager->EndApiCallTrace(encoder);
     }
 
     encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate>::Dispatch(
-        trace_manager, device, descriptorSet, descriptorUpdateTemplate, pData);
+        manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer            commandBuffer,
@@ -133,15 +135,16 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
                                                                uint32_t                   set,
                                                                const void*                pData)
 {
-    encode::TraceManager* trace_manager = encode::TraceManager::Get();
+    encode::TraceManager* manager = encode::TraceManager::Get();
+    assert(manager != nullptr);
 
     encode::CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
-        trace_manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
+        manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 
-    get_device_table(commandBuffer)
+    manager->GetDeviceTable(commandBuffer)
         ->CmdPushDescriptorSetWithTemplateKHR(commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 
-    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
+    auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
     if (encoder)
     {
         encoder->EncodeHandleIdValue(commandBuffer);
@@ -149,13 +152,13 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
         encoder->EncodeHandleIdValue(layout);
         encoder->EncodeUInt32Value(set);
 
-        EncodeDescriptorUpdateTemplateInfo(trace_manager, encoder, descriptorUpdateTemplate, pData);
+        EncodeDescriptorUpdateTemplateInfo(manager, encoder, descriptorUpdateTemplate, pData);
 
-        trace_manager->EndApiCallTrace(encoder);
+        manager->EndApiCallTrace(encoder);
     }
 
     encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
-        trace_manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
+        manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 }
 
 VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice                   device,
@@ -163,28 +166,29 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
                                                               VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                               const void*                pData)
 {
-    encode::TraceManager* trace_manager = encode::TraceManager::Get();
+    encode::TraceManager* manager = encode::TraceManager::Get();
+    assert(manager != nullptr);
 
     encode::CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
-        trace_manager, device, descriptorSet, descriptorUpdateTemplate, pData);
+        manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 
-    get_device_table(device)->UpdateDescriptorSetWithTemplateKHR(
+    manager->GetDeviceTable(device)->UpdateDescriptorSetWithTemplateKHR(
         device, descriptorSet, descriptorUpdateTemplate, pData);
 
-    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
+    auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
     if (encoder)
     {
         encoder->EncodeHandleIdValue(device);
         encoder->EncodeHandleIdValue(descriptorSet);
         encoder->EncodeHandleIdValue(descriptorUpdateTemplate);
 
-        EncodeDescriptorUpdateTemplateInfo(trace_manager, encoder, descriptorUpdateTemplate, pData);
+        EncodeDescriptorUpdateTemplateInfo(manager, encoder, descriptorUpdateTemplate, pData);
 
-        trace_manager->EndApiCallTrace(encoder);
+        manager->EndApiCallTrace(encoder);
     }
 
     encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
-        trace_manager, device, descriptorSet, descriptorUpdateTemplate, pData);
+        manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                            device,
@@ -193,15 +197,16 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
                                                   const VkObjectTableEntryNVX* const* ppObjectTableEntries,
                                                   const uint32_t*                     pObjectIndices)
 {
-    encode::TraceManager* trace_manager = encode::TraceManager::Get();
+    encode::TraceManager* manager = encode::TraceManager::Get();
+    assert(manager != nullptr);
 
     encode::CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterObjectsNVX>::Dispatch(
-        trace_manager, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
+        manager, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
 
-    VkResult result = get_device_table(device)->RegisterObjectsNVX(
+    VkResult result = manager->GetDeviceTable(device)->RegisterObjectsNVX(
         device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
 
-    auto encoder = trace_manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkRegisterObjectsNVX);
+    auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkRegisterObjectsNVX);
     if (encoder)
     {
         encoder->EncodeHandleIdValue(device);
@@ -210,11 +215,11 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
         EncodeStructArray(encoder, ppObjectTableEntries, objectCount);
         encoder->EncodeUInt32Array(pObjectIndices, objectCount);
         encoder->EncodeEnumValue(result);
-        trace_manager->EndApiCallTrace(encoder);
+        manager->EndApiCallTrace(encoder);
     }
 
     encode::CustomEncoderPostCall<format::ApiCallId::ApiCall_vkRegisterObjectsNVX>::Dispatch(
-        trace_manager, result, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
+        manager, result, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
 
     return result;
 }

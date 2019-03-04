@@ -23,6 +23,7 @@
 #ifndef  GFXRECON_GENERATED_VULKAN_DISPATCH_TABLE_H
 #define  GFXRECON_GENERATED_VULKAN_DISPATCH_TABLE_H
 
+#include "format/platform_types.h"
 #include "util/defines.h"
 
 #include "vulkan/vk_layer.h"
@@ -39,6 +40,15 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+
+typedef const void* DispatchKey;
+
+// Retrieve a dispatch key from a dispatchable handle
+static DispatchKey GetDispatchKey(const void* handle)
+{
+    const DispatchKey* dispatch_key = reinterpret_cast<const DispatchKey*>(handle);
+    return (*dispatch_key);
+}
 
 GFXRECON_BEGIN_NAMESPACE(noop)
 // clang-format off
