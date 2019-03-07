@@ -15,6 +15,7 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/struct_pointer_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/trace_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/trace_manager.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
