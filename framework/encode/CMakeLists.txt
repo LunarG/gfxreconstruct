@@ -15,6 +15,7 @@ target_sources(gfxrecon_encode
                    struct_pointer_encoder.h
                    trace_manager.h
                    trace_manager.cpp
+                   vulkan_handle_wrappers.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
