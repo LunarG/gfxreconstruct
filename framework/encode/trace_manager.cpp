@@ -69,6 +69,20 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
     return id;
 }
 
+TraceManager::TraceManager() :
+    force_file_flush_(false), bytes_written_(0), memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard),
+    capture_mode_(kModeWrite)
+{}
+
+TraceManager::~TraceManager()
+{
+    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+    {
+        util::PageGuardManager::Destroy();
+    }
+}
+
+
 void TraceManager::SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device)
 {
     assert((create_instance != nullptr) && (create_device != nullptr));
@@ -146,11 +160,6 @@ void TraceManager::DestroyInstance()
 
         if (instance_count_ == 0)
         {
-            if (instance_->memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
-            {
-                util::PageGuardManager::Destroy();
-            }
-
             delete instance_;
             instance_ = nullptr;
 
@@ -214,15 +223,27 @@ bool TraceManager::Initialize(std::string filename, const CaptureSettings::Trace
         }
     }
 
-    if (success && (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard))
+    if (success)
     {
-        util::PageGuardManager::Create(true, false, true, true, true, true);
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        {
+            util::PageGuardManager::Create(true, false, true, true, true, true);
+        }
+
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            state_tracker_ = std::make_unique<VulkanStateTracker>();
+        }
+    }
+    else
+    {
+        capture_mode_ = kModeDisabled;
     }
 
     return success;
 }
 
-ParameterEncoder* TraceManager::BeginApiCallTrace(format::ApiCallId call_id)
+ParameterEncoder* TraceManager::InitApiCallTrace(format::ApiCallId call_id)
 {
     auto thread_data      = GetThreadData();
     thread_data->call_id_ = call_id;
@@ -231,81 +252,90 @@ ParameterEncoder* TraceManager::BeginApiCallTrace(format::ApiCallId call_id)
 
 void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 {
-    auto thread_data = GetThreadData();
-    assert(thread_data != nullptr);
+    assert(encoder != nullptr);
 
-    auto parameter_buffer  = thread_data->parameter_buffer_.get();
-    auto parameter_encoder = thread_data->parameter_encoder_.get();
-    assert((parameter_buffer != nullptr) && (parameter_encoder != nullptr));
-
-    bool                                 not_compressed      = true;
-    format::CompressedFunctionCallHeader compressed_header   = {};
-    format::FunctionCallHeader           uncompressed_header = {};
-    size_t                               uncompressed_size   = parameter_buffer->GetDataSize();
-    size_t                               header_size         = 0;
-    const void*                          header_pointer      = nullptr;
-    size_t                               data_size           = 0;
-    const void*                          data_pointer        = nullptr;
-
-    if (nullptr != compressor_)
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        size_t packet_size = 0;
-        size_t compressed_size =
-            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &thread_data->compressed_buffer_);
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
 
-        if ((0 < compressed_size) && (compressed_size < uncompressed_size))
+        auto parameter_buffer = thread_data->parameter_buffer_.get();
+        assert((parameter_buffer != nullptr) && (thread_data->parameter_encoder_ != nullptr) &&
+               (thread_data->parameter_encoder_.get() == encoder));
+
+        bool                                 not_compressed      = true;
+        format::CompressedFunctionCallHeader compressed_header   = {};
+        format::FunctionCallHeader           uncompressed_header = {};
+        size_t                               uncompressed_size   = parameter_buffer->GetDataSize();
+        size_t                               header_size         = 0;
+        const void*                          header_pointer      = nullptr;
+        size_t                               data_size           = 0;
+        const void*                          data_pointer        = nullptr;
+
+        if (nullptr != compressor_)
         {
-            data_pointer   = reinterpret_cast<const void*>(thread_data->compressed_buffer_.data());
-            data_size      = compressed_size;
-            header_pointer = reinterpret_cast<const void*>(&compressed_header);
-            header_size    = sizeof(format::CompressedFunctionCallHeader);
+            size_t packet_size = 0;
+            size_t compressed_size =
+                compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &thread_data->compressed_buffer_);
 
-            compressed_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
-            compressed_header.api_call_id       = thread_data->call_id_;
-            compressed_header.thread_id         = thread_data->thread_id_;
-            compressed_header.uncompressed_size = uncompressed_size;
+            if ((0 < compressed_size) && (compressed_size < uncompressed_size))
+            {
+                data_pointer   = reinterpret_cast<const void*>(thread_data->compressed_buffer_.data());
+                data_size      = compressed_size;
+                header_pointer = reinterpret_cast<const void*>(&compressed_header);
+                header_size    = sizeof(format::CompressedFunctionCallHeader);
 
-            packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) +
-                           sizeof(thread_data->thread_id_) + compressed_size;
+                compressed_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
+                compressed_header.api_call_id       = thread_data->call_id_;
+                compressed_header.thread_id         = thread_data->thread_id_;
+                compressed_header.uncompressed_size = uncompressed_size;
 
-            compressed_header.block_header.size = packet_size;
-            not_compressed                      = false;
+                packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) +
+                               sizeof(compressed_header.thread_id) + compressed_size;
+
+                compressed_header.block_header.size = packet_size;
+                not_compressed                      = false;
+            }
         }
-    }
 
-    if (not_compressed)
-    {
-        size_t packet_size = 0;
-        data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
-        data_size          = uncompressed_size;
-        header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
-        header_size        = sizeof(format::FunctionCallHeader);
-
-        uncompressed_header.block_header.type = format::BlockType::kFunctionCallBlock;
-        uncompressed_header.api_call_id       = thread_data->call_id_;
-        uncompressed_header.thread_id         = thread_data->thread_id_;
-
-        packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + data_size;
-
-        uncompressed_header.block_header.size = packet_size;
-    }
-
-    {
-        std::lock_guard<std::mutex> lock(file_lock_);
-
-        // Write appropriate function call block header.
-        bytes_written_ += file_stream_->Write(header_pointer, header_size);
-
-        // Write parameter data.
-        bytes_written_ += file_stream_->Write(data_pointer, data_size);
-
-        if (force_file_flush_)
+        if (not_compressed)
         {
-            file_stream_->Flush();
-        }
-    }
+            size_t packet_size = 0;
+            data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
+            data_size          = uncompressed_size;
+            header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
+            header_size        = sizeof(format::FunctionCallHeader);
 
-    parameter_encoder->Reset();
+            uncompressed_header.block_header.type = format::BlockType::kFunctionCallBlock;
+            uncompressed_header.api_call_id       = thread_data->call_id_;
+            uncompressed_header.thread_id         = thread_data->thread_id_;
+
+            packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + data_size;
+
+            uncompressed_header.block_header.size = packet_size;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            // Write appropriate function call block header.
+            bytes_written_ += file_stream_->Write(header_pointer, header_size);
+
+            // Write parameter data.
+            bytes_written_ += file_stream_->Write(data_pointer, data_size);
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+
+        encoder->Reset();
+    }
+    else if (encoder != nullptr)
+    {
+        encoder->Reset();
+    }
 }
 
 void TraceManager::WriteFileHeader()
