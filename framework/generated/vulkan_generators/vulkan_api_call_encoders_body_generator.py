@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2019 Valve Corporation
+# Copyright (c) 2018-2019 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "encode/trace_manager.h"', file=self.outFile)
+        write('#include "encode/vulkan_handle_wrappers.h"', file=self.outFile)
         write('#include "format/api_call_id.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
@@ -176,7 +177,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def makeParameterEncoding(self, name, values, returnType, indent):
         body = '\n'
-        body += indent + 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
+        body += indent + self.makeBeginApiCall(name)
         body += indent + 'if (encoder)\n'
         body += indent + '{\n'
         indent += ' ' * self.INDENT_SIZE
@@ -189,10 +190,64 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             methodCall = self.makeEncoderMethodCall(ValueInfo('result', returnType, returnType), [], '')
             body += indent + '{};\n'.format(methodCall)
 
-        body += indent + 'TraceManager::Get()->EndApiCallTrace(encoder);\n'
+        # Determine the appropriate end call: Create handle call, destroy handle call, or general call.
+        body += indent + self.makeEndApiCall(name, values)
         indent = indent[0:-self.INDENT_SIZE]
         body += indent + '}\n'
         return body
+
+    def makeBeginApiCall(self, name):
+        if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree'):
+            return 'auto encoder = TraceManager::Get()->BeginCreateDestroyApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
+        else:
+            return 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
+
+    def makeEndApiCall(self, name, values):
+        decl = 'TraceManager::Get()->'
+
+        if name.startswith('vkCreate') or name.startswith('vkAllocate'):
+            # The handle is the last parameter.
+            handle = values[-1]
+
+            #  Search for the create info struct
+            info = None
+            for value in values:
+                if ('CreateInfo' in value.baseType) or ('AllocateInfo' in value.baseType):
+                    info = value
+                    # Confirm array counts match
+                    if info.isArray and (handle.arrayLength != info.arrayLength):
+                        print('WARNING: {} has separate array counts for create info structures ({}) and handles ({})'.format(name, info.arrayLength, count))
+
+            if handle.isArray:
+                decl += 'EndCreateApiCallTrace<{}Wrapper, {}>(result, {}, {}, {}, encoder)'.format(handle.baseType[2:], info.baseType, handle.arrayLength, handle.name, info.name)
+            else:
+                decl += 'EndCreateApiCallTrace<{}Wrapper, {}>(result, {}, {}, encoder)'.format(handle.baseType[2:], info.baseType, handle.name, info.name)
+
+        elif name.startswith('vkDestroy') or name.startswith('vkFree'):
+            handle = None
+            if name in ['vkDestroyInstance', 'vkDestroyDevice']:
+                # Instance/device destroy calls are special case where the target handle is the first parameter
+                handle = values[0]
+            else:
+                # The destroy target is the second parameter, exceppt for pool based allocations where it is the last parameter.
+                handle = values[1]
+                if ("Pool" in handle.baseType) and name.startswith('vkFree'):
+                    handle = values[3]
+
+            if handle.isArray:
+                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, {}, encoder)'.format(handle.baseType[2:], handle.arrayLength, handle.name)
+            else:
+                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, encoder)'.format(handle.baseType[2:], handle.name)
+
+        else:
+            if name in ['vkEnumeratePhysicalDevices', 'vkGetPhysicalDeviceDisplayPropertiesKHR', 'vkGetRandROutputDisplayEXT']:
+                # TODO: Handle vkEnumeratePhysicalDevices and vkGetPhysicalDeviceDisplayProprtiesKHR
+                print('WARNING: Skipping special case "create" tracking for VkPhysicalDeviceKHR and VkDisplayKHR')
+
+            decl += 'EndApiCallTrace(encoder)'
+
+        decl += ';\n'
+        return decl
 
     def isOutputParameter(self, value, values):
         # Check for an output pointer/array or an in-out pointer.

@@ -21,6 +21,7 @@
 #include "encode/capture_settings.h"
 #include "encode/memory_tracker.h"
 #include "encode/parameter_encoder.h"
+#include "encode/vulkan_state_tracker.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
@@ -31,6 +32,7 @@
 
 #include "vulkan/vulkan.h"
 
+#include <cassert>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -94,7 +96,110 @@ class TraceManager
 
     const DeviceTable* GetDeviceTable(const void* handle) const;
 
-    ParameterEncoder* BeginApiCallTrace(format::ApiCallId call_id);
+    ParameterEncoder* BeginCreateDestroyApiCallTrace(format::ApiCallId call_id)
+    {
+        if (capture_mode_ != kModeDisabled)
+        {
+            return InitApiCallTrace(call_id);
+        }
+
+        return nullptr;
+    }
+
+    ParameterEncoder* BeginApiCallTrace(format::ApiCallId call_id)
+    {
+        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        {
+            return InitApiCallTrace(call_id);
+        }
+
+        return nullptr;
+    }
+
+    // Single object creation.
+    template <typename Wrapper, typename CreateInfo>
+    void EndCreateApiCallTrace(VkResult                      result,
+                               typename Wrapper::HandleType* handle,
+                               const CreateInfo*             create_info,
+                               ParameterEncoder*             encoder)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && result == VK_SUCCESS)
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->AddEntry<Wrapper, CreateInfo>(
+                handle, create_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    // Multiple object creation.
+    template <typename Wrapper, typename CreateInfo>
+    void EndCreateApiCallTrace(VkResult                      result,
+                               uint32_t                      count,
+                               typename Wrapper::HandleType* handles,
+                               const CreateInfo*             create_infos,
+                               ParameterEncoder*             encoder)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (handles != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                const CreateInfo* create_info = nullptr;
+
+                // Not all handle creation operations will have a create info structure (e.g. VkPhysicalDevice handles
+                // retrieved with vkEnumeratePhysicalDevices).
+                if (create_infos != nullptr)
+                {
+                    create_info = &create_infos[i];
+                }
+
+                state_tracker_->AddEntry<Wrapper, CreateInfo>(
+                    &handles[i], create_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
+            }
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    // Single object destuction.
+    template <typename Wrapper>
+    void EndDestroyApiCallTrace(typename Wrapper::HandleType handle, ParameterEncoder* encoder)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->RemoveEntry<Wrapper>(handle);
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    // Multiple object destruction.
+    template <typename Wrapper>
+    void EndDestroyApiCallTrace(uint32_t count, const typename Wrapper::HandleType* handles, ParameterEncoder* encoder)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                state_tracker_->RemoveEntry<Wrapper>(handles[i]);
+            }
+        }
+
+        EndApiCallTrace(encoder);
+    }
 
     void EndApiCallTrace(ParameterEncoder* encoder);
 
@@ -161,16 +266,21 @@ class TraceManager
 #endif
 
   protected:
-    TraceManager() :
-        force_file_flush_(false), bytes_written_(0),
-        memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kUnassisted)
-    {}
+    TraceManager();
 
-    ~TraceManager() {}
+    ~TraceManager();
 
     bool Initialize(std::string filename, const CaptureSettings::TraceSettings& trace_settings);
 
   private:
+    enum Mode : uint32_t
+    {
+        kModeDisabled      = 0x0,
+        kModeWrite         = 0x01,
+        kModeTrack         = 0x02,
+        kModeWriteAndTrack = (kModeWrite | kModeTrack)
+    };
+
     class ThreadData
     {
       public:
@@ -210,6 +320,8 @@ class TraceManager
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
                          std::vector<format::FileOptionPair>* option_list);
 
+    ParameterEncoder* InitApiCallTrace(format::ApiCallId call_id);
+
     void WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height);
     void WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data);
 
@@ -237,6 +349,8 @@ class TraceManager
     mutable std::mutex                              memory_tracker_lock_;
     UpdateTemplateMap                               update_template_map_;
     mutable std::mutex                              update_template_map_lock_;
+    std::unique_ptr<VulkanStateTracker>             state_tracker_;
+    Mode                                            capture_mode_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
