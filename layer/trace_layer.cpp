@@ -86,9 +86,9 @@ static LayerInstanceInfo* get_instance_info(const void* handle)
     return (inst_info != instance_info.end()) ? &inst_info->second : nullptr;
 }
 
-VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
-                                 const VkAllocationCallbacks* pAllocator,
-                                 VkInstance*                  pInstance)
+VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                                       const VkAllocationCallbacks* pAllocator,
+                                                       VkInstance*                  pInstance)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
@@ -131,10 +131,10 @@ VkResult dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
     return result;
 }
 
-VkResult dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
-                               const VkDeviceCreateInfo*    pCreateInfo,
-                               const VkAllocationCallbacks* pAllocator,
-                               VkDevice*                    pDevice)
+VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice             physicalDevice,
+                                                     const VkDeviceCreateInfo*    pCreateInfo,
+                                                     const VkAllocationCallbacks* pAllocator,
+                                                     VkDevice*                    pDevice)
 {
     VkResult                 result = VK_ERROR_INITIALIZATION_FAILED;
     VkLayerDeviceCreateInfo* chain_info =
