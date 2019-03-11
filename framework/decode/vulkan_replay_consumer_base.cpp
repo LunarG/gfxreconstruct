@@ -178,50 +178,42 @@ const VkAllocationCallbacks* VulkanReplayConsumerBase::GetAllocationCallbacks(
 
 void VulkanReplayConsumerBase::CheckResult(const char* func_name, VkResult original, VkResult replay)
 {
-    if ((original != VK_ERROR_DEVICE_LOST) && (replay == VK_ERROR_DEVICE_LOST))
+    if (original != replay)
     {
-        // Only raise a fatal error if the device lost error is unique to playback.  If the original application
-        // also encountered a device lost error, it may have handled it and continued.
-        GFXRECON_LOG_FATAL("API call (%s) returned VK_ERROR_DEVICE_LOST.  Replay cannot continue.", func_name);
-        RaiseFatalError(
-            "Replay has encountered a fatal error and cannot continue (API call returned VK_ERROR_DEVICE_LOST)");
-    }
-    else
-    {
-        // Report error when replay result is different than the original result, unless the replay results indicates
-        // that a wait operation completed before the original.
-        if ((original != replay) &&
-            !((replay == VK_SUCCESS) && ((original == VK_TIMEOUT) || (original == VK_NOT_READY))))
+        if ((replay < 0) && (replay != VK_ERROR_FORMAT_NOT_SUPPORTED))
+        {
+            // Raise a fatal error if replay produced an error that did not occur during capture.  Format not supported
+            // errors are not treated as fatal, but will be reported as warnings below, allowing the replay to attempt
+            // to continue for the case where an application may have queried for formats that it did not use.
+            GFXRECON_LOG_FATAL("API call %s returned error value %s that does not match the result from the "
+                               "capture file: %s.  Replay cannot continue.",
+                               func_name,
+                               enumutil::GetResultValueString(replay),
+                               enumutil::GetResultValueString(original));
+
+            RaiseFatalError(enumutil::GetResultDescription(replay));
+        }
+        else if (replay == VK_INCOMPLETE)
         {
             // VK_INCOMPLETE is generated when replaying a 'vkGet' function with a size value read from the capture file
             // that is smaller than the size expected by the replay device.  Replay does not make use of the values
             // retrieved by this function, so the error should be safe to ignore.  Log this case as a debug message
             // until replay is modified to adjust sizes used when replaying.
-            if (replay == VK_INCOMPLETE)
-            {
-                GFXRECON_LOG_DEBUG("API call (%s) returned value VK_INCOMPLETE that does not match return value from "
-                                   "capture file %s.  This may be caused by platform differences.",
-                                   func_name,
-                                   enumutil::GetResultValueString(original));
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR(
-                    "API call (%s) returned value %s that does not match return value from capture file %s.",
-                    func_name,
-                    enumutil::GetResultValueString(replay),
-                    enumutil::GetResultValueString(original));
-            }
+            GFXRECON_LOG_DEBUG("API call %s returned value VK_INCOMPLETE that does not match return value from "
+                               "capture file: %s.  This may be caused by platform differences.",
+                               func_name,
+                               enumutil::GetResultValueString(original));
         }
-
-        // Warn when an API call returned a failure, regardless of original result (excluding format not supported
-        // results).
-        if ((replay < 0) && (replay != VK_ERROR_FORMAT_NOT_SUPPORTED))
+        else if (!((replay == VK_SUCCESS) &&
+                   ((original == VK_TIMEOUT) || (original == VK_NOT_READY) || (original == VK_ERROR_OUT_OF_DATE_KHR))))
         {
-            GFXRECON_LOG_WARNING("API call (%s) returned error result %s: %s",
-                                 func_name,
-                                 enumutil::GetResultValueString(replay),
-                                 enumutil::GetResultDescription(replay));
+            // Report differences between replay result and capture result, unless the replay results indicates
+            // that a wait operation completed before the original or a WSI function succeded when the original failed.
+            GFXRECON_LOG_WARNING(
+                "API call %s returned value %s that does not match return value from capture file: %s.",
+                func_name,
+                enumutil::GetResultValueString(replay),
+                enumutil::GetResultValueString(original));
         }
     }
 }
@@ -300,7 +292,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateInstance(const VkInstanceCreate
             }
         }
 
-        modified_create_info    = (*pCreateInfo);
+        modified_create_info                         = (*pCreateInfo);
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(filtered_extensions.size());
         modified_create_info.ppEnabledExtensionNames = filtered_extensions.data();
     }
@@ -760,8 +752,8 @@ void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
 
     assert(objectCount == ppObjectTableEntries.GetLength());
 
-    VkObjectTableEntryNVX**                     in_ppObjectTableEntries = ppObjectTableEntries.GetPointer();
-    Decoded_VkObjectTableEntryNVX** in_ppObjectTableEntries_wrapper     = ppObjectTableEntries.GetMetaStructPointer();
+    VkObjectTableEntryNVX**         in_ppObjectTableEntries         = ppObjectTableEntries.GetPointer();
+    Decoded_VkObjectTableEntryNVX** in_ppObjectTableEntries_wrapper = ppObjectTableEntries.GetMetaStructPointer();
 
     // Map the object table entry handles.
     if ((in_ppObjectTableEntries != nullptr) && (in_ppObjectTableEntries_wrapper != nullptr))
