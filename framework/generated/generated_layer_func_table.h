@@ -376,9 +376,6 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkGetQueueCheckpointDataNV",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::GetQueueCheckpointDataNV) },
     { "vkCreateImagePipeSurfaceFUCHSIA",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::CreateImagePipeSurfaceFUCHSIA) },
     { "vkGetBufferDeviceAddressEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(encode::GetBufferDeviceAddressEXT) },
-
-    // Special case handling of "vk_layerGetPhysicalDeviceProcAddr"
-    { "vk_layerGetPhysicalDeviceProcAddr",                                                                   reinterpret_cast<PFN_vkVoidFunction>(GetPhysicalDeviceProcAddr) },
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

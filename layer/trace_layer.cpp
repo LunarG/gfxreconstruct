@@ -64,26 +64,18 @@ static const VkLayerDeviceCreateInfo* get_device_chain_info(const VkDeviceCreate
     return chain_info;
 }
 
-struct LayerInstanceInfo
-{
-    VkInstance                    instance;
-    PFN_GetPhysicalDeviceProcAddr get_physical_device_proc_addr;
-};
+static std::unordered_map<const void*, VkInstance> instance_handles;
 
-static std::unordered_map<const void*, LayerInstanceInfo>   instance_info;
-
-static void add_instance_info(VkInstance instance, PFN_GetPhysicalDeviceProcAddr gpdpa)
+static void add_instance_handle(VkInstance instance)
 {
     // Store the instance for use with vkCreateDevice.
-    auto inst_info                           = &instance_info[encode::GetDispatchKey(instance)];
-    inst_info->instance                      = instance;
-    inst_info->get_physical_device_proc_addr = gpdpa;
+    instance_handles[encode::GetDispatchKey(instance)] = instance;
 }
 
-static LayerInstanceInfo* get_instance_info(const void* handle)
+static VkInstance get_instance_handle(const void* handle)
 {
-    auto inst_info = instance_info.find(encode::GetDispatchKey(handle));
-    return (inst_info != instance_info.end()) ? &inst_info->second : nullptr;
+    auto entry = instance_handles.find(encode::GetDispatchKey(handle));
+    return (entry != instance_handles.end()) ? entry->second : VK_NULL_HANDLE;
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
@@ -99,9 +91,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
 
         if (chain_info && chain_info->u.pLayerInfo)
         {
-            PFN_vkGetInstanceProcAddr     fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
-            PFN_GetPhysicalDeviceProcAddr fpGetPhysicalDeviceProcAddr =
-                chain_info->u.pLayerInfo->pfnNextGetPhysicalDeviceProcAddr;
+            PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
 
             if (fpGetInstanceProcAddr)
             {
@@ -117,7 +107,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
 
                     if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
                     {
-                        add_instance_info(*pInstance, fpGetPhysicalDeviceProcAddr);
+                        add_instance_handle(*pInstance);
 
                         encode::TraceManager* manager = encode::TraceManager::Get();
                         assert(manager != nullptr);
@@ -142,15 +132,15 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
 
     if (chain_info && chain_info->u.pLayerInfo)
     {
-        LayerInstanceInfo* layer_instance_info = get_instance_info(physicalDevice);
+        VkInstance layer_instance = get_instance_handle(physicalDevice);
 
         PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
         PFN_vkGetDeviceProcAddr   fpGetDeviceProcAddr   = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
 
-        if (fpGetInstanceProcAddr && fpGetDeviceProcAddr && layer_instance_info)
+        if (fpGetInstanceProcAddr && fpGetDeviceProcAddr && layer_instance)
         {
-            PFN_vkCreateDevice fpCreateDevice = reinterpret_cast<PFN_vkCreateDevice>(
-                fpGetInstanceProcAddr(layer_instance_info->instance, "vkCreateDevice"));
+            PFN_vkCreateDevice fpCreateDevice =
+                reinterpret_cast<PFN_vkCreateDevice>(fpGetInstanceProcAddr(layer_instance, "vkCreateDevice"));
 
             if (fpCreateDevice)
             {
@@ -234,22 +224,6 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
                     result = entry->second;
                 }
             }
-        }
-    }
-
-    return result;
-}
-
-VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char* pName)
-{
-    PFN_vkVoidFunction result = nullptr;
-
-    if (instance != VK_NULL_HANDLE)
-    {
-        const auto info = get_instance_info(instance);
-        if (info && info->get_physical_device_proc_addr)
-        {
-            result = info->get_physical_device_proc_addr(instance, pName);
         }
     }
 
@@ -359,7 +333,7 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
     {
         pVersionStruct->pfnGetInstanceProcAddr       = gfxrecon::GetInstanceProcAddr;
         pVersionStruct->pfnGetDeviceProcAddr         = gfxrecon::GetDeviceProcAddr;
-        pVersionStruct->pfnGetPhysicalDeviceProcAddr = gfxrecon::GetPhysicalDeviceProcAddr;
+        pVersionStruct->pfnGetPhysicalDeviceProcAddr = nullptr;
     }
 
     if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION)
@@ -380,12 +354,6 @@ VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(V
 VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
 {
     return gfxrecon::GetDeviceProcAddr(device, pName);
-}
-
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance  instance,
-                                                                                           const char* pName)
-{
-    return gfxrecon::GetPhysicalDeviceProcAddr(instance, pName);
 }
 
 // The following four functions are not invoked by the desktop loader, which retrieves the layer specific properties and
