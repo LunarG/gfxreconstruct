@@ -329,6 +329,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTransformFeed
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTransformFeedbackPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationStateStreamCreateInfoEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkImageViewHandleInfoNVX& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkTextureLODGatherFormatPropertiesAMD& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkShaderResourceUsageAMD& value);
@@ -396,6 +398,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineDiscardRectangleSta
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceConservativeRasterizationPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationConservativeStateCreateInfoEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthClipEnableFeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationDepthClipStateCreateInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkXYColorEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkHdrMetadataEXT& value);
@@ -482,6 +487,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPro
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRepresentativeFragmentTestStateCreateInfoNV& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageViewImageFormatInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkFilterCubicImageViewImageFormatPropertiesEXT& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceQueueGlobalPriorityCreateInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkImportMemoryHostPointerInfoEXT& value);
@@ -519,6 +527,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePCIBusInfoPro
 
 void EncodeStruct(ParameterEncoder* encoder, const VkImagePipeSurfaceCreateInfoFUCHSIA& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkMetalSurfaceCreateInfoEXT& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMapPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassFragmentDensityMapCreateInfoEXT& value);
@@ -530,6 +540,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMemoryBudgetP
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMemoryPriorityFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryPriorityAllocateInfoEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferAddressFeaturesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressCreateInfoEXT& value);
@@ -537,6 +549,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressCreateIn
 void EncodeStruct(ParameterEncoder* encoder, const VkImageStencilUsageCreateInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkValidationFeaturesEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCooperativeMatrixPropertiesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixFeaturesNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCooperativeMatrixPropertiesNV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceYcbcrImageArraysFeaturesEXT& value);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

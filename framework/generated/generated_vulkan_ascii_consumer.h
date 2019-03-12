@@ -1588,6 +1588,11 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         uint32_t                                    counterOffset,
         uint32_t                                    vertexStride) override;
 
+    virtual void Process_vkGetImageViewHandleNVX(
+        uint32_t                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkImageViewHandleInfoNVX>& pInfo) override;
+
     virtual void Process_vkCmdDrawIndirectCountAMD(
         format::HandleId                            commandBuffer,
         format::HandleId                            buffer,
@@ -2076,10 +2081,23 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const HandlePointerDecoder<VkSurfaceKHR>&   pSurface) override;
 
+    virtual void Process_vkCreateMetalSurfaceEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            instance,
+        const StructPointerDecoder<Decoded_VkMetalSurfaceCreateInfoEXT>& pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+        const HandlePointerDecoder<VkSurfaceKHR>&   pSurface) override;
+
     virtual void Process_vkGetBufferDeviceAddressEXT(
         VkDeviceAddress                             returnValue,
         format::HandleId                            device,
         const StructPointerDecoder<Decoded_VkBufferDeviceAddressInfoEXT>& pInfo) override;
+
+    virtual void Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        const PointerDecoder<uint32_t>&             pPropertyCount,
+        const StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesNV>& pProperties) override;
 };
 
 GFXRECON_END_NAMESPACE(decode)

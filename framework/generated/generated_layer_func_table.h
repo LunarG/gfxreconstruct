@@ -297,6 +297,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdBeginQueryIndexedEXT",                                                                           reinterpret_cast<PFN_vkVoidFunction>(encode::CmdBeginQueryIndexedEXT) },
     { "vkCmdEndQueryIndexedEXT",                                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::CmdEndQueryIndexedEXT) },
     { "vkCmdDrawIndirectByteCountEXT",                                                                       reinterpret_cast<PFN_vkVoidFunction>(encode::CmdDrawIndirectByteCountEXT) },
+    { "vkGetImageViewHandleNVX",                                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::GetImageViewHandleNVX) },
     { "vkCmdDrawIndirectCountAMD",                                                                           reinterpret_cast<PFN_vkVoidFunction>(encode::CmdDrawIndirectCountAMD) },
     { "vkCmdDrawIndexedIndirectCountAMD",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::CmdDrawIndexedIndirectCountAMD) },
     { "vkGetShaderInfoAMD",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::GetShaderInfoAMD) },
@@ -375,7 +376,9 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdSetCheckpointNV",                                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetCheckpointNV) },
     { "vkGetQueueCheckpointDataNV",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::GetQueueCheckpointDataNV) },
     { "vkCreateImagePipeSurfaceFUCHSIA",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::CreateImagePipeSurfaceFUCHSIA) },
+    { "vkCreateMetalSurfaceEXT",                                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::CreateMetalSurfaceEXT) },
     { "vkGetBufferDeviceAddressEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(encode::GetBufferDeviceAddressEXT) },
+    { "vkGetPhysicalDeviceCooperativeMatrixPropertiesNV",                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceCooperativeMatrixPropertiesNV) },
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

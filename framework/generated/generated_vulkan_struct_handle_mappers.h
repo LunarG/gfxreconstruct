@@ -425,6 +425,8 @@ void MapStructHandles(Decoded_VkPhysicalDeviceTransformFeedbackPropertiesEXT* wr
 
 void MapStructHandles(Decoded_VkPipelineRasterizationStateStreamCreateInfoEXT* wrapper, const VulkanObjectMapper& object_mapper);
 
+void MapStructHandles(Decoded_VkImageViewHandleInfoNVX* wrapper, const VulkanObjectMapper& object_mapper);
+
 void MapStructHandles(Decoded_VkTextureLODGatherFormatPropertiesAMD* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceCornerSampledImageFeaturesNV* wrapper, const VulkanObjectMapper& object_mapper);
@@ -502,6 +504,10 @@ void MapStructHandles(Decoded_VkPipelineDiscardRectangleStateCreateInfoEXT* wrap
 void MapStructHandles(Decoded_VkPhysicalDeviceConservativeRasterizationPropertiesEXT* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkPipelineRasterizationConservativeStateCreateInfoEXT* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceDepthClipEnableFeaturesEXT* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkPipelineRasterizationDepthClipStateCreateInfoEXT* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkHdrMetadataEXT* wrapper, const VulkanObjectMapper& object_mapper);
 
@@ -627,6 +633,10 @@ void MapStructHandles(Decoded_VkPhysicalDeviceRepresentativeFragmentTestFeatures
 
 void MapStructHandles(Decoded_VkPipelineRepresentativeFragmentTestStateCreateInfoNV* wrapper, const VulkanObjectMapper& object_mapper);
 
+void MapStructHandles(Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT* wrapper, const VulkanObjectMapper& object_mapper);
+
 void MapStructHandles(Decoded_VkDeviceQueueGlobalPriorityCreateInfoEXT* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkImportMemoryHostPointerInfoEXT* wrapper, const VulkanObjectMapper& object_mapper);
@@ -669,6 +679,8 @@ void MapStructHandles(Decoded_VkPhysicalDevicePCIBusInfoPropertiesEXT* wrapper, 
 
 void MapStructHandles(Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA* wrapper, const VulkanObjectMapper& object_mapper);
 
+void MapStructHandles(Decoded_VkMetalSurfaceCreateInfoEXT* wrapper, const VulkanObjectMapper& object_mapper);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceFragmentDensityMapFeaturesEXT* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkPhysicalDeviceFragmentDensityMapPropertiesEXT* wrapper, const VulkanObjectMapper& object_mapper);
@@ -683,6 +695,8 @@ void MapStructHandles(Decoded_VkPhysicalDeviceMemoryPriorityFeaturesEXT* wrapper
 
 void MapStructHandles(Decoded_VkMemoryPriorityAllocateInfoEXT* wrapper, const VulkanObjectMapper& object_mapper);
 
+void MapStructHandles(Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV* wrapper, const VulkanObjectMapper& object_mapper);
+
 void MapStructHandles(Decoded_VkPhysicalDeviceBufferAddressFeaturesEXT* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkBufferDeviceAddressInfoEXT* wrapper, const VulkanObjectMapper& object_mapper);
@@ -692,6 +706,14 @@ void MapStructHandles(Decoded_VkBufferDeviceAddressCreateInfoEXT* wrapper, const
 void MapStructHandles(Decoded_VkImageStencilUsageCreateInfoEXT* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkValidationFeaturesEXT* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkCooperativeMatrixPropertiesNV* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesNV* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesNV* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectMapper& object_mapper);
 

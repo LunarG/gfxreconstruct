@@ -38,5 +38,11 @@
       "zx_handle_t" : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" }
     },
     "structs" : []
+  },
+  "metal": {
+    "types": {
+      "CAMetalLayer" : { "baseType" :  "void", "replaceWith" : "void"}
+    },
+    "structs": []
   }
 }

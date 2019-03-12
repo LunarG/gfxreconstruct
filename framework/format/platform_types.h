@@ -284,6 +284,39 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMacOSSurfaceMVK(VkInstance,
 }
 #endif // VK_USE_PLATFORM_MACOS_MVK
 
+#if !defined(VK_USE_PLATFORM_METAL_EXT)
+#define VK_EXT_METAL_SURFACE_EXTENSION_NAME "VK_EXT_metal_surface"
+
+typedef VkFlags VkMetalSurfaceCreateFlagsEXT;
+
+struct CAMetalLayer;
+
+struct VkMetalSurfaceCreateInfoEXT
+{
+    VkStructureType              sType;
+    const void*                  pNext;
+    VkMetalSurfaceCreateFlagsEXT flags;
+    const CAMetalLayer*          pLayer;
+};
+
+extern "C" {
+typedef VkResult(VKAPI_PTR* PFN_vkCreateMetalSurfaceEXT)(VkInstance                         instance,
+                                                         const VkMetalSurfaceCreateInfoEXT* pCreateInfo,
+                                                         const VkAllocationCallbacks*       pAllocator,
+                                                         VkSurfaceKHR*                      pSurface);
+
+static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMetalSurfaceEXT(VkInstance,
+                                                              const VkMetalSurfaceCreateInfoEXT*,
+                                                              const VkAllocationCallbacks*,
+                                                              VkSurfaceKHR*)
+{
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateMetalSurfaceEXT");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+}
+#endif // VK_USE_PLATFORM_METAL_EXT
+
+
 #if !defined(VK_USE_PLATFORM_MIR_KHR)
 #define VK_KHR_MIR_SURFACE_EXTENSION_NAME "VK_KHR_mir_surface"
 

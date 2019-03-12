@@ -3782,6 +3782,18 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndirectByteCountEXT(
     Dispatcher<format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT, void, PFN_vkCmdDrawIndirectByteCountEXT>::Dispatch(this, vkCmdDrawIndirectByteCountEXT, in_commandBuffer, instanceCount, firstInstance, in_counterBuffer, counterBufferOffset, counterOffset, vertexStride);
 }
 
+void VulkanReplayConsumer::Process_vkGetImageViewHandleNVX(
+    uint32_t                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkImageViewHandleInfoNVX>& pInfo)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    const VkImageViewHandleInfoNVX* in_pInfo = pInfo.GetPointer();
+    MapStructHandles(pInfo.GetMetaStructPointer(), GetObjectMapper());
+
+    Dispatcher<format::ApiCallId::ApiCall_vkGetImageViewHandleNVX, uint32_t, PFN_vkGetImageViewHandleNVX>::Dispatch(this, vkGetImageViewHandleNVX, in_device, in_pInfo);
+}
+
 void VulkanReplayConsumer::Process_vkCmdDrawIndirectCountAMD(
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
@@ -4948,6 +4960,26 @@ void VulkanReplayConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), 1, out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
 }
 
+void VulkanReplayConsumer::Process_vkCreateMetalSurfaceEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            instance,
+    const StructPointerDecoder<Decoded_VkMetalSurfaceCreateInfoEXT>& pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
+{
+    VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
+    const VkMetalSurfaceCreateInfoEXT* in_pCreateInfo = pCreateInfo.GetPointer();
+    MapStructHandles(pCreateInfo.GetMetaStructPointer(), GetObjectMapper());
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    VkSurfaceKHR out_pSurface_value = static_cast<VkSurfaceKHR>(0);
+    VkSurfaceKHR* out_pSurface = &out_pSurface_value;
+
+    VkResult replay_result = Dispatcher<format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT, VkResult, PFN_vkCreateMetalSurfaceEXT>::Dispatch(this, returnValue, vkCreateMetalSurfaceEXT, in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+    CheckResult("vkCreateMetalSurfaceEXT", returnValue, replay_result);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), 1, out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
+}
+
 void VulkanReplayConsumer::Process_vkGetBufferDeviceAddressEXT(
     VkDeviceAddress                             returnValue,
     format::HandleId                            device,
@@ -4958,6 +4990,23 @@ void VulkanReplayConsumer::Process_vkGetBufferDeviceAddressEXT(
     MapStructHandles(pInfo.GetMetaStructPointer(), GetObjectMapper());
 
     Dispatcher<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT, VkDeviceAddress, PFN_vkGetBufferDeviceAddressEXT>::Dispatch(this, vkGetBufferDeviceAddressEXT, in_device, in_pInfo);
+}
+
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    const PointerDecoder<uint32_t>&             pPropertyCount,
+    const StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesNV>& pProperties)
+{
+    VkPhysicalDevice in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
+    uint32_t out_pPropertyCount_value = pPropertyCount.IsNull() ? static_cast<uint32_t>(0) : *(pPropertyCount.GetPointer());
+    uint32_t* out_pPropertyCount = &out_pPropertyCount_value;
+    VkCooperativeMatrixPropertiesNV* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkCooperativeMatrixPropertiesNV>(out_pPropertyCount_value, VkCooperativeMatrixPropertiesNV{ VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_NV, nullptr });
+
+    VkResult replay_result = Dispatcher<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV, VkResult, PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV>::Dispatch(this, returnValue, vkGetPhysicalDeviceCooperativeMatrixPropertiesNV, in_physicalDevice, out_pPropertyCount, out_pProperties);
+    CheckResult("vkGetPhysicalDeviceCooperativeMatrixPropertiesNV", returnValue, replay_result);
+
+    FreeArray<VkCooperativeMatrixPropertiesNV>(&out_pProperties);
 }
 
 GFXRECON_END_NAMESPACE(decode)
