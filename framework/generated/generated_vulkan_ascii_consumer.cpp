@@ -2338,6 +2338,14 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndirectByteCountEXT(
     fprintf(GetFile(), "%s\n", "vkCmdDrawIndirectByteCountEXT");
 }
 
+void VulkanAsciiConsumer::Process_vkGetImageViewHandleNVX(
+    uint32_t                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkImageViewHandleInfoNVX>& pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkGetImageViewHandleNVX");
+}
+
 void VulkanAsciiConsumer::Process_vkCmdDrawIndirectCountAMD(
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
@@ -3057,12 +3065,31 @@ void VulkanAsciiConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     fprintf(GetFile(), "%s\n", "vkCreateImagePipeSurfaceFUCHSIA");
 }
 
+void VulkanAsciiConsumer::Process_vkCreateMetalSurfaceEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            instance,
+    const StructPointerDecoder<Decoded_VkMetalSurfaceCreateInfoEXT>& pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateMetalSurfaceEXT");
+}
+
 void VulkanAsciiConsumer::Process_vkGetBufferDeviceAddressEXT(
     VkDeviceAddress                             returnValue,
     format::HandleId                            device,
     const StructPointerDecoder<Decoded_VkBufferDeviceAddressInfoEXT>& pInfo)
 {
     fprintf(GetFile(), "%s\n", "vkGetBufferDeviceAddressEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    const PointerDecoder<uint32_t>&             pPropertyCount,
+    const StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesNV>& pProperties)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPhysicalDeviceCooperativeMatrixPropertiesNV");
 }
 
 GFXRECON_END_NAMESPACE(decode)

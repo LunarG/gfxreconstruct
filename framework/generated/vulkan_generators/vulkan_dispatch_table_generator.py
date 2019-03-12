@@ -44,7 +44,11 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                                processCmds=True, processStructs=False, featureBreak=False,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
         # Map of return types to default return values for no-op functions
-        self.RETURN_DEFAULTS = { 'VkResult' : 'VK_SUCCESS', 'VkBool32' : 'VK_TRUE', 'PFN_vkVoidFunction' : 'nullptr', 'VkDeviceAddress' : '0' }
+        self.RETURN_DEFAULTS = { 'VkResult' : 'VK_SUCCESS',
+                                 'VkBool32' : 'VK_TRUE',
+                                 'PFN_vkVoidFunction' : 'nullptr',
+                                 'VkDeviceAddress' : '0',
+                                 'uint32_t' : '0' }
 
         self.instanceCmdNames = dict()      # Map of API call names to no-op function declarations
         self.deviceCmdNames = dict()        # Map of API call names to no-op function declarations

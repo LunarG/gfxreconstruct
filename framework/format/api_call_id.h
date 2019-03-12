@@ -392,6 +392,9 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1155),
     ApiCall_vkGetCalibratedTimestampsEXT                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1156),
     ApiCall_vkGetBufferDeviceAddressEXT                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1157),
+    ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1158),
+    ApiCall_vkGetImageViewHandleNVX                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1159),
+    ApiCall_vkCreateMetalSurfaceEXT                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x115a),
 
     ApiCall_VulkanLast
     // clang-format on

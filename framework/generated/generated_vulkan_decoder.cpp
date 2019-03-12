@@ -5668,6 +5668,26 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndirectByteCountEXT(const uint8_t* parame
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetImageViewHandleNVX(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkImageViewHandleInfoNVX> pInfo;
+    uint32_t return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetImageViewHandleNVX(return_value, device, pInfo);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCmdDrawIndirectCountAMD(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -7414,6 +7434,30 @@ size_t VulkanDecoder::Decode_vkCreateImagePipeSurfaceFUCHSIA(const uint8_t* para
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCreateMetalSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId instance;
+    StructPointerDecoder<Decoded_VkMetalSurfaceCreateInfoEXT> pCreateInfo;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkSurfaceKHR> pSurface;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSurface.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreateMetalSurfaceEXT(return_value, instance, pCreateInfo, pAllocator, pSurface);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkGetBufferDeviceAddressEXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -7434,10 +7478,32 @@ size_t VulkanDecoder::Decode_vkGetBufferDeviceAddressEXT(const uint8_t* paramete
     return bytes_read;
 }
 
-void VulkanDecoder::DecodeFunctionCall(format::ApiCallId  call_id,
-                                       const ApiCallInfo& call_info,
-                                       const uint8_t*     parameter_buffer,
-                                       size_t             buffer_size)
+size_t VulkanDecoder::Decode_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId physicalDevice;
+    PointerDecoder<uint32_t> pPropertyCount;
+    StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesNV> pProperties;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
+    bytes_read += pPropertyCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(return_value, physicalDevice, pPropertyCount, pProperties);
+    }
+
+    return bytes_read;
+}
+
+void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
+                                       const ApiCallInfo&            call_info,
+                                       const uint8_t*                parameter_buffer,
+                                       size_t                        buffer_size)
 {
     switch(call_id)
     {
@@ -8203,6 +8269,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT:
         Decode_vkCmdDrawIndirectByteCountEXT(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkGetImageViewHandleNVX:
+        Decode_vkGetImageViewHandleNVX(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkCmdDrawIndirectCountAMD:
         Decode_vkCmdDrawIndirectCountAMD(parameter_buffer, buffer_size);
         break;
@@ -8434,8 +8503,14 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA:
         Decode_vkCreateImagePipeSurfaceFUCHSIA(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT:
+        Decode_vkCreateMetalSurfaceEXT(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT:
         Decode_vkGetBufferDeviceAddressEXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV:
+        Decode_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(parameter_buffer, buffer_size);
         break;
     }
 }

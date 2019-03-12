@@ -38,10 +38,10 @@ class VulkanDecoder : public VulkanDecoderBase
 
     virtual ~VulkanDecoder() override { }
 
-    virtual void DecodeFunctionCall(format::ApiCallId  call_id,
-                                    const ApiCallInfo& call_info,
-                                    const uint8_t*     parameter_buffer,
-                                    size_t             buffer_size) override;
+    virtual void DecodeFunctionCall(format::ApiCallId             call_id,
+                                    const ApiCallInfo&            call_info,
+                                    const uint8_t*                parameter_buffer,
+                                    size_t                        buffer_size) override;
 
   private:
     size_t Decode_vkCreateInstance(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -550,6 +550,8 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdDrawIndirectByteCountEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetImageViewHandleNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCmdDrawIndirectCountAMD(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdDrawIndexedIndirectCountAMD(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -704,7 +706,11 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCreateImagePipeSurfaceFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCreateMetalSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetBufferDeviceAddressEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(const uint8_t* parameter_buffer, size_t buffer_size);
 };
 
 GFXRECON_END_NAMESPACE(decode)
