@@ -19,6 +19,7 @@
 
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_table.h"
+#include "encode/vulkan_state_tracker_initializers.h"
 #include "format/format.h"
 #include "format/format_util.h"
 #include "util/defines.h"
@@ -56,13 +57,13 @@ class VulkanStateTracker
         {
             Wrapper* wrapper = new Wrapper;
             wrapper->handle  = (*new_handle);
-            vulkan_state_tracker::InitializeState<Wrapper, CreateInfo>(
-                wrapper, create_info, create_call_id, create_parameters, &state_table_);
 
             {
                 std::unique_lock<std::mutex> lock(mutex_);
 
                 wrapper->handle_id = ++object_count_;
+                vulkan_state_tracker::InitializeState<Wrapper, CreateInfo>(
+                    wrapper, create_info, create_call_id, create_parameters, &state_table_);
 
                 // Attempts to add a new entry to the table. Operation will fail for duplicate handles.
                 // TODO: Handle wrapping will introduce a unique ID that eliminates duplicates.
@@ -92,25 +93,6 @@ class VulkanStateTracker
         {
             GFXRECON_LOG_WARNING("Attempting to remove entry from state tracker for object that is not being tracked");
         }
-    }
-
-  private:
-    template <typename Wrapper, typename CreateInfo>
-    void InitializeState(Wrapper*                        wrapper,
-                         const CreateInfo*               create_info,
-                         format::ApiCallId               create_call_id,
-                         const util::MemoryOutputStream* create_parameters,
-                         VulkanStateTable*               state_table)
-    {
-        assert(wrapper != nullptr);
-        assert(create_parameters != nullptr);
-
-        GFXRECON_UNREFERENCED_PARAMETER(state_table);
-        GFXRECON_UNREFERENCED_PARAMETER(create_info);
-
-        wrapper->create_call_id = create_call_id;
-        wrapper->create_parameters =
-            std::make_shared<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
     }
 
   private:

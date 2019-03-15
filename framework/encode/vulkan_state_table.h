@@ -114,6 +114,46 @@ class VulkanStateTable
     void RemoveWrapper(format::HandleId id, AccelerationStructureNVWrapper** result)    { assert(result); (*result) = RemoveEntry(id, acceleration_structure_nv_map_); }
     // clang-format on
 
+    //
+    // Helper functions for state initialization.
+    //
+
+    CommandPoolWrapper* GetCommandPoolWrapper(format::HandleId id) const
+    {
+        auto entry = command_pool_map_.find(id);
+        return (entry != command_pool_map_.end()) ? entry->second : nullptr;
+    }
+
+    DescriptorPoolWrapper* GetDescriptorPoolWrapper(format::HandleId id) const
+    {
+        auto entry = descriptor_pool_map_.find(id);
+        return (entry != descriptor_pool_map_.end()) ? entry->second : nullptr;
+    }
+
+    DescriptorSetLayoutWrapper* GetDescriptorSetLayoutWrapper(format::HandleId id) const
+    {
+        auto entry = descriptor_set_layout_map_.find(id);
+        return (entry != descriptor_set_layout_map_.end()) ? entry->second : nullptr;
+    }
+
+    PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) const
+    {
+        auto entry = pipeline_layout_map_.find(id);
+        return (entry != pipeline_layout_map_.end()) ? entry->second : nullptr;
+    }
+
+    RenderPassWrapper* GetRenderPassWrapper(format::HandleId id) const
+    {
+        auto entry = render_pass_map_.find(id);
+        return (entry != render_pass_map_.end()) ? entry->second : nullptr;
+    }
+
+    ShaderModuleWrapper* GetShaderModuleWrapper(format::HandleId id) const
+    {
+        auto entry = shader_module_map_.find(id);
+        return (entry != shader_module_map_.end()) ? entry->second : nullptr;
+    }
+
   private:
     template <typename T>
     bool InsertEntry(format::HandleId id, T* wrapper, std::unordered_map<format::HandleId, T*>& map)
