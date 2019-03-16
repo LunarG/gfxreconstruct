@@ -18,6 +18,7 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_handle_wrappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_tracker.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_tracker.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
