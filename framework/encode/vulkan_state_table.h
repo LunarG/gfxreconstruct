@@ -24,6 +24,7 @@
 #include "vulkan/vulkan.h"
 
 #include <cassert>
+#include <functional>
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -112,6 +113,44 @@ class VulkanStateTable
     void RemoveWrapper(format::HandleId id, DebugUtilsMessengerEXTWrapper** result)     { assert(result); (*result) = RemoveEntry(id, debug_utils_messenger_ext_map_); }
     void RemoveWrapper(format::HandleId id, ValidationCacheEXTWrapper** result)         { assert(result); (*result) = RemoveEntry(id, validation_cache_ext_map_); }
     void RemoveWrapper(format::HandleId id, AccelerationStructureNVWrapper** result)    { assert(result); (*result) = RemoveEntry(id, acceleration_structure_nv_map_); }
+
+    void VisitWrappers(std::function<void(InstanceWrapper*)> visitor)                    { for (auto entry : instance_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(PhysicalDeviceWrapper*)> visitor)              { for (auto entry : physical_device_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(DeviceWrapper*)> visitor)                      { for (auto entry : device_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(QueueWrapper*)> visitor)                       { for (auto entry : queue_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(SemaphoreWrapper*)> visitor)                   { for (auto entry : semaphore_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(CommandBufferWrapper*)> visitor)               { for (auto entry : command_buffer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(FenceWrapper*)> visitor)                       { for (auto entry : fence_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(DeviceMemoryWrapper*)> visitor)                { for (auto entry : device_memory_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(BufferWrapper*)> visitor)                      { for (auto entry : buffer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ImageWrapper*)> visitor)                       { for (auto entry : image_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(EventWrapper*)> visitor)                       { for (auto entry : event_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(QueryPoolWrapper*)> visitor)                   { for (auto entry : query_pool_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(BufferViewWrapper*)> visitor)                  { for (auto entry : buffer_view_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ImageViewWrapper*)> visitor)                   { for (auto entry : image_view_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ShaderModuleWrapper*)> visitor)                { for (auto entry : shader_module_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(PipelineCacheWrapper*)> visitor)               { for (auto entry : pipeline_cache_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(PipelineLayoutWrapper*)> visitor)              { for (auto entry : pipeline_layout_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(RenderPassWrapper*)> visitor)                  { for (auto entry : render_pass_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(PipelineWrapper*)> visitor)                    { for (auto entry : pipeline_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(DescriptorSetLayoutWrapper*)> visitor)         { for (auto entry : descriptor_set_layout_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(SamplerWrapper*)> visitor)                     { for (auto entry : sampler_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(DescriptorPoolWrapper*)> visitor)              { for (auto entry : descriptor_pool_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(DescriptorSetWrapper*)> visitor)               { for (auto entry : descriptor_set_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(FramebufferWrapper*)> visitor)                 { for (auto entry : framebuffer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(CommandPoolWrapper*)> visitor)                 { for (auto entry : command_pool_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(SamplerYcbcrConversionWrapper*)> visitor)      { for (auto entry : sampler_ycbcr_conversion_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(DescriptorUpdateTemplateWrapper*)> visitor)    { for (auto entry : descriptor_update_template_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(SurfaceKHRWrapper*)> visitor)                  { for (auto entry : surface_khr_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(SwapchainKHRWrapper*)> visitor)                { for (auto entry : swapchain_khr_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(DisplayKHRWrapper*)> visitor)                  { for (auto entry : display_khr_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(DisplayModeKHRWrapper*)> visitor)              { for (auto entry : display_mode_khr_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(DebugReportCallbackEXTWrapper*)> visitor)      { for (auto entry : debug_report_callback_ext_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ObjectTableNVXWrapper*)> visitor)              { for (auto entry : object_table_nvx_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(IndirectCommandsLayoutNVXWrapper*)> visitor)   { for (auto entry : indirect_commands_layout_nvx_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(DebugUtilsMessengerEXTWrapper*)> visitor)      { for (auto entry : debug_utils_messenger_ext_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(ValidationCacheEXTWrapper*)> visitor)          { for (auto entry : validation_cache_ext_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(AccelerationStructureNVWrapper*)> visitor)     { for (auto entry : acceleration_structure_nv_map_) { visitor(entry.second); } }
     // clang-format on
 
     //

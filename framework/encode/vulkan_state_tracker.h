@@ -22,7 +22,9 @@
 #include "encode/vulkan_state_tracker_initializers.h"
 #include "format/format.h"
 #include "format/format_util.h"
+#include "util/compressor.h"
 #include "util/defines.h"
+#include "util/file_output_stream.h"
 #include "util/logging.h"
 #include "util/memory_output_stream.h"
 
@@ -31,6 +33,7 @@
 #include <cassert>
 #include <mutex>
 #include <unordered_map>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -38,9 +41,13 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class VulkanStateTracker
 {
   public:
-    VulkanStateTracker() : object_count_(0) {}
+    VulkanStateTracker();
 
-    ~VulkanStateTracker() {}
+    ~VulkanStateTracker();
+
+    // Returns number of bytes written to the output_stream.
+    uint64_t
+    WriteState(util::FileOutputStream* output_stream, format::ThreadId thread_id, util::Compressor* compressor);
 
     template <typename Wrapper, typename CreateInfo>
     void AddEntry(typename Wrapper::HandleType*   new_handle,
@@ -145,6 +152,34 @@ class VulkanStateTracker
         {
             GFXRECON_LOG_WARNING("Attempting to remove entry from state tracker for object that is not being tracked");
         }
+    }
+
+  private:
+    uint64_t WriteFunctionCall(util::FileOutputStream*   output_stream,
+                               format::ThreadId          thread_id,
+                               format::ApiCallId         call_id,
+                               util::MemoryOutputStream* parameter_buffer,
+                               util::Compressor*         compressor,
+                               std::vector<uint8_t>*     compressed_parameter_buffer);
+
+    template <typename Wrapper>
+    uint64_t StandardCreateWrite(util::FileOutputStream* output_stream,
+                                 format::ThreadId        thread_id,
+                                 util::Compressor*       compressor,
+                                 std::vector<uint8_t>*   compressed_parameter_buffer)
+    {
+        uint64_t bytes_written = 0;
+
+        state_table_.VisitWrappers([=, &bytes_written](Wrapper* wrapper) {
+            bytes_written += WriteFunctionCall(output_stream,
+                                               thread_id,
+                                               wrapper->create_call_id,
+                                               wrapper->create_parameters.get(),
+                                               compressor,
+                                               compressed_parameter_buffer);
+        });
+
+        return bytes_written;
     }
 
   private:
