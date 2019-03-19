@@ -32,7 +32,6 @@
 
 #include <cassert>
 #include <mutex>
-#include <unordered_map>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -155,6 +154,19 @@ class VulkanStateTracker
     }
 
   private:
+    uint64_t WritePipelineState(util::FileOutputStream* output_stream,
+                                format::ThreadId        thread_id,
+                                util::Compressor*       compressor,
+                                std::vector<uint8_t>*   compressed_parameter_buffer);
+
+    uint64_t DestroyTemporaryDeviceObject(util::FileOutputStream*   output_stream,
+                                          format::ThreadId          thread_id,
+                                          format::ApiCallId         call_id,
+                                          format::HandleId          handle,
+                                          util::MemoryOutputStream* create_parameters,
+                                          util::Compressor*         compressor,
+                                          std::vector<uint8_t>*     compressed_parameter_buffer);
+
     uint64_t WriteFunctionCall(util::FileOutputStream*   output_stream,
                                format::ThreadId          thread_id,
                                format::ApiCallId         call_id,

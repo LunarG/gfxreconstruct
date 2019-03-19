@@ -16,6 +16,12 @@
 
 #include "encode/vulkan_state_tracker.h"
 
+#include "encode/parameter_encoder.h"
+#include "encode/struct_pointer_encoder.h"
+
+#include <set>
+#include <unordered_map>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -81,7 +87,7 @@ uint64_t VulkanStateTracker::WriteState(util::FileOutputStream* output_stream,
     bytes_written += StandardCreateWrite<DescriptorSetLayoutWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<PipelineLayoutWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<PipelineCacheWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
-    bytes_written += StandardCreateWrite<PipelineWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
+    bytes_written += WritePipelineState(output_stream, thread_id, compressor, &compressed_parameter_buffer);
 
     // Descriptor creation.
     bytes_written += StandardCreateWrite<DescriptorPoolWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
@@ -91,6 +97,242 @@ uint64_t VulkanStateTracker::WriteState(util::FileOutputStream* output_stream,
     // clang-format on
 
     return bytes_written;
+}
+
+uint64_t VulkanStateTracker::WritePipelineState(util::FileOutputStream* output_stream,
+                                                format::ThreadId        thread_id,
+                                                util::Compressor*       compressor,
+                                                std::vector<uint8_t>*   compressed_parameter_buffer)
+{
+    uint64_t bytes_written = 0;
+
+    // Multiple pipelines can be created by a single API call, so using a set to filter duplicate pipeline creation.
+    // TODO: Some of the pipelines created may have been destroyed, in which case, the current design can create more
+    // pipelines than it should, resulting in object leaks or the overwriting of recycled handles.
+    std::set<CreateParameters> graphics_pipelines;
+    std::set<CreateParameters> compute_pipelines;
+    std::set<CreateParameters> ray_tracing_pipelines;
+
+    std::unordered_map<format::HandleId, const ShaderModuleInfo*>        temp_shaders;
+    std::unordered_map<format::HandleId, const PipelineWrapper*>         temp_render_passes;
+    std::unordered_map<format::HandleId, const PipelineWrapper*>         temp_layouts;
+    std::unordered_map<format::HandleId, const DescriptorSetLayoutInfo*> temp_ds_layouts;
+
+    // First pass over pipeline table to sort pipelines by type and determine which dependencies need to be created
+    // temporarily.
+    state_table_.VisitWrappers([&](PipelineWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Determine type of pipeline.
+        if (wrapper->create_call_id == format::ApiCall_vkCreateGraphicsPipelines)
+        {
+            graphics_pipelines.insert(wrapper->create_parameters);
+        }
+        else if (wrapper->create_call_id == format::ApiCall_vkCreateComputePipelines)
+        {
+            compute_pipelines.insert(wrapper->create_parameters);
+        }
+        else if (wrapper->create_call_id == format::ApiCall_vkCreateRayTracingPipelinesNV)
+        {
+            ray_tracing_pipelines.insert(wrapper->create_parameters);
+        }
+
+        // Check for creation dependencies that no longer exist.
+        for (const auto& entry : wrapper->shader_modules)
+        {
+            ShaderModuleWrapper* shader_wrapper = state_table_.GetShaderModuleWrapper(format::ToHandleId(entry.handle));
+            if ((shader_wrapper == nullptr) || (shader_wrapper->handle_id != entry.handle_id))
+            {
+                // Either the handle does not exist, or it has been recycled and now references a different object.
+                const auto& inserted = temp_shaders.insert(std::make_pair(entry.handle_id, &entry));
+
+                // Create a temporary object on first encounter.
+                if (inserted.second)
+                {
+                    bytes_written += WriteFunctionCall(output_stream,
+                                                       thread_id,
+                                                       entry.create_call_id,
+                                                       entry.create_parameters.get(),
+                                                       compressor,
+                                                       compressed_parameter_buffer);
+                }
+            }
+        }
+
+        RenderPassWrapper* render_pass_wrapper =
+            state_table_.GetRenderPassWrapper(format::ToHandleId(wrapper->render_pass));
+        if ((render_pass_wrapper == nullptr) || (render_pass_wrapper->handle_id != wrapper->render_pass_id))
+        {
+            // Either the handle does not exist, or it has been recycled and now references a different object.
+            const auto& inserted = temp_render_passes.insert(std::make_pair(wrapper->render_pass_id, wrapper));
+
+            // Create a temporary object on first encounter.
+            if (inserted.second)
+            {
+                bytes_written += WriteFunctionCall(output_stream,
+                                                   thread_id,
+                                                   wrapper->render_pass_create_call_id,
+                                                   wrapper->render_pass_create_parameters.get(),
+                                                   compressor,
+                                                   compressed_parameter_buffer);
+            }
+        }
+
+        PipelineLayoutWrapper* layout_wrapper =
+            state_table_.GetPipelineLayoutWrapper(format::ToHandleId(wrapper->layout));
+        if ((layout_wrapper == nullptr) || (layout_wrapper->handle_id != wrapper->layout_id))
+        {
+            // Either the handle does not exist, or it has been recycled and now references a different object.
+            const auto& inserted = temp_layouts.insert(std::make_pair(wrapper->layout_id, wrapper));
+
+            // Create a temporary object on first encounter.
+            if (inserted.second)
+            {
+                // Check descriptor set layout dependencies.
+                auto deps = wrapper->layout_dependencies;
+                for (const auto& entry : deps->layouts)
+                {
+                    DescriptorSetLayoutWrapper* ds_layout_wrapper =
+                        state_table_.GetDescriptorSetLayoutWrapper(format::ToHandleId(entry.handle));
+                    if ((ds_layout_wrapper == nullptr) || (ds_layout_wrapper->handle_id != entry.handle_id))
+                    {
+                        const auto& inserted = temp_ds_layouts.insert(std::make_pair(entry.handle_id, &entry));
+
+                        // Create a temporary object on first encounter.
+                        if (inserted.second)
+                        {
+                            bytes_written += WriteFunctionCall(output_stream,
+                                                               thread_id,
+                                                               entry.create_call_id,
+                                                               entry.create_parameters.get(),
+                                                               compressor,
+                                                               compressed_parameter_buffer);
+                        }
+                    }
+                }
+
+                bytes_written += WriteFunctionCall(output_stream,
+                                                   thread_id,
+                                                   wrapper->layout_create_call_id,
+                                                   wrapper->layout_create_parameters.get(),
+                                                   compressor,
+                                                   compressed_parameter_buffer);
+            }
+        }
+    });
+
+    // Pipeline object creation.
+    for (const auto& entry : graphics_pipelines)
+    {
+        bytes_written += WriteFunctionCall(output_stream,
+                                           thread_id,
+                                           format::ApiCall_vkCreateGraphicsPipelines,
+                                           entry.get(),
+                                           compressor,
+                                           compressed_parameter_buffer);
+    }
+
+    for (const auto& entry : compute_pipelines)
+    {
+        bytes_written += WriteFunctionCall(output_stream,
+                                           thread_id,
+                                           format::ApiCall_vkCreateComputePipelines,
+                                           entry.get(),
+                                           compressor,
+                                           compressed_parameter_buffer);
+    }
+
+    for (const auto& entry : compute_pipelines)
+    {
+        bytes_written += WriteFunctionCall(output_stream,
+                                           thread_id,
+                                           format::ApiCall_vkCreateRayTracingPipelinesNV,
+                                           entry.get(),
+                                           compressor,
+                                           compressed_parameter_buffer);
+    }
+
+    // Temporary object destruction.
+    for (const auto& entry : temp_shaders)
+    {
+        const ShaderModuleInfo* info = entry.second;
+        assert(info != nullptr);
+        bytes_written += DestroyTemporaryDeviceObject(output_stream,
+                                                      thread_id,
+                                                      format::ApiCall_vkDestroyShaderModule,
+                                                      format::ToHandleId(info->handle),
+                                                      info->create_parameters.get(),
+                                                      compressor,
+                                                      compressed_parameter_buffer);
+    }
+
+    for (const auto& entry : temp_render_passes)
+    {
+        const PipelineWrapper* info = entry.second;
+        assert(info != nullptr);
+        bytes_written += DestroyTemporaryDeviceObject(output_stream,
+                                                      thread_id,
+                                                      format::ApiCall_vkDestroyRenderPass,
+                                                      format::ToHandleId(info->render_pass),
+                                                      info->create_parameters.get(),
+                                                      compressor,
+                                                      compressed_parameter_buffer);
+    }
+
+    for (const auto& entry : temp_ds_layouts)
+    {
+        const DescriptorSetLayoutInfo* info = entry.second;
+        assert(info != nullptr);
+        bytes_written += DestroyTemporaryDeviceObject(output_stream,
+                                                      thread_id,
+                                                      format::ApiCall_vkDestroyDescriptorSetLayout,
+                                                      format::ToHandleId(info->handle),
+                                                      info->create_parameters.get(),
+                                                      compressor,
+                                                      compressed_parameter_buffer);
+    }
+
+    for (const auto& entry : temp_layouts)
+    {
+        const PipelineWrapper* info = entry.second;
+        assert(info != nullptr);
+        bytes_written += DestroyTemporaryDeviceObject(output_stream,
+                                                      thread_id,
+                                                      format::ApiCall_vkDestroyPipelineLayout,
+                                                      format::ToHandleId(info->layout),
+                                                      info->create_parameters.get(),
+                                                      compressor,
+                                                      compressed_parameter_buffer);
+    }
+
+    return bytes_written;
+}
+
+uint64_t VulkanStateTracker::DestroyTemporaryDeviceObject(util::FileOutputStream*   output_stream,
+                                                          format::ThreadId          thread_id,
+                                                          format::ApiCallId         call_id,
+                                                          format::HandleId          handle,
+                                                          util::MemoryOutputStream* create_parameters,
+                                                          util::Compressor*         compressor,
+                                                          std::vector<uint8_t>*     compressed_parameter_buffer)
+{
+    // TODO: Create one encoder/stream to reuse.
+    util::MemoryOutputStream parameter_stream;
+    ParameterEncoder         encoder(&parameter_stream);
+
+    // Extract device from create parameter buffer.
+    // TODO: Device children will be stored in the device wrapper, and device handle will be directly available when
+    // processing children (no need to extract).
+    format::HandleId device = *reinterpret_cast<const format::HandleId*>(create_parameters->GetData());
+    // TODO: Track allocation callbacks.
+    const VkAllocationCallbacks* allocator = nullptr;
+
+    encoder.EncodeHandleIdValue(device);
+    encoder.EncodeHandleIdValue(handle);
+    EncodeStructPtr(&encoder, allocator);
+
+    return WriteFunctionCall(
+        output_stream, thread_id, call_id, &parameter_stream, compressor, compressed_parameter_buffer);
 }
 
 uint64_t VulkanStateTracker::WriteFunctionCall(util::FileOutputStream*   output_stream,
