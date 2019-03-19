@@ -85,7 +85,7 @@ uint64_t VulkanStateTracker::WriteState(util::FileOutputStream* output_stream,
     bytes_written += StandardCreateWrite<FramebufferWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<ShaderModuleWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<DescriptorSetLayoutWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
-    bytes_written += StandardCreateWrite<PipelineLayoutWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
+    bytes_written += WritePipelineLayoutState(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<PipelineCacheWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += WritePipelineState(output_stream, thread_id, compressor, &compressed_parameter_buffer);
 
@@ -95,6 +95,69 @@ uint64_t VulkanStateTracker::WriteState(util::FileOutputStream* output_stream,
     bytes_written += StandardCreateWrite<DescriptorSetWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
 
     // clang-format on
+
+    return bytes_written;
+}
+
+uint64_t VulkanStateTracker::WritePipelineLayoutState(util::FileOutputStream* output_stream,
+                                                      format::ThreadId        thread_id,
+                                                      util::Compressor*       compressor,
+                                                      std::vector<uint8_t>*   compressed_parameter_buffer)
+{
+    uint64_t bytes_written = 0;
+
+    // TODO: Temporary ds layouts are potentially created and destroyed by both WritePipelineLayoutState and
+    // WritePipelineState; track temporary creation across calls to avoid duplicate temporary allocations.
+    std::unordered_map<format::HandleId, const DescriptorSetLayoutInfo*> temp_ds_layouts;
+
+    // Perform temporary creations for dependencies that are no longer live, and create the pipeline layout.
+    state_table_.VisitWrappers([&](PipelineLayoutWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Check descriptor set layout dependencies.
+        auto deps = wrapper->layout_dependencies;
+        for (const auto& entry : deps->layouts)
+        {
+            DescriptorSetLayoutWrapper* ds_layout_wrapper =
+                state_table_.GetDescriptorSetLayoutWrapper(format::ToHandleId(entry.handle));
+            if ((ds_layout_wrapper == nullptr) || (ds_layout_wrapper->handle_id != entry.handle_id))
+            {
+                const auto& inserted = temp_ds_layouts.insert(std::make_pair(entry.handle_id, &entry));
+
+                // Create a temporary object on first encounter.
+                if (inserted.second)
+                {
+                    bytes_written += WriteFunctionCall(output_stream,
+                                                       thread_id,
+                                                       entry.create_call_id,
+                                                       entry.create_parameters.get(),
+                                                       compressor,
+                                                       compressed_parameter_buffer);
+                }
+            }
+        }
+
+        bytes_written += WriteFunctionCall(output_stream,
+                                           thread_id,
+                                           wrapper->create_call_id,
+                                           wrapper->create_parameters.get(),
+                                           compressor,
+                                           compressed_parameter_buffer);
+    });
+
+    // Destroy any temporary resources that were created.
+    for (const auto& entry : temp_ds_layouts)
+    {
+        const DescriptorSetLayoutInfo* info = entry.second;
+        assert(info != nullptr);
+        bytes_written += DestroyTemporaryDeviceObject(output_stream,
+                                                      thread_id,
+                                                      format::ApiCall_vkDestroyDescriptorSetLayout,
+                                                      format::ToHandleId(info->handle),
+                                                      info->create_parameters.get(),
+                                                      compressor,
+                                                      compressed_parameter_buffer);
+    }
 
     return bytes_written;
 }
