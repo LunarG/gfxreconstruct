@@ -191,6 +191,8 @@ class TraceManager
 
     void EndApiCallTrace(ParameterEncoder* encoder);
 
+    void EndFrame();
+
     void WriteDisplayMessageCmd(const char* message);
 
     bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
@@ -258,16 +260,18 @@ class TraceManager
 
     ~TraceManager();
 
-    bool Initialize(std::string filename, const CaptureSettings::TraceSettings& trace_settings);
+    bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
 
   private:
-    enum Mode : uint32_t
+    enum CaptureModeFlags : uint32_t
     {
         kModeDisabled      = 0x0,
         kModeWrite         = 0x01,
         kModeTrack         = 0x02,
         kModeWriteAndTrack = (kModeWrite | kModeTrack)
     };
+
+    typedef uint32_t CaptureMode;
 
     class ThreadData
     {
@@ -304,6 +308,7 @@ class TraceManager
         return thread_data_.get();
     }
 
+    bool CreateCaptureFile();
     void WriteFileHeader();
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
                          std::vector<format::FileOptionPair>* option_list);
@@ -327,8 +332,9 @@ class TraceManager
     std::unordered_map<DispatchKey, DeviceTable>    device_tables_;
     format::EnabledOptions                          file_options_;
     std::unique_ptr<util::FileOutputStream>         file_stream_;
-    std::string                                     filename_;
+    std::string                                     base_filename_;
     std::mutex                                      file_lock_;
+    bool                                            timestamp_filename_;
     bool                                            force_file_flush_;
     uint64_t                                        bytes_written_;
     std::unique_ptr<util::Compressor>               compressor_;
@@ -337,8 +343,12 @@ class TraceManager
     mutable std::mutex                              memory_tracker_lock_;
     UpdateTemplateMap                               update_template_map_;
     mutable std::mutex                              update_template_map_lock_;
+    bool                                            trim_enabled_;
+    std::vector<CaptureSettings::TrimRange>         trim_ranges_;
+    size_t                                          trim_current_range_;
+    uint32_t                                        current_frame_;
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
-    Mode                                            capture_mode_;
+    CaptureMode                                     capture_mode_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

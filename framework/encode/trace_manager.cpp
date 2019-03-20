@@ -32,6 +32,9 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 // Default log level to use prior to loading settings.
 const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
 
+// One based frame count.
+const uint32_t kFirstFrame = 1;
+
 std::mutex                                     TraceManager::ThreadData::count_lock_;
 format::ThreadId                               TraceManager::ThreadData::thread_count_ = 0;
 std::unordered_map<uint64_t, format::ThreadId> TraceManager::ThreadData::id_map_;
@@ -70,8 +73,9 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
 }
 
 TraceManager::TraceManager() :
-    force_file_flush_(false), bytes_written_(0), memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard),
-    capture_mode_(kModeWrite)
+    force_file_flush_(false), bytes_written_(0), timestamp_filename_(true),
+    memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), trim_enabled_(false),
+    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite)
 {}
 
 TraceManager::~TraceManager()
@@ -81,7 +85,6 @@ TraceManager::~TraceManager()
         util::PageGuardManager::Destroy();
     }
 }
-
 
 void TraceManager::SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device)
 {
@@ -111,18 +114,13 @@ bool TraceManager::CreateInstance()
         util::Log::Init(log_settings);
 
         CaptureSettings::TraceSettings trace_settings = settings.GetTraceSettings();
-        std::string                    filename       = trace_settings.capture_file;
-        if (trace_settings.time_stamp_file)
-        {
-            filename = util::filepath::GenerateTimestampedFilename(filename);
-        }
+        std::string                    base_filename  = trace_settings.capture_file;
 
         instance_ = new TraceManager();
-        success   = instance_->Initialize(filename, trace_settings);
+        success   = instance_->Initialize(base_filename, trace_settings);
         if (success)
         {
-            GFXRECON_LOG_INFO("Recording graphics API capture to %s", filename.c_str());
-            ++instance_count_;
+            instance_count_ = 1;
         }
         else
         {
@@ -196,22 +194,44 @@ const encode::DeviceTable* TraceManager::GetDeviceTable(const void* handle) cons
     return (table != device_tables_.end()) ? &table->second : nullptr;
 }
 
-bool TraceManager::Initialize(std::string filename, const CaptureSettings::TraceSettings& trace_settings)
+bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
 {
-    bool success = false;
+    bool success = true;
 
-    filename_             = filename;
+    base_filename_        = base_filename;
     file_options_         = trace_settings.capture_file_options;
+    timestamp_filename_   = trace_settings.time_stamp_file;
     memory_tracking_mode_ = trace_settings.memory_tracking_mode;
     force_file_flush_     = trace_settings.force_flush;
 
-    file_stream_ = std::make_unique<util::FileOutputStream>(filename_);
-
-    if (file_stream_->IsValid())
+    if (!trace_settings.trim_ranges.empty())
     {
-        success        = true;
-        bytes_written_ = 0;
-        WriteFileHeader();
+        trim_enabled_ = true;
+        trim_ranges_  = trace_settings.trim_ranges;
+
+        // Determine if trim starts at the first frame.
+        if (trim_ranges_[0].first == current_frame_)
+        {
+            // When capturing from the first frame, state tracking only needs to be enabled if there is more than one
+            // capture range.
+            if (trim_ranges_.size() == 1)
+            {
+                capture_mode_ = kModeWrite;
+            }
+            else
+            {
+                capture_mode_ = kModeWriteAndTrack;
+            }
+        }
+        else
+        {
+            capture_mode_ = kModeTrack;
+        }
+    }
+
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        success = CreateCaptureFile();
     }
 
     if (success)
@@ -338,6 +358,84 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
     }
 }
 
+void TraceManager::EndFrame()
+{
+    if (trim_enabled_)
+    {
+        ++current_frame_;
+
+        if ((capture_mode_ & kModeWrite) != kModeWrite)
+        {
+            // Capture is not active. Check for start of capture frame range.
+            if (trim_ranges_[trim_current_range_].first == current_frame_)
+            {
+                bool success = CreateCaptureFile();
+                if (success)
+                {
+                    capture_mode_ |= kModeWrite;
+
+                    auto thread_data = GetThreadData();
+                    assert(thread_data != nullptr);
+                    state_tracker_->WriteState(file_stream_.get(), thread_data->thread_id_, compressor_.get());
+                }
+                else
+                {
+                    GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
+                    capture_mode_ = kModeDisabled;
+                }
+            }
+        }
+        else
+        {
+            // Currently capture a frame range. Check for end of range.
+            --trim_ranges_[trim_current_range_].total;
+            if (trim_ranges_[trim_current_range_].total == 0)
+            {
+                // Stop recording and close file.
+                capture_mode_ &= ~kModeWrite;
+                file_stream_ = nullptr;
+
+                // Advance to next range
+                ++trim_current_range_;
+                if (trim_current_range_ >= trim_ranges_.size())
+                {
+                    // No more frames to capture. Capture can be disabled and resources can be released.
+                    trim_enabled_  = false;
+                    capture_mode_  = kModeDisabled;
+                    state_tracker_ = nullptr;
+                    compressor_    = nullptr;
+                }
+            }
+        }
+    }
+}
+
+bool TraceManager::CreateCaptureFile()
+{
+    bool        success  = true;
+    std::string filename = base_filename_;
+
+    if (timestamp_filename_)
+    {
+        filename = util::filepath::GenerateTimestampedFilename(filename);
+    }
+
+    file_stream_ = std::make_unique<util::FileOutputStream>(filename);
+
+    if (file_stream_->IsValid())
+    {
+        GFXRECON_LOG_INFO("Recording graphics API capture to %s", filename.c_str());
+        WriteFileHeader();
+    }
+    else
+    {
+        file_stream_ = nullptr;
+        success      = false;
+    }
+
+    return success;
+}
+
 void TraceManager::WriteFileHeader()
 {
     std::vector<format::FileOptionPair> option_list;
@@ -364,86 +462,95 @@ void TraceManager::BuildOptionList(const format::EnabledOptions&        enabled_
 
 void TraceManager::WriteDisplayMessageCmd(const char* message)
 {
-    size_t                              message_length = util::platform::StringLength(message);
-    format::DisplayMessageCommandHeader message_cmd;
-
-    message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    message_cmd.meta_header.block_header.size =
-        sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.thread_id) + message_length;
-    message_cmd.meta_header.meta_data_type = format::MetaDataType::kDisplayMessageCommand;
-    message_cmd.thread_id                  = GetThreadData()->thread_id_;
-
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        std::lock_guard<std::mutex> lock(file_lock_);
+        size_t                              message_length = util::platform::StringLength(message);
+        format::DisplayMessageCommandHeader message_cmd;
 
-        bytes_written_ += file_stream_->Write(&message_cmd, sizeof(message_cmd));
-        bytes_written_ += file_stream_->Write(message, message_length);
+        message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        message_cmd.meta_header.block_header.size =
+            sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.thread_id) + message_length;
+        message_cmd.meta_header.meta_data_type = format::MetaDataType::kDisplayMessageCommand;
+        message_cmd.thread_id                  = GetThreadData()->thread_id_;
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&message_cmd, sizeof(message_cmd));
+            bytes_written_ += file_stream_->Write(message, message_length);
+        }
     }
 }
 
 void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height)
 {
-    format::ResizeWindowCommand resize_cmd;
-    resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
-                                               sizeof(resize_cmd.thread_id) + sizeof(resize_cmd.surface_id) +
-                                               sizeof(resize_cmd.width) + sizeof(resize_cmd.height);
-    resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
-    resize_cmd.thread_id                  = GetThreadData()->thread_id_;
-
-    resize_cmd.surface_id = format::ToHandleId(surface);
-    resize_cmd.width      = width;
-    resize_cmd.height     = height;
-
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        std::lock_guard<std::mutex> lock(file_lock_);
-        bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+        format::ResizeWindowCommand resize_cmd;
+        resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
+                                                   sizeof(resize_cmd.thread_id) + sizeof(resize_cmd.surface_id) +
+                                                   sizeof(resize_cmd.width) + sizeof(resize_cmd.height);
+        resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
+        resize_cmd.thread_id                  = GetThreadData()->thread_id_;
+
+        resize_cmd.surface_id = format::ToHandleId(surface);
+        resize_cmd.width      = width;
+        resize_cmd.height     = height;
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+            bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+        }
     }
 }
 
 void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data)
 {
-    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-
-    format::FillMemoryCommandHeader fill_cmd;
-    const uint8_t*                  write_address = (static_cast<const uint8_t*>(data) + offset);
-    size_t                          write_size    = static_cast<size_t>(size);
-
-    fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
-    fill_cmd.thread_id                     = GetThreadData()->thread_id_;
-    fill_cmd.memory_id                     = format::ToHandleId(memory);
-    fill_cmd.memory_offset                 = offset;
-    fill_cmd.memory_size                   = size;
-
-    if (compressor_ != nullptr)
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        auto thread_data = GetThreadData();
-        assert(thread_data != nullptr);
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
-        size_t compressed_size = compressor_->Compress(write_size, write_address, &thread_data->compressed_buffer_);
+        format::FillMemoryCommandHeader fill_cmd;
+        const uint8_t*                  write_address = (static_cast<const uint8_t*>(data) + offset);
+        size_t                          write_size    = static_cast<size_t>(size);
 
-        if ((compressed_size > 0) && (compressed_size < write_size))
+        fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
+        fill_cmd.thread_id                     = GetThreadData()->thread_id_;
+        fill_cmd.memory_id                     = format::ToHandleId(memory);
+        fill_cmd.memory_offset                 = offset;
+        fill_cmd.memory_size                   = size;
+
+        if (compressor_ != nullptr)
         {
-            // We don't have a special header for compressed fill commands because the header always includes
-            // the uncompressed size, so we just change the type to indicate the data is compressed.
-            fill_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
 
-            write_address = thread_data->compressed_buffer_.data();
-            write_size    = compressed_size;
+            size_t compressed_size = compressor_->Compress(write_size, write_address, &thread_data->compressed_buffer_);
+
+            if ((compressed_size > 0) && (compressed_size < write_size))
+            {
+                // We don't have a special header for compressed fill commands because the header always includes
+                // the uncompressed size, so we just change the type to indicate the data is compressed.
+                fill_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                write_address = thread_data->compressed_buffer_.data();
+                write_size    = compressed_size;
+            }
         }
-    }
 
-    // Calculate size of packet with compressed or uncompressed data size.
-    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.thread_id) +
-                                             sizeof(fill_cmd.memory_id) + sizeof(fill_cmd.memory_offset) +
-                                             sizeof(fill_cmd.memory_size) + write_size;
+        // Calculate size of packet with compressed or uncompressed data size.
+        fill_cmd.meta_header.block_header.size =
+            sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.thread_id) + sizeof(fill_cmd.memory_id) +
+            sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + write_size;
 
-    {
-        std::lock_guard<std::mutex> lock(file_lock_);
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
 
-        bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
-        bytes_written_ += file_stream_->Write(write_address, write_size);
+            bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
+            bytes_written_ += file_stream_->Write(write_address, write_size);
+        }
     }
 }
 
