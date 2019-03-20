@@ -78,6 +78,17 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>
     }
 };
 
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult, Args...)
+    {
+        // TODO: Skip on failure?
+        manager->EndFrame();
+    }
+};
+
 // Dispatch custom commands for fill memory command generation.
 template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateMemory>
