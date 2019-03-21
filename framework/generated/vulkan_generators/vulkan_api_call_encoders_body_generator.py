@@ -177,7 +177,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def makeParameterEncoding(self, name, values, returnType, indent):
         body = '\n'
-        body += indent + self.makeBeginApiCall(name)
+        body += indent + self.makeBeginApiCall(name, values)
         body += indent + 'if (encoder)\n'
         body += indent + '{\n'
         indent += ' ' * self.INDENT_SIZE
@@ -191,37 +191,49 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             body += indent + '{};\n'.format(methodCall)
 
         # Determine the appropriate end call: Create handle call, destroy handle call, or general call.
-        body += indent + self.makeEndApiCall(name, values)
+        body += indent + self.makeEndApiCall(name, values, returnType)
         indent = indent[0:-self.INDENT_SIZE]
         body += indent + '}\n'
         return body
 
-    def makeBeginApiCall(self, name):
-        if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree'):
+    def makeBeginApiCall(self, name, values):
+        if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree') or self.retrievesHandles(values):
             return 'auto encoder = TraceManager::Get()->BeginCreateDestroyApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
         else:
             return 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
 
-    def makeEndApiCall(self, name, values):
+    def makeEndApiCall(self, name, values, returnType):
         decl = 'TraceManager::Get()->'
 
-        if name.startswith('vkCreate') or name.startswith('vkAllocate'):
+        if name.startswith('vkCreate') or name.startswith('vkAllocate') or self.retrievesHandles(values):
             # The handle is the last parameter.
             handle = values[-1]
 
             #  Search for the create info struct
-            info = None
+            infoBaseType = 'void'
+            infoName = 'nullptr'
             for value in values:
                 if ('CreateInfo' in value.baseType) or ('AllocateInfo' in value.baseType):
-                    info = value
+                    infoBaseType = value.baseType
+                    infoName = value.name
                     # Confirm array counts match
-                    if info.isArray and (handle.arrayLength != info.arrayLength):
-                        print('WARNING: {} has separate array counts for create info structures ({}) and handles ({})'.format(name, info.arrayLength, count))
+                    if value.isArray and (handle.arrayLength != value.arrayLength):
+                        print('WARNING: {} has separate array counts for create info structures ({}) and handles ({})'.format(name, value.arrayLength, count))
+
+            returnValue = 'VK_SUCCESS'
+            if returnType == 'VkResult':
+                returnValue = 'result'
 
             if handle.isArray:
-                decl += 'EndCreateApiCallTrace<{}Wrapper, {}>(result, {}, {}, {}, encoder)'.format(handle.baseType[2:], info.baseType, handle.arrayLength, handle.name, info.name)
+                lengthName = handle.arrayLength
+                for value in values:
+                    if (value.name == lengthName) and value.isPointer:
+                        lengthName = '({name} != nullptr) ? (*{name}) : 0'.format(name=lengthName)
+                        break
+
+                decl += 'EndCreateApiCallTrace<{}Wrapper, {}>({}, {}, {}, {}, encoder)'.format(handle.baseType[2:], infoBaseType, returnValue, lengthName, handle.name, infoName)
             else:
-                decl += 'EndCreateApiCallTrace<{}Wrapper, {}>(result, {}, {}, encoder)'.format(handle.baseType[2:], info.baseType, handle.name, info.name)
+                decl += 'EndCreateApiCallTrace<{}Wrapper, {}>({}, {}, {}, encoder)'.format(handle.baseType[2:], infoBaseType, returnValue, handle.name, infoName)
 
         elif name.startswith('vkDestroy') or name.startswith('vkFree'):
             handle = None
@@ -240,14 +252,21 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, encoder)'.format(handle.baseType[2:], handle.name)
 
         else:
-            if name in ['vkEnumeratePhysicalDevices', 'vkGetPhysicalDeviceDisplayPropertiesKHR', 'vkGetRandROutputDisplayEXT']:
+            if name in ['vkGetPhysicalDeviceDisplayPropertiesKHR']:
                 # TODO: Handle vkEnumeratePhysicalDevices and vkGetPhysicalDeviceDisplayProprtiesKHR
-                print('WARNING: Skipping special case "create" tracking for VkPhysicalDeviceKHR and VkDisplayKHR')
+                print('WARNING: Skipping special case "create" tracking for', name)
 
             decl += 'EndApiCallTrace(encoder)'
 
         decl += ';\n'
         return decl
+
+    # Determine if an API call indirectly creates handles by retrieving them (e.g. vkEnumeratePhysicalDevices, vkGetRandROutputDisplayEXT)
+    def retrievesHandles(self, values):
+        for value in values:
+            if self.isOutputParameter(value, values) and self.isHandle(value.baseType):
+                return True
+        return False
 
     def isOutputParameter(self, value, values):
         # Check for an output pointer/array or an in-out pointer.
