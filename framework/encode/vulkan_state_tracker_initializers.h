@@ -39,11 +39,11 @@ GFXRECON_BEGIN_NAMESPACE(vulkan_state_tracker)
 // scope to meet C++ language requirements for explicit template specialization.
 
 template <typename Wrapper, typename CreateInfo>
-void InitializeState(Wrapper*                        wrapper,
-                     const CreateInfo*               create_info,
-                     format::ApiCallId               create_call_id,
-                     const util::MemoryOutputStream* create_parameters,
-                     VulkanStateTable*               state_table)
+void InitializeState(Wrapper*                wrapper,
+                     const CreateInfo*       create_info,
+                     format::ApiCallId       create_call_id,
+                     CreateParameters        create_parameters,
+                     VulkanStateTable*       state_table)
 {
     assert(wrapper != nullptr);
     assert(create_parameters != nullptr);
@@ -52,8 +52,7 @@ void InitializeState(Wrapper*                        wrapper,
     GFXRECON_UNREFERENCED_PARAMETER(create_info);
 
     wrapper->create_call_id = create_call_id;
-    wrapper->create_parameters =
-        std::make_shared<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
+    wrapper->create_parameters = std::move(create_parameters);
 }
 
 template <>
@@ -61,7 +60,7 @@ inline void
 InitializeState<CommandBufferWrapper, VkCommandBufferAllocateInfo>(CommandBufferWrapper*              wrapper,
                                                                    const VkCommandBufferAllocateInfo* alloc_info,
                                                                    format::ApiCallId                  create_call_id,
-                                                                   const util::MemoryOutputStream*    create_parameters,
+                                                                   CreateParameters                   create_parameters,
                                                                    VulkanStateTable*                  state_table)
 {
     assert(wrapper != nullptr);
@@ -70,8 +69,7 @@ InitializeState<CommandBufferWrapper, VkCommandBufferAllocateInfo>(CommandBuffer
     assert(state_table != nullptr);
 
     wrapper->create_call_id = create_call_id;
-    wrapper->create_parameters =
-        std::make_shared<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
+    wrapper->create_parameters = std::move(create_parameters);
 
     CommandPoolWrapper* pool_wrapper = state_table->GetCommandPoolWrapper(format::ToHandleId(alloc_info->commandPool));
     if (pool_wrapper != nullptr)
@@ -88,7 +86,7 @@ inline void
 InitializeState<PipelineLayoutWrapper, VkPipelineLayoutCreateInfo>(PipelineLayoutWrapper*            wrapper,
                                                                    const VkPipelineLayoutCreateInfo* create_info,
                                                                    format::ApiCallId                 create_call_id,
-                                                                   const util::MemoryOutputStream*   create_parameters,
+                                                                   CreateParameters                  create_parameters,
                                                                    VulkanStateTable*                 state_table)
 {
     assert(wrapper != nullptr);
@@ -97,8 +95,7 @@ InitializeState<PipelineLayoutWrapper, VkPipelineLayoutCreateInfo>(PipelineLayou
     assert(state_table != nullptr);
 
     wrapper->create_call_id = create_call_id;
-    wrapper->create_parameters =
-        std::make_shared<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
+    wrapper->create_parameters = std::move(create_parameters);
 
     std::shared_ptr<PipelineLayoutDependencies> layout_dependencies = std::make_shared<PipelineLayoutDependencies>();
 
@@ -126,7 +123,7 @@ inline void
 InitializeState<PipelineWrapper, VkGraphicsPipelineCreateInfo>(PipelineWrapper*                    wrapper,
                                                                const VkGraphicsPipelineCreateInfo* create_info,
                                                                format::ApiCallId                   create_call_id,
-                                                               const util::MemoryOutputStream*     create_parameters,
+                                                               CreateParameters                    create_parameters,
                                                                VulkanStateTable*                   state_table)
 {
     assert(wrapper != nullptr);
@@ -135,8 +132,7 @@ InitializeState<PipelineWrapper, VkGraphicsPipelineCreateInfo>(PipelineWrapper* 
     assert(state_table != nullptr);
 
     wrapper->create_call_id = create_call_id;
-    wrapper->create_parameters =
-        std::make_shared<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
+    wrapper->create_parameters = std::move(create_parameters);
 
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
     {
@@ -181,7 +177,7 @@ inline void
 InitializeState<PipelineWrapper, VkComputePipelineCreateInfo>(PipelineWrapper*                   wrapper,
                                                               const VkComputePipelineCreateInfo* create_info,
                                                               format::ApiCallId                  create_call_id,
-                                                              const util::MemoryOutputStream*    create_parameters,
+                                                              CreateParameters                   create_parameters,
                                                               VulkanStateTable*                  state_table)
 {
     assert(wrapper != nullptr);
@@ -190,8 +186,7 @@ InitializeState<PipelineWrapper, VkComputePipelineCreateInfo>(PipelineWrapper*  
     assert(state_table != nullptr);
 
     wrapper->create_call_id = create_call_id;
-    wrapper->create_parameters =
-        std::make_shared<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
+    wrapper->create_parameters = std::move(create_parameters);
 
     ShaderModuleWrapper* shader_wrapper =
         state_table->GetShaderModuleWrapper(format::ToHandleId(create_info->stage.module));
@@ -222,9 +217,9 @@ template <>
 inline void
 InitializeState<PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(PipelineWrapper*                        wrapper,
                                                                    const VkRayTracingPipelineCreateInfoNV* create_info,
-                                                                   format::ApiCallId               create_call_id,
-                                                                   const util::MemoryOutputStream* create_parameters,
-                                                                   VulkanStateTable*               state_table)
+                                                                   format::ApiCallId create_call_id,
+                                                                   CreateParameters  create_parameters,
+                                                                   VulkanStateTable* state_table)
 {
     assert(wrapper != nullptr);
     assert((create_info != nullptr) && (create_info->pStages != nullptr));
@@ -232,8 +227,7 @@ InitializeState<PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(PipelineWrapp
     assert(state_table != nullptr);
 
     wrapper->create_call_id = create_call_id;
-    wrapper->create_parameters =
-        std::make_shared<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
+    wrapper->create_parameters = std::move(create_parameters);
 
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
     {
@@ -268,7 +262,7 @@ inline void
 InitializeState<DescriptorSetWrapper, VkDescriptorSetAllocateInfo>(DescriptorSetWrapper*              wrapper,
                                                                    const VkDescriptorSetAllocateInfo* alloc_info,
                                                                    format::ApiCallId                  create_call_id,
-                                                                   const util::MemoryOutputStream*    create_parameters,
+                                                                   CreateParameters                   create_parameters,
                                                                    VulkanStateTable*                  state_table)
 {
     assert(state_table != nullptr);
@@ -277,8 +271,7 @@ InitializeState<DescriptorSetWrapper, VkDescriptorSetAllocateInfo>(DescriptorSet
     assert(create_parameters != nullptr);
 
     wrapper->create_call_id = create_call_id;
-    wrapper->create_parameters =
-        std::make_shared<util::MemoryOutputStream>(create_parameters->GetData(), create_parameters->GetDataSize());
+    wrapper->create_parameters = std::move(create_parameters);
 
     DescriptorPoolWrapper* pool_wrapper =
         state_table->GetDescriptorPoolWrapper(format::ToHandleId(alloc_info->descriptorPool));
