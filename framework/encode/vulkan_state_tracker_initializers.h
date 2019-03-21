@@ -38,6 +38,20 @@ GFXRECON_BEGIN_NAMESPACE(vulkan_state_tracker)
 // handles). These functions are only intended to be used by the VulkanStateTracker class, but must be in namespace
 // scope to meet C++ language requirements for explicit template specialization.
 
+// Utility functions for indexing arrays of "create info" structures, with a specialization for the 'void'
+// type, which is used with handles that do not have a "create info" structure.
+template <typename CreateInfo>
+const CreateInfo* GetCreateInfoEntry(uint32_t index, const CreateInfo* create_infos)
+{
+    return &create_infos[index];
+}
+
+template <>
+inline const void* GetCreateInfoEntry<void>(uint32_t, const void*)
+{
+    return nullptr;
+}
+
 template <typename Wrapper, typename CreateInfo>
 void InitializeState(Wrapper*                wrapper,
                      const CreateInfo*       create_info,

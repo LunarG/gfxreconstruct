@@ -112,7 +112,7 @@ class VulkanStateTracker
                         // handles retrieved with vkEnumeratePhysicalDevices).
                         if (create_infos != nullptr)
                         {
-                            create_info = &create_infos[i];
+                            create_info = vulkan_state_tracker::GetCreateInfoEntry(i, create_infos);
                         }
 
                         Wrapper* wrapper   = new Wrapper;
