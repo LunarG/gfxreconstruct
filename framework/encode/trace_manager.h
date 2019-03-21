@@ -152,20 +152,8 @@ class TraceManager
             auto thread_data = GetThreadData();
             assert(thread_data != nullptr);
 
-            for (uint32_t i = 0; i < count; ++i)
-            {
-                const CreateInfo* create_info = nullptr;
-
-                // Not all handle creation operations will have a create info structure (e.g. VkPhysicalDevice handles
-                // retrieved with vkEnumeratePhysicalDevices).
-                if (create_infos != nullptr)
-                {
-                    create_info = &create_infos[i];
-                }
-
-                state_tracker_->AddEntry<Wrapper, CreateInfo>(
-                    &handles[i], create_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
-            }
+            state_tracker_->AddGroupEntry<Wrapper, CreateInfo>(
+                count, handles, create_infos, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
         EndApiCallTrace(encoder);
