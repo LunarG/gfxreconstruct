@@ -92,21 +92,8 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
     def genStruct(self, typeinfo, typename, alias):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        handles = []
         if (typename not in self.STRUCT_BLACKLIST) and not alias:
-            for value in self.featureStructMembers[typename]:
-                if self.isHandle(value.baseType):
-                    # The member is a handle.
-                    handles.append(value)
-                elif self.isStruct(value.baseType) and value.baseType in self.structsWithHandles:
-                    # The member is a struct that contains a handle.
-                    handles.append(value)
-                elif 'pNext' in value.name:
-                    # The pNext member may point to a struct that contains handles to map.
-                    # TODO: Make this conditional on the struct being extended by structs with handles.
-                    handles.append(value)
-            if handles:
-                self.structsWithHandles[typename] = handles
+            self.checkStructMemberHandles(typename, self.structsWithHandles)
 
     #
     # Indicates that the current feature has C++ code to generate.

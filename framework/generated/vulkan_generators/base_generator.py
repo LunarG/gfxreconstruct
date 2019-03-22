@@ -512,6 +512,38 @@ class BaseGenerator(OutputGenerator):
         return capacity
 
     #
+    # Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
+    # Structs with member handles are added to a dictionary, where the key is teh structure type and the value is a list of the handle members.
+    def checkStructMemberHandles(self, typename, structsWithHandles):
+        handles = []
+        for value in self.featureStructMembers[typename]:
+            if self.isHandle(value.baseType):
+                # The member is a handle.
+                handles.append(value)
+            elif self.isStruct(value.baseType) and (value.baseType in structsWithHandles):
+                # The member is a struct that contains a handle.
+                handles.append(value)
+            elif 'pNext' in value.name:
+                # The pNext chain may include a struct with handles.
+                validExtensionStructs = self.registry.validextensionstructs.get(typename)
+                if validExtensionStructs:
+                    # Need to search the XML tree for pNext structures that have not been processed yet.
+                    for structName in validExtensionStructs:
+                        typeInfo = self.registry.lookupElementInfo(structName, self.registry.typedict)
+                        if typeInfo:
+                            memberTypes = [member.text for member in typeInfo.elem.findall('.//member/type')]
+                            if memberTypes:
+                                for memberType in memberTypes:
+                                    found = self.registry.tree.find("types/type/[name='" + memberType + "'][@category='handle']")
+                                    if found:
+                                        handles.append(value)
+        if handles:
+            structsWithHandles[typename] = handles
+            return True
+        return False
+
+
+    #
     # Extract length value from latexmath expression.  Currently an inflexible solution that looks for specific
     # patterns that are found in vk.xml.  Will need to be updated when new patterns are introduced.
     def parseLateXMath(self, source):
