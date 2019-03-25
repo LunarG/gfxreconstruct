@@ -101,6 +101,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateMemory>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBindBufferMemory(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBindImageMemory(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory>
 {
     template <typename... Args>

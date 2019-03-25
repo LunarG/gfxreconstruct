@@ -29,6 +29,46 @@ VulkanStateTracker::VulkanStateTracker() : object_count_(0) {}
 
 VulkanStateTracker::~VulkanStateTracker() {}
 
+void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
+                                                  VkBuffer       buffer,
+                                                  VkDeviceMemory memory,
+                                                  VkDeviceSize   memoryOffset)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    BufferWrapper* wrapper = state_table_.GetBufferWrapper(format::ToHandleId(buffer));
+    if (wrapper != nullptr)
+    {
+        wrapper->bind_device = device;
+        wrapper->bind_memory = memory;
+        wrapper->bind_offset = memoryOffset;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track bind state for unrecognized buffer handle");
+    }
+}
+
+void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
+                                                 VkImage        image,
+                                                 VkDeviceMemory memory,
+                                                 VkDeviceSize   memoryOffset)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    ImageWrapper* wrapper = state_table_.GetImageWrapper(format::ToHandleId(image));
+    if (wrapper != nullptr)
+    {
+        wrapper->bind_device = device;
+        wrapper->bind_memory = memory;
+        wrapper->bind_offset = memoryOffset;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track bind state for unrecognized buffer handle");
+    }
+}
+
 uint64_t VulkanStateTracker::WriteState(util::FileOutputStream* output_stream,
                                         format::ThreadId        thread_id,
                                         util::Compressor*       compressor)
@@ -73,9 +113,9 @@ uint64_t VulkanStateTracker::WriteState(util::FileOutputStream* output_stream,
 
     // Resource creation.
     bytes_written += StandardCreateWrite<DeviceMemoryWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
-    bytes_written += StandardCreateWrite<BufferWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
+    bytes_written += WriteBufferState(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<BufferViewWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
-    bytes_written += StandardCreateWrite<ImageWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
+    bytes_written += WriteImageState(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<ImageViewWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<SamplerWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<SamplerYcbcrConversionWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
@@ -95,6 +135,94 @@ uint64_t VulkanStateTracker::WriteState(util::FileOutputStream* output_stream,
     bytes_written += StandardCreateWrite<DescriptorSetWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
 
     // clang-format on
+
+    return bytes_written;
+}
+
+uint64_t VulkanStateTracker::WriteBufferState(util::FileOutputStream* output_stream,
+                                              format::ThreadId        thread_id,
+                                              util::Compressor*       compressor,
+                                              std::vector<uint8_t>*   compressed_parameter_buffer)
+{
+    // TODO: Create one encoder/stream to reuse.
+    util::MemoryOutputStream parameter_stream;
+    ParameterEncoder         encoder(&parameter_stream);
+    uint64_t                 bytes_written = 0;
+
+    state_table_.VisitWrappers([&](BufferWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Write buffer creation call.
+        bytes_written += WriteFunctionCall(output_stream,
+                                           thread_id,
+                                           wrapper->create_call_id,
+                                           wrapper->create_parameters.get(),
+                                           compressor,
+                                           compressed_parameter_buffer);
+
+        // Perform memory binding.
+        if (wrapper->bind_memory != VK_NULL_HANDLE)
+        {
+            encoder.EncodeHandleIdValue(wrapper->bind_device);
+            encoder.EncodeHandleIdValue(wrapper->handle);
+            encoder.EncodeHandleIdValue(wrapper->bind_memory);
+            encoder.EncodeVkDeviceSizeValue(wrapper->bind_offset);
+            encoder.EncodeEnumValue(VK_SUCCESS);
+
+            bytes_written += WriteFunctionCall(output_stream,
+                                               thread_id,
+                                               format::ApiCall_vkBindBufferMemory,
+                                               &parameter_stream,
+                                               compressor,
+                                               compressed_parameter_buffer);
+
+            parameter_stream.Reset();
+        }
+    });
+
+    return bytes_written;
+}
+
+uint64_t VulkanStateTracker::WriteImageState(util::FileOutputStream* output_stream,
+                                             format::ThreadId        thread_id,
+                                             util::Compressor*       compressor,
+                                             std::vector<uint8_t>*   compressed_parameter_buffer)
+{
+    // TODO: Create one encoder/stream to reuse.
+    util::MemoryOutputStream parameter_stream;
+    ParameterEncoder         encoder(&parameter_stream);
+    uint64_t                 bytes_written = 0;
+
+    state_table_.VisitWrappers([&](ImageWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Write image creation call.
+        bytes_written += WriteFunctionCall(output_stream,
+                                           thread_id,
+                                           wrapper->create_call_id,
+                                           wrapper->create_parameters.get(),
+                                           compressor,
+                                           compressed_parameter_buffer);
+
+        // Perform memory binding.
+        if (wrapper->bind_memory != VK_NULL_HANDLE)
+        {
+            encoder.EncodeHandleIdValue(wrapper->bind_device);
+            encoder.EncodeHandleIdValue(wrapper->handle);
+            encoder.EncodeHandleIdValue(wrapper->bind_memory);
+            encoder.EncodeVkDeviceSizeValue(wrapper->bind_offset);
+            encoder.EncodeEnumValue(VK_SUCCESS);
+
+            bytes_written += WriteFunctionCall(output_stream,
+                                               thread_id,
+                                               format::ApiCall_vkBindImageMemory,
+                                               &parameter_stream,
+                                               compressor,
+                                               compressed_parameter_buffer);
+
+            parameter_stream.Reset();
+        }
+    });
 
     return bytes_written;
 }

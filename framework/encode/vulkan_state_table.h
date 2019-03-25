@@ -157,6 +157,18 @@ class VulkanStateTable
     // Helper functions for state initialization.
     //
 
+    BufferWrapper* GetBufferWrapper(format::HandleId id) const
+    {
+        auto entry = buffer_map_.find(id);
+        return (entry != buffer_map_.end()) ? entry->second : nullptr;
+    }
+
+    ImageWrapper* GetImageWrapper(format::HandleId id) const
+    {
+        auto entry = image_map_.find(id);
+        return (entry != image_map_.end()) ? entry->second : nullptr;
+    }
+
     CommandPoolWrapper* GetCommandPoolWrapper(format::HandleId id) const
     {
         auto entry = command_pool_map_.find(id);
