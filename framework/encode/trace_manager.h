@@ -209,6 +209,26 @@ class TraceManager
                                       const VkAllocationCallbacks* pAllocator,
                                       VkDeviceMemory*              pMemory);
 
+    void PostProcess_vkBindBufferMemory(
+        VkResult result, VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackBufferMemoryBinding(device, buffer, memory, memoryOffset);
+        }
+    }
+
+    void PostProcess_vkBindImageMemory(
+        VkResult result, VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackImageMemoryBinding(device, image , memory, memoryOffset);
+        }
+    }
+
     void PostProcess_vkMapMemory(VkResult         result,
                                  VkDevice         device,
                                  VkDeviceMemory   memory,

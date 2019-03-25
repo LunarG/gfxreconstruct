@@ -98,8 +98,6 @@ struct HandleWrapper
 // clang-format off
 struct QueueWrapper                     : public HandleWrapper<VkQueue> {};
 struct FenceWrapper                     : public HandleWrapper<VkFence> {};
-struct BufferWrapper                    : public HandleWrapper<VkBuffer> {};
-struct ImageWrapper                     : public HandleWrapper<VkImage> {};
 struct EventWrapper                     : public HandleWrapper<VkEvent> {};
 struct BufferViewWrapper                : public HandleWrapper<VkBufferView> {};
 struct ImageViewWrapper                 : public HandleWrapper<VkImageView> {};
@@ -151,6 +149,20 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
     std::unordered_map<VkQueue, QueueWrapper*> queues;
+};
+
+struct BufferWrapper : public HandleWrapper<VkBuffer>
+{
+    VkDevice       bind_device{ VK_NULL_HANDLE };
+    VkDeviceMemory bind_memory{ VK_NULL_HANDLE };
+    VkDeviceSize   bind_offset{ 0 };
+};
+
+struct ImageWrapper : public HandleWrapper<VkImage>
+{
+    VkDevice       bind_device{ VK_NULL_HANDLE };
+    VkDeviceMemory bind_memory{ VK_NULL_HANDLE };
+    VkDeviceSize   bind_offset{ 0 };
 };
 
 struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>

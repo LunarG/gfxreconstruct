@@ -153,7 +153,21 @@ class VulkanStateTracker
         }
     }
 
+    void TrackBufferMemoryBinding(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
+
+    void TrackImageMemoryBinding(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);
+
   private:
+    uint64_t WriteBufferState(util::FileOutputStream* output_stream,
+                              format::ThreadId        thread_id,
+                              util::Compressor*       compressor,
+                              std::vector<uint8_t>*   compressed_parameter_buffer);
+
+    uint64_t WriteImageState(util::FileOutputStream* output_stream,
+                             format::ThreadId        thread_id,
+                             util::Compressor*       compressor,
+                             std::vector<uint8_t>*   compressed_parameter_buffer);
+
     uint64_t WritePipelineLayoutState(util::FileOutputStream* output_stream,
                                       format::ThreadId        thread_id,
                                       util::Compressor*       compressor,
