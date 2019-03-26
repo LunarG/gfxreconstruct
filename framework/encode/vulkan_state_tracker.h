@@ -168,6 +168,11 @@ class VulkanStateTracker
                              util::Compressor*       compressor,
                              std::vector<uint8_t>*   compressed_parameter_buffer);
 
+    uint64_t WriteFramebufferState(util::FileOutputStream* output_stream,
+                                   format::ThreadId        thread_id,
+                                   util::Compressor*       compressor,
+                                   std::vector<uint8_t>*   compressed_parameter_buffer);
+
     uint64_t WritePipelineLayoutState(util::FileOutputStream* output_stream,
                                       format::ThreadId        thread_id,
                                       util::Compressor*       compressor,
