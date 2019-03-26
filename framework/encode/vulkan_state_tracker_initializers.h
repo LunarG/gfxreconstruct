@@ -133,6 +133,32 @@ InitializeState<PipelineLayoutWrapper, VkPipelineLayoutCreateInfo>(PipelineLayou
 }
 
 template <>
+inline void InitializeState<FramebufferWrapper, VkFramebufferCreateInfo>(FramebufferWrapper*            wrapper,
+                                                                         const VkFramebufferCreateInfo* create_info,
+                                                                         format::ApiCallId              create_call_id,
+                                                                         CreateParameters  create_parameters,
+                                                                         VulkanStateTable* state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+    assert(state_table != nullptr);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    RenderPassWrapper* render_pass_wrapper =
+        state_table->GetRenderPassWrapper(format::ToHandleId(create_info->renderPass));
+    if (render_pass_wrapper != nullptr)
+    {
+        wrapper->render_pass                   = render_pass_wrapper->handle;
+        wrapper->render_pass_id                = render_pass_wrapper->handle_id;
+        wrapper->render_pass_create_call_id    = render_pass_wrapper->create_call_id;
+        wrapper->render_pass_create_parameters = render_pass_wrapper->create_parameters;
+    }
+}
+
+template <>
 inline void
 InitializeState<PipelineWrapper, VkGraphicsPipelineCreateInfo>(PipelineWrapper*                    wrapper,
                                                                const VkGraphicsPipelineCreateInfo* create_info,

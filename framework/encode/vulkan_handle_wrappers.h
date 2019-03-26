@@ -105,7 +105,6 @@ struct ShaderModuleWrapper              : public HandleWrapper<VkShaderModule> {
 struct PipelineCacheWrapper             : public HandleWrapper<VkPipelineCache> {};
 struct DescriptorSetLayoutWrapper       : public HandleWrapper<VkDescriptorSetLayout> {};
 struct SamplerWrapper                   : public HandleWrapper<VkSampler> {};
-struct FramebufferWrapper               : public HandleWrapper<VkFramebuffer> {};
 struct SamplerYcbcrConversionWrapper    : public HandleWrapper<VkSamplerYcbcrConversion> {};
 struct DescriptorUpdateTemplateWrapper  : public HandleWrapper<VkDescriptorUpdateTemplate> {};
 struct SurfaceKHRWrapper                : public HandleWrapper<VkSurfaceKHR> {};
@@ -163,6 +162,15 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     VkDevice       bind_device{ VK_NULL_HANDLE };
     VkDeviceMemory bind_memory{ VK_NULL_HANDLE };
     VkDeviceSize   bind_offset{ 0 };
+};
+
+struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
+{
+    // TODO: This only requires the unique sequence number once handles are fully wrapped.
+    VkRenderPass      render_pass{ VK_NULL_HANDLE };
+    format::HandleId  render_pass_id{ 0 };
+    format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };
+    CreateParameters  render_pass_create_parameters;
 };
 
 struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>

@@ -122,7 +122,7 @@ uint64_t VulkanStateTracker::WriteState(util::FileOutputStream* output_stream,
 
     // Render object creation.
     bytes_written += StandardCreateWrite<RenderPassWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
-    bytes_written += StandardCreateWrite<FramebufferWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
+    bytes_written += WriteFramebufferState(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<ShaderModuleWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += StandardCreateWrite<DescriptorSetLayoutWrapper>(output_stream, thread_id, compressor, &compressed_parameter_buffer);
     bytes_written += WritePipelineLayoutState(output_stream, thread_id, compressor, &compressed_parameter_buffer);
@@ -223,6 +223,63 @@ uint64_t VulkanStateTracker::WriteImageState(util::FileOutputStream* output_stre
             parameter_stream.Reset();
         }
     });
+
+    return bytes_written;
+}
+
+uint64_t VulkanStateTracker::WriteFramebufferState(util::FileOutputStream* output_stream,
+                                                   format::ThreadId        thread_id,
+                                                   util::Compressor*       compressor,
+                                                   std::vector<uint8_t>*   compressed_parameter_buffer)
+{
+    uint64_t bytes_written = 0;
+
+    std::unordered_map<format::HandleId, const FramebufferWrapper*> temp_render_passes;
+
+    state_table_.VisitWrappers([&](FramebufferWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Write buffer creation call.
+        bytes_written += WriteFunctionCall(output_stream,
+                                           thread_id,
+                                           wrapper->create_call_id,
+                                           wrapper->create_parameters.get(),
+                                           compressor,
+                                           compressed_parameter_buffer);
+
+        RenderPassWrapper* render_pass_wrapper =
+            state_table_.GetRenderPassWrapper(format::ToHandleId(wrapper->render_pass));
+        if ((render_pass_wrapper == nullptr) || (render_pass_wrapper->handle_id != wrapper->render_pass_id))
+        {
+            // Either the handle does not exist, or it has been recycled and now references a different object.
+            const auto& inserted = temp_render_passes.insert(std::make_pair(wrapper->render_pass_id, wrapper));
+
+            // Create a temporary object on first encounter.
+            if (inserted.second)
+            {
+                bytes_written += WriteFunctionCall(output_stream,
+                                                   thread_id,
+                                                   wrapper->render_pass_create_call_id,
+                                                   wrapper->render_pass_create_parameters.get(),
+                                                   compressor,
+                                                   compressed_parameter_buffer);
+            }
+        }
+    });
+
+    // Temporary object destruction.
+    for (const auto& entry : temp_render_passes)
+    {
+        const FramebufferWrapper* info = entry.second;
+        assert(info != nullptr);
+        bytes_written += DestroyTemporaryDeviceObject(output_stream,
+                                                      thread_id,
+                                                      format::ApiCall_vkDestroyRenderPass,
+                                                      format::ToHandleId(info->render_pass),
+                                                      info->render_pass_create_parameters.get(),
+                                                      compressor,
+                                                      compressed_parameter_buffer);
+    }
 
     return bytes_written;
 }
