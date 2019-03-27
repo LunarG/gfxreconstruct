@@ -17,6 +17,7 @@
 
 #include "encode/trace_manager.h"
 
+#include "encode/vulkan_state_writer.h"
 #include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
@@ -376,7 +377,9 @@ void TraceManager::EndFrame()
 
                     auto thread_data = GetThreadData();
                     assert(thread_data != nullptr);
-                    state_tracker_->WriteState(file_stream_.get(), thread_data->thread_id_, compressor_.get());
+
+                    VulkanStateWriter state_writer(file_stream_.get(), compressor_.get(), thread_data->thread_id_);
+                    state_tracker_->WriteState(&state_writer);
                 }
                 else
                 {

@@ -114,96 +114,74 @@ class VulkanStateTable
     void RemoveWrapper(format::HandleId id, ValidationCacheEXTWrapper** result)         { assert(result); (*result) = RemoveEntry(id, validation_cache_ext_map_); }
     void RemoveWrapper(format::HandleId id, AccelerationStructureNVWrapper** result)    { assert(result); (*result) = RemoveEntry(id, acceleration_structure_nv_map_); }
 
-    void VisitWrappers(std::function<void(InstanceWrapper*)> visitor)                    { for (auto entry : instance_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(PhysicalDeviceWrapper*)> visitor)              { for (auto entry : physical_device_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(DeviceWrapper*)> visitor)                      { for (auto entry : device_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(QueueWrapper*)> visitor)                       { for (auto entry : queue_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(SemaphoreWrapper*)> visitor)                   { for (auto entry : semaphore_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(CommandBufferWrapper*)> visitor)               { for (auto entry : command_buffer_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(FenceWrapper*)> visitor)                       { for (auto entry : fence_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(DeviceMemoryWrapper*)> visitor)                { for (auto entry : device_memory_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(BufferWrapper*)> visitor)                      { for (auto entry : buffer_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(ImageWrapper*)> visitor)                       { for (auto entry : image_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(EventWrapper*)> visitor)                       { for (auto entry : event_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(QueryPoolWrapper*)> visitor)                   { for (auto entry : query_pool_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(BufferViewWrapper*)> visitor)                  { for (auto entry : buffer_view_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(ImageViewWrapper*)> visitor)                   { for (auto entry : image_view_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(ShaderModuleWrapper*)> visitor)                { for (auto entry : shader_module_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(PipelineCacheWrapper*)> visitor)               { for (auto entry : pipeline_cache_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(PipelineLayoutWrapper*)> visitor)              { for (auto entry : pipeline_layout_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(RenderPassWrapper*)> visitor)                  { for (auto entry : render_pass_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(PipelineWrapper*)> visitor)                    { for (auto entry : pipeline_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(DescriptorSetLayoutWrapper*)> visitor)         { for (auto entry : descriptor_set_layout_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(SamplerWrapper*)> visitor)                     { for (auto entry : sampler_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(DescriptorPoolWrapper*)> visitor)              { for (auto entry : descriptor_pool_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(DescriptorSetWrapper*)> visitor)               { for (auto entry : descriptor_set_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(FramebufferWrapper*)> visitor)                 { for (auto entry : framebuffer_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(CommandPoolWrapper*)> visitor)                 { for (auto entry : command_pool_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(SamplerYcbcrConversionWrapper*)> visitor)      { for (auto entry : sampler_ycbcr_conversion_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(DescriptorUpdateTemplateWrapper*)> visitor)    { for (auto entry : descriptor_update_template_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(SurfaceKHRWrapper*)> visitor)                  { for (auto entry : surface_khr_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(SwapchainKHRWrapper*)> visitor)                { for (auto entry : swapchain_khr_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(DisplayKHRWrapper*)> visitor)                  { for (auto entry : display_khr_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(DisplayModeKHRWrapper*)> visitor)              { for (auto entry : display_mode_khr_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(DebugReportCallbackEXTWrapper*)> visitor)      { for (auto entry : debug_report_callback_ext_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(ObjectTableNVXWrapper*)> visitor)              { for (auto entry : object_table_nvx_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(IndirectCommandsLayoutNVXWrapper*)> visitor)   { for (auto entry : indirect_commands_layout_nvx_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(DebugUtilsMessengerEXTWrapper*)> visitor)      { for (auto entry : debug_utils_messenger_ext_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(ValidationCacheEXTWrapper*)> visitor)          { for (auto entry : validation_cache_ext_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(AccelerationStructureNVWrapper*)> visitor)     { for (auto entry : acceleration_structure_nv_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const InstanceWrapper*)> visitor) const                   { for (auto entry : instance_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const PhysicalDeviceWrapper*)> visitor) const             { for (auto entry : physical_device_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DeviceWrapper*)> visitor) const                     { for (auto entry : device_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const QueueWrapper*)> visitor) const                      { for (auto entry : queue_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const SemaphoreWrapper*)> visitor) const                  { for (auto entry : semaphore_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const CommandBufferWrapper*)> visitor) const              { for (auto entry : command_buffer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const FenceWrapper*)> visitor) const                      { for (auto entry : fence_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DeviceMemoryWrapper*)> visitor) const               { for (auto entry : device_memory_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const BufferWrapper*)> visitor) const                     { for (auto entry : buffer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const ImageWrapper*)> visitor) const                      { for (auto entry : image_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const EventWrapper*)> visitor) const                      { for (auto entry : event_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const QueryPoolWrapper*)> visitor) const                  { for (auto entry : query_pool_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const BufferViewWrapper*)> visitor) const                 { for (auto entry : buffer_view_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const ImageViewWrapper*)> visitor) const                  { for (auto entry : image_view_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const ShaderModuleWrapper*)> visitor) const               { for (auto entry : shader_module_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const PipelineCacheWrapper*)> visitor) const              { for (auto entry : pipeline_cache_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const PipelineLayoutWrapper*)> visitor) const             { for (auto entry : pipeline_layout_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const RenderPassWrapper*)> visitor) const                 { for (auto entry : render_pass_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const PipelineWrapper*)> visitor) const                   { for (auto entry : pipeline_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DescriptorSetLayoutWrapper*)> visitor) const        { for (auto entry : descriptor_set_layout_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const SamplerWrapper*)> visitor) const                    { for (auto entry : sampler_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DescriptorPoolWrapper*)> visitor) const             { for (auto entry : descriptor_pool_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DescriptorSetWrapper*)> visitor) const              { for (auto entry : descriptor_set_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const FramebufferWrapper*)> visitor) const                { for (auto entry : framebuffer_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const CommandPoolWrapper*)> visitor) const                { for (auto entry : command_pool_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const SamplerYcbcrConversionWrapper*)> visitor) const     { for (auto entry : sampler_ycbcr_conversion_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DescriptorUpdateTemplateWrapper*)> visitor) const   { for (auto entry : descriptor_update_template_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const SurfaceKHRWrapper*)> visitor) const                 { for (auto entry : surface_khr_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const SwapchainKHRWrapper*)> visitor) const               { for (auto entry : swapchain_khr_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DisplayKHRWrapper*)> visitor) const                 { for (auto entry : display_khr_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DisplayModeKHRWrapper*)> visitor) const             { for (auto entry : display_mode_khr_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DebugReportCallbackEXTWrapper*)> visitor) const     { for (auto entry : debug_report_callback_ext_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const ObjectTableNVXWrapper*)> visitor) const             { for (auto entry : object_table_nvx_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const IndirectCommandsLayoutNVXWrapper*)> visitor) const  { for (auto entry : indirect_commands_layout_nvx_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DebugUtilsMessengerEXTWrapper*)> visitor) const     { for (auto entry : debug_utils_messenger_ext_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const ValidationCacheEXTWrapper*)> visitor) const         { for (auto entry : validation_cache_ext_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const AccelerationStructureNVWrapper*)> visitor) const    { for (auto entry : acceleration_structure_nv_map_) { visitor(entry.second); } }
     // clang-format on
 
     //
     // Helper functions for state initialization.
     //
 
-    BufferWrapper* GetBufferWrapper(format::HandleId id) const
-    {
-        auto entry = buffer_map_.find(id);
-        return (entry != buffer_map_.end()) ? entry->second : nullptr;
-    }
+    // clang-format off
+    BufferWrapper*       GetBufferWrapper(format::HandleId id)       { return GetWrapper<BufferWrapper>(id, buffer_map_); }
+    const BufferWrapper* GetBufferWrapper(format::HandleId id) const { return GetWrapper<BufferWrapper>(id, buffer_map_); }
 
-    ImageWrapper* GetImageWrapper(format::HandleId id) const
-    {
-        auto entry = image_map_.find(id);
-        return (entry != image_map_.end()) ? entry->second : nullptr;
-    }
+    ImageWrapper*       GetImageWrapper(format::HandleId id)       { return GetWrapper<ImageWrapper>(id, image_map_); }
+    const ImageWrapper* GetImageWrapper(format::HandleId id) const { return GetWrapper<ImageWrapper>(id, image_map_); }
 
-    CommandPoolWrapper* GetCommandPoolWrapper(format::HandleId id) const
-    {
-        auto entry = command_pool_map_.find(id);
-        return (entry != command_pool_map_.end()) ? entry->second : nullptr;
-    }
+    CommandPoolWrapper*       GetCommandPoolWrapper(format::HandleId id)       { return GetWrapper<CommandPoolWrapper>(id, command_pool_map_);}
+    const CommandPoolWrapper* GetCommandPoolWrapper(format::HandleId id) const { return GetWrapper<CommandPoolWrapper>(id, command_pool_map_);}
 
-    DescriptorPoolWrapper* GetDescriptorPoolWrapper(format::HandleId id) const
-    {
-        auto entry = descriptor_pool_map_.find(id);
-        return (entry != descriptor_pool_map_.end()) ? entry->second : nullptr;
-    }
+    DescriptorPoolWrapper*       GetDescriptorPoolWrapper(format::HandleId id)       { return GetWrapper<DescriptorPoolWrapper>(id, descriptor_pool_map_); }
+    const DescriptorPoolWrapper* GetDescriptorPoolWrapper(format::HandleId id) const { return GetWrapper<DescriptorPoolWrapper>(id, descriptor_pool_map_); }
 
-    DescriptorSetLayoutWrapper* GetDescriptorSetLayoutWrapper(format::HandleId id) const
-    {
-        auto entry = descriptor_set_layout_map_.find(id);
-        return (entry != descriptor_set_layout_map_.end()) ? entry->second : nullptr;
-    }
+    DescriptorSetLayoutWrapper*       GetDescriptorSetLayoutWrapper(format::HandleId id)       { return GetWrapper<DescriptorSetLayoutWrapper>(id, descriptor_set_layout_map_); }
+    const DescriptorSetLayoutWrapper* GetDescriptorSetLayoutWrapper(format::HandleId id) const { return GetWrapper<DescriptorSetLayoutWrapper>(id, descriptor_set_layout_map_); }
 
-    PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) const
-    {
-        auto entry = pipeline_layout_map_.find(id);
-        return (entry != pipeline_layout_map_.end()) ? entry->second : nullptr;
-    }
+    PipelineLayoutWrapper*       GetPipelineLayoutWrapper(format::HandleId id)       { return GetWrapper<PipelineLayoutWrapper>(id, pipeline_layout_map_); }
+    const PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) const { return GetWrapper<PipelineLayoutWrapper>(id, pipeline_layout_map_); }
 
-    RenderPassWrapper* GetRenderPassWrapper(format::HandleId id) const
-    {
-        auto entry = render_pass_map_.find(id);
-        return (entry != render_pass_map_.end()) ? entry->second : nullptr;
-    }
+    RenderPassWrapper*       GetRenderPassWrapper(format::HandleId id)       { return GetWrapper<RenderPassWrapper>(id, render_pass_map_); }
+    const RenderPassWrapper* GetRenderPassWrapper(format::HandleId id) const { return GetWrapper<RenderPassWrapper>(id, render_pass_map_); }
 
-    ShaderModuleWrapper* GetShaderModuleWrapper(format::HandleId id) const
-    {
-        auto entry = shader_module_map_.find(id);
-        return (entry != shader_module_map_.end()) ? entry->second : nullptr;
-    }
+    ShaderModuleWrapper*       GetShaderModuleWrapper(format::HandleId id)       { return GetWrapper<ShaderModuleWrapper>(id, shader_module_map_); }
+    const ShaderModuleWrapper* GetShaderModuleWrapper(format::HandleId id) const { return GetWrapper<ShaderModuleWrapper>(id, shader_module_map_); }
+    // clang-format off
 
   private:
     template <typename T>
@@ -226,6 +204,20 @@ class VulkanStateTable
         }
 
         return result;
+    }
+
+    template <typename T>
+    T* GetWrapper(format::HandleId id, std::unordered_map<format::HandleId, T*>& map)
+    {
+        auto entry = map.find(id);
+        return (entry != map.end()) ? entry->second : nullptr;
+    }
+
+    template <typename T>
+    const T* GetWrapper(format::HandleId id, const std::unordered_map<format::HandleId, T*>& map) const
+    {
+        auto entry = map.find(id);
+        return (entry != map.end()) ? entry->second : nullptr;
     }
 
   private:

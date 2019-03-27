@@ -20,6 +20,8 @@ target_sources(gfxrecon_encode
                    vulkan_state_tracker.h
                    vulkan_state_tracker.cpp
                    vulkan_state_tracker_initializers.h
+                   vulkan_state_writer.h
+                   vulkan_state_writer.cpp
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
