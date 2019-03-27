@@ -89,6 +89,8 @@ class XcbWindow : public decode::Window
 
     void CheckEventStatus(uint32_t sequence, uint32_t type);
 
+    bool WaitForEvent(uint32_t sequence, uint32_t type);
+
   private:
     struct EventInfo
     {
@@ -111,8 +113,6 @@ class XcbWindow : public decode::Window
     xcb_atom_t      delete_window_atom_;
     xcb_atom_t      state_atom_;
     xcb_atom_t      state_fullscreen_atom_;
-    xcb_atom_t      state_maximized_horz_atom_;
-    xcb_atom_t      state_maximized_vert_atom_;
 };
 
 class XcbWindowFactory : public decode::WindowFactory

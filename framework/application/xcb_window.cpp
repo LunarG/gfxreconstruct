@@ -29,12 +29,10 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
 // Names for protocol and state atoms.
-const char kProtocolName[]           = "WM_PROTOCOLS";
-const char kDeleteWindowName[]       = "WM_DELETE_WINDOW";
-const char kStateName[]              = "_NET_WM_STATE";
-const char kStateFullscreenName[]    = "_NET_WM_STATE_FULLSCREEN";
-const char kStateMaximizedHorzName[] = "_NET_WM_STATE_MAXIMIZED_HORZ";
-const char kStateMaximizedVertName[] = "_NET_WM_STATE_MAXIMIZED_VERT";
+const char kProtocolName[]        = "WM_PROTOCOLS";
+const char kDeleteWindowName[]    = "WM_DELETE_WINDOW";
+const char kStateName[]           = "_NET_WM_STATE";
+const char kStateFullscreenName[] = "_NET_WM_STATE_FULLSCREEN";
 
 // Masks for window geometry configuration.
 const uint16_t kConfigurePositionMask     = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y;
@@ -44,8 +42,7 @@ const uint16_t kConfigurePositionSizeMask = kConfigurePositionMask | kConfigureS
 XcbWindow::XcbWindow(XcbApplication* application) :
     xcb_application_(application), width_(0), height_(0), screen_width_(std::numeric_limits<uint32_t>::max()),
     screen_height_(std::numeric_limits<uint32_t>::max()), visible_(false), fullscreen_(false), window_(0),
-    protocol_atom_(0), delete_window_atom_(0), state_atom_(0), state_fullscreen_atom_(0), state_maximized_horz_atom_(0),
-    state_maximized_vert_atom_(0)
+    protocol_atom_(0), delete_window_atom_(0), state_atom_(0), state_fullscreen_atom_(0)
 {
     assert(application != nullptr);
 }
@@ -96,7 +93,15 @@ bool XcbWindow::Create(
 
     if ((screen_height_ <= height) || (screen_width_ <= width))
     {
-        if ((screen_height_ < height) || (screen_width_ < width))
+        if ((screen_height_ == height) || (screen_width_ == width))
+        {
+            go_fullscreen = true;
+
+            // Place fullscreen window at 0, 0.
+            x = 0;
+            y = 0;
+        }
+        else
         {
             GFXRECON_LOG_WARNING(
                 "Requested window size (%ux%u) exceeds current screen size (%ux%u); replay may fail due to "
@@ -106,12 +111,6 @@ bool XcbWindow::Create(
                 screen_width_,
                 screen_height_);
         }
-
-        go_fullscreen = true;
-
-        // Place fullscreen window at 0, 0.
-        x = 0;
-        y = 0;
     }
 
     uint32_t value_mask   = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
@@ -162,9 +161,6 @@ bool XcbWindow::Create(
     if (go_fullscreen)
     {
         SetFullscreen(true);
-
-        // If window was created with a reduced size, make sure it is the appropriate size.
-        SetSize(width, height);
     }
 
     return true;
@@ -174,6 +170,8 @@ bool XcbWindow::Destroy()
 {
     if (window_ != 0)
     {
+        SetFullscreen(false);
+        SetVisibility(false);
         xcb_destroy_window(xcb_application_->GetConnection(), window_);
         xcb_application_->UnregisterXcbWindow(this);
         window_ = 0;
@@ -214,7 +212,11 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
         xcb_void_cookie_t cookie     = { 0 };
         xcb_connection_t* connection = xcb_application_->GetConnection();
 
-        if ((screen_width_ <= width) || (screen_height_ <= height))
+        if ((screen_width_ == width) || (screen_height_ == height))
+        {
+            SetFullscreen(true);
+        }
+        else
         {
             if ((screen_height_ < height) || (screen_width_ < width))
             {
@@ -227,36 +229,17 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
                     screen_height_);
             }
 
-            SetFullscreen(true);
-
-            // Make sure the window position is (0,0).
-            uint32_t values[] = { 0, 0, width, height };
-            cookie            = xcb_configure_window(connection, window_, kConfigurePositionSizeMask, values);
-        }
-        else
-        {
             SetFullscreen(false);
 
             uint32_t values[] = { width, height };
             cookie            = xcb_configure_window(connection, window_, kConfigureSizeMask, values);
-        }
 
-        xcb_flush(connection);
+            xcb_flush(connection);
 
-        // Wait for configure notification.
-        pending_event_.sequence = cookie.sequence;
-        pending_event_.type     = XCB_CONFIGURE_NOTIFY;
-        pending_event_.complete = false;
-        xcb_application_->ClearLastError();
-        while (!pending_event_.complete && xcb_application_->IsRunning())
-        {
-            xcb_application_->ProcessEvents(true);
-
-            // TODO: We may need to check for any error, not an error for a specific sequence number.
-            if (xcb_application_->GetLastErrorSequence() == pending_event_.sequence)
+            // Wait for configure notification.
+            if (!WaitForEvent(cookie.sequence, XCB_CONFIGURE_NOTIFY))
             {
                 GFXRECON_LOG_ERROR("Failed to resize window with error %u", xcb_application_->GetLastErrorCode());
-                break;
             }
         }
     }
@@ -282,39 +265,24 @@ void XcbWindow::SetFullscreen(bool fullscreen)
         event.data.data32[4] = 0;
 
         xcb_void_cookie_t event_cookie =
-            xcb_send_event_checked(connection,
-                                   0,
-                                   screen->root,
-                                   XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
-                                   reinterpret_cast<const char*>(&event));
+            xcb_send_event(connection,
+                           0,
+                           screen->root,
+                           XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
+                           reinterpret_cast<const char*>(&event));
 
-        xcb_generic_error_t* error = xcb_request_check(connection, event_cookie);
+        xcb_flush(connection);
 
-        if (error == nullptr)
+        // Wait for configure notification.
+        if (WaitForEvent(event_cookie.sequence, XCB_CONFIGURE_NOTIFY))
         {
             fullscreen_ = fullscreen;
-
-            if (!fullscreen)
-            {
-                // Some window managers may maximize when entering full screen, but won't restore when exiting full
-                // screen.  Ensure that the window is not in the maximized state.
-                event.data.data32[0] = 0;
-                event.data.data32[1] = state_maximized_horz_atom_;
-                event.data.data32[2] = state_maximized_vert_atom_;
-
-                xcb_void_cookie_t event_cookie =
-                    xcb_send_event_checked(connection,
-                                           0,
-                                           screen->root,
-                                           XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
-                                           reinterpret_cast<const char*>(&event));
-
-                error = xcb_request_check(connection, event_cookie);
-            }
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to toggle fullscreen mode with error %u", error->error_code);
+            GFXRECON_LOG_ERROR("Failed to %s fullscreen mode with error %u",
+                               fullscreen ? "enter" : "exit",
+                               xcb_application_->GetLastErrorCode());
         }
     }
 }
@@ -337,28 +305,11 @@ void XcbWindow::SetVisibility(bool show)
 
         xcb_flush(connection);
 
-        // We wait for the map event instead of using xcb_request_check because the
-        // result of xcb_request_check seems to indicate the request has been processed
-        // successfully, not that the map operation has completed, and we need to wait
-        // for the operation to complete. We also do not do both because the sequence
-        // number from the checked call does not appear to match the sequence number of
-        // the event notifications.  So, we do an unchecked call and check for errors in
-        // the event loop.
-        pending_event_.sequence = cookie.sequence;
-        pending_event_.type     = XCB_MAP_NOTIFY;
-        pending_event_.complete = false;
-        xcb_application_->ClearLastError();
-        while (!pending_event_.complete && xcb_application_->IsRunning())
+        // Wait for map/unmap notification.
+        if (!WaitForEvent(cookie.sequence, XCB_MAP_NOTIFY))
         {
-            xcb_application_->ProcessEvents(true);
-
-            // TODO: We may need to check for any error, not an error for a specific sequence number.
-            if (xcb_application_->GetLastErrorSequence() == pending_event_.sequence)
-            {
-                GFXRECON_LOG_ERROR("Failed to change window visibility with error %u",
-                                   xcb_application_->GetLastErrorCode());
-                break;
-            }
+            GFXRECON_LOG_ERROR("Failed to change window visibility with error %u",
+                               xcb_application_->GetLastErrorCode());
         }
     }
 }
@@ -424,10 +375,8 @@ void XcbWindow::InitializeAtoms()
     protocol_atom_      = GetAtom(kProtocolName, 1);
     delete_window_atom_ = GetAtom(kDeleteWindowName, 0);
 
-    state_atom_                = GetAtom(kStateName, 1);
-    state_fullscreen_atom_     = GetAtom(kStateFullscreenName, 0);
-    state_maximized_horz_atom_ = GetAtom(kStateMaximizedHorzName, 0);
-    state_maximized_vert_atom_ = GetAtom(kStateMaximizedVertName, 0);
+    state_atom_            = GetAtom(kStateName, 1);
+    state_fullscreen_atom_ = GetAtom(kStateFullscreenName, 0);
 }
 
 void XcbWindow::CheckEventStatus(uint32_t sequence, uint32_t type)
@@ -436,6 +385,28 @@ void XcbWindow::CheckEventStatus(uint32_t sequence, uint32_t type)
     {
         pending_event_.complete = true;
     }
+}
+
+bool XcbWindow::WaitForEvent(uint32_t sequence, uint32_t type)
+{
+    pending_event_.sequence = sequence;
+    pending_event_.type     = type;
+    pending_event_.complete = false;
+
+    xcb_application_->ClearLastError();
+
+    while (!pending_event_.complete && xcb_application_->IsRunning())
+    {
+        xcb_application_->ProcessEvents(true);
+
+        // TODO: We may need to check for any error, not an error for a specific sequence number.
+        if (xcb_application_->GetLastErrorSequence() == pending_event_.sequence)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 XcbWindowFactory::XcbWindowFactory(XcbApplication* application) : xcb_application_(application)
