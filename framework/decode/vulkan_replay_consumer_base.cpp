@@ -241,6 +241,10 @@ VkResult VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags fl
 
         window_map_.insert(std::make_pair(key, window));
     }
+    else
+    {
+        window_factory_->Destroy(window);
+    }
 
     return result;
 }
