@@ -100,7 +100,7 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
         {
             event = xcb_wait_for_event(connection_);
 
-            // Stop waiting after the first event or this function never will exit.
+            // Stop waiting after the first event or this function will never exit.
             wait_for_input = false;
         }
         else
@@ -193,13 +193,26 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 }
                 case XCB_UNMAP_NOTIFY:
                 {
-                    xcb_map_notify_event_t* map_event = reinterpret_cast<xcb_map_notify_event_t*>(event);
-                    auto                    entry     = xcb_windows_.find(map_event->window);
+                    xcb_unmap_notify_event_t* unmap_event = reinterpret_cast<xcb_unmap_notify_event_t*>(event);
+                    auto                      entry       = xcb_windows_.find(unmap_event->window);
 
                     if (entry != xcb_windows_.end())
                     {
                         XcbWindow* xcb_window = entry->second;
-                        xcb_window->MapNotifyReceived(map_event->sequence, false);
+                        xcb_window->MapNotifyReceived(unmap_event->sequence, false);
+                    }
+
+                    break;
+                }
+                case XCB_DESTROY_NOTIFY:
+                {
+                    xcb_destroy_notify_event_t* destroy_event = reinterpret_cast<xcb_destroy_notify_event_t*>(event);
+                    auto                        entry         = xcb_windows_.find(destroy_event->window);
+
+                    if (entry != xcb_windows_.end())
+                    {
+                        XcbWindow* xcb_window = entry->second;
+                        xcb_window->DestroyNotifyReceived(destroy_event->sequence);
                     }
 
                     break;

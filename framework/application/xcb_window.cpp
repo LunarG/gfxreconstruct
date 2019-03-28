@@ -51,7 +51,9 @@ XcbWindow::~XcbWindow()
 {
     if (window_ != 0)
     {
-        xcb_destroy_window(xcb_application_->GetConnection(), window_);
+        xcb_connection_t* connection = xcb_application_->GetConnection();
+        xcb_destroy_window(connection, window_);
+        xcb_flush(connection);
     }
 }
 
@@ -170,9 +172,19 @@ bool XcbWindow::Destroy()
 {
     if (window_ != 0)
     {
+        xcb_connection_t* connection = xcb_application_->GetConnection();
+
         SetFullscreen(false);
         SetVisibility(false);
-        xcb_destroy_window(xcb_application_->GetConnection(), window_);
+
+        xcb_void_cookie_t cookie = xcb_destroy_window(connection, window_);
+        xcb_flush(connection);
+
+        if (!WaitForEvent(cookie.sequence, XCB_DESTROY_NOTIFY))
+        {
+            GFXRECON_LOG_ERROR("Failed to destroy window with error %u", xcb_application_->GetLastErrorCode());
+        }
+
         xcb_application_->UnregisterXcbWindow(this);
         window_ = 0;
         return true;
