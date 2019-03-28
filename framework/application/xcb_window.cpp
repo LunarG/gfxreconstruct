@@ -29,10 +29,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
 // Names for protocol and state atoms.
-const char kProtocolName[]        = "WM_PROTOCOLS";
-const char kDeleteWindowName[]    = "WM_DELETE_WINDOW";
-const char kStateName[]           = "_NET_WM_STATE";
-const char kStateFullscreenName[] = "_NET_WM_STATE_FULLSCREEN";
+const char kProtocolName[]         = "WM_PROTOCOLS";
+const char kDeleteWindowName[]     = "WM_DELETE_WINDOW";
+const char kStateName[]            = "_NET_WM_STATE";
+const char kStateFullscreenName[]  = "_NET_WM_STATE_FULLSCREEN";
+const char kBypassCompositorName[] = "_NET_WM_BYPASS_COMPOSITOR";
 
 // Masks for window geometry configuration.
 const uint16_t kConfigurePositionMask     = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y;
@@ -42,7 +43,7 @@ const uint16_t kConfigurePositionSizeMask = kConfigurePositionMask | kConfigureS
 XcbWindow::XcbWindow(XcbApplication* application) :
     xcb_application_(application), width_(0), height_(0), screen_width_(std::numeric_limits<uint32_t>::max()),
     screen_height_(std::numeric_limits<uint32_t>::max()), visible_(false), fullscreen_(false), window_(0),
-    protocol_atom_(0), delete_window_atom_(0), state_atom_(0), state_fullscreen_atom_(0)
+    protocol_atom_(0), delete_window_atom_(0), state_atom_(0), state_fullscreen_atom_(0), bypass_compositor_atom_(0)
 {
     assert(application != nullptr);
 }
@@ -289,6 +290,24 @@ void XcbWindow::SetFullscreen(bool fullscreen)
         if (WaitForEvent(event_cookie.sequence, XCB_CONFIGURE_NOTIFY))
         {
             fullscreen_ = fullscreen;
+
+            if (bypass_compositor_atom_ != 0)
+            {
+                // Specify that the WM should not bypass the compositor for the full screen window, or specify no
+                // preference on exiting full screen. Compositor bypass is disabled to work around a GNOME + NVIDIA
+                // issue that leads to a VK_ERROR_OUT_OF_DATE_KHR error with full screen replay.
+                // TODO: This could be an option.
+                int32_t bypass = fullscreen ? 2 : 0;
+                xcb_change_property(connection,
+                                    XCB_PROP_MODE_REPLACE,
+                                    window_,
+                                    bypass_compositor_atom_,
+                                    XCB_ATOM_CARDINAL,
+                                    32,
+                                    1,
+                                    &bypass);
+                xcb_flush(connection);
+            }
         }
         else
         {
@@ -375,8 +394,7 @@ xcb_atom_t XcbWindow::GetAtom(const char* name, uint8_t only_if_exists) const
     }
     else
     {
-        GFXRECON_LOG_ERROR("Failed to retrieve internal atom for %s with error %u", name, error->error_code);
-        return false;
+        GFXRECON_LOG_ERROR("Failed to retrieve internal XCB atom for %s with error %u", name, error->error_code);
     }
 
     return atom;
@@ -387,8 +405,9 @@ void XcbWindow::InitializeAtoms()
     protocol_atom_      = GetAtom(kProtocolName, 1);
     delete_window_atom_ = GetAtom(kDeleteWindowName, 0);
 
-    state_atom_            = GetAtom(kStateName, 1);
-    state_fullscreen_atom_ = GetAtom(kStateFullscreenName, 0);
+    state_atom_             = GetAtom(kStateName, 1);
+    state_fullscreen_atom_  = GetAtom(kStateFullscreenName, 0);
+    bypass_compositor_atom_ = GetAtom(kBypassCompositorName, 0);
 }
 
 void XcbWindow::CheckEventStatus(uint32_t sequence, uint32_t type)

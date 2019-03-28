@@ -115,6 +115,7 @@ class XcbWindow : public decode::Window
     xcb_atom_t      delete_window_atom_;
     xcb_atom_t      state_atom_;
     xcb_atom_t      state_fullscreen_atom_;
+    xcb_atom_t      bypass_compositor_atom_;
 };
 
 class XcbWindowFactory : public decode::WindowFactory
