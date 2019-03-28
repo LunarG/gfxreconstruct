@@ -58,6 +58,8 @@ class XcbWindow : public decode::Window
         height_ = height;
     }
 
+    void DestroyNotifyReceived(uint32_t sequence) { CheckEventStatus(sequence, XCB_DESTROY_NOTIFY); }
+
     virtual bool Create(const std::string& title,
                         const int32_t      xpos,
                         const int32_t      ypos,
