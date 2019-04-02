@@ -198,7 +198,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def makeBeginApiCall(self, name, values):
         if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree') or self.retrievesHandles(values):
-            return 'auto encoder = TraceManager::Get()->BeginCreateDestroyApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
+            return 'auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
         else:
             return 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
 
