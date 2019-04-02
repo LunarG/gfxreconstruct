@@ -117,8 +117,9 @@ class TraceManager
     }
 
     // Single object creation.
-    template <typename Wrapper, typename CreateInfo>
+    template <typename ParentHandle, typename Wrapper, typename CreateInfo>
     void EndCreateApiCallTrace(VkResult                      result,
+                               ParentHandle                  parent_handle,
                                typename Wrapper::HandleType* handle,
                                const CreateInfo*             create_info,
                                ParameterEncoder*             encoder)
@@ -130,16 +131,17 @@ class TraceManager
             auto thread_data = GetThreadData();
             assert(thread_data != nullptr);
 
-            state_tracker_->AddEntry<Wrapper, CreateInfo>(
-                handle, create_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
+            state_tracker_->AddEntry<ParentHandle, Wrapper, CreateInfo>(
+                parent_handle, handle, create_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
         }
 
         EndApiCallTrace(encoder);
     }
 
     // Multiple object creation.
-    template <typename Wrapper, typename CreateInfo>
+    template <typename ParentHandle, typename Wrapper, typename CreateInfo>
     void EndCreateApiCallTrace(VkResult                      result,
+                               ParentHandle                  parent_handle,
                                uint32_t                      count,
                                typename Wrapper::HandleType* handles,
                                const CreateInfo*             create_infos,
@@ -152,8 +154,12 @@ class TraceManager
             auto thread_data = GetThreadData();
             assert(thread_data != nullptr);
 
-            state_tracker_->AddGroupEntry<Wrapper, CreateInfo>(
-                count, handles, create_infos, thread_data->call_id_, thread_data->parameter_buffer_.get());
+            state_tracker_->AddGroupEntry<ParentHandle, Wrapper, CreateInfo>(parent_handle,
+                                                                             count,
+                                                                             handles,
+                                                                             create_infos,
+                                                                             thread_data->call_id_,
+                                                                             thread_data->parameter_buffer_.get());
         }
 
         EndApiCallTrace(encoder);
