@@ -23,6 +23,37 @@ VulkanStateTracker::VulkanStateTracker() : object_count_(0) {}
 
 VulkanStateTracker::~VulkanStateTracker() {}
 
+void VulkanStateTracker::TrackCommand(VkCommandBuffer                 command_buffer,
+                                      format::ApiCallId               call_id,
+                                      const util::MemoryOutputStream* parameter_buffer)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    CommandBufferWrapper* wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
+    if (wrapper != nullptr)
+    {
+        if ((call_id == format::ApiCallId::ApiCall_vkBeginCommandBuffer) ||
+            (call_id == format::ApiCallId::ApiCall_vkResetCommandBuffer))
+        {
+            // Clear command data on command buffer reset.
+            wrapper->command_data.Reset();
+        }
+
+        if (call_id != format::ApiCallId::ApiCall_vkResetCommandBuffer)
+        {
+            // Append the command data.
+            size_t size = parameter_buffer->GetDataSize();
+            wrapper->command_data.Write(&size, sizeof(size));
+            wrapper->command_data.Write(&call_id, sizeof(call_id));
+            wrapper->command_data.Write(parameter_buffer->GetData(), size);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to update command state for unrecognized command buffer handle");
+    }
+}
+
 void VulkanStateTracker::TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice                        physical_device,
                                                              const VkPhysicalDeviceMemoryProperties* properties)
 {
