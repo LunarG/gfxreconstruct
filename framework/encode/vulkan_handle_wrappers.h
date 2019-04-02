@@ -137,6 +137,7 @@ struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
 // handle wrapper, which will ensure it is destroyed when the VkInstance handle wrapper is destroyed.
 struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
+    std::vector<VkMemoryType>                            memory_types;
     std::unordered_map<VkDisplayKHR, DisplayKHRWrapper*> displays;
 };
 
@@ -147,6 +148,7 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
+    PhysicalDeviceWrapper*                     physical_device;
     std::unordered_map<VkQueue, QueueWrapper*> queues;
 };
 

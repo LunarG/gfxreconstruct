@@ -67,6 +67,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>
     }
 };
 
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetPhysicalDeviceMemoryProperties(args...);
+    }
+};
+
 // Dispatch custom command for window resize command generation.
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>

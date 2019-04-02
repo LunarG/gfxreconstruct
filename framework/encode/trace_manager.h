@@ -204,6 +204,16 @@ class TraceManager
     bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
                                          const UpdateTemplateInfo** info) const;
 
+    void PostProcess_vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice                  physicalDevice,
+                                                         VkPhysicalDeviceMemoryProperties* pMemoryProperties)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceMemoryProperties(physicalDevice, pMemoryProperties);
+        }
+    }
+
     void PreProcess_vkCreateSwapchain(VkDevice                        device,
                                       const VkSwapchainCreateInfoKHR* pCreateInfo,
                                       const VkAllocationCallbacks*    pAllocator,
