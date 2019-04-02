@@ -157,6 +157,9 @@ class VulkanStateTracker
         }
     }
 
+    void TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice                        physical_device,
+                                             const VkPhysicalDeviceMemoryProperties* properties);
+
     void TrackBufferMemoryBinding(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
     void TrackImageMemoryBinding(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);

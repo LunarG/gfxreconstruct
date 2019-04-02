@@ -23,6 +23,27 @@ VulkanStateTracker::VulkanStateTracker() : object_count_(0) {}
 
 VulkanStateTracker::~VulkanStateTracker() {}
 
+void VulkanStateTracker::TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice                        physical_device,
+                                                             const VkPhysicalDeviceMemoryProperties* properties)
+{
+    assert(properties != nullptr);
+
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    PhysicalDeviceWrapper* wrapper = state_table_.GetPhysicalDeviceWrapper(format::ToHandleId(physical_device));
+    if (wrapper != nullptr)
+    {
+        for (uint32_t i = 0; i < properties->memoryTypeCount; ++i)
+        {
+            wrapper->memory_types.push_back(properties->memoryTypes[i]);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track memory properties for unrecognized physical device handle");
+    }
+}
+
 void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
                                                   VkBuffer       buffer,
                                                   VkDeviceMemory memory,

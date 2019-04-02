@@ -72,6 +72,27 @@ void InitializeState(ParentHandle      parent_handle,
 }
 
 template <>
+inline void InitializeState<VkPhysicalDevice, DeviceWrapper, VkDeviceCreateInfo>(VkPhysicalDevice parent_handle,
+                                                                                 DeviceWrapper*   wrapper,
+                                                                                 const VkDeviceCreateInfo* create_info,
+                                                                                 format::ApiCallId create_call_id,
+                                                                                 CreateParameters  create_parameters,
+                                                                                 VulkanStateTable* state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_parameters != nullptr);
+    assert(state_table != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(create_info);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->physical_device = state_table->GetPhysicalDeviceWrapper(format::ToHandleId(parent_handle));
+    assert(wrapper->physical_device != nullptr);
+}
+
+template <>
 inline void InitializeState<VkDevice, CommandBufferWrapper, VkCommandBufferAllocateInfo>(
     VkDevice                           parent_handle,
     CommandBufferWrapper*              wrapper,
