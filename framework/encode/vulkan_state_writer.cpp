@@ -39,7 +39,7 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream* output_stream,
 
 VulkanStateWriter::~VulkanStateWriter() {}
 
-void VulkanStateWriter::WriteState(const encode::VulkanStateTable& state_table)
+void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
 {
     // clang-format off
 
@@ -101,7 +101,7 @@ void VulkanStateWriter::WriteState(const encode::VulkanStateTable& state_table)
     // clang-format on
 }
 
-void VulkanStateWriter::WriteBufferState(const encode::VulkanStateTable& state_table)
+void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const BufferWrapper* wrapper) {
         assert(wrapper != nullptr);
@@ -125,7 +125,7 @@ void VulkanStateWriter::WriteBufferState(const encode::VulkanStateTable& state_t
     });
 }
 
-void VulkanStateWriter::WriteImageState(const encode::VulkanStateTable& state_table)
+void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const ImageWrapper* wrapper) {
         assert(wrapper != nullptr);
@@ -149,7 +149,7 @@ void VulkanStateWriter::WriteImageState(const encode::VulkanStateTable& state_ta
     });
 }
 
-void VulkanStateWriter::WriteFramebufferState(const encode::VulkanStateTable& state_table)
+void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_table)
 {
     std::unordered_map<format::HandleId, const FramebufferWrapper*> temp_render_passes;
 
@@ -185,7 +185,7 @@ void VulkanStateWriter::WriteFramebufferState(const encode::VulkanStateTable& st
     }
 }
 
-void VulkanStateWriter::WritePipelineLayoutState(const encode::VulkanStateTable& state_table)
+void VulkanStateWriter::WritePipelineLayoutState(const VulkanStateTable& state_table)
 {
     // TODO: Temporary ds layouts are potentially created and destroyed by both WritePipelineLayoutState and
     // WritePipelineState; track temporary creation across calls to avoid duplicate temporary allocations.
@@ -227,7 +227,7 @@ void VulkanStateWriter::WritePipelineLayoutState(const encode::VulkanStateTable&
     }
 }
 
-void VulkanStateWriter::WritePipelineState(const encode::VulkanStateTable& state_table)
+void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
 {
     // Multiple pipelines can be created by a single API call, so using a set to filter duplicate pipeline creation.
     // TODO: Some of the pipelines created may have been destroyed, in which case, the current design can create more

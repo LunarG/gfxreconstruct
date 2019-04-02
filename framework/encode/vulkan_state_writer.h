@@ -41,18 +41,18 @@ class VulkanStateWriter
     ~VulkanStateWriter();
 
     // Returns number of bytes written to the output_stream.
-    void WriteState(const encode::VulkanStateTable& state_table);
+    void WriteState(const VulkanStateTable& state_table);
 
   private:
-    void WriteBufferState(const encode::VulkanStateTable& state_table);
+    void WriteBufferState(const VulkanStateTable& state_table);
 
-    void WriteImageState(const encode::VulkanStateTable& state_table);
+    void WriteImageState(const VulkanStateTable& state_table);
 
-    void WriteFramebufferState(const encode::VulkanStateTable& state_table);
+    void WriteFramebufferState(const VulkanStateTable& state_table);
 
-    void WritePipelineLayoutState(const encode::VulkanStateTable& state_table);
+    void WritePipelineLayoutState(const VulkanStateTable& state_table);
 
-    void WritePipelineState(const encode::VulkanStateTable& state_table);
+    void WritePipelineState(const VulkanStateTable& state_table);
 
     void DestroyTemporaryDeviceObject(format::ApiCallId         call_id,
                                       format::HandleId          handle,
@@ -61,7 +61,7 @@ class VulkanStateWriter
     void WriteFunctionCall(format::ApiCallId call_id, util::MemoryOutputStream* parameter_buffer);
 
     template <typename Wrapper>
-    void StandardCreateWrite(const encode::VulkanStateTable& state_table)
+    void StandardCreateWrite(const VulkanStateTable& state_table)
     {
         state_table.VisitWrappers([=](const Wrapper* wrapper) {
             WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());

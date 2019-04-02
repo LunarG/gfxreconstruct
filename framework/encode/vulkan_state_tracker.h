@@ -61,7 +61,7 @@ class VulkanStateTracker
         assert(new_handle != nullptr);
         assert(create_parameter_buffer != nullptr);
 
-        if ((create_parameter_buffer != nullptr) && (new_handle != nullptr) && (*new_handle != VK_NULL_HANDLE))
+        if (*new_handle != VK_NULL_HANDLE)
         {
             Wrapper* wrapper = new Wrapper;
             wrapper->handle  = (*new_handle);
@@ -98,39 +98,36 @@ class VulkanStateTracker
         assert(new_handles != nullptr);
         assert(create_parameter_buffer != nullptr);
 
-        if (create_parameter_buffer != nullptr)
+        CreateParameters create_parameters = std::make_shared<util::MemoryOutputStream>(
+            create_parameter_buffer->GetData(), create_parameter_buffer->GetDataSize());
+
         {
-            CreateParameters create_parameters = std::make_shared<util::MemoryOutputStream>(
-                create_parameter_buffer->GetData(), create_parameter_buffer->GetDataSize());
+            std::unique_lock<std::mutex> lock(mutex_);
 
+            for (uint32_t i = 0; i < count; ++i)
             {
-                std::unique_lock<std::mutex> lock(mutex_);
-
-                for (uint32_t i = 0; i < count; ++i)
+                if (new_handles[i] != VK_NULL_HANDLE)
                 {
-                    if (new_handles[i] != VK_NULL_HANDLE)
+                    const CreateInfo* create_info = nullptr;
+
+                    // Not all handle creation operations will have a create info structure (e.g. VkPhysicalDevice
+                    // handles retrieved with vkEnumeratePhysicalDevices).
+                    if (create_infos != nullptr)
                     {
-                        const CreateInfo* create_info = nullptr;
+                        create_info = vulkan_state_tracker::GetCreateInfoEntry(i, create_infos);
+                    }
 
-                        // Not all handle creation operations will have a create info structure (e.g. VkPhysicalDevice
-                        // handles retrieved with vkEnumeratePhysicalDevices).
-                        if (create_infos != nullptr)
-                        {
-                            create_info = vulkan_state_tracker::GetCreateInfoEntry(i, create_infos);
-                        }
+                    Wrapper* wrapper   = new Wrapper;
+                    wrapper->handle    = new_handles[i];
+                    wrapper->handle_id = ++object_count_;
+                    vulkan_state_tracker::InitializeState<Wrapper, CreateInfo>(
+                        wrapper, create_info, create_call_id, create_parameters, &state_table_);
 
-                        Wrapper* wrapper   = new Wrapper;
-                        wrapper->handle    = new_handles[i];
-                        wrapper->handle_id = ++object_count_;
-                        vulkan_state_tracker::InitializeState<Wrapper, CreateInfo>(
-                            wrapper, create_info, create_call_id, create_parameters, &state_table_);
-
-                        // Attempts to add a new entry to the table. Operation will fail for duplicate handles.
-                        // TODO: Handle wrapping will introduce a unique ID that eliminates duplicates.
-                        if (!state_table_.InsertWrapper(format::ToHandleId(new_handles[i]), wrapper))
-                        {
-                            delete wrapper;
-                        }
+                    // Attempts to add a new entry to the table. Operation will fail for duplicate handles.
+                    // TODO: Handle wrapping will introduce a unique ID that eliminates duplicates.
+                    if (!state_table_.InsertWrapper(format::ToHandleId(new_handles[i]), wrapper))
+                    {
+                        delete wrapper;
                     }
                 }
             }
