@@ -159,7 +159,7 @@ class TraceManager
         EndApiCallTrace(encoder);
     }
 
-    // Single object destuction.
+    // Single object destruction.
     template <typename Wrapper>
     void EndDestroyApiCallTrace(typename Wrapper::HandleType handle, ParameterEncoder* encoder)
     {
