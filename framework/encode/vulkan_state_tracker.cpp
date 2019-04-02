@@ -109,7 +109,7 @@ void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
     }
     else
     {
-        GFXRECON_LOG_WARNING("Attempting to track bind state for unrecognized buffer handle");
+        GFXRECON_LOG_WARNING("Attempting to track memory binding state for unrecognized buffer handle");
     }
 }
 
@@ -129,7 +129,7 @@ void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
     }
     else
     {
-        GFXRECON_LOG_WARNING("Attempting to track bind state for unrecognized buffer handle");
+        GFXRECON_LOG_WARNING("Attempting to track memory binding state for unrecognized image handle");
     }
 }
 
