@@ -52,8 +52,9 @@ class VulkanStateTracker
         }
     }
 
-    template <typename Wrapper, typename CreateInfo>
-    void AddEntry(typename Wrapper::HandleType*   new_handle,
+    template <typename ParentHandle, typename Wrapper, typename CreateInfo>
+    void AddEntry(ParentHandle                    parent_handle,
+                  typename Wrapper::HandleType*   new_handle,
                   const CreateInfo*               create_info,
                   format::ApiCallId               create_call_id,
                   const util::MemoryOutputStream* create_parameter_buffer)
@@ -70,7 +71,8 @@ class VulkanStateTracker
                 std::unique_lock<std::mutex> lock(mutex_);
 
                 wrapper->handle_id = ++object_count_;
-                vulkan_state_tracker::InitializeState<Wrapper, CreateInfo>(
+                vulkan_state_tracker::InitializeState<ParentHandle, Wrapper, CreateInfo>(
+                    parent_handle,
                     wrapper,
                     create_info,
                     create_call_id,
@@ -88,8 +90,9 @@ class VulkanStateTracker
         }
     }
 
-    template <typename Wrapper, typename CreateInfo>
-    void AddGroupEntry(uint32_t                        count,
+    template <typename ParentHandle, typename Wrapper, typename CreateInfo>
+    void AddGroupEntry(ParentHandle                    parent_handle,
+                       uint32_t                        count,
                        typename Wrapper::HandleType*   new_handles,
                        const CreateInfo*               create_infos,
                        format::ApiCallId               create_call_id,
@@ -120,8 +123,8 @@ class VulkanStateTracker
                     Wrapper* wrapper   = new Wrapper;
                     wrapper->handle    = new_handles[i];
                     wrapper->handle_id = ++object_count_;
-                    vulkan_state_tracker::InitializeState<Wrapper, CreateInfo>(
-                        wrapper, create_info, create_call_id, create_parameters, &state_table_);
+                    vulkan_state_tracker::InitializeState<ParentHandle, Wrapper, CreateInfo>(
+                        parent_handle, wrapper, create_info, create_call_id, create_parameters, &state_table_);
 
                     // Attempts to add a new entry to the table. Operation will fail for duplicate handles.
                     // TODO: Handle wrapping will introduce a unique ID that eliminates duplicates.
