@@ -52,37 +52,42 @@ inline const void* GetCreateInfoEntry<void>(uint32_t, const void*)
     return nullptr;
 }
 
-template <typename Wrapper, typename CreateInfo>
-void InitializeState(Wrapper*                wrapper,
-                     const CreateInfo*       create_info,
-                     format::ApiCallId       create_call_id,
-                     CreateParameters        create_parameters,
-                     VulkanStateTable*       state_table)
+template <typename ParentHandle, typename Wrapper, typename CreateInfo>
+void InitializeState(ParentHandle      parent_handle,
+                     Wrapper*          wrapper,
+                     const CreateInfo* create_info,
+                     format::ApiCallId create_call_id,
+                     CreateParameters  create_parameters,
+                     VulkanStateTable* state_table)
 {
     assert(wrapper != nullptr);
     assert(create_parameters != nullptr);
 
-    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
     GFXRECON_UNREFERENCED_PARAMETER(create_info);
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
 
-    wrapper->create_call_id = create_call_id;
+    wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 }
 
 template <>
-inline void
-InitializeState<CommandBufferWrapper, VkCommandBufferAllocateInfo>(CommandBufferWrapper*              wrapper,
-                                                                   const VkCommandBufferAllocateInfo* alloc_info,
-                                                                   format::ApiCallId                  create_call_id,
-                                                                   CreateParameters                   create_parameters,
-                                                                   VulkanStateTable*                  state_table)
+inline void InitializeState<VkDevice, CommandBufferWrapper, VkCommandBufferAllocateInfo>(
+    VkDevice                           parent_handle,
+    CommandBufferWrapper*              wrapper,
+    const VkCommandBufferAllocateInfo* alloc_info,
+    format::ApiCallId                  create_call_id,
+    CreateParameters                   create_parameters,
+    VulkanStateTable*                  state_table)
 {
     assert(wrapper != nullptr);
     assert(alloc_info != nullptr);
     assert(create_parameters != nullptr);
     assert(state_table != nullptr);
 
-    wrapper->create_call_id = create_call_id;
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
     CommandPoolWrapper* pool_wrapper = state_table->GetCommandPoolWrapper(format::ToHandleId(alloc_info->commandPool));
@@ -96,19 +101,22 @@ InitializeState<CommandBufferWrapper, VkCommandBufferAllocateInfo>(CommandBuffer
 }
 
 template <>
-inline void
-InitializeState<PipelineLayoutWrapper, VkPipelineLayoutCreateInfo>(PipelineLayoutWrapper*            wrapper,
-                                                                   const VkPipelineLayoutCreateInfo* create_info,
-                                                                   format::ApiCallId                 create_call_id,
-                                                                   CreateParameters                  create_parameters,
-                                                                   VulkanStateTable*                 state_table)
+inline void InitializeState<VkDevice, PipelineLayoutWrapper, VkPipelineLayoutCreateInfo>(
+    VkDevice                          parent_handle,
+    PipelineLayoutWrapper*            wrapper,
+    const VkPipelineLayoutCreateInfo* create_info,
+    format::ApiCallId                 create_call_id,
+    CreateParameters                  create_parameters,
+    VulkanStateTable*                 state_table)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
     assert(create_parameters != nullptr);
     assert(state_table != nullptr);
 
-    wrapper->create_call_id = create_call_id;
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
     std::shared_ptr<PipelineLayoutDependencies> layout_dependencies = std::make_shared<PipelineLayoutDependencies>();
@@ -133,16 +141,20 @@ InitializeState<PipelineLayoutWrapper, VkPipelineLayoutCreateInfo>(PipelineLayou
 }
 
 template <>
-inline void InitializeState<FramebufferWrapper, VkFramebufferCreateInfo>(FramebufferWrapper*            wrapper,
-                                                                         const VkFramebufferCreateInfo* create_info,
-                                                                         format::ApiCallId              create_call_id,
-                                                                         CreateParameters  create_parameters,
-                                                                         VulkanStateTable* state_table)
+inline void
+InitializeState<VkDevice, FramebufferWrapper, VkFramebufferCreateInfo>(VkDevice                       parent_handle,
+                                                                       FramebufferWrapper*            wrapper,
+                                                                       const VkFramebufferCreateInfo* create_info,
+                                                                       format::ApiCallId              create_call_id,
+                                                                       CreateParameters               create_parameters,
+                                                                       VulkanStateTable*              state_table)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
     assert(create_parameters != nullptr);
     assert(state_table != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
@@ -159,19 +171,22 @@ inline void InitializeState<FramebufferWrapper, VkFramebufferCreateInfo>(Framebu
 }
 
 template <>
-inline void
-InitializeState<PipelineWrapper, VkGraphicsPipelineCreateInfo>(PipelineWrapper*                    wrapper,
-                                                               const VkGraphicsPipelineCreateInfo* create_info,
-                                                               format::ApiCallId                   create_call_id,
-                                                               CreateParameters                    create_parameters,
-                                                               VulkanStateTable*                   state_table)
+inline void InitializeState<VkDevice, PipelineWrapper, VkGraphicsPipelineCreateInfo>(
+    VkDevice                            parent_handle,
+    PipelineWrapper*                    wrapper,
+    const VkGraphicsPipelineCreateInfo* create_info,
+    format::ApiCallId                   create_call_id,
+    CreateParameters                    create_parameters,
+    VulkanStateTable*                   state_table)
 {
     assert(wrapper != nullptr);
     assert((create_info != nullptr) && (create_info->pStages != nullptr));
     assert(create_parameters != nullptr);
     assert(state_table != nullptr);
 
-    wrapper->create_call_id = create_call_id;
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
@@ -214,18 +229,21 @@ InitializeState<PipelineWrapper, VkGraphicsPipelineCreateInfo>(PipelineWrapper* 
 
 template <>
 inline void
-InitializeState<PipelineWrapper, VkComputePipelineCreateInfo>(PipelineWrapper*                   wrapper,
-                                                              const VkComputePipelineCreateInfo* create_info,
-                                                              format::ApiCallId                  create_call_id,
-                                                              CreateParameters                   create_parameters,
-                                                              VulkanStateTable*                  state_table)
+InitializeState<VkDevice, PipelineWrapper, VkComputePipelineCreateInfo>(VkDevice         parent_handle,
+                                                                        PipelineWrapper* wrapper,
+                                                                        const VkComputePipelineCreateInfo* create_info,
+                                                                        format::ApiCallId create_call_id,
+                                                                        CreateParameters  create_parameters,
+                                                                        VulkanStateTable* state_table)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
     assert(create_parameters != nullptr);
     assert(state_table != nullptr);
 
-    wrapper->create_call_id = create_call_id;
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
     ShaderModuleWrapper* shader_wrapper =
@@ -254,19 +272,22 @@ InitializeState<PipelineWrapper, VkComputePipelineCreateInfo>(PipelineWrapper*  
 }
 
 template <>
-inline void
-InitializeState<PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(PipelineWrapper*                        wrapper,
-                                                                   const VkRayTracingPipelineCreateInfoNV* create_info,
-                                                                   format::ApiCallId create_call_id,
-                                                                   CreateParameters  create_parameters,
-                                                                   VulkanStateTable* state_table)
+inline void InitializeState<VkDevice, PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(
+    VkDevice                                parent_handle,
+    PipelineWrapper*                        wrapper,
+    const VkRayTracingPipelineCreateInfoNV* create_info,
+    format::ApiCallId                       create_call_id,
+    CreateParameters                        create_parameters,
+    VulkanStateTable*                       state_table)
 {
     assert(wrapper != nullptr);
     assert((create_info != nullptr) && (create_info->pStages != nullptr));
     assert(create_parameters != nullptr);
     assert(state_table != nullptr);
 
-    wrapper->create_call_id = create_call_id;
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
@@ -298,19 +319,22 @@ InitializeState<PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(PipelineWrapp
 }
 
 template <>
-inline void
-InitializeState<DescriptorSetWrapper, VkDescriptorSetAllocateInfo>(DescriptorSetWrapper*              wrapper,
-                                                                   const VkDescriptorSetAllocateInfo* alloc_info,
-                                                                   format::ApiCallId                  create_call_id,
-                                                                   CreateParameters                   create_parameters,
-                                                                   VulkanStateTable*                  state_table)
+inline void InitializeState<VkDevice, DescriptorSetWrapper, VkDescriptorSetAllocateInfo>(
+    VkDevice                           parent_handle,
+    DescriptorSetWrapper*              wrapper,
+    const VkDescriptorSetAllocateInfo* alloc_info,
+    format::ApiCallId                  create_call_id,
+    CreateParameters                   create_parameters,
+    VulkanStateTable*                  state_table)
 {
     assert(state_table != nullptr);
     assert(wrapper != nullptr);
     assert(alloc_info != nullptr);
     assert(create_parameters != nullptr);
 
-    wrapper->create_call_id = create_call_id;
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
     DescriptorPoolWrapper* pool_wrapper =

@@ -208,6 +208,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if name.startswith('vkCreate') or name.startswith('vkAllocate') or self.retrievesHandles(values):
             # The handle is the last parameter.
             handle = values[-1]
+            parentHandle = values[0] if self.isHandle(values[0].baseType) else None
 
             #  Search for the create info struct
             infoBaseType = 'void'
@@ -231,9 +232,13 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         lengthName = '({name} != nullptr) ? (*{name}) : 0'.format(name=lengthName)
                         break
 
-                decl += 'EndCreateApiCallTrace<{}Wrapper, {}>({}, {}, {}, {}, encoder)'.format(handle.baseType[2:], infoBaseType, returnValue, lengthName, handle.name, infoName)
+                decl += 'EndCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
             else:
-                decl += 'EndCreateApiCallTrace<{}Wrapper, {}>({}, {}, {}, encoder)'.format(handle.baseType[2:], infoBaseType, returnValue, handle.name, infoName)
+                # Instance creation has no handle.
+                if parentHandle:
+                    decl += 'EndCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, handle.name, infoName)
+                else:
+                    decl += 'EndCreateApiCallTrace<const void*, {}Wrapper, {}>({}, nullptr, {}, {}, encoder)'.format(handle.baseType[2:], infoBaseType, returnValue, handle.name, infoName)
 
         elif name.startswith('vkDestroy') or name.startswith('vkFree'):
             handle = None
