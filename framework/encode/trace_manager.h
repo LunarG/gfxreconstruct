@@ -195,6 +195,21 @@ class TraceManager
         EndApiCallTrace(encoder);
     }
 
+    void EndCommandApiCallTrace(VkCommandBuffer command_buffer, ParameterEncoder* encoder)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->TrackCommand(command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get());
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
     void EndApiCallTrace(ParameterEncoder* encoder);
 
     void EndFrame();

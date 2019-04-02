@@ -157,6 +157,10 @@ class VulkanStateTracker
         }
     }
 
+    void TrackCommand(VkCommandBuffer                 command_buffer,
+                      format::ApiCallId               call_id,
+                      const util::MemoryOutputStream* parameter_buffer);
+
     void TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice                        physical_device,
                                              const VkPhysicalDeviceMemoryProperties* properties);
 

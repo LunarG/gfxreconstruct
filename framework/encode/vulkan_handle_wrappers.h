@@ -203,7 +203,7 @@ struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
 struct CommandPoolWrapper;
 struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 {
-    // TODO: Track recording state.
+    util::MemoryOutputStream command_data;
 
     // Pool from which command buffer was allocated. The command buffer must be removed from the pool's allocation list
     // when destroyed.
