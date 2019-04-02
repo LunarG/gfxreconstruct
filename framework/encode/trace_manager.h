@@ -96,7 +96,7 @@ class TraceManager
 
     const DeviceTable* GetDeviceTable(const void* handle) const;
 
-    ParameterEncoder* BeginCreateDestroyApiCallTrace(format::ApiCallId call_id)
+    ParameterEncoder* BeginTrackedApiCallTrace(format::ApiCallId call_id)
     {
         if (capture_mode_ != kModeDisabled)
         {
