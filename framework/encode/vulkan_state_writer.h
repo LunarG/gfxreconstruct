@@ -21,6 +21,7 @@
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_table.h"
 #include "format/format.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_output_stream.h"
@@ -36,7 +37,11 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class VulkanStateWriter
 {
   public:
-    VulkanStateWriter(util::FileOutputStream* output_stream, util::Compressor* compressor, format::ThreadId thread_id);
+    VulkanStateWriter(util::FileOutputStream*                               output_stream,
+                      util::Compressor*                                     compressor,
+                      format::ThreadId                                      thread_id,
+                      const std::unordered_map<DispatchKey, InstanceTable>* instance_tables,
+                      const std::unordered_map<DispatchKey, DeviceTable>*   device_tables);
 
     ~VulkanStateWriter();
 
@@ -68,6 +73,29 @@ class VulkanStateWriter
         });
     }
 
+    VkMemoryPropertyFlags
+    GetMemoryProperties(VkDevice device, VkDeviceMemory memory, const VulkanStateTable& state_table);
+
+    uint32_t FindMemoryTypeIndex(VkDevice                device,
+                                 uint32_t                memory_type_bits,
+                                 VkMemoryPropertyFlags   memory_property_flags,
+                                 const VulkanStateTable& state_table);
+
+    VkCommandPool GetCommandPool(VkDevice device, uint32_t queue_family_index, const DeviceTable& dispatch_table);
+
+    VkCommandBuffer GetCommandBuffer(VkDevice device, VkCommandPool command_pool, const DeviceTable& dispatch_table);
+
+    VkResult SubmitCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer, const DeviceTable& dispatch_table);
+
+    VkResult CreateStagingBuffer(VkDevice                device,
+                                 VkDeviceSize            size,
+                                 VkBuffer*               buffer,
+                                 VkMemoryRequirements*   memory_requirements,
+                                 uint32_t*               memory_type_index,
+                                 VkDeviceMemory*         memory,
+                                 const VulkanStateTable& state_table,
+                                 const DeviceTable&      dispatch_table);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;
@@ -75,6 +103,10 @@ class VulkanStateWriter
     format::ThreadId         thread_id_;
     util::MemoryOutputStream parameter_stream_;
     ParameterEncoder         encoder_;
+
+    // TODO: Dispatch tables should be available from handle wrappers.
+    const std::unordered_map<DispatchKey, InstanceTable>* instance_tables_;
+    const std::unordered_map<DispatchKey, DeviceTable>*   device_tables_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
