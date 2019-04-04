@@ -378,7 +378,11 @@ void TraceManager::EndFrame()
                     auto thread_data = GetThreadData();
                     assert(thread_data != nullptr);
 
-                    VulkanStateWriter state_writer(file_stream_.get(), compressor_.get(), thread_data->thread_id_);
+                    VulkanStateWriter state_writer(file_stream_.get(),
+                                                   compressor_.get(),
+                                                   thread_data->thread_id_,
+                                                   &instance_tables_,
+                                                   &device_tables_);
                     state_tracker_->WriteState(&state_writer);
                 }
                 else

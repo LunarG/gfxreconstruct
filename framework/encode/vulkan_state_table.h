@@ -161,6 +161,9 @@ class VulkanStateTable
     PhysicalDeviceWrapper*       GetPhysicalDeviceWrapper(format::HandleId id)       { return GetWrapper<PhysicalDeviceWrapper>(id, physical_device_map_); }
     const PhysicalDeviceWrapper* GetPhysicalDeviceWrapper(format::HandleId id) const { return GetWrapper<PhysicalDeviceWrapper>(id, physical_device_map_); }
 
+    DeviceWrapper*       GetDeviceWrapper(format::HandleId id)       { return GetWrapper<DeviceWrapper>(id, device_map_); }
+    const DeviceWrapper* GetDeviceWrapper(format::HandleId id) const { return GetWrapper<DeviceWrapper>(id, device_map_); }
+
     DeviceMemoryWrapper*       GetDeviceMemoryWrapper(format::HandleId id)       { return GetWrapper<DeviceMemoryWrapper>(id, device_memory_map_); }
     const DeviceMemoryWrapper* GetDeviceMemoryWrapper(format::HandleId id) const { return GetWrapper<DeviceMemoryWrapper>(id, device_memory_map_); }
 
