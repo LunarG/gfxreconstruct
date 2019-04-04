@@ -21,20 +21,26 @@
 #include "util/logging.h"
 
 #include <cassert>
+#include <limits>
 #include <set>
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-VulkanStateWriter::VulkanStateWriter(util::FileOutputStream* output_stream,
-                                     util::Compressor*       compressor,
-                                     format::ThreadId        thread_id) :
+VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*                               output_stream,
+                                     util::Compressor*                                     compressor,
+                                     format::ThreadId                                      thread_id,
+                                     const std::unordered_map<DispatchKey, InstanceTable>* instance_tables,
+                                     const std::unordered_map<DispatchKey, DeviceTable>*   device_tables) :
     output_stream_(output_stream),
-    compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
+    compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_), instance_tables_(instance_tables),
+    device_tables_(device_tables)
 {
     assert(output_stream != nullptr);
     assert(compressor != nullptr);
+    assert(instance_tables != nullptr);
+    assert(device_tables != nullptr);
 }
 
 VulkanStateWriter::~VulkanStateWriter() {}
@@ -455,6 +461,220 @@ void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::Memor
 
     // Write parameter data.
     output_stream_->Write(data_pointer, data_size);
+}
+
+VkMemoryPropertyFlags
+VulkanStateWriter::GetMemoryProperties(VkDevice device, VkDeviceMemory memory, const VulkanStateTable& state_table)
+{
+    VkMemoryPropertyFlags      flags          = 0;
+    const DeviceWrapper*       device_wrapper = state_table.GetDeviceWrapper(format::ToHandleId(device));
+    const DeviceMemoryWrapper* memory_wrapper = state_table.GetDeviceMemoryWrapper(format::ToHandleId(memory));
+
+    assert((device_wrapper != nullptr) && (memory_wrapper != nullptr));
+
+    const PhysicalDeviceWrapper* physical_device_wrapper = device_wrapper->physical_device;
+
+    assert(physical_device_wrapper != nullptr);
+
+    if (!physical_device_wrapper->memory_types.empty())
+    {
+        assert(memory_wrapper->memory_type_index < physical_device_wrapper->memory_types.size());
+        flags = physical_device_wrapper->memory_types[memory_wrapper->memory_type_index].propertyFlags;
+    }
+    else
+    {
+        // The application has not queried for memory types.
+        VkPhysicalDeviceMemoryProperties properties;
+
+        auto entry = instance_tables_->find(GetDispatchKey(physical_device_wrapper->handle));
+        if (entry != instance_tables_->end())
+        {
+            entry->second.GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Attempting to call vkGetPhysicalDeviceMemoryProperties through an untracked device handle");
+        }
+
+        flags = properties.memoryTypes[memory_wrapper->memory_type_index].propertyFlags;
+    }
+
+    return flags;
+}
+
+uint32_t VulkanStateWriter::FindMemoryTypeIndex(VkDevice                device,
+                                                uint32_t                memory_type_bits,
+                                                VkMemoryPropertyFlags   memory_property_flags,
+                                                const VulkanStateTable& state_table)
+{
+    uint32_t             index          = std::numeric_limits<uint32_t>::max();
+    const DeviceWrapper* device_wrapper = state_table.GetDeviceWrapper(format::ToHandleId(device));
+
+    assert(device_wrapper != nullptr);
+
+    const PhysicalDeviceWrapper* physical_device_wrapper = device_wrapper->physical_device;
+
+    assert(physical_device_wrapper != nullptr);
+
+    if (!physical_device_wrapper->memory_types.empty())
+    {
+        for (uint32_t i = 0; i < physical_device_wrapper->memory_types.size(); ++i)
+        {
+            if ((memory_type_bits & (1 << i)) && ((physical_device_wrapper->memory_types[i].propertyFlags &
+                                                   memory_property_flags) == memory_property_flags))
+            {
+                index = i;
+                break;
+            }
+        }
+    }
+    else
+    {
+        // The application has not queried for memory types.
+        VkPhysicalDeviceMemoryProperties properties;
+
+        auto entry = instance_tables_->find(GetDispatchKey(physical_device_wrapper->handle));
+        if (entry != instance_tables_->end())
+        {
+            entry->second.GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
+
+            for (uint32_t i = 0; i < properties.memoryTypeCount; ++i)
+            {
+                if ((memory_type_bits & (1 << i)) &&
+                    ((properties.memoryTypes[i].propertyFlags & memory_property_flags) == memory_property_flags))
+                {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "Attempting to call vkGetPhysicalDeviceMemoryProperties through an untracked device handle");
+        }
+    }
+
+    return index;
+}
+
+VkCommandPool
+VulkanStateWriter::GetCommandPool(VkDevice device, uint32_t queue_family_index, const DeviceTable& dispatch_table)
+{
+    VkCommandPool command_pool = VK_NULL_HANDLE;
+
+    VkCommandPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+    create_info.pNext                   = nullptr;
+    create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    create_info.queueFamilyIndex        = queue_family_index;
+
+    VkResult result = dispatch_table.CreateCommandPool(device, &create_info, nullptr, &command_pool);
+
+    if (result != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("Failed to create a command pool for resource memory snapshot");
+    }
+
+    return command_pool;
+}
+
+VkCommandBuffer
+VulkanStateWriter::GetCommandBuffer(VkDevice device, VkCommandPool command_pool, const DeviceTable& dispatch_table)
+{
+    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+
+    VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+    alloc_info.pNext                       = nullptr;
+    alloc_info.commandPool                 = command_pool;
+    alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount          = 1;
+
+    VkResult result = dispatch_table.AllocateCommandBuffers(device, &alloc_info, &command_buffer);
+
+    if (result == VK_SUCCESS)
+    {
+        // Because this command buffer was not allocated through the loader, it must be assigned a dispatch
+        // table.
+        *reinterpret_cast<void**>(command_buffer) = *reinterpret_cast<void**>(device);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to create a command buffer for resource memory snapshot");
+    }
+
+    return command_buffer;
+}
+
+VkResult
+VulkanStateWriter::SubmitCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer, const DeviceTable& dispatch_table)
+{
+    VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+    submit_info.pNext                = nullptr;
+    submit_info.waitSemaphoreCount   = 0;
+    submit_info.pWaitSemaphores      = nullptr;
+    submit_info.pWaitDstStageMask    = nullptr;
+    submit_info.commandBufferCount   = 1;
+    submit_info.pCommandBuffers      = &command_buffer;
+    submit_info.signalSemaphoreCount = 0;
+    submit_info.pSignalSemaphores    = nullptr;
+
+    dispatch_table.QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+
+    return dispatch_table.QueueWaitIdle(queue);
+}
+
+VkResult VulkanStateWriter::CreateStagingBuffer(VkDevice                device,
+                                                VkDeviceSize            size,
+                                                VkBuffer*               buffer,
+                                                VkMemoryRequirements*   memory_requirements,
+                                                uint32_t*               memory_type_index,
+                                                VkDeviceMemory*         memory,
+                                                const VulkanStateTable& state_table,
+                                                const DeviceTable&      dispatch_table)
+{
+    assert((buffer != nullptr) && (memory_type_index != nullptr) && (memory_requirements != nullptr) &&
+           (memory != nullptr));
+
+    VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+    create_info.pNext                 = nullptr;
+    create_info.flags                 = 0;
+    create_info.size                  = size;
+    create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.queueFamilyIndexCount = 0;
+    create_info.pQueueFamilyIndices   = nullptr;
+
+    VkResult result = dispatch_table.CreateBuffer(device, &create_info, nullptr, buffer);
+    if (result == VK_SUCCESS)
+    {
+        dispatch_table.GetBufferMemoryRequirements(device, (*buffer), memory_requirements);
+
+        (*memory_type_index) = FindMemoryTypeIndex(
+            device, memory_requirements->memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, state_table);
+
+        VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+        alloc_info.pNext                = nullptr;
+        alloc_info.allocationSize       = memory_requirements->size;
+        alloc_info.memoryTypeIndex      = (*memory_type_index);
+
+        result = dispatch_table.AllocateMemory(device, &alloc_info, nullptr, memory);
+        if (result == VK_SUCCESS)
+        {
+            dispatch_table.BindBufferMemory(device, (*buffer), (*memory), 0);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to allocate staging buffer memory for resource memory snapshot");
+            dispatch_table.DestroyBuffer(device, *buffer, nullptr);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to create staging buffer for resource memory snapshot");
+    }
+
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(encode)
