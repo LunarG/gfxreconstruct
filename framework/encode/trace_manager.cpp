@@ -701,36 +701,44 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
 
     if ((result == VK_SUCCESS) && (ppData != nullptr))
     {
-        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-        MemoryTracker::EntryInfo*   info      = nullptr;
-        bool                        first_map = memory_tracker_.MapEntry(memory, offset, size, (*ppData), &info);
-
-        if ((info != nullptr) && (info->mapped_size > 0) &&
-            (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard))
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
-            if (first_map)
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackMappedMemory(memory, (*ppData), offset, size);
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+            MemoryTracker::EntryInfo*   info      = nullptr;
+            bool                        first_map = memory_tracker_.MapEntry(memory, offset, size, (*ppData), &info);
+
+            if ((info != nullptr) && (info->mapped_size > 0) &&
+                (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard))
             {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, info->mapped_size);
+                if (first_map)
+                {
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, info->mapped_size);
 
-                util::PageGuardManager* manager = util::PageGuardManager::Get();
+                    util::PageGuardManager* manager = util::PageGuardManager::Get();
 
-                assert(manager != nullptr);
+                    assert(manager != nullptr);
 
-                info->tracked_memory = manager->AddMemory(
-                    format::ToHandleId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false);
+                    info->tracked_memory = manager->AddMemory(
+                        format::ToHandleId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false);
+                }
+                else
+                {
+                    // The application has mapped the same VkDeviceMemory object more than once and the pageguard
+                    // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
+                    // on the first map call.
+                    GFXRECON_LOG_WARNING(
+                        "VkDeviceMemory object with handle = %" PRIx64 " has been mapped more than once", memory);
+                }
+
+                // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory, not
+                // the mapped memory.
+                (*ppData) = info->tracked_memory;
             }
-            else
-            {
-                // The application has mapped the same VkDeviceMemory object more than once and the pageguard manager is
-                // already tracking it, so we will return the pointer obtained from the pageguard manager on the first
-                // map call.
-                GFXRECON_LOG_WARNING("VkDeviceMemory object with handle = %" PRIx64 " has been mapped more than once",
-                                     memory);
-            }
-
-            // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory, not the
-            // mapped memory.
-            (*ppData) = info->tracked_memory;
         }
     }
 }
@@ -812,38 +820,47 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
 
-    std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-
-    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+    if ((capture_mode_ & kModeTrack) == kModeTrack)
     {
-        util::PageGuardManager* manager = util::PageGuardManager::Get();
-        assert(manager != nullptr);
-
-        auto info = memory_tracker_.GetEntryInfo(memory);
-
-        if ((info != nullptr) && (info->mapped_memory != nullptr))
-        {
-            manager->ProcessMemoryEntry(
-                format::ToHandleId(memory),
-                [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                    WriteFillMemoryCmd(format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
-                });
-
-            manager->RemoveMemory(format::ToHandleId(memory));
-        }
-    }
-    else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
-    {
-        // Write the entire mapped region.
-        auto info = memory_tracker_.GetEntryInfo(memory);
-        if ((info != nullptr) && (info->mapped_memory != nullptr))
-        {
-            // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-            WriteFillMemoryCmd(memory, 0, info->mapped_size, info->mapped_memory);
-        }
+        assert(state_tracker_ != nullptr);
+        state_tracker_->TrackMappedMemory(memory, nullptr, 0, 0);
     }
 
-    memory_tracker_.UnmapEntry(memory);
+    {
+        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            auto info = memory_tracker_.GetEntryInfo(memory);
+
+            if ((info != nullptr) && (info->mapped_memory != nullptr))
+            {
+                manager->ProcessMemoryEntry(
+                    format::ToHandleId(memory),
+                    [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                        WriteFillMemoryCmd(
+                            format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
+                    });
+
+                manager->RemoveMemory(format::ToHandleId(memory));
+            }
+        }
+        else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+        {
+            // Write the entire mapped region.
+            auto info = memory_tracker_.GetEntryInfo(memory);
+            if ((info != nullptr) && (info->mapped_memory != nullptr))
+            {
+                // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
+                WriteFillMemoryCmd(memory, 0, info->mapped_size, info->mapped_memory);
+            }
+        }
+
+        memory_tracker_.UnmapEntry(memory);
+    }
 }
 
 void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,

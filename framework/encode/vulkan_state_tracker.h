@@ -164,6 +164,9 @@ class VulkanStateTracker
 
     void TrackImageMemoryBinding(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
+    void
+    TrackMappedMemory(VkDeviceMemory memory, void* mapped_data, VkDeviceSize mapped_offset, VkDeviceSize mapped_size);
+
   private:
     // TODO: Evaluate need for per-type locks.
     std::mutex mutex_;
