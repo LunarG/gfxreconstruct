@@ -84,5 +84,25 @@ void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
     }
 }
 
+void VulkanStateTracker::TrackMappedMemory(VkDeviceMemory memory,
+                                           void*          mapped_data,
+                                           VkDeviceSize   mapped_offset,
+                                           VkDeviceSize   mapped_size)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    DeviceMemoryWrapper* wrapper = state_table_.GetDeviceMemoryWrapper(format::ToHandleId(memory));
+    if (wrapper != nullptr)
+    {
+        wrapper->mapped_data   = mapped_data;
+        wrapper->mapped_offset = mapped_offset;
+        wrapper->mapped_size   = mapped_size;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track mapped state for unrecognized device memory handle");
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
