@@ -52,7 +52,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     // Instance, device, and queue creation.
     StandardCreateWrite<InstanceWrapper>(state_table);
     StandardCreateWrite<PhysicalDeviceWrapper>(state_table);
-    StandardCreateWrite<DeviceWrapper>(state_table);
+    WriteDeviceState(state_table);
     StandardCreateWrite<QueueWrapper>(state_table);
 
     // Utility object creation.
@@ -105,6 +105,31 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     StandardCreateWrite<DescriptorSetWrapper>(state_table);
 
     // clang-format on
+}
+
+void VulkanStateWriter::WriteDeviceState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const DeviceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Write device creation call.
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+
+        // Idle device to ensure all pending work is complete prior to writing state snapshot.
+        auto tables_entry = device_tables_->find(GetDispatchKey(wrapper->handle));
+        if (tables_entry != device_tables_->end())
+        {
+            VkResult result = tables_entry->second.DeviceWaitIdle(wrapper->handle);
+            if (result != VK_SUCCESS)
+            {
+                GFXRECON_LOG_WARNING("Device wait idle failed during state snapshot generation");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
+        }
+    });
 }
 
 void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
