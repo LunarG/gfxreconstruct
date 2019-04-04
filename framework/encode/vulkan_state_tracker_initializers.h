@@ -369,6 +369,28 @@ inline void InitializeState<VkDevice, DescriptorSetWrapper, VkDescriptorSetAlloc
     }
 }
 
+template <>
+inline void InitializeState<VkDevice, DeviceMemoryWrapper, VkMemoryAllocateInfo>(VkDevice             parent_handle,
+                                                                                 DeviceMemoryWrapper* wrapper,
+                                                                                 const VkMemoryAllocateInfo* alloc_info,
+                                                                                 format::ApiCallId create_call_id,
+                                                                                 CreateParameters  create_parameters,
+                                                                                 VulkanStateTable* state_table)
+{
+    assert(wrapper != nullptr);
+    assert(alloc_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->memory_type_index = alloc_info->memoryTypeIndex;
+    wrapper->allocation_size   = alloc_info->allocationSize;
+}
+
 GFXRECON_END_NAMESPACE(vulkan_state_tracker)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
