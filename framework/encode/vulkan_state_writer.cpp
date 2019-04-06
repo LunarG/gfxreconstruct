@@ -134,6 +134,8 @@ void VulkanStateWriter::WriteDeviceState(const VulkanStateTable& state_table)
 
 void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 {
+    std::unordered_map<VkDevice, BufferSnapshotData> buffers;
+
     state_table.VisitWrappers([&](const BufferWrapper* wrapper) {
         assert(wrapper != nullptr);
 
@@ -150,10 +152,67 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
             encoder_.EncodeEnumValue(VK_SUCCESS);
 
             WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
-
             parameter_stream_.Reset();
+
+            // Group buffers with memory bindings by device for memory snapshot.
+            BufferSnapshotData&   snapshot_data = buffers[wrapper->bind_device];
+            VkMemoryPropertyFlags properties =
+                GetMemoryProperties(wrapper->bind_device, wrapper->bind_memory, state_table);
+            const DeviceMemoryWrapper* memory_wrapper =
+                state_table.GetDeviceMemoryWrapper(format::ToHandleId(wrapper->bind_memory));
+
+            BufferSnapshotEntry entry;
+            entry.buffer_wrapper = wrapper;
+            entry.memory_wrapper = memory_wrapper;
+
+            if ((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+            {
+                entry.is_host_visible = true;
+            }
+            else
+            {
+                entry.is_host_visible = false;
+                ++snapshot_data.num_device_local_buffers;
+                if (snapshot_data.max_device_local_buffer_size < wrapper->created_size)
+                {
+                    snapshot_data.max_device_local_buffer_size = wrapper->created_size;
+                }
+            }
+
+            // If host visible memory is already mapped, and the entire allocation is not mapped, a staging copy will be
+            // used to ensure that the entire allocation is accessible for the state snapshot.
+            if (entry.is_host_visible && ((memory_wrapper->mapped_data == nullptr) ||
+                                          ((memory_wrapper->mapped_offset == 0) &&
+                                           ((memory_wrapper->mapped_size == memory_wrapper->allocation_size) ||
+                                            (memory_wrapper->mapped_size == VK_WHOLE_SIZE)))))
+            {
+                snapshot_data.map_copy_wrappers.emplace_back(entry);
+            }
+            else
+            {
+                if (snapshot_data.max_staging_copy_size < wrapper->created_size)
+                {
+                    snapshot_data.max_staging_copy_size = wrapper->created_size;
+                }
+
+                snapshot_data.staging_copy_wrappers[wrapper->queue_family_index].emplace_back(entry);
+            }
         }
     });
+
+    // Write snapshot of buffer memory content.
+    for (auto buffers_entry : buffers)
+    {
+        auto tables_entry = device_tables_->find(GetDispatchKey(buffers_entry.first));
+        if (tables_entry != device_tables_->end())
+        {
+            ProcessBufferMemory(buffers_entry.first, buffers_entry.second, state_table, tables_entry->second);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
+        }
+    }
 }
 
 void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
@@ -404,6 +463,202 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         assert(info != nullptr);
         DestroyTemporaryDeviceObject(
             format::ApiCall_vkDestroyPipelineLayout, format::ToHandleId(info->layout), info->create_parameters.get());
+    }
+}
+
+void VulkanStateWriter::ProcessBufferMemory(VkDevice                  device,
+                                            const BufferSnapshotData& snapshot_data,
+                                            const VulkanStateTable&   state_table,
+                                            const DeviceTable&        dispatch_table)
+{
+    if (!snapshot_data.staging_copy_wrappers.empty())
+    {
+        VkMemoryRequirements staging_memory_requirements;
+        uint32_t             staging_memory_type_index = 0;
+        VkDeviceMemory       staging_memory            = VK_NULL_HANDLE;
+        VkBuffer             staging_buffer            = VK_NULL_HANDLE;
+
+        VkResult result = CreateStagingBuffer(device,
+                                              snapshot_data.max_staging_copy_size,
+                                              &staging_buffer,
+                                              &staging_memory_requirements,
+                                              &staging_memory_type_index,
+                                              &staging_memory,
+                                              state_table,
+                                              dispatch_table);
+
+        if (result == VK_SUCCESS)
+        {
+            if (snapshot_data.num_device_local_buffers > 0)
+            {
+                // Write calls to staging buffer needed to replay the staging copies to device local memory.
+                WriteStagingBufferCreateCommands(device,
+                                                 snapshot_data.max_device_local_buffer_size,
+                                                 staging_buffer,
+                                                 staging_memory_requirements,
+                                                 staging_memory_type_index,
+                                                 staging_memory);
+            }
+
+            for (auto copy_entry : snapshot_data.staging_copy_wrappers)
+            {
+                uint32_t queue_family_index = copy_entry.first;
+                VkQueue  queue              = VK_NULL_HANDLE;
+
+                dispatch_table.GetDeviceQueue(device, queue_family_index, 0, &queue);
+
+                // Create a command pool for the current queue family index.
+                VkCommandPool command_pool = GetCommandPool(device, queue_family_index, dispatch_table);
+
+                if (command_pool != VK_NULL_HANDLE)
+                {
+                    VkCommandBuffer command_buffer = GetCommandBuffer(device, command_pool, dispatch_table);
+
+                    if (command_buffer != VK_NULL_HANDLE)
+                    {
+                        if (snapshot_data.num_device_local_buffers > 0)
+                        {
+                            // Write calls to create the command pool and command buffer needed for the staging copies.
+                            WriteCommandProcessingCreateCommands(
+                                device, queue_family_index, queue, command_pool, command_buffer);
+                        }
+
+                        for (auto buffer_entry : copy_entry.second)
+                        {
+                            VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+                            begin_info.pNext                    = nullptr;
+                            begin_info.flags                    = 0;
+                            begin_info.pInheritanceInfo         = nullptr;
+
+                            result = dispatch_table.BeginCommandBuffer(command_buffer, &begin_info);
+
+                            if (result == VK_SUCCESS)
+                            {
+                                const BufferWrapper*       buffer_wrapper = buffer_entry.buffer_wrapper;
+                                const DeviceMemoryWrapper* memory_wrapper = buffer_entry.memory_wrapper;
+
+                                VkBufferCopy copy_region;
+                                copy_region.srcOffset = 0;
+                                copy_region.dstOffset = 0;
+                                copy_region.size      = buffer_wrapper->created_size;
+
+                                dispatch_table.CmdCopyBuffer(
+                                    command_buffer, buffer_wrapper->handle, staging_buffer, 1, &copy_region);
+                                dispatch_table.EndCommandBuffer(command_buffer);
+
+                                result = SubmitCommandBuffer(queue, command_buffer, dispatch_table);
+
+                                if (result == VK_SUCCESS)
+                                {
+                                    if (buffer_entry.is_host_visible)
+                                    {
+                                        // Replay does not require a staging copy as the memory has not yet been mapped
+                                        // in the replay command stream.
+                                        WriteMappedMemoryCopyCommands(device,
+                                                                      staging_memory,
+                                                                      nullptr,
+                                                                      0,
+                                                                      buffer_wrapper->created_size,
+                                                                      memory_wrapper->handle,
+                                                                      buffer_wrapper->bind_offset,
+                                                                      buffer_wrapper->created_size,
+                                                                      dispatch_table);
+                                    }
+                                    else
+                                    {
+                                        // Replay requires a staging copy. Write replay commands to map and write data
+                                        // into the temporary staging buffer, then perform the copy.
+                                        WriteMappedMemoryCopyCommands(device,
+                                                                      staging_memory,
+                                                                      nullptr,
+                                                                      0,
+                                                                      buffer_wrapper->created_size,
+                                                                      staging_memory,
+                                                                      0,
+                                                                      buffer_wrapper->created_size,
+                                                                      dispatch_table);
+
+                                        WriteStagingCopyCommands(device,
+                                                                 queue,
+                                                                 command_buffer,
+                                                                 staging_buffer,
+                                                                 buffer_wrapper->handle,
+                                                                 0,
+                                                                 buffer_wrapper->bind_offset,
+                                                                 buffer_wrapper->created_size);
+                                    }
+                                }
+                                else
+                                {
+                                    GFXRECON_LOG_ERROR("Command buffer submission failed when performing a staging "
+                                                       "copy while processing trim state");
+                                }
+                            }
+                            else
+                            {
+                                GFXRECON_LOG_ERROR("Begin command buffer failed when performing a staging copy while "
+                                                   "processing trim state");
+                            }
+                        }
+
+                        if (snapshot_data.num_device_local_buffers > 0)
+                        {
+                            WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkDestroyCommandPool,
+                                                     format::ToHandleId(device),
+                                                     format::ToHandleId(command_pool),
+                                                     nullptr);
+                        }
+
+                        dispatch_table.DestroyCommandPool(device, command_pool, nullptr);
+                        command_pool = VK_NULL_HANDLE;
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_ERROR("Failed to create a command buffer to process trim state");
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to create a command pool to process trim state");
+                }
+            }
+
+            if (snapshot_data.num_device_local_buffers > 0)
+            {
+                // Write calls to staging buffer needed to replay the staging copies to device local memory.
+                WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkDestroyBuffer,
+                                         format::ToHandleId(device),
+                                         format::ToHandleId(staging_buffer),
+                                         nullptr);
+
+                WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkFreeMemory,
+                                         format::ToHandleId(device),
+                                         format::ToHandleId(staging_memory),
+                                         nullptr);
+            }
+
+            dispatch_table.DestroyBuffer(device, staging_buffer, nullptr);
+            dispatch_table.FreeMemory(device, staging_memory, nullptr);
+        }
+    }
+
+    for (auto buffer_entry : snapshot_data.map_copy_wrappers)
+    {
+        const BufferWrapper*       buffer_wrapper = buffer_entry.buffer_wrapper;
+        const DeviceMemoryWrapper* memory_wrapper = buffer_entry.memory_wrapper;
+
+        assert((memory_wrapper != nullptr) &&
+               ((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0)));
+
+        WriteMappedMemoryCopyCommands(device,
+                                      memory_wrapper->handle,
+                                      memory_wrapper->mapped_data,
+                                      buffer_wrapper->bind_offset,
+                                      buffer_wrapper->created_size,
+                                      memory_wrapper->handle,
+                                      buffer_wrapper->bind_offset,
+                                      buffer_wrapper->created_size,
+                                      dispatch_table);
     }
 }
 

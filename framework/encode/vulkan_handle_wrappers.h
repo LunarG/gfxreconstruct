@@ -157,6 +157,8 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     VkDevice       bind_device{ VK_NULL_HANDLE };
     VkDeviceMemory bind_memory{ VK_NULL_HANDLE };
     VkDeviceSize   bind_offset{ 0 };
+    uint32_t       queue_family_index{ 0 };
+    VkDeviceSize   created_size{ 0 };
 };
 
 struct ImageWrapper : public HandleWrapper<VkImage>
