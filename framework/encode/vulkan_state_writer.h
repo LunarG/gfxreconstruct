@@ -59,11 +59,50 @@ class VulkanStateWriter
 
     void WritePipelineState(const VulkanStateTable& state_table);
 
+    void WriteStagingBufferCreateCommands(VkDevice                    device,
+                                          VkDeviceSize                buffer_size,
+                                          VkBuffer                    buffer,
+                                          const VkMemoryRequirements& memory_requirements,
+                                          uint32_t                    memory_type_index,
+                                          VkDeviceMemory              memory);
+
+    void WriteCommandProcessingCreateCommands(VkDevice        device,
+                                              uint32_t        queue_family_index,
+                                              VkQueue         queue,
+                                              VkCommandPool   command_pool,
+                                              VkCommandBuffer command_buffer);
+
+    void WriteMappedMemoryCopyCommands(VkDevice           device,
+                                       VkDeviceMemory     source_memory,
+                                       const void*        source_data,
+                                       VkDeviceSize       source_offset,
+                                       VkDeviceSize       source_size,
+                                       VkDeviceMemory     replay_memory,
+                                       VkDeviceSize       replay_offset,
+                                       VkDeviceSize       replay_size,
+                                       const DeviceTable& dispatch_table);
+
+    void WriteStagingCopyCommands(VkDevice        device,
+                                  VkQueue         queue,
+                                  VkCommandBuffer command_buffer,
+                                  VkBuffer        source,
+                                  VkBuffer        destination,
+                                  VkDeviceSize    source_offset,
+                                  VkDeviceSize    destination_offset,
+                                  VkDeviceSize    size);
+
+    void WriteDestroyDeviceObject(format::ApiCallId            call_id,
+                                  format::HandleId             device_id,
+                                  format::HandleId             object_id,
+                                  const VkAllocationCallbacks* allocator);
+
     void DestroyTemporaryDeviceObject(format::ApiCallId         call_id,
-                                      format::HandleId          handle,
+                                      format::HandleId          object_id,
                                       util::MemoryOutputStream* create_parameters);
 
     void WriteFunctionCall(format::ApiCallId call_id, util::MemoryOutputStream* parameter_buffer);
+
+    void WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data);
 
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)
