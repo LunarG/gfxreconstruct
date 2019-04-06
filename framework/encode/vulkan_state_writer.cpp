@@ -382,24 +382,280 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     }
 }
 
-void VulkanStateWriter::DestroyTemporaryDeviceObject(format::ApiCallId         call_id,
-                                                     format::HandleId          handle,
-                                                     util::MemoryOutputStream* create_parameters)
+void VulkanStateWriter::WriteStagingBufferCreateCommands(VkDevice                    device,
+                                                         VkDeviceSize                buffer_size,
+                                                         VkBuffer                    buffer,
+                                                         const VkMemoryRequirements& memory_requirements,
+                                                         uint32_t                    memory_type_index,
+                                                         VkDeviceMemory              memory)
 {
-    // Extract device from create parameter buffer.
-    // TODO: Device children will be stored in the device wrapper, and device handle will be directly available when
-    // processing children (no need to extract).
-    format::HandleId device = *reinterpret_cast<const format::HandleId*>(create_parameters->GetData());
-    // TODO: Track allocation callbacks.
+    const VkResult               result    = VK_SUCCESS;
     const VkAllocationCallbacks* allocator = nullptr;
 
+    // Create the staging buffer.
+    VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+    create_info.pNext                 = nullptr;
+    create_info.flags                 = 0;
+    create_info.size                  = buffer_size;
+    create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.queueFamilyIndexCount = 0;
+    create_info.pQueueFamilyIndices   = nullptr;
+
     encoder_.EncodeHandleIdValue(device);
-    encoder_.EncodeHandleIdValue(handle);
+    EncodeStructPtr(&encoder_, &create_info);
+    EncodeStructPtr(&encoder_, allocator);
+    encoder_.EncodeHandleIdPtr(&buffer);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateBuffer, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Get the buffer memory requirements.
+    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleIdValue(buffer);
+    EncodeStructPtr(&encoder_, &memory_requirements);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Allocate the memory for the buffer.
+    VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+    alloc_info.pNext                = nullptr;
+    alloc_info.allocationSize       = memory_requirements.size;
+    alloc_info.memoryTypeIndex      = memory_type_index;
+
+    encoder_.EncodeHandleIdValue(device);
+    EncodeStructPtr(&encoder_, &alloc_info);
+    EncodeStructPtr(&encoder_, allocator);
+    encoder_.EncodeHandleIdPtr(&memory);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkAllocateMemory, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Bind the buffer to the memory.
+    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleIdValue(buffer);
+    encoder_.EncodeHandleIdValue(memory);
+    encoder_.EncodeVkDeviceSizeValue(0);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkBindBufferMemory, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteCommandProcessingCreateCommands(VkDevice        device,
+                                                             uint32_t        queue_family_index,
+                                                             VkQueue         queue,
+                                                             VkCommandPool   command_pool,
+                                                             VkCommandBuffer command_buffer)
+{
+    const VkResult               result    = VK_SUCCESS;
+    const VkAllocationCallbacks* allocator = nullptr;
+
+    // Retrieve the queue for the queue family index.
+    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeUInt32Value(queue_family_index);
+    encoder_.EncodeUInt32Value(0);
+    encoder_.EncodeHandleIdPtr(&queue);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetDeviceQueue, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Create the command pool for the current queue family index.
+    VkCommandPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+    create_info.pNext                   = nullptr;
+    create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    create_info.queueFamilyIndex        = queue_family_index;
+
+    encoder_.EncodeHandleIdValue(device);
+    EncodeStructPtr(&encoder_, &create_info);
+    EncodeStructPtr(&encoder_, allocator);
+    encoder_.EncodeHandleIdPtr(&command_pool);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateCommandPool, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Create the command buffer from the pool.
+    VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+    alloc_info.pNext                       = nullptr;
+    alloc_info.commandPool                 = command_pool;
+    alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount          = 1;
+
+    encoder_.EncodeHandleIdValue(device);
+    EncodeStructPtr(&encoder_, &alloc_info);
+    encoder_.EncodeHandleIdArray(&command_buffer, 1);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkAllocateCommandBuffers, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteMappedMemoryCopyCommands(VkDevice           device,
+                                                      VkDeviceMemory     source_memory,
+                                                      const void*        source_data,
+                                                      VkDeviceSize       source_offset,
+                                                      VkDeviceSize       source_size,
+                                                      VkDeviceMemory     replay_memory,
+                                                      VkDeviceSize       replay_offset,
+                                                      VkDeviceSize       replay_size,
+                                                      const DeviceTable& dispatch_table)
+{
+    const VkResult result     = VK_SUCCESS;
+    bool           need_unmap = false;
+
+    // If the source memory is not mapped, map it.
+    if (source_data == nullptr)
+    {
+        need_unmap = true;
+
+        void* data = nullptr;
+        dispatch_table.MapMemory(device, source_memory, source_offset, source_size, 0, &data);
+
+        source_data = data;
+    }
+    else
+    {
+        // Mapped memory is expected to have been mapped with an offset of 0, otherwise it would have been copied to a
+        // staging buffer. The fill memory command generated for the state snapshot will expect the data pointer to
+        // start at the reosurce bind offset, rather than the start of the memory allocation.
+        source_data = static_cast<const uint8_t*>(source_data) + source_offset;
+    }
+
+    // Map the replay memory.
+    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleIdValue(replay_memory);
+    encoder_.EncodeVkDeviceSizeValue(replay_offset);
+    encoder_.EncodeVkDeviceSizeValue(replay_size);
+    encoder_.EncodeFlagsValue(0);
+    encoder_.EncodeVoidPtrPtr(&source_data);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkMapMemory, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Generate a fill memory command from the source data.
+    WriteFillMemoryCmd(replay_memory, 0, replay_size, source_data);
+
+    // Unmap the replay memory.
+    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleIdValue(replay_memory);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkUnmapMemory, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    if (need_unmap)
+    {
+        dispatch_table.UnmapMemory(device, source_memory);
+    }
+}
+
+void VulkanStateWriter::WriteStagingCopyCommands(VkDevice        device,
+                                                 VkQueue         queue,
+                                                 VkCommandBuffer command_buffer,
+                                                 VkBuffer        source,
+                                                 VkBuffer        destination,
+                                                 VkDeviceSize    source_offset,
+                                                 VkDeviceSize    destination_offset,
+                                                 VkDeviceSize    size)
+{
+    const VkResult result = VK_SUCCESS;
+
+    // Begin the command buffer for the copy.
+    VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+    begin_info.pNext                    = nullptr;
+    begin_info.flags                    = 0;
+    begin_info.pInheritanceInfo         = nullptr;
+
+    encoder_.EncodeHandleIdValue(command_buffer);
+    EncodeStructPtr(&encoder_, &begin_info);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkBeginCommandBuffer, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Record the copy command.
+    VkBufferCopy copy_region;
+    copy_region.srcOffset = source_offset;
+    copy_region.dstOffset = destination_offset;
+    copy_region.size      = size;
+
+    encoder_.EncodeHandleIdValue(command_buffer);
+    encoder_.EncodeHandleIdValue(source);
+    encoder_.EncodeHandleIdValue(destination);
+    encoder_.EncodeUInt32Value(1);
+    EncodeStructArray(&encoder_, &copy_region, 1);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdCopyBuffer, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // End the command buffer.
+    encoder_.EncodeHandleIdValue(command_buffer);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkEndCommandBuffer, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Write queue submission.
+    VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+    submit_info.pNext                = nullptr;
+    submit_info.waitSemaphoreCount   = 0;
+    submit_info.pWaitSemaphores      = nullptr;
+    submit_info.pWaitDstStageMask    = nullptr;
+    submit_info.commandBufferCount   = 1;
+    submit_info.pCommandBuffers      = &command_buffer;
+    submit_info.signalSemaphoreCount = 0;
+    submit_info.pSignalSemaphores    = nullptr;
+
+    encoder_.EncodeHandleIdValue(queue);
+    encoder_.EncodeUInt32Value(1);
+    EncodeStructArray(&encoder_, &submit_info, 1);
+    encoder_.EncodeHandleIdValue<VkFence>(VK_NULL_HANDLE);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueSubmit, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Write queue wait idle.
+    encoder_.EncodeHandleIdValue(queue);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueWaitIdle, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteDestroyDeviceObject(format::ApiCallId            call_id,
+                                                 format::HandleId             device_id,
+                                                 format::HandleId             object_id,
+                                                 const VkAllocationCallbacks* allocator)
+{
+    encoder_.EncodeHandleIdValue(device_id);
+    encoder_.EncodeHandleIdValue(object_id);
     EncodeStructPtr(&encoder_, allocator);
 
     WriteFunctionCall(call_id, &parameter_stream_);
+
+    parameter_stream_.Reset();
 }
 
+void VulkanStateWriter::DestroyTemporaryDeviceObject(format::ApiCallId         call_id,
+                                                     format::HandleId          object_id,
+                                                     util::MemoryOutputStream* create_parameters)
+{
+    // TODO: Track allocation callbacks.
+    const VkAllocationCallbacks* allocator = nullptr;
+
+    // Extract device from create parameter buffer.
+    // TODO: Device children will be stored in the device wrapper, and device handle will be directly available when
+    // processing children (no need to extract).
+    format::HandleId device_id = *reinterpret_cast<const format::HandleId*>(create_parameters->GetData());
+
+    WriteDestroyDeviceObject(call_id, device_id, object_id, allocator);
+}
+
+// TODO: This is the same code used by TraceManager to write function call data. It could be moved to a format utility.
 void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::MemoryOutputStream* parameter_buffer)
 {
     assert(parameter_buffer != nullptr);
@@ -461,6 +717,49 @@ void VulkanStateWriter::WriteFunctionCall(format::ApiCallId call_id, util::Memor
 
     // Write parameter data.
     output_stream_->Write(data_pointer, data_size);
+}
+
+// TODO: This is the same code used by TraceManager to write command data. It could be moved to a format utility.
+void VulkanStateWriter::WriteFillMemoryCmd(VkDeviceMemory memory,
+                                           VkDeviceSize   offset,
+                                           VkDeviceSize   size,
+                                           const void*    data)
+{
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+
+    format::FillMemoryCommandHeader fill_cmd;
+    const uint8_t*                  write_address = (static_cast<const uint8_t*>(data) + offset);
+    size_t                          write_size    = static_cast<size_t>(size);
+
+    fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
+    fill_cmd.thread_id                     = thread_id_;
+    fill_cmd.memory_id                     = format::ToHandleId(memory);
+    fill_cmd.memory_offset                 = offset;
+    fill_cmd.memory_size                   = size;
+
+    if (compressor_ != nullptr)
+    {
+        size_t compressed_size = compressor_->Compress(write_size, write_address, &compressed_parameter_buffer_);
+
+        if ((compressed_size > 0) && (compressed_size < write_size))
+        {
+            // We don't have a special header for compressed fill commands because the header always includes
+            // the uncompressed size, so we just change the type to indicate the data is compressed.
+            fill_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+            write_address = compressed_parameter_buffer_.data();
+            write_size    = compressed_size;
+        }
+    }
+
+    // Calculate size of packet with compressed or uncompressed data size.
+    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.thread_id) +
+                                             sizeof(fill_cmd.memory_id) + sizeof(fill_cmd.memory_offset) +
+                                             sizeof(fill_cmd.memory_size) + write_size;
+
+    output_stream_->Write(&fill_cmd, sizeof(fill_cmd));
+    output_stream_->Write(write_address, write_size);
 }
 
 VkMemoryPropertyFlags
