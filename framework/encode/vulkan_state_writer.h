@@ -49,6 +49,27 @@ class VulkanStateWriter
     void WriteState(const VulkanStateTable& state_table);
 
   private:
+    // Data structures for processing resource memory snapshots.
+    struct BufferSnapshotEntry
+    {
+        const BufferWrapper*       buffer_wrapper{ nullptr };
+        const DeviceMemoryWrapper* memory_wrapper{ nullptr };
+        bool                       is_host_visible{ 0 };
+    };
+
+    typedef std::vector<BufferSnapshotEntry>                 BufferSnapshotList;
+    typedef std::unordered_map<uint32_t, BufferSnapshotList> BufferSnapshotQueueFamilyTable;
+
+    struct BufferSnapshotData
+    {
+        BufferSnapshotList             map_copy_wrappers;
+        BufferSnapshotQueueFamilyTable staging_copy_wrappers;
+        VkDeviceSize                   max_staging_copy_size{ 0 };
+        VkDeviceSize                   max_device_local_buffer_size{ 0 };
+        uint32_t                       num_device_local_buffers{ 0 };
+    };
+
+  private:
     void WriteDeviceState(const VulkanStateTable& state_table);
 
     void WriteBufferState(const VulkanStateTable& state_table);
@@ -60,6 +81,11 @@ class VulkanStateWriter
     void WritePipelineLayoutState(const VulkanStateTable& state_table);
 
     void WritePipelineState(const VulkanStateTable& state_table);
+
+    void ProcessBufferMemory(VkDevice                  device,
+                             const BufferSnapshotData& snapshot_data,
+                             const VulkanStateTable&   state_table,
+                             const DeviceTable&        dispatch_table);
 
     void WriteStagingBufferCreateCommands(VkDevice                    device,
                                           VkDeviceSize                buffer_size,

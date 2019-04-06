@@ -391,6 +391,33 @@ inline void InitializeState<VkDevice, DeviceMemoryWrapper, VkMemoryAllocateInfo>
     wrapper->allocation_size   = alloc_info->allocationSize;
 }
 
+template <>
+inline void InitializeState<VkDevice, BufferWrapper, VkBufferCreateInfo>(VkDevice                  parent_handle,
+                                                                         BufferWrapper*            wrapper,
+                                                                         const VkBufferCreateInfo* create_info,
+                                                                         format::ApiCallId         create_call_id,
+                                                                         CreateParameters          create_parameters,
+                                                                         VulkanStateTable*         state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->created_size = create_info->size;
+
+    // TODO: Do we need to track the queue family that the buffer is actually used with?
+    if (create_info->queueFamilyIndexCount > 0)
+    {
+        wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
+    }
+}
+
 GFXRECON_END_NAMESPACE(vulkan_state_tracker)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
