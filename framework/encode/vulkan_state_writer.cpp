@@ -218,6 +218,8 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 
 void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
 {
+    std::unordered_map<VkDevice, ImageSnapshotData> images;
+
     state_table.VisitWrappers([&](const ImageWrapper* wrapper) {
         assert(wrapper != nullptr);
 
@@ -234,10 +236,71 @@ void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
             encoder_.EncodeEnumValue(VK_SUCCESS);
 
             WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
-
             parameter_stream_.Reset();
+
+            // Group images with memory bindings by device for memory snapshot.
+            ImageSnapshotData&     snapshot_data = images[wrapper->bind_device];
+            ImageSnapshotListPair& copy_wrappers = snapshot_data.copy_wrappers[wrapper->queue_family_index];
+            VkMemoryPropertyFlags  properties =
+                GetMemoryProperties(wrapper->bind_device, wrapper->bind_memory, state_table);
+            const DeviceMemoryWrapper* memory_wrapper =
+                state_table.GetDeviceMemoryWrapper(format::ToHandleId(wrapper->bind_memory));
+
+            bool               is_host_visible  = true;
+            bool               use_staging_copy = false;
+            ImageSnapshotList* insert_list      = &copy_wrappers.map_copy_wrappers;
+
+            // Only map and read image memory if the memory type is host visible and the image tiling is linear.
+            if (!(((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) &&
+                  (wrapper->tiling == VK_IMAGE_TILING_LINEAR)))
+            {
+                is_host_visible = false;
+                ++snapshot_data.num_device_local_images;
+            }
+
+            // If host visible memory is already mapped, and the entire allocation is not mapped, a staging copy will be
+            // used to ensure that the entire allocation is accessible for the state snapshot.
+            if (!(is_host_visible && ((memory_wrapper->mapped_data == nullptr) ||
+                                      ((memory_wrapper->mapped_offset == 0) &&
+                                       ((memory_wrapper->mapped_size == memory_wrapper->allocation_size) ||
+                                        (memory_wrapper->mapped_size == VK_WHOLE_SIZE))))))
+            {
+                use_staging_copy = true;
+                insert_list      = &copy_wrappers.staging_copy_wrappers;
+            }
+
+            auto tables_entry = device_tables_->find(GetDispatchKey(wrapper->bind_device));
+            if (tables_entry != device_tables_->end())
+            {
+                InsertImageSnapshotEntries(wrapper,
+                                           memory_wrapper,
+                                           is_host_visible,
+                                           use_staging_copy,
+                                           GetFormatAspectMask(wrapper->format),
+                                           insert_list,
+                                           &snapshot_data,
+                                           tables_entry->second);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
+            }
         }
     });
+
+    // Write snapshot of image memory content.
+    for (auto image_entry : images)
+    {
+        auto tables_entry = device_tables_->find(GetDispatchKey(image_entry.first));
+        if (tables_entry != device_tables_->end())
+        {
+            ProcessImageMemory(image_entry.first, image_entry.second, state_table, tables_entry->second);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
+        }
+    }
 }
 
 void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_table)
@@ -659,6 +722,311 @@ void VulkanStateWriter::ProcessBufferMemory(VkDevice                  device,
                                       buffer_wrapper->bind_offset,
                                       buffer_wrapper->created_size,
                                       dispatch_table);
+    }
+}
+
+void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
+                                           const ImageSnapshotData& snapshot_data,
+                                           const VulkanStateTable&  state_table,
+                                           const DeviceTable&       dispatch_table)
+{
+    VkMemoryRequirements staging_memory_requirements;
+    uint32_t             staging_memory_type_index = 0;
+    VkDeviceMemory       staging_memory            = VK_NULL_HANDLE;
+    VkBuffer             staging_buffer            = VK_NULL_HANDLE;
+
+    if (snapshot_data.max_staging_copy_size > 0)
+    {
+        VkResult result = CreateStagingBuffer(device,
+                                              snapshot_data.max_staging_copy_size,
+                                              &staging_buffer,
+                                              &staging_memory_requirements,
+                                              &staging_memory_type_index,
+                                              &staging_memory,
+                                              state_table,
+                                              dispatch_table);
+
+        if (result == VK_SUCCESS)
+        {
+            if (snapshot_data.num_device_local_images > 0)
+            {
+                // Write calls to staging buffer needed to replay the staging copies to device local memory.
+                WriteStagingBufferCreateCommands(device,
+                                                 snapshot_data.max_device_local_image_size,
+                                                 staging_buffer,
+                                                 staging_memory_requirements,
+                                                 staging_memory_type_index,
+                                                 staging_memory);
+            }
+        }
+    }
+
+    for (auto copy_entry : snapshot_data.copy_wrappers)
+    {
+        // Create a queue and command buffer to process image layout transitions and staging copies.
+        uint32_t queue_family_index = copy_entry.first;
+        VkQueue  queue              = VK_NULL_HANDLE;
+
+        dispatch_table.GetDeviceQueue(device, queue_family_index, 0, &queue);
+
+        // Create a command pool for the current queue family index.
+        VkCommandPool command_pool = GetCommandPool(device, queue_family_index, dispatch_table);
+
+        if (command_pool != VK_NULL_HANDLE)
+        {
+            VkCommandBuffer command_buffer = GetCommandBuffer(device, command_pool, dispatch_table);
+
+            if (command_buffer != VK_NULL_HANDLE)
+            {
+                // Write calls to create the command pool and command buffer needed for the image layout transitions and
+                // staging copies.
+                WriteCommandProcessingCreateCommands(device, queue_family_index, queue, command_pool, command_buffer);
+
+                // Process images requiring staing copies.
+                for (auto image_entry : copy_entry.second.staging_copy_wrappers)
+                {
+                    assert(staging_buffer != VK_NULL_HANDLE);
+
+                    VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+                    begin_info.pNext                    = nullptr;
+                    begin_info.flags                    = 0;
+                    begin_info.pInheritanceInfo         = nullptr;
+
+                    VkResult result = dispatch_table.BeginCommandBuffer(command_buffer, &begin_info);
+
+                    if (result == VK_SUCCESS)
+                    {
+                        VkImageMemoryBarrier       memory_barrier;
+                        const ImageWrapper*        image_wrapper  = image_entry.image_wrapper;
+                        const DeviceMemoryWrapper* memory_wrapper = image_entry.memory_wrapper;
+
+                        // TODO: Resolve multi-sample images.
+                        assert(image_wrapper->samples == VK_SAMPLE_COUNT_1_BIT);
+
+                        // Transition image layout to transfer source optimal.
+                        if (image_wrapper->current_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+                        {
+                            memory_barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                            memory_barrier.pNext                           = nullptr;
+                            memory_barrier.srcAccessMask                   = 0;
+                            memory_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
+                            memory_barrier.oldLayout                       = image_wrapper->current_layout;
+                            memory_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                            memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                            memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                            memory_barrier.image                           = image_wrapper->handle;
+                            memory_barrier.subresourceRange.aspectMask     = image_entry.aspect;
+                            memory_barrier.subresourceRange.baseMipLevel   = 0;
+                            memory_barrier.subresourceRange.levelCount     = image_wrapper->mip_levels;
+                            memory_barrier.subresourceRange.baseArrayLayer = 0;
+                            memory_barrier.subresourceRange.layerCount     = image_wrapper->array_layers;
+
+                            dispatch_table.CmdPipelineBarrier(command_buffer,
+                                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                              0,
+                                                              0,
+                                                              nullptr,
+                                                              0,
+                                                              nullptr,
+                                                              1,
+                                                              &memory_barrier);
+                        }
+
+                        // Create one copy region per mip-level.
+                        std::vector<VkBufferImageCopy> copy_regions;
+
+                        VkBufferImageCopy copy_region;
+                        copy_region.bufferRowLength                 = 0; // Request tightly packed data.
+                        copy_region.bufferImageHeight               = 0; // Request tightly packed data.
+                        copy_region.bufferOffset                    = 0;
+                        copy_region.imageOffset.x                   = 0;
+                        copy_region.imageOffset.y                   = 0;
+                        copy_region.imageOffset.z                   = 0;
+                        copy_region.imageSubresource.aspectMask     = image_entry.aspect;
+                        copy_region.imageSubresource.baseArrayLayer = 0;
+                        copy_region.imageSubresource.layerCount     = image_wrapper->array_layers;
+
+                        for (uint32_t i = 0; i < image_wrapper->mip_levels; ++i)
+                        {
+                            copy_region.imageSubresource.mipLevel = i;
+                            copy_region.imageExtent.width         = std::max(1u, (image_wrapper->extent.width >> i));
+                            copy_region.imageExtent.height        = std::max(1u, (image_wrapper->extent.height >> i));
+                            copy_region.imageExtent.depth         = std::max(1u, (image_wrapper->extent.depth >> i));
+
+                            copy_regions.push_back(copy_region);
+                            copy_region.bufferOffset += image_entry.level_sizes[i];
+                        }
+
+                        dispatch_table.CmdCopyImageToBuffer(command_buffer,
+                                                            image_wrapper->handle,
+                                                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                            staging_buffer,
+                                                            static_cast<uint32_t>(copy_regions.size()),
+                                                            copy_regions.data());
+
+                        if (image_wrapper->current_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+                        {
+                            memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                            memory_barrier.dstAccessMask = 0;
+                            memory_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                            memory_barrier.newLayout     = image_wrapper->current_layout;
+
+                            dispatch_table.CmdPipelineBarrier(command_buffer,
+                                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                              0,
+                                                              0,
+                                                              nullptr,
+                                                              0,
+                                                              nullptr,
+                                                              1,
+                                                              &memory_barrier);
+                        }
+
+                        dispatch_table.EndCommandBuffer(command_buffer);
+
+                        result = SubmitCommandBuffer(queue, command_buffer, dispatch_table);
+
+                        if (result == VK_SUCCESS)
+                        {
+                            if (image_entry.is_host_visible)
+                            {
+                                // Replay does not require a staging copy as the memory has not yet been mapped
+                                // in the replay command stream.
+                                WriteMappedMemoryCopyCommands(device,
+                                                              staging_memory,
+                                                              nullptr,
+                                                              0,
+                                                              image_entry.resource_size,
+                                                              memory_wrapper->handle,
+                                                              image_wrapper->bind_offset,
+                                                              image_entry.resource_size,
+                                                              dispatch_table);
+
+                                if ((image_wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                                    (image_wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED))
+                                {
+                                    WriteImageLayoutTransitionCommandExecution(queue,
+                                                                               command_buffer,
+                                                                               image_wrapper->handle,
+                                                                               VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                                               VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                                               0,
+                                                                               0,
+                                                                               VK_IMAGE_LAYOUT_UNDEFINED,
+                                                                               image_wrapper->current_layout,
+                                                                               image_wrapper->mip_levels,
+                                                                               image_wrapper->array_layers,
+                                                                               image_entry.aspect);
+                                }
+                            }
+                            else
+                            {
+                                // Replay requires a staging copy. Write replay commands to map and write data
+                                // into the temporary staging buffer, then perform the copy.
+                                WriteMappedMemoryCopyCommands(device,
+                                                              staging_memory,
+                                                              nullptr,
+                                                              0,
+                                                              image_entry.resource_size,
+                                                              staging_memory,
+                                                              0,
+                                                              image_entry.resource_size,
+                                                              dispatch_table);
+
+                                WriteImageCopyCommandExecution(queue,
+                                                               command_buffer,
+                                                               staging_buffer,
+                                                               image_wrapper->handle,
+                                                               image_wrapper->current_layout,
+                                                               static_cast<uint32_t>(copy_regions.size()),
+                                                               copy_regions.data());
+                            }
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_ERROR("Command buffer submission failed when performing a staging "
+                                               "copy while processing trim state");
+                        }
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_ERROR("Begin command buffer failed when performing a staging copy while "
+                                           "processing trim state");
+                    }
+                }
+
+                for (auto image_entry : copy_entry.second.map_copy_wrappers)
+                {
+                    const ImageWrapper*        image_wrapper  = image_entry.image_wrapper;
+                    const DeviceMemoryWrapper* memory_wrapper = image_entry.memory_wrapper;
+
+                    assert((memory_wrapper != nullptr) &&
+                           ((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0)));
+
+                    WriteMappedMemoryCopyCommands(device,
+                                                  memory_wrapper->handle,
+                                                  memory_wrapper->mapped_data,
+                                                  image_wrapper->bind_offset,
+                                                  image_entry.resource_size,
+                                                  memory_wrapper->handle,
+                                                  image_wrapper->bind_offset,
+                                                  image_entry.resource_size,
+                                                  dispatch_table);
+
+                    if ((image_wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                        (image_wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED))
+                    {
+                        WriteImageLayoutTransitionCommandExecution(queue,
+                                                                   command_buffer,
+                                                                   image_wrapper->handle,
+                                                                   VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                                   VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                                   0,
+                                                                   0,
+                                                                   VK_IMAGE_LAYOUT_UNDEFINED,
+                                                                   image_wrapper->current_layout,
+                                                                   image_wrapper->mip_levels,
+                                                                   image_wrapper->array_layers,
+                                                                   image_entry.aspect);
+                    }
+                }
+
+                WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkDestroyCommandPool,
+                                         format::ToHandleId(device),
+                                         format::ToHandleId(command_pool),
+                                         nullptr);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to create a command buffer to process trim state");
+            }
+
+            dispatch_table.DestroyCommandPool(device, command_pool, nullptr);
+            command_pool = VK_NULL_HANDLE;
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to create a command pool to process trim state");
+        }
+    }
+
+    if (staging_buffer != VK_NULL_HANDLE)
+    {
+        // Write calls to staging buffer needed to replay the staging copies to device local memory.
+        WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkDestroyBuffer,
+                                 format::ToHandleId(device),
+                                 format::ToHandleId(staging_buffer),
+                                 nullptr);
+
+        WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkFreeMemory,
+                                 format::ToHandleId(device),
+                                 format::ToHandleId(staging_memory),
+                                 nullptr);
+
+        dispatch_table.DestroyBuffer(device, staging_buffer, nullptr);
+        dispatch_table.FreeMemory(device, staging_memory, nullptr);
     }
 }
 
