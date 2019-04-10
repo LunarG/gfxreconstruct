@@ -579,14 +579,13 @@ void VulkanStateWriter::ProcessBufferMemory(VkDevice                  device,
                                                                       buffer_wrapper->created_size,
                                                                       dispatch_table);
 
-                                        WriteStagingCopyCommands(device,
-                                                                 queue,
-                                                                 command_buffer,
-                                                                 staging_buffer,
-                                                                 buffer_wrapper->handle,
-                                                                 0,
-                                                                 buffer_wrapper->bind_offset,
-                                                                 buffer_wrapper->created_size);
+                                        WriteBufferCopyCommandExecution(queue,
+                                                                        command_buffer,
+                                                                        staging_buffer,
+                                                                        buffer_wrapper->handle,
+                                                                        0,
+                                                                        buffer_wrapper->bind_offset,
+                                                                        buffer_wrapper->created_size);
                                     }
                                 }
                                 else
@@ -833,29 +832,17 @@ void VulkanStateWriter::WriteMappedMemoryCopyCommands(VkDevice           device,
     }
 }
 
-void VulkanStateWriter::WriteStagingCopyCommands(VkDevice        device,
-                                                 VkQueue         queue,
-                                                 VkCommandBuffer command_buffer,
-                                                 VkBuffer        source,
-                                                 VkBuffer        destination,
-                                                 VkDeviceSize    source_offset,
-                                                 VkDeviceSize    destination_offset,
-                                                 VkDeviceSize    size)
+void VulkanStateWriter::WriteBufferCopyCommandExecution(VkQueue         queue,
+                                                        VkCommandBuffer command_buffer,
+                                                        VkBuffer        source,
+                                                        VkBuffer        destination,
+                                                        VkDeviceSize    source_offset,
+                                                        VkDeviceSize    destination_offset,
+                                                        VkDeviceSize    size)
 {
     const VkResult result = VK_SUCCESS;
 
-    // Begin the command buffer for the copy.
-    VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-    begin_info.pNext                    = nullptr;
-    begin_info.flags                    = 0;
-    begin_info.pInheritanceInfo         = nullptr;
-
-    encoder_.EncodeHandleIdValue(command_buffer);
-    EncodeStructPtr(&encoder_, &begin_info);
-    encoder_.EncodeEnumValue(result);
-
-    WriteFunctionCall(format::ApiCallId::ApiCall_vkBeginCommandBuffer, &parameter_stream_);
-    parameter_stream_.Reset();
+    WriteCommandBegin(command_buffer);
 
     // Record the copy command.
     VkBufferCopy copy_region;
@@ -872,12 +859,172 @@ void VulkanStateWriter::WriteStagingCopyCommands(VkDevice        device,
     WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdCopyBuffer, &parameter_stream_);
     parameter_stream_.Reset();
 
-    // End the command buffer.
+    WriteCommandEnd(command_buffer);
+    WriteCommandExecution(queue, command_buffer);
+}
+
+void VulkanStateWriter::WriteImageCopyCommandExecution(VkQueue                  queue,
+                                                       VkCommandBuffer          command_buffer,
+                                                       VkBuffer                 source,
+                                                       VkImage                  destination,
+                                                       VkImageLayout            final_layout,
+                                                       uint32_t                 copy_regions_size,
+                                                       const VkBufferImageCopy* copy_regions)
+{
+    assert((copy_regions_size > 0) && (copy_regions != nullptr));
+
+    const VkResult result = VK_SUCCESS;
+
+    WriteCommandBegin(command_buffer);
+
+    WriteImageLayoutTransitionCommand(command_buffer,
+                                      destination,
+                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                      VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                      0,
+                                      VK_ACCESS_TRANSFER_WRITE_BIT,
+                                      VK_IMAGE_LAYOUT_UNDEFINED,
+                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                      copy_regions_size, // One copy region per-mip level.
+                                      copy_regions[0].imageSubresource.layerCount,
+                                      copy_regions[0].imageSubresource.aspectMask);
+
+    // Record the copy command.
+    encoder_.EncodeHandleIdValue(command_buffer);
+    encoder_.EncodeHandleIdValue(source);
+    encoder_.EncodeHandleIdValue(destination);
+    encoder_.EncodeEnumValue(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    encoder_.EncodeUInt32Value(copy_regions_size);
+    EncodeStructArray(&encoder_, copy_regions, copy_regions_size);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    if ((final_layout != VK_IMAGE_LAYOUT_UNDEFINED) && (final_layout != VK_IMAGE_LAYOUT_PREINITIALIZED))
+    {
+        WriteImageLayoutTransitionCommand(command_buffer,
+                                          destination,
+                                          VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                          VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                          VK_ACCESS_TRANSFER_WRITE_BIT,
+                                          0,
+                                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                          final_layout,
+                                          copy_regions_size, // One copy region per-mip level.
+                                          copy_regions[0].imageSubresource.layerCount,
+                                          copy_regions[0].imageSubresource.aspectMask);
+    }
+
+    WriteCommandEnd(command_buffer);
+    WriteCommandExecution(queue, command_buffer);
+}
+
+void VulkanStateWriter::WriteImageLayoutTransitionCommand(VkCommandBuffer      command_buffer,
+                                                          VkImage              image,
+                                                          VkPipelineStageFlags src_stages,
+                                                          VkPipelineStageFlags dst_stages,
+                                                          VkAccessFlags        src_access,
+                                                          VkAccessFlags        dst_access,
+                                                          VkImageLayout        src_layout,
+                                                          VkImageLayout        dst_layout,
+                                                          uint32_t             mip_levels,
+                                                          uint32_t             array_layers,
+                                                          VkImageAspectFlags   aspect)
+{
+    const VkMemoryBarrier*       memory_barriers = nullptr;
+    const VkBufferMemoryBarrier* buffer_barriers = nullptr;
+
+    VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+    image_barrier.pNext                           = nullptr;
+    image_barrier.srcAccessMask                   = src_access;
+    image_barrier.dstAccessMask                   = dst_access;
+    image_barrier.oldLayout                       = src_layout;
+    image_barrier.newLayout                       = dst_layout;
+    image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+    image_barrier.image                           = image;
+    image_barrier.subresourceRange.aspectMask     = aspect;
+    image_barrier.subresourceRange.baseMipLevel   = 0;
+    image_barrier.subresourceRange.levelCount     = mip_levels;
+    image_barrier.subresourceRange.baseArrayLayer = 0;
+    image_barrier.subresourceRange.layerCount     = array_layers;
+
+    encoder_.EncodeHandleIdValue(command_buffer);
+    encoder_.EncodeFlagsValue(src_stages);
+    encoder_.EncodeFlagsValue(dst_stages);
+    encoder_.EncodeFlagsValue(0);
+    encoder_.EncodeUInt32Value(0);
+    EncodeStructArray(&encoder_, memory_barriers, 0);
+    encoder_.EncodeUInt32Value(0);
+    EncodeStructArray(&encoder_, buffer_barriers, 0);
+    encoder_.EncodeUInt32Value(1);
+    EncodeStructArray(&encoder_, &image_barrier, 1);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdPipelineBarrier, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteImageLayoutTransitionCommandExecution(VkQueue              queue,
+                                                                   VkCommandBuffer      command_buffer,
+                                                                   VkImage              image,
+                                                                   VkPipelineStageFlags src_stages,
+                                                                   VkPipelineStageFlags dst_stages,
+                                                                   VkAccessFlags        src_access,
+                                                                   VkAccessFlags        dst_access,
+                                                                   VkImageLayout        src_layout,
+                                                                   VkImageLayout        dst_layout,
+                                                                   uint32_t             mip_levels,
+                                                                   uint32_t             array_layers,
+                                                                   VkImageAspectFlags   aspect)
+{
+    WriteCommandBegin(command_buffer);
+    WriteImageLayoutTransitionCommand(command_buffer,
+                                      image,
+                                      src_stages,
+                                      dst_stages,
+                                      src_access,
+                                      dst_access,
+                                      src_layout,
+                                      dst_layout,
+                                      mip_levels,
+                                      array_layers,
+                                      aspect);
+    WriteCommandEnd(command_buffer);
+    WriteCommandExecution(queue, command_buffer);
+}
+
+void VulkanStateWriter::WriteCommandBegin(VkCommandBuffer command_buffer)
+{
+    const VkResult result = VK_SUCCESS;
+
+    VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+    begin_info.pNext                    = nullptr;
+    begin_info.flags                    = 0;
+    begin_info.pInheritanceInfo         = nullptr;
+
+    encoder_.EncodeHandleIdValue(command_buffer);
+    EncodeStructPtr(&encoder_, &begin_info);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkBeginCommandBuffer, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteCommandEnd(VkCommandBuffer command_buffer)
+{
+    const VkResult result = VK_SUCCESS;
+
     encoder_.EncodeHandleIdValue(command_buffer);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkEndCommandBuffer, &parameter_stream_);
     parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteCommandExecution(VkQueue queue, VkCommandBuffer command_buffer)
+{
+    const VkResult result = VK_SUCCESS;
+    const VkFence  fence  = VK_NULL_HANDLE;
 
     // Write queue submission.
     VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
@@ -893,7 +1040,7 @@ void VulkanStateWriter::WriteStagingCopyCommands(VkDevice        device,
     encoder_.EncodeHandleIdValue(queue);
     encoder_.EncodeUInt32Value(1);
     EncodeStructArray(&encoder_, &submit_info, 1);
-    encoder_.EncodeHandleIdValue<VkFence>(VK_NULL_HANDLE);
+    encoder_.EncodeHandleIdValue(fence);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueSubmit, &parameter_stream_);
