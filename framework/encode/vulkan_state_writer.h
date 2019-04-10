@@ -57,8 +57,27 @@ class VulkanStateWriter
         bool                       is_host_visible{ 0 };
     };
 
+    struct ImageSnapshotEntry
+    {
+        const ImageWrapper*        image_wrapper{ nullptr };
+        const DeviceMemoryWrapper* memory_wrapper{ nullptr };
+        bool                       is_host_visible{ 0 };
+        VkImageAspectFlagBits      aspect{};
+        VkDeviceSize               resource_size{ 0 }; // Combined size of all sub-resources.
+        std::vector<VkDeviceSize>  level_sizes;        // Combined size of all layers in a mip level.
+    };
+
     typedef std::vector<BufferSnapshotEntry>                 BufferSnapshotList;
     typedef std::unordered_map<uint32_t, BufferSnapshotList> BufferSnapshotQueueFamilyTable;
+    typedef std::vector<ImageSnapshotEntry>                  ImageSnapshotList;
+
+    struct ImageSnapshotListPair
+    {
+        ImageSnapshotList map_copy_wrappers;
+        ImageSnapshotList staging_copy_wrappers;
+    };
+
+    typedef std::unordered_map<uint32_t, ImageSnapshotListPair> ImageSnapshotQueueFamilyTable;
 
     struct BufferSnapshotData
     {
@@ -67,6 +86,14 @@ class VulkanStateWriter
         VkDeviceSize                   max_staging_copy_size{ 0 };
         VkDeviceSize                   max_device_local_buffer_size{ 0 };
         uint32_t                       num_device_local_buffers{ 0 };
+    };
+
+    struct ImageSnapshotData
+    {
+        ImageSnapshotQueueFamilyTable copy_wrappers;
+        VkDeviceSize                  max_staging_copy_size{ 0 };
+        VkDeviceSize                  max_device_local_image_size{ 0 };
+        uint32_t                      num_device_local_images{ 0 };
     };
 
   private:
@@ -162,6 +189,26 @@ class VulkanStateWriter
                                  VkDeviceMemory*         memory,
                                  const VulkanStateTable& state_table,
                                  const DeviceTable&      dispatch_table);
+
+    VkImageAspectFlags GetFormatAspectMask(VkFormat format);
+
+    VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect);
+
+    void GetImageSizes(const ImageWrapper* image_wrapper, ImageSnapshotEntry* entry, const DeviceTable& dispatch_table);
+
+    void UpdateImageSnapshotSizes(VkDeviceSize       size,
+                                  bool               is_host_visible,
+                                  bool               use_staging_copy,
+                                  ImageSnapshotData* snapshot_data);
+
+    void InsertImageSnapshotEntries(const ImageWrapper*        image_wrapper,
+                                    const DeviceMemoryWrapper* memory_wrapper,
+                                    bool                       is_host_visible,
+                                    bool                       use_staging_copy,
+                                    VkImageAspectFlags         aspect_mask,
+                                    ImageSnapshotList*         insert_list,
+                                    ImageSnapshotData*         snapshot_data,
+                                    const DeviceTable&         dispatch_table);
 
   private:
     util::FileOutputStream*  output_stream_;

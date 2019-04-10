@@ -20,6 +20,7 @@
 #include "format/format_util.h"
 #include "util/logging.h"
 
+#include <algorithm>
 #include <cassert>
 #include <limits>
 #include <set>
@@ -1254,6 +1255,314 @@ VkResult VulkanStateWriter::CreateStagingBuffer(VkDevice                device,
     }
 
     return result;
+}
+
+VkImageAspectFlags VulkanStateWriter::GetFormatAspectMask(VkFormat format)
+{
+    switch (format)
+    {
+        case VK_FORMAT_D16_UNORM_S8_UINT:
+        case VK_FORMAT_D24_UNORM_S8_UINT:
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        case VK_FORMAT_D16_UNORM:
+        case VK_FORMAT_X8_D24_UNORM_PACK32:
+        case VK_FORMAT_D32_SFLOAT:
+            return VK_IMAGE_ASPECT_DEPTH_BIT;
+        case VK_FORMAT_S8_UINT:
+            return VK_IMAGE_ASPECT_STENCIL_BIT;
+        case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM:
+        case VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM:
+        case VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM:
+        case VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_444_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_420_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_444_UNORM_3PACK16:
+        case VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM:
+        case VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM:
+        case VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM:
+            return VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT | VK_IMAGE_ASPECT_PLANE_2_BIT;
+        case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_422_UNORM:
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G16_B16R16_2PLANE_420_UNORM:
+        case VK_FORMAT_G16_B16R16_2PLANE_422_UNORM:
+            return VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT;
+        default:
+            return VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+}
+
+VkFormat VulkanStateWriter::GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect)
+{
+    switch (format)
+    {
+        // Per-aspect compatible formats as defined by the VkBufferImageCopy documentation.
+        case VK_FORMAT_D16_UNORM_S8_UINT:
+            if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
+            {
+                return VK_FORMAT_D16_UNORM;
+            }
+            else
+            {
+                assert(aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+                return VK_FORMAT_S8_UINT;
+            }
+        case VK_FORMAT_D24_UNORM_S8_UINT:
+            if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
+            {
+                // Effectively the same format (D24 texels packed into a 32-bit word).
+                return VK_FORMAT_D24_UNORM_S8_UINT;
+            }
+            else
+            {
+                assert(aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+                return VK_FORMAT_S8_UINT;
+            }
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
+            {
+                return VK_FORMAT_D32_SFLOAT;
+            }
+            else
+            {
+                assert(aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+                return VK_FORMAT_S8_UINT;
+            }
+        // Per-aspect/plane compatible formats as defined by the "Plane Format Compatibility Table" from the Vulkan
+        // specification.
+        case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM:
+        case VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM:
+        case VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM:
+            // All planes share the same format.
+            return VK_FORMAT_R8_UNORM;
+        case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
+        case VK_FORMAT_G8_B8R8_2PLANE_422_UNORM:
+            if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
+            {
+                return VK_FORMAT_R8_UNORM;
+            }
+            else
+            {
+                assert(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
+                return VK_FORMAT_R8G8_UNORM;
+            }
+        case VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_444_UNORM_3PACK16:
+            // All planes share the same format.
+            return VK_FORMAT_R10X6_UNORM_PACK16;
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16:
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16:
+            if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
+            {
+                return VK_FORMAT_R10X6_UNORM_PACK16;
+            }
+            else
+            {
+                assert(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
+                return VK_FORMAT_R10X6G10X6_UNORM_2PACK16;
+            }
+        case VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_420_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_422_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_444_UNORM_3PACK16:
+            // All planes share the same format.
+            return VK_FORMAT_R12X4_UNORM_PACK16;
+        case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16:
+        case VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16:
+            if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
+            {
+                return VK_FORMAT_R12X4_UNORM_PACK16;
+            }
+            else
+            {
+                assert(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
+                return VK_FORMAT_R12X4G12X4_UNORM_2PACK16;
+            }
+        case VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM:
+        case VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM:
+        case VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM:
+            // All planes share the same format.
+            return VK_FORMAT_R16_UNORM;
+        case VK_FORMAT_G16_B16R16_2PLANE_420_UNORM:
+        case VK_FORMAT_G16_B16R16_2PLANE_422_UNORM:
+            if (aspect == VK_IMAGE_ASPECT_PLANE_0_BIT)
+            {
+                return VK_FORMAT_R16_UNORM;
+            }
+            else
+            {
+                assert(aspect == VK_IMAGE_ASPECT_PLANE_1_BIT);
+                return VK_FORMAT_R16G16_UNORM;
+            }
+        default:
+            assert((aspect == VK_IMAGE_ASPECT_COLOR_BIT) || (aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
+                   (aspect == VK_IMAGE_ASPECT_STENCIL_BIT));
+            return format;
+    }
+}
+
+void VulkanStateWriter::GetImageSizes(const ImageWrapper* image_wrapper,
+                                      ImageSnapshotEntry* entry,
+                                      const DeviceTable&  dispatch_table)
+{
+    assert((image_wrapper != nullptr) && (entry != nullptr));
+
+    VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+    create_info.pNext                 = nullptr;
+    create_info.flags                 = 0;
+    create_info.imageType             = image_wrapper->image_type;
+    create_info.format                = GetImageAspectFormat(image_wrapper->format, entry->aspect);
+    create_info.extent                = image_wrapper->extent;
+    create_info.mipLevels             = 1;
+    create_info.arrayLayers           = image_wrapper->array_layers;
+    create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+    create_info.tiling                = image_wrapper->tiling;
+    create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.queueFamilyIndexCount = 0;
+    create_info.pQueueFamilyIndices   = nullptr;
+    create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    VkImage              image = VK_NULL_HANDLE;
+    VkMemoryRequirements memory_requirements;
+
+    // Size of first level.
+    VkResult result = dispatch_table.CreateImage(image_wrapper->bind_device, &create_info, nullptr, &image);
+    if (result == VK_SUCCESS)
+    {
+        dispatch_table.GetImageMemoryRequirements(image_wrapper->bind_device, image, &memory_requirements);
+        entry->resource_size = memory_requirements.size;
+        entry->level_sizes.push_back(memory_requirements.size);
+        dispatch_table.DestroyImage(image_wrapper->bind_device, image, nullptr);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to determine size of image for resource memory snapshot");
+    }
+
+    // Size of additional mip levels.
+    for (uint32_t i = 1; i < image_wrapper->mip_levels; ++i)
+    {
+        create_info.extent.width  = std::max(1u, (create_info.extent.width >> i));
+        create_info.extent.height = std::max(1u, (create_info.extent.height >> i));
+        create_info.extent.depth  = std::max(1u, (create_info.extent.depth >> i));
+
+        result = dispatch_table.CreateImage(image_wrapper->bind_device, &create_info, nullptr, &image);
+        if (result == VK_SUCCESS)
+        {
+            dispatch_table.GetImageMemoryRequirements(image_wrapper->bind_device, image, &memory_requirements);
+            entry->resource_size += memory_requirements.size;
+            entry->level_sizes.push_back(memory_requirements.size);
+            dispatch_table.DestroyImage(image_wrapper->bind_device, image, nullptr);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to determine size of image for resource memory snapshot");
+        }
+    }
+}
+
+void VulkanStateWriter::UpdateImageSnapshotSizes(VkDeviceSize       size,
+                                                 bool               is_host_visible,
+                                                 bool               use_staging_copy,
+                                                 ImageSnapshotData* snapshot_data)
+{
+    assert(snapshot_data != nullptr);
+
+    if (use_staging_copy)
+    {
+        if (!is_host_visible)
+        {
+            if (snapshot_data->max_device_local_image_size < size)
+            {
+                snapshot_data->max_device_local_image_size = size;
+            }
+        }
+
+        if (snapshot_data->max_staging_copy_size < size)
+        {
+            snapshot_data->max_staging_copy_size = size;
+        }
+    }
+}
+
+void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        image_wrapper,
+                                                   const DeviceMemoryWrapper* memory_wrapper,
+                                                   bool                       is_host_visible,
+                                                   bool                       use_staging_copy,
+                                                   VkImageAspectFlags         aspect_mask,
+                                                   ImageSnapshotList*         insert_list,
+                                                   ImageSnapshotData*         snapshot_data,
+                                                   const DeviceTable&         dispatch_table)
+
+{
+    assert((image_wrapper != nullptr) && (memory_wrapper != nullptr) && (insert_list != nullptr) &&
+           (snapshot_data != nullptr));
+
+    ImageSnapshotEntry entry;
+    entry.image_wrapper   = image_wrapper;
+    entry.memory_wrapper  = memory_wrapper;
+    entry.is_host_visible = is_host_visible;
+
+    if (aspect_mask == VK_IMAGE_ASPECT_COLOR_BIT)
+    {
+        entry.aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+        GetImageSizes(image_wrapper, &entry, dispatch_table);
+        UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
+        insert_list->emplace_back(entry);
+    }
+    else
+    {
+        // Color is not expected to be combined with other aspects.
+        assert((aspect_mask & VK_IMAGE_ASPECT_COLOR_BIT) != VK_IMAGE_ASPECT_COLOR_BIT);
+
+        // Need to perform one copy per aspect.
+        if ((aspect_mask & VK_IMAGE_ASPECT_DEPTH_BIT) == VK_IMAGE_ASPECT_DEPTH_BIT)
+        {
+            entry.aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+            GetImageSizes(image_wrapper, &entry, dispatch_table);
+            UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
+            insert_list->push_back(entry);
+        }
+
+        if ((aspect_mask & VK_IMAGE_ASPECT_STENCIL_BIT) == VK_IMAGE_ASPECT_STENCIL_BIT)
+        {
+            entry.aspect = VK_IMAGE_ASPECT_STENCIL_BIT;
+            GetImageSizes(image_wrapper, &entry, dispatch_table);
+            UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
+            insert_list->push_back(entry);
+        }
+
+        if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_0_BIT) == VK_IMAGE_ASPECT_PLANE_0_BIT)
+        {
+            entry.aspect = VK_IMAGE_ASPECT_PLANE_0_BIT;
+            GetImageSizes(image_wrapper, &entry, dispatch_table);
+            UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
+            insert_list->push_back(entry);
+        }
+
+        if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_1_BIT) == VK_IMAGE_ASPECT_PLANE_1_BIT)
+        {
+            entry.aspect = VK_IMAGE_ASPECT_PLANE_1_BIT;
+            GetImageSizes(image_wrapper, &entry, dispatch_table);
+            UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
+            insert_list->push_back(entry);
+        }
+
+        if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_2_BIT) == VK_IMAGE_ASPECT_PLANE_2_BIT)
+        {
+            entry.aspect = VK_IMAGE_ASPECT_PLANE_2_BIT;
+            GetImageSizes(image_wrapper, &entry, dispatch_table);
+            UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
+            insert_list->push_back(entry);
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)
