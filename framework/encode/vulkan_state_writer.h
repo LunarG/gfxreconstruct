@@ -114,6 +114,11 @@ class VulkanStateWriter
                              const VulkanStateTable&   state_table,
                              const DeviceTable&        dispatch_table);
 
+    void ProcessImageMemory(VkDevice                 device,
+                            const ImageSnapshotData& snapshot_data,
+                            const VulkanStateTable&  state_table,
+                            const DeviceTable&       dispatch_table);
+
     void WriteStagingBufferCreateCommands(VkDevice                    device,
                                           VkDeviceSize                buffer_size,
                                           VkBuffer                    buffer,
