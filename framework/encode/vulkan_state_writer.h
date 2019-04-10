@@ -137,14 +137,52 @@ class VulkanStateWriter
                                        VkDeviceSize       replay_size,
                                        const DeviceTable& dispatch_table);
 
-    void WriteStagingCopyCommands(VkDevice        device,
-                                  VkQueue         queue,
-                                  VkCommandBuffer command_buffer,
-                                  VkBuffer        source,
-                                  VkBuffer        destination,
-                                  VkDeviceSize    source_offset,
-                                  VkDeviceSize    destination_offset,
-                                  VkDeviceSize    size);
+    void WriteBufferCopyCommandExecution(VkQueue         queue,
+                                         VkCommandBuffer command_buffer,
+                                         VkBuffer        source,
+                                         VkBuffer        destination,
+                                         VkDeviceSize    source_offset,
+                                         VkDeviceSize    destination_offset,
+                                         VkDeviceSize    size);
+
+    void WriteImageCopyCommandExecution(VkQueue                  queue,
+                                        VkCommandBuffer          command_buffer,
+                                        VkBuffer                 source,
+                                        VkImage                  destination,
+                                        VkImageLayout            final_layout,
+                                        uint32_t                 copy_regions_size,
+                                        const VkBufferImageCopy* copy_regions);
+
+    void WriteImageLayoutTransitionCommand(VkCommandBuffer      command_buffer,
+                                           VkImage              image,
+                                           VkPipelineStageFlags src_stages,
+                                           VkPipelineStageFlags dst_stages,
+                                           VkAccessFlags        src_access,
+                                           VkAccessFlags        dst_access,
+                                           VkImageLayout        src_layout,
+                                           VkImageLayout        dst_layout,
+                                           uint32_t             mip_levels,
+                                           uint32_t             array_layers,
+                                           VkImageAspectFlags   aspect);
+
+    void WriteImageLayoutTransitionCommandExecution(VkQueue              queue,
+                                                    VkCommandBuffer      command_buffer,
+                                                    VkImage              image,
+                                                    VkPipelineStageFlags src_stages,
+                                                    VkPipelineStageFlags dst_stages,
+                                                    VkAccessFlags        src_access,
+                                                    VkAccessFlags        dst_access,
+                                                    VkImageLayout        src_layout,
+                                                    VkImageLayout        dst_layout,
+                                                    uint32_t             mip_levels,
+                                                    uint32_t             array_layers,
+                                                    VkImageAspectFlags   aspect);
+
+    void WriteCommandBegin(VkCommandBuffer command_buffer);
+
+    void WriteCommandEnd(VkCommandBuffer command_buffer);
+
+    void WriteCommandExecution(VkQueue queue, VkCommandBuffer command_buffer);
 
     void WriteDestroyDeviceObject(format::ApiCallId            call_id,
                                   format::HandleId             device_id,
