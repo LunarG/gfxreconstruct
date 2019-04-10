@@ -608,14 +608,14 @@ void VulkanStateWriter::ProcessBufferMemory(VkDevice                  device,
                                                      format::ToHandleId(command_pool),
                                                      nullptr);
                         }
-
-                        dispatch_table.DestroyCommandPool(device, command_pool, nullptr);
-                        command_pool = VK_NULL_HANDLE;
                     }
                     else
                     {
                         GFXRECON_LOG_ERROR("Failed to create a command buffer to process trim state");
                     }
+
+                    dispatch_table.DestroyCommandPool(device, command_pool, nullptr);
+                    command_pool = VK_NULL_HANDLE;
                 }
                 else
                 {
