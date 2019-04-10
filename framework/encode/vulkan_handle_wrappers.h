@@ -163,9 +163,17 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
 
 struct ImageWrapper : public HandleWrapper<VkImage>
 {
-    VkDevice       bind_device{ VK_NULL_HANDLE };
-    VkDeviceMemory bind_memory{ VK_NULL_HANDLE };
-    VkDeviceSize   bind_offset{ 0 };
+    VkDevice              bind_device{ VK_NULL_HANDLE };
+    VkDeviceMemory        bind_memory{ VK_NULL_HANDLE };
+    VkDeviceSize          bind_offset{ 0 };
+    uint32_t              queue_family_index{ 0 };
+    VkImageType           image_type{ VK_IMAGE_TYPE_2D };
+    VkFormat              format{ VK_FORMAT_UNDEFINED };
+    VkExtent3D            extent{ 0, 0, 0 };
+    uint32_t              mip_levels{ 0 };
+    uint32_t              array_layers{ 0 };
+    VkSampleCountFlagBits samples{};
+    VkImageTiling         tiling{};
 };
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>

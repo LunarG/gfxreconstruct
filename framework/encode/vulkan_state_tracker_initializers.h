@@ -412,7 +412,40 @@ inline void InitializeState<VkDevice, BufferWrapper, VkBufferCreateInfo>(VkDevic
     wrapper->created_size = create_info->size;
 
     // TODO: Do we need to track the queue family that the buffer is actually used with?
-    if (create_info->queueFamilyIndexCount > 0)
+    if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
+    {
+        wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
+    }
+}
+
+template <>
+inline void InitializeState<VkDevice, ImageWrapper, VkImageCreateInfo>(VkDevice                 parent_handle,
+                                                                       ImageWrapper*            wrapper,
+                                                                       const VkImageCreateInfo* create_info,
+                                                                       format::ApiCallId        create_call_id,
+                                                                       CreateParameters         create_parameters,
+                                                                       VulkanStateTable*        state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->image_type   = create_info->imageType;
+    wrapper->format       = create_info->format;
+    wrapper->extent       = create_info->extent;
+    wrapper->mip_levels   = create_info->mipLevels;
+    wrapper->array_layers = create_info->arrayLayers;
+    wrapper->samples      = create_info->samples;
+    wrapper->tiling       = create_info->tiling;
+
+    // TODO: Do we need to track the queue family that the image is actually used with?
+    if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
     {
         wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
