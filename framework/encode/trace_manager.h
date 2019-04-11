@@ -241,7 +241,100 @@ class TraceManager
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
         {
             assert(state_tracker_ != nullptr);
-            state_tracker_->TrackImageMemoryBinding(device, image , memory, memoryOffset);
+            state_tracker_->TrackImageMemoryBinding(device, image, memory, memoryOffset);
+        }
+    }
+
+    void PostProcess_vkCmdBeginRenderPass(VkCommandBuffer              commandBuffer,
+                                          const VkRenderPassBeginInfo* pRenderPassBegin,
+                                          VkSubpassContents            contents)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            GFXRECON_UNREFERENCED_PARAMETER(contents);
+            state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
+        }
+    }
+
+    void PostProcess_vkCmdBeginRenderPass2KHR(VkCommandBuffer              commandBuffer,
+                                              const VkRenderPassBeginInfo* pRenderPassBegin,
+                                              const VkSubpassBeginInfoKHR* pSubpassBeginInfo)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            GFXRECON_UNREFERENCED_PARAMETER(pSubpassBeginInfo);
+            state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
+        }
+    }
+
+    void PostProcess_vkCmdEndRenderPass(VkCommandBuffer commandBuffer)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackEndRenderPass(commandBuffer);
+        }
+    }
+
+    void PostProcess_vkCmdEndRenderPass2KHR(VkCommandBuffer commandBuffer, const VkSubpassEndInfoKHR* pSubpassEndInfo)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            GFXRECON_UNREFERENCED_PARAMETER(pSubpassEndInfo);
+            state_tracker_->TrackEndRenderPass(commandBuffer);
+        }
+    }
+
+    void PostProcess_vkCmdPipelineBarrier(VkCommandBuffer              commandBuffer,
+                                          VkPipelineStageFlags         srcStageMask,
+                                          VkPipelineStageFlags         dstStageMask,
+                                          VkDependencyFlags            dependencyFlags,
+                                          uint32_t                     memoryBarrierCount,
+                                          const VkMemoryBarrier*       pMemoryBarriers,
+                                          uint32_t                     bufferMemoryBarrierCount,
+                                          const VkBufferMemoryBarrier* pBufferMemoryBarriers,
+                                          uint32_t                     imageMemoryBarrierCount,
+                                          const VkImageMemoryBarrier*  pImageMemoryBarriers)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+
+            GFXRECON_UNREFERENCED_PARAMETER(srcStageMask);
+            GFXRECON_UNREFERENCED_PARAMETER(dstStageMask);
+            GFXRECON_UNREFERENCED_PARAMETER(dependencyFlags);
+            GFXRECON_UNREFERENCED_PARAMETER(memoryBarrierCount);
+            GFXRECON_UNREFERENCED_PARAMETER(pMemoryBarriers);
+            GFXRECON_UNREFERENCED_PARAMETER(bufferMemoryBarrierCount);
+            GFXRECON_UNREFERENCED_PARAMETER(pBufferMemoryBarriers);
+
+            state_tracker_->TrackImageBarriers(commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers);
+        }
+    }
+
+    void PostProcess_vkCmdExecuteCommands(VkCommandBuffer        commandBuffer,
+                                          uint32_t               commandBufferCount,
+                                          const VkCommandBuffer* pCommandBuffers)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackExecuteCommands(commandBuffer, commandBufferCount, pCommandBuffers);
+        }
+    }
+
+    void PostProcess_vkQueueSubmit(
+        VkResult result, VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            GFXRECON_UNREFERENCED_PARAMETER(queue);
+            GFXRECON_UNREFERENCED_PARAMETER(fence);
+            state_tracker_->TrackImageLayoutTransitions(submitCount, pSubmits);
         }
     }
 

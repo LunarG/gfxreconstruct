@@ -104,5 +104,176 @@ void VulkanStateTracker::TrackMappedMemory(VkDeviceMemory memory,
     }
 }
 
+void VulkanStateTracker::TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info)
+{
+    assert(begin_info != nullptr);
+
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    CommandBufferWrapper* wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
+    if (wrapper != nullptr)
+    {
+        wrapper->active_render_pass      = begin_info->renderPass;
+        wrapper->render_pass_framebuffer = begin_info->framebuffer;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track render pass begin state for an unrecognized command buffer handle");
+    }
+}
+
+void VulkanStateTracker::TrackEndRenderPass(VkCommandBuffer command_buffer)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    CommandBufferWrapper* wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
+    if (wrapper != nullptr)
+    {
+        assert((wrapper->active_render_pass != VK_NULL_HANDLE) && (wrapper->render_pass_framebuffer != VK_NULL_HANDLE));
+
+        const RenderPassWrapper* render_pass_wrapper =
+            state_table_.GetRenderPassWrapper(format::ToHandleId(wrapper->active_render_pass));
+        const FramebufferWrapper* framebuffer_wrapper =
+            state_table_.GetFramebufferWrapper(format::ToHandleId(wrapper->render_pass_framebuffer));
+
+        if ((framebuffer_wrapper != nullptr) && (render_pass_wrapper != nullptr))
+        {
+            uint32_t attachment_count = static_cast<uint32_t>(framebuffer_wrapper->attachments.size());
+
+            assert(attachment_count <= render_pass_wrapper->attachment_final_layouts.size());
+
+            for (uint32_t i = 0; i < attachment_count; ++i)
+            {
+                wrapper->pending_layouts[framebuffer_wrapper->attachments[i]] =
+                    render_pass_wrapper->attachment_final_layouts[i];
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "Attempting to track render pass end state with unrecognized render pass and/or framebuffer handles");
+        }
+
+        // Clear the active render pass state now that the pass has ended.
+        wrapper->active_render_pass      = VK_NULL_HANDLE;
+        wrapper->render_pass_framebuffer = VK_NULL_HANDLE;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track render pass end state for an unrecognized command buffer handle");
+    }
+}
+
+void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buffer,
+                                              uint32_t               command_buffer_count,
+                                              const VkCommandBuffer* command_buffers)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    CommandBufferWrapper* primary_wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
+    if (primary_wrapper != nullptr)
+    {
+        if (command_buffers != nullptr)
+        {
+            for (uint32_t i = 0; i < command_buffer_count; ++i)
+            {
+                CommandBufferWrapper* secondary_wrapper =
+                    state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
+
+                if (secondary_wrapper != nullptr)
+                {
+                    for (auto layout_entry : secondary_wrapper->pending_layouts)
+                    {
+                        primary_wrapper->pending_layouts[layout_entry.first] = layout_entry.second;
+                    }
+
+                    // TODO: Clear pending_layouts on command buffer reset.
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("Attempting to track execute commands state with an unrecognized secondary "
+                                         "command buffer handle");
+                }
+            }
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING(
+            "Attempting to track execute commands state for an unrecognized primary command buffer handle");
+    }
+}
+
+void VulkanStateTracker::TrackImageBarriers(VkCommandBuffer             command_buffer,
+                                            uint32_t                    image_barrier_count,
+                                            const VkImageMemoryBarrier* image_barriers)
+{
+    if ((image_barrier_count > 0) && (image_barriers != nullptr))
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+
+        CommandBufferWrapper* wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
+        if (wrapper != nullptr)
+        {
+            for (uint32_t i = 0; i < image_barrier_count; ++i)
+            {
+                wrapper->pending_layouts[image_barriers[i].image] = image_barriers[i].newLayout;
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "Attempting to track pipeline barrier state for an unrecognized command buffer handle");
+        }
+    }
+}
+
+void VulkanStateTracker::TrackImageLayoutTransitions(uint32_t submit_count, const VkSubmitInfo* submits)
+{
+    if ((submit_count > 0) && (submits != nullptr) && (submits->commandBufferCount > 0))
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+
+        for (uint32_t submit = 0; submit < submit_count; ++submit)
+        {
+            uint32_t               command_buffer_count = submits[submit].commandBufferCount;
+            const VkCommandBuffer* command_buffers      = submits[submit].pCommandBuffers;
+
+            for (uint32_t cmd = 0; cmd < command_buffer_count; ++cmd)
+            {
+                CommandBufferWrapper* command_wrapper =
+                    state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffers[cmd]));
+
+                if (command_wrapper != nullptr)
+                {
+                    // Apply pending image layouts.
+                    for (auto layout_entry : command_wrapper->pending_layouts)
+                    {
+                        ImageWrapper* image_wrapper =
+                            state_table_.GetImageWrapper(format::ToHandleId(layout_entry.first));
+
+                        if (image_wrapper != nullptr)
+                        {
+                            image_wrapper->current_layout = layout_entry.second;
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_WARNING(
+                                "Attempting to track image layout state with an unrecognized image handle");
+                        }
+                    }
+
+                    // TODO: Clear pending_layouts on command buffer reset.
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Attempting to track image layout state for an unrecognized command buffer handle");
+                }
+            }
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

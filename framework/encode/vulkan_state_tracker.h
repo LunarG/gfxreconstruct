@@ -167,6 +167,20 @@ class VulkanStateTracker
     void
     TrackMappedMemory(VkDeviceMemory memory, void* mapped_data, VkDeviceSize mapped_offset, VkDeviceSize mapped_size);
 
+    void TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info);
+
+    void TrackEndRenderPass(VkCommandBuffer command_buffer);
+
+    void TrackExecuteCommands(VkCommandBuffer        command_buffer,
+                              uint32_t               command_buffer_count,
+                              const VkCommandBuffer* command_buffers);
+
+    void TrackImageBarriers(VkCommandBuffer             command_buffer,
+                            uint32_t                    image_barrier_count,
+                            const VkImageMemoryBarrier* image_barriers);
+
+    void TrackImageLayoutTransitions(uint32_t submit_count, const VkSubmitInfo* submits);
+
   private:
     // TODO: Evaluate need for per-type locks.
     std::mutex mutex_;
