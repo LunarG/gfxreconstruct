@@ -173,8 +173,17 @@ class VulkanStateTable
     ImageWrapper*       GetImageWrapper(format::HandleId id)       { return GetWrapper<ImageWrapper>(id, image_map_); }
     const ImageWrapper* GetImageWrapper(format::HandleId id) const { return GetWrapper<ImageWrapper>(id, image_map_); }
 
+    ImageViewWrapper*       GetImageViewWrapper(format::HandleId id)       { return GetWrapper<ImageViewWrapper>(id, image_view_map_); }
+    const ImageViewWrapper* GetImageViewWrapper(format::HandleId id) const { return GetWrapper<ImageViewWrapper>(id, image_view_map_); }
+
+    FramebufferWrapper*       GetFramebufferWrapper(format::HandleId id)       { return GetWrapper<FramebufferWrapper>(id, framebuffer_map_); }
+    const FramebufferWrapper* GetFramebufferWrapper(format::HandleId id) const { return GetWrapper<FramebufferWrapper>(id, framebuffer_map_); }
+
     CommandPoolWrapper*       GetCommandPoolWrapper(format::HandleId id)       { return GetWrapper<CommandPoolWrapper>(id, command_pool_map_);}
     const CommandPoolWrapper* GetCommandPoolWrapper(format::HandleId id) const { return GetWrapper<CommandPoolWrapper>(id, command_pool_map_);}
+
+    CommandBufferWrapper*       GetCommandBufferWrapper(format::HandleId id)       { return GetWrapper<CommandBufferWrapper>(id, command_buffer_map_);}
+    const CommandBufferWrapper* GetCommandBufferWrapper(format::HandleId id) const { return GetWrapper<CommandBufferWrapper>(id, command_buffer_map_);}
 
     DescriptorPoolWrapper*       GetDescriptorPoolWrapper(format::HandleId id)       { return GetWrapper<DescriptorPoolWrapper>(id, descriptor_pool_map_); }
     const DescriptorPoolWrapper* GetDescriptorPoolWrapper(format::HandleId id) const { return GetWrapper<DescriptorPoolWrapper>(id, descriptor_pool_map_); }

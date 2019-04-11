@@ -189,6 +189,44 @@ InitializeState<VkDevice, FramebufferWrapper, VkFramebufferCreateInfo>(VkDevice 
         wrapper->render_pass_create_call_id    = render_pass_wrapper->create_call_id;
         wrapper->render_pass_create_parameters = render_pass_wrapper->create_parameters;
     }
+
+    if (create_info->pAttachments != nullptr)
+    {
+        for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
+        {
+            ImageViewWrapper* image_view_wrapper =
+                state_table->GetImageViewWrapper(format::ToHandleId(create_info->pAttachments[i]));
+            wrapper->attachments.push_back(image_view_wrapper->image);
+        }
+    }
+}
+
+template <>
+inline void
+InitializeState<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo>(VkDevice                      parent_handle,
+                                                                     RenderPassWrapper*            wrapper,
+                                                                     const VkRenderPassCreateInfo* create_info,
+                                                                     format::ApiCallId             create_call_id,
+                                                                     CreateParameters              create_parameters,
+                                                                     VulkanStateTable*             state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    if (create_info->pAttachments != nullptr)
+    {
+        for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
+        {
+            wrapper->attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+        }
+    }
 }
 
 template <>
@@ -449,6 +487,27 @@ inline void InitializeState<VkDevice, ImageWrapper, VkImageCreateInfo>(VkDevice 
     {
         wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
+}
+
+template <>
+inline void InitializeState<VkDevice, ImageViewWrapper, VkImageViewCreateInfo>(VkDevice          parent_handle,
+                                                                               ImageViewWrapper* wrapper,
+                                                                               const VkImageViewCreateInfo* create_info,
+                                                                               format::ApiCallId create_call_id,
+                                                                               CreateParameters  create_parameters,
+                                                                               VulkanStateTable* state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->image = create_info->image;
 }
 
 GFXRECON_END_NAMESPACE(vulkan_state_tracker)

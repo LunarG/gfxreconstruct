@@ -131,6 +131,66 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdBeginRenderPass(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdBeginRenderPass2KHR(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdEndRenderPass(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdEndRenderPass2KHR(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPipelineBarrier>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdPipelineBarrier(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdExecuteCommands(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory>
 {
     template <typename... Args>
@@ -177,6 +237,16 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>
     static void Dispatch(TraceManager* manager, Args... args)
     {
         manager->PreProcess_vkQueueSubmit(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkQueueSubmit(result, args...);
     }
 };
 
