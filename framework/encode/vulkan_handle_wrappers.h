@@ -100,7 +100,6 @@ struct QueueWrapper                     : public HandleWrapper<VkQueue> {};
 struct FenceWrapper                     : public HandleWrapper<VkFence> {};
 struct EventWrapper                     : public HandleWrapper<VkEvent> {};
 struct BufferViewWrapper                : public HandleWrapper<VkBufferView> {};
-struct ImageViewWrapper                 : public HandleWrapper<VkImageView> {};
 struct ShaderModuleWrapper              : public HandleWrapper<VkShaderModule> {};
 struct PipelineCacheWrapper             : public HandleWrapper<VkPipelineCache> {};
 struct DescriptorSetLayoutWrapper       : public HandleWrapper<VkDescriptorSetLayout> {};
@@ -174,6 +173,13 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     uint32_t              array_layers{ 0 };
     VkSampleCountFlagBits samples{};
     VkImageTiling         tiling{};
+    VkImageLayout         current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
+};
+
+struct ImageViewWrapper : public HandleWrapper<VkImageView>
+{
+    // Store handle to associated image for tracking render pass layout transitions.
+    VkImage image{ VK_NULL_HANDLE };
 };
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
@@ -183,6 +189,9 @@ struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
     format::HandleId  render_pass_id{ 0 };
     format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  render_pass_create_parameters;
+
+    // Track handles of image attachments for processing render pass layout transitions.
+    std::vector<VkImage> attachments;
 };
 
 struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
@@ -199,6 +208,17 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     // Pool from which command buffer was allocated. The command buffer must be removed from the pool's allocation list
     // when destroyed.
     CommandPoolWrapper* pool{ nullptr };
+
+    // Image layout info tracked for image barriers recorded to the command buffer. To be updated on calls to
+    // vkCmdPipelineBarrier and vkCmdEndRenderPass and applied to the image wrapper on calls to vkQueueSubmit. To be
+    // transferred from secondary command buffers to primary command buffers on calls to vkCmdExecuteCommands.
+    std::unordered_map<VkImage, VkImageLayout> pending_layouts;
+
+    // Render pass object tracking for processing image layout transitions. Render pass and framebuffer values
+    // for the active render pass instance will be set on calls to vkCmdBeginRenderPass and will be used to update the
+    // pending image layout on calls to vkCmdEndRenderPass.
+    VkRenderPass  active_render_pass{ VK_NULL_HANDLE };
+    VkFramebuffer render_pass_framebuffer{ VK_NULL_HANDLE };
 };
 
 struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
@@ -229,7 +249,9 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
 
 struct RenderPassWrapper : public HandleWrapper<VkRenderPass>
 {
-    // TODO: track begin end render pass and subpass states
+    // Final image attachment layouts to be used for processing image layout transitions after calls to
+    // vkCmdEndRenderPass.
+    std::vector<VkImageLayout> attachment_final_layouts;
 };
 
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
