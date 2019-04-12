@@ -197,7 +197,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         return body
 
     def makeBeginApiCall(self, name, values):
-        if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree') or self.retrievesHandles(values):
+        if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree') or self.retrievesHandles(values) or (values[0].baseType == 'VkCommandBuffer'):
             return 'auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
         else:
             return 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
@@ -256,6 +256,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             else:
                 decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, encoder)'.format(handle.baseType[2:], handle.name)
 
+        elif values[0].baseType == 'VkCommandBuffer':
+            decl += 'EndCommandApiCallTrace({}, encoder)'.format(values[0].name)
         else:
             if name in ['vkGetPhysicalDeviceDisplayPropertiesKHR']:
                 # TODO: Handle vkEnumeratePhysicalDevices and vkGetPhysicalDeviceDisplayProprtiesKHR
