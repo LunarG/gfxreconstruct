@@ -37,6 +37,7 @@ void VulkanStateTracker::TrackCommand(VkCommandBuffer                 command_bu
         {
             // Clear command data on command buffer reset.
             wrapper->command_data.Reset();
+            wrapper->pending_layouts.clear();
         }
 
         if (call_id != format::ApiCallId::ApiCall_vkResetCommandBuffer)
@@ -64,6 +65,7 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
         for (auto entry : wrapper->allocated_buffers)
         {
             entry.second->command_data.Reset();
+            entry.second->pending_layouts.clear();
         }
     }
     else
@@ -235,8 +237,6 @@ void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buf
                     {
                         primary_wrapper->pending_layouts[layout_entry.first] = layout_entry.second;
                     }
-
-                    // TODO: Clear pending_layouts on command buffer reset.
                 }
                 else
                 {
@@ -311,8 +311,6 @@ void VulkanStateTracker::TrackImageLayoutTransitions(uint32_t submit_count, cons
                                 "Attempting to track image layout state with an unrecognized image handle");
                         }
                     }
-
-                    // TODO: Clear pending_layouts on command buffer reset.
                 }
                 else
                 {
