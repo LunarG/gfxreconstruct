@@ -111,6 +111,8 @@ inline void InitializeState<VkDevice, CommandBufferWrapper, VkCommandBufferAlloc
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
+    wrapper->level = alloc_info->level;
+
     CommandPoolWrapper* pool_wrapper = state_table->GetCommandPoolWrapper(format::ToHandleId(alloc_info->commandPool));
     if (pool_wrapper != nullptr)
     {

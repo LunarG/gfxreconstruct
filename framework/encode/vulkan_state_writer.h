@@ -192,6 +192,8 @@ class VulkanStateWriter
 
     void WriteCommandExecution(VkQueue queue, VkCommandBuffer command_buffer);
 
+    void WriteCommandBufferCommands(const CommandBufferWrapper* wrapper);
+
     void WriteDestroyDeviceObject(format::ApiCallId            call_id,
                                   format::HandleId             device_id,
                                   format::HandleId             object_id,
