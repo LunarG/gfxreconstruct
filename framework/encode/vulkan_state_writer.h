@@ -29,6 +29,7 @@
 
 #include "vulkan/vulkan.h"
 
+#include <set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -205,8 +206,15 @@ class VulkanStateWriter
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)
     {
-        state_table.VisitWrappers([=](const Wrapper* wrapper) {
-            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        std::set<util::MemoryOutputStream*> processed;
+        state_table.VisitWrappers([&](const Wrapper* wrapper) {
+            // Filter duplicate entries for calls that create multiple objects, where objects created by the same call
+            // all reference the same parameter buffer.
+            if (processed.find(wrapper->create_parameters.get()) == processed.end())
+            {
+                WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+                processed.insert(wrapper->create_parameters.get());
+            }
         });
     }
 

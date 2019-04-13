@@ -23,7 +23,6 @@
 #include <algorithm>
 #include <cassert>
 #include <limits>
-#include <set>
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -218,13 +217,20 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 
 void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
 {
+    std::set<util::MemoryOutputStream*>             processed;
     std::unordered_map<VkDevice, ImageSnapshotData> images;
 
     state_table.VisitWrappers([&](const ImageWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        // Write image creation call.
-        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        // Filter duplicate calls to vkGetSwapchainImagesKHR, where the wrapper for each retrieved image references the
+        // same parameter buffer.
+        if (processed.find(wrapper->create_parameters.get()) == processed.end())
+        {
+            // Write image creation call.
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+            processed.insert(wrapper->create_parameters.get());
+        }
 
         // Perform memory binding.
         if (wrapper->bind_memory != VK_NULL_HANDLE)
