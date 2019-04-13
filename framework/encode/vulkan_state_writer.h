@@ -100,6 +100,8 @@ class VulkanStateWriter
   private:
     void WriteDeviceState(const VulkanStateTable& state_table);
 
+    void WriteCommandBufferState(const VulkanStateTable& state_table);
+
     void WriteBufferState(const VulkanStateTable& state_table);
 
     void WriteImageState(const VulkanStateTable& state_table);
