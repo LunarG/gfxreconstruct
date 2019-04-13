@@ -161,6 +161,8 @@ class VulkanStateTracker
                       format::ApiCallId               call_id,
                       const util::MemoryOutputStream* parameter_buffer);
 
+    void TrackResetCommandPool(VkCommandPool command_pool);
+
     void TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice                        physical_device,
                                              const VkPhysicalDeviceMemoryProperties* properties);
 

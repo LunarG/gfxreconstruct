@@ -54,6 +54,24 @@ void VulkanStateTracker::TrackCommand(VkCommandBuffer                 command_bu
     }
 }
 
+void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    CommandPoolWrapper* wrapper = state_table_.GetCommandPoolWrapper(format::ToHandleId(command_pool));
+    if (wrapper != nullptr)
+    {
+        for (auto entry : wrapper->allocated_buffers)
+        {
+            entry.second->command_data.Reset();
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track command pool reset state for unrecognized command pool handle");
+    }
+}
+
 void VulkanStateTracker::TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice                        physical_device,
                                                              const VkPhysicalDeviceMemoryProperties* properties)
 {

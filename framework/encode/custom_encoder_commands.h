@@ -191,6 +191,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetCommandPool>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkResetCommandPool(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkMapMemory>
 {
     template <typename... Args>
