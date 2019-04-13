@@ -341,6 +341,20 @@ class TraceManager
         }
     }
 
+    void PostProcess_vkResetCommandPool(VkResult                result,
+                                        VkDevice                device,
+                                        VkCommandPool           commandPool,
+                                        VkCommandPoolResetFlags flags)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            GFXRECON_UNREFERENCED_PARAMETER(device);
+            GFXRECON_UNREFERENCED_PARAMETER(flags);
+            state_tracker_->TrackResetCommandPool(commandPool);
+        }
+    }
+
     void PostProcess_vkQueueSubmit(
         VkResult result, VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence)
     {
