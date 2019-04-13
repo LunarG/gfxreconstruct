@@ -134,7 +134,8 @@ void VulkanStateWriter::WriteDeviceState(const VulkanStateTable& state_table)
 
 void VulkanStateWriter::WriteCommandBufferState(const VulkanStateTable& state_table)
 {
-    std::set<util::MemoryOutputStream*> processed;
+    std::set<util::MemoryOutputStream*>      processed;
+    std::vector<const CommandBufferWrapper*> primary;
 
     state_table.VisitWrappers([&](const CommandBufferWrapper* wrapper) {
         assert(wrapper != nullptr);
@@ -148,27 +149,25 @@ void VulkanStateWriter::WriteCommandBufferState(const VulkanStateTable& state_ta
             processed.insert(wrapper->create_parameters.get());
         }
 
-        // Replay each of the commands that was recorded for the command buffer.
-        size_t         offset    = 0;
-        size_t         data_size = wrapper->command_data.GetDataSize();
-        const uint8_t* data      = wrapper->command_data.GetData();
-
-        while (offset < data_size)
+        // Defer primary command buffer initialization until after secondary command buffers have been initialized.
+        // This is to ensure that any secondary command buffers referenced by calls to vkCmdExecuteCommands, which may
+        // have been recorded to a primary command buffer, are initialized before the call to vkCmdExecuteCommands is
+        // replayed.
+        if (wrapper->level == VK_COMMAND_BUFFER_LEVEL_PRIMARY)
         {
-            const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
-            const format::ApiCallId* call_id =
-                reinterpret_cast<const format::ApiCallId*>(&data[offset] + sizeof(size_t));
-            const uint8_t* parameter_data = &data[offset] + (sizeof(size_t) + sizeof(format::ApiCallId));
-
-            parameter_stream_.Write(parameter_data, (*parameter_size));
-            WriteFunctionCall((*call_id), &parameter_stream_);
-            parameter_stream_.Reset();
-
-            offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
+            primary.push_back(wrapper);
         }
-
-        assert(offset == data_size);
+        else
+        {
+            WriteCommandBufferCommands(wrapper);
+        }
     });
+
+    // Initialize the primary command buffers now that secondary command buffer have been initialized.
+    for (auto wrapper : primary)
+    {
+        WriteCommandBufferCommands(wrapper);
+    }
 }
 
 void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
@@ -1465,6 +1464,31 @@ void VulkanStateWriter::WriteCommandExecution(VkQueue queue, VkCommandBuffer com
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueWaitIdle, &parameter_stream_);
     parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteCommandBufferCommands(const CommandBufferWrapper* wrapper)
+{
+    assert(wrapper != nullptr);
+
+    // Replay each of the commands that was recorded for the command buffer.
+    size_t         offset    = 0;
+    size_t         data_size = wrapper->command_data.GetDataSize();
+    const uint8_t* data      = wrapper->command_data.GetData();
+
+    while (offset < data_size)
+    {
+        const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
+        const format::ApiCallId* call_id = reinterpret_cast<const format::ApiCallId*>(&data[offset] + sizeof(size_t));
+        const uint8_t*           parameter_data = &data[offset] + (sizeof(size_t) + sizeof(format::ApiCallId));
+
+        parameter_stream_.Write(parameter_data, (*parameter_size));
+        WriteFunctionCall((*call_id), &parameter_stream_);
+        parameter_stream_.Reset();
+
+        offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
+    }
+
+    assert(offset == data_size);
 }
 
 void VulkanStateWriter::WriteDestroyDeviceObject(format::ApiCallId            call_id,

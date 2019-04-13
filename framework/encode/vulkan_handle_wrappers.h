@@ -203,6 +203,7 @@ struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
 struct CommandPoolWrapper;
 struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 {
+    VkCommandBufferLevel     level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
     util::MemoryOutputStream command_data;
 
     // Pool from which command buffer was allocated. The command buffer must be removed from the pool's allocation list
