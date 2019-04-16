@@ -232,7 +232,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         lengthName = '({name} != nullptr) ? (*{name}) : 0'.format(name=lengthName)
                         break
 
-                decl += 'EndCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
+                callName = 'EndGroupCreateApiCallTrace'
+                if '->' in lengthName:
+                    callName = 'EndPoolCreateApiCallTrace'
+
+                decl += '{}<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(callName, parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
             else:
                 # Instance creation has no handle.
                 if parentHandle:
