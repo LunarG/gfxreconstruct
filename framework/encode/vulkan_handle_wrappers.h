@@ -50,6 +50,13 @@ struct QueryInfo
     format::HandleId    render_pass_id{ 0 };
 };
 
+struct DescriptorBindingInfo
+{
+    uint32_t         binding_index{ 0 };
+    uint32_t         count{ 0 };
+    VkDescriptorType type;
+};
+
 // VkDescriptorSetLayout create info stored with VkPipelineLayout handle.
 struct DescriptorSetLayoutInfo
 {
@@ -102,7 +109,6 @@ struct EventWrapper                     : public HandleWrapper<VkEvent> {};
 struct BufferViewWrapper                : public HandleWrapper<VkBufferView> {};
 struct ShaderModuleWrapper              : public HandleWrapper<VkShaderModule> {};
 struct PipelineCacheWrapper             : public HandleWrapper<VkPipelineCache> {};
-struct DescriptorSetLayoutWrapper       : public HandleWrapper<VkDescriptorSetLayout> {};
 struct SamplerWrapper                   : public HandleWrapper<VkSampler> {};
 struct SamplerYcbcrConversionWrapper    : public HandleWrapper<VkSamplerYcbcrConversion> {};
 struct DescriptorUpdateTemplateWrapper  : public HandleWrapper<VkDescriptorUpdateTemplate> {};
@@ -275,6 +281,11 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
 
     // TODO: Base pipeline
     // TODO: Pipeline cache
+};
+
+struct DescriptorSetLayoutWrapper : public HandleWrapper<VkDescriptorSetLayout>
+{
+    std::vector<DescriptorBindingInfo> binding_info;
 };
 
 struct DescriptorPoolWrapper;
