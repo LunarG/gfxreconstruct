@@ -512,6 +512,42 @@ inline void InitializeState<VkDevice, ImageViewWrapper, VkImageViewCreateInfo>(V
     wrapper->image = create_info->image;
 }
 
+template <>
+inline void InitializeState<VkDevice, DescriptorSetLayoutWrapper, VkDescriptorSetLayoutCreateInfo>(
+    VkDevice                               parent_handle,
+    DescriptorSetLayoutWrapper*            wrapper,
+    const VkDescriptorSetLayoutCreateInfo* create_info,
+    format::ApiCallId                      create_call_id,
+    CreateParameters                       create_parameters,
+    VulkanStateTable*                      state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    if ((create_info->bindingCount > 0) && (create_info->pBindings != nullptr))
+    {
+        wrapper->binding_info.reserve(create_info->bindingCount);
+        for (uint32_t i = 0; i < create_info->bindingCount; ++i)
+        {
+            const VkDescriptorSetLayoutBinding* binding = &create_info->pBindings[i];
+
+            DescriptorBindingInfo binding_info;
+            binding_info.binding_index = binding->binding;
+            binding_info.count         = binding->descriptorCount;
+            binding_info.type          = binding->descriptorType;
+
+            wrapper->binding_info.emplace_back(binding_info);
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(vulkan_state_tracker)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
