@@ -90,6 +90,44 @@ class VulkanStateTracker
         }
     }
 
+    template <typename ParentHandle, typename Wrapper, typename AllocateInfo>
+    void AddPoolEntry(ParentHandle                    parent_handle,
+                      uint32_t                        count,
+                      typename Wrapper::HandleType*   new_handles,
+                      const AllocateInfo*             alloc_info,
+                      format::ApiCallId               create_call_id,
+                      const util::MemoryOutputStream* create_parameter_buffer)
+    {
+        assert(new_handles != nullptr);
+        assert(create_parameter_buffer != nullptr);
+
+        CreateParameters create_parameters = std::make_shared<util::MemoryOutputStream>(
+            create_parameter_buffer->GetData(), create_parameter_buffer->GetDataSize());
+
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                if (new_handles[i] != VK_NULL_HANDLE)
+                {
+                    Wrapper* wrapper   = new Wrapper;
+                    wrapper->handle    = new_handles[i];
+                    wrapper->handle_id = ++object_count_;
+                    vulkan_state_tracker::InitializeState<ParentHandle, Wrapper, AllocateInfo>(
+                        parent_handle, wrapper, alloc_info, create_call_id, create_parameters, &state_table_);
+
+                    // Attempts to add a new entry to the table. Operation will fail for duplicate handles.
+                    // TODO: Handle wrapping will introduce a unique ID that eliminates duplicates.
+                    if (!state_table_.InsertWrapper(format::ToHandleId(new_handles[i]), wrapper))
+                    {
+                        delete wrapper;
+                    }
+                }
+            }
+        }
+    }
+
     template <typename ParentHandle, typename Wrapper, typename CreateInfo>
     void AddGroupEntry(ParentHandle                    parent_handle,
                        uint32_t                        count,

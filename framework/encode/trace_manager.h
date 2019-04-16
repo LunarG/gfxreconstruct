@@ -138,14 +138,37 @@ class TraceManager
         EndApiCallTrace(encoder);
     }
 
+    // Pool allocation.
+    template <typename ParentHandle, typename Wrapper, typename AllocateInfo>
+    void EndPoolCreateApiCallTrace(VkResult                      result,
+                                   ParentHandle                  parent_handle,
+                                   uint32_t                      count,
+                                   typename Wrapper::HandleType* handles,
+                                   const AllocateInfo*           alloc_info,
+                                   ParameterEncoder*             encoder)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (handles != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->AddPoolEntry<ParentHandle, Wrapper, AllocateInfo>(
+                parent_handle, count, handles, alloc_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
     // Multiple object creation.
     template <typename ParentHandle, typename Wrapper, typename CreateInfo>
-    void EndCreateApiCallTrace(VkResult                      result,
-                               ParentHandle                  parent_handle,
-                               uint32_t                      count,
-                               typename Wrapper::HandleType* handles,
-                               const CreateInfo*             create_infos,
-                               ParameterEncoder*             encoder)
+    void EndGroupCreateApiCallTrace(VkResult                      result,
+                                    ParentHandle                  parent_handle,
+                                    uint32_t                      count,
+                                    typename Wrapper::HandleType* handles,
+                                    const CreateInfo*             create_infos,
+                                    ParameterEncoder*             encoder)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (handles != nullptr))
         {
