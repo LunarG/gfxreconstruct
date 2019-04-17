@@ -114,8 +114,8 @@ class VulkanStateTracker
                     Wrapper* wrapper   = new Wrapper;
                     wrapper->handle    = new_handles[i];
                     wrapper->handle_id = ++object_count_;
-                    vulkan_state_tracker::InitializeState<ParentHandle, Wrapper, AllocateInfo>(
-                        parent_handle, wrapper, alloc_info, create_call_id, create_parameters, &state_table_);
+                    vulkan_state_tracker::InitializePoolObjectState(
+                        parent_handle, wrapper, i, alloc_info, create_call_id, create_parameters, &state_table_);
 
                     // Attempts to add a new entry to the table. Operation will fail for duplicate handles.
                     // TODO: Handle wrapping will introduce a unique ID that eliminates duplicates.
