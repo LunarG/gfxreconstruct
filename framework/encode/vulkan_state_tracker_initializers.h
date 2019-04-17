@@ -22,11 +22,13 @@
 #include "format/format.h"
 #include "format/format_util.h"
 #include "util/defines.h"
+#include "util/logging.h"
 #include "util/memory_output_stream.h"
 
 #include "vulkan/vulkan.h"
 
 #include <cassert>
+#include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -90,37 +92,6 @@ inline void InitializeState<VkPhysicalDevice, DeviceWrapper, VkDeviceCreateInfo>
 
     wrapper->physical_device = state_table->GetPhysicalDeviceWrapper(format::ToHandleId(parent_handle));
     assert(wrapper->physical_device != nullptr);
-}
-
-template <>
-inline void InitializeState<VkDevice, CommandBufferWrapper, VkCommandBufferAllocateInfo>(
-    VkDevice                           parent_handle,
-    CommandBufferWrapper*              wrapper,
-    const VkCommandBufferAllocateInfo* alloc_info,
-    format::ApiCallId                  create_call_id,
-    CreateParameters                   create_parameters,
-    VulkanStateTable*                  state_table)
-{
-    assert(wrapper != nullptr);
-    assert(alloc_info != nullptr);
-    assert(create_parameters != nullptr);
-    assert(state_table != nullptr);
-
-    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
-
-    wrapper->create_call_id    = create_call_id;
-    wrapper->create_parameters = std::move(create_parameters);
-
-    wrapper->level = alloc_info->level;
-
-    CommandPoolWrapper* pool_wrapper = state_table->GetCommandPoolWrapper(format::ToHandleId(alloc_info->commandPool));
-    if (pool_wrapper != nullptr)
-    {
-        assert(pool_wrapper->allocated_buffers.find(wrapper->handle) == pool_wrapper->allocated_buffers.end());
-
-        wrapper->pool                                    = pool_wrapper;
-        pool_wrapper->allocated_buffers[wrapper->handle] = wrapper;
-    }
 }
 
 template <>
@@ -380,36 +351,6 @@ inline void InitializeState<VkDevice, PipelineWrapper, VkRayTracingPipelineCreat
 }
 
 template <>
-inline void InitializeState<VkDevice, DescriptorSetWrapper, VkDescriptorSetAllocateInfo>(
-    VkDevice                           parent_handle,
-    DescriptorSetWrapper*              wrapper,
-    const VkDescriptorSetAllocateInfo* alloc_info,
-    format::ApiCallId                  create_call_id,
-    CreateParameters                   create_parameters,
-    VulkanStateTable*                  state_table)
-{
-    assert(state_table != nullptr);
-    assert(wrapper != nullptr);
-    assert(alloc_info != nullptr);
-    assert(create_parameters != nullptr);
-
-    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
-
-    wrapper->create_call_id    = create_call_id;
-    wrapper->create_parameters = std::move(create_parameters);
-
-    DescriptorPoolWrapper* pool_wrapper =
-        state_table->GetDescriptorPoolWrapper(format::ToHandleId(alloc_info->descriptorPool));
-    if (pool_wrapper != nullptr)
-    {
-        assert(pool_wrapper->allocated_sets.find(wrapper->handle) == pool_wrapper->allocated_sets.end());
-
-        wrapper->pool                                 = pool_wrapper;
-        pool_wrapper->allocated_sets[wrapper->handle] = wrapper;
-    }
-}
-
-template <>
 inline void InitializeState<VkDevice, DeviceMemoryWrapper, VkMemoryAllocateInfo>(VkDevice             parent_handle,
                                                                                  DeviceMemoryWrapper* wrapper,
                                                                                  const VkMemoryAllocateInfo* alloc_info,
@@ -545,6 +486,112 @@ inline void InitializeState<VkDevice, DescriptorSetLayoutWrapper, VkDescriptorSe
 
             wrapper->binding_info.emplace_back(binding_info);
         }
+    }
+}
+
+inline void InitializePoolObjectState(VkDevice                           parent_handle,
+                                      CommandBufferWrapper*              wrapper,
+                                      uint32_t                           alloc_index,
+                                      const VkCommandBufferAllocateInfo* alloc_info,
+                                      format::ApiCallId                  create_call_id,
+                                      CreateParameters                   create_parameters,
+                                      VulkanStateTable*                  state_table)
+{
+    assert(wrapper != nullptr);
+    assert(alloc_info != nullptr);
+    assert(create_parameters != nullptr);
+    assert(state_table != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(alloc_index);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->level = alloc_info->level;
+
+    CommandPoolWrapper* pool_wrapper = state_table->GetCommandPoolWrapper(format::ToHandleId(alloc_info->commandPool));
+    if (pool_wrapper != nullptr)
+    {
+        assert(pool_wrapper->allocated_buffers.find(wrapper->handle) == pool_wrapper->allocated_buffers.end());
+
+        wrapper->pool                                    = pool_wrapper;
+        pool_wrapper->allocated_buffers[wrapper->handle] = wrapper;
+    }
+}
+
+inline void InitializePoolObjectState(VkDevice                           parent_handle,
+                                      DescriptorSetWrapper*              wrapper,
+                                      uint32_t                           alloc_index,
+                                      const VkDescriptorSetAllocateInfo* alloc_info,
+                                      format::ApiCallId                  create_call_id,
+                                      CreateParameters                   create_parameters,
+                                      VulkanStateTable*                  state_table)
+{
+    assert(state_table != nullptr);
+    assert(wrapper != nullptr);
+    assert(alloc_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->device = parent_handle;
+
+    const DescriptorSetLayoutWrapper* layout_wrapper =
+        state_table->GetDescriptorSetLayoutWrapper(format::ToHandleId(alloc_info->pSetLayouts[alloc_index]));
+
+    // Add a binding entry for each binding described by the descriptor set layout.
+    for (const auto& binding_info : layout_wrapper->binding_info)
+    {
+        DescriptorInfo descriptor_info;
+        descriptor_info.type    = binding_info.type;
+        descriptor_info.count   = binding_info.count;
+        descriptor_info.written = std::make_unique<bool[]>(binding_info.count);
+
+        std::fill(descriptor_info.written.get(), descriptor_info.written.get() + binding_info.count, false);
+
+        switch (binding_info.type)
+        {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                descriptor_info.images = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                descriptor_info.buffers = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                descriptor_info.texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                break;
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
+                // TODO
+                break;
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+                // TODO
+                break;
+            default:
+                GFXRECON_LOG_WARNING("Attempting to initialize descriptor state for unrecognized descriptor type");
+                break;
+        }
+
+        wrapper->bindings.emplace(binding_info.binding_index, std::move(descriptor_info));
+    }
+
+    DescriptorPoolWrapper* pool_wrapper =
+        state_table->GetDescriptorPoolWrapper(format::ToHandleId(alloc_info->descriptorPool));
+    if (pool_wrapper != nullptr)
+    {
+        assert(pool_wrapper->allocated_sets.find(wrapper->handle) == pool_wrapper->allocated_sets.end());
+
+        wrapper->pool                                 = pool_wrapper;
+        pool_wrapper->allocated_sets[wrapper->handle] = wrapper;
     }
 }
 

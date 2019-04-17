@@ -188,6 +188,9 @@ class VulkanStateTable
     DescriptorPoolWrapper*       GetDescriptorPoolWrapper(format::HandleId id)       { return GetWrapper<DescriptorPoolWrapper>(id, descriptor_pool_map_); }
     const DescriptorPoolWrapper* GetDescriptorPoolWrapper(format::HandleId id) const { return GetWrapper<DescriptorPoolWrapper>(id, descriptor_pool_map_); }
 
+    DescriptorSetWrapper*       GetDescriptorSetWrapper(format::HandleId id)       { return GetWrapper<DescriptorSetWrapper>(id, descriptor_set_map_); }
+    const DescriptorSetWrapper* GetDescriptorSetWrapper(format::HandleId id) const { return GetWrapper<DescriptorSetWrapper>(id, descriptor_set_map_); }
+
     DescriptorSetLayoutWrapper*       GetDescriptorSetLayoutWrapper(format::HandleId id)       { return GetWrapper<DescriptorSetLayoutWrapper>(id, descriptor_set_layout_map_); }
     const DescriptorSetLayoutWrapper* GetDescriptorSetLayoutWrapper(format::HandleId id) const { return GetWrapper<DescriptorSetLayoutWrapper>(id, descriptor_set_layout_map_); }
 

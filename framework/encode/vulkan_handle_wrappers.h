@@ -57,6 +57,16 @@ struct DescriptorBindingInfo
     VkDescriptorType type;
 };
 
+struct DescriptorInfo
+{
+    VkDescriptorType                          type;
+    uint32_t                                  count{ 0 };
+    std::unique_ptr<bool[]>                   written;
+    std::unique_ptr<VkDescriptorImageInfo[]>  images;
+    std::unique_ptr<VkDescriptorBufferInfo[]> buffers;
+    std::unique_ptr<VkBufferView[]>           texel_buffer_views;
+};
+
 // VkDescriptorSetLayout create info stored with VkPipelineLayout handle.
 struct DescriptorSetLayoutInfo
 {
@@ -291,10 +301,13 @@ struct DescriptorSetLayoutWrapper : public HandleWrapper<VkDescriptorSetLayout>
 struct DescriptorPoolWrapper;
 struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
 {
+    VkDevice device{ VK_NULL_HANDLE };
+
+    // Map for descriptor binding index to array of descriptor info.
+    std::unordered_map<uint32_t, DescriptorInfo> bindings;
+
     // Pool from which set was allocated. The set must be removed from the pool's allocation list when destroyed.
     DescriptorPoolWrapper* pool{ nullptr };
-
-    // TODO: Track descriptor write state.
 };
 
 struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
