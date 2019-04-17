@@ -112,6 +112,8 @@ class VulkanStateWriter
 
     void WritePipelineState(const VulkanStateTable& state_table);
 
+    void WriteDescriptorSetState(const VulkanStateTable& state_table);
+
     void ProcessBufferMemory(VkDevice                  device,
                              const BufferSnapshotData& snapshot_data,
                              const VulkanStateTable&   state_table,
@@ -193,6 +195,8 @@ class VulkanStateWriter
     void WriteCommandExecution(VkQueue queue, VkCommandBuffer command_buffer);
 
     void WriteCommandBufferCommands(const CommandBufferWrapper* wrapper);
+
+    void WriteDescriptorUpdateCommand(VkDevice device, const DescriptorInfo* binding, VkWriteDescriptorSet* write);
 
     void WriteDestroyDeviceObject(format::ApiCallId            call_id,
                                   format::HandleId             device_id,

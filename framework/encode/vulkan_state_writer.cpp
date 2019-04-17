@@ -96,7 +96,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     // Descriptor creation.
     StandardCreateWrite<DescriptorPoolWrapper>(state_table);
     StandardCreateWrite<DescriptorUpdateTemplateWrapper>(state_table);
-    StandardCreateWrite<DescriptorSetWrapper>(state_table);
+    WriteDescriptorSetState(state_table);
 
     // Command creation.
     StandardCreateWrite<CommandPoolWrapper>(state_table);
@@ -572,6 +572,65 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         DestroyTemporaryDeviceObject(
             format::ApiCall_vkDestroyPipelineLayout, format::ToHandleId(info->layout), info->create_parameters.get());
     }
+}
+
+void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+
+    state_table.VisitWrappers([&](const DescriptorSetWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Filter duplicate calls to vkAllocateDescriptorSets for descriptor sets that were allocated by the same API
+        // call and refrence the same parameter buffer.
+        if (processed.find(wrapper->create_parameters.get()) == processed.end())
+        {
+            // Write command buffer creation call and add the parameter buffer to the processed set.
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+            processed.insert(wrapper->create_parameters.get());
+        }
+
+        // Write descriptor updates.
+        VkWriteDescriptorSet write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+        write.pNext                = nullptr;
+        write.dstSet               = wrapper->handle;
+
+        for (const auto& binding_entry : wrapper->bindings)
+        {
+            const DescriptorInfo* binding = &binding_entry.second;
+            bool                  active  = false;
+
+            write.dstBinding     = binding_entry.first;
+            write.descriptorType = binding->type;
+
+            for (uint32_t i = 0; i < binding->count; ++i)
+            {
+                if (active != binding->written[i])
+                {
+                    if (!active)
+                    {
+                        // Start of an active descriptor write range.
+                        active                = true;
+                        write.dstArrayElement = i;
+                    }
+                    else
+                    {
+                        // End of an active descriptor write range.
+                        active                = false;
+                        write.descriptorCount = i - write.dstArrayElement;
+                        WriteDescriptorUpdateCommand(wrapper->device, binding, &write);
+                    }
+                }
+            }
+
+            // Process final range, when last item in array contained an active write.
+            if (active)
+            {
+                write.descriptorCount = binding->count - write.dstArrayElement;
+                WriteDescriptorUpdateCommand(wrapper->device, binding, &write);
+            }
+        }
+    });
 }
 
 void VulkanStateWriter::ProcessBufferMemory(VkDevice                  device,
@@ -1489,6 +1548,60 @@ void VulkanStateWriter::WriteCommandBufferCommands(const CommandBufferWrapper* w
     }
 
     assert(offset == data_size);
+}
+
+void VulkanStateWriter::WriteDescriptorUpdateCommand(VkDevice              device,
+                                                     const DescriptorInfo* binding,
+                                                     VkWriteDescriptorSet* write)
+{
+    assert((binding != nullptr) && (write != nullptr));
+
+    const VkCopyDescriptorSet* copy = nullptr;
+
+    switch (binding->type)
+    {
+        case VK_DESCRIPTOR_TYPE_SAMPLER:
+        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            write->pBufferInfo      = nullptr;
+            write->pImageInfo       = &binding->images[write->dstArrayElement];
+            write->pTexelBufferView = nullptr;
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+            write->pBufferInfo      = &binding->buffers[write->dstArrayElement];
+            write->pImageInfo       = nullptr;
+            write->pTexelBufferView = nullptr;
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            write->pBufferInfo      = nullptr;
+            write->pImageInfo       = nullptr;
+            write->pTexelBufferView = &binding->texel_buffer_views[write->dstArrayElement];
+            break;
+        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
+            // TODO
+            break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+            // TODO
+            break;
+        default:
+            GFXRECON_LOG_WARNING("Attempting to initialize descriptor state for unrecognized descriptor type");
+            break;
+    }
+
+    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeUInt32Value(1);
+    EncodeStructArray(&encoder_, write, 1);
+    encoder_.EncodeUInt32Value(0);
+    EncodeStructArray(&encoder_, copy, 0);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkUpdateDescriptorSets, &parameter_stream_);
+    parameter_stream_.Reset();
 }
 
 void VulkanStateWriter::WriteDestroyDeviceObject(format::ApiCallId            call_id,
