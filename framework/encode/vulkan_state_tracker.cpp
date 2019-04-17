@@ -16,6 +16,8 @@
 
 #include "encode/vulkan_state_tracker.h"
 
+#include <algorithm>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -319,6 +321,144 @@ void VulkanStateTracker::TrackImageLayoutTransitions(uint32_t submit_count, cons
                 }
             }
         }
+    }
+}
+
+void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    write_count,
+                                                   const VkWriteDescriptorSet* writes,
+                                                   uint32_t                    copy_count,
+                                                   const VkCopyDescriptorSet*  copies)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    if (writes != nullptr)
+    {
+        for (uint32_t i = 0; i < write_count; ++i)
+        {
+            const VkWriteDescriptorSet* write = &writes[i];
+            DescriptorSetWrapper* wrapper     = state_table_.GetDescriptorSetWrapper(format::ToHandleId(write->dstSet));
+            if (wrapper != nullptr)
+            {
+                auto& binding = wrapper->bindings[write->dstBinding];
+
+                bool* written_start = &binding.written[write->dstArrayElement];
+                std::fill(written_start, written_start + write->descriptorCount, true);
+
+                switch (write->descriptorType)
+                {
+                    case VK_DESCRIPTOR_TYPE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                        memcpy(&binding.images[write->dstArrayElement],
+                               write->pImageInfo,
+                               (sizeof(VkDescriptorImageInfo) * write->descriptorCount));
+                        break;
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                        memcpy(&binding.buffers[write->dstArrayElement],
+                               write->pBufferInfo,
+                               (sizeof(VkDescriptorBufferInfo) * write->descriptorCount));
+                        break;
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                        memcpy(&binding.texel_buffer_views[write->dstArrayElement],
+                               write->pTexelBufferView,
+                               (sizeof(VkBufferView) * write->descriptorCount));
+                        break;
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
+                        // TODO
+                        break;
+                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+                        // TODO
+                        break;
+                    default:
+                        GFXRECON_LOG_WARNING("Attempting to track descriptor state for unrecognized descriptor type");
+                        break;
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING(
+                    "Attempting to track descriptor write state for unrecognized descriptor set handle");
+            }
+        }
+    }
+
+    if (copies != nullptr)
+    {
+        for (uint32_t i = 0; i < copy_count; ++i)
+        {
+            const VkCopyDescriptorSet* copy   = &copies[i];
+            DescriptorSetWrapper* src_wrapper = state_table_.GetDescriptorSetWrapper(format::ToHandleId(copy->srcSet));
+            DescriptorSetWrapper* dst_wrapper = state_table_.GetDescriptorSetWrapper(format::ToHandleId(copy->dstSet));
+
+            if ((src_wrapper != nullptr) && (dst_wrapper != nullptr))
+            {
+                auto& src_binding = src_wrapper->bindings[copy->srcBinding];
+                auto& dst_binding = dst_wrapper->bindings[copy->dstBinding];
+
+                bool* written_start = &dst_binding.written[copy->dstArrayElement];
+                std::fill(written_start, written_start + copy->descriptorCount, true);
+
+                assert(src_binding.type == dst_binding.type);
+
+                if (src_binding.images != nullptr)
+                {
+                    memcpy(&dst_binding.images[copy->dstArrayElement],
+                           &src_binding.images[copy->srcArrayElement],
+                           (sizeof(VkDescriptorImageInfo) * copy->descriptorCount));
+                }
+                else if (src_binding.buffers != nullptr)
+                {
+                    memcpy(&dst_binding.buffers[copy->dstArrayElement],
+                           &src_binding.buffers[copy->srcArrayElement],
+                           (sizeof(VkDescriptorBufferInfo) * copy->descriptorCount));
+                }
+                else
+                {
+                    memcpy(&dst_binding.texel_buffer_views[copy->dstArrayElement],
+                           &src_binding.texel_buffer_views[copy->srcArrayElement],
+                           (sizeof(VkBufferView) * copy->descriptorCount));
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING(
+                    "Attempting to track descriptor copy state for unrecognized descriptor set handle");
+            }
+        }
+    }
+}
+
+void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_pool)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    DescriptorPoolWrapper* wrapper = state_table_.GetDescriptorPoolWrapper(format::ToHandleId(descriptor_pool));
+    if (wrapper != nullptr)
+    {
+        // Process each descriptor set allocated from the pool.
+        for (const auto& set_entry : wrapper->allocated_sets)
+        {
+            DescriptorSetWrapper* set_wrapper = set_entry.second;
+
+            assert(set_wrapper != nullptr);
+
+            // Process each descriptor binding in the current set.
+            for (auto& binding_entry : set_wrapper->bindings)
+            {
+                DescriptorInfo* binding = &binding_entry.second;
+                std::fill(binding->written.get(), binding->written.get() + binding->count, false);
+            }
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track descriptor pool reset state for unrecognized descriptor pool handle");
     }
 }
 
