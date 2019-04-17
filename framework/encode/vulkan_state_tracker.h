@@ -225,6 +225,13 @@ class VulkanStateTracker
 
     void TrackImageLayoutTransitions(uint32_t submit_count, const VkSubmitInfo* submits);
 
+    void TrackUpdateDescriptorSets(uint32_t                    write_count,
+                                   const VkWriteDescriptorSet* writes,
+                                   uint32_t                    copy_count,
+                                   const VkCopyDescriptorSet*  copies);
+
+    void TrackResetDescriptorPool(VkDescriptorPool descriptor_pool);
+
   private:
     // TODO: Evaluate need for per-type locks.
     std::mutex mutex_;
