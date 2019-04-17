@@ -390,6 +390,51 @@ class TraceManager
         }
     }
 
+    void PostProcess_vkUpdateDescriptorSets(VkDevice                    device,
+                                            uint32_t                    descriptorWriteCount,
+                                            const VkWriteDescriptorSet* pDescriptorWrites,
+                                            uint32_t                    descriptorCopyCount,
+                                            const VkCopyDescriptorSet*  pDescriptorCopies)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            GFXRECON_UNREFERENCED_PARAMETER(device);
+            state_tracker_->TrackUpdateDescriptorSets(
+                descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+        }
+    }
+
+    void PostProcess_vkCmdPushDescriptorSetKHR(VkCommandBuffer             commandBuffer,
+                                               VkPipelineBindPoint         pipelineBindPoint,
+                                               VkPipelineLayout            layout,
+                                               uint32_t                    set,
+                                               uint32_t                    descriptorWriteCount,
+                                               const VkWriteDescriptorSet* pDescriptorWrites)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
+        GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
+        GFXRECON_UNREFERENCED_PARAMETER(layout);
+        GFXRECON_UNREFERENCED_PARAMETER(set);
+        GFXRECON_UNREFERENCED_PARAMETER(descriptorWriteCount);
+        GFXRECON_UNREFERENCED_PARAMETER(pDescriptorWrites);
+        // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
+    }
+
+    void PostProcess_vkResetDescriptorPool(VkResult                   result,
+                                           VkDevice                   device,
+                                           VkDescriptorPool           descriptorPool,
+                                           VkDescriptorPoolResetFlags flags)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            GFXRECON_UNREFERENCED_PARAMETER(device);
+            GFXRECON_UNREFERENCED_PARAMETER(flags);
+            state_tracker_->TrackResetDescriptorPool(descriptorPool);
+        }
+    }
+
     void PostProcess_vkMapMemory(VkResult         result,
                                  VkDevice         device,
                                  VkDeviceMemory   memory,
