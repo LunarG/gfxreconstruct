@@ -647,7 +647,8 @@ bool TraceManager::GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate up
 
     // We assume that the application will not destroy an update template while it is in use, and that we only need
     // to lock on find for protection from data strcuture changes due to adds and removes of other update templates.
-    auto entry = update_template_map_.find(update_template);
+    std::lock_guard<std::mutex> lock(update_template_map_lock_);
+    auto                        entry = update_template_map_.find(update_template);
     if (entry != update_template_map_.end())
     {
         found   = true;
