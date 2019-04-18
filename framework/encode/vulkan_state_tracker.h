@@ -17,6 +17,7 @@
 #ifndef GFXRECON_ENCODE_VULKAN_STATE_TRACKER_H
 #define GFXRECON_ENCODE_VULKAN_STATE_TRACKER_H
 
+#include "encode/descriptor_update_template_info.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_table.h"
 #include "encode/vulkan_state_tracker_initializers.h"
@@ -229,6 +230,10 @@ class VulkanStateTracker
                                    const VkWriteDescriptorSet* writes,
                                    uint32_t                    copy_count,
                                    const VkCopyDescriptorSet*  copies);
+
+    void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet           set,
+                                              const UpdateTemplateInfo* template_info,
+                                              const void*               data);
 
     void TrackResetDescriptorPool(VkDescriptorPool descriptor_pool);
 
