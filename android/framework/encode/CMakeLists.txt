@@ -9,6 +9,7 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_api_call_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_encoders.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/descriptor_update_template_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/memory_tracker.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/memory_tracker.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_encoder.h

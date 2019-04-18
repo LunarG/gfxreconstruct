@@ -18,6 +18,7 @@
 #include "encode/custom_vulkan_api_call_encoders.h"
 
 #include "encode/custom_encoder_commands.h"
+#include "encode/descriptor_update_template_info.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/trace_manager.h"
@@ -37,8 +38,8 @@ static void EncodeDescriptorUpdateTemplateInfo(TraceManager*              manage
 {
     assert((manager != nullptr) && (encoder != nullptr));
 
-    bool                                            found = false;
-    const TraceManager::UpdateTemplateInfo*         info  = nullptr;
+    bool                      found = false;
+    const UpdateTemplateInfo* info  = nullptr;
 
     if (data != nullptr)
     {
@@ -50,7 +51,7 @@ static void EncodeDescriptorUpdateTemplateInfo(TraceManager*              manage
         // Write pointer attributes as if we were processing a struct pointer.
         encoder->EncodeStructPtrPreamble(data);
 
-        // The update template data will be written as tightly packed sets of arrays of VkDescriptorImageInfo,
+        // The update template data will be written as tightly packed arrays of VkDescriptorImageInfo,
         // VkDescriptorBufferInfo, and VkBufferView types.  There will be one array per descriptor update entry.  We
         // will write the total number of entries of each type before we write the entries, so that the decoder will
         // know up front how much memory it needs to allocate for decoding.

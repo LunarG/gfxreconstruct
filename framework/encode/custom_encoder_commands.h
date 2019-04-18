@@ -271,12 +271,42 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSets>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkUpdateDescriptorSetWithTemplate(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkUpdateDescriptorSetWithTemplateKHR(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetKHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
     {
         manager->PostProcess_vkCmdPushDescriptorSetKHR(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdPushDescriptorSetWithTemplateKHR(args...);
     }
 };
 

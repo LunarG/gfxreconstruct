@@ -434,6 +434,103 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
     }
 }
 
+void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet           set,
+                                                              const UpdateTemplateInfo* template_info,
+                                                              const void*               data)
+{
+    if ((template_info != nullptr) && (data != nullptr))
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+
+        DescriptorSetWrapper* wrapper = state_table_.GetDescriptorSetWrapper(format::ToHandleId(set));
+        if (wrapper != nullptr)
+        {
+            const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+
+            for (const auto& entry : template_info->image_info)
+            {
+                auto& binding = wrapper->bindings[entry.binding];
+
+                bool* written_start = &binding.written[entry.array_element];
+                std::fill(written_start, written_start + entry.count, true);
+
+                if (entry.stride == sizeof(VkDescriptorImageInfo))
+                {
+                    // Structures are tightly packed.
+                    memcpy(&binding.images[entry.array_element],
+                           (bytes + entry.offset),
+                           (sizeof(VkDescriptorImageInfo) * entry.count));
+                }
+                else
+                {
+                    // Structures are not tightly packed, so must be copied individually.
+                    const uint8_t* src_address = bytes + entry.offset;
+                    for (uint32_t i = 0; i < entry.count; ++i)
+                    {
+                        memcpy(&binding.images[entry.array_element + i], src_address, sizeof(VkDescriptorImageInfo));
+                        src_address += entry.stride;
+                    }
+                }
+            }
+
+            for (const auto& entry : template_info->buffer_info)
+            {
+                auto& binding = wrapper->bindings[entry.binding];
+
+                bool* written_start = &binding.written[entry.array_element];
+                std::fill(written_start, written_start + entry.count, true);
+
+                if (entry.stride == sizeof(VkDescriptorBufferInfo))
+                {
+                    memcpy(&binding.buffers[entry.array_element],
+                           (bytes + entry.offset),
+                           (sizeof(VkDescriptorBufferInfo) * entry.count));
+                }
+                else
+                {
+                    // Structures are not tightly packed, so must be copied individually.
+                    const uint8_t* src_address = bytes + entry.offset;
+                    for (uint32_t i = 0; i < entry.count; ++i)
+                    {
+                        memcpy(&binding.images[entry.array_element + i], src_address, sizeof(VkDescriptorBufferInfo));
+                        src_address += entry.stride;
+                    }
+                }
+            }
+
+            for (const auto& entry : template_info->texel_buffer_view)
+            {
+                auto& binding = wrapper->bindings[entry.binding];
+
+                bool* written_start = &binding.written[entry.array_element];
+                std::fill(written_start, written_start + entry.count, true);
+
+                if (entry.stride == sizeof(VkBufferView))
+                {
+                    memcpy(&binding.texel_buffer_views[entry.array_element],
+                           (bytes + entry.offset),
+                           (sizeof(VkBufferView) * entry.count));
+                }
+                else
+                {
+                    // Structures are not tightly packed, so must be copied individually.
+                    const uint8_t* src_address = bytes + entry.offset;
+                    for (uint32_t i = 0; i < entry.count; ++i)
+                    {
+                        size_t offset = entry.offset + (entry.stride * i);
+                        memcpy(&binding.images[entry.array_element + i], src_address, sizeof(VkBufferView));
+                        src_address += entry.stride;
+                    }
+                }
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Attempting to track descriptor write state for unrecognized descriptor set handle");
+        }
+    }
+}
+
 void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_pool)
 {
     std::unique_lock<std::mutex> lock(mutex_);
