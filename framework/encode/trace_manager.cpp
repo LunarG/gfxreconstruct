@@ -583,21 +583,42 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
                 (type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
                 (type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
             {
+                UpdateTemplateEntryInfo image_info;
+                image_info.binding       = entry->dstBinding;
+                image_info.array_element = entry->dstArrayElement;
+                image_info.count         = entry->descriptorCount;
+                image_info.offset        = entry->offset;
+                image_info.stride        = entry->stride;
+
                 info.image_info_count += entry->descriptorCount;
-                info.image_info.emplace_back(entry->descriptorCount, entry->offset, entry->stride);
+                info.image_info.emplace_back(image_info);
             }
             else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
                      (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
                      (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
             {
+                UpdateTemplateEntryInfo buffer_info;
+                buffer_info.binding       = entry->dstBinding;
+                buffer_info.array_element = entry->dstArrayElement;
+                buffer_info.count         = entry->descriptorCount;
+                buffer_info.offset        = entry->offset;
+                buffer_info.stride        = entry->stride;
+
                 info.buffer_info_count += entry->descriptorCount;
-                info.buffer_info.emplace_back(entry->descriptorCount, entry->offset, entry->stride);
+                info.buffer_info.emplace_back(buffer_info);
             }
             else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) ||
                      (type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
             {
+                UpdateTemplateEntryInfo texel_buffer_view_info;
+                texel_buffer_view_info.binding       = entry->dstBinding;
+                texel_buffer_view_info.array_element = entry->dstArrayElement;
+                texel_buffer_view_info.count         = entry->descriptorCount;
+                texel_buffer_view_info.offset        = entry->offset;
+                texel_buffer_view_info.stride        = entry->stride;
+
                 info.texel_buffer_view_count += entry->descriptorCount;
-                info.texel_buffer_view.emplace_back(entry->descriptorCount, entry->offset, entry->stride);
+                info.texel_buffer_view.emplace_back(texel_buffer_view_info);
             }
             else
             {
@@ -636,6 +657,18 @@ bool TraceManager::GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate up
     }
 
     return found;
+}
+
+void TraceManager::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet            set,
+                                                        VkDescriptorUpdateTemplate update_template,
+                                                        const void*                data)
+{
+    const UpdateTemplateInfo* info = nullptr;
+    if (GetDescriptorUpdateTemplateInfo(update_template, &info))
+    {
+        assert(state_tracker_ != nullptr);
+        state_tracker_->TrackUpdateDescriptorSetWithTemplate(set, info, data);
+    }
 }
 
 void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,

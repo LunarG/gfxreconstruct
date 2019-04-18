@@ -19,6 +19,7 @@
 #define GFXRECON_ENCODE_TRACE_MANAGER_H
 
 #include "encode/capture_settings.h"
+#include "encode/descriptor_update_template_info.h"
 #include "encode/memory_tracker.h"
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_state_tracker.h"
@@ -44,26 +45,6 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 class TraceManager
 {
-  public:
-    struct UpdateTemplateEntryInfo
-    {
-        UpdateTemplateEntryInfo(uint32_t c, size_t o, size_t s) : count(c), offset(o), stride(s) {}
-        uint32_t count;
-        size_t   offset;
-        size_t   stride;
-    };
-
-    struct UpdateTemplateInfo
-    {
-        // The counts are the sum of the total descriptorCount for each update template entry type.
-        size_t                               image_info_count{ 0 };
-        size_t                               buffer_info_count{ 0 };
-        size_t                               texel_buffer_view_count{ 0 };
-        std::vector<UpdateTemplateEntryInfo> image_info;
-        std::vector<UpdateTemplateEntryInfo> buffer_info;
-        std::vector<UpdateTemplateEntryInfo> texel_buffer_view;
-    };
-
   public:
     // Register special layer provided functions, which perform layer specific initialization.
     // These must be set before the application calls vkCreateInstance.
@@ -405,6 +386,30 @@ class TraceManager
         }
     }
 
+    void PostProcess_vkUpdateDescriptorSetWithTemplate(VkDevice                   device,
+                                                       VkDescriptorSet            descriptorSet,
+                                                       VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                       const void*                pData)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            TrackUpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
+        }
+    }
+
+    void PostProcess_vkUpdateDescriptorSetWithTemplateKHR(VkDevice                   device,
+                                                          VkDescriptorSet            descriptorSet,
+                                                          VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                          const void*                pData)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            TrackUpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
+        }
+    }
+
     void PostProcess_vkCmdPushDescriptorSetKHR(VkCommandBuffer             commandBuffer,
                                                VkPipelineBindPoint         pipelineBindPoint,
                                                VkPipelineLayout            layout,
@@ -418,6 +423,20 @@ class TraceManager
         GFXRECON_UNREFERENCED_PARAMETER(set);
         GFXRECON_UNREFERENCED_PARAMETER(descriptorWriteCount);
         GFXRECON_UNREFERENCED_PARAMETER(pDescriptorWrites);
+        // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
+    }
+
+    void PostProcess_vkCmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer            commandBuffer,
+                                                           VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                           VkPipelineLayout           layout,
+                                                           uint32_t                   set,
+                                                           const void*                pData)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
+        GFXRECON_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
+        GFXRECON_UNREFERENCED_PARAMETER(layout);
+        GFXRECON_UNREFERENCED_PARAMETER(set);
+        GFXRECON_UNREFERENCED_PARAMETER(pData);
         // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
     }
 
@@ -547,6 +566,10 @@ class TraceManager
     void AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate                  update_template,
                                      const VkDescriptorUpdateTemplateCreateInfo* create_info);
     void RemoveDescriptorUpdateTemplate(VkDescriptorUpdateTemplate update_template);
+
+    void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet            set,
+                                              VkDescriptorUpdateTemplate update_templat,
+                                              const void*                data);
 
   private:
     static TraceManager*                            instance_;
