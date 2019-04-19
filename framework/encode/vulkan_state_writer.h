@@ -102,6 +102,10 @@ class VulkanStateWriter
 
     void WriteCommandBufferState(const VulkanStateTable& state_table);
 
+    void WriteFenceState(const VulkanStateTable& state_table);
+
+    void WriteEventState(const VulkanStateTable& state_table);
+
     void WriteBufferState(const VulkanStateTable& state_table);
 
     void WriteImageState(const VulkanStateTable& state_table);
@@ -197,6 +201,10 @@ class VulkanStateWriter
     void WriteCommandBufferCommands(const CommandBufferWrapper* wrapper);
 
     void WriteDescriptorUpdateCommand(VkDevice device, const DescriptorInfo* binding, VkWriteDescriptorSet* write);
+
+    void WriteCreateFence(VkDevice device, VkFence fence, bool signaled);
+
+    void WriteSetEvent(VkDevice device, VkEvent event);
 
     void WriteDestroyDeviceObject(format::ApiCallId            call_id,
                                   format::HandleId             device_id,

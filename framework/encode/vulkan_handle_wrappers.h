@@ -114,8 +114,6 @@ struct HandleWrapper
 
 // clang-format off
 struct QueueWrapper                     : public HandleWrapper<VkQueue> {};
-struct FenceWrapper                     : public HandleWrapper<VkFence> {};
-struct EventWrapper                     : public HandleWrapper<VkEvent> {};
 struct BufferViewWrapper                : public HandleWrapper<VkBufferView> {};
 struct ShaderModuleWrapper              : public HandleWrapper<VkShaderModule> {};
 struct PipelineCacheWrapper             : public HandleWrapper<VkPipelineCache> {};
@@ -165,6 +163,19 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
     PhysicalDeviceWrapper*                     physical_device;
     std::unordered_map<VkQueue, QueueWrapper*> queues;
+};
+
+struct FenceWrapper : public HandleWrapper<VkFence>
+{
+    // Signaled state at creation to be compared with signaled state at snapshot write. If states are different, the
+    // create parameters will need to be modified to reflect the state at snapshot write.
+    bool     created_signaled{ false };
+    VkDevice device{ VK_NULL_HANDLE };
+};
+
+struct EventWrapper : public HandleWrapper<VkEvent>
+{
+    VkDevice device{ VK_NULL_HANDLE };
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
