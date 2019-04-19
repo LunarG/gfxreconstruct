@@ -62,8 +62,8 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
 
     // Synchronization primitive creation.
     StandardCreateWrite<SemaphoreWrapper>(state_table);
-    StandardCreateWrite<FenceWrapper>(state_table);
-    StandardCreateWrite<EventWrapper>(state_table);
+    WriteFenceState(state_table);
+    WriteEventState(state_table);
 
     // WSI object creation.
     StandardCreateWrite<DisplayKHRWrapper>(state_table);
@@ -168,6 +168,62 @@ void VulkanStateWriter::WriteCommandBufferState(const VulkanStateTable& state_ta
     {
         WriteCommandBufferCommands(wrapper);
     }
+}
+
+void VulkanStateWriter::WriteFenceState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const FenceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Check fence signaled state against create info signaled state.
+        auto tables_entry = device_tables_->find(GetDispatchKey(wrapper->device));
+        if (tables_entry != device_tables_->end())
+        {
+            VkResult result   = tables_entry->second.GetFenceStatus(wrapper->device, wrapper->handle);
+            bool     signaled = (result == VK_SUCCESS);
+            if (signaled == wrapper->created_signaled)
+            {
+                // Signal states match, so original create parameters can be used.
+                WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+            }
+            else
+            {
+                // Signal states are different, so write new creation parameters with the appropriate create info signal
+                // flag.
+                WriteCreateFence(wrapper->device, wrapper->handle, signaled);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
+        }
+    });
+}
+
+void VulkanStateWriter::WriteEventState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const EventWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Write event creation call.
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+
+        // Check and set signaled state if necessary.
+        auto tables_entry = device_tables_->find(GetDispatchKey(wrapper->device));
+        if (tables_entry != device_tables_->end())
+        {
+            VkResult result = tables_entry->second.GetEventStatus(wrapper->device, wrapper->handle);
+            if (result == VK_EVENT_SET)
+            {
+                // Write api call to signal the event.
+                WriteSetEvent(wrapper->device, wrapper->handle);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
+        }
+    });
 }
 
 void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
@@ -1601,6 +1657,44 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(VkDevice              devic
     EncodeStructArray(&encoder_, copy, 0);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkUpdateDescriptorSets, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteCreateFence(VkDevice device, VkFence fence, bool signaled)
+{
+    // TODO: Track pNext values and allocation callback pointer values so the new create parameters match the original
+    // parameters (excluding signal state).
+    const VkResult               result          = VK_SUCCESS;
+    const VkAllocationCallbacks* alloc_callbacks = nullptr;
+
+    VkFenceCreateInfo create_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+    create_info.pNext             = nullptr;
+    create_info.flags             = 0;
+
+    if (signaled)
+    {
+        create_info.flags |= VK_FENCE_CREATE_SIGNALED_BIT;
+    }
+
+    encoder_.EncodeHandleIdValue(device);
+    EncodeStructPtr(&encoder_, &create_info);
+    EncodeStructPtr(&encoder_, alloc_callbacks);
+    encoder_.EncodeHandleIdPtr(&fence);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateFence, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteSetEvent(VkDevice device, VkEvent event)
+{
+    const VkResult result = VK_SUCCESS;
+
+    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleIdValue(event);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkSetEvent, &parameter_stream_);
     parameter_stream_.Reset();
 }
 
