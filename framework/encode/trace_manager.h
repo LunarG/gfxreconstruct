@@ -316,24 +316,22 @@ class TraceManager
 
     void PostProcess_vkCmdBeginRenderPass(VkCommandBuffer              commandBuffer,
                                           const VkRenderPassBeginInfo* pRenderPassBegin,
-                                          VkSubpassContents            contents)
+                                          VkSubpassContents)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
-            GFXRECON_UNREFERENCED_PARAMETER(contents);
             state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
         }
     }
 
     void PostProcess_vkCmdBeginRenderPass2KHR(VkCommandBuffer              commandBuffer,
                                               const VkRenderPassBeginInfo* pRenderPassBegin,
-                                              const VkSubpassBeginInfoKHR* pSubpassBeginInfo)
+                                              const VkSubpassBeginInfoKHR*)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
-            GFXRECON_UNREFERENCED_PARAMETER(pSubpassBeginInfo);
             state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
         }
     }
@@ -347,39 +345,29 @@ class TraceManager
         }
     }
 
-    void PostProcess_vkCmdEndRenderPass2KHR(VkCommandBuffer commandBuffer, const VkSubpassEndInfoKHR* pSubpassEndInfo)
+    void PostProcess_vkCmdEndRenderPass2KHR(VkCommandBuffer commandBuffer, const VkSubpassEndInfoKHR*)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
-            GFXRECON_UNREFERENCED_PARAMETER(pSubpassEndInfo);
             state_tracker_->TrackEndRenderPass(commandBuffer);
         }
     }
 
-    void PostProcess_vkCmdPipelineBarrier(VkCommandBuffer              commandBuffer,
-                                          VkPipelineStageFlags         srcStageMask,
-                                          VkPipelineStageFlags         dstStageMask,
-                                          VkDependencyFlags            dependencyFlags,
-                                          uint32_t                     memoryBarrierCount,
-                                          const VkMemoryBarrier*       pMemoryBarriers,
-                                          uint32_t                     bufferMemoryBarrierCount,
-                                          const VkBufferMemoryBarrier* pBufferMemoryBarriers,
-                                          uint32_t                     imageMemoryBarrierCount,
-                                          const VkImageMemoryBarrier*  pImageMemoryBarriers)
+    void PostProcess_vkCmdPipelineBarrier(VkCommandBuffer commandBuffer,
+                                          VkPipelineStageFlags,
+                                          VkPipelineStageFlags,
+                                          VkDependencyFlags,
+                                          uint32_t,
+                                          const VkMemoryBarrier*,
+                                          uint32_t,
+                                          const VkBufferMemoryBarrier*,
+                                          uint32_t                    imageMemoryBarrierCount,
+                                          const VkImageMemoryBarrier* pImageMemoryBarriers)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
-
-            GFXRECON_UNREFERENCED_PARAMETER(srcStageMask);
-            GFXRECON_UNREFERENCED_PARAMETER(dstStageMask);
-            GFXRECON_UNREFERENCED_PARAMETER(dependencyFlags);
-            GFXRECON_UNREFERENCED_PARAMETER(memoryBarrierCount);
-            GFXRECON_UNREFERENCED_PARAMETER(pMemoryBarriers);
-            GFXRECON_UNREFERENCED_PARAMETER(bufferMemoryBarrierCount);
-            GFXRECON_UNREFERENCED_PARAMETER(pBufferMemoryBarriers);
-
             state_tracker_->TrackImageBarriers(commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers);
         }
     }
@@ -395,16 +383,11 @@ class TraceManager
         }
     }
 
-    void PostProcess_vkResetCommandPool(VkResult                result,
-                                        VkDevice                device,
-                                        VkCommandPool           commandPool,
-                                        VkCommandPoolResetFlags flags)
+    void PostProcess_vkResetCommandPool(VkResult result, VkDevice, VkCommandPool commandPool, VkCommandPoolResetFlags)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
         {
             assert(state_tracker_ != nullptr);
-            GFXRECON_UNREFERENCED_PARAMETER(device);
-            GFXRECON_UNREFERENCED_PARAMETER(flags);
             state_tracker_->TrackResetCommandPool(commandPool);
         }
     }
@@ -428,7 +411,7 @@ class TraceManager
         }
     }
 
-    void PostProcess_vkUpdateDescriptorSets(VkDevice                    device,
+    void PostProcess_vkUpdateDescriptorSets(VkDevice,
                                             uint32_t                    descriptorWriteCount,
                                             const VkWriteDescriptorSet* pDescriptorWrites,
                                             uint32_t                    descriptorCopyCount,
@@ -437,45 +420,40 @@ class TraceManager
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
-            GFXRECON_UNREFERENCED_PARAMETER(device);
             state_tracker_->TrackUpdateDescriptorSets(
                 descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
         }
     }
 
-    void PostProcess_vkUpdateDescriptorSetWithTemplate(VkDevice                   device,
+    void PostProcess_vkUpdateDescriptorSetWithTemplate(VkDevice,
                                                        VkDescriptorSet            descriptorSet,
                                                        VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                        const void*                pData)
     {
-        GFXRECON_UNREFERENCED_PARAMETER(device);
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             TrackUpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
         }
     }
 
-    void PostProcess_vkUpdateDescriptorSetWithTemplateKHR(VkDevice                   device,
+    void PostProcess_vkUpdateDescriptorSetWithTemplateKHR(VkDevice,
                                                           VkDescriptorSet            descriptorSet,
                                                           VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                           const void*                pData)
     {
-        GFXRECON_UNREFERENCED_PARAMETER(device);
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             TrackUpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
         }
     }
 
-    void PostProcess_vkCmdPushDescriptorSetKHR(VkCommandBuffer             commandBuffer,
-                                               VkPipelineBindPoint         pipelineBindPoint,
+    void PostProcess_vkCmdPushDescriptorSetKHR(VkCommandBuffer,
+                                               VkPipelineBindPoint,
                                                VkPipelineLayout            layout,
                                                uint32_t                    set,
                                                uint32_t                    descriptorWriteCount,
                                                const VkWriteDescriptorSet* pDescriptorWrites)
     {
-        GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
-        GFXRECON_UNREFERENCED_PARAMETER(pipelineBindPoint);
         GFXRECON_UNREFERENCED_PARAMETER(layout);
         GFXRECON_UNREFERENCED_PARAMETER(set);
         GFXRECON_UNREFERENCED_PARAMETER(descriptorWriteCount);
@@ -483,13 +461,12 @@ class TraceManager
         // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
     }
 
-    void PostProcess_vkCmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer            commandBuffer,
+    void PostProcess_vkCmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer,
                                                            VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                            VkPipelineLayout           layout,
                                                            uint32_t                   set,
                                                            const void*                pData)
     {
-        GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
         GFXRECON_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
         GFXRECON_UNREFERENCED_PARAMETER(layout);
         GFXRECON_UNREFERENCED_PARAMETER(set);
@@ -497,16 +474,14 @@ class TraceManager
         // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
     }
 
-    void PostProcess_vkResetDescriptorPool(VkResult                   result,
-                                           VkDevice                   device,
-                                           VkDescriptorPool           descriptorPool,
-                                           VkDescriptorPoolResetFlags flags)
+    void PostProcess_vkResetDescriptorPool(VkResult result,
+                                           VkDevice,
+                                           VkDescriptorPool descriptorPool,
+                                           VkDescriptorPoolResetFlags)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
         {
             assert(state_tracker_ != nullptr);
-            GFXRECON_UNREFERENCED_PARAMETER(device);
-            GFXRECON_UNREFERENCED_PARAMETER(flags);
             state_tracker_->TrackResetDescriptorPool(descriptorPool);
         }
     }
