@@ -202,6 +202,9 @@ class VulkanStateTable
 
     ShaderModuleWrapper*       GetShaderModuleWrapper(format::HandleId id)       { return GetWrapper<ShaderModuleWrapper>(id, shader_module_map_); }
     const ShaderModuleWrapper* GetShaderModuleWrapper(format::HandleId id) const { return GetWrapper<ShaderModuleWrapper>(id, shader_module_map_); }
+
+    SemaphoreWrapper*       GetSemaphoreWrapper(format::HandleId id)       { return GetWrapper<SemaphoreWrapper>(id, semaphore_map_); }
+    const SemaphoreWrapper* GetSemaphoreWrapper(format::HandleId id) const { return GetWrapper<SemaphoreWrapper>(id, semaphore_map_); }
     // clang-format off
 
   private:

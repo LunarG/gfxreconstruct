@@ -89,13 +89,32 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireNextImageKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkAcquireNextImageKHR(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireNextImage2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkAcquireNextImage2KHR(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>
 {
     template <typename... Args>
-    static void Dispatch(TraceManager* manager, VkResult, Args...)
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
     {
-        // TODO: Skip on failure?
-        manager->EndFrame();
+        manager->PostProcess_vkQueuePresentKHR(result, args...);
     }
 };
 
@@ -257,6 +276,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit>
     static void Dispatch(TraceManager* manager, VkResult result, Args... args)
     {
         manager->PostProcess_vkQueueSubmit(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueBindSparse>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkQueueBindSparse(result, args...);
     }
 };
 
