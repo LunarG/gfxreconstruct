@@ -244,6 +244,56 @@ class TraceManager
                                       const VkAllocationCallbacks* pAllocator,
                                       VkDeviceMemory*              pMemory);
 
+    void PostProcess_vkAcquireNextImageKHR(
+        VkResult result, VkDevice, VkSwapchainKHR, uint64_t, VkSemaphore semaphore, VkFence, uint32_t*)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &semaphore);
+        }
+    }
+
+    void PostProcess_vkAcquireNextImage2KHR(VkResult result,
+                                            VkDevice,
+                                            const VkAcquireNextImageInfoKHR* pAcquireInfo,
+                                            uint32_t*)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert((state_tracker_ != nullptr) && (pAcquireInfo != nullptr));
+            state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &pAcquireInfo->semaphore);
+        }
+    }
+
+    void PostProcess_vkQueuePresentKHR(VkResult result, VkQueue, const VkPresentInfoKHR* pPresentInfo)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert((state_tracker_ != nullptr) && (pPresentInfo != nullptr));
+            state_tracker_->TrackSemaphoreSignalState(
+                pPresentInfo->waitSemaphoreCount, pPresentInfo->pWaitSemaphores, 0, nullptr);
+        }
+
+        EndFrame();
+    }
+
+    void PostProcess_vkQueueBindSparse(
+        VkResult result, VkQueue, uint32_t bindInfoCount, const VkBindSparseInfo* pBindInfo, VkFence)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert((state_tracker_ != nullptr) && ((bindInfoCount == 0) || (pBindInfo != nullptr)));
+            for (uint32_t i = 0; i < bindInfoCount; ++i)
+            {
+                state_tracker_->TrackSemaphoreSignalState(pBindInfo[i].waitSemaphoreCount,
+                                                          pBindInfo[i].pWaitSemaphores,
+                                                          pBindInfo[i].signalSemaphoreCount,
+                                                          pBindInfo[i].pSignalSemaphores);
+            }
+        }
+    }
+
     void PostProcess_vkBindBufferMemory(
         VkResult result, VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset)
     {
@@ -359,15 +409,22 @@ class TraceManager
         }
     }
 
-    void PostProcess_vkQueueSubmit(
-        VkResult result, VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence)
+    void
+    PostProcess_vkQueueSubmit(VkResult result, VkQueue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
         {
-            assert(state_tracker_ != nullptr);
-            GFXRECON_UNREFERENCED_PARAMETER(queue);
-            GFXRECON_UNREFERENCED_PARAMETER(fence);
+            assert((state_tracker_ != nullptr) && ((submitCount == 0) || (pSubmits != nullptr)));
+
             state_tracker_->TrackImageLayoutTransitions(submitCount, pSubmits);
+
+            for (uint32_t i = 0; i < submitCount; ++i)
+            {
+                state_tracker_->TrackSemaphoreSignalState(pSubmits[i].waitSemaphoreCount,
+                                                          pSubmits[i].pWaitSemaphores,
+                                                          pSubmits[i].signalSemaphoreCount,
+                                                          pSubmits[i].pSignalSemaphores);
+            }
         }
     }
 

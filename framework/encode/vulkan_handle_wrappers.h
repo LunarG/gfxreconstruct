@@ -223,8 +223,12 @@ struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
 
 struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
 {
-    // Track signal/wait: when submitted for signal, set a bit in a bitmask to identify signal source (queue submit,
-    // acquire next image, etc). On wait, clear bitmask.  On state write, if mask is not 0, submit a signal operation.
+    // Track semaphore signaled state. State is signaled when a sempahore is submitted to QueueSubmit, QueueBindSparse,
+    // AcquireNextImageKHR, or AcquireNextImage2KHR as a signal semaphore. State is not signaled when a semaphore is
+    // submitted to QueueSubmit, QueueBindSparse, or QueuePresentKHR as a wait semaphore. Initial state after creation
+    // is not signaled.
+    bool     signaled{ false };
+    VkDevice device{ VK_NULL_HANDLE };
 };
 
 struct CommandPoolWrapper;

@@ -178,6 +178,27 @@ inline void InitializeState<VkDevice, EventWrapper, VkEventCreateInfo>(VkDevice 
 }
 
 template <>
+inline void InitializeState<VkDevice, SemaphoreWrapper, VkSemaphoreCreateInfo>(VkDevice          parent_handle,
+                                                                               SemaphoreWrapper* wrapper,
+                                                                               const VkSemaphoreCreateInfo* create_info,
+                                                                               format::ApiCallId create_call_id,
+                                                                               CreateParameters  create_parameters,
+                                                                               VulkanStateTable* state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->device = parent_handle;
+}
+
+template <>
 inline void
 InitializeState<VkDevice, FramebufferWrapper, VkFramebufferCreateInfo>(VkDevice                       parent_handle,
                                                                        FramebufferWrapper*            wrapper,

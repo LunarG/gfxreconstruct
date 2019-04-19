@@ -237,6 +237,11 @@ class VulkanStateTracker
 
     void TrackResetDescriptorPool(VkDescriptorPool descriptor_pool);
 
+    void TrackSemaphoreSignalState(uint32_t           wait_count,
+                                   const VkSemaphore* waits,
+                                   uint32_t           signal_count,
+                                   const VkSemaphore* signals);
+
   private:
     // TODO: Evaluate need for per-type locks.
     std::mutex mutex_;
