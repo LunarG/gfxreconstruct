@@ -559,5 +559,43 @@ void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_po
     }
 }
 
+void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count,
+                                                   const VkSemaphore* waits,
+                                                   uint32_t           signal_count,
+                                                   const VkSemaphore* signals)
+{
+    if (waits != nullptr)
+    {
+        for (uint32_t i = 0; i < wait_count; ++i)
+        {
+            SemaphoreWrapper* wrapper = state_table_.GetSemaphoreWrapper(format::ToHandleId(waits[i]));
+            if (wrapper != nullptr)
+            {
+                wrapper->signaled = false;
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Attempting to track semaphore signaled state for unrecognized semaphore handle");
+            }
+        }
+    }
+
+    if (signals != nullptr)
+    {
+        for (uint32_t i = 0; i < signal_count; ++i)
+        {
+            SemaphoreWrapper* wrapper = state_table_.GetSemaphoreWrapper(format::ToHandleId(signals[i]));
+            if (wrapper != nullptr)
+            {
+                wrapper->signaled = true;
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Attempting to track semaphore signaled state for unrecognized semaphore handle");
+            }
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
