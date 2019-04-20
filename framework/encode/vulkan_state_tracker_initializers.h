@@ -135,6 +135,29 @@ inline void InitializeState<VkDevice, PipelineLayoutWrapper, VkPipelineLayoutCre
 }
 
 template <>
+inline void InitializeState<VkDevice, QueueWrapper, void>(VkDevice          parent_handle,
+                                                          QueueWrapper*     wrapper,
+                                                          const void*       create_info,
+                                                          format::ApiCallId create_call_id,
+                                                          CreateParameters  create_parameters,
+                                                          VulkanStateTable* state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_parameters != nullptr);
+    assert(state_table != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(create_info);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    DeviceWrapper* device_wrapper = state_table->GetDeviceWrapper(format::ToHandleId(parent_handle));
+    assert(device_wrapper != nullptr);
+
+    device_wrapper->queues.insert(std::make_pair(wrapper->handle, wrapper));
+}
+
+template <>
 inline void InitializeState<VkDevice, FenceWrapper, VkFenceCreateInfo>(VkDevice                 parent_handle,
                                                                        FenceWrapper*            wrapper,
                                                                        const VkFenceCreateInfo* create_info,
