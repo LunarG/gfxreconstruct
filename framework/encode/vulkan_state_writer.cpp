@@ -61,9 +61,9 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     StandardCreateWrite<ValidationCacheEXTWrapper>(state_table);
 
     // Synchronization primitive creation.
-    StandardCreateWrite<SemaphoreWrapper>(state_table);
     WriteFenceState(state_table);
     WriteEventState(state_table);
+    WriteSemaphoreState(state_table);
 
     // WSI object creation.
     StandardCreateWrite<DisplayKHRWrapper>(state_table);
@@ -224,6 +224,48 @@ void VulkanStateWriter::WriteEventState(const VulkanStateTable& state_table)
             GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
         }
     });
+}
+
+void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
+{
+    std::unordered_map<VkDevice, std::vector<VkSemaphore>> signaled;
+
+    state_table.VisitWrappers([&](const SemaphoreWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Write event creation call.
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+
+        if (wrapper->signaled)
+        {
+            signaled[wrapper->device].push_back(wrapper->handle);
+        }
+    });
+
+    if (!signaled.empty())
+    {
+        for (const auto& entry : signaled)
+        {
+            // Get a queue for signaling the semaphores from the device.
+            const DeviceWrapper* wrapper = state_table.GetDeviceWrapper(format::ToHandleId(entry.first));
+            if (wrapper != nullptr)
+            {
+                auto iter = wrapper->queues.cbegin();
+
+                // If semaphores created by this device have been signaled, there must already be at least one queue.
+                assert(iter != wrapper->queues.cend());
+
+                // Any queue should be sufficient for signaling the semaphores; queue submit will not include any
+                // command buffers.
+                WriteCommandExecution(
+                    iter->first, 0, nullptr, static_cast<uint32_t>(entry.second.size()), entry.second.data());
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Attempting to write semaphore signaled state with an unrecognized device handle");
+            }
+        }
+    }
 }
 
 void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
@@ -1387,7 +1429,7 @@ void VulkanStateWriter::WriteBufferCopyCommandExecution(VkQueue         queue,
     parameter_stream_.Reset();
 
     WriteCommandEnd(command_buffer);
-    WriteCommandExecution(queue, command_buffer);
+    WriteCommandExecution(queue, 1, &command_buffer, 0, nullptr);
 }
 
 void VulkanStateWriter::WriteImageCopyCommandExecution(VkQueue                  queue,
@@ -1443,7 +1485,7 @@ void VulkanStateWriter::WriteImageCopyCommandExecution(VkQueue                  
     }
 
     WriteCommandEnd(command_buffer);
-    WriteCommandExecution(queue, command_buffer);
+    WriteCommandExecution(queue, 1, &command_buffer, 0, nullptr);
 }
 
 void VulkanStateWriter::WriteImageLayoutTransitionCommand(VkCommandBuffer      command_buffer,
@@ -1517,7 +1559,7 @@ void VulkanStateWriter::WriteImageLayoutTransitionCommandExecution(VkQueue      
                                       array_layers,
                                       aspect);
     WriteCommandEnd(command_buffer);
-    WriteCommandExecution(queue, command_buffer);
+    WriteCommandExecution(queue, 1, &command_buffer, 0, nullptr);
 }
 
 void VulkanStateWriter::WriteCommandBegin(VkCommandBuffer command_buffer)
@@ -1548,7 +1590,11 @@ void VulkanStateWriter::WriteCommandEnd(VkCommandBuffer command_buffer)
     parameter_stream_.Reset();
 }
 
-void VulkanStateWriter::WriteCommandExecution(VkQueue queue, VkCommandBuffer command_buffer)
+void VulkanStateWriter::WriteCommandExecution(VkQueue                queue,
+                                              uint32_t               command_buffer_count,
+                                              const VkCommandBuffer* command_buffers,
+                                              uint32_t               semaphore_count,
+                                              const VkSemaphore*     semaphores)
 {
     const VkResult result = VK_SUCCESS;
     const VkFence  fence  = VK_NULL_HANDLE;
@@ -1559,10 +1605,10 @@ void VulkanStateWriter::WriteCommandExecution(VkQueue queue, VkCommandBuffer com
     submit_info.waitSemaphoreCount   = 0;
     submit_info.pWaitSemaphores      = nullptr;
     submit_info.pWaitDstStageMask    = nullptr;
-    submit_info.commandBufferCount   = 1;
-    submit_info.pCommandBuffers      = &command_buffer;
-    submit_info.signalSemaphoreCount = 0;
-    submit_info.pSignalSemaphores    = nullptr;
+    submit_info.commandBufferCount   = command_buffer_count;
+    submit_info.pCommandBuffers      = command_buffers;
+    submit_info.signalSemaphoreCount = semaphore_count;
+    submit_info.pSignalSemaphores    = semaphores;
 
     encoder_.EncodeHandleIdValue(queue);
     encoder_.EncodeUInt32Value(1);
