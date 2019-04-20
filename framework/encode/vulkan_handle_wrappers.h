@@ -161,7 +161,7 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
-    PhysicalDeviceWrapper*                     physical_device;
+    PhysicalDeviceWrapper*                     physical_device{ nullptr };
     std::unordered_map<VkQueue, QueueWrapper*> queues;
 };
 
