@@ -106,6 +106,8 @@ class VulkanStateWriter
 
     void WriteEventState(const VulkanStateTable& state_table);
 
+    void WriteSemaphoreState(const VulkanStateTable& state_table);
+
     void WriteBufferState(const VulkanStateTable& state_table);
 
     void WriteImageState(const VulkanStateTable& state_table);
@@ -196,7 +198,11 @@ class VulkanStateWriter
 
     void WriteCommandEnd(VkCommandBuffer command_buffer);
 
-    void WriteCommandExecution(VkQueue queue, VkCommandBuffer command_buffer);
+    void WriteCommandExecution(VkQueue                queue,
+                               uint32_t               command_buffer_count,
+                               const VkCommandBuffer* command_buffers,
+                               uint32_t               semaphore_count,
+                               const VkSemaphore*     semaphores);
 
     void WriteCommandBufferCommands(const CommandBufferWrapper* wrapper);
 
