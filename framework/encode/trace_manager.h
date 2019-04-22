@@ -143,9 +143,10 @@ class TraceManager
     }
 
     // Multiple object creation.
-    template <typename ParentHandle, typename Wrapper, typename CreateInfo>
+    template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void EndGroupCreateApiCallTrace(VkResult                      result,
                                     ParentHandle                  parent_handle,
+                                    SecondaryHandle               secondary_handle,
                                     uint32_t                      count,
                                     typename Wrapper::HandleType* handles,
                                     const CreateInfo*             create_infos,
@@ -158,12 +159,14 @@ class TraceManager
             auto thread_data = GetThreadData();
             assert(thread_data != nullptr);
 
-            state_tracker_->AddGroupEntry<ParentHandle, Wrapper, CreateInfo>(parent_handle,
-                                                                             count,
-                                                                             handles,
-                                                                             create_infos,
-                                                                             thread_data->call_id_,
-                                                                             thread_data->parameter_buffer_.get());
+            state_tracker_->AddGroupEntry<ParentHandle, SecondaryHandle, Wrapper, CreateInfo>(
+                parent_handle,
+                secondary_handle,
+                count,
+                handles,
+                create_infos,
+                thread_data->call_id_,
+                thread_data->parameter_buffer_.get());
         }
 
         EndApiCallTrace(encoder);
