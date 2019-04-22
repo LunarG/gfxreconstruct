@@ -129,8 +129,9 @@ class VulkanStateTracker
         }
     }
 
-    template <typename ParentHandle, typename Wrapper, typename CreateInfo>
+    template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupEntry(ParentHandle                    parent_handle,
+                       SecondaryHandle                 secondary_handle,
                        uint32_t                        count,
                        typename Wrapper::HandleType*   new_handles,
                        const CreateInfo*               create_infos,
@@ -162,8 +163,15 @@ class VulkanStateTracker
                     Wrapper* wrapper   = new Wrapper;
                     wrapper->handle    = new_handles[i];
                     wrapper->handle_id = ++object_count_;
-                    vulkan_state_tracker::InitializeState<ParentHandle, Wrapper, CreateInfo>(
-                        parent_handle, wrapper, create_info, create_call_id, create_parameters, &state_table_);
+                    vulkan_state_tracker::
+                        InitializeGroupObjectState<ParentHandle, SecondaryHandle, Wrapper, CreateInfo>(
+                            parent_handle,
+                            secondary_handle,
+                            wrapper,
+                            create_info,
+                            create_call_id,
+                            create_parameters,
+                            &state_table_);
 
                     // Attempts to add a new entry to the table. Operation will fail for duplicate handles.
                     // TODO: Handle wrapping will introduce a unique ID that eliminates duplicates.

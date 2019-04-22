@@ -73,6 +73,21 @@ void InitializeState(ParentHandle      parent_handle,
     wrapper->create_parameters = std::move(create_parameters);
 }
 
+template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
+void InitializeGroupObjectState(ParentHandle      parent_handle,
+                                SecondaryHandle   secondary_handle,
+                                Wrapper*          wrapper,
+                                const CreateInfo* create_info,
+                                format::ApiCallId create_call_id,
+                                CreateParameters  create_parameters,
+                                VulkanStateTable* state_table)
+{
+    // The secondary handle is only used by sepcializations.
+    GFXRECON_UNREFERENCED_PARAMETER(secondary_handle);
+    InitializeState<ParentHandle, Wrapper, CreateInfo>(
+        parent_handle, wrapper, create_info, create_call_id, create_parameters, state_table);
+}
+
 template <>
 inline void InitializeState<VkPhysicalDevice, DeviceWrapper, VkDeviceCreateInfo>(VkPhysicalDevice parent_handle,
                                                                                  DeviceWrapper*   wrapper,
@@ -290,8 +305,9 @@ InitializeState<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo>(VkDevice   
 }
 
 template <>
-inline void InitializeState<VkDevice, PipelineWrapper, VkGraphicsPipelineCreateInfo>(
+inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrapper, VkGraphicsPipelineCreateInfo>(
     VkDevice                            parent_handle,
+    VkPipelineCache                     secondary_handle,
     PipelineWrapper*                    wrapper,
     const VkGraphicsPipelineCreateInfo* create_info,
     format::ApiCallId                   create_call_id,
@@ -304,6 +320,9 @@ inline void InitializeState<VkDevice, PipelineWrapper, VkGraphicsPipelineCreateI
     assert(state_table != nullptr);
 
     GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    // TODO: Track pipeline cache dependency.
+    GFXRECON_UNREFERENCED_PARAMETER(secondary_handle);
 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
@@ -347,13 +366,14 @@ inline void InitializeState<VkDevice, PipelineWrapper, VkGraphicsPipelineCreateI
 }
 
 template <>
-inline void
-InitializeState<VkDevice, PipelineWrapper, VkComputePipelineCreateInfo>(VkDevice         parent_handle,
-                                                                        PipelineWrapper* wrapper,
-                                                                        const VkComputePipelineCreateInfo* create_info,
-                                                                        format::ApiCallId create_call_id,
-                                                                        CreateParameters  create_parameters,
-                                                                        VulkanStateTable* state_table)
+inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrapper, VkComputePipelineCreateInfo>(
+    VkDevice                           parent_handle,
+    VkPipelineCache                    secondary_handle,
+    PipelineWrapper*                   wrapper,
+    const VkComputePipelineCreateInfo* create_info,
+    format::ApiCallId                  create_call_id,
+    CreateParameters                   create_parameters,
+    VulkanStateTable*                  state_table)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -361,6 +381,9 @@ InitializeState<VkDevice, PipelineWrapper, VkComputePipelineCreateInfo>(VkDevice
     assert(state_table != nullptr);
 
     GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    // TODO: Track pipeline cache dependency.
+    GFXRECON_UNREFERENCED_PARAMETER(secondary_handle);
 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
@@ -391,8 +414,9 @@ InitializeState<VkDevice, PipelineWrapper, VkComputePipelineCreateInfo>(VkDevice
 }
 
 template <>
-inline void InitializeState<VkDevice, PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(
+inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(
     VkDevice                                parent_handle,
+    VkPipelineCache                         secondary_handle,
     PipelineWrapper*                        wrapper,
     const VkRayTracingPipelineCreateInfoNV* create_info,
     format::ApiCallId                       create_call_id,
@@ -405,6 +429,9 @@ inline void InitializeState<VkDevice, PipelineWrapper, VkRayTracingPipelineCreat
     assert(state_table != nullptr);
 
     GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    // TODO: Track pipeline cache dependency.
+    GFXRECON_UNREFERENCED_PARAMETER(secondary_handle);
 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
