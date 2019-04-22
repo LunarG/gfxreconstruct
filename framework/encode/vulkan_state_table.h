@@ -205,6 +205,9 @@ class VulkanStateTable
 
     SemaphoreWrapper*       GetSemaphoreWrapper(format::HandleId id)       { return GetWrapper<SemaphoreWrapper>(id, semaphore_map_); }
     const SemaphoreWrapper* GetSemaphoreWrapper(format::HandleId id) const { return GetWrapper<SemaphoreWrapper>(id, semaphore_map_); }
+
+    SwapchainKHRWrapper*       GetSwapchainKHRWrapper(format::HandleId id)       { return GetWrapper<SwapchainKHRWrapper>(id, swapchain_khr_map_); }
+    const SwapchainKHRWrapper* GetSwapchainKHRWrapper(format::HandleId id) const { return GetWrapper<SwapchainKHRWrapper>(id, swapchain_khr_map_); }
     // clang-format off
 
   private:

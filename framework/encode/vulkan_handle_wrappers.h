@@ -339,7 +339,13 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 
 struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 {
-    std::vector<bool> image_needs_acquire;
+    VkDevice                   device{ VK_NULL_HANDLE };
+    VkSurfaceKHR               surface{ VK_NULL_HANDLE };
+    uint32_t                   queue_family_index{ 0 };
+    VkFormat                   format{ VK_FORMAT_UNDEFINED };
+    VkExtent3D                 extent{ 0, 0, 0 };
+    uint32_t                   array_layers{ 0 };
+    std::vector<ImageWrapper*> images;
 };
 
 struct ObjectTableNVXWrapper : public HandleWrapper<VkObjectTableNVX>

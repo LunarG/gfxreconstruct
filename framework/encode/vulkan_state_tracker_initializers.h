@@ -513,6 +513,7 @@ inline void InitializeState<VkDevice, BufferWrapper, VkBufferCreateInfo>(VkDevic
     }
 }
 
+// Images created with vkCreateImage.
 template <>
 inline void InitializeState<VkDevice, ImageWrapper, VkImageCreateInfo>(VkDevice                 parent_handle,
                                                                        ImageWrapper*            wrapper,
@@ -544,6 +545,72 @@ inline void InitializeState<VkDevice, ImageWrapper, VkImageCreateInfo>(VkDevice 
     {
         wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
+}
+
+template <>
+inline void
+InitializeState<VkDevice, SwapchainKHRWrapper, VkSwapchainCreateInfoKHR>(VkDevice                        parent_handle,
+                                                                         SwapchainKHRWrapper*            wrapper,
+                                                                         const VkSwapchainCreateInfoKHR* create_info,
+                                                                         format::ApiCallId               create_call_id,
+                                                                         CreateParameters  create_parameters,
+                                                                         VulkanStateTable* state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->device       = parent_handle;
+    wrapper->surface      = create_info->surface;
+    wrapper->format       = create_info->imageFormat;
+    wrapper->extent       = { create_info->imageExtent.width, create_info->imageExtent.height, 0 };
+    wrapper->array_layers = create_info->imageArrayLayers;
+
+    if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
+    {
+        wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
+    }
+}
+
+// Swapchain Images retrieved with vkGetSwapchainImagesKHR.
+template <>
+inline void InitializeGroupObjectState<VkDevice, VkSwapchainKHR, ImageWrapper, void>(VkDevice          parent_handle,
+                                                                                     VkSwapchainKHR    swapchain_handle,
+                                                                                     ImageWrapper*     wrapper,
+                                                                                     const void*       create_info,
+                                                                                     format::ApiCallId create_call_id,
+                                                                                     CreateParameters create_parameters,
+                                                                                     VulkanStateTable* state_table)
+{
+    assert(wrapper != nullptr);
+    assert(state_table != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(create_info);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    SwapchainKHRWrapper* swapchain_wrapper = state_table->GetSwapchainKHRWrapper(format::ToHandleId(swapchain_handle));
+    assert(swapchain_wrapper != nullptr);
+
+    wrapper->image_type         = VK_IMAGE_TYPE_2D;
+    wrapper->format             = swapchain_wrapper->format;
+    wrapper->extent             = swapchain_wrapper->extent;
+    wrapper->mip_levels         = 1;
+    wrapper->array_layers       = swapchain_wrapper->array_layers;
+    wrapper->samples            = VK_SAMPLE_COUNT_1_BIT;
+    wrapper->tiling             = VK_IMAGE_TILING_OPTIMAL;
+    wrapper->queue_family_index = swapchain_wrapper->queue_family_index;
+
+    swapchain_wrapper->images.push_back(wrapper);
 }
 
 template <>
