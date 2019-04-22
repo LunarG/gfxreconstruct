@@ -94,7 +94,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(
         encoder->EncodeUInt32Ptr(pPhysicalDeviceCount);
         encoder->EncodeHandleIdArray(pPhysicalDevices, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0);
         encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndGroupCreateApiCallTrace<VkInstance, PhysicalDeviceWrapper, void>(result, instance, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0, pPhysicalDevices, nullptr, encoder);
+        TraceManager::Get()->EndGroupCreateApiCallTrace<VkInstance, void*, PhysicalDeviceWrapper, void>(result, instance, nullptr, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0, pPhysicalDevices, nullptr, encoder);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices>::Dispatch(TraceManager::Get(), result, instance, pPhysicalDeviceCount, pPhysicalDevices);
@@ -1447,7 +1447,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandleIdArray(pPipelines, createInfoCount);
         encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, PipelineWrapper, VkGraphicsPipelineCreateInfo>(result, device, createInfoCount, pPipelines, pCreateInfos, encoder);
+        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkPipelineCache, PipelineWrapper, VkGraphicsPipelineCreateInfo>(result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos, encoder);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateGraphicsPipelines>::Dispatch(TraceManager::Get(), result, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
@@ -1477,7 +1477,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandleIdArray(pPipelines, createInfoCount);
         encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, PipelineWrapper, VkComputePipelineCreateInfo>(result, device, createInfoCount, pPipelines, pCreateInfos, encoder);
+        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkPipelineCache, PipelineWrapper, VkComputePipelineCreateInfo>(result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos, encoder);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateComputePipelines>::Dispatch(TraceManager::Get(), result, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
@@ -3928,7 +3928,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
         encoder->EncodeUInt32Ptr(pSwapchainImageCount);
         encoder->EncodeHandleIdArray(pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0);
         encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, ImageWrapper, void>(result, device, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, pSwapchainImages, nullptr, encoder);
+        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkSwapchainKHR, ImageWrapper, void>(result, device, swapchain, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, pSwapchainImages, nullptr, encoder);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR>::Dispatch(TraceManager::Get(), result, device, swapchain, pSwapchainImageCount, pSwapchainImages);
@@ -4150,7 +4150,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(
         encoder->EncodeUInt32Ptr(pDisplayCount);
         encoder->EncodeHandleIdArray(pDisplays, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0);
         encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndGroupCreateApiCallTrace<VkPhysicalDevice, DisplayKHRWrapper, void>(result, physicalDevice, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, pDisplays, nullptr, encoder);
+        TraceManager::Get()->EndGroupCreateApiCallTrace<VkPhysicalDevice, void*, DisplayKHRWrapper, void>(result, physicalDevice, nullptr, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, pDisplays, nullptr, encoder);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR>::Dispatch(TraceManager::Get(), result, physicalDevice, planeIndex, pDisplayCount, pDisplays);
@@ -4284,7 +4284,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandleIdArray(pSwapchains, swapchainCount);
         encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, SwapchainKHRWrapper, VkSwapchainCreateInfoKHR>(result, device, swapchainCount, pSwapchains, pCreateInfos, encoder);
+        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, void*, SwapchainKHRWrapper, VkSwapchainCreateInfoKHR>(result, device, nullptr, swapchainCount, pSwapchains, pCreateInfos, encoder);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR>::Dispatch(TraceManager::Get(), result, device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
@@ -7533,7 +7533,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandleIdArray(pPipelines, createInfoCount);
         encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(result, device, createInfoCount, pPipelines, pCreateInfos, encoder);
+        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkPipelineCache, PipelineWrapper, VkRayTracingPipelineCreateInfoNV>(result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos, encoder);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV>::Dispatch(TraceManager::Get(), result, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);

@@ -232,16 +232,26 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         lengthName = '({name} != nullptr) ? (*{name}) : 0'.format(name=lengthName)
                         break
 
-                callName = 'EndGroupCreateApiCallTrace'
                 if '->' in lengthName:
-                    callName = 'EndPoolCreateApiCallTrace'
+                    # This is a pool allocation call, which receives one allocate info structure that is shared by all object being allocated.
+                    decl += 'EndPoolCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
+                else:
+                    # This is a multi-object creation call (e.g. pipeline creation, or swapchain image retrieval), which receives
+                    # separate create info structures for each object being created. Many multi-object creation calls receive a
+                    # handle as their second parameter, which is of interest to the state tracker (e.g. the VkPipelineCache handle
+                    # from vkCreateGraphicsPipelines or the vkSwapchain handle from vkGetSwapchainImagesKHR). For api calls that do
+                    # not receive a handle as the second parameter (e.g. vkEnumeratePhysicalDevices), the handle type is set to 'void*'.
+                    if self.isHandle(values[1].baseType):
+                        secondHandle = values[1]
+                        decl += 'EndGroupCreateApiCallTrace<{}, {}, {}Wrapper, {}>({}, {}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, secondHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, secondHandle.name, lengthName, handle.name, infoName)
+                    else:
+                        decl += 'EndGroupCreateApiCallTrace<{}, void*, {}Wrapper, {}>({}, {}, nullptr, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
 
-                decl += '{}<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(callName, parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
             else:
-                # Instance creation has no handle.
                 if parentHandle:
                     decl += 'EndCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, handle.name, infoName)
                 else:
+                    # Instance creation does not have a parent handle; set the parent handle type to 'void*'.
                     decl += 'EndCreateApiCallTrace<const void*, {}Wrapper, {}>({}, nullptr, {}, {}, encoder)'.format(handle.baseType[2:], infoBaseType, returnValue, handle.name, infoName)
 
         elif name.startswith('vkDestroy') or name.startswith('vkFree'):
