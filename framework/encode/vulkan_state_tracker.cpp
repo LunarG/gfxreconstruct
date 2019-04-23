@@ -542,20 +542,17 @@ void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_po
     DescriptorPoolWrapper* wrapper = state_table_.GetDescriptorPoolWrapper(format::ToHandleId(descriptor_pool));
     if (wrapper != nullptr)
     {
-        // Process each descriptor set allocated from the pool.
+        // Pool reset implicitly frees descriptor sets, so remove all wrappers for sets allocated from the pool..
         for (const auto& set_entry : wrapper->allocated_sets)
         {
-            DescriptorSetWrapper* set_wrapper = set_entry.second;
+            DescriptorSetWrapper* set_wrapper = nullptr;
+            state_table_.RemoveWrapper(format::ToHandleId(set_entry.first), &set_wrapper);
 
-            assert(set_wrapper != nullptr);
+            assert((set_wrapper != nullptr) && (set_wrapper == set_entry.second));
 
-            // Process each descriptor binding in the current set.
-            for (auto& binding_entry : set_wrapper->bindings)
-            {
-                DescriptorInfo* binding = &binding_entry.second;
-                std::fill(binding->written.get(), binding->written.get() + binding->count, false);
-            }
+            delete set_wrapper;
         }
+        wrapper->allocated_sets.clear();
     }
     else
     {
