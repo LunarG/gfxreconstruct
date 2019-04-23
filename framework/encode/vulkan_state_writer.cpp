@@ -2370,9 +2370,9 @@ void VulkanStateWriter::GetImageSizes(const ImageWrapper* image_wrapper,
     // Size of additional mip levels.
     for (uint32_t i = 1; i < image_wrapper->mip_levels; ++i)
     {
-        create_info.extent.width  = std::max(1u, (create_info.extent.width >> i));
-        create_info.extent.height = std::max(1u, (create_info.extent.height >> i));
-        create_info.extent.depth  = std::max(1u, (create_info.extent.depth >> i));
+        create_info.extent.width  = std::max(1u, (image_wrapper->extent.width >> i));
+        create_info.extent.height = std::max(1u, (image_wrapper->extent.height >> i));
+        create_info.extent.depth  = std::max(1u, (image_wrapper->extent.depth >> i));
 
         result = dispatch_table.CreateImage(image_wrapper->bind_device, &create_info, nullptr, &image);
         if (result == VK_SUCCESS)
