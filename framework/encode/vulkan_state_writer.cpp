@@ -1305,6 +1305,7 @@ void VulkanStateWriter::WriteStagingBufferCreateCommands(VkDevice               
     encoder_.EncodeHandleIdValue(buffer);
     encoder_.EncodeHandleIdValue(memory);
     encoder_.EncodeVkDeviceSizeValue(0);
+    encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkBindBufferMemory, &parameter_stream_);
     parameter_stream_.Reset();
