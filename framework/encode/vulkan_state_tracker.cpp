@@ -597,5 +597,110 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
     }
 }
 
+void VulkanStateTracker::DestroyState(DeviceWrapper* wrapper)
+{
+    if (wrapper != nullptr)
+    {
+        // Queues are not explicitly destroyed, so queue wrappers need to be destroyed when the device wrapper is
+        // destroyed.
+        for (const auto& entry : wrapper->queues)
+        {
+            QueueWrapper* queue_wrapper = nullptr;
+            state_table_.RemoveWrapper(format::ToHandleId(entry.first), &queue_wrapper);
+
+            assert(queue_wrapper == entry.second);
+
+            if (queue_wrapper != nullptr)
+            {
+                delete queue_wrapper;
+            }
+        }
+    }
+}
+
+void VulkanStateTracker::DestroyState(CommandPoolWrapper* wrapper)
+{
+    if (wrapper != nullptr)
+    {
+        // Destroying the pool implicitly destroys objects allocated from the pool.
+        for (const auto& entry : wrapper->allocated_buffers)
+        {
+            CommandBufferWrapper* buffer_wrapper = nullptr;
+            state_table_.RemoveWrapper(format::ToHandleId(entry.first), &buffer_wrapper);
+
+            assert(buffer_wrapper == entry.second);
+
+            if (buffer_wrapper != nullptr)
+            {
+                delete buffer_wrapper;
+            }
+        }
+    }
+}
+
+void VulkanStateTracker::DestroyState(CommandBufferWrapper* wrapper)
+{
+    if (wrapper != nullptr)
+    {
+        // Remove the wrapper from the parent pool wrapper.
+        CommandPoolWrapper* pool_wrapper = wrapper->pool;
+        assert(pool_wrapper != nullptr);
+
+        pool_wrapper->allocated_buffers.erase(wrapper->handle);
+    }
+}
+
+void VulkanStateTracker::DestroyState(DescriptorPoolWrapper* wrapper)
+{
+    if (wrapper != nullptr)
+    {
+        // Destroying the pool implicitly destroys objects allocated from the pool.
+        for (const auto& entry : wrapper->allocated_sets)
+        {
+            DescriptorSetWrapper* set_wrapper = nullptr;
+            state_table_.RemoveWrapper(format::ToHandleId(entry.first), &set_wrapper);
+
+            assert(set_wrapper == entry.second);
+
+            if (set_wrapper != nullptr)
+            {
+                delete set_wrapper;
+            }
+        }
+    }
+}
+
+void VulkanStateTracker::DestroyState(DescriptorSetWrapper* wrapper)
+{
+    if (wrapper != nullptr)
+    {
+        // Remove the wrapper from the parent pool wrapper.
+        DescriptorPoolWrapper* pool_wrapper = wrapper->pool;
+        assert(pool_wrapper != nullptr);
+
+        pool_wrapper->allocated_sets.erase(wrapper->handle);
+    }
+}
+
+void VulkanStateTracker::DestroyState(SwapchainKHRWrapper* wrapper)
+{
+    if (wrapper != nullptr)
+    {
+        // Swapchain images are not explicitly destroyed, so swapchain image wrappers need to be destroyed when the
+        // swapchain wrapper is destroyed.
+        for (auto entry : wrapper->images)
+        {
+            assert(entry != nullptr);
+
+            ImageWrapper* image_wrapper = nullptr;
+            state_table_.RemoveWrapper(format::ToHandleId(entry->handle), &image_wrapper);
+
+            assert(image_wrapper == entry);
+
+            delete image_wrapper;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
