@@ -120,6 +120,8 @@ class VulkanStateWriter
 
     void WriteDescriptorSetState(const VulkanStateTable& state_table);
 
+    void WriteSwapchainKhrState(const VulkanStateTable& state_table);
+
     void ProcessBufferMemory(VkDevice                  device,
                              const BufferSnapshotData& snapshot_data,
                              const VulkanStateTable&   state_table,
@@ -224,6 +226,8 @@ class VulkanStateWriter
     void WriteFunctionCall(format::ApiCallId call_id, util::MemoryOutputStream* parameter_buffer);
 
     void WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data);
+
+    void WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height);
 
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)

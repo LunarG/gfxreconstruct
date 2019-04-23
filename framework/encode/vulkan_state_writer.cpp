@@ -69,7 +69,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     StandardCreateWrite<DisplayKHRWrapper>(state_table);
     StandardCreateWrite<DisplayModeKHRWrapper>(state_table);
     StandardCreateWrite<SurfaceKHRWrapper>(state_table);
-    StandardCreateWrite<SwapchainKHRWrapper>(state_table);
+    WriteSwapchainKhrState(state_table);
 
     // Query object creation.
     StandardCreateWrite<QueryPoolWrapper>(state_table);
@@ -728,6 +728,23 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
                 WriteDescriptorUpdateCommand(wrapper->device, binding, &write);
             }
         }
+    });
+}
+
+void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const SwapchainKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        WriteResizeWindowCmd(wrapper->surface, wrapper->extent.width, wrapper->extent.height);
+
+        // TODO: Write call to vkGetPhysicalDeviceSurfaceSupportKHR.
+        // TODO: Write call to vkGetPhysicalDeviceSurfaceCapabilitiesKHR.
+        // TODO: Write call to vkGetPhysicalDeviceSurfaceFormatsKHR.
+        // TODO: Write call to vkGetPhysicalDeviceSurfacePresentModesKHR.
+
+        // Write swapchain creation call.
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
     });
 }
 
@@ -1878,6 +1895,24 @@ void VulkanStateWriter::WriteFillMemoryCmd(VkDeviceMemory memory,
 
     output_stream_->Write(&fill_cmd, sizeof(fill_cmd));
     output_stream_->Write(write_address, write_size);
+}
+
+// TODO: This is the same code used by TraceManager to write command data. It could be moved to a format utility.
+void VulkanStateWriter::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height)
+{
+    format::ResizeWindowCommand resize_cmd;
+    resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
+                                               sizeof(resize_cmd.thread_id) + sizeof(resize_cmd.surface_id) +
+                                               sizeof(resize_cmd.width) + sizeof(resize_cmd.height);
+    resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
+    resize_cmd.thread_id                  = thread_id_;
+
+    resize_cmd.surface_id = format::ToHandleId(surface);
+    resize_cmd.width      = width;
+    resize_cmd.height     = height;
+
+    output_stream_->Write(&resize_cmd, sizeof(resize_cmd));
 }
 
 VkMemoryPropertyFlags
