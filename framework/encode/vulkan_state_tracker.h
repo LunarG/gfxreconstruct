@@ -218,8 +218,12 @@ class VulkanStateTracker
 
     void TrackImageMemoryBinding(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
-    void
-    TrackMappedMemory(VkDeviceMemory memory, void* mapped_data, VkDeviceSize mapped_offset, VkDeviceSize mapped_size);
+    void TrackMappedMemory(VkDevice         device,
+                           VkDeviceMemory   memory,
+                           void*            mapped_data,
+                           VkDeviceSize     mapped_offset,
+                           VkDeviceSize     mapped_size,
+                           VkMemoryMapFlags mapped_flags);
 
     void TrackBeginRenderPass(VkCommandBuffer command_buffer, const VkRenderPassBeginInfo* begin_info);
 

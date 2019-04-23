@@ -255,11 +255,13 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 
 struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 {
-    uint32_t     memory_type_index{ std::numeric_limits<uint32_t>::max() };
-    VkDeviceSize allocation_size{ 0 };
-    const void*  mapped_data{ nullptr };
-    VkDeviceSize mapped_offset{ 0 };
-    VkDeviceSize mapped_size{ 0 };
+    uint32_t         memory_type_index{ std::numeric_limits<uint32_t>::max() };
+    VkDeviceSize     allocation_size{ 0 };
+    VkDevice         map_device{ VK_NULL_HANDLE };
+    const void*      mapped_data{ nullptr };
+    VkDeviceSize     mapped_offset{ 0 };
+    VkDeviceSize     mapped_size{ 0 };
+    VkMemoryMapFlags mapped_flags{ 0 };
 };
 
 struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>

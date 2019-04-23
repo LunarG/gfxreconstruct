@@ -137,19 +137,23 @@ void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
     }
 }
 
-void VulkanStateTracker::TrackMappedMemory(VkDeviceMemory memory,
-                                           void*          mapped_data,
-                                           VkDeviceSize   mapped_offset,
-                                           VkDeviceSize   mapped_size)
+void VulkanStateTracker::TrackMappedMemory(VkDevice         device,
+                                           VkDeviceMemory   memory,
+                                           void*            mapped_data,
+                                           VkDeviceSize     mapped_offset,
+                                           VkDeviceSize     mapped_size,
+                                           VkMemoryMapFlags mapped_flags)
 {
     std::unique_lock<std::mutex> lock(mutex_);
 
     DeviceMemoryWrapper* wrapper = state_table_.GetDeviceMemoryWrapper(format::ToHandleId(memory));
     if (wrapper != nullptr)
     {
+        wrapper->map_device    = device;
         wrapper->mapped_data   = mapped_data;
         wrapper->mapped_offset = mapped_offset;
         wrapper->mapped_size   = mapped_size;
+        wrapper->mapped_flags  = mapped_flags;
     }
     else
     {

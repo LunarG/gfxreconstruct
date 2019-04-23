@@ -132,6 +132,8 @@ class VulkanStateWriter
                             const VulkanStateTable&  state_table,
                             const DeviceTable&       dispatch_table);
 
+    void WriteMappedMemoryState(const VulkanStateTable& state_table);
+
     void WriteStagingBufferCreateCommands(VkDevice                    device,
                                           VkDeviceSize                buffer_size,
                                           VkBuffer                    buffer,

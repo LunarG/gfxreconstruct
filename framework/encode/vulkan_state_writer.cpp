@@ -84,6 +84,9 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     StandardCreateWrite<SamplerWrapper>(state_table);
     StandardCreateWrite<SamplerYcbcrConversionWrapper>(state_table);
 
+    // Map memory after uploading resource data to buffers and images, which may require mapping resource memory ranges.
+    WriteMappedMemoryState(state_table);
+
     // Render object creation.
     StandardCreateWrite<RenderPassWrapper>(state_table);
     WriteFramebufferState(state_table);
@@ -1246,6 +1249,28 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
         dispatch_table.DestroyBuffer(device, staging_buffer, nullptr);
         dispatch_table.FreeMemory(device, staging_memory, nullptr);
     }
+}
+
+void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const DeviceMemoryWrapper* wrapper) {
+        if (wrapper->mapped_data != nullptr)
+        {
+            const VkResult result = VK_SUCCESS;
+
+            // Map the replay memory.
+            encoder_.EncodeHandleIdValue(wrapper->map_device);
+            encoder_.EncodeHandleIdValue(wrapper->handle);
+            encoder_.EncodeVkDeviceSizeValue(wrapper->mapped_offset);
+            encoder_.EncodeVkDeviceSizeValue(wrapper->mapped_size);
+            encoder_.EncodeFlagsValue(wrapper->mapped_flags);
+            encoder_.EncodeVoidPtrPtr(&wrapper->mapped_data);
+            encoder_.EncodeEnumValue(result);
+
+            WriteFunctionCall(format::ApiCallId::ApiCall_vkMapMemory, &parameter_stream_);
+            parameter_stream_.Reset();
+        }
+    });
 }
 
 void VulkanStateWriter::WriteStagingBufferCreateCommands(VkDevice                    device,
