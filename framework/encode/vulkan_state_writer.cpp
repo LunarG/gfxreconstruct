@@ -549,6 +549,22 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         if (wrapper->create_call_id == format::ApiCall_vkCreateGraphicsPipelines)
         {
             graphics_pipelines.insert(wrapper->create_parameters);
+
+            // Check for graphics-specific creation dependencies that no longer exist.
+            const RenderPassWrapper* render_pass_wrapper =
+                state_table.GetRenderPassWrapper(format::ToHandleId(wrapper->render_pass));
+            if ((render_pass_wrapper == nullptr) || (render_pass_wrapper->handle_id != wrapper->render_pass_id))
+            {
+                // Either the handle does not exist, or it has been recycled and now references a different object.
+                const auto& inserted = temp_render_passes.insert(std::make_pair(wrapper->render_pass_id, wrapper));
+
+                // Create a temporary object on first encounter.
+                if (inserted.second)
+                {
+                    WriteFunctionCall(wrapper->render_pass_create_call_id,
+                                      wrapper->render_pass_create_parameters.get());
+                }
+            }
         }
         else if (wrapper->create_call_id == format::ApiCall_vkCreateComputePipelines)
         {
@@ -574,20 +590,6 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
                 {
                     WriteFunctionCall(entry.create_call_id, entry.create_parameters.get());
                 }
-            }
-        }
-
-        const RenderPassWrapper* render_pass_wrapper =
-            state_table.GetRenderPassWrapper(format::ToHandleId(wrapper->render_pass));
-        if ((render_pass_wrapper == nullptr) || (render_pass_wrapper->handle_id != wrapper->render_pass_id))
-        {
-            // Either the handle does not exist, or it has been recycled and now references a different object.
-            const auto& inserted = temp_render_passes.insert(std::make_pair(wrapper->render_pass_id, wrapper));
-
-            // Create a temporary object on first encounter.
-            if (inserted.second)
-            {
-                WriteFunctionCall(wrapper->render_pass_create_call_id, wrapper->render_pass_create_parameters.get());
             }
         }
 
