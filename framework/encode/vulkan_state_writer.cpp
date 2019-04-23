@@ -637,7 +637,7 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         WriteFunctionCall(format::ApiCall_vkCreateComputePipelines, entry.get());
     }
 
-    for (const auto& entry : compute_pipelines)
+    for (const auto& entry : ray_tracing_pipelines)
     {
         WriteFunctionCall(format::ApiCall_vkCreateRayTracingPipelinesNV, entry.get());
     }
