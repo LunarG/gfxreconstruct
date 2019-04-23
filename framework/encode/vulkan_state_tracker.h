@@ -192,6 +192,7 @@ class VulkanStateTracker
         {
             std::unique_lock<std::mutex> lock(mutex_);
             state_table_.RemoveWrapper(format::ToHandleId(handle), &wrapper);
+            DestroyState(wrapper);
         }
 
         if (wrapper != nullptr)
@@ -249,6 +250,25 @@ class VulkanStateTracker
                                    const VkSemaphore* waits,
                                    uint32_t           signal_count,
                                    const VkSemaphore* signals);
+
+  private:
+    template <typename Wrapper>
+    void DestroyState(Wrapper* wrapper)
+    {
+        wrapper->create_parameters = nullptr;
+    }
+
+    void DestroyState(DeviceWrapper* wrapper);
+
+    void DestroyState(CommandPoolWrapper* wrapper);
+
+    void DestroyState(CommandBufferWrapper* wrapper);
+
+    void DestroyState(DescriptorPoolWrapper* wrapper);
+
+    void DestroyState(DescriptorSetWrapper* wrapper);
+
+    void DestroyState(SwapchainKHRWrapper* wrapper);
 
   private:
     // TODO: Evaluate need for per-type locks.
