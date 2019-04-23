@@ -734,15 +734,12 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
                                            VkMemoryMapFlags flags,
                                            void**           ppData)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-
     if ((result == VK_SUCCESS) && (ppData != nullptr))
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
-            state_tracker_->TrackMappedMemory(memory, (*ppData), offset, size);
+            state_tracker_->TrackMappedMemory(device, memory, (*ppData), offset, size, flags);
         }
 
         {
@@ -856,12 +853,10 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
 
 void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-
     if ((capture_mode_ & kModeTrack) == kModeTrack)
     {
         assert(state_tracker_ != nullptr);
-        state_tracker_->TrackMappedMemory(memory, nullptr, 0, 0);
+        state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0);
     }
 
     {
