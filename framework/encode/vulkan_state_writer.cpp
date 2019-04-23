@@ -1018,8 +1018,17 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
                     if (result == VK_SUCCESS)
                     {
                         VkImageMemoryBarrier       memory_barrier;
-                        const ImageWrapper*        image_wrapper  = image_entry.image_wrapper;
-                        const DeviceMemoryWrapper* memory_wrapper = image_entry.memory_wrapper;
+                        const ImageWrapper*        image_wrapper     = image_entry.image_wrapper;
+                        const DeviceMemoryWrapper* memory_wrapper    = image_entry.memory_wrapper;
+                        VkImageAspectFlags         transition_aspect = image_entry.aspect;
+
+                        if ((transition_aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
+                            (transition_aspect == VK_IMAGE_ASPECT_STENCIL_BIT))
+                        {
+                            // Depth and stencil aspects need to be transitioned together, so get full aspect mask for
+                            // image.
+                            transition_aspect = GetFormatAspectMask(image_wrapper->format);
+                        }
 
                         // TODO: Resolve multi-sample images.
                         assert(image_wrapper->samples == VK_SAMPLE_COUNT_1_BIT);
@@ -1036,7 +1045,7 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
                             memory_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                             memory_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                             memory_barrier.image                           = image_wrapper->handle;
-                            memory_barrier.subresourceRange.aspectMask     = image_entry.aspect;
+                            memory_barrier.subresourceRange.aspectMask     = transition_aspect;
                             memory_barrier.subresourceRange.baseMipLevel   = 0;
                             memory_barrier.subresourceRange.levelCount     = image_wrapper->mip_levels;
                             memory_barrier.subresourceRange.baseArrayLayer = 0;
@@ -1139,7 +1148,7 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
                                                                                image_wrapper->current_layout,
                                                                                image_wrapper->mip_levels,
                                                                                image_wrapper->array_layers,
-                                                                               image_entry.aspect);
+                                                                               transition_aspect);
                                 }
                             }
                             else
@@ -1162,7 +1171,8 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
                                                                image_wrapper->handle,
                                                                image_wrapper->current_layout,
                                                                static_cast<uint32_t>(copy_regions.size()),
-                                                               copy_regions.data());
+                                                               copy_regions.data(),
+                                                               transition_aspect);
                             }
                         }
                         else
@@ -1199,6 +1209,16 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
                     if ((image_wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
                         (image_wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED))
                     {
+                        VkImageAspectFlags transition_aspect = image_entry.aspect;
+
+                        if ((transition_aspect == VK_IMAGE_ASPECT_DEPTH_BIT) ||
+                            (transition_aspect == VK_IMAGE_ASPECT_STENCIL_BIT))
+                        {
+                            // Depth and stencil aspects need to be transitioned together, so get full aspect mask for
+                            // image.
+                            transition_aspect = GetFormatAspectMask(image_wrapper->format);
+                        }
+
                         WriteImageLayoutTransitionCommandExecution(queue,
                                                                    command_buffer,
                                                                    image_wrapper->handle,
@@ -1210,7 +1230,7 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
                                                                    image_wrapper->current_layout,
                                                                    image_wrapper->mip_levels,
                                                                    image_wrapper->array_layers,
-                                                                   image_entry.aspect);
+                                                                   transition_aspect);
                     }
                 }
 
@@ -1481,7 +1501,8 @@ void VulkanStateWriter::WriteImageCopyCommandExecution(VkQueue                  
                                                        VkImage                  destination,
                                                        VkImageLayout            final_layout,
                                                        uint32_t                 copy_regions_size,
-                                                       const VkBufferImageCopy* copy_regions)
+                                                       const VkBufferImageCopy* copy_regions,
+                                                       VkImageAspectFlags       transition_aspect)
 {
     assert((copy_regions_size > 0) && (copy_regions != nullptr));
 
@@ -1499,7 +1520,7 @@ void VulkanStateWriter::WriteImageCopyCommandExecution(VkQueue                  
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                       copy_regions_size, // One copy region per-mip level.
                                       copy_regions[0].imageSubresource.layerCount,
-                                      copy_regions[0].imageSubresource.aspectMask);
+                                      transition_aspect);
 
     // Record the copy command.
     encoder_.EncodeHandleIdValue(command_buffer);
@@ -1524,7 +1545,7 @@ void VulkanStateWriter::WriteImageCopyCommandExecution(VkQueue                  
                                           final_layout,
                                           copy_regions_size, // One copy region per-mip level.
                                           copy_regions[0].imageSubresource.layerCount,
-                                          copy_regions[0].imageSubresource.aspectMask);
+                                          transition_aspect);
     }
 
     WriteCommandEnd(command_buffer);

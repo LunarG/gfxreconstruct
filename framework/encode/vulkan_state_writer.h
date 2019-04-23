@@ -171,7 +171,8 @@ class VulkanStateWriter
                                         VkImage                  destination,
                                         VkImageLayout            final_layout,
                                         uint32_t                 copy_regions_size,
-                                        const VkBufferImageCopy* copy_regions);
+                                        const VkBufferImageCopy* copy_regions,
+                                        VkImageAspectFlags       transition_aspect);
 
     void WriteImageLayoutTransitionCommand(VkCommandBuffer      command_buffer,
                                            VkImage              image,
