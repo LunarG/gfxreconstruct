@@ -455,6 +455,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
             {
                 auto& binding = wrapper->bindings[entry.binding];
 
+                assert(binding.images != nullptr);
+
                 bool* written_start = &binding.written[entry.array_element];
                 std::fill(written_start, written_start + entry.count, true);
 
@@ -481,6 +483,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
             {
                 auto& binding = wrapper->bindings[entry.binding];
 
+                assert(binding.buffers != nullptr);
+
                 bool* written_start = &binding.written[entry.array_element];
                 std::fill(written_start, written_start + entry.count, true);
 
@@ -496,7 +500,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                     const uint8_t* src_address = bytes + entry.offset;
                     for (uint32_t i = 0; i < entry.count; ++i)
                     {
-                        memcpy(&binding.images[entry.array_element + i], src_address, sizeof(VkDescriptorBufferInfo));
+                        memcpy(&binding.buffers[entry.array_element + i], src_address, sizeof(VkDescriptorBufferInfo));
                         src_address += entry.stride;
                     }
                 }
@@ -505,6 +509,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
             for (const auto& entry : template_info->texel_buffer_view)
             {
                 auto& binding = wrapper->bindings[entry.binding];
+
+                assert(binding.texel_buffer_views != nullptr);
 
                 bool* written_start = &binding.written[entry.array_element];
                 std::fill(written_start, written_start + entry.count, true);
@@ -522,7 +528,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                     for (uint32_t i = 0; i < entry.count; ++i)
                     {
                         size_t offset = entry.offset + (entry.stride * i);
-                        memcpy(&binding.images[entry.array_element + i], src_address, sizeof(VkBufferView));
+                        memcpy(&binding.texel_buffer_views[entry.array_element + i], src_address, sizeof(VkBufferView));
                         src_address += entry.stride;
                     }
                 }
