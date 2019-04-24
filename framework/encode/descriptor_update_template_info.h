@@ -41,7 +41,7 @@ struct UpdateTemplateInfo
     // capture file, the update template data will be written as tightly packed arrays of VkDescriptorImageInfo,
     // VkDescriptorBufferInfo, and VkBufferView types.  There will be one array per descriptor update entry, so the
     // counts are pre-computed for the file encoding process to know the total number of items to encode prior to
-    // processing the individial UpdateTemplateEntry structures.
+    // processing the individual UpdateTemplateEntry structures.
     size_t                               image_info_count{ 0 };
     size_t                               buffer_info_count{ 0 };
     size_t                               texel_buffer_view_count{ 0 };
