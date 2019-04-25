@@ -236,6 +236,16 @@ class TraceManager
         }
     }
 
+    void PostProcess_vkGetPhysicalDeviceMemoryProperties2(VkPhysicalDevice                   physicalDevice,
+                                                          VkPhysicalDeviceMemoryProperties2* pMemoryProperties)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceMemoryProperties2(physicalDevice, pMemoryProperties);
+        }
+    }
+
     void PostProcess_vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice         physicalDevice,
                                                               uint32_t*                pQueueFamilyPropertyCount,
                                                               VkQueueFamilyProperties* pQueueFamilyProperties)

@@ -214,6 +214,13 @@ class VulkanStateTracker
     void TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice                        physical_device,
                                              const VkPhysicalDeviceMemoryProperties* properties);
 
+    void TrackPhysicalDeviceMemoryProperties2(VkPhysicalDevice                         physical_device,
+                                              const VkPhysicalDeviceMemoryProperties2* properties)
+    {
+        assert(properties != nullptr);
+        TrackPhysicalDeviceMemoryProperties(physical_device, &properties->memoryProperties);
+    }
+
     void TrackPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice               physical_device,
                                                   uint32_t                       property_count,
                                                   const VkQueueFamilyProperties* properties);
