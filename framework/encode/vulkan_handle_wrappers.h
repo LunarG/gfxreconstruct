@@ -152,6 +152,14 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
     std::vector<VkMemoryType>                            memory_types;
     std::unordered_map<VkDisplayKHR, DisplayKHRWrapper*> displays;
+
+    // Track queue family properties retrieval call data to write to state snapshot after physical device creation.
+    // The queue family data is only written to the state snapshot if the application made the API call to retrieve it.
+    format::ApiCallId                           queue_family_properties_call_id{ format::ApiCallId::ApiCall_Unknown };
+    uint32_t                                    queue_family_properties_count{ 0 };
+    std::unique_ptr<VkQueueFamilyProperties[]>  queue_family_properties;
+    std::unique_ptr<VkQueueFamilyProperties2[]> queue_family_properties2;
+    std::vector<std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV>> queue_family_checkpoint_properties;
 };
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
