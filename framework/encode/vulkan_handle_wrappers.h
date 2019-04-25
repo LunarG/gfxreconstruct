@@ -150,8 +150,10 @@ struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
 // handle wrapper, which will ensure it is destroyed when the VkInstance handle wrapper is destroyed.
 struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
-    std::vector<VkMemoryType>                            memory_types;
     std::unordered_map<VkDisplayKHR, DisplayKHRWrapper*> displays;
+
+    // Track memory types for use when creating snapshots of buffer and image resource memory content.
+    std::vector<VkMemoryType> memory_types;
 
     // Track queue family properties retrieval call data to write to state snapshot after physical device creation.
     // The queue family data is only written to the state snapshot if the application made the API call to retrieve it.
