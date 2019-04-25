@@ -98,6 +98,8 @@ class VulkanStateWriter
     };
 
   private:
+    void WritePhysicalDeviceState(const VulkanStateTable& state_table);
+
     void WriteDeviceState(const VulkanStateTable& state_table);
 
     void WriteCommandBufferState(const VulkanStateTable& state_table);
@@ -133,6 +135,12 @@ class VulkanStateWriter
                             const DeviceTable&       dispatch_table);
 
     void WriteMappedMemoryState(const VulkanStateTable& state_table);
+
+    template <typename T>
+    void WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiCallId call_id,
+                                                     VkPhysicalDevice  physical_device,
+                                                     uint32_t          property_count,
+                                                     T*                properties);
 
     void WriteStagingBufferCreateCommands(VkDevice                    device,
                                           VkDeviceSize                buffer_size,
