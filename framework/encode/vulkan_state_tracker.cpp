@@ -343,45 +343,76 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
             DescriptorSetWrapper* wrapper     = state_table_.GetDescriptorSetWrapper(format::ToHandleId(write->dstSet));
             if (wrapper != nullptr)
             {
-                auto& binding = wrapper->bindings[write->dstBinding];
+                // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+                // will result in updates to consecutive bindings, where the next binding is dstBinding+1 and
+                // starting from array element 0.  Track the current count, binding, and array element to handle
+                // consecutive updates.
+                uint32_t current_count             = write->descriptorCount;
+                uint32_t current_binding           = write->dstBinding;
+                uint32_t current_dst_array_element = write->dstArrayElement;
+                uint32_t current_src_array_element = 0;
 
-                bool* written_start = &binding.written[write->dstArrayElement];
-                std::fill(written_start, written_start + write->descriptorCount, true);
-
-                switch (write->descriptorType)
+                for (;;)
                 {
-                    case VK_DESCRIPTOR_TYPE_SAMPLER:
-                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                        memcpy(&binding.images[write->dstArrayElement],
-                               write->pImageInfo,
-                               (sizeof(VkDescriptorImageInfo) * write->descriptorCount));
+                    auto& binding = wrapper->bindings[current_binding];
+
+                    // Update current and write counts for binding's descriptor count. If current count is
+                    // greater than the count for the descriptor range defined by dstArrayElement through binding count,
+                    // consecutive bindings are being updated.
+                    uint32_t current_writes = std::min(current_count, (binding.count - current_dst_array_element));
+
+                    bool* written_start = &binding.written[current_dst_array_element];
+                    std::fill(written_start, written_start + current_writes, true);
+
+                    switch (write->descriptorType)
+                    {
+                        case VK_DESCRIPTOR_TYPE_SAMPLER:
+                        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                            memcpy(&binding.images[current_dst_array_element],
+                                   &write->pImageInfo[current_src_array_element],
+                                   (sizeof(VkDescriptorImageInfo) * current_writes));
+                            break;
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                            memcpy(&binding.buffers[current_dst_array_element],
+                                   &write->pBufferInfo[current_src_array_element],
+                                   (sizeof(VkDescriptorBufferInfo) * current_writes));
+                            break;
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                            memcpy(&binding.texel_buffer_views[current_dst_array_element],
+                                   &write->pTexelBufferView[current_src_array_element],
+                                   (sizeof(VkBufferView) * current_writes));
+                            break;
+                        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
+                            // TODO
+                            break;
+                        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+                            // TODO
+                            break;
+                        default:
+                            GFXRECON_LOG_WARNING(
+                                "Attempting to track descriptor state for unrecognized descriptor type");
+                            break;
+                    }
+
+                    // Check for consecutive update.
+                    if (current_count == current_writes)
+                    {
                         break;
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                        memcpy(&binding.buffers[write->dstArrayElement],
-                               write->pBufferInfo,
-                               (sizeof(VkDescriptorBufferInfo) * write->descriptorCount));
-                        break;
-                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                        memcpy(&binding.texel_buffer_views[write->dstArrayElement],
-                               write->pTexelBufferView,
-                               (sizeof(VkBufferView) * write->descriptorCount));
-                        break;
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                        // TODO
-                        break;
-                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
-                        // TODO
-                        break;
-                    default:
-                        GFXRECON_LOG_WARNING("Attempting to track descriptor state for unrecognized descriptor type");
-                        break;
+                    }
+                    else
+                    {
+                        current_count -= current_writes;
+                        current_binding += 1;
+                        current_dst_array_element = 0;
+                        current_src_array_element += current_writes;
+                    }
                 }
             }
             else
@@ -397,36 +428,85 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
         for (uint32_t i = 0; i < copy_count; ++i)
         {
             const VkCopyDescriptorSet* copy   = &copies[i];
-            DescriptorSetWrapper* src_wrapper = state_table_.GetDescriptorSetWrapper(format::ToHandleId(copy->srcSet));
             DescriptorSetWrapper* dst_wrapper = state_table_.GetDescriptorSetWrapper(format::ToHandleId(copy->dstSet));
+            DescriptorSetWrapper* src_wrapper = state_table_.GetDescriptorSetWrapper(format::ToHandleId(copy->srcSet));
 
-            if ((src_wrapper != nullptr) && (dst_wrapper != nullptr))
+            if ((dst_wrapper != nullptr) && (src_wrapper != nullptr))
             {
-                auto& src_binding = src_wrapper->bindings[copy->srcBinding];
-                auto& dst_binding = dst_wrapper->bindings[copy->dstBinding];
+                // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+                // will result in updates to/from consecutive bindings.
+                uint32_t current_count             = copy->descriptorCount;
+                uint32_t current_dst_binding       = copy->dstBinding;
+                uint32_t current_src_binding       = copy->srcBinding;
+                uint32_t current_dst_array_element = copy->dstArrayElement;
+                uint32_t current_src_array_element = copy->srcArrayElement;
 
-                bool* written_start = &dst_binding.written[copy->dstArrayElement];
-                std::fill(written_start, written_start + copy->descriptorCount, true);
+                for (;;)
+                {
+                    auto& dst_binding = dst_wrapper->bindings[current_dst_binding];
+                    auto& src_binding = src_wrapper->bindings[current_src_binding];
 
-                assert(src_binding.type == dst_binding.type);
+                    assert(src_binding.type == dst_binding.type);
 
-                if (src_binding.images != nullptr)
-                {
-                    memcpy(&dst_binding.images[copy->dstArrayElement],
-                           &src_binding.images[copy->srcArrayElement],
-                           (sizeof(VkDescriptorImageInfo) * copy->descriptorCount));
-                }
-                else if (src_binding.buffers != nullptr)
-                {
-                    memcpy(&dst_binding.buffers[copy->dstArrayElement],
-                           &src_binding.buffers[copy->srcArrayElement],
-                           (sizeof(VkDescriptorBufferInfo) * copy->descriptorCount));
-                }
-                else
-                {
-                    memcpy(&dst_binding.texel_buffer_views[copy->dstArrayElement],
-                           &src_binding.texel_buffer_views[copy->srcArrayElement],
-                           (sizeof(VkBufferView) * copy->descriptorCount));
+                    // Check available counts for consecutive updates.
+                    uint32_t dst_copy_count = dst_binding.count - current_dst_array_element;
+                    uint32_t src_copy_count = src_binding.count - current_src_array_element;
+                    uint32_t current_copies = std::min(current_count, std::min(dst_copy_count, src_copy_count));
+
+                    bool* written_start = &dst_binding.written[current_dst_array_element];
+                    std::fill(written_start, written_start + current_copies, true);
+
+                    if (src_binding.images != nullptr)
+                    {
+                        memcpy(&dst_binding.images[current_dst_array_element],
+                               &src_binding.images[current_src_array_element],
+                               (sizeof(VkDescriptorImageInfo) * current_copies));
+                    }
+                    else if (src_binding.buffers != nullptr)
+                    {
+                        memcpy(&dst_binding.buffers[current_dst_array_element],
+                               &src_binding.buffers[current_src_array_element],
+                               (sizeof(VkDescriptorBufferInfo) * current_copies));
+                    }
+                    else
+                    {
+                        memcpy(&dst_binding.texel_buffer_views[current_dst_array_element],
+                               &src_binding.texel_buffer_views[current_src_array_element],
+                               (sizeof(VkBufferView) * current_copies));
+                    }
+
+                    // Check for consecutive update.
+                    if (current_count == current_copies)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        current_count -= current_copies;
+
+                        if (dst_copy_count == src_copy_count)
+                        {
+                            // Both bindings must increment.
+                            current_dst_binding += 1;
+                            current_src_binding += 1;
+                            current_dst_array_element = 0;
+                            current_src_array_element = 0;
+                        }
+                        else if (dst_copy_count < src_copy_count)
+                        {
+                            // Only the destination binding must increment.
+                            current_dst_binding += 1;
+                            current_dst_array_element = 0;
+                            current_src_array_element += current_copies;
+                        }
+                        else
+                        {
+                            // Only the source binding must increment.
+                            current_src_binding += 1;
+                            current_src_array_element = 0;
+                            current_dst_array_element += current_copies;
+                        }
+                    }
                 }
             }
             else
@@ -453,83 +533,165 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
 
             for (const auto& entry : template_info->image_info)
             {
-                auto& binding = wrapper->bindings[entry.binding];
+                // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+                // will result in updates to consecutive bindings.
+                uint32_t current_count         = entry.count;
+                uint32_t current_binding       = entry.binding;
+                uint32_t current_array_element = entry.array_element;
+                size_t   current_offset        = entry.offset;
 
-                assert(binding.images != nullptr);
-
-                bool* written_start = &binding.written[entry.array_element];
-                std::fill(written_start, written_start + entry.count, true);
-
-                if (entry.stride == sizeof(VkDescriptorImageInfo))
+                for (;;)
                 {
-                    // Structures are tightly packed.
-                    memcpy(&binding.images[entry.array_element],
-                           (bytes + entry.offset),
-                           (sizeof(VkDescriptorImageInfo) * entry.count));
-                }
-                else
-                {
-                    // Structures are not tightly packed, so must be copied individually.
-                    const uint8_t* src_address = bytes + entry.offset;
-                    for (uint32_t i = 0; i < entry.count; ++i)
+                    auto& binding = wrapper->bindings[current_binding];
+
+                    assert(binding.images != nullptr);
+
+                    // Check count for consecutive updates.
+                    uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
+
+                    bool* written_start = &binding.written[current_array_element];
+                    std::fill(written_start, written_start + current_writes, true);
+
+                    if (entry.stride == sizeof(VkDescriptorImageInfo))
                     {
-                        memcpy(&binding.images[entry.array_element + i], src_address, sizeof(VkDescriptorImageInfo));
-                        src_address += entry.stride;
+                        // Structures are tightly packed.
+                        memcpy(&binding.images[current_array_element],
+                               (bytes + current_offset),
+                               (sizeof(VkDescriptorImageInfo) * current_writes));
+                    }
+                    else
+                    {
+                        // Structures are not tightly packed, so must be copied individually.
+                        const uint8_t* src_address = bytes + current_offset;
+                        for (uint32_t i = 0; i < current_writes; ++i)
+                        {
+                            memcpy(
+                                &binding.images[current_array_element + i], src_address, sizeof(VkDescriptorImageInfo));
+                            src_address += entry.stride;
+                        }
+                    }
+
+                    // Check for consecutive update.
+                    if (current_count == current_writes)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        current_count -= current_writes;
+                        current_binding += 1;
+                        current_array_element = 0;
+                        current_offset += (current_writes * entry.stride);
                     }
                 }
             }
 
             for (const auto& entry : template_info->buffer_info)
             {
-                auto& binding = wrapper->bindings[entry.binding];
+                // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+                // will result in updates to consecutive bindings.
+                uint32_t current_count         = entry.count;
+                uint32_t current_binding       = entry.binding;
+                uint32_t current_array_element = entry.array_element;
+                size_t   current_offset        = entry.offset;
 
-                assert(binding.buffers != nullptr);
-
-                bool* written_start = &binding.written[entry.array_element];
-                std::fill(written_start, written_start + entry.count, true);
-
-                if (entry.stride == sizeof(VkDescriptorBufferInfo))
+                for (;;)
                 {
-                    memcpy(&binding.buffers[entry.array_element],
-                           (bytes + entry.offset),
-                           (sizeof(VkDescriptorBufferInfo) * entry.count));
-                }
-                else
-                {
-                    // Structures are not tightly packed, so must be copied individually.
-                    const uint8_t* src_address = bytes + entry.offset;
-                    for (uint32_t i = 0; i < entry.count; ++i)
+                    auto& binding = wrapper->bindings[current_binding];
+
+                    assert(binding.buffers != nullptr);
+
+                    // Check count for consecutive updates.
+                    uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
+
+                    bool* written_start = &binding.written[current_array_element];
+                    std::fill(written_start, written_start + current_writes, true);
+
+                    if (entry.stride == sizeof(VkDescriptorBufferInfo))
                     {
-                        memcpy(&binding.buffers[entry.array_element + i], src_address, sizeof(VkDescriptorBufferInfo));
-                        src_address += entry.stride;
+                        memcpy(&binding.buffers[current_array_element],
+                               (bytes + current_offset),
+                               (sizeof(VkDescriptorBufferInfo) * current_writes));
+                    }
+                    else
+                    {
+                        // Structures are not tightly packed, so must be copied individually.
+                        const uint8_t* src_address = bytes + current_offset;
+                        for (uint32_t i = 0; i < current_writes; ++i)
+                        {
+                            memcpy(&binding.buffers[current_array_element + i],
+                                   src_address,
+                                   sizeof(VkDescriptorBufferInfo));
+                            src_address += entry.stride;
+                        }
+                    }
+
+                    // Check for consecutive update.
+                    if (current_count == current_writes)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        current_count -= current_writes;
+                        current_binding += 1;
+                        current_array_element = 0;
+                        current_offset += (current_writes * entry.stride);
                     }
                 }
             }
 
             for (const auto& entry : template_info->texel_buffer_view)
             {
-                auto& binding = wrapper->bindings[entry.binding];
+                // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+                // will result in updates to consecutive bindings.
+                uint32_t current_count         = entry.count;
+                uint32_t current_binding       = entry.binding;
+                uint32_t current_array_element = entry.array_element;
+                size_t   current_offset        = entry.offset;
 
-                assert(binding.texel_buffer_views != nullptr);
-
-                bool* written_start = &binding.written[entry.array_element];
-                std::fill(written_start, written_start + entry.count, true);
-
-                if (entry.stride == sizeof(VkBufferView))
+                for (;;)
                 {
-                    memcpy(&binding.texel_buffer_views[entry.array_element],
-                           (bytes + entry.offset),
-                           (sizeof(VkBufferView) * entry.count));
-                }
-                else
-                {
-                    // Structures are not tightly packed, so must be copied individually.
-                    const uint8_t* src_address = bytes + entry.offset;
-                    for (uint32_t i = 0; i < entry.count; ++i)
+                    auto& binding = wrapper->bindings[current_binding];
+
+                    assert(binding.texel_buffer_views != nullptr);
+
+                    // Check count for consecutive updates.
+                    uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
+
+                    bool* written_start = &binding.written[current_array_element];
+                    std::fill(written_start, written_start + current_writes, true);
+
+                    if (entry.stride == sizeof(VkBufferView))
                     {
-                        size_t offset = entry.offset + (entry.stride * i);
-                        memcpy(&binding.texel_buffer_views[entry.array_element + i], src_address, sizeof(VkBufferView));
-                        src_address += entry.stride;
+                        memcpy(&binding.texel_buffer_views[current_array_element],
+                               (bytes + current_offset),
+                               (sizeof(VkBufferView) * current_writes));
+                    }
+                    else
+                    {
+                        // Structures are not tightly packed, so must be copied individually.
+                        const uint8_t* src_address = bytes + current_offset;
+                        for (uint32_t i = 0; i < current_writes; ++i)
+                        {
+                            memcpy(&binding.texel_buffer_views[current_array_element + i],
+                                   src_address,
+                                   sizeof(VkBufferView));
+                            src_address += entry.stride;
+                        }
+                    }
+
+                    // Check for consecutive update.
+                    if (current_count == current_writes)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        current_count -= current_writes;
+                        current_binding += 1;
+                        current_array_element = 0;
+                        current_offset += (current_writes * entry.stride);
                     }
                 }
             }
