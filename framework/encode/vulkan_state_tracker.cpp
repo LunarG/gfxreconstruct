@@ -97,6 +97,87 @@ void VulkanStateTracker::TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice   
     }
 }
 
+void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice               physical_device,
+                                                                  uint32_t                       property_count,
+                                                                  const VkQueueFamilyProperties* properties)
+{
+    assert(properties != nullptr);
+
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    PhysicalDeviceWrapper* wrapper = state_table_.GetPhysicalDeviceWrapper(format::ToHandleId(physical_device));
+    if (wrapper != nullptr)
+    {
+        wrapper->queue_family_properties_call_id = format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties;
+
+        wrapper->queue_family_properties_count = property_count;
+        wrapper->queue_family_properties       = std::make_unique<VkQueueFamilyProperties[]>(property_count);
+        memcpy(wrapper->queue_family_properties.get(), properties, property_count);
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track queue family properties for unrecognized physical device handle");
+    }
+}
+
+void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties2(format::ApiCallId               call_id,
+                                                                   VkPhysicalDevice                physical_device,
+                                                                   uint32_t                        property_count,
+                                                                   const VkQueueFamilyProperties2* properties)
+{
+    assert(properties != nullptr);
+
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    PhysicalDeviceWrapper* wrapper = state_table_.GetPhysicalDeviceWrapper(format::ToHandleId(physical_device));
+    if (wrapper != nullptr)
+    {
+        wrapper->queue_family_properties_call_id = call_id;
+
+        wrapper->queue_family_properties_count = property_count;
+        wrapper->queue_family_properties2      = std::make_unique<VkQueueFamilyProperties2[]>(property_count);
+        memcpy(wrapper->queue_family_properties2.get(), properties, property_count);
+
+        // Copy pNext structure and update pNext pointers.
+        for (uint32_t i = 0; i < property_count; ++i)
+        {
+            if (properties[i].pNext != nullptr)
+            {
+                const VkBaseOutStructure* next = reinterpret_cast<const VkBaseOutStructure*>(properties[i].pNext);
+                if (next->sType == VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV)
+                {
+                    const VkQueueFamilyCheckpointPropertiesNV* original =
+                        reinterpret_cast<const VkQueueFamilyCheckpointPropertiesNV*>(next);
+
+                    std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV> copy =
+                        std::make_unique<VkQueueFamilyCheckpointPropertiesNV>(*original);
+
+                    if (copy->pNext != nullptr)
+                    {
+                        // At time of implementation, only VkQueueFamilyCheckpointPropertiesNV was allowed.
+                        copy->pNext = nullptr;
+                        GFXRECON_LOG_WARNING(
+                            "Omitting unrecognized pNext structure from queue family properties tracking");
+                    }
+
+                    wrapper->queue_family_properties2[i].pNext = copy.get();
+                    wrapper->queue_family_checkpoint_properties.push_back(std::move(copy));
+                }
+                else
+                {
+                    // At time of implementation, only VkQueueFamilyCheckpointPropertiesNV was allowed.
+                    wrapper->queue_family_properties2[i].pNext = nullptr;
+                    GFXRECON_LOG_WARNING("Omitting unrecognized pNext structure from queue family properties tracking");
+                }
+            }
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track queue family properties for unrecognized physical device handle");
+    }
+}
+
 void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
                                                   VkBuffer       buffer,
                                                   VkDeviceMemory memory,

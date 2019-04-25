@@ -51,7 +51,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
 
     // Instance, device, and queue creation.
     StandardCreateWrite<InstanceWrapper>(state_table);
-    StandardCreateWrite<PhysicalDeviceWrapper>(state_table);
+    WritePhysicalDeviceState(state_table);
     WriteDeviceState(state_table);
     StandardCreateWrite<QueueWrapper>(state_table);
 
@@ -110,6 +110,49 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     // clang-format on
 }
 
+void VulkanStateWriter::WritePhysicalDeviceState(const VulkanStateTable& state_table)
+{
+    std::set<util::MemoryOutputStream*> processed;
+
+    state_table.VisitWrappers([&](const PhysicalDeviceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Filter duplicate calls to vkEnumeratePhysicalDevice for phsyical devices that were retrieved by the same API
+        // call and reference the same parameter buffer.
+        if (processed.find(wrapper->create_parameters.get()) == processed.end())
+        {
+            // Write command buffer creation call and add the parameter buffer to the processed set.
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+            processed.insert(wrapper->create_parameters.get());
+        }
+
+        // Write the call to retrieve queue family properties, if the call was previously made by the application.
+        if (wrapper->queue_family_properties_call_id != format::ApiCallId::ApiCall_Unknown)
+        {
+            switch (wrapper->queue_family_properties_call_id)
+            {
+                case format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties:
+                    WriteGetPhysicalDeviceQueueFamilyProperties(wrapper->queue_family_properties_call_id,
+                                                                wrapper->handle,
+                                                                wrapper->queue_family_properties_count,
+                                                                wrapper->queue_family_properties.get());
+                    break;
+                case format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2:
+                case format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR:
+                    WriteGetPhysicalDeviceQueueFamilyProperties(wrapper->queue_family_properties_call_id,
+                                                                wrapper->handle,
+                                                                wrapper->queue_family_properties_count,
+                                                                wrapper->queue_family_properties2.get());
+                    break;
+                default:
+                    GFXRECON_LOG_ERROR("Omitting queue family properties retrieval API call with unrecognized API call "
+                                       "ID from state snapshot");
+                    break;
+            }
+        }
+    });
+}
+
 void VulkanStateWriter::WriteDeviceState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const DeviceWrapper* wrapper) {
@@ -144,7 +187,7 @@ void VulkanStateWriter::WriteCommandBufferState(const VulkanStateTable& state_ta
         assert(wrapper != nullptr);
 
         // Filter duplicate calls to vkAllocateCommandBuffers for command buffers that were allocated by the same API
-        // call and refrence the same parameter buffer.
+        // call and reference the same parameter buffer.
         if (processed.find(wrapper->create_parameters.get()) == processed.end())
         {
             // Write command buffer creation call and add the parameter buffer to the processed set.
@@ -685,7 +728,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
         assert(wrapper != nullptr);
 
         // Filter duplicate calls to vkAllocateDescriptorSets for descriptor sets that were allocated by the same API
-        // call and refrence the same parameter buffer.
+        // call and reference the same parameter buffer.
         if (processed.find(wrapper->create_parameters.get()) == processed.end())
         {
             // Write command buffer creation call and add the parameter buffer to the processed set.
@@ -1293,6 +1336,29 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
             parameter_stream_.Reset();
         }
     });
+}
+
+template <typename T>
+void VulkanStateWriter::WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiCallId call_id,
+                                                                    VkPhysicalDevice  physical_device,
+                                                                    uint32_t          property_count,
+                                                                    T*                properties)
+{
+    // First write the call to retrieve the size.
+    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeUInt32Ptr(&property_count);
+    EncodeStructArray<T>(&encoder_, nullptr, 0);
+
+    WriteFunctionCall(call_id, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Then write the call with the data.
+    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeUInt32Ptr(&property_count);
+    EncodeStructArray(&encoder_, properties, property_count);
+
+    WriteFunctionCall(call_id, &parameter_stream_);
+    parameter_stream_.Reset();
 }
 
 void VulkanStateWriter::WriteStagingBufferCreateCommands(VkDevice                    device,

@@ -77,6 +77,38 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemor
     }
 };
 
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetPhysicalDeviceQueueFamilyProperties(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetPhysicalDeviceQueueFamilyProperties2(
+            format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetPhysicalDeviceQueueFamilyProperties2(
+            format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR, args...);
+    }
+};
+
 // Dispatch custom command for window resize command generation.
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>

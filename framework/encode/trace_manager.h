@@ -236,6 +236,33 @@ class TraceManager
         }
     }
 
+    void PostProcess_vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice         physicalDevice,
+                                                              uint32_t*                pQueueFamilyPropertyCount,
+                                                              VkQueueFamilyProperties* pQueueFamilyProperties)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (pQueueFamilyPropertyCount != nullptr) &&
+            (pQueueFamilyProperties != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceQueueFamilyProperties(
+                physicalDevice, *pQueueFamilyPropertyCount, pQueueFamilyProperties);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceQueueFamilyProperties2(format::ApiCallId         call_id,
+                                                               VkPhysicalDevice          physicalDevice,
+                                                               uint32_t*                 pQueueFamilyPropertyCount,
+                                                               VkQueueFamilyProperties2* pQueueFamilyProperties)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (pQueueFamilyPropertyCount != nullptr) &&
+            (pQueueFamilyProperties != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceQueueFamilyProperties2(
+                call_id, physicalDevice, *pQueueFamilyPropertyCount, pQueueFamilyProperties);
+        }
+    }
+
     void PreProcess_vkCreateSwapchain(VkDevice                        device,
                                       const VkSwapchainCreateInfoKHR* pCreateInfo,
                                       const VkAllocationCallbacks*    pAllocator,
