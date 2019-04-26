@@ -611,6 +611,7 @@ inline void InitializeGroupObjectState<VkDevice, VkSwapchainKHR, ImageWrapper, v
     wrapper->queue_family_index = swapchain_wrapper->queue_family_index;
 
     swapchain_wrapper->images.push_back(wrapper);
+    swapchain_wrapper->image_acquired_info.emplace_back(ImageAcquiredInfo{});
 }
 
 template <>

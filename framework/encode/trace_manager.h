@@ -343,35 +343,45 @@ class TraceManager
                                       const VkAllocationCallbacks* pAllocator,
                                       VkDeviceMemory*              pMemory);
 
-    void PostProcess_vkAcquireNextImageKHR(
-        VkResult result, VkDevice, VkSwapchainKHR, uint64_t, VkSemaphore semaphore, VkFence, uint32_t*)
+    void PostProcess_vkAcquireNextImageKHR(VkResult result,
+                                           VkDevice,
+                                           VkSwapchainKHR swapchain,
+                                           uint64_t,
+                                           VkSemaphore semaphore,
+                                           VkFence     fence,
+                                           uint32_t*   index)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
         {
-            assert(state_tracker_ != nullptr);
+            assert((state_tracker_ != nullptr) && (index != nullptr));
             state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &semaphore);
+            state_tracker_->TrackAcquireImage(*index, swapchain, semaphore, fence);
         }
     }
 
     void PostProcess_vkAcquireNextImage2KHR(VkResult result,
                                             VkDevice,
                                             const VkAcquireNextImageInfoKHR* pAcquireInfo,
-                                            uint32_t*)
+                                            uint32_t*                        index)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
         {
-            assert((state_tracker_ != nullptr) && (pAcquireInfo != nullptr));
+            assert((state_tracker_ != nullptr) && (pAcquireInfo != nullptr) && (index != nullptr));
             state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &pAcquireInfo->semaphore);
+            state_tracker_->TrackAcquireImage(
+                *index, pAcquireInfo->swapchain, pAcquireInfo->semaphore, pAcquireInfo->fence);
         }
     }
 
-    void PostProcess_vkQueuePresentKHR(VkResult result, VkQueue, const VkPresentInfoKHR* pPresentInfo)
+    void PostProcess_vkQueuePresentKHR(VkResult result, VkQueue queue, const VkPresentInfoKHR* pPresentInfo)
     {
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
         {
             assert((state_tracker_ != nullptr) && (pPresentInfo != nullptr));
             state_tracker_->TrackSemaphoreSignalState(
                 pPresentInfo->waitSemaphoreCount, pPresentInfo->pWaitSemaphores, 0, nullptr);
+            state_tracker_->TrackPresentedImages(
+                pPresentInfo->swapchainCount, pPresentInfo->pSwapchains, pPresentInfo->pImageIndices, queue);
         }
 
         EndFrame();
