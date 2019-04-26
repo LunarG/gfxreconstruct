@@ -290,6 +290,13 @@ class VulkanStateTracker
                                    uint32_t           signal_count,
                                    const VkSemaphore* signals);
 
+    void TrackAcquireImage(uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence);
+
+    void TrackPresentedImages(uint32_t              count,
+                              const VkSwapchainKHR* swapchains,
+                              const uint32_t*       image_indices,
+                              VkQueue               queue);
+
   private:
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)
