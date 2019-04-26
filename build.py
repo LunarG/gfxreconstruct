@@ -19,6 +19,7 @@ import distutils.version
 import os
 import platform
 import re
+import shutil
 import subprocess
 import sys
 
@@ -117,6 +118,7 @@ def cmake_generate_build_files(args):
     cmake_generate_args = [
         'cmake',
         '-DCMAKE_INSTALL_PREFIX=' + os.path.join(build_dir(args), 'install')]
+    cmake_generate_env = os.environ.copy()
     if 'windows' == system:
         if 'x64' == args.architecture:
             cmake_generate_args.extend(['-A', 'x64'])
@@ -125,6 +127,10 @@ def cmake_generate_build_files(args):
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
         else:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
+        if (shutil.which('clang') is not None) and\
+                (shutil.which('clang++') is not None):
+            cmake_generate_env['CC'] = 'clang'
+            cmake_generate_env['CXX'] = 'clang++'
     for config, dir in BUILD_CONFIGS.items():
         for output in [('ARCHIVE', 'lib'), ('LIBRARY', 'bin'), ('RUNTIME', 'bin')]:
             cmake_generate_args.append(
@@ -143,9 +149,24 @@ def cmake_generate_build_files(args):
     else:
         cmake_generate_args.extend(['-S', '.', '-B', build_dir(args)])
     os.makedirs(work_dir, mode=0o744, exist_ok=True)
-    cmake_generate_result = subprocess.run(cmake_generate_args, cwd=work_dir)
+    cmake_generate_result = subprocess.run(
+        cmake_generate_args, cwd=work_dir, env=cmake_generate_env)
     if 0 != cmake_generate_result.returncode:
         raise BuildError('failed to generate build files')
+
+
+def cmake_build(args):
+    '''
+    Build using CMake
+    '''
+    cmake_build_args = ['cmake', '--build', '.']
+
+    if is_windows():
+        cmake_build_args.extend(['--config', args.configuration.capitalize()])
+    cmake_build_result = subprocess.run(
+        cmake_build_args, cwd=build_dir(args))
+    if 0 != cmake_build_result.returncode:
+        raise BuildError('cmake build failed')
 
 
 if '__main__' == __name__:
@@ -153,6 +174,7 @@ if '__main__' == __name__:
         args = parse_args()
         update_external_dependencies(args)
         cmake_generate_build_files(args)
+        cmake_build(args)
     except Exception as error:
         print('Error', *(error.args))
         sys.exit(1)
