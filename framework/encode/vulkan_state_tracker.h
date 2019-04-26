@@ -285,10 +285,11 @@ class VulkanStateTracker
 
     void TrackResetDescriptorPool(VkDescriptorPool descriptor_pool);
 
-    void TrackSemaphoreSignalState(uint32_t           wait_count,
-                                   const VkSemaphore* waits,
-                                   uint32_t           signal_count,
-                                   const VkSemaphore* signals);
+    void TrackSemaphoreSignalState(uint32_t                       wait_count,
+                                   const VkSemaphore*             waits,
+                                   uint32_t                       signal_count,
+                                   const VkSemaphore*             signals,
+                                   SemaphoreWrapper::SignalSource signal_source);
 
     void TrackAcquireImage(uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence);
 
