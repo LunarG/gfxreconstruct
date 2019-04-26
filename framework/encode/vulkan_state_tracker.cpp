@@ -887,10 +887,11 @@ void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_po
     }
 }
 
-void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count,
-                                                   const VkSemaphore* waits,
-                                                   uint32_t           signal_count,
-                                                   const VkSemaphore* signals)
+void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t                       wait_count,
+                                                   const VkSemaphore*             waits,
+                                                   uint32_t                       signal_count,
+                                                   const VkSemaphore*             signals,
+                                                   SemaphoreWrapper::SignalSource signal_source)
 {
     if (((waits != nullptr) && (wait_count > 0)) || ((signals != nullptr) && (signal_count > 0)))
     {
@@ -903,7 +904,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
                 SemaphoreWrapper* wrapper = state_table_.GetSemaphoreWrapper(format::ToHandleId(waits[i]));
                 if (wrapper != nullptr)
                 {
-                    wrapper->signaled = false;
+                    wrapper->signaled = SemaphoreWrapper::SignalSourceNone;
                 }
                 else
                 {
@@ -920,7 +921,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
                 SemaphoreWrapper* wrapper = state_table_.GetSemaphoreWrapper(format::ToHandleId(signals[i]));
                 if (wrapper != nullptr)
                 {
-                    wrapper->signaled = true;
+                    wrapper->signaled = signal_source;
                 }
                 else
                 {
