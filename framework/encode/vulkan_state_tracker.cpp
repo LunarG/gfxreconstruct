@@ -892,34 +892,41 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
                                                    uint32_t           signal_count,
                                                    const VkSemaphore* signals)
 {
-    if (waits != nullptr)
+    if (((waits != nullptr) && (wait_count > 0)) || ((signals != nullptr) && (signal_count > 0)))
     {
-        for (uint32_t i = 0; i < wait_count; ++i)
+        std::unique_lock<std::mutex> lock(mutex_);
+
+        if (waits != nullptr)
         {
-            SemaphoreWrapper* wrapper = state_table_.GetSemaphoreWrapper(format::ToHandleId(waits[i]));
-            if (wrapper != nullptr)
+            for (uint32_t i = 0; i < wait_count; ++i)
             {
-                wrapper->signaled = false;
-            }
-            else
-            {
-                GFXRECON_LOG_WARNING("Attempting to track semaphore signaled state for unrecognized semaphore handle");
+                SemaphoreWrapper* wrapper = state_table_.GetSemaphoreWrapper(format::ToHandleId(waits[i]));
+                if (wrapper != nullptr)
+                {
+                    wrapper->signaled = false;
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Attempting to track semaphore signaled state for unrecognized semaphore handle");
+                }
             }
         }
-    }
 
-    if (signals != nullptr)
-    {
-        for (uint32_t i = 0; i < signal_count; ++i)
+        if (signals != nullptr)
         {
-            SemaphoreWrapper* wrapper = state_table_.GetSemaphoreWrapper(format::ToHandleId(signals[i]));
-            if (wrapper != nullptr)
+            for (uint32_t i = 0; i < signal_count; ++i)
             {
-                wrapper->signaled = true;
-            }
-            else
-            {
-                GFXRECON_LOG_WARNING("Attempting to track semaphore signaled state for unrecognized semaphore handle");
+                SemaphoreWrapper* wrapper = state_table_.GetSemaphoreWrapper(format::ToHandleId(signals[i]));
+                if (wrapper != nullptr)
+                {
+                    wrapper->signaled = true;
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Attempting to track semaphore signaled state for unrecognized semaphore handle");
+                }
             }
         }
     }
