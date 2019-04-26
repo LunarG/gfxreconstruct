@@ -932,6 +932,52 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
     }
 }
 
+void VulkanStateTracker::TrackAcquireImage(uint32_t       image_index,
+                                           VkSwapchainKHR swapchain,
+                                           VkSemaphore    semaphore,
+                                           VkFence        fence)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    SwapchainKHRWrapper* wrapper = state_table_.GetSwapchainKHRWrapper(format::ToHandleId(swapchain));
+    if (wrapper != nullptr)
+    {
+        wrapper->image_acquired_info[image_index].is_acquired        = true;
+        wrapper->image_acquired_info[image_index].acquired_semaphore = semaphore;
+        wrapper->image_acquired_info[image_index].acquired_fence     = fence;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track swapchain image acquire state for unrecognized swapchain handle");
+    }
+}
+
+void VulkanStateTracker::TrackPresentedImages(uint32_t              count,
+                                              const VkSwapchainKHR* swapchains,
+                                              const uint32_t*       image_indices,
+                                              VkQueue               queue)
+{
+    assert((count > 0) && (swapchains != nullptr) && (image_indices != nullptr));
+
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        SwapchainKHRWrapper* wrapper = state_table_.GetSwapchainKHRWrapper(format::ToHandleId(swapchains[i]));
+        if (wrapper != nullptr)
+        {
+            uint32_t image_index                                           = image_indices[i];
+            wrapper->last_presented_image                                  = image_index;
+            wrapper->image_acquired_info[image_index].is_acquired          = false;
+            wrapper->image_acquired_info[image_index].last_presented_queue = queue;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Attempting to track swapchain image present state for unrecognized swapchain handle");
+        }
+    }
+}
+
 void VulkanStateTracker::DestroyState(DeviceWrapper* wrapper)
 {
     if (wrapper != nullptr)

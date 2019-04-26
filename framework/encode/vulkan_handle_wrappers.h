@@ -92,6 +92,14 @@ struct ShaderModuleInfo
     CreateParameters  create_parameters;
 };
 
+struct ImageAcquiredInfo
+{
+    bool        is_acquired{ true };
+    VkSemaphore acquired_semaphore{ VK_NULL_HANDLE };
+    VkFence     acquired_fence{ VK_NULL_HANDLE };
+    VkQueue     last_presented_queue{ VK_NULL_HANDLE };
+};
+
 //
 // Handle wrappers for storing object state information with object handles.
 //
@@ -360,13 +368,15 @@ struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
 
 struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 {
-    VkDevice                   device{ VK_NULL_HANDLE };
-    VkSurfaceKHR               surface{ VK_NULL_HANDLE };
-    uint32_t                   queue_family_index{ 0 };
-    VkFormat                   format{ VK_FORMAT_UNDEFINED };
-    VkExtent3D                 extent{ 0, 0, 0 };
-    uint32_t                   array_layers{ 0 };
-    std::vector<ImageWrapper*> images;
+    VkDevice                       device{ VK_NULL_HANDLE };
+    VkSurfaceKHR                   surface{ VK_NULL_HANDLE };
+    uint32_t                       queue_family_index{ 0 };
+    VkFormat                       format{ VK_FORMAT_UNDEFINED };
+    VkExtent3D                     extent{ 0, 0, 0 };
+    uint32_t                       array_layers{ 0 };
+    uint32_t                       last_presented_image{ std::numeric_limits<uint32_t>::max() };
+    std::vector<ImageAcquiredInfo> image_acquired_info;
+    std::vector<ImageWrapper*>     images;
 };
 
 struct ObjectTableNVXWrapper : public HandleWrapper<VkObjectTableNVX>
