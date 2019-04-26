@@ -138,6 +138,8 @@ class VulkanStateWriter
 
     void WriteMappedMemoryState(const VulkanStateTable& state_table);
 
+    void WriteSwapchainImageState(const VulkanStateTable& state_table);
+
     template <typename T>
     void WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiCallId call_id,
                                                      VkPhysicalDevice  physical_device,
@@ -235,14 +237,25 @@ class VulkanStateWriter
     void WriteCommandExecution(VkQueue                queue,
                                uint32_t               command_buffer_count,
                                const VkCommandBuffer* command_buffers,
-                               uint32_t               semaphore_count,
-                               const VkSemaphore*     semaphores);
+                               uint32_t               signal_semaphore_count,
+                               const VkSemaphore*     signal_semaphores,
+                               uint32_t               wait_semaphore_count,
+                               const VkSemaphore*     wait_semaphores);
 
     void WriteCommandBufferCommands(const CommandBufferWrapper* wrapper);
 
     void WriteDescriptorUpdateCommand(VkDevice device, const DescriptorInfo* binding, VkWriteDescriptorSet* write);
 
+    void WriteAcquireNextImage(
+        VkDevice device, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t image_index);
+
+    void WriteQueuePresent(VkQueue queue, VkSwapchainKHR swapchain, uint32_t image_index);
+
     void WriteCreateFence(VkDevice device, VkFence fence, bool signaled);
+
+    void WriteWaitForFence(VkDevice device, VkFence fence);
+
+    void WriteResetFence(VkDevice device, VkFence fence);
 
     void WriteSetEvent(VkDevice device, VkEvent event);
 
@@ -275,6 +288,8 @@ class VulkanStateWriter
             }
         });
     }
+
+    void GetFenceStatus(VkDevice device, VkFence fence, bool* result);
 
     VkMemoryPropertyFlags
     GetMemoryProperties(VkDevice device, VkDeviceMemory memory, const VulkanStateTable& state_table);

@@ -28,6 +28,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+// Temporary resource IDs for image layout processing.
+const format::HandleId kTempQueueId         = std::numeric_limits<format::HandleId>::max() - 1;
+const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
+const format::HandleId kTempCommandBufferId = std::numeric_limits<format::HandleId>::max() - 3;
+const format::HandleId kTempFenceId         = std::numeric_limits<format::HandleId>::max() - 4;
+
 VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*                               output_stream,
                                      util::Compressor*                                     compressor,
                                      format::ThreadId                                      thread_id,
@@ -106,6 +112,9 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     WriteCommandBufferState(state_table);
     StandardCreateWrite<ObjectTableNVXWrapper>(state_table);
     StandardCreateWrite<IndirectCommandsLayoutNVXWrapper>(state_table);  // TODO: If we intend to support this, we need to reserve command space after creation.
+
+    // Process swapchain image acquire.
+    WriteSwapchainImageState(state_table);
 
     // clang-format on
 }
@@ -222,26 +231,19 @@ void VulkanStateWriter::WriteFenceState(const VulkanStateTable& state_table)
         assert(wrapper != nullptr);
 
         // Check fence signaled state against create info signaled state.
-        auto tables_entry = device_tables_->find(GetDispatchKey(wrapper->device));
-        if (tables_entry != device_tables_->end())
+        bool signaled = wrapper->created_signaled;
+        GetFenceStatus(wrapper->device, wrapper->handle, &signaled);
+
+        if (signaled == wrapper->created_signaled)
         {
-            VkResult result   = tables_entry->second.GetFenceStatus(wrapper->device, wrapper->handle);
-            bool     signaled = (result == VK_SUCCESS);
-            if (signaled == wrapper->created_signaled)
-            {
-                // Signal states match, so original create parameters can be used.
-                WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
-            }
-            else
-            {
-                // Signal states are different, so write new creation parameters with the appropriate create info signal
-                // flag.
-                WriteCreateFence(wrapper->device, wrapper->handle, signaled);
-            }
+            // Signal states match, so original create parameters can be used.
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
         }
         else
         {
-            GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
+            // Signal states are different, so write new creation parameters with the appropriate create info signal
+            // flag.
+            WriteCreateFence(wrapper->device, wrapper->handle, signaled);
         }
     });
 }
@@ -282,7 +284,9 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
         // Write event creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
-        if (wrapper->signaled)
+        // Only semaphores that are pending signal from a queue operation need to be signaled here. Semaphores pending
+        // signal from a swapchain acquire image operation will be processed when swapchain images are processed.
+        if (wrapper->signaled == SemaphoreWrapper::SignalSourceQueue)
         {
             signaled[wrapper->device].push_back(wrapper->handle);
         }
@@ -303,8 +307,13 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
 
                 // Any queue should be sufficient for signaling the semaphores; queue submit will not include any
                 // command buffers.
-                WriteCommandExecution(
-                    iter->first, 0, nullptr, static_cast<uint32_t>(entry.second.size()), entry.second.data());
+                WriteCommandExecution(iter->first,
+                                      0,
+                                      nullptr,
+                                      static_cast<uint32_t>(entry.second.size()),
+                                      entry.second.data(),
+                                      0,
+                                      nullptr);
             }
             else
             {
@@ -1351,6 +1360,8 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
 void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const DeviceMemoryWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
         if (wrapper->mapped_data != nullptr)
         {
             const VkResult result = VK_SUCCESS;
@@ -1367,6 +1378,164 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
             WriteFunctionCall(format::ApiCallId::ApiCall_vkMapMemory, &parameter_stream_);
             parameter_stream_.Reset();
         }
+    });
+}
+
+void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const SwapchainKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        std::vector<VkSemaphore> signal_semaphores;
+
+        const VkQueue         temp_queue          = format::FromHandleId<VkQueue>(kTempQueueId);
+        const VkCommandBuffer temp_command_buffer = format::FromHandleId<VkCommandBuffer>(kTempCommandBufferId);
+        const VkFence         temp_fence          = format::FromHandleId<VkFence>(kTempFenceId);
+
+        WriteCommandProcessingCreateCommands(wrapper->device,
+                                             wrapper->queue_family_index,
+                                             temp_queue,
+                                             format::FromHandleId<VkCommandPool>(kTempCommandPoolId),
+                                             temp_command_buffer);
+
+        WriteCreateFence(wrapper->device, format::FromHandleId<VkFence>(kTempFenceId), false);
+
+        // Set image acquired state.
+        assert(wrapper->images.size() == wrapper->image_acquired_info.size());
+        for (size_t i = 0; i < wrapper->images.size(); ++i)
+        {
+            ImageWrapper* image_wrapper = wrapper->images[i];
+
+            if (wrapper->image_acquired_info[i].is_acquired)
+            {
+                VkFence     acquired_fence     = wrapper->image_acquired_info[i].acquired_fence;
+                VkSemaphore acquired_semaphore = wrapper->image_acquired_info[i].acquired_semaphore;
+                bool        fence_signaled     = false;
+
+                if (acquired_fence != VK_NULL_HANDLE)
+                {
+                    GetFenceStatus(wrapper->device, acquired_fence, &fence_signaled);
+
+                    // If fence was created with a signaled state, we will need to unsignal it before image acquire.
+                    if (fence_signaled)
+                    {
+                        WriteResetFence(wrapper->device, acquired_fence);
+                    }
+                }
+
+                WriteAcquireNextImage(
+                    wrapper->device, wrapper->handle, acquired_semaphore, acquired_fence, static_cast<uint32_t>(i));
+
+                if (acquired_fence != VK_NULL_HANDLE)
+                {
+                    WriteWaitForFence(wrapper->device, acquired_fence);
+
+                    // If the fence was not created as signaled, we need to set it back to the unsignaled state.
+                    if (!fence_signaled)
+                    {
+                        WriteResetFence(wrapper->device, acquired_fence);
+                    }
+                }
+
+                if (image_wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+                {
+                    uint32_t     wait_semaphore_count = 0;
+                    VkSemaphore* wait_semaphores      = nullptr;
+
+                    if (acquired_semaphore != VK_NULL_HANDLE)
+                    {
+                        wait_semaphore_count = 1;
+                        wait_semaphores      = &acquired_semaphore;
+                    }
+
+                    // Transition to the current layout.
+                    WriteCommandBegin(temp_command_buffer);
+                    WriteImageLayoutTransitionCommand(temp_command_buffer,
+                                                      image_wrapper->handle,
+                                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                      0,
+                                                      VK_ACCESS_MEMORY_READ_BIT,
+                                                      VK_IMAGE_LAYOUT_UNDEFINED,
+                                                      image_wrapper->current_layout,
+                                                      1,
+                                                      image_wrapper->array_layers,
+                                                      VK_IMAGE_ASPECT_COLOR_BIT);
+                    WriteCommandEnd(temp_command_buffer);
+                    WriteCommandExecution(
+                        temp_queue, 1, &temp_command_buffer, 0, nullptr, wait_semaphore_count, wait_semaphores);
+
+                    if (acquired_semaphore != VK_NULL_HANDLE)
+                    {
+                        // The layout transition has unsignaled the semaphore, which will need to be resubmitted for
+                        // signal if it is pending signal.
+                        const SemaphoreWrapper* semaphore_wrapper =
+                            state_table.GetSemaphoreWrapper(format::ToHandleId(acquired_semaphore));
+
+                        if (semaphore_wrapper->signaled == SemaphoreWrapper::SignalSourceAcquireImage)
+                        {
+                            signal_semaphores.push_back(acquired_semaphore);
+                        }
+                    }
+                }
+            }
+            else if (i <= wrapper->last_presented_image)
+            {
+                // Acquire all images up to the last presented image, to increase the chance that the first image
+                // acquired on replay is the same image acquired by the first captured frame. For this case, the image
+                // will be released with a queue present after a layout transition.
+                WriteAcquireNextImage(
+                    wrapper->device, wrapper->handle, VK_NULL_HANDLE, temp_fence, static_cast<uint32_t>(i));
+
+                WriteWaitForFence(wrapper->device, temp_fence);
+                WriteResetFence(wrapper->device, temp_fence);
+
+                WriteCommandBegin(temp_command_buffer);
+                WriteImageLayoutTransitionCommand(temp_command_buffer,
+                                                  image_wrapper->handle,
+                                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                  VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                  0,
+                                                  VK_ACCESS_MEMORY_READ_BIT,
+                                                  VK_IMAGE_LAYOUT_UNDEFINED,
+                                                  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                                  1,
+                                                  image_wrapper->array_layers,
+                                                  VK_IMAGE_ASPECT_COLOR_BIT);
+                WriteCommandEnd(temp_command_buffer);
+                WriteCommandExecution(temp_queue, 1, &temp_command_buffer, 0, nullptr, 0, nullptr);
+
+                VkQueue present_queue = wrapper->image_acquired_info[i].last_presented_queue;
+
+                if (present_queue == VK_NULL_HANDLE)
+                {
+                    // TODO: Queue selection should be improved to handle cases where graphics and present queues are
+                    // separate.
+                    present_queue = temp_queue;
+                }
+
+                WriteQueuePresent(present_queue, wrapper->handle, static_cast<uint32_t>(i));
+            }
+        }
+
+        // Batch submission of any semaphores that need to be signaled.
+        if (!signal_semaphores.empty())
+        {
+            WriteCommandExecution(temp_queue,
+                                  0,
+                                  nullptr,
+                                  static_cast<uint32_t>(signal_semaphores.size()),
+                                  signal_semaphores.data(),
+                                  0,
+                                  nullptr);
+        }
+
+        WriteDestroyDeviceObject(
+            format::ApiCallId::ApiCall_vkDestroyFence, format::ToHandleId(wrapper->device), kTempFenceId, nullptr);
+        WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkDestroyCommandPool,
+                                 format::ToHandleId(wrapper->device),
+                                 kTempCommandPoolId,
+                                 nullptr);
     });
 }
 
@@ -1680,7 +1849,7 @@ void VulkanStateWriter::WriteBufferCopyCommandExecution(VkQueue         queue,
     parameter_stream_.Reset();
 
     WriteCommandEnd(command_buffer);
-    WriteCommandExecution(queue, 1, &command_buffer, 0, nullptr);
+    WriteCommandExecution(queue, 1, &command_buffer, 0, nullptr, 0, nullptr);
 }
 
 void VulkanStateWriter::WriteImageCopyCommandExecution(VkQueue                  queue,
@@ -1737,7 +1906,7 @@ void VulkanStateWriter::WriteImageCopyCommandExecution(VkQueue                  
     }
 
     WriteCommandEnd(command_buffer);
-    WriteCommandExecution(queue, 1, &command_buffer, 0, nullptr);
+    WriteCommandExecution(queue, 1, &command_buffer, 0, nullptr, 0, nullptr);
 }
 
 void VulkanStateWriter::WriteImageLayoutTransitionCommand(VkCommandBuffer      command_buffer,
@@ -1811,7 +1980,7 @@ void VulkanStateWriter::WriteImageLayoutTransitionCommandExecution(VkQueue      
                                       array_layers,
                                       aspect);
     WriteCommandEnd(command_buffer);
-    WriteCommandExecution(queue, 1, &command_buffer, 0, nullptr);
+    WriteCommandExecution(queue, 1, &command_buffer, 0, nullptr, 0, nullptr);
 }
 
 void VulkanStateWriter::WriteCommandBegin(VkCommandBuffer command_buffer)
@@ -1845,8 +2014,10 @@ void VulkanStateWriter::WriteCommandEnd(VkCommandBuffer command_buffer)
 void VulkanStateWriter::WriteCommandExecution(VkQueue                queue,
                                               uint32_t               command_buffer_count,
                                               const VkCommandBuffer* command_buffers,
-                                              uint32_t               semaphore_count,
-                                              const VkSemaphore*     semaphores)
+                                              uint32_t               signal_semaphore_count,
+                                              const VkSemaphore*     signal_semaphores,
+                                              uint32_t               wait_semaphore_count,
+                                              const VkSemaphore*     wait_semaphores)
 {
     const VkResult result = VK_SUCCESS;
     const VkFence  fence  = VK_NULL_HANDLE;
@@ -1854,13 +2025,13 @@ void VulkanStateWriter::WriteCommandExecution(VkQueue                queue,
     // Write queue submission.
     VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
     submit_info.pNext                = nullptr;
-    submit_info.waitSemaphoreCount   = 0;
-    submit_info.pWaitSemaphores      = nullptr;
+    submit_info.waitSemaphoreCount   = wait_semaphore_count;
+    submit_info.pWaitSemaphores      = wait_semaphores;
     submit_info.pWaitDstStageMask    = nullptr;
     submit_info.commandBufferCount   = command_buffer_count;
     submit_info.pCommandBuffers      = command_buffers;
-    submit_info.signalSemaphoreCount = semaphore_count;
-    submit_info.pSignalSemaphores    = semaphores;
+    submit_info.signalSemaphoreCount = signal_semaphore_count;
+    submit_info.pSignalSemaphores    = signal_semaphores;
 
     encoder_.EncodeHandleIdValue(queue);
     encoder_.EncodeUInt32Value(1);
@@ -1958,6 +2129,44 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(VkDevice              devic
     parameter_stream_.Reset();
 }
 
+void VulkanStateWriter::WriteAcquireNextImage(
+    VkDevice device, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t image_index)
+{
+    const VkResult result = VK_SUCCESS;
+
+    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleIdValue(swapchain);
+    encoder_.EncodeUInt64Value(std::numeric_limits<uint64_t>::max());
+    encoder_.EncodeHandleIdValue(semaphore);
+    encoder_.EncodeHandleIdValue(fence);
+    encoder_.EncodeUInt32Ptr(&image_index);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkAcquireNextImageKHR, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteQueuePresent(VkQueue queue, VkSwapchainKHR swapchain, uint32_t image_index)
+{
+    const VkResult result = VK_SUCCESS;
+
+    VkPresentInfoKHR present_info   = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
+    present_info.pNext              = nullptr;
+    present_info.waitSemaphoreCount = 0;
+    present_info.pWaitSemaphores    = nullptr;
+    present_info.swapchainCount     = 1;
+    present_info.pSwapchains        = &swapchain;
+    present_info.pImageIndices      = &image_index;
+    present_info.pResults           = nullptr;
+
+    encoder_.EncodeHandleIdValue(queue);
+    EncodeStructPtr(&encoder_, &present_info);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkQueuePresentKHR, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
 void VulkanStateWriter::WriteCreateFence(VkDevice device, VkFence fence, bool signaled)
 {
     // TODO: Track pNext values and allocation callback pointer values so the new create parameters match the original
@@ -1981,6 +2190,34 @@ void VulkanStateWriter::WriteCreateFence(VkDevice device, VkFence fence, bool si
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateFence, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteWaitForFence(VkDevice device, VkFence fence)
+{
+    const VkResult result = VK_SUCCESS;
+
+    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeUInt32Value(1);
+    encoder_.EncodeHandleIdArray(&fence, 1);
+    encoder_.EncodeVkBool32Value(VK_TRUE);
+    encoder_.EncodeUInt64Value(std::numeric_limits<uint64_t>::max());
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkWaitForFences, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteResetFence(VkDevice device, VkFence fence)
+{
+    const VkResult result = VK_SUCCESS;
+
+    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeUInt32Value(1);
+    encoder_.EncodeHandleIdArray(&fence, 1);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkResetFences, &parameter_stream_);
     parameter_stream_.Reset();
 }
 
@@ -2148,6 +2385,20 @@ void VulkanStateWriter::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t widt
     resize_cmd.height     = height;
 
     output_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+}
+
+void VulkanStateWriter::GetFenceStatus(VkDevice device, VkFence fence, bool* status)
+{
+    auto tables_entry = device_tables_->find(GetDispatchKey(device));
+    if (tables_entry != device_tables_->end())
+    {
+        VkResult result = tables_entry->second.GetFenceStatus(device, fence);
+        (*status)       = (result == VK_SUCCESS);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
+    }
 }
 
 VkMemoryPropertyFlags
