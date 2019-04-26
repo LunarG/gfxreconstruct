@@ -122,6 +122,8 @@ class VulkanStateWriter
 
     void WriteDescriptorSetState(const VulkanStateTable& state_table);
 
+    void WriteSurfaceKhrState(const VulkanStateTable& state_table);
+
     void WriteSwapchainKhrState(const VulkanStateTable& state_table);
 
     void ProcessBufferMemory(VkDevice                  device,
@@ -141,6 +143,25 @@ class VulkanStateWriter
                                                      VkPhysicalDevice  physical_device,
                                                      uint32_t          property_count,
                                                      T*                properties);
+
+    void WriteGetPhysicalDeviceSurfaceSupport(VkPhysicalDevice physical_device,
+                                              uint32_t         queue_family_index,
+                                              VkSurfaceKHR     surface,
+                                              VkBool32         supported);
+
+    void WriteGetPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice                physical_device,
+                                                   VkSurfaceKHR                    surface,
+                                                   const VkSurfaceCapabilitiesKHR& capabilities);
+
+    void WriteGetPhysicalDeviceSurfaceFormats(VkPhysicalDevice          physical_device,
+                                              VkSurfaceKHR              surface,
+                                              uint32_t                  format_count,
+                                              const VkSurfaceFormatKHR* formats);
+
+    void WriteGetPhysicalDeviceSurfacePresentModes(VkPhysicalDevice        physical_device,
+                                                   VkSurfaceKHR            surface,
+                                                   uint32_t                mode_count,
+                                                   const VkPresentModeKHR* pPresentModes);
 
     void WriteStagingBufferCreateCommands(VkDevice                    device,
                                           VkDeviceSize                buffer_size,

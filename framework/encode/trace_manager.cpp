@@ -1005,22 +1005,14 @@ void TraceManager::PreProcess_vkDestroyDescriptorUpdateTemplateKHR(VkDevice     
 }
 
 #if defined(__ANDROID__)
-void TraceManager::PreProcess_GetPhysicalDeviceSurfacePresentModesKHR(VkResult          result,
-                                                                      VkPhysicalDevice  physicalDevice,
-                                                                      VkSurfaceKHR      surface,
-                                                                      uint32_t*         pPresentModeCount,
-                                                                      VkPresentModeKHR* pPresentModes)
+void TraceManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*         pPresentModeCount,
+                                                                   VkPresentModeKHR* pPresentModes)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(physicalDevice);
-    GFXRECON_UNREFERENCED_PARAMETER(surface);
+    assert((pPresentModeCount != nullptr) && (pPresentModes != nullptr));
 
-    if ((result == VK_SUCCESS) && (pPresentModeCount != nullptr) && ((*pPresentModeCount) > 0) &&
-        (pPresentModes != nullptr))
+    for (uint32_t i = 0; i < (*pPresentModeCount); ++i)
     {
-        for (uint32_t i = 0; i < (*pPresentModeCount); ++i)
-        {
-            pPresentModes[i] = VK_PRESENT_MODE_FIFO_KHR;
-        }
+        pPresentModes[i] = VK_PRESENT_MODE_FIFO_KHR;
     }
 }
 #endif
