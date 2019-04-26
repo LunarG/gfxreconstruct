@@ -120,7 +120,6 @@ struct PipelineCacheWrapper             : public HandleWrapper<VkPipelineCache> 
 struct SamplerWrapper                   : public HandleWrapper<VkSampler> {};
 struct SamplerYcbcrConversionWrapper    : public HandleWrapper<VkSamplerYcbcrConversion> {};
 struct DescriptorUpdateTemplateWrapper  : public HandleWrapper<VkDescriptorUpdateTemplate> {};
-struct SurfaceKHRWrapper                : public HandleWrapper<VkSurfaceKHR> {};
 struct DebugReportCallbackEXTWrapper    : public HandleWrapper<VkDebugReportCallbackEXT> {};
 struct DebugUtilsMessengerEXTWrapper    : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
 struct ValidationCacheEXTWrapper        : public HandleWrapper<VkValidationCacheEXT> {};
@@ -347,6 +346,16 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 {
     // Track command buffer info, which must be destroyed on command pool reset.
     std::unordered_map<VkCommandBuffer, CommandBufferWrapper*> allocated_buffers;
+};
+
+struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
+{
+    // Track results from calls to vkGetPhysicalDeviceSurfaceSupportKHR to write to the state snapshot after surface
+    // creation. The call is only written to the state snapshot if it was previously called by the application.
+    std::unordered_map<VkPhysicalDevice, std::unordered_map<uint32_t, VkBool32>> surface_support;
+    std::unordered_map<VkPhysicalDevice, VkSurfaceCapabilitiesKHR>               surface_capabilities;
+    std::unordered_map<VkPhysicalDevice, std::vector<VkSurfaceFormatKHR>>        surface_formats;
+    std::unordered_map<VkPhysicalDevice, std::vector<VkPresentModeKHR>>          surface_present_modes;
 };
 
 struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>

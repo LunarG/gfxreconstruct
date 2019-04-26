@@ -31,6 +31,11 @@ target_sources(gfxrecon_encode
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp
               )
 
+if (MSVC AND (MSVC_VERSION LESS 1910))
+    # This file fails to compile with VS2015, requiring the default section limit of 2^16 to be increased.
+    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+endif()
+
 target_include_directories(gfxrecon_encode
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
