@@ -230,6 +230,25 @@ class VulkanStateTracker
                                                    uint32_t                        property_count,
                                                    const VkQueueFamilyProperties2* properties);
 
+    void TrackPhysicalDeviceSurfaceSupport(VkPhysicalDevice physical_device,
+                                           uint32_t         queue_family_index,
+                                           VkSurfaceKHR     surface,
+                                           VkBool32         supported);
+
+    void TrackPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice                physical_device,
+                                                VkSurfaceKHR                    surface,
+                                                const VkSurfaceCapabilitiesKHR& capabilities);
+
+    void TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice          physical_device,
+                                           VkSurfaceKHR              surface,
+                                           uint32_t                  format_count,
+                                           const VkSurfaceFormatKHR* formats);
+
+    void TrackPhysicalDeviceSurfacePresentModes(VkPhysicalDevice        physical_device,
+                                                VkSurfaceKHR            surface,
+                                                uint32_t                mode_count,
+                                                const VkPresentModeKHR* modes);
+
     void TrackBufferMemoryBinding(VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset);
 
     void TrackImageMemoryBinding(VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset);

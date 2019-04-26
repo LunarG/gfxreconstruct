@@ -273,6 +273,65 @@ class TraceManager
         }
     }
 
+    void PostProcess_vkGetPhysicalDeviceSurfaceSupportKHR(VkResult         result,
+                                                          VkPhysicalDevice physicalDevice,
+                                                          uint32_t         queueFamilyIndex,
+                                                          VkSurfaceKHR     surface,
+                                                          VkBool32*        pSupported)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (pSupported != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceSurfaceSupport(physicalDevice, queueFamilyIndex, surface, *pSupported);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VkResult                  result,
+                                                               VkPhysicalDevice          physicalDevice,
+                                                               VkSurfaceKHR              surface,
+                                                               VkSurfaceCapabilitiesKHR* pSurfaceCapabilities)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (pSurfaceCapabilities != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceSurfaceCapabilities(physicalDevice, surface, *pSurfaceCapabilities);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceSurfaceFormatsKHR(VkResult            result,
+                                                          VkPhysicalDevice    physicalDevice,
+                                                          VkSurfaceKHR        surface,
+                                                          uint32_t*           pSurfaceFormatCount,
+                                                          VkSurfaceFormatKHR* pSurfaceFormats)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) &&
+            (pSurfaceFormatCount != nullptr) && (pSurfaceFormats != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceSurfaceFormats(
+                physicalDevice, surface, *pSurfaceFormatCount, pSurfaceFormats);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceSurfacePresentModesKHR(VkResult          result,
+                                                               VkPhysicalDevice  physicalDevice,
+                                                               VkSurfaceKHR      surface,
+                                                               uint32_t*         pPresentModeCount,
+                                                               VkPresentModeKHR* pPresentModes)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (pPresentModeCount != nullptr) &&
+            (pPresentModes != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceSurfacePresentModes(
+                physicalDevice, surface, *pPresentModeCount, pPresentModes);
+
+#if defined(__ANDROID__)
+            OverrideGetPhysicalDeviceSurfacePresentModesKHR(pPresentModeCount, pPresentModes);
+#endif
+        }
+    }
+
     void PreProcess_vkCreateSwapchain(VkDevice                        device,
                                       const VkSwapchainCreateInfoKHR* pCreateInfo,
                                       const VkAllocationCallbacks*    pAllocator,
@@ -565,11 +624,7 @@ class TraceManager
                                                          const VkAllocationCallbacks* pAllocator);
 
 #if defined(__ANDROID__)
-    void PreProcess_GetPhysicalDeviceSurfacePresentModesKHR(VkResult          result,
-                                                            VkPhysicalDevice  physicalDevice,
-                                                            VkSurfaceKHR      surface,
-                                                            uint32_t*         pPresentModeCount,
-                                                            VkPresentModeKHR* pPresentModes);
+    void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
 
   protected:

@@ -178,6 +178,84 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties2(format::ApiCa
     }
 }
 
+void VulkanStateTracker::TrackPhysicalDeviceSurfaceSupport(VkPhysicalDevice physical_device,
+                                                           uint32_t         queue_family_index,
+                                                           VkSurfaceKHR     surface,
+                                                           VkBool32         supported)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    SurfaceKHRWrapper* wrapper = state_table_.GetSurfaceKHRWrapper(format::ToHandleId(surface));
+    if (wrapper != nullptr)
+    {
+        auto& entry               = wrapper->surface_support[physical_device];
+        entry[queue_family_index] = supported;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track surface support state for unrecognized surface handle");
+    }
+}
+
+void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice                physical_device,
+                                                                VkSurfaceKHR                    surface,
+                                                                const VkSurfaceCapabilitiesKHR& capabilities)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    SurfaceKHRWrapper* wrapper = state_table_.GetSurfaceKHRWrapper(format::ToHandleId(surface));
+    if (wrapper != nullptr)
+    {
+        wrapper->surface_capabilities[physical_device] = capabilities;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track surface capability state for unrecognized surface handle");
+    }
+}
+
+void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats(VkPhysicalDevice          physical_device,
+                                                           VkSurfaceKHR              surface,
+                                                           uint32_t                  format_count,
+                                                           const VkSurfaceFormatKHR* formats)
+{
+    assert(formats != nullptr);
+
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    SurfaceKHRWrapper* wrapper = state_table_.GetSurfaceKHRWrapper(format::ToHandleId(surface));
+    if (wrapper != nullptr)
+    {
+        auto& entry = wrapper->surface_formats[physical_device];
+        entry.assign(formats, formats + format_count);
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track surface format support state for unrecognized surface handle");
+    }
+}
+
+void VulkanStateTracker::TrackPhysicalDeviceSurfacePresentModes(VkPhysicalDevice        physical_device,
+                                                                VkSurfaceKHR            surface,
+                                                                uint32_t                mode_count,
+                                                                const VkPresentModeKHR* modes)
+{
+    assert(modes != nullptr);
+
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    SurfaceKHRWrapper* wrapper = state_table_.GetSurfaceKHRWrapper(format::ToHandleId(surface));
+    if (wrapper != nullptr)
+    {
+        auto& entry = wrapper->surface_present_modes[physical_device];
+        entry.assign(modes, modes + mode_count);
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track surface capability state for unrecognized surface handle");
+    }
+}
+
 void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
                                                   VkBuffer       buffer,
                                                   VkDeviceMemory memory,

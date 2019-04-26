@@ -68,7 +68,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     // WSI object creation.
     StandardCreateWrite<DisplayKHRWrapper>(state_table);
     StandardCreateWrite<DisplayModeKHRWrapper>(state_table);
-    StandardCreateWrite<SurfaceKHRWrapper>(state_table);
+    WriteSurfaceKhrState(state_table);
     WriteSwapchainKhrState(state_table);
 
     // Query object creation.
@@ -779,17 +779,49 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
     });
 }
 
+void VulkanStateWriter::WriteSurfaceKhrState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const SurfaceKHRWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Write surface creation call.
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+
+        for (const auto& entry : wrapper->surface_support)
+        {
+            for (const auto& queue_entry : entry.second)
+            {
+                WriteGetPhysicalDeviceSurfaceSupport(
+                    entry.first, queue_entry.first, wrapper->handle, queue_entry.second);
+            }
+        }
+
+        for (const auto& entry : wrapper->surface_capabilities)
+        {
+            WriteResizeWindowCmd(wrapper->handle, entry.second.currentExtent.width, entry.second.currentExtent.height);
+            WriteGetPhysicalDeviceSurfaceCapabilities(entry.first, wrapper->handle, entry.second);
+        }
+
+        for (const auto& entry : wrapper->surface_formats)
+        {
+            WriteGetPhysicalDeviceSurfaceFormats(
+                entry.first, wrapper->handle, static_cast<uint32_t>(entry.second.size()), entry.second.data());
+        }
+
+        for (const auto& entry : wrapper->surface_present_modes)
+        {
+            WriteGetPhysicalDeviceSurfacePresentModes(
+                entry.first, wrapper->handle, static_cast<uint32_t>(entry.second.size()), entry.second.data());
+        }
+    });
+}
+
 void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const SwapchainKHRWrapper* wrapper) {
         assert(wrapper != nullptr);
 
         WriteResizeWindowCmd(wrapper->surface, wrapper->extent.width, wrapper->extent.height);
-
-        // TODO: Write call to vkGetPhysicalDeviceSurfaceSupportKHR.
-        // TODO: Write call to vkGetPhysicalDeviceSurfaceCapabilitiesKHR.
-        // TODO: Write call to vkGetPhysicalDeviceSurfaceFormatsKHR.
-        // TODO: Write call to vkGetPhysicalDeviceSurfacePresentModesKHR.
 
         // Write swapchain creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
@@ -1358,6 +1390,94 @@ void VulkanStateWriter::WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiC
     EncodeStructArray(&encoder_, properties, property_count);
 
     WriteFunctionCall(call_id, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceSupport(VkPhysicalDevice physical_device,
+                                                             uint32_t         queue_family_index,
+                                                             VkSurfaceKHR     surface,
+                                                             VkBool32         supported)
+{
+    const VkResult result = VK_SUCCESS;
+
+    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeUInt32Value(queue_family_index);
+    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeVkBool32Ptr(&supported);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice                physical_device,
+                                                                  VkSurfaceKHR                    surface,
+                                                                  const VkSurfaceCapabilitiesKHR& capabilities)
+{
+    const VkResult result = VK_SUCCESS;
+
+    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeHandleIdValue(surface);
+    EncodeStructPtr(&encoder_, &capabilities);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(VkPhysicalDevice          physical_device,
+                                                             VkSurfaceKHR              surface,
+                                                             uint32_t                  format_count,
+                                                             const VkSurfaceFormatKHR* formats)
+{
+    const VkResult result = VK_SUCCESS;
+
+    // First write the call to retrieve the size.
+    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeUInt32Ptr(&format_count);
+    EncodeStructArray<VkSurfaceFormatKHR>(&encoder_, nullptr, 0);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Then write the call with the data.
+    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeUInt32Ptr(&format_count);
+    EncodeStructArray(&encoder_, formats, format_count);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR, &parameter_stream_);
+    parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteGetPhysicalDeviceSurfacePresentModes(VkPhysicalDevice        physical_device,
+                                                                  VkSurfaceKHR            surface,
+                                                                  uint32_t                mode_count,
+                                                                  const VkPresentModeKHR* pPresentModes)
+{
+    const VkResult result = VK_SUCCESS;
+
+    // First write the call to retrieve the size.
+    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeUInt32Ptr(&mode_count);
+    encoder_.EncodeEnumArray<VkPresentModeKHR>(nullptr, 0);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Then write the call with the data.
+    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeUInt32Ptr(&mode_count);
+    encoder_.EncodeEnumArray(pPresentModes, mode_count);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR, &parameter_stream_);
     parameter_stream_.Reset();
 }
 
