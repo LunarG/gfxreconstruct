@@ -18,6 +18,7 @@
 #ifndef GFXRECON_DECODE_WINDOW_H
 #define GFXRECON_DECODE_WINDOW_H
 
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -54,7 +55,8 @@ class Window
 
     virtual bool GetNativeHandle(uint32_t id, void** handle) = 0;
 
-    virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) = 0;
+    virtual VkResult
+    CreateSurface(const encode::InstanceTable* table, VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) = 0;
 };
 
 class WindowFactory
@@ -70,8 +72,9 @@ class WindowFactory
 
     virtual void Destroy(Window* window) = 0;
 
-    virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
-                                                          uint32_t         queue_family_index) = 0;
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
+                                                          VkPhysicalDevice             physical_device,
+                                                          uint32_t                     queue_family_index) = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)

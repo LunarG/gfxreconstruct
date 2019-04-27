@@ -19,8 +19,6 @@
 
 #include "util/logging.h"
 
-#include "volk.h"
-
 #include <android/native_window.h>
 
 #include <cassert>
@@ -87,13 +85,16 @@ bool AndroidWindow::GetNativeHandle(uint32_t id, void** handle)
     }
 }
 
-VkResult AndroidWindow::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
+VkResult AndroidWindow::CreateSurface(const encode::InstanceTable* table,
+                                      VkInstance                   instance,
+                                      VkFlags                      flags,
+                                      VkSurfaceKHR*                pSurface)
 {
     VkAndroidSurfaceCreateInfoKHR create_info{
         VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR, nullptr, flags, window_
     };
 
-    return vkCreateAndroidSurfaceKHR(instance, &create_info, nullptr, pSurface);
+    return table->CreateAndroidSurfaceKHR(instance, &create_info, nullptr, pSurface);
 }
 
 AndroidWindowFactory::AndroidWindowFactory(AndroidApplication* application) : android_application_(application)
@@ -120,9 +121,11 @@ void AndroidWindowFactory::Destroy(decode::Window* window)
     GFXRECON_UNREFERENCED_PARAMETER(window);
 }
 
-VkBool32 AndroidWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
-                                                                    uint32_t         queue_family_index)
+VkBool32 AndroidWindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
+                                                                    VkPhysicalDevice             physical_device,
+                                                                    uint32_t                     queue_family_index)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(table);
     GFXRECON_UNREFERENCED_PARAMETER(physical_device);
     GFXRECON_UNREFERENCED_PARAMETER(queue_family_index);
 

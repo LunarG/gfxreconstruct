@@ -23,8 +23,6 @@
 #include "util/logging.h"
 #include "util/platform.h"
 
-#include "volk.h"
-
 #include <cstdint>
 #include <limits>
 #include <unordered_set>
@@ -37,13 +35,23 @@ const int32_t  kDefaultWindowPositionY = 0;
 const uint32_t kDefaultWindowWidth     = 320;
 const uint32_t kDefaultWindowHeight    = 240;
 
-static std::unordered_set<std::string> kSurfaceExtensions = {
+const std::vector<std::string> kLoaderLibNames = {
+#if defined(WIN32)
+    "vulkan-1.dll"
+#else
+    "libvulkan.so", "libvulkan.so.1"
+#endif
+};
+
+const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, VK_MVK_IOS_SURFACE_EXTENSION_NAME, VK_MVK_MACOS_SURFACE_EXTENSION_NAME,
     VK_KHR_MIR_SURFACE_EXTENSION_NAME,     VK_NN_VI_SURFACE_EXTENSION_NAME,   VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
     VK_KHR_WIN32_SURFACE_EXTENSION_NAME,   VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 };
 
-VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory) : window_factory_(window_factory)
+VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory) :
+    loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
+    window_factory_(window_factory)
 {
     assert(window_factory != nullptr);
 }
@@ -54,6 +62,11 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     for (const auto& entry : window_map_)
     {
         window_factory_->Destroy(entry.second);
+    }
+
+    if (loader_handle_ != nullptr)
+    {
+        util::platform::CloseLibrary(loader_handle_);
     }
 }
 
@@ -124,6 +137,77 @@ void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
     {
         fatal_error_handler_(message);
     }
+}
+
+void VulkanReplayConsumerBase::InitializeLoader()
+{
+    for (auto name : kLoaderLibNames)
+    {
+        loader_handle_ = util::platform::OpenLibrary(name.c_str());
+        if (loader_handle_ != nullptr)
+        {
+            get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+                util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
+            break;
+        }
+    }
+
+    if (get_instance_proc_addr_ != nullptr)
+    {
+        create_instance_proc_ =
+            reinterpret_cast<PFN_vkCreateInstance>(get_instance_proc_addr_(nullptr, "vkCreateInstance"));
+    }
+
+    if (create_instance_proc_ == nullptr)
+    {
+        GFXRECON_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
+                           "loader (eg. %s) has been added to the appropriate system path",
+                           kLoaderLibNames[0].c_str());
+        RaiseFatalError("Failed to load Vulkan runtime library");
+    }
+}
+
+void VulkanReplayConsumerBase::AddInstanceTable(VkInstance instance)
+{
+    encode::DispatchKey dispatch_key = encode::GetDispatchKey(instance);
+
+    get_device_proc_addrs_[dispatch_key] =
+        reinterpret_cast<PFN_vkGetDeviceProcAddr>(get_instance_proc_addr_(instance, "vkGetDeviceProcAddr"));
+    create_device_procs_[dispatch_key] =
+        reinterpret_cast<PFN_vkCreateDevice>(get_instance_proc_addr_(instance, "vkCreateDevice"));
+
+    encode::InstanceTable& table = instance_tables_[dispatch_key];
+    encode::LoadInstanceTable(get_instance_proc_addr_, instance, &table);
+}
+
+void VulkanReplayConsumerBase::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
+{
+    encode::DeviceTable& table = device_tables_[encode::GetDispatchKey(device)];
+    encode::LoadDeviceTable(gpa, device, &table);
+}
+
+PFN_vkGetDeviceProcAddr VulkanReplayConsumerBase::GetDeviceAddrProc(VkPhysicalDevice physical_device)
+{
+    return get_device_proc_addrs_[encode::GetDispatchKey(physical_device)];
+}
+
+PFN_vkCreateDevice VulkanReplayConsumerBase::GetCreateDeviceProc(VkPhysicalDevice physical_device)
+{
+    return create_device_procs_[encode::GetDispatchKey(physical_device)];
+}
+
+const encode::InstanceTable* VulkanReplayConsumerBase::GetInstanceTable(const void* handle) const
+{
+    auto table = instance_tables_.find(encode::GetDispatchKey(handle));
+    assert(table != instance_tables_.end());
+    return (table != instance_tables_.end()) ? &table->second : nullptr;
+}
+
+const encode::DeviceTable* VulkanReplayConsumerBase::GetDeviceTable(const void* handle) const
+{
+    auto table = device_tables_.find(encode::GetDispatchKey(handle));
+    assert(table != device_tables_.end());
+    return (table != device_tables_.end()) ? &table->second : nullptr;
 }
 
 void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
@@ -231,7 +315,7 @@ VkResult VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags fl
         RaiseFatalError("Replay has encountered a fatal error and cannot continue (window creation failed)");
     }
 
-    VkResult result = window->CreateSurface(instance, flags, surface);
+    VkResult result = window->CreateSurface(GetInstanceTable(instance), instance, flags, surface);
 
     if ((result == VK_SUCCESS) && (surface != nullptr))
     {
@@ -249,34 +333,16 @@ VkResult VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags fl
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateInstance(PFN_vkCreateInstance         func,
-                                                          VkResult                     original_result,
+VkResult VulkanReplayConsumerBase::OverrideCreateInstance(VkResult                     original_result,
                                                           const VkInstanceCreateInfo*  pCreateInfo,
                                                           const VkAllocationCallbacks* pAllocator,
                                                           VkInstance*                  pInstance)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    static bool volk_initialized = false;
-    if (!volk_initialized)
+    if (loader_handle_ == nullptr)
     {
-        if (volkInitialize() == VK_SUCCESS)
-        {
-            volk_initialized = true;
-        }
-        else
-        {
-#if WIN32
-            const char loader_name[] = "vulkan-1.dll";
-#else
-            const char loader_name[] = "libvulkan.so";
-#endif
-            GFXRECON_LOG_FATAL("Failed to load Vulkan runtime library; please ensure that the path to the Vulkan "
-                               "loader (eg. %s) has been added to the appropriate system path",
-                               loader_name);
-            RaiseFatalError("Failed to load Vulkan runtime library");
-        }
+        InitializeLoader();
     }
 
     // Replace WSI extension in extension list.
@@ -326,18 +392,17 @@ VkResult VulkanReplayConsumerBase::OverrideCreateInstance(PFN_vkCreateInstance  
         modified_create_info.ppEnabledLayerNames = nullptr;
     }
 
-    VkResult result = vkCreateInstance(&modified_create_info, pAllocator, pInstance);
+    VkResult result = create_instance_proc_(&modified_create_info, pAllocator, pInstance);
 
     if ((pInstance != nullptr) && (result == VK_SUCCESS))
     {
-        volkLoadInstance(*pInstance);
+        AddInstanceTable(*pInstance);
     }
 
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateDevice(PFN_vkCreateDevice           func,
-                                                        VkResult                     original_result,
+VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                     original_result,
                                                         VkPhysicalDevice             physicalDevice,
                                                         const VkDeviceCreateInfo*    pCreateInfo,
                                                         const VkAllocationCallbacks* pAllocator,
@@ -345,12 +410,18 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDevice(PFN_vkCreateDevice      
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    VkResult result = func(physicalDevice, pCreateInfo, pAllocator, pDevice);
+    VkResult                result               = VK_ERROR_INITIALIZATION_FAILED;
+    PFN_vkGetDeviceProcAddr get_device_proc_addr = GetDeviceAddrProc(physicalDevice);
+    PFN_vkCreateDevice      create_device_proc   = GetCreateDeviceProc(physicalDevice);
 
-    if ((pDevice != nullptr) && (result == VK_SUCCESS))
+    if ((get_device_proc_addr != nullptr) && (create_device_proc != nullptr))
     {
-        // TODO: Per-device dispatch tables.
-        volkLoadDevice(*pDevice);
+        result = create_device_proc(physicalDevice, pCreateInfo, pAllocator, pDevice);
+
+        if ((pDevice != nullptr) && (result == VK_SUCCESS))
+        {
+            AddDeviceTable(*pDevice, get_device_proc_addr);
+        }
     }
 
     return result;
@@ -602,12 +673,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSupportKHR(
-    PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func,
-    VkPhysicalDevice                                   physicalDevice,
-    uint32_t                                           queueFamilyIndex)
+    PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func, VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
-    return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
+    return window_factory_->GetPhysicalDevicePresentationSupport(
+        GetInstanceTable(physicalDevice), physicalDevice, queueFamilyIndex);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR        func,
@@ -633,7 +703,8 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSuppo
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(connection);
     GFXRECON_UNREFERENCED_PARAMETER(visual_id);
-    return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
+    return window_factory_->GetPhysicalDevicePresentationSupport(
+        GetInstanceTable(physicalDevice), physicalDevice, queueFamilyIndex);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR        func,
@@ -659,7 +730,8 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupp
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(dpy);
     GFXRECON_UNREFERENCED_PARAMETER(visualID);
-    return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
+    return window_factory_->GetPhysicalDevicePresentationSupport(
+        GetInstanceTable(physicalDevice), physicalDevice, queueFamilyIndex);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR        func,
@@ -683,7 +755,8 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationS
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(display);
-    return window_factory_->GetPhysicalDevicePresentationSupport(physicalDevice, queueFamilyIndex);
+    return window_factory_->GetPhysicalDevicePresentationSupport(
+        GetInstanceTable(physicalDevice), physicalDevice, queueFamilyIndex);
 }
 
 void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(PFN_vkDestroySurfaceKHR      func,
@@ -743,7 +816,8 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format:
 
     MapDescriptorUpdateTemplateHandles(pData);
 
-    vkUpdateDescriptorSetWithTemplate(in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData.GetPointer());
+    GetDeviceTable(in_device)->UpdateDescriptorSetWithTemplate(
+        in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData.GetPointer());
 }
 
 void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
@@ -760,8 +834,9 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
 
     MapDescriptorUpdateTemplateHandles(pData);
 
-    vkCmdPushDescriptorSetWithTemplateKHR(
-        in_commandBuffer, in_descriptorUpdateTemplate, in_layout, set, pData.GetPointer());
+    GetDeviceTable(in_commandBuffer)
+        ->CmdPushDescriptorSetWithTemplateKHR(
+            in_commandBuffer, in_descriptorUpdateTemplate, in_layout, set, pData.GetPointer());
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
@@ -777,7 +852,8 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
 
     MapDescriptorUpdateTemplateHandles(pData);
 
-    vkUpdateDescriptorSetWithTemplateKHR(in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData.GetPointer());
+    GetDeviceTable(in_device)->UpdateDescriptorSetWithTemplateKHR(
+        in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData.GetPointer());
 }
 
 void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
@@ -852,8 +928,8 @@ void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
         }
     }
 
-    VkResult replay_result =
-        vkRegisterObjectsNVX(in_device, in_objectTable, objectCount, in_ppObjectTableEntries, in_pObjectIndices);
+    VkResult replay_result = GetDeviceTable(in_device)->RegisterObjectsNVX(
+        in_device, in_objectTable, objectCount, in_ppObjectTableEntries, in_pObjectIndices);
 
     CheckResult("vkRegisterObjectsNVX", returnValue, replay_result);
 }

@@ -3,9 +3,4 @@ target_compile_definitions(platform_specific INTERFACE _FILE_OFFSET_BITS=64 VK_U
 
 add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${GFXRECON_SOURCE_DIR}/external/Vulkan-Headers/include)
-
-add_library(volk STATIC "")
-target_include_directories(volk PUBLIC ${GFXRECON_SOURCE_DIR}/external/volk)
-target_sources(volk PRIVATE ${GFXRECON_SOURCE_DIR}/external/volk/volk.c)
-target_compile_definitions(volk PUBLIC VK_NO_PROTOTYPES)
-target_link_libraries(volk PUBLIC vulkan_registry platform_specific)
+target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES)
