@@ -299,6 +299,9 @@ class VulkanStateWriter
                                  VkMemoryPropertyFlags   memory_property_flags,
                                  const VulkanStateTable& state_table);
 
+    VkQueue
+    GetQueue(VkDevice device, uint32_t queue_family_index, uint32_t queue_index, const DeviceTable& dispatch_table);
+
     VkCommandPool GetCommandPool(VkDevice device, uint32_t queue_family_index, const DeviceTable& dispatch_table);
 
     VkCommandBuffer GetCommandBuffer(VkDevice device, VkCommandPool command_pool, const DeviceTable& dispatch_table);
