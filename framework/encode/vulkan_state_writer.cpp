@@ -1400,8 +1400,47 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
 
         WriteCreateFence(wrapper->device, format::FromHandleId<VkFence>(kTempFenceId), false);
 
-        // Set image acquired state.
         assert(wrapper->images.size() == wrapper->image_acquired_info.size());
+
+        // First loop over all images to transition them to the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout.
+        // This requires acquiring each image and then presenting it to release it.
+        for (size_t i = 0; i < wrapper->images.size(); ++i)
+        {
+            ImageWrapper* image_wrapper = wrapper->images[i];
+            VkQueue       present_queue = wrapper->image_acquired_info[i].last_presented_queue;
+
+            WriteAcquireNextImage(
+                wrapper->device, wrapper->handle, VK_NULL_HANDLE, temp_fence, static_cast<uint32_t>(i));
+
+            WriteWaitForFence(wrapper->device, temp_fence);
+            WriteResetFence(wrapper->device, temp_fence);
+
+            WriteCommandBegin(temp_command_buffer);
+            WriteImageLayoutTransitionCommand(temp_command_buffer,
+                                              image_wrapper->handle,
+                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                              0,
+                                              VK_ACCESS_MEMORY_READ_BIT,
+                                              VK_IMAGE_LAYOUT_UNDEFINED,
+                                              VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                              1,
+                                              image_wrapper->array_layers,
+                                              VK_IMAGE_ASPECT_COLOR_BIT);
+            WriteCommandEnd(temp_command_buffer);
+            WriteCommandExecution(temp_queue, 1, &temp_command_buffer, 0, nullptr, 0, nullptr);
+
+            if (present_queue == VK_NULL_HANDLE)
+            {
+                // TODO: Queue selection should be improved to handle cases where graphics and present queues are
+                // separate.
+                present_queue = temp_queue;
+            }
+
+            WriteQueuePresent(present_queue, wrapper->handle, static_cast<uint32_t>(i));
+        }
+
+        // Do a second pass on the image array to set image acquired state.
         for (size_t i = 0; i < wrapper->images.size(); ++i)
         {
             ImageWrapper* image_wrapper = wrapper->images[i];
@@ -1437,7 +1476,8 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
                     }
                 }
 
-                if (image_wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+                if ((image_wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                    (image_wrapper->current_layout != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR))
                 {
                     uint32_t     wait_semaphore_count = 0;
                     VkSemaphore* wait_semaphores      = nullptr;
@@ -1483,27 +1523,12 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
             {
                 // Acquire all images up to the last presented image, to increase the chance that the first image
                 // acquired on replay is the same image acquired by the first captured frame. For this case, the image
-                // will be released with a queue present after a layout transition.
+                // will be released with a queue present.
                 WriteAcquireNextImage(
                     wrapper->device, wrapper->handle, VK_NULL_HANDLE, temp_fence, static_cast<uint32_t>(i));
 
                 WriteWaitForFence(wrapper->device, temp_fence);
                 WriteResetFence(wrapper->device, temp_fence);
-
-                WriteCommandBegin(temp_command_buffer);
-                WriteImageLayoutTransitionCommand(temp_command_buffer,
-                                                  image_wrapper->handle,
-                                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                  VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                  0,
-                                                  VK_ACCESS_MEMORY_READ_BIT,
-                                                  VK_IMAGE_LAYOUT_UNDEFINED,
-                                                  VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                                                  1,
-                                                  image_wrapper->array_layers,
-                                                  VK_IMAGE_ASPECT_COLOR_BIT);
-                WriteCommandEnd(temp_command_buffer);
-                WriteCommandExecution(temp_queue, 1, &temp_command_buffer, 0, nullptr, 0, nullptr);
 
                 VkQueue present_queue = wrapper->image_acquired_info[i].last_presented_queue;
 
@@ -2164,6 +2189,13 @@ void VulkanStateWriter::WriteQueuePresent(VkQueue queue, VkSwapchainKHR swapchai
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkQueuePresentKHR, &parameter_stream_);
+    parameter_stream_.Reset();
+
+    // Write queue wait idle.
+    encoder_.EncodeHandleIdValue(queue);
+    encoder_.EncodeEnumValue(result);
+
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueWaitIdle, &parameter_stream_);
     parameter_stream_.Reset();
 }
 
