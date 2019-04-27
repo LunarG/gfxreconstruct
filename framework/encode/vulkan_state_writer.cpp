@@ -874,9 +874,7 @@ void VulkanStateWriter::ProcessBufferMemory(VkDevice                  device,
             for (auto copy_entry : snapshot_data.staging_copy_wrappers)
             {
                 uint32_t queue_family_index = copy_entry.first;
-                VkQueue  queue              = VK_NULL_HANDLE;
-
-                dispatch_table.GetDeviceQueue(device, queue_family_index, 0, &queue);
+                VkQueue  queue              = GetQueue(device, queue_family_index, 0, dispatch_table);
 
                 // Create a command pool for the current queue family index.
                 VkCommandPool command_pool = GetCommandPool(device, queue_family_index, dispatch_table);
@@ -954,7 +952,7 @@ void VulkanStateWriter::ProcessBufferMemory(VkDevice                  device,
                                                                         staging_buffer,
                                                                         buffer_wrapper->handle,
                                                                         0,
-                                                                        buffer_wrapper->bind_offset,
+                                                                        0,
                                                                         buffer_wrapper->created_size);
                                     }
                                 }
@@ -1072,9 +1070,7 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
     {
         // Create a queue and command buffer to process image layout transitions and staging copies.
         uint32_t queue_family_index = copy_entry.first;
-        VkQueue  queue              = VK_NULL_HANDLE;
-
-        dispatch_table.GetDeviceQueue(device, queue_family_index, 0, &queue);
+        VkQueue  queue              = GetQueue(device, queue_family_index, 0, dispatch_table);
 
         // Create a command pool for the current queue family index.
         VkCommandPool command_pool = GetCommandPool(device, queue_family_index, dispatch_table);
@@ -2527,6 +2523,28 @@ uint32_t VulkanStateWriter::FindMemoryTypeIndex(VkDevice                device,
     }
 
     return index;
+}
+
+VkQueue VulkanStateWriter::GetQueue(VkDevice           device,
+                                    uint32_t           queue_family_index,
+                                    uint32_t           queue_index,
+                                    const DeviceTable& dispatch_table)
+{
+    VkQueue queue = VK_NULL_HANDLE;
+
+    dispatch_table.GetDeviceQueue(device, queue_family_index, queue_index, &queue);
+
+    if (queue != VK_NULL_HANDLE)
+    {
+        // Because this queue was not allocated through the loader, it must be assigned a dispatch table.
+        *reinterpret_cast<void**>(queue) = *reinterpret_cast<void**>(device);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed to retrieve a queue for resource memory snapshot");
+    }
+
+    return queue;
 }
 
 VkCommandPool
