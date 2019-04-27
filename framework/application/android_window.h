@@ -60,7 +60,10 @@ class AndroidWindow : public decode::Window
 
     virtual bool GetNativeHandle(uint32_t id, void** handle) override;
 
-    virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
+    virtual VkResult CreateSurface(const encode::InstanceTable* table,
+                                   VkInstance                   instance,
+                                   VkFlags                      flags,
+                                   VkSurfaceKHR*                pSurface) override;
 
   private:
     AndroidApplication* android_application_;
@@ -83,8 +86,9 @@ class AndroidWindowFactory : public decode::WindowFactory
 
     void Destroy(decode::Window* window) override;
 
-    virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
-                                                          uint32_t         queue_family_index) override;
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
+                                                          VkPhysicalDevice             physical_device,
+                                                          uint32_t                     queue_family_index) override;
 
   private:
     AndroidApplication* android_application_;

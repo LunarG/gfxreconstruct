@@ -65,7 +65,10 @@ class WaylandWindow : public decode::Window
 
     virtual bool GetNativeHandle(uint32_t id, void** handle) override;
 
-    virtual VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) override;
+    virtual VkResult CreateSurface(const encode::InstanceTable* table,
+                                   VkInstance                   instance,
+                                   VkFlags                      flags,
+                                   VkSurfaceKHR*                pSurface) override;
 
   private:
     static void HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial);
@@ -94,8 +97,9 @@ class WaylandWindowFactory : public decode::WindowFactory
 
     void Destroy(decode::Window* window) override;
 
-    virtual VkBool32 GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
-                                                          uint32_t         queue_family_index) override;
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
+                                                          VkPhysicalDevice             physical_device,
+                                                          uint32_t                     queue_family_index) override;
 
   private:
     WaylandApplication* wayland_application_;

@@ -23,6 +23,7 @@
 #include "decode/window.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
 
@@ -79,6 +80,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
   protected:
     const VulkanObjectMapper& GetObjectMapper() const { return object_mapper_; }
+
+    const encode::InstanceTable* GetInstanceTable(const void* handle) const;
+
+    const encode::DeviceTable* GetDeviceTable(const void* handle) const;
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
@@ -161,14 +166,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // Replay function overrides provided to the replay consumer code generator with replay_overrides.json
     //
 
-    VkResult OverrideCreateInstance(PFN_vkCreateInstance         func,
-                                    VkResult                     original_result,
+    VkResult OverrideCreateInstance(VkResult                     original_result,
                                     const VkInstanceCreateInfo*  pCreateInfo,
                                     const VkAllocationCallbacks* pAllocator,
                                     VkInstance*                  pInstance);
 
-    VkResult OverrideCreateDevice(PFN_vkCreateDevice           func,
-                                  VkResult                     original_result,
+    VkResult OverrideCreateDevice(VkResult                     original_result,
                                   VkPhysicalDevice             physicalDevice,
                                   const VkDeviceCreateInfo*    pCreateInfo,
                                   const VkAllocationCallbacks* pAllocator,
@@ -290,6 +293,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
   private:
     void RaiseFatalError(const char* message) const;
 
+    void InitializeLoader();
+
+    void AddInstanceTable(VkInstance instance);
+
+    void AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
+
+    PFN_vkGetDeviceProcAddr GetDeviceAddrProc(VkPhysicalDevice physical_device);
+
+    PFN_vkCreateDevice GetCreateDeviceProc(VkPhysicalDevice physical_device);
+
     VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
 
     void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder);
@@ -299,11 +312,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_map<VkDeviceMemory, void*> MappedMemoryMap;
 
   private:
-    std::function<void(const char*)> fatal_error_handler_;
-    WindowFactory*                   window_factory_;
-    VulkanObjectMapper               object_mapper_;
-    WindowMap                        window_map_;
-    MappedMemoryMap                  memory_map_;
+    util::platform::LibraryHandle                                    loader_handle_;
+    PFN_vkGetInstanceProcAddr                                        get_instance_proc_addr_;
+    PFN_vkCreateInstance                                             create_instance_proc_;
+    std::unordered_map<encode::DispatchKey, PFN_vkGetDeviceProcAddr> get_device_proc_addrs_;
+    std::unordered_map<encode::DispatchKey, PFN_vkCreateDevice>      create_device_procs_;
+    std::unordered_map<encode::DispatchKey, encode::InstanceTable>   instance_tables_;
+    std::unordered_map<encode::DispatchKey, encode::DeviceTable>     device_tables_;
+    std::function<void(const char*)>                                 fatal_error_handler_;
+    WindowFactory*                                                   window_factory_;
+    VulkanObjectMapper                                               object_mapper_;
+    WindowMap                                                        window_map_;
+    MappedMemoryMap                                                  memory_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

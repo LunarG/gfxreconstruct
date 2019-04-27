@@ -19,8 +19,6 @@
 
 #include "util/logging.h"
 
-#include "volk.h"
-
 #include <cassert>
 #include <stdexcept>
 
@@ -145,13 +143,16 @@ bool WaylandWindow::GetNativeHandle(uint32_t id, void** handle)
     }
 }
 
-VkResult WaylandWindow::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
+VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
+                                      VkInstance                   instance,
+                                      VkFlags                      flags,
+                                      VkSurfaceKHR*                pSurface)
 {
     VkWaylandSurfaceCreateInfoKHR create_info{
         VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR, nullptr, flags, wayland_application_->GetDisplay(), surface_
     };
 
-    return vkCreateWaylandSurfaceKHR(instance, &create_info, nullptr, pSurface);
+    return table->CreateWaylandSurfaceKHR(instance, &create_info, nullptr, pSurface);
 }
 
 void WaylandWindow::HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial)
@@ -187,11 +188,12 @@ void WaylandWindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 WaylandWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
-                                                                    uint32_t         queue_family_index)
+VkBool32 WaylandWindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
+                                                                    VkPhysicalDevice             physical_device,
+                                                                    uint32_t                     queue_family_index)
 {
     assert(wayland_application_->GetDisplay() != nullptr);
-    return vkGetPhysicalDeviceWaylandPresentationSupportKHR(
+    return table->GetPhysicalDeviceWaylandPresentationSupportKHR(
         physical_device, queue_family_index, wayland_application_->GetDisplay());
 }
 

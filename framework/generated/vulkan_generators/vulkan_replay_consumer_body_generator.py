@@ -67,11 +67,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         if genOpts.replayOverrides:
             self.__loadReplayOverrides(genOpts.replayOverrides)
 
+        write('#include "generated/generated_vulkan_dispatch_table.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_replay_consumer.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_handle_mappers.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        write('#include "volk.h"', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
@@ -123,6 +122,13 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
             first = False
 
     #
+    # Check for dispatchable handle types associated with the instance dispatch table.
+    def useInstanceTable(self, typename):
+        if typename in ['VkInstance', 'VkPhysicalDevice']:
+            return True
+        return False
+
+    #
     # Return VulkanReplayConsumer class member function definition.
     def makeConsumerFuncBody(self, returnType, name, values):
         body = ''
@@ -130,15 +136,23 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         args, preexpr, postexpr = self.makeBodyExpressions(name, values)
         arglist = ', '.join(args)
 
+        dispatchfunc = ''
+        if name not in ['vkCreateInstance', 'vkCreateDevice']:
+            dispatchfunc = 'GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'GetDeviceTable'
+            dispatchfunc += '({})->{}'.format(args[0], name[2:])
+
         callExpr = ''
         if name in self.REPLAY_OVERRIDES:
-            if returnType == 'VkResult':
+            if name in ['vkCreateInstance', 'vkCreateDevice']:
+                callExpr = '{}(returnValue, {})'.format(self.REPLAY_OVERRIDES[name], arglist)
+            elif returnType == 'VkResult':
                 # Override functions receive the decoded return value in addition to parameters.
-                callExpr = '{}({}, returnValue, {})'.format(self.REPLAY_OVERRIDES[name], name, arglist)
+                callExpr = '{}({}, returnValue, {})'.format(self.REPLAY_OVERRIDES[name], dispatchfunc, arglist)
             else:
-                callExpr = '{}({}, {})'.format(self.REPLAY_OVERRIDES[name], name, arglist)
+                callExpr = '{}({}, {})'.format(self.REPLAY_OVERRIDES[name], dispatchfunc, arglist)
         else:
-                callExpr = '{}({})'.format(name, arglist)
+            callExpr = '{}({})'.format(dispatchfunc, arglist)
+
 
         if preexpr:
             body += '\n'.join(['    ' + val if val else val for val in preexpr])

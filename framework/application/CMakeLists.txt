@@ -17,7 +17,6 @@ target_link_libraries(gfxrecon_application
                       gfxrecon_decode
                       gfxrecon_format
                       gfxrecon_util
-                      volk
                       vulkan_registry
                       platform_specific
                       $<$<BOOL:${XCB_FOUND}>:${XCB_LIBRARY}>
