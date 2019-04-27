@@ -34,6 +34,7 @@
 #endif
 #include <windows.h>
 #else // WIN32
+#include <dlfcn.h>
 #include <errno.h>
 #include <pthread.h>
 #include <sys/syscall.h>
@@ -59,7 +60,8 @@ const int32_t kMaxPropertyLength = 255;
 
 #if defined(WIN32)
 
-typedef DWORD pid_t;
+typedef DWORD   pid_t;
+typedef HMODULE LibraryHandle;
 
 inline pid_t GetCurrentProcessId()
 {
@@ -74,6 +76,21 @@ inline uint64_t GetCurrentThreadId()
 inline void TriggerDebugBreak()
 {
     __debugbreak();
+}
+
+inline LibraryHandle OpenLibrary(const char* name)
+{
+    return LoadLibraryA(name);
+}
+
+inline void CloseLibrary(LibraryHandle handle)
+{
+    FreeLibrary(handle);
+}
+
+inline void* GetProcAddress(LibraryHandle handle, const char* name)
+{
+    return ::GetProcAddress(handle, name);
 }
 
 inline std::string GetEnv(const char* name)
@@ -185,6 +202,8 @@ inline int32_t GMTime(tm* gm_time, const time_t* timer)
 // Error value indicating string was truncated
 #define STRUNCATE 80
 
+typedef void* LibraryHandle;
+
 inline pid_t GetCurrentProcessId()
 {
     return getpid();
@@ -198,6 +217,21 @@ inline uint64_t GetCurrentThreadId()
 inline void TriggerDebugBreak()
 {
     raise(SIGTRAP);
+}
+
+inline LibraryHandle OpenLibrary(const char* name)
+{
+    return dlopen(name, RTLD_NOW | RTLD_LOCAL);
+}
+
+inline void CloseLibrary(LibraryHandle handle)
+{
+    dlclose(handle);
+}
+
+inline void* GetProcAddress(LibraryHandle handle, const char* name)
+{
+    return dlsym(handle, name);
 }
 
 inline std::string GetEnv(const char* name)
