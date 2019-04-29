@@ -170,11 +170,17 @@ class VulkanStateTable
     BufferWrapper*       GetBufferWrapper(format::HandleId id)       { return GetWrapper<BufferWrapper>(id, buffer_map_); }
     const BufferWrapper* GetBufferWrapper(format::HandleId id) const { return GetWrapper<BufferWrapper>(id, buffer_map_); }
 
+    BufferViewWrapper*       GetBufferViewWrapper(format::HandleId id)       { return GetWrapper<BufferViewWrapper>(id, buffer_view_map_); }
+    const BufferViewWrapper* GetBufferViewWrapper(format::HandleId id) const { return GetWrapper<BufferViewWrapper>(id, buffer_view_map_); }
+
     ImageWrapper*       GetImageWrapper(format::HandleId id)       { return GetWrapper<ImageWrapper>(id, image_map_); }
     const ImageWrapper* GetImageWrapper(format::HandleId id) const { return GetWrapper<ImageWrapper>(id, image_map_); }
 
     ImageViewWrapper*       GetImageViewWrapper(format::HandleId id)       { return GetWrapper<ImageViewWrapper>(id, image_view_map_); }
     const ImageViewWrapper* GetImageViewWrapper(format::HandleId id) const { return GetWrapper<ImageViewWrapper>(id, image_view_map_); }
+
+    SamplerWrapper*       GetSamplerWrapper(format::HandleId id)       { return GetWrapper<SamplerWrapper>(id, sampler_map_); }
+    const SamplerWrapper* GetSamplerWrapper(format::HandleId id) const { return GetWrapper<SamplerWrapper>(id, sampler_map_); }
 
     FramebufferWrapper*       GetFramebufferWrapper(format::HandleId id)       { return GetWrapper<FramebufferWrapper>(id, framebuffer_map_); }
     const FramebufferWrapper* GetFramebufferWrapper(format::HandleId id) const { return GetWrapper<FramebufferWrapper>(id, framebuffer_map_); }
