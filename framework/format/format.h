@@ -88,6 +88,7 @@ enum FileOption : uint32_t
     kUnknownFileOption     = 0,
     kCompressionType       = 1, // One of the CompressionType values defining the compression algorithm used with parameter
                                 // encoding. Default = CompressionType::kNone.
+    kHavePacketTimestamps  = 2  // Non-zero if a timestamp was included in each API block header, zero otherwise. Default = 0.
 };
 
 enum PointerAttributes : uint32_t
@@ -112,6 +113,7 @@ enum PointerAttributes : uint32_t
 struct EnabledOptions
 {
     CompressionType compression_type{ CompressionType::kNone };
+    bool            packet_timestamps{ false };
 };
 
 #pragma pack(push)

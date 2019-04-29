@@ -55,7 +55,7 @@ class CaptureSettings
     {
         std::string            capture_file{ kDefaultCaptureFileName };
         format::EnabledOptions capture_file_options;
-        bool                   time_stamp_file{ true };
+        bool                   time_stamp_file_name{ true };
         bool                   force_flush{ false };
         MemoryTrackingMode     memory_tracking_mode{ kPageGuard };
         std::vector<TrimRange> trim_ranges;

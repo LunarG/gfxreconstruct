@@ -101,8 +101,9 @@ Option | Property | Type | Description
 ------| ------------- |------|-------------
 Capture File Name | debug.gfxrecon.capture_file | STRING | Path to use when creating the capture file.  Default is: `/sdcard/gfxrecon_capture.gfxr`
 Capture File Compression Type | debug.gfxrecon.capture_compression_type | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, and `NONE`. Default is: `LZ4`
-Capture File Timestamp | debug.gfxrecon.capture_file_timestamp | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
+Capture File Timestamp | debug.gfxrecon.capture_file_timestamp | BOOL | Add a timestamp to the capture file name as described by [File Name Timestamps](#file-name-timestamps).  Default is: `true`
 Capture File Flush After Write | debug.gfxrecon.capture_file_flush | BOOL | Flush output stream after each packet is written to the capture file.  Default is: `false`
+Packet Timestamps | debug.gfxrecon.capture_packet_timestamps | BOOL | Include a timestamp in each packet.  Default is: `false`
 Log Level | debug.gfxrecon.log_level | STRING | Specify the highest level message to log.  Options are: `debug`, `info`, `warning`, `error`, and `fatal`.  The specified level and all levels listed after it will be enabled for logging.  For example, choosing the `warning` level will also enable the `error` and `fatal` levels. Default is: `info`
 Log Output To Console | debug.gfxrecon.log_output_to_console | BOOL | Log messages will be written to Logcat. Default is: `true`
 Log File | debug.gfxrecon.log_file | STRING | When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).
@@ -135,7 +136,7 @@ The capture file's save location can be specified by setting the
 `debug.gfxrecon.capture_file` system property, described above in
 the [Layer Options](#layer-options) section.
 
-### Timestamps
+### File Name Timestamps
 When capture file timestamps are enabled, a timestamp with an
 [ISO 8601-based](https://en.wikipedia.org/wiki/ISO_8601)
 format will be added to the name of every file created by the layer. The

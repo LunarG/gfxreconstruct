@@ -137,6 +137,9 @@ bool FileProcessor::ProcessFileHeader()
                         case format::FileOption::kCompressionType:
                             enabled_options_.compression_type = static_cast<format::CompressionType>(option.value);
                             break;
+                        case format::FileOption::kHavePacketTimestamps:
+                            enabled_options_.packet_timestamps = option.value ? true : false;
+                            break;
                         default:
                             GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
                             break;
@@ -346,6 +349,11 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
         {
             parameter_buffer_size -= sizeof(uncompressed_size);
             success = ReadBytes(&uncompressed_size, sizeof(uncompressed_size));
+            if (enabled_options_.packet_timestamps)
+            {
+                parameter_buffer_size -= sizeof(uint64_t);
+                success = success && ReadBytes(&call_info.timestamp, sizeof(call_info.timestamp));
+            }
 
             if (success)
             {
@@ -374,6 +382,12 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
         }
         else
         {
+            if (enabled_options_.packet_timestamps)
+            {
+                parameter_buffer_size -= sizeof(uint64_t);
+                success = success && ReadBytes(&call_info.timestamp, sizeof(call_info.timestamp));
+            }
+
             success = ReadParameterBuffer(parameter_buffer_size);
 
             if (!success)
