@@ -187,21 +187,25 @@ class VulkanStateTracker
     template <typename Wrapper>
     void RemoveEntry(typename Wrapper::HandleType handle)
     {
-        Wrapper* wrapper = nullptr;
+        if (handle != VK_NULL_HANDLE)
+        {
+            Wrapper* wrapper = nullptr;
 
-        {
-            std::unique_lock<std::mutex> lock(mutex_);
-            state_table_.RemoveWrapper(format::ToHandleId(handle), &wrapper);
-            DestroyState(wrapper);
-        }
+            {
+                std::unique_lock<std::mutex> lock(mutex_);
+                state_table_.RemoveWrapper(format::ToHandleId(handle), &wrapper);
+                DestroyState(wrapper);
+            }
 
-        if (wrapper != nullptr)
-        {
-            delete wrapper;
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Attempting to remove entry from state tracker for object that is not being tracked");
+            if (wrapper != nullptr)
+            {
+                delete wrapper;
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING(
+                    "Attempting to remove entry from state tracker for object that is not being tracked");
+            }
         }
     }
 
