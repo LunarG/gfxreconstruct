@@ -189,7 +189,7 @@ class TraceManager
     template <typename Wrapper>
     void EndDestroyApiCallTrace(uint32_t count, const typename Wrapper::HandleType* handles, ParameterEncoder* encoder)
     {
-        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (handles != nullptr))
         {
             assert(state_tracker_ != nullptr);
 
