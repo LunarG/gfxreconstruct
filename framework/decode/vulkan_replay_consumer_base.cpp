@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -49,9 +49,9 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_WIN32_SURFACE_EXTENSION_NAME,   VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 };
 
-VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory) :
+VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options) :
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
-    window_factory_(window_factory)
+    window_factory_(window_factory), options_(options)
 {
     assert(window_factory != nullptr);
 }
@@ -503,6 +503,70 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     {
         result = func(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
     } while ((original_result == VK_SUCCESS) && (result == VK_NOT_READY));
+
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers       func,
+                                                                  VkResult                           original_result,
+                                                                  VkDevice                           device,
+                                                                  const VkCommandBufferAllocateInfo* pAllocateInfo,
+                                                                  VkCommandBuffer*                   pCommandBuffers)
+{
+    VkResult result = original_result;
+
+    if ((original_result >= 0) || !options_.skip_failed_allocations)
+    {
+        result = func(device, pAllocateInfo, pCommandBuffers);
+    }
+    else
+    {
+        GFXRECON_LOG_INFO("Skipping vkAllocateCommandBuffers call that failed during capture with error %s",
+                          enumutil::GetResultValueString(original_result));
+    }
+
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(PFN_vkAllocateDescriptorSets       func,
+                                                                  VkResult                           original_result,
+                                                                  VkDevice                           device,
+                                                                  const VkDescriptorSetAllocateInfo* pAllocateInfo,
+                                                                  VkDescriptorSet*                   pDescriptorSets)
+{
+    VkResult result = original_result;
+
+    if ((original_result >= 0) || !options_.skip_failed_allocations)
+    {
+        result = func(device, pAllocateInfo, pDescriptorSets);
+    }
+    else
+    {
+        GFXRECON_LOG_INFO("Skipping vkAllocateDescriptorSets call that failed during capture with error %s",
+                          enumutil::GetResultValueString(original_result));
+    }
+
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(PFN_vkAllocateMemory         func,
+                                                          VkResult                     original_result,
+                                                          VkDevice                     device,
+                                                          const VkMemoryAllocateInfo*  pAllocateInfo,
+                                                          const VkAllocationCallbacks* pAllocator,
+                                                          VkDeviceMemory*              pMemory)
+{
+    VkResult result = original_result;
+
+    if ((original_result >= 0) || !options_.skip_failed_allocations)
+    {
+        result = func(device, pAllocateInfo, pAllocator, pMemory);
+    }
+    else
+    {
+        GFXRECON_LOG_INFO("Skipping vkAllocateMemory call that failed during capture with error %s",
+                          enumutil::GetResultValueString(original_result));
+    }
 
     return result;
 }

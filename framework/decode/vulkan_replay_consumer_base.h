@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 #include "decode/pointer_decoder.h"
 #include "decode/vulkan_object_mapper.h"
+#include "decode/vulkan_replay_options.h"
 #include "decode/window.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
@@ -41,7 +42,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReplayConsumerBase(WindowFactory* window_factory);
+    VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options);
 
     virtual ~VulkanReplayConsumerBase() override;
 
@@ -202,6 +203,25 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          VkDeviceSize              stride,
                                          VkQueryResultFlags        flags);
 
+    VkResult OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers       func,
+                                            VkResult                           original_result,
+                                            VkDevice                           device,
+                                            const VkCommandBufferAllocateInfo* pAllocateInfo,
+                                            VkCommandBuffer*                   pCommandBuffers);
+
+    VkResult OverrideAllocateDescriptorSets(PFN_vkAllocateDescriptorSets       func,
+                                            VkResult                           original_result,
+                                            VkDevice                           device,
+                                            const VkDescriptorSetAllocateInfo* pAllocateInfo,
+                                            VkDescriptorSet*                   pDescriptorSets);
+
+    VkResult OverrideAllocateMemory(PFN_vkAllocateMemory         func,
+                                    VkResult                     original_result,
+                                    VkDevice                     device,
+                                    const VkMemoryAllocateInfo*  pAllocateInfo,
+                                    const VkAllocationCallbacks* pAllocator,
+                                    VkDeviceMemory*              pMemory);
+
     VkResult OverrideMapMemory(PFN_vkMapMemory  func,
                                VkResult         original_result,
                                VkDevice         device,
@@ -324,6 +344,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VulkanObjectMapper                                               object_mapper_;
     WindowMap                                                        window_map_;
     MappedMemoryMap                                                  memory_map_;
+    ReplayOptions                                                    options_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
