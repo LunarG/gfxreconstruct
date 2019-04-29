@@ -245,7 +245,7 @@ void VulkanReplayConsumer::Process_vkAllocateMemory(
     VkDeviceMemory out_pMemory_value = static_cast<VkDeviceMemory>(0);
     VkDeviceMemory* out_pMemory = &out_pMemory_value;
 
-    VkResult replay_result = GetDeviceTable(in_device)->AllocateMemory(in_device, in_pAllocateInfo, in_pAllocator, out_pMemory);
+    VkResult replay_result = OverrideAllocateMemory(GetDeviceTable(in_device)->AllocateMemory, returnValue, in_device, in_pAllocateInfo, in_pAllocator, out_pMemory);
     CheckResult("vkAllocateMemory", returnValue, replay_result);
 
     AddHandles<VkDeviceMemory>(pMemory.GetPointer(), 1, out_pMemory, 1, &VulkanObjectMapper::AddVkDeviceMemory);
@@ -1113,7 +1113,7 @@ void VulkanReplayConsumer::Process_vkAllocateDescriptorSets(
     MapStructHandles(pAllocateInfo.GetMetaStructPointer(), GetObjectMapper());
     VkDescriptorSet* out_pDescriptorSets = pDescriptorSets.GetHandlePointer();
 
-    VkResult replay_result = GetDeviceTable(in_device)->AllocateDescriptorSets(in_device, in_pAllocateInfo, out_pDescriptorSets);
+    VkResult replay_result = OverrideAllocateDescriptorSets(GetDeviceTable(in_device)->AllocateDescriptorSets, returnValue, in_device, in_pAllocateInfo, out_pDescriptorSets);
     CheckResult("vkAllocateDescriptorSets", returnValue, replay_result);
 
     AddHandles<VkDescriptorSet>(pDescriptorSets.GetPointer(), pDescriptorSets.GetLength(), out_pDescriptorSets, in_pAllocateInfo->descriptorSetCount, &VulkanObjectMapper::AddVkDescriptorSet);
@@ -1282,7 +1282,7 @@ void VulkanReplayConsumer::Process_vkAllocateCommandBuffers(
     MapStructHandles(pAllocateInfo.GetMetaStructPointer(), GetObjectMapper());
     VkCommandBuffer* out_pCommandBuffers = pCommandBuffers.GetHandlePointer();
 
-    VkResult replay_result = GetDeviceTable(in_device)->AllocateCommandBuffers(in_device, in_pAllocateInfo, out_pCommandBuffers);
+    VkResult replay_result = OverrideAllocateCommandBuffers(GetDeviceTable(in_device)->AllocateCommandBuffers, returnValue, in_device, in_pAllocateInfo, out_pCommandBuffers);
     CheckResult("vkAllocateCommandBuffers", returnValue, replay_result);
 
     AddHandles<VkCommandBuffer>(pCommandBuffers.GetPointer(), pCommandBuffers.GetLength(), out_pCommandBuffers, in_pAllocateInfo->commandBufferCount, &VulkanObjectMapper::AddVkCommandBuffer);

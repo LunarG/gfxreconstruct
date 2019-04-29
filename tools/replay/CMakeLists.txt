@@ -2,6 +2,7 @@ add_executable(gfxrecon-replay "")
 
 target_sources(gfxrecon-replay
                PRIVATE
+                   replay_settings.h
                    desktop_main.cpp
               )
 

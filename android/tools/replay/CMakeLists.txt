@@ -18,7 +18,10 @@ add_subdirectory(../../framework/format ${CMAKE_SOURCE_DIR}/../../framework/form
 add_subdirectory(../../framework/decode ${CMAKE_SOURCE_DIR}/../../framework/decode/build)
 add_subdirectory(../../framework/application ${CMAKE_SOURCE_DIR}/../../framework/application/build)
 
-add_library(gfxrecon-replay SHARED ${GFXRECON_SOURCE_DIR}/tools/replay/android_main.cpp)
+add_library(gfxrecon-replay
+            SHARED
+                ${GFXRECON_SOURCE_DIR}/tools/replay/replay_settings.h
+                ${GFXRECON_SOURCE_DIR}/tools/replay/android_main.cpp)
 
 target_include_directories(gfxrecon-replay
                            PUBLIC
