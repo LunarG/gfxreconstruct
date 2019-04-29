@@ -729,6 +729,73 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     }
 }
 
+bool CheckDescriptorStatus(const DescriptorInfo* descriptor, uint32_t index, const VulkanStateTable& state_table)
+{
+    bool valid = false;
+
+    if (descriptor->written[index])
+    {
+        // Check for handles that may no longer exist, which indicates that this descriptor is stale and should be
+        // ignored, as there is no valid handle to write into it.
+        switch (descriptor->type)
+        {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+                if (state_table.GetSamplerWrapper(format::ToHandleId(descriptor->images[index].sampler)) != nullptr)
+                {
+                    valid = true;
+                }
+                break;
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                // TODO: Sampler handle does not need to be valid if descriptor set was allocated from a layout with
+                // immutable samplers.
+                if ((state_table.GetSamplerWrapper(format::ToHandleId(descriptor->images[index].sampler)) != nullptr) &&
+                    (state_table.GetImageViewWrapper(format::ToHandleId(descriptor->images[index].imageView)) !=
+                     nullptr))
+                {
+                    valid = true;
+                }
+                break;
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                if (state_table.GetImageViewWrapper(format::ToHandleId(descriptor->images[index].imageView)) != nullptr)
+                {
+                    valid = true;
+                }
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                if (state_table.GetBufferWrapper(format::ToHandleId(descriptor->buffers[index].buffer)) != nullptr)
+                {
+                    valid = true;
+                }
+                break;
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                if (state_table.GetBufferViewWrapper(format::ToHandleId(descriptor->texel_buffer_views[index])) !=
+                    nullptr)
+                {
+                    valid = true;
+                }
+                descriptor->texel_buffer_views[index];
+                break;
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
+                // TODO
+                break;
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+                // TODO
+                break;
+            default:
+                GFXRECON_LOG_WARNING("Attempting to check descriptor write status for unrecognized descriptor type");
+                break;
+        }
+    }
+
+    return valid;
+}
+
 void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_table)
 {
     std::set<util::MemoryOutputStream*> processed;
@@ -760,7 +827,9 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
 
             for (uint32_t i = 0; i < binding->count; ++i)
             {
-                if (active != binding->written[i])
+                bool write_descriptor = CheckDescriptorStatus(binding, i, state_table);
+
+                if (active != write_descriptor)
                 {
                     if (!active)
                     {
