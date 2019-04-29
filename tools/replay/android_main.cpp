@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -15,9 +15,12 @@
 ** limitations under the License.
 */
 
+#include "replay_settings.h"
+
 #include "application/android_application.h"
 #include "application/android_window.h"
 #include "decode/file_processor.h"
+#include "decode/vulkan_replay_options.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
@@ -32,25 +35,21 @@
 #include <string>
 #include <vector>
 
-const char kApplicationName[]    = "GFXReconstruct Replay";
 const char kArgsExtentKey[]      = "args";
 const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
 const char kLayerProperty[]      = "debug.vulkan.layers";
-const char kCaptureLayer[]       = "VK_LAYER_LUNARG_gfxreconstruct";
 
 std::string GetIntentExtra(struct android_app* app, const char* key);
 void        ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
-void        CheckActiveLayers();
 void        DestroyActivity(struct android_app* app);
-void        PrintUsage(const char* exe_name);
 
 void android_main(struct android_app* app)
 {
     gfxrecon::util::Log::Init();
 
     std::string                    args = GetIntentExtra(app, kArgsExtentKey);
-    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), "", "", 0);
+    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, "", 0);
 
     app->onAppCmd     = ProcessAppCmd;
     app->onInputEvent = ProcessInputEvent;
@@ -93,8 +92,15 @@ void android_main(struct android_app* app)
                 }
                 else
                 {
+                    gfxrecon::decode::ReplayOptions replay_options;
+                    if (arg_parser.IsOptionSet(kSkipFailedAllocationLongOption) ||
+                        arg_parser.IsOptionSet(kSkipFailedAllocationShortOption))
+                    {
+                        replay_options.skip_failed_allocations = true;
+                    }
+
                     gfxrecon::decode::VulkanDecoder        decoder;
-                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
+                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get(), replay_options);
 
                     replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });
@@ -103,7 +109,7 @@ void android_main(struct android_app* app)
                     file_processor.AddDecoder(&decoder);
 
                     // Warn if the capture layer is active.
-                    CheckActiveLayers();
+                    CheckActiveLayers(kLayerProperty);
 
                     // Start the application in the paused state, preventing replay from starting before the app gained
                     // focus event is received.
@@ -228,19 +234,6 @@ int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
     return 0;
 }
 
-void CheckActiveLayers()
-{
-    std::string result = gfxrecon::util::platform::GetEnv(kLayerProperty);
-
-    if (!result.empty())
-    {
-        if (result.find(kCaptureLayer) != std::string::npos)
-        {
-            GFXRECON_LOG_WARNING("Replay tool has detected that the capture layer is enabled");
-        }
-    }
-}
-
 void DestroyActivity(struct android_app* app)
 {
     ANativeActivity_finish(app->activity);
@@ -261,22 +254,4 @@ void DestroyActivity(struct android_app* app)
             break;
         }
     }
-}
-
-void PrintUsage(const char* exe_name)
-{
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
-
-    GFXRECON_WRITE_CONSOLE("\n%s\tis a replay tool designed to playback GFXReconstruct capture files.\n",
-                           app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the ");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\tcapture file to replay");
 }

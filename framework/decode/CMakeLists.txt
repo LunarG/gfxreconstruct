@@ -31,6 +31,7 @@ target_sources(gfxrecon_decode
                    vulkan_object_mapper.h
                    vulkan_replay_consumer_base.h
                    vulkan_replay_consumer_base.cpp
+                   vulkan_replay_options.h
                    window.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp
