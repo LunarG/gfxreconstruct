@@ -73,6 +73,7 @@ class CompressionConverter : public ApiDecoder
     std::vector<uint8_t>                    compressed_buffer_;
     util::Compressor*                       compressor_;
     bool                                    decompressing_;
+    bool                                    write_packet_timestamps_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

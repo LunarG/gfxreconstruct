@@ -87,8 +87,9 @@ Option | Environment Variable | Type | Description
 ------| ------------- |------|-------------
 Capture File Name | GFXRECON_CAPTURE_FILE | STRING | Path to use when creating the capture file.  Default is: `gfxrecon_capture.gfxr`
 Capture File Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, and `NONE`. Default is: `LZ4`
-Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
+Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | Add a timestamp to the capture file name as described by [File Name Timestamps](#file-name-timestamps).  Default is: `true`
 Capture File Flush After Write | GFXRECON_CAPTURE_FILE_FLUSH | BOOL | Flush output stream after each packet is written to the capture file.  Default is: `false`
+Packet Timestamps | GFXRECON_CAPTURE_PACKET_TIMESTAMPS | BOOL | Include a timestamp in each API block header.  Default is: `false`
 Log Level | GFXRECON_LOG_LEVEL | STRING | Specify the highest level message to log.  Options are: `debug`, `info`, `warning`, `error`, and `fatal`.  The specified level and all levels listed after it will be enabled for logging.  For example, choosing the `warning` level will also enable the `error` and `fatal` levels. Default is: `info`
 Log Output To Console | GFXRECON_LOG_OUTPUT_TO_CONSOLE | BOOL | Log messages will be written to stdout. Default is: `true`
 Log File | GFXRECON_LOG_FILE | STRING | When set, log messages will be written to a file at the specified path. Default is: Empty string (file logging disabled).
@@ -122,7 +123,7 @@ The capture file's save location can be specified by setting the
 `GFXRECON_CAPTURE_FILE` environment variable, described above in
 the [Layer Options](#layer-options) section.
 
-### Timestamps
+### File Name Timestamps
 When capture file timestamps are enabled, a timestamp with an
 [ISO 8601-based](https://en.wikipedia.org/wiki/ISO_8601)
 format will be added to the name of every file created by the layer. The

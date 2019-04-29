@@ -23,6 +23,7 @@
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
+#include "util/date_time.h"
 
 #include <cassert>
 
@@ -98,7 +99,7 @@ bool TraceManager::CreateInstance()
 
         CaptureSettings::TraceSettings trace_settings = settings.GetTraceSettings();
         std::string                    filename       = trace_settings.capture_file;
-        if (trace_settings.time_stamp_file)
+        if (trace_settings.time_stamp_file_name)
         {
             filename = util::filepath::GenerateTimestampedFilename(filename);
         }
@@ -268,6 +269,11 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
             packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) +
                            sizeof(thread_data->thread_id_) + compressed_size;
 
+            if (file_options_.packet_timestamps)
+            {
+                packet_size += sizeof(uint64_t);
+            }
+
             compressed_header.block_header.size = packet_size;
             not_compressed                      = false;
         }
@@ -287,6 +293,11 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 
         packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + data_size;
 
+        if (file_options_.packet_timestamps)
+        {
+            packet_size += sizeof(uint64_t);
+        }
+
         uncompressed_header.block_header.size = packet_size;
     }
 
@@ -295,6 +306,12 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 
         // Write appropriate function call block header.
         bytes_written_ += file_stream_->Write(header_pointer, header_size);
+
+        if (file_options_.packet_timestamps)
+        {
+            uint64_t current_timestamp = gfxrecon::util::datetime::GetTimestamp();
+            bytes_written_ += file_stream_->Write(&current_timestamp, sizeof(current_timestamp));
+        }
 
         // Write parameter data.
         bytes_written_ += file_stream_->Write(data_pointer, data_size);
@@ -311,7 +328,6 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 void TraceManager::WriteFileHeader()
 {
     std::vector<format::FileOptionPair> option_list;
-
     BuildOptionList(file_options_, &option_list);
 
     format::FileHeader file_header;
@@ -335,6 +351,7 @@ void TraceManager::BuildOptionList(const format::EnabledOptions&        enabled_
     assert(option_list != nullptr);
 
     option_list->push_back({ format::FileOption::kCompressionType, enabled_options.compression_type });
+    option_list->push_back({ format::FileOption::kHavePacketTimestamps, enabled_options.packet_timestamps ? 1u : 0u });
 }
 
 void TraceManager::WriteDisplayMessageCmd(const char* message)

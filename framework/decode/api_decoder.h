@@ -32,6 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 struct ApiCallInfo
 {
     format::ThreadId thread_id{ 0 };
+    uint64_t         timestamp{ 0 };
 };
 
 class ApiDecoder

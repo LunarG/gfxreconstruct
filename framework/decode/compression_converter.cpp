@@ -24,7 +24,9 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-CompressionConverter::CompressionConverter() : bytes_written_(0), compressor_(nullptr), decompressing_(false) {}
+CompressionConverter::CompressionConverter() :
+    bytes_written_(0), compressor_(nullptr), decompressing_(false), write_packet_timestamps_(false)
+{}
 
 CompressionConverter::~CompressionConverter()
 {
@@ -67,6 +69,9 @@ bool CompressionConverter::Initialize(std::string                               
             case format::FileOption::kCompressionType:
                 // Change the file option to the new compression type
                 option.value = static_cast<uint32_t>(target_compression_type);
+                break;
+            case format::FileOption::kHavePacketTimestamps:
+                write_packet_timestamps_ = (option.value != 0);
                 break;
             default:
                 GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
@@ -123,11 +128,21 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId  call_id,
             packet_size += sizeof(compressed_func_call_header.api_call_id) +
                            sizeof(compressed_func_call_header.thread_id) +
                            sizeof(compressed_func_call_header.uncompressed_size) + compressed_size;
+            if (write_packet_timestamps_)
+            {
+                packet_size += sizeof(call_info.timestamp);
+            }
 
             compressed_func_call_header.block_header.size = packet_size;
 
             // Write compressed function call block header.
             bytes_written_ += file_stream_->Write(&compressed_func_call_header, sizeof(compressed_func_call_header));
+
+            // Write the timestamp if needed
+            if (write_packet_timestamps_)
+            {
+                bytes_written_ += file_stream_->Write(&call_info.timestamp, sizeof(call_info.timestamp));
+            }
 
             // Write parameter data.
             bytes_written_ += file_stream_->Write(compressed_buffer_.data(), compressed_size);
@@ -151,10 +166,21 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId  call_id,
 
         packet_size += sizeof(func_call_header.api_call_id) + sizeof(func_call_header.thread_id) + buffer_size;
 
+        if (write_packet_timestamps_)
+        {
+            packet_size += sizeof(call_info.timestamp);
+        }
+
         func_call_header.block_header.size = packet_size;
 
         // Write compressed function call block header.
         bytes_written_ += file_stream_->Write(&func_call_header, sizeof(func_call_header));
+
+        // Write the timestamp if needed
+        if (write_packet_timestamps_)
+        {
+            bytes_written_ += file_stream_->Write(&call_info.timestamp, sizeof(call_info.timestamp));
+        }
 
         // Write parameter data.
         bytes_written_ += file_stream_->Write(buffer, buffer_size);
