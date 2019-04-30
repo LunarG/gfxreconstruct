@@ -25,7 +25,7 @@
 
 #include <cassert>
 #include <functional>
-#include <unordered_map>
+#include <map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -221,14 +221,14 @@ class VulkanStateTable
 
   private:
     template <typename T>
-    bool InsertEntry(format::HandleId id, T* wrapper, std::unordered_map<format::HandleId, T*>& map)
+    bool InsertEntry(format::HandleId id, T* wrapper, std::map<format::HandleId, T*>& map)
     {
         const auto& inserted = map.insert(std::make_pair(id, wrapper));
         return inserted.second;
     }
 
     template <typename T>
-    T* RemoveEntry(format::HandleId id, std::unordered_map<format::HandleId, T*>& map)
+    T* RemoveEntry(format::HandleId id, std::map<format::HandleId, T*>& map)
     {
         T*   result = nullptr;
         auto entry  = map.find(id);
@@ -243,57 +243,57 @@ class VulkanStateTable
     }
 
     template <typename T>
-    T* GetWrapper(format::HandleId id, std::unordered_map<format::HandleId, T*>& map)
+    T* GetWrapper(format::HandleId id, std::map<format::HandleId, T*>& map)
     {
         auto entry = map.find(id);
         return (entry != map.end()) ? entry->second : nullptr;
     }
 
     template <typename T>
-    const T* GetWrapper(format::HandleId id, const std::unordered_map<format::HandleId, T*>& map) const
+    const T* GetWrapper(format::HandleId id, const std::map<format::HandleId, T*>& map) const
     {
         auto entry = map.find(id);
         return (entry != map.end()) ? entry->second : nullptr;
     }
 
   private:
-    std::unordered_map<format::HandleId, InstanceWrapper*>                  instance_map_;
-    std::unordered_map<format::HandleId, PhysicalDeviceWrapper*>            physical_device_map_;
-    std::unordered_map<format::HandleId, DeviceWrapper*>                    device_map_;
-    std::unordered_map<format::HandleId, QueueWrapper*>                     queue_map_;
-    std::unordered_map<format::HandleId, SemaphoreWrapper*>                 semaphore_map_;
-    std::unordered_map<format::HandleId, CommandBufferWrapper*>             command_buffer_map_;
-    std::unordered_map<format::HandleId, FenceWrapper*>                     fence_map_;
-    std::unordered_map<format::HandleId, DeviceMemoryWrapper*>              device_memory_map_;
-    std::unordered_map<format::HandleId, BufferWrapper*>                    buffer_map_;
-    std::unordered_map<format::HandleId, ImageWrapper*>                     image_map_;
-    std::unordered_map<format::HandleId, EventWrapper*>                     event_map_;
-    std::unordered_map<format::HandleId, QueryPoolWrapper*>                 query_pool_map_;
-    std::unordered_map<format::HandleId, BufferViewWrapper*>                buffer_view_map_;
-    std::unordered_map<format::HandleId, ImageViewWrapper*>                 image_view_map_;
-    std::unordered_map<format::HandleId, ShaderModuleWrapper*>              shader_module_map_;
-    std::unordered_map<format::HandleId, PipelineCacheWrapper*>             pipeline_cache_map_;
-    std::unordered_map<format::HandleId, PipelineLayoutWrapper*>            pipeline_layout_map_;
-    std::unordered_map<format::HandleId, RenderPassWrapper*>                render_pass_map_;
-    std::unordered_map<format::HandleId, PipelineWrapper*>                  pipeline_map_;
-    std::unordered_map<format::HandleId, DescriptorSetLayoutWrapper*>       descriptor_set_layout_map_;
-    std::unordered_map<format::HandleId, SamplerWrapper*>                   sampler_map_;
-    std::unordered_map<format::HandleId, DescriptorPoolWrapper*>            descriptor_pool_map_;
-    std::unordered_map<format::HandleId, DescriptorSetWrapper*>             descriptor_set_map_;
-    std::unordered_map<format::HandleId, FramebufferWrapper*>               framebuffer_map_;
-    std::unordered_map<format::HandleId, CommandPoolWrapper*>               command_pool_map_;
-    std::unordered_map<format::HandleId, SamplerYcbcrConversionWrapper*>    sampler_ycbcr_conversion_map_;
-    std::unordered_map<format::HandleId, DescriptorUpdateTemplateWrapper*>  descriptor_update_template_map_;
-    std::unordered_map<format::HandleId, SurfaceKHRWrapper*>                surface_khr_map_;
-    std::unordered_map<format::HandleId, SwapchainKHRWrapper*>              swapchain_khr_map_;
-    std::unordered_map<format::HandleId, DisplayKHRWrapper*>                display_khr_map_;
-    std::unordered_map<format::HandleId, DisplayModeKHRWrapper*>            display_mode_khr_map_;
-    std::unordered_map<format::HandleId, DebugReportCallbackEXTWrapper*>    debug_report_callback_ext_map_;
-    std::unordered_map<format::HandleId, ObjectTableNVXWrapper*>            object_table_nvx_map_;
-    std::unordered_map<format::HandleId, IndirectCommandsLayoutNVXWrapper*> indirect_commands_layout_nvx_map_;
-    std::unordered_map<format::HandleId, DebugUtilsMessengerEXTWrapper*>    debug_utils_messenger_ext_map_;
-    std::unordered_map<format::HandleId, ValidationCacheEXTWrapper*>        validation_cache_ext_map_;
-    std::unordered_map<format::HandleId, AccelerationStructureNVWrapper*>   acceleration_structure_nv_map_;
+    std::map<format::HandleId, InstanceWrapper*>                  instance_map_;
+    std::map<format::HandleId, PhysicalDeviceWrapper*>            physical_device_map_;
+    std::map<format::HandleId, DeviceWrapper*>                    device_map_;
+    std::map<format::HandleId, QueueWrapper*>                     queue_map_;
+    std::map<format::HandleId, SemaphoreWrapper*>                 semaphore_map_;
+    std::map<format::HandleId, CommandBufferWrapper*>             command_buffer_map_;
+    std::map<format::HandleId, FenceWrapper*>                     fence_map_;
+    std::map<format::HandleId, DeviceMemoryWrapper*>              device_memory_map_;
+    std::map<format::HandleId, BufferWrapper*>                    buffer_map_;
+    std::map<format::HandleId, ImageWrapper*>                     image_map_;
+    std::map<format::HandleId, EventWrapper*>                     event_map_;
+    std::map<format::HandleId, QueryPoolWrapper*>                 query_pool_map_;
+    std::map<format::HandleId, BufferViewWrapper*>                buffer_view_map_;
+    std::map<format::HandleId, ImageViewWrapper*>                 image_view_map_;
+    std::map<format::HandleId, ShaderModuleWrapper*>              shader_module_map_;
+    std::map<format::HandleId, PipelineCacheWrapper*>             pipeline_cache_map_;
+    std::map<format::HandleId, PipelineLayoutWrapper*>            pipeline_layout_map_;
+    std::map<format::HandleId, RenderPassWrapper*>                render_pass_map_;
+    std::map<format::HandleId, PipelineWrapper*>                  pipeline_map_;
+    std::map<format::HandleId, DescriptorSetLayoutWrapper*>       descriptor_set_layout_map_;
+    std::map<format::HandleId, SamplerWrapper*>                   sampler_map_;
+    std::map<format::HandleId, DescriptorPoolWrapper*>            descriptor_pool_map_;
+    std::map<format::HandleId, DescriptorSetWrapper*>             descriptor_set_map_;
+    std::map<format::HandleId, FramebufferWrapper*>               framebuffer_map_;
+    std::map<format::HandleId, CommandPoolWrapper*>               command_pool_map_;
+    std::map<format::HandleId, SamplerYcbcrConversionWrapper*>    sampler_ycbcr_conversion_map_;
+    std::map<format::HandleId, DescriptorUpdateTemplateWrapper*>  descriptor_update_template_map_;
+    std::map<format::HandleId, SurfaceKHRWrapper*>                surface_khr_map_;
+    std::map<format::HandleId, SwapchainKHRWrapper*>              swapchain_khr_map_;
+    std::map<format::HandleId, DisplayKHRWrapper*>                display_khr_map_;
+    std::map<format::HandleId, DisplayModeKHRWrapper*>            display_mode_khr_map_;
+    std::map<format::HandleId, DebugReportCallbackEXTWrapper*>    debug_report_callback_ext_map_;
+    std::map<format::HandleId, ObjectTableNVXWrapper*>            object_table_nvx_map_;
+    std::map<format::HandleId, IndirectCommandsLayoutNVXWrapper*> indirect_commands_layout_nvx_map_;
+    std::map<format::HandleId, DebugUtilsMessengerEXTWrapper*>    debug_utils_messenger_ext_map_;
+    std::map<format::HandleId, ValidationCacheEXTWrapper*>        validation_cache_ext_map_;
+    std::map<format::HandleId, AccelerationStructureNVWrapper*>   acceleration_structure_nv_map_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
