@@ -60,3 +60,5 @@ if (TARGET ZLIB::ZLIB)
                                    $<$<BOOL:${WIN32}>:ZLIB_WINAPI>)
     target_link_libraries(gfxrecon_util ZLIB::ZLIB)
 endif()
+
+cpp_code_style_build_directives(gfxrecon_util)

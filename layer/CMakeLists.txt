@@ -22,3 +22,5 @@ GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
                          ${CMAKE_CURRENT_SOURCE_DIR}/json/VK_LAYER_LUNARG_gfxreconstruct.json.in
                          $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VK_LAYER_LUNARG_gfxreconstruct.json
                         )
+
+cpp_code_style_build_directives(VkLayer_gfxreconstruct)
