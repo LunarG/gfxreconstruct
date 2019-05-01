@@ -21,8 +21,12 @@
 #include "util/platform.h"
 #include "util/settings_loader.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <cstdlib>
+#include <limits>
+#include <sstream>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -61,6 +65,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER "LOG_OUTPUT_TO_OS_DEBUG_STRING"
 #define MEMORY_TRACKING_MODE_LOWER          "memory_tracking_mode"
 #define MEMORY_TRACKING_MODE_UPPER          "MEMORY_TRACKING_MODE"
+#define CAPTURE_FRAMES_LOWER                "capture_frames"
+#define CAPTURE_FRAMES_UPPER                "CAPTURE_FRAMES"
 // clang-format on
 
 #if defined(__ANDROID__)
@@ -84,6 +90,8 @@ const char kLogLevelEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL
 const char kLogOutputToConsoleEnvVar[]       = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_LOWER;
 const char kLogOutputToOsDebugStringEnvVar[] = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER;
 const char kMemoryTrackingModeEnvVar[]       = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_LOWER;
+const char kCaptureFramesEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
+
 #else
 const char CaptureSettings::kDefaultCaptureFileName[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
 
@@ -105,6 +113,7 @@ const char kLogLevelEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX L
 const char kLogOutputToConsoleEnvVar[]               = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_UPPER;
 const char kLogOutputToOsDebugStringEnvVar[]         = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER;
 const char kMemoryTrackingModeEnvVar[]               = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_UPPER;
+const char kCaptureFramesEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_UPPER;
 #endif
 
 // Capture options for settings file.
@@ -126,6 +135,7 @@ const std::string kOptionKeyLogLevel                 = std::string(kSettingsFilt
 const std::string kOptionKeyLogOutputToConsole       = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_CONSOLE_LOWER);
 const std::string kOptionKeyLogOutputToOsDebugString = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER);
 const std::string kOptionKeyMemoryTrackingMode       = std::string(kSettingsFilter) + std::string(MEMORY_TRACKING_MODE_LOWER);
+const std::string kOptionKeyCaptureFrames            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
 // clang-format on
 
 #if defined(ENABLE_LZ4_COMPRESSION)
@@ -185,6 +195,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kCaptureFileUseTimestampEnvVar, kOptionKeyCaptureFileUseTimestamp);
     LoadSingleOptionEnvVar(options, kCaptureCompressionTypeEnvVar, kOptionKeyCaptureCompressionType);
     LoadSingleOptionEnvVar(options, kCaptureFileForceFlushEnvVar, kOptionKeyCaptureFileForceFlush);
+
     // Logging environment variables
     LoadSingleOptionEnvVar(options, kLogAllowIndentsEnvVar, kOptionKeyLogAllowIndents);
     LoadSingleOptionEnvVar(options, kLogBreakOnErrorEnvVar, kOptionKeyLogBreakOnError);
@@ -197,8 +208,12 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kLogLevelEnvVar, kOptionKeyLogLevel);
     LoadSingleOptionEnvVar(options, kLogOutputToConsoleEnvVar, kOptionKeyLogOutputToConsole);
     LoadSingleOptionEnvVar(options, kLogOutputToOsDebugStringEnvVar, kOptionKeyLogOutputToOsDebugString);
+
     // Memory environment variables
     LoadSingleOptionEnvVar(options, kMemoryTrackingModeEnvVar, kOptionKeyMemoryTrackingMode);
+
+    // Trimming environment variables
+    LoadSingleOptionEnvVar(options, kCaptureFramesEnvVar, kOptionKeyCaptureFrames);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -237,8 +252,14 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
                                                                 settings->trace_settings_.time_stamp_file);
     settings->trace_settings_.force_flush =
         ParseBoolString(FindOption(options, kOptionKeyCaptureFileForceFlush), settings->trace_settings_.force_flush);
+
+    // Memory tracking options
     settings->trace_settings_.memory_tracking_mode = ParseMemoryTrackingModeString(
         FindOption(options, kOptionKeyMemoryTrackingMode), settings->trace_settings_.memory_tracking_mode);
+
+    // Trimming options
+    ParseTrimRangeString(FindOption(options, kOptionKeyCaptureFrames), &settings->trace_settings_.trim_ranges);
+
     // Log options
     settings->log_settings_.use_indent =
         ParseBoolString(FindOption(options, kOptionKeyLogAllowIndents), settings->log_settings_.use_indent);
@@ -402,6 +423,133 @@ util::Log::Severity CaptureSettings::ParseLogLevelString(const std::string&  val
     }
 
     return result;
+}
+
+void CaptureSettings::ParseTrimRangeString(const std::string&                       value_string,
+                                           std::vector<CaptureSettings::TrimRange>* ranges)
+{
+    assert(ranges != nullptr);
+
+    if (!value_string.empty())
+    {
+        std::istringstream value_string_input;
+        value_string_input.str(value_string);
+
+        for (std::string range; std::getline(value_string_input, range, ',');)
+        {
+            if (range.empty() || (std::count(range.begin(), range.end(), '-') > 1))
+            {
+                GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture frame range \"%s\"", range.c_str());
+                continue;
+            }
+
+            // Remove whitespace.
+            range.erase(std::remove_if(range.begin(), range.end(), ::isspace), range.end());
+
+            // Split string on '-' delimiter.
+            bool                     invalid = false;
+            std::vector<std::string> values;
+            std::istringstream       range_input;
+            range_input.str(range);
+
+            for (std::string value; std::getline(range_input, value, '-');)
+            {
+                if (value.empty())
+                {
+                    break;
+                }
+
+                // Check that the value string only contains numbers.
+                size_t count = std::count_if(value.begin(), value.end(), ::isdigit);
+                if (count == value.length())
+                {
+                    values.push_back(value);
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture frame range \"%s\", which contains "
+                                         "non-numeric values",
+                                         range.c_str());
+                    invalid = true;
+                    break;
+                }
+            }
+
+            if (!invalid)
+            {
+                CaptureSettings::TrimRange trim_range;
+
+                if (values.size() == 1)
+                {
+                    if (std::count(range.begin(), range.end(), '-') == 0)
+                    {
+                        trim_range.first = std::stoi(values[0]);
+                        trim_range.total = 1;
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture frame range \"%s\"",
+                                             range.c_str());
+                        continue;
+                    }
+                }
+                else if (values.size() == 2)
+                {
+                    trim_range.first = std::stoi(values[0]);
+
+                    uint32_t last = std::stoi(values[1]);
+                    if (last >= trim_range.first)
+                    {
+                        trim_range.total = (last - trim_range.first) + 1;
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING(
+                            "Settings Loader: Ignoring invalid capture frame range \"%s\", where first "
+                            "frame is greater than last frame",
+                            range.c_str());
+                        continue;
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture frame range \"%s\"", range.c_str());
+                    continue;
+                }
+
+                // Check for invalid start frame of 0.
+                if (trim_range.first == 0)
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Settings Loader: Ignoring invalid capture frame range \"%s\", with first frame equal to zero",
+                        range.c_str());
+                    continue;
+                }
+
+                uint32_t next_allowed = 0;
+
+                // Check that start frame is outside the bounds of the previous range.
+                if (!ranges->empty())
+                {
+                    // This produces the number of the frame after the last frame in the range.
+                    next_allowed = ranges->back().first + ranges->back().total;
+                }
+
+                if (trim_range.first >= next_allowed)
+                {
+                    ranges->emplace_back(trim_range);
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid capture frame range \"%s\", "
+                                         "where start frame precedes the end of the previous range \"%u-%u\"",
+                                         range.c_str(),
+                                         ranges->back().first,
+                                         (next_allowed - 1));
+                }
+            }
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)
