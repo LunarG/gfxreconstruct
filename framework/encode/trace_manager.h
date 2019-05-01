@@ -697,7 +697,9 @@ class TraceManager
         return thread_data_.get();
     }
 
-    bool CreateCaptureFile();
+    std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
+    bool        CreateCaptureFile(const std::string& base_filename);
+
     void WriteFileHeader();
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
                          std::vector<format::FileOptionPair>* option_list);
