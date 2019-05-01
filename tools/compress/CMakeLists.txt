@@ -6,3 +6,5 @@ target_sources(gfxrecon-compress
               )
 
 target_link_libraries(gfxrecon-compress gfxrecon_decode gfxrecon_format gfxrecon_util platform_specific)
+
+cpp_code_style_build_directives(gfxrecon-compress)

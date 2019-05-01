@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
 # Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved
-
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-
+# You may obtain a copy of the License at:
 # http://www.apache.org/licenses/LICENSE-2.0
-
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -82,6 +81,10 @@ def parse_args():
         '--skip-update-deps', dest='skip_update_deps',
         action='store_true', default=False,
         help='Skip updating external dependencies')
+    arg_parser.add_argument(
+        '--code-style', dest='code_style',
+        action='store_true', default=False,
+        help='Apply C++ code style before compiling')
     return arg_parser.parse_args()
 
 
@@ -120,6 +123,21 @@ def cmake_version():
     return cmake_version
 
 
+def cmake_generate_options(args):
+    '''
+    CMake build file generation options
+    '''
+    generate_options = []
+    if args.clean or args.clobber:
+        generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
+    else:
+        if args.code_style:
+            generate_options.append('-DAPPLY_CPP_CODE_STYLE=ON')
+        else:
+            generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
+    return generate_options
+
+
 def cmake_generate_build_files(args):
     '''
     Use CMake to generate build files
@@ -152,6 +170,7 @@ def cmake_generate_build_files(args):
                     system,
                     args.architecture,
                     output[1]))
+    cmake_generate_args.extend(cmake_generate_options(args))
     work_dir = BUILD_ROOT
     if(cmake_version() < CMAKE_VERSION_3_13):
         work_dir = build_dir(args)
