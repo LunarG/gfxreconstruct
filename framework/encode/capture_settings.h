@@ -97,6 +97,8 @@ class CaptureSettings
 
     static util::Log::Severity ParseLogLevelString(const std::string& value_string, util::Log::Severity default_value);
 
+    static void ParseTrimRangeString(const std::string& value_string, std::vector<CaptureSettings::TrimRange>* ranges);
+
   private:
     TraceSettings       trace_settings_;
     util::Log::Settings log_settings_;
