@@ -14,6 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+'''
+GFX reconstruct build script
+'''
+
 import argparse
 import distutils.version
 import os
@@ -68,6 +72,12 @@ def parse_args():
         choices=CONFIGURATIONS, default=CONFIGURATIONS[0],
         help='Build target configuration. Can be one of: {0}'.format(
             ', '.join(CONFIGURATIONS)))
+    arg_parser.add_argument(
+        '--clean', dest='clean', action='store_true', default=False,
+        help='Clean the build targets')
+    arg_parser.add_argument(
+        '--clobber', dest='clobber', action='store_true', default=False,
+        help='Clean the build targets, and remove build and intermediate files')
     arg_parser.add_argument(
         '--skip-update-deps', dest='skip_update_deps',
         action='store_true', default=False,
@@ -160,21 +170,30 @@ def cmake_build(args):
     Build using CMake
     '''
     cmake_build_args = ['cmake', '--build', '.']
-
     if is_windows():
-        cmake_build_args.extend(['--config', args.configuration.capitalize()])
+        cmake_build_args.extend(
+            ['--config', args.configuration.capitalize()])
+    if args.clean or args.clobber:
+        cmake_build_args.extend(['--target', 'clean'])
     cmake_build_result = subprocess.run(
         cmake_build_args, cwd=build_dir(args))
     if 0 != cmake_build_result.returncode:
         raise BuildError('cmake build failed')
 
 
+# Main entry point
 if '__main__' == __name__:
     try:
         args = parse_args()
-        update_external_dependencies(args)
-        cmake_generate_build_files(args)
-        cmake_build(args)
+        clean = args.clean or args.clobber
+        if not clean:
+            update_external_dependencies(args)
+        build_dir_exists = os.path.exists(build_dir(args))
+        if (clean and build_dir_exists) or (not clean):
+            cmake_generate_build_files(args)
+            cmake_build(args)
+        if args.clobber and build_dir_exists:
+            shutil.rmtree(build_dir(args))
     except Exception as error:
         print('Error', *(error.args))
         sys.exit(1)
