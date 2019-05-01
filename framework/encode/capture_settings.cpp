@@ -169,9 +169,10 @@ void CaptureSettings::LoadSingleOptionEnvVar(OptionsMap*        options,
     std::string value = util::platform::GetEnv(environment_variable.c_str());
     if (!value.empty())
     {
+        std::string entry = util::settings::RemoveQuotes(value);
         GFXRECON_LOG_INFO(
-            "Settings Loader: Found option \"%s\" with value \"%s\"", environment_variable.c_str(), value.c_str());
-        (*options)[option_key] = value;
+            "Settings Loader: Found option \"%s\" with value \"%s\"", environment_variable.c_str(), entry.c_str());
+        (*options)[option_key] = entry;
     }
 }
 

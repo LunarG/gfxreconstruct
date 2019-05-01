@@ -27,6 +27,8 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 GFXRECON_BEGIN_NAMESPACE(settings)
 
+std::string RemoveQuotes(const std::string& source);
+
 std::string FindLayerSettingsFile();
 
 // Returns 0 on success, value of errno on failure.
