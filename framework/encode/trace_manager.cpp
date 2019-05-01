@@ -205,8 +205,14 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     memory_tracking_mode_ = trace_settings.memory_tracking_mode;
     force_file_flush_     = trace_settings.force_flush;
 
-    if (!trace_settings.trim_ranges.empty())
+    if (trace_settings.trim_ranges.empty())
     {
+        // Use default kModeWrite capture mode.
+        success = CreateCaptureFile(base_filename_);
+    }
+    else
+    {
+        // Override default kModeWrite capture mode.
         trim_enabled_ = true;
         trim_ranges_  = trace_settings.trim_ranges;
 
@@ -215,24 +221,17 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
         {
             // When capturing from the first frame, state tracking only needs to be enabled if there is more than one
             // capture range.
-            if (trim_ranges_.size() == 1)
-            {
-                capture_mode_ = kModeWrite;
-            }
-            else
+            if (trim_ranges_.size() > 1)
             {
                 capture_mode_ = kModeWriteAndTrack;
             }
+
+            success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_ranges_[0]));
         }
         else
         {
             capture_mode_ = kModeTrack;
         }
-    }
-
-    if ((capture_mode_ & kModeWrite) == kModeWrite)
-    {
-        success = CreateCaptureFile();
     }
 
     if (success)
@@ -370,7 +369,7 @@ void TraceManager::EndFrame()
             // Capture is not active. Check for start of capture frame range.
             if (trim_ranges_[trim_current_range_].first == current_frame_)
             {
-                bool success = CreateCaptureFile();
+                bool success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_ranges_[trim_current_range_]));
                 if (success)
                 {
                     capture_mode_ |= kModeWrite;
@@ -417,21 +416,44 @@ void TraceManager::EndFrame()
     }
 }
 
-bool TraceManager::CreateCaptureFile()
+std::string TraceManager::CreateTrimFilename(const std::string&                base_filename,
+                                             const CaptureSettings::TrimRange& trim_range)
 {
-    bool        success  = true;
-    std::string filename = base_filename_;
+    assert(trim_range.total > 0);
+
+    std::string range_string = "_";
+
+    if (trim_range.total == 1)
+    {
+        range_string += "frame_";
+        range_string += std::to_string(trim_range.first);
+    }
+    else
+    {
+        range_string += "frames_";
+        range_string += std::to_string(trim_range.first);
+        range_string += "_through_";
+        range_string += std::to_string((trim_range.first + trim_range.total) - 1);
+    }
+
+    return util::filepath::InsertFilenamePostfix(base_filename, range_string);
+}
+
+bool TraceManager::CreateCaptureFile(const std::string& base_filename)
+{
+    bool        success          = true;
+    std::string capture_filename = base_filename;
 
     if (timestamp_filename_)
     {
-        filename = util::filepath::GenerateTimestampedFilename(filename);
+        capture_filename = util::filepath::GenerateTimestampedFilename(capture_filename);
     }
 
-    file_stream_ = std::make_unique<util::FileOutputStream>(filename);
+    file_stream_ = std::make_unique<util::FileOutputStream>(capture_filename);
 
     if (file_stream_->IsValid())
     {
-        GFXRECON_LOG_INFO("Recording graphics API capture to %s", filename.c_str());
+        GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
         WriteFileHeader();
     }
     else
