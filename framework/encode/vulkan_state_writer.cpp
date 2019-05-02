@@ -1201,7 +1201,6 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
                         }
 
                         // TODO: Resolve multi-sample images.
-                        assert(image_wrapper->samples == VK_SAMPLE_COUNT_1_BIT);
 
                         // Transition image layout to transfer source optimal.
                         if (image_wrapper->current_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
