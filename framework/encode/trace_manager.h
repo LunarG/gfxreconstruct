@@ -319,12 +319,14 @@ class TraceManager
                                                                uint32_t*         pPresentModeCount,
                                                                VkPresentModeKHR* pPresentModes)
     {
-        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (pPresentModeCount != nullptr) &&
-            (pPresentModes != nullptr))
+        if ((pPresentModeCount != nullptr) && (pPresentModes != nullptr))
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackPhysicalDeviceSurfacePresentModes(
-                physicalDevice, surface, *pPresentModeCount, pPresentModes);
+            if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+            {
+                assert(state_tracker_ != nullptr);
+                state_tracker_->TrackPhysicalDeviceSurfacePresentModes(
+                    physicalDevice, surface, *pPresentModeCount, pPresentModes);
+            }
 
 #if defined(__ANDROID__)
             OverrideGetPhysicalDeviceSurfacePresentModesKHR(pPresentModeCount, pPresentModes);
