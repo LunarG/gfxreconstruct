@@ -1755,7 +1755,7 @@ void VulkanStateWriter::WriteStagingBufferCreateCommands(VkDevice               
     create_info.pNext                 = nullptr;
     create_info.flags                 = 0;
     create_info.size                  = buffer_size;
-    create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     create_info.queueFamilyIndexCount = 0;
     create_info.pQueueFamilyIndices   = nullptr;
@@ -2697,7 +2697,7 @@ VkResult VulkanStateWriter::CreateStagingBuffer(VkDevice                device,
     create_info.pNext                 = nullptr;
     create_info.flags                 = 0;
     create_info.size                  = size;
-    create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     create_info.queueFamilyIndexCount = 0;
     create_info.pQueueFamilyIndices   = nullptr;
