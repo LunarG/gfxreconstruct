@@ -55,14 +55,16 @@ class VulkanStateWriter
     {
         const BufferWrapper*       buffer_wrapper{ nullptr };
         const DeviceMemoryWrapper* memory_wrapper{ nullptr };
-        bool                       is_host_visible{ 0 };
+        bool                       is_host_visible{ false };
+        bool                       is_host_coherent{ false };
     };
 
     struct ImageSnapshotEntry
     {
         const ImageWrapper*        image_wrapper{ nullptr };
         const DeviceMemoryWrapper* memory_wrapper{ nullptr };
-        bool                       is_host_visible{ 0 };
+        bool                       is_host_visible{ false };
+        bool                       is_host_coherent{ false };
         VkImageAspectFlagBits      aspect{};
         VkDeviceSize               resource_size{ 0 }; // Combined size of all sub-resources.
         std::vector<VkDeviceSize>  level_sizes;        // Combined size of all layers in a mip level.
@@ -331,6 +333,7 @@ class VulkanStateWriter
     void InsertImageSnapshotEntries(const ImageWrapper*        image_wrapper,
                                     const DeviceMemoryWrapper* memory_wrapper,
                                     bool                       is_host_visible,
+                                    bool                       is_host_coherent,
                                     bool                       use_staging_copy,
                                     VkImageAspectFlags         aspect_mask,
                                     ImageSnapshotList*         insert_list,
