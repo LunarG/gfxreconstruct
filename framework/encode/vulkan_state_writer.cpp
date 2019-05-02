@@ -359,6 +359,8 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
             if ((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
             {
                 entry.is_host_visible = true;
+                entry.is_host_coherent =
+                    (properties & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
             }
             else
             {
@@ -444,6 +446,7 @@ void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
                 state_table.GetDeviceMemoryWrapper(format::ToHandleId(wrapper->bind_memory));
 
             bool               is_host_visible  = true;
+            bool               is_host_coherent = false;
             bool               use_staging_copy = false;
             ImageSnapshotList* insert_list      = &copy_wrappers.map_copy_wrappers;
 
@@ -453,6 +456,11 @@ void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
             {
                 is_host_visible = false;
                 ++snapshot_data.num_device_local_images;
+            }
+            else
+            {
+                is_host_coherent =
+                    (properties & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
             }
 
             // If host visible memory is already mapped, and the entire allocation is not mapped, a staging copy will be
@@ -472,6 +480,7 @@ void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
                 InsertImageSnapshotEntries(wrapper,
                                            memory_wrapper,
                                            is_host_visible,
+                                           is_host_coherent,
                                            use_staging_copy,
                                            GetFormatAspectMask(wrapper->format),
                                            insert_list,
@@ -1087,6 +1096,16 @@ void VulkanStateWriter::ProcessBufferMemory(VkDevice                  device,
         assert((memory_wrapper != nullptr) &&
                ((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0)));
 
+        if (!buffer_entry.is_host_coherent)
+        {
+            VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
+            invalidate_range.pNext               = nullptr;
+            invalidate_range.memory              = memory_wrapper->handle;
+            invalidate_range.offset              = buffer_wrapper->bind_offset;
+            invalidate_range.size                = buffer_wrapper->created_size;
+            dispatch_table.InvalidateMappedMemoryRanges(device, 1, &invalidate_range);
+        }
+
         WriteMappedMemoryCopyCommands(device,
                                       memory_wrapper->handle,
                                       memory_wrapper->mapped_data,
@@ -1346,6 +1365,16 @@ void VulkanStateWriter::ProcessImageMemory(VkDevice                 device,
 
                     assert((memory_wrapper != nullptr) &&
                            ((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0)));
+
+                    if (!image_entry.is_host_coherent)
+                    {
+                        VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
+                        invalidate_range.pNext               = nullptr;
+                        invalidate_range.memory              = memory_wrapper->handle;
+                        invalidate_range.offset              = image_wrapper->bind_offset;
+                        invalidate_range.size                = image_entry.resource_size;
+                        dispatch_table.InvalidateMappedMemoryRanges(device, 1, &invalidate_range);
+                    }
 
                     WriteMappedMemoryCopyCommands(device,
                                                   memory_wrapper->handle,
@@ -2972,6 +3001,7 @@ void VulkanStateWriter::UpdateImageSnapshotSizes(VkDeviceSize       size,
 void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        image_wrapper,
                                                    const DeviceMemoryWrapper* memory_wrapper,
                                                    bool                       is_host_visible,
+                                                   bool                       is_host_coherent,
                                                    bool                       use_staging_copy,
                                                    VkImageAspectFlags         aspect_mask,
                                                    ImageSnapshotList*         insert_list,
@@ -2986,6 +3016,7 @@ void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        im
     entry.image_wrapper   = image_wrapper;
     entry.memory_wrapper  = memory_wrapper;
     entry.is_host_visible = is_host_visible;
+    entry.is_host_coherent = is_host_coherent;
 
     if (aspect_mask == VK_IMAGE_ASPECT_COLOR_BIT)
     {
