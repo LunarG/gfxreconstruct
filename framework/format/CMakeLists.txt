@@ -15,4 +15,4 @@ target_include_directories(gfxrecon_format
 
 target_link_libraries(gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
-cpp_code_style_build_directives(gfxrecon_format)
+target_build_directives(gfxrecon_format)

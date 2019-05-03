@@ -24,7 +24,7 @@ option(APPLY_CPP_CODE_STYLE "Apply C++ code style using clang format" ON)
 find_program(CLANG_FORMAT clang-format DOC "Clang format executable")
 
 # Apply code style build directives
-macro(cpp_code_style_build_directives TARGET)
+macro(target_code_style_build_directives TARGET)
     if(${APPLY_CPP_CODE_STYLE})
         if(CLANG_FORMAT-NOTFOUND STREQUAL ${CLANG_FORMAT})
             message(FATAL_ERROR "Failed to find clang-format in system path")

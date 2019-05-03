@@ -33,4 +33,4 @@ target_link_libraries(gfxrecon_application
                       $<$<BOOL:${WAYLAND_FOUND}>:${WAYLAND_LIBRARY}>
                      )
 
-cpp_code_style_build_directives(gfxrecon_application)
+target_build_directives(gfxrecon_application)
