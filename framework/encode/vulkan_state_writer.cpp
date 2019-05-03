@@ -589,12 +589,17 @@ void VulkanStateWriter::WritePipelineLayoutState(const VulkanStateTable& state_t
 
 void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
 {
-    // Multiple pipelines can be created by a single API call, so using a set to filter duplicate pipeline creation.
+    // Multiple pipelines can be created by a single API call, so using a set to filter duplicate pipeline creation and
+    // a vector to store pipeline creation parameters in original order (needed to ensure derivative parent is created
+    // before a derivative child).
     // TODO: Some of the pipelines created may have been destroyed, in which case, the current design can create more
     // pipelines than it should, resulting in object leaks or the overwriting of recycled handles.
-    std::set<CreateParameters> graphics_pipelines;
-    std::set<CreateParameters> compute_pipelines;
-    std::set<CreateParameters> ray_tracing_pipelines;
+    std::set<util::MemoryOutputStream*>    processed_graphics_pipelines;
+    std::set<util::MemoryOutputStream*>    processed_compute_pipelines;
+    std::set<util::MemoryOutputStream*>    processed_ray_tracing_pipelines;
+    std::vector<util::MemoryOutputStream*> graphics_pipelines;
+    std::vector<util::MemoryOutputStream*> compute_pipelines;
+    std::vector<util::MemoryOutputStream*> ray_tracing_pipelines;
 
     std::unordered_map<format::HandleId, const ShaderModuleInfo*>        temp_shaders;
     std::unordered_map<format::HandleId, const PipelineWrapper*>         temp_render_passes;
@@ -609,7 +614,12 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         // Determine type of pipeline.
         if (wrapper->create_call_id == format::ApiCall_vkCreateGraphicsPipelines)
         {
-            graphics_pipelines.insert(wrapper->create_parameters);
+            if (processed_graphics_pipelines.find(wrapper->create_parameters.get()) ==
+                processed_graphics_pipelines.end())
+            {
+                graphics_pipelines.push_back(wrapper->create_parameters.get());
+                processed_graphics_pipelines.insert(wrapper->create_parameters.get());
+            }
 
             // Check for graphics-specific creation dependencies that no longer exist.
             const RenderPassWrapper* render_pass_wrapper =
@@ -629,11 +639,20 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         }
         else if (wrapper->create_call_id == format::ApiCall_vkCreateComputePipelines)
         {
-            compute_pipelines.insert(wrapper->create_parameters);
+            if (processed_compute_pipelines.find(wrapper->create_parameters.get()) == processed_compute_pipelines.end())
+            {
+                compute_pipelines.push_back(wrapper->create_parameters.get());
+                processed_compute_pipelines.insert(wrapper->create_parameters.get());
+            }
         }
         else if (wrapper->create_call_id == format::ApiCall_vkCreateRayTracingPipelinesNV)
         {
-            ray_tracing_pipelines.insert(wrapper->create_parameters);
+            if (processed_ray_tracing_pipelines.find(wrapper->create_parameters.get()) ==
+                processed_ray_tracing_pipelines.end())
+            {
+                ray_tracing_pipelines.push_back(wrapper->create_parameters.get());
+                processed_ray_tracing_pipelines.insert(wrapper->create_parameters.get());
+            }
         }
 
         // Check for creation dependencies that no longer exist.
@@ -690,17 +709,17 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
     // Pipeline object creation.
     for (const auto& entry : graphics_pipelines)
     {
-        WriteFunctionCall(format::ApiCall_vkCreateGraphicsPipelines, entry.get());
+        WriteFunctionCall(format::ApiCall_vkCreateGraphicsPipelines, entry);
     }
 
     for (const auto& entry : compute_pipelines)
     {
-        WriteFunctionCall(format::ApiCall_vkCreateComputePipelines, entry.get());
+        WriteFunctionCall(format::ApiCall_vkCreateComputePipelines, entry);
     }
 
     for (const auto& entry : ray_tracing_pipelines)
     {
-        WriteFunctionCall(format::ApiCall_vkCreateRayTracingPipelinesNV, entry.get());
+        WriteFunctionCall(format::ApiCall_vkCreateRayTracingPipelinesNV, entry);
     }
 
     // Temporary object destruction.
