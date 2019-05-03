@@ -5,7 +5,14 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include("CodeStyle")
+include("StaticAnalysis")
 include("FindVulkanVersion")
+
+# Apply misc build directives to the given target
+macro(target_build_directives TARGET)
+    target_code_style_build_directives(${TARGET})
+    target_static_analysis_build_directives(${TARGET})
+endmacro(target_build_directives)
 
 if(MSVC)
     # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
