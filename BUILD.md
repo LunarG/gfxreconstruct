@@ -71,6 +71,22 @@ Submodules will need to be updated when the repository status (e.g.
 `git status`) shows the submodule folders as having been modified
 after a repository update (e.g. `git pull`).
 
+## Common build instructions
+- There is a Python-3 build.py script at the repo root that can be used to update
+  all dependencies, and build the project on both Windows and Linux.
+  Run the script with the -h option to get help on how to run the build using
+  the script.
+- There is an optional pre-build step for every target to run clang-format
+  to apply the GfxRecon code style on the code.  
+  This requires clang-format to be installed on the system.
+  Use the `-DAPPLY_CPP_CODE_STYLE=ON` option to enable this pre-build step.
+  Use the --code-style option if building with the build script.
+  Code style is not applied to generated files.
+- It is recommended to run static analysis on the code before submission.
+  Use the -DRUN_STATIC_ANALYSIS=ON to run a post-build static analysis using
+  clang-tidy.
+  Use the --static-analysis option if building with the build script.
+
 ## Building for Windows
 ### Windows Development Environment Requirements
 - Microsoft [Visual Studio](https://www.visualstudio.com/)
