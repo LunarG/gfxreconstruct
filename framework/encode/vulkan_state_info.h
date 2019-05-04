@@ -25,7 +25,6 @@
 
 #include <limits>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -98,6 +97,26 @@ struct ImageAcquiredInfo
     VkSemaphore acquired_semaphore{ VK_NULL_HANDLE };
     VkFence     acquired_fence{ VK_NULL_HANDLE };
     VkQueue     last_presented_queue{ VK_NULL_HANDLE };
+};
+
+// Types for Vulkan object handles that are recorded to command buffers.
+enum CommandHandleType : uint32_t
+{
+    BufferHandle = 0,
+    CommandBufferHandle,
+    DescriptorSetHandle,
+    EventHandle,
+    FramebufferHandle,
+    ImageHandle,
+    ImageViewHandle,
+    PipelineHandle,
+    PipelineLayoutHandle,
+    QueryPoolHandle,
+    RenderPassHandle,
+    AccelerationStructureNVHandle,
+    IndirectCommandsLayoutNVXHandle,
+    ObjectTableNVXHandle,
+    NumHandleTypes
 };
 
 GFXRECON_END_NAMESPACE(encode)

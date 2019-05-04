@@ -40,6 +40,8 @@ from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMapper
 # API Call Encoders
 from vulkan_api_call_encoders_body_generator import VulkanApiCallEncodersBodyGenerator,VulkanApiCallEncodersBodyGeneratorOptions
 from vulkan_api_call_encoders_header_generator import VulkanApiCallEncodersHeaderGenerator,VulkanApiCallEncodersHeaderGeneratorOptions
+from vulkan_command_buffer_util_body_generator import VulkanCommandBufferUtilBodyGenerator,VulkanCommandBufferUtilBodyGeneratorOptions
+from vulkan_command_buffer_util_header_generator import VulkanCommandBufferUtilHeaderGenerator,VulkanCommandBufferUtilHeaderGeneratorOptions
 from vulkan_dispatch_table_generator import VulkanDispatchTableGenerator, VulkanDispatchTableGeneratorOptions
 from layer_func_table_generator import LayerFuncTableGenerator,LayerFuncTableGeneratorOptions
 
@@ -301,6 +303,30 @@ def makeGenOpts(args):
           VulkanApiCallEncodersBodyGenerator,
           VulkanApiCallEncodersBodyGeneratorOptions(
             filename          = 'generated_vulkan_api_call_encoders.cpp',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_command_buffer_util.h'] = [
+          VulkanCommandBufferUtilHeaderGenerator,
+          VulkanCommandBufferUtilHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_command_buffer_util.h',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_command_buffer_util.cpp'] = [
+          VulkanCommandBufferUtilBodyGenerator,
+          VulkanCommandBufferUtilBodyGeneratorOptions(
+            filename          = 'generated_vulkan_command_buffer_util.cpp',
             directory         = directory,
             blacklists        = blacklists,
             platformTypes     = platformTypes,

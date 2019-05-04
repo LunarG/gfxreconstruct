@@ -22,6 +22,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="vulkan_ascii_consumer_body_generator.py" />
+    <Compile Include="vulkan_command_buffer_util_body_generator.py" />
+    <Compile Include="vulkan_command_buffer_util_header_generator.py" />
     <Compile Include="vulkan_consumer_header_generator.py" />
     <Compile Include="vulkan_decoder_body_generator.py" />
     <Compile Include="vulkan_decoder_header_generator.py" />

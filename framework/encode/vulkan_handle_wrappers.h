@@ -26,6 +26,7 @@
 
 #include <limits>
 #include <memory>
+#include <set>
 #include <unordered_map>
 #include <vector>
 
@@ -190,8 +191,9 @@ struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
 struct CommandPoolWrapper;
 struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 {
-    VkCommandBufferLevel     level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
-    util::MemoryOutputStream command_data;
+    VkCommandBufferLevel       level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
+    util::MemoryOutputStream   command_data;
+    std::set<format::HandleId> command_handles[CommandHandleType::NumHandleTypes];
 
     // Pool from which command buffer was allocated. The command buffer must be removed from the pool's allocation list
     // when destroyed.
