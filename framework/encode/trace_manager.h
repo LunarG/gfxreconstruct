@@ -26,6 +26,7 @@
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "generated/generated_vulkan_command_buffer_util.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_output_stream.h"
@@ -212,6 +213,26 @@ class TraceManager
             assert(thread_data != nullptr);
 
             state_tracker_->TrackCommand(command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get());
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    template <typename GetHandlesFunc, typename... GetHandlesArgs>
+    void EndCommandApiCallTrace(VkCommandBuffer   command_buffer,
+                                ParameterEncoder* encoder,
+                                GetHandlesFunc    func,
+                                GetHandlesArgs... args)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->TrackCommand(
+                command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get(), func, args...);
         }
 
         EndApiCallTrace(encoder);
