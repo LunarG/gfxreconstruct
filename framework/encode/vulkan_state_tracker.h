@@ -24,6 +24,7 @@
 #include "encode/vulkan_state_writer.h"
 #include "format/format.h"
 #include "format/format_util.h"
+#include "generated/generated_vulkan_command_buffer_util.h"
 #include "util/file_output_stream.h"
 #include "util/defines.h"
 #include "util/logging.h"
@@ -211,7 +212,39 @@ class VulkanStateTracker
 
     void TrackCommand(VkCommandBuffer                 command_buffer,
                       format::ApiCallId               call_id,
-                      const util::MemoryOutputStream* parameter_buffer);
+                      const util::MemoryOutputStream* parameter_buffer)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        CommandBufferWrapper*        wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
+        if (wrapper != nullptr)
+        {
+            TrackCommandExecution(wrapper, call_id, parameter_buffer);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Attempting to update command state for unrecognized command buffer handle");
+        }
+    }
+
+    template <typename GetHandlesFunc, typename... GetHandlesArgs>
+    void TrackCommand(VkCommandBuffer                 command_buffer,
+                      format::ApiCallId               call_id,
+                      const util::MemoryOutputStream* parameter_buffer,
+                      GetHandlesFunc                  func,
+                      GetHandlesArgs... args)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        CommandBufferWrapper*        wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
+        if (wrapper != nullptr)
+        {
+            TrackCommandExecution(wrapper, call_id, parameter_buffer);
+            func(wrapper, args...);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Attempting to update command state for unrecognized command buffer handle");
+        }
+    }
 
     void TrackResetCommandPool(VkCommandPool command_pool);
 
@@ -303,6 +336,10 @@ class VulkanStateTracker
                               VkQueue               queue);
 
   private:
+    void TrackCommandExecution(CommandBufferWrapper*           wrapper,
+                               format::ApiCallId               call_id,
+                               const util::MemoryOutputStream* parameter_buffer);
+
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)
     {
