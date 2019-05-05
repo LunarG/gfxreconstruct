@@ -16,6 +16,8 @@
 
 #include "encode/vulkan_state_tracker.h"
 
+#include "encode/vulkan_state_info.h"
+
 #include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -25,35 +27,32 @@ VulkanStateTracker::VulkanStateTracker() : object_count_(0) {}
 
 VulkanStateTracker::~VulkanStateTracker() {}
 
-void VulkanStateTracker::TrackCommand(VkCommandBuffer                 command_buffer,
-                                      format::ApiCallId               call_id,
-                                      const util::MemoryOutputStream* parameter_buffer)
+void VulkanStateTracker::TrackCommandExecution(CommandBufferWrapper*           wrapper,
+                                               format::ApiCallId               call_id,
+                                               const util::MemoryOutputStream* parameter_buffer)
 {
-    std::unique_lock<std::mutex> lock(mutex_);
+    assert(wrapper != nullptr);
 
-    CommandBufferWrapper* wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
-    if (wrapper != nullptr)
+    if ((call_id == format::ApiCallId::ApiCall_vkBeginCommandBuffer) ||
+        (call_id == format::ApiCallId::ApiCall_vkResetCommandBuffer))
     {
-        if ((call_id == format::ApiCallId::ApiCall_vkBeginCommandBuffer) ||
-            (call_id == format::ApiCallId::ApiCall_vkResetCommandBuffer))
-        {
-            // Clear command data on command buffer reset.
-            wrapper->command_data.Reset();
-            wrapper->pending_layouts.clear();
-        }
+        // Clear command data on command buffer reset.
+        wrapper->command_data.Reset();
+        wrapper->pending_layouts.clear();
 
-        if (call_id != format::ApiCallId::ApiCall_vkResetCommandBuffer)
+        for (size_t i = 0; i < CommandHandleType::NumHandleTypes; ++i)
         {
-            // Append the command data.
-            size_t size = parameter_buffer->GetDataSize();
-            wrapper->command_data.Write(&size, sizeof(size));
-            wrapper->command_data.Write(&call_id, sizeof(call_id));
-            wrapper->command_data.Write(parameter_buffer->GetData(), size);
+            wrapper->command_handles[i].clear();
         }
     }
-    else
+
+    if (call_id != format::ApiCallId::ApiCall_vkResetCommandBuffer)
     {
-        GFXRECON_LOG_WARNING("Attempting to update command state for unrecognized command buffer handle");
+        // Append the command data.
+        size_t size = parameter_buffer->GetDataSize();
+        wrapper->command_data.Write(&size, sizeof(size));
+        wrapper->command_data.Write(&call_id, sizeof(call_id));
+        wrapper->command_data.Write(parameter_buffer->GetData(), size);
     }
 }
 
@@ -68,6 +67,11 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
         {
             entry.second->command_data.Reset();
             entry.second->pending_layouts.clear();
+
+            for (size_t i = 0; i < CommandHandleType::NumHandleTypes; ++i)
+            {
+                entry.second->command_handles[i].clear();
+            }
         }
     }
     else

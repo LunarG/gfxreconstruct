@@ -41,8 +41,13 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=True,
+                               processCmds=True, processStructs=True, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+        # Map of Vulkan structs containing handles to a list values for handle members or struct members
+        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
+        # member that contains handles).
+        self.structsWithHandles = dict()
 
     # Method override
     def beginFile(self, genOpts):
@@ -56,6 +61,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         write('#include "encode/trace_manager.h"', file=self.outFile)
         write('#include "encode/vulkan_handle_wrappers.h"', file=self.outFile)
         write('#include "format/api_call_id.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_command_buffer_util.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
@@ -71,6 +77,14 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
+
+    #
+    # Method override
+    def genStruct(self, typeinfo, typename, alias):
+        BaseGenerator.genStruct(self, typeinfo, typename, alias)
+
+        if (typename not in self.STRUCT_BLACKLIST) and not alias:
+            self.checkStructMemberHandles(typename, self.structsWithHandles)
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -271,7 +285,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, encoder)'.format(handle.baseType[2:], handle.name)
 
         elif values[0].baseType == 'VkCommandBuffer':
-            decl += 'EndCommandApiCallTrace({}, encoder)'.format(values[0].name)
+            getHandlesExpr = self.makeGetCommandHandlesExpr(name, values[1:])
+            if getHandlesExpr:
+                decl += 'EndCommandApiCallTrace({}, encoder, {})'.format(values[0].name, getHandlesExpr)
+            else:
+                decl += 'EndCommandApiCallTrace({}, encoder)'.format(values[0].name)
         else:
             if name in ['vkGetPhysicalDeviceDisplayPropertiesKHR']:
                 # TODO: Handle vkEnumeratePhysicalDevices and vkGetPhysicalDeviceDisplayProprtiesKHR
@@ -281,6 +299,31 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         decl += ';\n'
         return decl
+
+    #
+    # Create list of parameters that have handle types or are structs that contain handles.
+    def getParamListHandles(self, values):
+        handles = []
+        for value in values:
+            if self.isHandle(value.baseType):
+                handles.append(value)
+            elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
+                handles.append(value)
+        return handles
+
+    #
+    # Generate an expression for a get command buffer handles utility function.
+    def makeGetCommandHandlesExpr(self, cmd, values):
+        handleParams = self.getParamListHandles(values)
+        if handleParams:
+            args = []
+            for value in handleParams:
+                if value.arrayLength:
+                    args.append(value.arrayLength)
+                args.append(value.name)
+            return 'Track{}Handles, {}'.format(cmd[2:], ', '.join(args))
+        else:
+            return None
 
     # Determine if an API call indirectly creates handles by retrieving them (e.g. vkEnumeratePhysicalDevices, vkGetRandROutputDisplayEXT)
     def retrievesHandles(self, values):
