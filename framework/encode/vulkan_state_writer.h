@@ -244,7 +244,7 @@ class VulkanStateWriter
                                uint32_t               wait_semaphore_count,
                                const VkSemaphore*     wait_semaphores);
 
-    void WriteCommandBufferCommands(const CommandBufferWrapper* wrapper);
+    void WriteCommandBufferCommands(const CommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
 
     void WriteDescriptorUpdateCommand(VkDevice device, const DescriptorInfo* binding, VkWriteDescriptorSet* write);
 
@@ -339,6 +339,11 @@ class VulkanStateWriter
                                     ImageSnapshotList*         insert_list,
                                     ImageSnapshotData*         snapshot_data,
                                     const DeviceTable&         dispatch_table);
+
+    bool CheckCommandHandles(const CommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
+
+    bool
+    CheckCommandHandle(CommandHandleType handle_type, format::HandleId handle, const VulkanStateTable& state_table);
 
   private:
     util::FileOutputStream*  output_stream_;

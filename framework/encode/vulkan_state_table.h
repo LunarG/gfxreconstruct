@@ -200,6 +200,12 @@ class VulkanStateTable
     DescriptorSetLayoutWrapper*       GetDescriptorSetLayoutWrapper(format::HandleId id)       { return GetWrapper<DescriptorSetLayoutWrapper>(id, descriptor_set_layout_map_); }
     const DescriptorSetLayoutWrapper* GetDescriptorSetLayoutWrapper(format::HandleId id) const { return GetWrapper<DescriptorSetLayoutWrapper>(id, descriptor_set_layout_map_); }
 
+    QueryPoolWrapper*       GetQueryPoolWrapper(format::HandleId id)       { return GetWrapper<QueryPoolWrapper>(id, query_pool_map_); }
+    const QueryPoolWrapper* GetQueryPoolWrapper(format::HandleId id) const { return GetWrapper<QueryPoolWrapper>(id, query_pool_map_); }
+
+    PipelineWrapper*       GetPipelineWrapper(format::HandleId id)       { return GetWrapper<PipelineWrapper>(id, pipeline_map_); }
+    const PipelineWrapper* GetPipelineWrapper(format::HandleId id) const { return GetWrapper<PipelineWrapper>(id, pipeline_map_); }
+
     PipelineLayoutWrapper*       GetPipelineLayoutWrapper(format::HandleId id)       { return GetWrapper<PipelineLayoutWrapper>(id, pipeline_layout_map_); }
     const PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) const { return GetWrapper<PipelineLayoutWrapper>(id, pipeline_layout_map_); }
 
@@ -209,6 +215,9 @@ class VulkanStateTable
     ShaderModuleWrapper*       GetShaderModuleWrapper(format::HandleId id)       { return GetWrapper<ShaderModuleWrapper>(id, shader_module_map_); }
     const ShaderModuleWrapper* GetShaderModuleWrapper(format::HandleId id) const { return GetWrapper<ShaderModuleWrapper>(id, shader_module_map_); }
 
+    EventWrapper*       GetEventWrapper(format::HandleId id)       { return GetWrapper<EventWrapper>(id, event_map_); }
+    const EventWrapper* GetEventWrapper(format::HandleId id) const { return GetWrapper<EventWrapper>(id, event_map_); }
+
     SemaphoreWrapper*       GetSemaphoreWrapper(format::HandleId id)       { return GetWrapper<SemaphoreWrapper>(id, semaphore_map_); }
     const SemaphoreWrapper* GetSemaphoreWrapper(format::HandleId id) const { return GetWrapper<SemaphoreWrapper>(id, semaphore_map_); }
 
@@ -217,6 +226,15 @@ class VulkanStateTable
 
     SwapchainKHRWrapper*       GetSwapchainKHRWrapper(format::HandleId id)       { return GetWrapper<SwapchainKHRWrapper>(id, swapchain_khr_map_); }
     const SwapchainKHRWrapper* GetSwapchainKHRWrapper(format::HandleId id) const { return GetWrapper<SwapchainKHRWrapper>(id, swapchain_khr_map_); }
+
+    AccelerationStructureNVWrapper*       GetAccelerationStructureNVWrapper(format::HandleId id)       { return GetWrapper<AccelerationStructureNVWrapper>(id, acceleration_structure_nv_map_); }
+    const AccelerationStructureNVWrapper* GetAccelerationStructureNVWrapper(format::HandleId id) const { return GetWrapper<AccelerationStructureNVWrapper>(id, acceleration_structure_nv_map_); }
+
+    IndirectCommandsLayoutNVXWrapper*       GetIndirectCommandsLayoutNVXWrapper(format::HandleId id)       { return GetWrapper<IndirectCommandsLayoutNVXWrapper>(id, indirect_commands_layout_nvx_map_); }
+    const IndirectCommandsLayoutNVXWrapper* GetIndirectCommandsLayoutNVXWrapper(format::HandleId id) const { return GetWrapper<IndirectCommandsLayoutNVXWrapper>(id, indirect_commands_layout_nvx_map_); }
+
+    ObjectTableNVXWrapper*       GetObjectTableNVXWrapper(format::HandleId id)       { return GetWrapper<ObjectTableNVXWrapper>(id, object_table_nvx_map_); }
+    const ObjectTableNVXWrapper* GetObjectTableNVXWrapper(format::HandleId id) const { return GetWrapper<ObjectTableNVXWrapper>(id, object_table_nvx_map_); }
     // clang-format off
 
   private:
