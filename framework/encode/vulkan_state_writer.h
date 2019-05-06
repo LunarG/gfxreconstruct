@@ -345,6 +345,8 @@ class VulkanStateWriter
     bool
     CheckCommandHandle(CommandHandleType handle_type, format::HandleId handle, const VulkanStateTable& state_table);
 
+    bool CheckDescriptorStatus(const DescriptorInfo* descriptor, uint32_t index, const VulkanStateTable& state_table);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;
