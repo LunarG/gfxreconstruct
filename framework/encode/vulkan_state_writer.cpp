@@ -17,6 +17,7 @@
 #include "encode/vulkan_state_writer.h"
 
 #include "encode/struct_pointer_encoder.h"
+#include "encode/vulkan_state_info.h"
 #include "format/format_util.h"
 #include "util/logging.h"
 
@@ -214,14 +215,14 @@ void VulkanStateWriter::WriteCommandBufferState(const VulkanStateTable& state_ta
         }
         else
         {
-            WriteCommandBufferCommands(wrapper);
+            WriteCommandBufferCommands(wrapper, state_table);
         }
     });
 
     // Initialize the primary command buffers now that secondary command buffer have been initialized.
     for (auto wrapper : primary)
     {
-        WriteCommandBufferCommands(wrapper);
+        WriteCommandBufferCommands(wrapper, state_table);
     }
 }
 
@@ -2187,29 +2188,34 @@ void VulkanStateWriter::WriteCommandExecution(VkQueue                queue,
     parameter_stream_.Reset();
 }
 
-void VulkanStateWriter::WriteCommandBufferCommands(const CommandBufferWrapper* wrapper)
+void VulkanStateWriter::WriteCommandBufferCommands(const CommandBufferWrapper* wrapper,
+                                                   const VulkanStateTable&     state_table)
 {
     assert(wrapper != nullptr);
 
-    // Replay each of the commands that was recorded for the command buffer.
-    size_t         offset    = 0;
-    size_t         data_size = wrapper->command_data.GetDataSize();
-    const uint8_t* data      = wrapper->command_data.GetData();
-
-    while (offset < data_size)
+    if (CheckCommandHandles(wrapper, state_table))
     {
-        const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
-        const format::ApiCallId* call_id = reinterpret_cast<const format::ApiCallId*>(&data[offset] + sizeof(size_t));
-        const uint8_t*           parameter_data = &data[offset] + (sizeof(size_t) + sizeof(format::ApiCallId));
+        // Replay each of the commands that was recorded for the command buffer.
+        size_t         offset    = 0;
+        size_t         data_size = wrapper->command_data.GetDataSize();
+        const uint8_t* data      = wrapper->command_data.GetData();
 
-        parameter_stream_.Write(parameter_data, (*parameter_size));
-        WriteFunctionCall((*call_id), &parameter_stream_);
-        parameter_stream_.Reset();
+        while (offset < data_size)
+        {
+            const size_t*            parameter_size = reinterpret_cast<const size_t*>(&data[offset]);
+            const format::ApiCallId* call_id =
+                reinterpret_cast<const format::ApiCallId*>(&data[offset] + sizeof(size_t));
+            const uint8_t* parameter_data = &data[offset] + (sizeof(size_t) + sizeof(format::ApiCallId));
 
-        offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
+            parameter_stream_.Write(parameter_data, (*parameter_size));
+            WriteFunctionCall((*call_id), &parameter_stream_);
+            parameter_stream_.Reset();
+
+            offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
+        }
+
+        assert(offset == data_size);
     }
-
-    assert(offset == data_size);
 }
 
 void VulkanStateWriter::WriteDescriptorUpdateCommand(VkDevice              device,
@@ -3088,6 +3094,65 @@ void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        im
             UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
             insert_list->push_back(entry);
         }
+    }
+}
+
+bool VulkanStateWriter::CheckCommandHandles(const CommandBufferWrapper* wrapper, const VulkanStateTable& state_table)
+{
+    // Ignore commands that reference destroyed objects.
+    for (uint32_t i = 0; i < CommandHandleType::NumHandleTypes; ++i)
+    {
+        for (auto id : wrapper->command_handles[i])
+        {
+            if (!CheckCommandHandle(static_cast<CommandHandleType>(i), id, state_table))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
+                                           format::HandleId        handle,
+                                           const VulkanStateTable& state_table)
+{
+    switch (handle_type)
+    {
+        case CommandHandleType::BufferHandle:
+            return (state_table.GetBufferWrapper(handle) != nullptr);
+        case CommandHandleType::CommandBufferHandle:
+            return (state_table.GetCommandBufferWrapper(handle) != nullptr);
+        case CommandHandleType::DescriptorSetHandle:
+            return (state_table.GetDescriptorSetWrapper(handle) != nullptr);
+        case CommandHandleType::EventHandle:
+            return (state_table.GetEventWrapper(handle) != nullptr);
+        case CommandHandleType::FramebufferHandle:
+            return (state_table.GetFramebufferWrapper(handle) != nullptr);
+        case CommandHandleType::ImageHandle:
+            return (state_table.GetImageWrapper(handle) != nullptr);
+        case CommandHandleType::ImageViewHandle:
+            return (state_table.GetImageViewWrapper(handle) != nullptr);
+        case CommandHandleType::PipelineHandle:
+            return (state_table.GetPipelineWrapper(handle) != nullptr);
+        case CommandHandleType::PipelineLayoutHandle:
+            return (state_table.GetPipelineLayoutWrapper(handle) != nullptr);
+        case CommandHandleType::QueryPoolHandle:
+            return (state_table.GetQueryPoolWrapper(handle) != nullptr);
+        case CommandHandleType::RenderPassHandle:
+            return (state_table.GetRenderPassWrapper(handle) != nullptr);
+        case CommandHandleType::AccelerationStructureNVHandle:
+            return (state_table.GetAccelerationStructureNVWrapper(handle) != nullptr);
+        case CommandHandleType::IndirectCommandsLayoutNVXHandle:
+            return (state_table.GetIndirectCommandsLayoutNVXWrapper(handle) != nullptr);
+        case CommandHandleType::ObjectTableNVXHandle:
+            return (state_table.GetObjectTableNVXWrapper(handle) != nullptr);
+        default:
+            GFXRECON_LOG_ERROR(
+                "State write is skipping unrecognized handle type when checking handles referenced by command buffers");
+            assert(false);
+            return false;
     }
 }
 
