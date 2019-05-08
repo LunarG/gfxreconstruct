@@ -23,6 +23,7 @@
 #include "decode/window.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
 
@@ -79,6 +80,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
   protected:
     const VulkanObjectMapper& GetObjectMapper() const { return object_mapper_; }
+
+    const encode::InstanceTable* GetInstanceTable(const void* handle) const;
+
+    const encode::DeviceTable* GetDeviceTable(const void* handle) const;
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
@@ -157,53 +162,64 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         }
     }
 
-  private:
-    void RaiseFatalError(const char* message) const;
+    //
+    // Replay function overrides provided to the replay consumer code generator with replay_overrides.json
+    //
 
-    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
-
-    VkResult OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+    VkResult OverrideCreateInstance(VkResult                     original_result,
+                                    const VkInstanceCreateInfo*  pCreateInfo,
                                     const VkAllocationCallbacks* pAllocator,
                                     VkInstance*                  pInstance);
 
-    VkResult OverrideCreateDevice(VkPhysicalDevice             physicalDevice,
+    VkResult OverrideCreateDevice(VkResult                     original_result,
+                                  VkPhysicalDevice             physicalDevice,
                                   const VkDeviceCreateInfo*    pCreateInfo,
                                   const VkAllocationCallbacks* pAllocator,
                                   VkDevice*                    pDevice);
 
-    VkResult OverrideWaitForFences(VkResult       original_result,
-                                   VkDevice       device,
-                                   uint32_t       fenceCount,
-                                   const VkFence* pFences,
-                                   VkBool32       waitAll,
-                                   uint64_t       timeout);
+    VkResult OverrideWaitForFences(PFN_vkWaitForFences func,
+                                   VkResult            original_result,
+                                   VkDevice            device,
+                                   uint32_t            fenceCount,
+                                   const VkFence*      pFences,
+                                   VkBool32            waitAll,
+                                   uint64_t            timeout);
 
-    VkResult OverrideGetFenceStatus(VkResult original_result, VkDevice device, VkFence fence);
+    VkResult
+    OverrideGetFenceStatus(PFN_vkGetFenceStatus func, VkResult original_result, VkDevice device, VkFence fence);
 
-    VkResult OverrideGetEventStatus(VkResult original_result, VkDevice device, VkEvent event);
+    VkResult
+    OverrideGetEventStatus(PFN_vkGetEventStatus func, VkResult original_result, VkDevice device, VkEvent event);
 
-    VkResult OverrideGetQueryPoolResults(VkResult           original_result,
-                                         VkDevice           device,
-                                         VkQueryPool        queryPool,
-                                         uint32_t           firstQuery,
-                                         uint32_t           queryCount,
-                                         size_t             dataSize,
-                                         void*              pData,
-                                         VkDeviceSize       stride,
-                                         VkQueryResultFlags flags);
+    VkResult OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults func,
+                                         VkResult                  original_result,
+                                         VkDevice                  device,
+                                         VkQueryPool               queryPool,
+                                         uint32_t                  firstQuery,
+                                         uint32_t                  queryCount,
+                                         size_t                    dataSize,
+                                         void*                     pData,
+                                         VkDeviceSize              stride,
+                                         VkQueryResultFlags        flags);
 
-    VkResult OverrideMapMemory(VkDevice         device,
+    VkResult OverrideMapMemory(PFN_vkMapMemory  func,
+                               VkResult         original_result,
+                               VkDevice         device,
                                VkDeviceMemory   memory,
                                VkDeviceSize     offset,
                                VkDeviceSize     size,
                                VkMemoryMapFlags flags,
                                void**           ppData);
 
-    void OverrideUnmapMemory(VkDevice device, VkDeviceMemory memory);
+    void OverrideUnmapMemory(PFN_vkUnmapMemory func, VkDevice device, VkDeviceMemory memory);
 
-    void OverrideFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
+    void OverrideFreeMemory(PFN_vkFreeMemory             func,
+                            VkDevice                     device,
+                            VkDeviceMemory               memory,
+                            const VkAllocationCallbacks* pAllocator);
 
     VkResult OverrideCreateDescriptorUpdateTemplate(PFN_vkCreateDescriptorUpdateTemplate        func,
+                                                    VkResult                                    original_result,
                                                     VkDevice                                    device,
                                                     const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
                                                     const VkAllocationCallbacks*                pAllocator,
@@ -211,49 +227,83 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
-    VkResult OverrideCreateAndroidSurfaceKHR(VkInstance                           instance,
+    VkResult OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR        func,
+                                             VkResult                             original_result,
+                                             VkInstance                           instance,
                                              const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
                                              const VkAllocationCallbacks*         pAllocator,
                                              VkSurfaceKHR*                        pSurface);
 
-    VkResult OverrideCreateWin32SurfaceKHR(VkInstance                         instance,
+    VkResult OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR        func,
+                                           VkResult                           original_result,
+                                           VkInstance                         instance,
                                            const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
                                            const VkAllocationCallbacks*       pAllocator,
                                            VkSurfaceKHR*                      pSurface);
 
-    VkBool32 OverrideGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice physicalDevice,
-                                                                  uint32_t         queueFamilyIndex);
+    VkBool32
+    OverrideGetPhysicalDeviceWin32PresentationSupportKHR(PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func,
+                                                         VkPhysicalDevice physicalDevice,
+                                                         uint32_t         queueFamilyIndex);
 
-    VkResult OverrideCreateXcbSurfaceKHR(VkInstance                       instance,
+    VkResult OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR        func,
+                                         VkResult                         original_result,
+                                         VkInstance                       instance,
                                          const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
                                          const VkAllocationCallbacks*     pAllocator,
                                          VkSurfaceKHR*                    pSurface);
 
-    VkBool32 OverrideGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice  physicalDevice,
+    VkBool32 OverrideGetPhysicalDeviceXcbPresentationSupportKHR(PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func,
+                                                                VkPhysicalDevice  physicalDevice,
                                                                 uint32_t          queueFamilyIndex,
                                                                 xcb_connection_t* connection,
                                                                 xcb_visualid_t    visual_id);
 
-    VkResult OverrideCreateXlibSurfaceKHR(VkInstance                        instance,
+    VkResult OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR        func,
+                                          VkResult                          original_result,
+                                          VkInstance                        instance,
                                           const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
                                           const VkAllocationCallbacks*      pAllocator,
                                           VkSurfaceKHR*                     pSurface);
 
-    VkBool32 OverrideGetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice physicalDevice,
+    VkBool32 OverrideGetPhysicalDeviceXlibPresentationSupportKHR(PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR func,
+                                                                 VkPhysicalDevice physicalDevice,
                                                                  uint32_t         queueFamilyIndex,
                                                                  Display*         dpy,
                                                                  VisualID         visualID);
 
-    VkResult OverrideCreateWaylandSurfaceKHR(VkInstance                           instance,
+    VkResult OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR        func,
+                                             VkResult                             original_result,
+                                             VkInstance                           instance,
                                              const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
                                              const VkAllocationCallbacks*         pAllocator,
                                              VkSurfaceKHR*                        pSurface);
 
-    VkBool32 OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice   physicalDevice,
-                                                                    uint32_t           queueFamilyIndex,
-                                                                    struct wl_display* display);
+    VkBool32
+    OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,
+                                                           VkPhysicalDevice   physicalDevice,
+                                                           uint32_t           queueFamilyIndex,
+                                                           struct wl_display* display);
 
-    void OverrideDestroySurfaceKHR(VkInstance instance, VkSurfaceKHR surface, const VkAllocationCallbacks* pAllocator);
+    void OverrideDestroySurfaceKHR(PFN_vkDestroySurfaceKHR      func,
+                                   VkInstance                   instance,
+                                   VkSurfaceKHR                 surface,
+                                   const VkAllocationCallbacks* pAllocator);
+
+  private:
+    void RaiseFatalError(const char* message) const;
+
+    void InitializeLoader();
+
+    void AddInstanceTable(VkInstance instance);
+
+    void AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
+
+    PFN_vkGetDeviceProcAddr GetDeviceAddrProc(VkPhysicalDevice physical_device);
+
+    PFN_vkCreateDevice GetCreateDeviceProc(VkPhysicalDevice physical_device);
+
+    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
 
     void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder);
 
@@ -262,308 +312,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_map<VkDeviceMemory, void*> MappedMemoryMap;
 
   private:
-    std::function<void(const char*)> fatal_error_handler_;
-    WindowFactory*                   window_factory_;
-    VulkanObjectMapper               object_mapper_;
-    WindowMap                        window_map_;
-    MappedMemoryMap                  memory_map_;
-
-  protected:
-    template <format::ApiCallId Id, typename Ret, typename Pfn>
-    struct Dispatcher
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase* consumer, Pfn func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(consumer);
-            return func(args...);
-        }
-
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, Pfn func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(consumer);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return func(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateInstance, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret
-        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkCreateInstance func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateInstance(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateDevice, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret
-        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkCreateDevice func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateDevice(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkWaitForFences, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret
-        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkWaitForFences func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideWaitForFences(original_result, args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkGetFenceStatus, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret
-        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkGetFenceStatus func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetFenceStatus(original_result, args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkGetEventStatus, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret
-        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkGetEventStatus func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetEventStatus(original_result, args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkGetQueryPoolResults, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase* consumer,
-                            VkResult                  original_result,
-                            PFN_vkGetQueryPoolResults func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetQueryPoolResults(original_result, args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkMapMemory, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret
-        Dispatch(VulkanReplayConsumerBase* consumer, VkResult original_result, PFN_vkMapMemory func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideMapMemory(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkUnmapMemory, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkUnmapMemory func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideUnmapMemory(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkFreeMemory, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkFreeMemory func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideFreeMemory(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase*            consumer,
-                            VkResult                             original_result,
-                            PFN_vkCreateDescriptorUpdateTemplate func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateDescriptorUpdateTemplate(func, args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase*               consumer,
-                            VkResult                                original_result,
-                            PFN_vkCreateDescriptorUpdateTemplateKHR func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateDescriptorUpdateTemplate(func, args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase*     consumer,
-                            VkResult                      original_result,
-                            PFN_vkCreateAndroidSurfaceKHR func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateAndroidSurfaceKHR(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase*   consumer,
-                            VkResult                    original_result,
-                            PFN_vkCreateWin32SurfaceKHR func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateWin32SurfaceKHR(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase*                          consumer,
-                            PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetPhysicalDeviceWin32PresentationSupportKHR(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase* consumer,
-                            VkResult                  original_result,
-                            PFN_vkCreateXcbSurfaceKHR func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateXcbSurfaceKHR(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase*                        consumer,
-                            PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetPhysicalDeviceXcbPresentationSupportKHR(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase*  consumer,
-                            VkResult                   original_result,
-                            PFN_vkCreateXlibSurfaceKHR func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateXlibSurfaceKHR(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase*                         consumer,
-                            PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetPhysicalDeviceXlibPresentationSupportKHR(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase*     consumer,
-                            VkResult                      original_result,
-                            PFN_vkCreateWaylandSurfaceKHR func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            GFXRECON_UNREFERENCED_PARAMETER(original_result);
-            return consumer->OverrideCreateWaylandSurfaceKHR(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase*                            consumer,
-                            PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,
-                            Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(args...);
-        }
-    };
-
-    template <typename Ret, typename Pfn>
-    struct Dispatcher<format::ApiCallId::ApiCall_vkDestroySurfaceKHR, Ret, Pfn>
-    {
-        template <typename... Args>
-        static Ret Dispatch(VulkanReplayConsumerBase* consumer, PFN_vkDestroySurfaceKHR func, Args... args)
-        {
-            GFXRECON_UNREFERENCED_PARAMETER(func);
-            return consumer->OverrideDestroySurfaceKHR(args...);
-        }
-    };
+    util::platform::LibraryHandle                                    loader_handle_;
+    PFN_vkGetInstanceProcAddr                                        get_instance_proc_addr_;
+    PFN_vkCreateInstance                                             create_instance_proc_;
+    std::unordered_map<encode::DispatchKey, PFN_vkGetDeviceProcAddr> get_device_proc_addrs_;
+    std::unordered_map<encode::DispatchKey, PFN_vkCreateDevice>      create_device_procs_;
+    std::unordered_map<encode::DispatchKey, encode::InstanceTable>   instance_tables_;
+    std::unordered_map<encode::DispatchKey, encode::DeviceTable>     device_tables_;
+    std::function<void(const char*)>                                 fatal_error_handler_;
+    WindowFactory*                                                   window_factory_;
+    VulkanObjectMapper                                               object_mapper_;
+    WindowMap                                                        window_map_;
+    MappedMemoryMap                                                  memory_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

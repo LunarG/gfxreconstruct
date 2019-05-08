@@ -18,8 +18,6 @@
 #include "application/win32_window.h"
 #include "util/logging.h"
 
-#include "volk.h"
-
 #include <cassert>
 #include <cstdlib>
 #include <limits>
@@ -249,13 +247,16 @@ bool Win32Window::GetNativeHandle(uint32_t id, void** handle)
     }
 }
 
-VkResult Win32Window::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
+VkResult Win32Window::CreateSurface(const encode::InstanceTable* table,
+                                    VkInstance                   instance,
+                                    VkFlags                      flags,
+                                    VkSurfaceKHR*                pSurface)
 {
     VkWin32SurfaceCreateInfoKHR create_info{
         VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR, nullptr, flags, hinstance_, hwnd_
     };
 
-    return vkCreateWin32SurfaceKHR(instance, &create_info, nullptr, pSurface);
+    return table->CreateWin32SurfaceKHR(instance, &create_info, nullptr, pSurface);
 }
 
 Win32WindowFactory::Win32WindowFactory(Win32Application* application) : win32_application_(application)
@@ -280,10 +281,11 @@ void Win32WindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 Win32WindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
-                                                                  uint32_t         queue_family_index)
+VkBool32 Win32WindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
+                                                                  VkPhysicalDevice             physical_device,
+                                                                  uint32_t                     queue_family_index)
 {
-    return vkGetPhysicalDeviceWin32PresentationSupportKHR(physical_device, queue_family_index);
+    return table->GetPhysicalDeviceWin32PresentationSupportKHR(physical_device, queue_family_index);
 }
 
 GFXRECON_END_NAMESPACE(application)

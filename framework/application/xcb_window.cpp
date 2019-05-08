@@ -19,8 +19,6 @@
 
 #include "util/logging.h"
 
-#include "volk.h"
-
 #include <cassert>
 #include <cstdlib>
 #include <limits>
@@ -370,13 +368,14 @@ bool XcbWindow::GetNativeHandle(uint32_t id, void** handle)
     }
 }
 
-VkResult XcbWindow::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
+VkResult
+XcbWindow::CreateSurface(const encode::InstanceTable* table, VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
 {
     VkXcbSurfaceCreateInfoKHR create_info{
         VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR, nullptr, flags, xcb_application_->GetConnection(), window_
     };
 
-    return vkCreateXcbSurfaceKHR(instance, &create_info, nullptr, pSurface);
+    return table->CreateXcbSurfaceKHR(instance, &create_info, nullptr, pSurface);
 }
 
 xcb_atom_t XcbWindow::GetAtom(const char* name, uint8_t only_if_exists) const
@@ -461,15 +460,16 @@ void XcbWindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 XcbWindowFactory::GetPhysicalDevicePresentationSupport(VkPhysicalDevice physical_device,
-                                                                uint32_t         queue_family_index)
+VkBool32 XcbWindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
+                                                                VkPhysicalDevice             physical_device,
+                                                                uint32_t                     queue_family_index)
 {
     xcb_connection_t* connection = xcb_application_->GetConnection();
     xcb_screen_t*     screen     = xcb_application_->GetScreen();
 
     assert((connection != nullptr) && (screen != nullptr));
 
-    return vkGetPhysicalDeviceXcbPresentationSupportKHR(
+    return table->GetPhysicalDeviceXcbPresentationSupportKHR(
         physical_device, queue_family_index, connection, screen->root_visual);
 }
 

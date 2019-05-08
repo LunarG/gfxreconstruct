@@ -51,4 +51,4 @@ target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util volk vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)

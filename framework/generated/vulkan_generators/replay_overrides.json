@@ -1,0 +1,24 @@
+{ "functions": {
+    "vkCreateInstance" : "OverrideCreateInstance",
+    "vkCreateDevice" : "OverrideCreateDevice",
+    "vkWaitForFences" : "OverrideWaitForFences",
+    "vkGetFenceStatus" : "OverrideGetFenceStatus",
+    "vkGetEventStatus" : "OverrideGetEventStatus",
+    "vkGetQueryPoolResults" : "OverrideGetQueryPoolResults",
+    "vkMapMemory" : "OverrideMapMemory",
+    "vkUnmapMemory" : "OverrideUnmapMemory",
+    "vkFreeMemory" : "OverrideFreeMemory",
+    "vkCreateDescriptorUpdateTemplate" : "OverrideCreateDescriptorUpdateTemplate",
+    "vkCreateDescriptorUpdateTemplateKHR" : "OverrideCreateDescriptorUpdateTemplate",
+    "vkCreateAndroidSurfaceKHR" : "OverrideCreateAndroidSurfaceKHR",
+    "vkCreateWin32SurfaceKHR" : "OverrideCreateWin32SurfaceKHR",
+    "vkGetPhysicalDeviceWin32PresentationSupportKHR" : "OverrideGetPhysicalDeviceWin32PresentationSupportKHR",
+    "vkCreateXcbSurfaceKHR" : "OverrideCreateXcbSurfaceKHR",
+    "vkGetPhysicalDeviceXcbPresentationSupportKHR" : "OverrideGetPhysicalDeviceXcbPresentationSupportKHR",
+    "vkCreateXlibSurfaceKHR" : "OverrideCreateXlibSurfaceKHR",
+    "vkGetPhysicalDeviceXlibPresentationSupportKHR" : "OverrideGetPhysicalDeviceXlibPresentationSupportKHR",
+    "vkCreateWaylandSurfaceKHR" : "OverrideCreateWaylandSurfaceKHR",
+    "vkGetPhysicalDeviceWaylandPresentationSupportKHR" : "OverrideGetPhysicalDeviceWaylandPresentationSupportKHR",
+    "vkDestroySurfaceKHR" : "OverrideDestroySurfaceKHR"
+  }
+}

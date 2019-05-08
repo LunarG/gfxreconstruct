@@ -32,7 +32,7 @@ target_include_directories(gfxrecon_util
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_util platform_specific)
+target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS})
 
 if (UNIX AND NOT APPLE)
     # Check for clock_gettime in libc
