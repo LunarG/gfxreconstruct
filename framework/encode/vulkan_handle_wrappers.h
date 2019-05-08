@@ -204,6 +204,10 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     // transferred from secondary command buffers to primary command buffers on calls to vkCmdExecuteCommands.
     std::unordered_map<VkImage, VkImageLayout> pending_layouts;
 
+    // Active query info for queries that have been recorded to this command buffer, which will be transfered to the
+    // QueryPoolWrapper as pending queries when the command buffer is submitted to a queue.
+    std::unordered_map<VkQueryPool, std::unordered_map<uint32_t, QueryInfo>> recorded_queries;
+
     // Render pass object tracking for processing image layout transitions. Render pass and framebuffer values
     // for the active render pass instance will be set on calls to vkCmdBeginRenderPass and will be used to update the
     // pending image layout on calls to vkCmdEndRenderPass.
@@ -224,12 +228,9 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 
 struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>
 {
-    // TODO: Check on 'vkCmdWriteTimestamp` requirements: do we track if timestamp was or was not written for active
-    // queries, and then write timestamp with state.
-
-    // vkCmdBeginQuery or vkCmdBeginQueryIndexedEXT parameters for active queries: query index to query flags and type
-    // specific index (transform feedback vertex stream index).
-    std::unordered_map<uint32_t, QueryInfo> active_queries;
+    VkDevice               device{ VK_NULL_HANDLE };
+    VkQueryType            query_type{};
+    std::vector<QueryInfo> pending_queries;
 };
 
 struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
@@ -293,6 +294,8 @@ struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
 
 struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 {
+    uint32_t queue_family_index{ 0 };
+
     // Track command buffer info, which must be destroyed on command pool reset.
     std::unordered_map<VkCommandBuffer, CommandBufferWrapper*> allocated_buffers;
 };

@@ -309,7 +309,7 @@ class VulkanStateTracker
                             uint32_t                    image_barrier_count,
                             const VkImageMemoryBarrier* image_barriers);
 
-    void TrackImageLayoutTransitions(uint32_t submit_count, const VkSubmitInfo* submits);
+    void TrackCommandBufferSubmissions(uint32_t submit_count, const VkSubmitInfo* submits);
 
     void TrackUpdateDescriptorSets(uint32_t                    write_count,
                                    const VkWriteDescriptorSet* writes,
@@ -321,6 +321,17 @@ class VulkanStateTracker
                                               const void*               data);
 
     void TrackResetDescriptorPool(VkDescriptorPool descriptor_pool);
+
+    void TrackQueryActivation(VkCommandBuffer     command_buffer,
+                              VkQueryPool         query_pool,
+                              uint32_t            query,
+                              VkQueryControlFlags flags,
+                              uint32_t            index);
+
+    void
+    TrackQueryReset(VkCommandBuffer command_buffer, VkQueryPool query_pool, uint32_t first_query, uint32_t query_count);
+
+    void TrackQueryReset(VkQueryPool query_pool, uint32_t first_query, uint32_t query_count);
 
     void TrackSemaphoreSignalState(uint32_t                       wait_count,
                                    const VkSemaphore*             waits,

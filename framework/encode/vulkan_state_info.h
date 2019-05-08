@@ -36,17 +36,16 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 typedef std::shared_ptr<util::MemoryOutputStream> CreateParameters;
 
-// Active query state information stored with VkQueryPool handle.
+// Active query state information to be stored with the VkCommandBuffer handle when recorded and transferred to the
+// VkQueryPool handle when the command buffer is submitted for execution.
 struct QueryInfo
 {
     static const uint32_t kInvalidIndex = std::numeric_limits<uint32_t>::max();
 
+    bool                active{ false };
     VkQueryControlFlags flags{ 0 };
-    uint32_t            index{ kInvalidIndex };           // Pool index for active query.
-    VkCommandBuffer     command_buffer{ VK_NULL_HANDLE }; // Command buffer for query begin.
-    format::HandleId    command_buffer_id{ 0 };
-    VkRenderPass        render_pass{ VK_NULL_HANDLE }; // Optional render pass containing query.
-    format::HandleId    render_pass_id{ 0 };
+    uint32_t            query_type_index{ 0 }; // Query type sepcific value (e.g. transform feedback vertex stream).
+    uint32_t            queue_family_index{ kInvalidIndex }; // Queue family index for last command buffer submission.
 };
 
 struct DescriptorBindingInfo

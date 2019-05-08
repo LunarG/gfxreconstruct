@@ -39,6 +39,7 @@ void VulkanStateTracker::TrackCommandExecution(CommandBufferWrapper*           w
         // Clear command data on command buffer reset.
         wrapper->command_data.Reset();
         wrapper->pending_layouts.clear();
+        wrapper->recorded_queries.clear();
 
         for (size_t i = 0; i < CommandHandleType::NumHandleTypes; ++i)
         {
@@ -63,10 +64,11 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
     CommandPoolWrapper* wrapper = state_table_.GetCommandPoolWrapper(format::ToHandleId(command_pool));
     if (wrapper != nullptr)
     {
-        for (auto entry : wrapper->allocated_buffers)
+        for (const auto& entry : wrapper->allocated_buffers)
         {
             entry.second->command_data.Reset();
             entry.second->pending_layouts.clear();
+            entry.second->recorded_queries.clear();
 
             for (size_t i = 0; i < CommandHandleType::NumHandleTypes; ++i)
             {
@@ -402,7 +404,7 @@ void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buf
 
                 if (secondary_wrapper != nullptr)
                 {
-                    for (auto layout_entry : secondary_wrapper->pending_layouts)
+                    for (const auto& layout_entry : secondary_wrapper->pending_layouts)
                     {
                         primary_wrapper->pending_layouts[layout_entry.first] = layout_entry.second;
                     }
@@ -446,7 +448,7 @@ void VulkanStateTracker::TrackImageBarriers(VkCommandBuffer             command_
     }
 }
 
-void VulkanStateTracker::TrackImageLayoutTransitions(uint32_t submit_count, const VkSubmitInfo* submits)
+void VulkanStateTracker::TrackCommandBufferSubmissions(uint32_t submit_count, const VkSubmitInfo* submits)
 {
     if ((submit_count > 0) && (submits != nullptr) && (submits->commandBufferCount > 0))
     {
@@ -465,7 +467,7 @@ void VulkanStateTracker::TrackImageLayoutTransitions(uint32_t submit_count, cons
                 if (command_wrapper != nullptr)
                 {
                     // Apply pending image layouts.
-                    for (auto layout_entry : command_wrapper->pending_layouts)
+                    for (const auto& layout_entry : command_wrapper->pending_layouts)
                     {
                         ImageWrapper* image_wrapper =
                             state_table_.GetImageWrapper(format::ToHandleId(layout_entry.first));
@@ -478,6 +480,34 @@ void VulkanStateTracker::TrackImageLayoutTransitions(uint32_t submit_count, cons
                         {
                             GFXRECON_LOG_WARNING(
                                 "Attempting to track image layout state with an unrecognized image handle");
+                        }
+                    }
+
+                    // Apply pending query activations.
+                    for (const auto& query_pool_entry : command_wrapper->recorded_queries)
+                    {
+                        QueryPoolWrapper* query_pool_wrapper =
+                            state_table_.GetQueryPoolWrapper(format::ToHandleId(query_pool_entry.first));
+
+                        if (query_pool_wrapper != nullptr)
+                        {
+                            for (const auto& query_entry : query_pool_entry.second)
+                            {
+                                auto& query_info = query_pool_wrapper->pending_queries[query_entry.first];
+                                query_info.active = query_entry.second.active;
+
+                                if (query_info.active)
+                                {
+                                    query_info.flags              = query_entry.second.flags;
+                                    query_info.query_type_index   = query_entry.second.query_type_index;
+                                    query_info.queue_family_index = query_entry.second.queue_family_index;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_WARNING(
+                                "Attempting to track query state with an unrecognized query pool handle");
                         }
                     }
                 }
@@ -888,6 +918,71 @@ void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_po
     else
     {
         GFXRECON_LOG_WARNING("Attempting to track descriptor pool reset state for unrecognized descriptor pool handle");
+    }
+}
+
+void VulkanStateTracker::TrackQueryActivation(
+    VkCommandBuffer command_buffer, VkQueryPool query_pool, uint32_t query, VkQueryControlFlags flags, uint32_t index)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    CommandBufferWrapper* wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
+    if (wrapper != nullptr)
+    {
+        const CommandPoolWrapper* command_pool_wrapper = wrapper->pool;
+
+        auto& query_pool_info         = wrapper->recorded_queries[query_pool];
+        auto& query_info              = query_pool_info[query];
+        query_info.active             = true;
+        query_info.flags              = flags;
+        query_info.query_type_index   = index;
+        query_info.queue_family_index = command_pool_wrapper->queue_family_index;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track query activation state for unrecognized command buffer handle");
+    }
+}
+
+void VulkanStateTracker::TrackQueryReset(VkCommandBuffer command_buffer,
+                                         VkQueryPool     query_pool,
+                                         uint32_t        first_query,
+                                         uint32_t        query_count)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    CommandBufferWrapper* wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
+    if (wrapper != nullptr)
+    {
+        auto& query_pool_info = wrapper->recorded_queries[query_pool];
+        for (uint32_t i = first_query; i < query_count; ++i)
+        {
+            query_pool_info[i].active = false;
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track query reset state for unrecognized command buffer handle");
+    }
+}
+
+void VulkanStateTracker::TrackQueryReset(VkQueryPool query_pool, uint32_t first_query, uint32_t query_count)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+
+    QueryPoolWrapper* wrapper = state_table_.GetQueryPoolWrapper(format::ToHandleId(query_pool));
+    if (wrapper != nullptr)
+    {
+        assert((first_query + query_count) <= wrapper->pending_queries.size());
+
+        for (uint32_t i = first_query; i < query_count; ++i)
+        {
+            wrapper->pending_queries[i].active = false;
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Attempting to track query reset state for unrecognized query pool handle");
     }
 }
 
