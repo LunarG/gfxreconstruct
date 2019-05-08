@@ -537,7 +537,7 @@ class TraceManager
         {
             assert((state_tracker_ != nullptr) && ((submitCount == 0) || (pSubmits != nullptr)));
 
-            state_tracker_->TrackImageLayoutTransitions(submitCount, pSubmits);
+            state_tracker_->TrackCommandBufferSubmissions(submitCount, pSubmits);
 
             for (uint32_t i = 0; i < submitCount; ++i)
             {
@@ -622,6 +622,78 @@ class TraceManager
         {
             assert(state_tracker_ != nullptr);
             state_tracker_->TrackResetDescriptorPool(descriptorPool);
+        }
+    }
+
+    void PostProcess_vkCmdBeginQuery(VkCommandBuffer     commandBuffer,
+                                     VkQueryPool         queryPool,
+                                     uint32_t            query,
+                                     VkQueryControlFlags flags)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryActivation(commandBuffer, queryPool, query, flags, QueryInfo::kInvalidIndex);
+        }
+    }
+
+    void PostProcess_vkCmdBeginQueryIndexedEXT(
+        VkCommandBuffer commandBuffer, VkQueryPool queryPool, uint32_t query, VkQueryControlFlags flags, uint32_t index)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryActivation(commandBuffer, queryPool, query, flags, index);
+        }
+    }
+
+    void PostProcess_vkCmdWriteTimestamp(VkCommandBuffer         commandBuffer,
+                                         VkPipelineStageFlagBits pipelineStage,
+                                         VkQueryPool             queryPool,
+                                         uint32_t                query)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryActivation(commandBuffer, queryPool, query, 0, QueryInfo::kInvalidIndex);
+        }
+    }
+
+    void
+    PostProcess_vkCmdWriteAccelerationStructuresPropertiesNV(VkCommandBuffer commandBuffer,
+                                                             uint32_t        accelerationStructureCount,
+                                                             const VkAccelerationStructureNV* pAccelerationStructures,
+                                                             VkQueryType                      queryType,
+                                                             VkQueryPool                      queryPool,
+                                                             uint32_t                         firstQuery)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
+        GFXRECON_UNREFERENCED_PARAMETER(accelerationStructureCount);
+        GFXRECON_UNREFERENCED_PARAMETER(pAccelerationStructures);
+        GFXRECON_UNREFERENCED_PARAMETER(queryType);
+        GFXRECON_UNREFERENCED_PARAMETER(queryPool);
+        GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
+        // TODO
+    }
+
+    void PostProcess_vkCmdResetQueryPool(VkCommandBuffer commandBuffer,
+                                         VkQueryPool     queryPool,
+                                         uint32_t        firstQuery,
+                                         uint32_t        queryCount)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryReset(commandBuffer, queryPool, firstQuery, queryCount);
+        }
+    }
+
+    void PostProcess_vkResetQueryPoolEXT(VkDevice, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryReset(queryPool, firstQuery, queryCount);
         }
     }
 

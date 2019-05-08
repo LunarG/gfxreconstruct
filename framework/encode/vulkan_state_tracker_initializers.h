@@ -173,6 +173,50 @@ inline void InitializeState<VkDevice, QueueWrapper, void>(VkDevice          pare
 }
 
 template <>
+inline void
+InitializeState<VkDevice, CommandPoolWrapper, VkCommandPoolCreateInfo>(VkDevice                       parent_handle,
+                                                                       CommandPoolWrapper*            wrapper,
+                                                                       const VkCommandPoolCreateInfo* create_info,
+                                                                       format::ApiCallId              create_call_id,
+                                                                       CreateParameters               create_parameters,
+                                                                       VulkanStateTable*              state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_parameters != nullptr);
+    assert(create_info != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->queue_family_index = create_info->queueFamilyIndex;
+}
+
+template <>
+inline void InitializeState<VkDevice, QueryPoolWrapper, VkQueryPoolCreateInfo>(VkDevice          parent_handle,
+                                                                               QueryPoolWrapper* wrapper,
+                                                                               const VkQueryPoolCreateInfo* create_info,
+                                                                               format::ApiCallId create_call_id,
+                                                                               CreateParameters  create_parameters,
+                                                                               VulkanStateTable* state_table)
+{
+    assert(wrapper != nullptr);
+    assert(create_parameters != nullptr);
+    assert(create_info != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(state_table);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    wrapper->device     = parent_handle;
+    wrapper->query_type = create_info->queryType;
+    wrapper->pending_queries.resize(create_info->queryCount);
+}
+
+template <>
 inline void InitializeState<VkDevice, FenceWrapper, VkFenceCreateInfo>(VkDevice                 parent_handle,
                                                                        FenceWrapper*            wrapper,
                                                                        const VkFenceCreateInfo* create_info,
