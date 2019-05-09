@@ -1534,9 +1534,31 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
 
             if (wrapper->image_acquired_info[i].is_acquired)
             {
-                VkFence     acquired_fence     = wrapper->image_acquired_info[i].acquired_fence;
-                VkSemaphore acquired_semaphore = wrapper->image_acquired_info[i].acquired_semaphore;
-                bool        fence_signaled     = false;
+                bool                    fence_signaled             = false;
+                VkFence                 acquired_fence             = wrapper->image_acquired_info[i].acquired_fence;
+                VkSemaphore             acquired_semaphore         = wrapper->image_acquired_info[i].acquired_semaphore;
+                const SemaphoreWrapper* acquired_semaphore_wrapper = nullptr;
+
+                // If the wrapper for the fence no longer exists, the fence has been destroyed and should be ignored
+                // here.
+                if ((acquired_fence != VK_NULL_HANDLE) &&
+                    (state_table.GetFenceWrapper(format::ToHandleId(acquired_fence)) == nullptr))
+                {
+                    acquired_fence = VK_NULL_HANDLE;
+                }
+
+                if (acquired_semaphore != VK_NULL_HANDLE)
+                {
+                    acquired_semaphore_wrapper =
+                        state_table.GetSemaphoreWrapper(format::ToHandleId(acquired_semaphore));
+
+                    // If the wrapper for the semaphore no longer exists, the semaphore has been destroyed and should be
+                    // ignored here.
+                    if (acquired_semaphore_wrapper == nullptr)
+                    {
+                        acquired_semaphore = VK_NULL_HANDLE;
+                    }
+                }
 
                 if (acquired_fence != VK_NULL_HANDLE)
                 {
@@ -1596,10 +1618,7 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
                     {
                         // The layout transition has unsignaled the semaphore, which will need to be resubmitted for
                         // signal if it is pending signal.
-                        const SemaphoreWrapper* semaphore_wrapper =
-                            state_table.GetSemaphoreWrapper(format::ToHandleId(acquired_semaphore));
-
-                        if (semaphore_wrapper->signaled == SemaphoreWrapper::SignalSourceAcquireImage)
+                        if (acquired_semaphore_wrapper->signaled == SemaphoreWrapper::SignalSourceAcquireImage)
                         {
                             signal_semaphores.push_back(acquired_semaphore);
                         }

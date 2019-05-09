@@ -218,6 +218,9 @@ class VulkanStateTable
     EventWrapper*       GetEventWrapper(format::HandleId id)       { return GetWrapper<EventWrapper>(id, event_map_); }
     const EventWrapper* GetEventWrapper(format::HandleId id) const { return GetWrapper<EventWrapper>(id, event_map_); }
 
+    FenceWrapper*       GetFenceWrapper(format::HandleId id)       { return GetWrapper<FenceWrapper>(id, fence_map_); }
+    const FenceWrapper* GetFenceWrapper(format::HandleId id) const { return GetWrapper<FenceWrapper>(id, fence_map_); }
+
     SemaphoreWrapper*       GetSemaphoreWrapper(format::HandleId id)       { return GetWrapper<SemaphoreWrapper>(id, semaphore_map_); }
     const SemaphoreWrapper* GetSemaphoreWrapper(format::HandleId id) const { return GetWrapper<SemaphoreWrapper>(id, semaphore_map_); }
 
