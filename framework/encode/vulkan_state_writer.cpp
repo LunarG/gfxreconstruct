@@ -78,10 +78,6 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     WriteSurfaceKhrState(state_table);
     WriteSwapchainKhrState(state_table);
 
-    // Query object creation.
-    StandardCreateWrite<QueryPoolWrapper>(state_table);
-    StandardCreateWrite<AccelerationStructureNVWrapper>(state_table);
-
     // Resource creation.
     StandardCreateWrite<DeviceMemoryWrapper>(state_table);
     WriteBufferState(state_table);
@@ -107,6 +103,10 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     StandardCreateWrite<DescriptorPoolWrapper>(state_table);
     StandardCreateWrite<DescriptorUpdateTemplateWrapper>(state_table);
     WriteDescriptorSetState(state_table);
+
+    // Query object creation.
+    StandardCreateWrite<AccelerationStructureNVWrapper>(state_table);
+    WriteQueryPoolState(state_table);
 
     // Command creation.
     StandardCreateWrite<CommandPoolWrapper>(state_table);
@@ -769,7 +769,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
         // call and reference the same parameter buffer.
         if (processed.find(wrapper->create_parameters.get()) == processed.end())
         {
-            // Write command buffer creation call and add the parameter buffer to the processed set.
+            // Write descriptor set creation call and add the parameter buffer to the processed set.
             WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
             processed.insert(wrapper->create_parameters.get());
         }
@@ -817,6 +817,47 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             }
         }
     });
+}
+
+void VulkanStateWriter::WriteQueryPoolState(const VulkanStateTable& state_table)
+{
+    std::unordered_map<VkDevice, QueryActivationQueueFamilyTable> device_queries;
+
+    state_table.VisitWrappers([&](const QueryPoolWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Write query pool creation call.
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+
+        // Sort pending queries by device and queue family index.
+        for (uint32_t i = 0; i < wrapper->pending_queries.size(); ++i)
+        {
+            const auto& query_entry = wrapper->pending_queries[i];
+
+            if (query_entry.active)
+            {
+                QueryActivationData activation_data;
+                activation_data.pool       = wrapper->handle;
+                activation_data.type       = wrapper->query_type;
+                activation_data.flags      = query_entry.flags;
+                activation_data.index      = i;
+                activation_data.type_index = query_entry.query_type_index;
+
+                auto& queue_family_table = device_queries[wrapper->device];
+                queue_family_table[query_entry.queue_family_index].emplace_back(activation_data);
+            }
+        }
+    });
+
+    // Write query activation to state snapshot.  This will simply begin/end each query so that future calls to
+    // vkGetQueryPoolResults will succeed, but will not produce valid query results.
+    for (const auto& device_entry : device_queries)
+    {
+        for (const auto& queue_family_entry : device_entry.second)
+        {
+            WriteQueryActivation(device_entry.first, queue_family_entry.first, queue_family_entry.second);
+        }
+    }
 }
 
 void VulkanStateWriter::WriteSurfaceKhrState(const VulkanStateTable& state_table)
@@ -2205,6 +2246,85 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(VkDevice              devic
     parameter_stream_.Reset();
 }
 
+void VulkanStateWriter::WriteQueryActivation(VkDevice                   device,
+                                             uint32_t                   queue_family_index,
+                                             const QueryActivationList& active_queries)
+{
+    const VkPipelineStageFlagBits timestamp_stage     = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    const VkQueue                 temp_queue          = format::FromHandleId<VkQueue>(kTempQueueId);
+    const VkCommandBuffer         temp_command_buffer = format::FromHandleId<VkCommandBuffer>(kTempCommandBufferId);
+
+    // Retrieve a queue and create a command buffer for query activation.
+    WriteCommandProcessingCreateCommands(device,
+                                         queue_family_index,
+                                         temp_queue,
+                                         format::FromHandleId<VkCommandPool>(kTempCommandPoolId),
+                                         temp_command_buffer);
+
+    WriteCommandBegin(temp_command_buffer);
+
+    for (auto query_entry : active_queries)
+    {
+        if (query_entry.type == VK_QUERY_TYPE_TIMESTAMP)
+        {
+            encoder_.EncodeHandleIdValue(temp_command_buffer);
+            encoder_.EncodeEnumValue(timestamp_stage);
+            encoder_.EncodeHandleIdValue(query_entry.pool);
+            encoder_.EncodeUInt32Value(query_entry.index);
+
+            WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdWriteTimestamp, &parameter_stream_);
+            parameter_stream_.Reset();
+        }
+        else if (query_entry.type == VK_QUERY_TYPE_TRANSFORM_FEEDBACK_STREAM_EXT)
+        {
+            encoder_.EncodeHandleIdValue(temp_command_buffer);
+            encoder_.EncodeHandleIdValue(query_entry.pool);
+            encoder_.EncodeUInt32Value(query_entry.index);
+            encoder_.EncodeFlagsValue(query_entry.flags);
+            encoder_.EncodeUInt32Value(query_entry.type_index);
+
+            WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT, &parameter_stream_);
+            parameter_stream_.Reset();
+
+            encoder_.EncodeHandleIdValue(temp_command_buffer);
+            encoder_.EncodeHandleIdValue(query_entry.pool);
+            encoder_.EncodeUInt32Value(query_entry.index);
+            encoder_.EncodeUInt32Value(query_entry.type_index);
+
+            WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT, &parameter_stream_);
+            parameter_stream_.Reset();
+        }
+        else if (query_entry.type == VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV)
+        {
+            // TODO
+        }
+        else
+        {
+            encoder_.EncodeHandleIdValue(temp_command_buffer);
+            encoder_.EncodeHandleIdValue(query_entry.pool);
+            encoder_.EncodeUInt32Value(query_entry.index);
+            encoder_.EncodeFlagsValue(query_entry.flags);
+
+            WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdBeginQuery, &parameter_stream_);
+            parameter_stream_.Reset();
+
+            encoder_.EncodeHandleIdValue(temp_command_buffer);
+            encoder_.EncodeHandleIdValue(query_entry.pool);
+            encoder_.EncodeUInt32Value(query_entry.index);
+
+            WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdEndQuery, &parameter_stream_);
+            parameter_stream_.Reset();
+        }
+    }
+
+    WriteCommandEnd(temp_command_buffer);
+
+    WriteCommandExecution(temp_queue, 1, &temp_command_buffer, 0, nullptr, 0, nullptr);
+
+    WriteDestroyDeviceObject(
+        format::ApiCallId::ApiCall_vkDestroyCommandPool, format::ToHandleId(device), kTempCommandPoolId, nullptr);
+}
+
 void VulkanStateWriter::WriteAcquireNextImage(
     VkDevice device, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t image_index)
 {
@@ -2970,9 +3090,9 @@ void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        im
            (snapshot_data != nullptr));
 
     ImageSnapshotEntry entry;
-    entry.image_wrapper   = image_wrapper;
-    entry.memory_wrapper  = memory_wrapper;
-    entry.is_host_visible = is_host_visible;
+    entry.image_wrapper    = image_wrapper;
+    entry.memory_wrapper   = memory_wrapper;
+    entry.is_host_visible  = is_host_visible;
     entry.is_host_coherent = is_host_coherent;
 
     if (aspect_mask == VK_IMAGE_ASPECT_COLOR_BIT)
