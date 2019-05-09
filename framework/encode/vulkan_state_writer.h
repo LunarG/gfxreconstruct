@@ -99,6 +99,18 @@ class VulkanStateWriter
         uint32_t                      num_device_local_images{ 0 };
     };
 
+    struct QueryActivationData
+    {
+        VkQueryPool         pool{ VK_NULL_HANDLE };
+        VkQueryType         type{};
+        VkQueryControlFlags flags{ 0 };
+        uint32_t            index{ 0 };
+        uint32_t            type_index{ 0 };
+    };
+
+    typedef std::vector<QueryActivationData>                  QueryActivationList;
+    typedef std::unordered_map<uint32_t, QueryActivationList> QueryActivationQueueFamilyTable;
+
   private:
     void WritePhysicalDeviceState(const VulkanStateTable& state_table);
 
@@ -123,6 +135,8 @@ class VulkanStateWriter
     void WritePipelineState(const VulkanStateTable& state_table);
 
     void WriteDescriptorSetState(const VulkanStateTable& state_table);
+
+    void WriteQueryPoolState(const VulkanStateTable& state_table);
 
     void WriteSurfaceKhrState(const VulkanStateTable& state_table);
 
@@ -247,6 +261,8 @@ class VulkanStateWriter
     void WriteCommandBufferCommands(const CommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
 
     void WriteDescriptorUpdateCommand(VkDevice device, const DescriptorInfo* binding, VkWriteDescriptorSet* write);
+
+    void WriteQueryActivation(VkDevice device, uint32_t queue_family_index, const QueryActivationList& active_queries);
 
     void WriteAcquireNextImage(
         VkDevice device, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t image_index);
