@@ -43,8 +43,8 @@ struct HandleWrapper
     typedef T HandleType;
 
     // Standard state info required for all handles.
-    T                 handle{ VK_NULL_HANDLE };
-    format::HandleId  handle_id{ 0 };
+    HandleType        handle{ VK_NULL_HANDLE }; // Original handle value provided by the driver.
+    format::HandleId  handle_id{ 0 };           // Globally unique ID assigned to the handle by the layer.
     format::ApiCallId create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  create_parameters;
 };

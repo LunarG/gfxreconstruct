@@ -17,6 +17,7 @@ target_sources(gfxrecon_encode
                    trace_manager.h
                    trace_manager.cpp
                    vulkan_handle_wrappers.h
+                   vulkan_handle_wrapper_util.h
                    vulkan_state_info.h
                    vulkan_state_table.h
                    vulkan_state_tracker.h

@@ -254,7 +254,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 expr = 'MapStructHandles({}.GetMetaStructPointer(), GetObjectMapper());'.format(value.name)
                 else:
                     # Initialize output pointer.
-                    # Note on output structures with handles: These strucutres are used in queries such as
+                    # Note on output structures with handles: These structures are used in queries such as
                     # VkGetPhysicalDeviceGroupProperties and VkGetPhyusicalDeviceDisplayPropertiesKHR and do not
                     # require handle mapping for replay.
                     if value.isArray:

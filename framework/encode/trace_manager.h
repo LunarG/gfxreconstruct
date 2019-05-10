@@ -22,6 +22,7 @@
 #include "encode/descriptor_update_template_info.h"
 #include "encode/memory_tracker.h"
 #include "encode/parameter_encoder.h"
+#include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_tracker.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
@@ -34,6 +35,7 @@
 
 #include "vulkan/vulkan.h"
 
+#include <atomic>
 #include <cassert>
 #include <memory>
 #include <mutex>
@@ -68,6 +70,8 @@ class TraceManager
 
     static TraceManager* Get() { return instance_; }
 
+    static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
+
     static const LayerTable* GetLayerTable() { return &layer_table_; }
 
     void AddInstanceTable(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
@@ -77,6 +81,30 @@ class TraceManager
     const InstanceTable* GetInstanceTable(const void* handle) const;
 
     const DeviceTable* GetDeviceTable(const void* handle) const;
+
+    HandleStore* GetHandleStore()
+    {
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+        thread_data->handle_store_.clear();
+        return &thread_data->handle_store_;
+    }
+
+    HandleArrayStore* GetHandleArrayStore()
+    {
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+        thread_data->handle_array_store_.clear();
+        return &thread_data->handle_array_store_;
+    }
+
+    HandleArrayUnwrapMemory* GetHandleUnwrapMemory()
+    {
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+        thread_data->handle_unwrap_memory_.handle_store_count = 0;
+        return &thread_data->handle_unwrap_memory_;
+    }
 
     ParameterEncoder* BeginTrackedApiCallTrace(format::ApiCallId call_id)
     {
@@ -770,6 +798,9 @@ class TraceManager
         std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
         std::unique_ptr<ParameterEncoder>         parameter_encoder_;
         std::vector<uint8_t>                      compressed_buffer_;
+        HandleStore                               handle_store_;
+        HandleArrayStore                          handle_array_store_;
+        HandleArrayUnwrapMemory                   handle_unwrap_memory_;
 
       private:
         static format::ThreadId GetThreadId();
@@ -819,6 +850,7 @@ class TraceManager
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static LayerTable                               layer_table_;
+    static std::atomic<format::HandleId>            unique_id_counter_;
     std::unordered_map<DispatchKey, InstanceTable>  instance_tables_;
     std::unordered_map<DispatchKey, DeviceTable>    device_tables_;
     format::EnabledOptions                          file_options_;
