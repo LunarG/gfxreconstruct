@@ -47,12 +47,12 @@ class ArgumentParser
                    const uint32_t     min_positional_args);
     ~ArgumentParser() {}
 
-    bool                            IsInvalid() { return is_invalid_; }
-    const std::vector<std::string>& GetInvalidArgumentOrOptions() { return invalid_values_present_; };
-    bool                            IsOptionSet(const std::string& option);
-    const std::string&              GetArgumentValue(const std::string& argument);
-    size_t                          GetPositionalArgumentsCount() { return positional_arguments_present_.size(); }
-    const std::vector<std::string>& GetPositionalArguments() { return positional_arguments_present_; }
+    bool                            IsInvalid() const { return is_invalid_; }
+    const std::vector<std::string>& GetInvalidArgumentOrOptions() const { return invalid_values_present_; };
+    bool                            IsOptionSet(const std::string& option) const;
+    const std::string&              GetArgumentValue(const std::string& argument) const;
+    size_t                          GetPositionalArgumentsCount() const { return positional_arguments_present_.size(); }
+    const std::vector<std::string>& GetPositionalArguments() const { return positional_arguments_present_; }
 
   private:
     void Init(std::vector<std::string> command_line_args,

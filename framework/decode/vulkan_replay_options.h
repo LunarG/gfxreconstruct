@@ -26,6 +26,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 struct ReplayOptions
 {
     bool skip_failed_allocations{ false };
+    bool omit_pipeline_cache_data{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

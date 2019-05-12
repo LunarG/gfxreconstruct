@@ -245,6 +245,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                     const VkAllocationCallbacks*                pAllocator,
                                                     VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
+    VkResult OverrideCreatePipelineCache(PFN_vkCreatePipelineCache        func,
+                                         VkResult                         original_result,
+                                         VkDevice                         device,
+                                         const VkPipelineCacheCreateInfo* pCreateInfo,
+                                         const VkAllocationCallbacks*     pAllocator,
+                                         VkPipelineCache*                 pPipelineCache);
+
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
     VkResult OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR        func,
