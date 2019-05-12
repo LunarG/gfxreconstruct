@@ -710,6 +710,28 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
     }
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(PFN_vkCreatePipelineCache        func,
+                                                               VkResult                         original_result,
+                                                               VkDevice                         device,
+                                                               const VkPipelineCacheCreateInfo* pCreateInfo,
+                                                               const VkAllocationCallbacks*     pAllocator,
+                                                               VkPipelineCache*                 pPipelineCache)
+{
+    if (options_.omit_pipeline_cache_data && (pCreateInfo != nullptr))
+    {
+        // Make a shallow copy of the create info structure and clear the cache data.
+        VkPipelineCacheCreateInfo override_create_info = *pCreateInfo;
+        override_create_info.initialDataSize           = 0;
+        override_create_info.pInitialData              = nullptr;
+
+        return func(device, &override_create_info, pAllocator, pPipelineCache);
+    }
+    else
+    {
+        return func(device, pCreateInfo, pAllocator, pPipelineCache);
+    }
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR        func,
                                                                    VkResult                             original_result,
                                                                    VkInstance                           instance,
