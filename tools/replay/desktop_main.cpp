@@ -56,7 +56,7 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::Log::Init();
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "", 1);
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments, 1);
 
     if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
@@ -121,24 +121,26 @@ int main(int argc, const char** argv)
 
                 decoder.AddConsumer(&replay_consumer);
                 file_processor.AddDecoder(&decoder);
+                application->SetPauseFrame(GetPauseFrame(arg_parser));
 
                 // Warn if the capture layer is active.
                 CheckActiveLayers(kLayerEnvVar);
 
                 // Grab the start frame/time information for the FPS result.
-                uint32_t start_frame = file_processor.GetCurrentFrameNumber();
+                uint32_t start_frame = 1;
                 int64_t  start_time  = gfxrecon::util::datetime::GetTimestamp();
 
                 application->Run();
 
-                if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
+                if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
                 {
-                    // Grab the end frame/time information and calculate out FPS.
+                    // Grab the end frame/time information and calculate FPS.
                     int64_t end_time      = gfxrecon::util::datetime::GetTimestamp();
                     double  diff_time_sec = gfxrecon::util::datetime::ConvertTimestampToSeconds(
                         gfxrecon::util::datetime::DiffTimestamps(start_time, end_time));
                     uint32_t end_frame    = file_processor.GetCurrentFrameNumber();
-                    uint32_t total_frames = end_frame - start_frame;
+                    uint32_t total_frames = (end_frame - start_frame) + 1;
                     double   fps          = static_cast<double>(total_frames) / diff_time_sec;
                     GFXRECON_WRITE_CONSOLE("%f fps, %f seconds, %u frame%s, 1 loop, framerange %u-%u",
                                            fps,
@@ -146,12 +148,16 @@ int main(int argc, const char** argv)
                                            total_frames,
                                            total_frames > 1 ? "s" : "",
                                            start_frame,
-                                           end_frame - 1);
+                                           end_frame);
                 }
-                else
+                else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
                 {
                     GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                     return_code = -1;
+                }
+                else
+                {
+                    GFXRECON_WRITE_CONSOLE("File did not contain any frames");
                 }
             }
         }
