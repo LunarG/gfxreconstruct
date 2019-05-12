@@ -49,7 +49,7 @@ void android_main(struct android_app* app)
     gfxrecon::util::Log::Init();
 
     std::string                    args = GetIntentExtra(app, kArgsExtentKey);
-    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, "", 0);
+    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, kArguments, 0);
 
     app->onAppCmd     = ProcessAppCmd;
     app->onInputEvent = ProcessInputEvent;
@@ -101,6 +101,7 @@ void android_main(struct android_app* app)
 
                     decoder.AddConsumer(&replay_consumer);
                     file_processor.AddDecoder(&decoder);
+                    application->SetPauseFrame(GetPauseFrame(arg_parser));
 
                     // Warn if the capture layer is active.
                     CheckActiveLayers(kLayerProperty);

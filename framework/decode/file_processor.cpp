@@ -28,7 +28,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
-    file_descriptor_(nullptr), current_frame_number_(1), bytes_read_(0), error_state_(kErrorInvalidFileDescriptor),
+    file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0), error_state_(kErrorInvalidFileDescriptor),
     compressor_(nullptr)
 {}
 

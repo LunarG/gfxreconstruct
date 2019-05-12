@@ -45,7 +45,9 @@ class Application
 
     bool GetPaused() const { return paused_; }
 
-    void SetPaused(bool paused) { paused_ = paused; }
+    void SetPaused(bool paused);
+
+    void SetPauseFrame(uint32_t pause_frame) { pause_frame_ = pause_frame; }
 
     bool PlaySingleFrame();
 
@@ -71,6 +73,7 @@ class Application
                                                     ///< application will stop rendering, but will continue processing
                                                     ///< system events.
     std::string                  name_;             ///< Application name to display in window title bar.
+    uint32_t                     pause_frame_;      ///< The number for a frame that replay should pause after.
     // clang-format on
 };
 
