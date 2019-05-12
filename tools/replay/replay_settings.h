@@ -26,15 +26,19 @@
 const char kApplicationName[] = "GFXReconstruct Replay";
 const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 
+const char kPausedOption[]                     = "--paused";
+const char kPauseFrameArgument[]               = "--pause-frame";
 const char kSkipFailedAllocationShortOption[]  = "--sfa";
 const char kSkipFailedAllocationLongOption[]   = "--skip-failed-allocations";
 const char kOmitPipelineCacheDataShortOption[] = "--opcd";
 const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
 
 // TODO: Make this a vector of strings.
-const char kOptions[] = "--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
+const char kOptions[]   = "--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
+const char kArguments[] = "--pause-frame";
 
-static void CheckActiveLayers(const char* env_var)
+    static void
+    CheckActiveLayers(const char* env_var)
 {
     std::string result = gfxrecon::util::platform::GetEnv(env_var);
 
@@ -45,6 +49,23 @@ static void CheckActiveLayers(const char* env_var)
             GFXRECON_LOG_WARNING("Replay tool has detected that the capture layer is enabled");
         }
     }
+}
+
+static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t    pause_frame = 0;
+    std::string value       = arg_parser.GetArgumentValue(kPauseFrameArgument);
+
+    if (arg_parser.IsOptionSet(kPausedOption))
+    {
+        pause_frame = 1;
+    }
+    else if (!value.empty())
+    {
+        pause_frame = std::stoi(value);
+    }
+
+    return pause_frame;
 }
 
 static gfxrecon::decode::ReplayOptions GetReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -78,11 +99,15 @@ static void PrintUsage(const char* exe_name)
 
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to replay GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s\t[--sfa | --skip-failed-allocations]", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s\t[--pause-frame <N>] [--paused] [--sfa | --skip-failed-allocations]",
+                           app_name.c_str());
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] <file>\n");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
+    GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N");
+    GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
+    GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1)");
     GFXRECON_WRITE_CONSOLE("  --sfa\t\t\tSkip vkAllocateMemory, vkAllocateCommandBuffers, and");
     GFXRECON_WRITE_CONSOLE("       \t\t\tvkAllocateDescriptorSets calls that failed during");
     GFXRECON_WRITE_CONSOLE("       \t\t\tcapture (same as --skip-failed-allocations)");
