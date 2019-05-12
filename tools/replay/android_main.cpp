@@ -92,15 +92,9 @@ void android_main(struct android_app* app)
                 }
                 else
                 {
-                    gfxrecon::decode::ReplayOptions replay_options;
-                    if (arg_parser.IsOptionSet(kSkipFailedAllocationLongOption) ||
-                        arg_parser.IsOptionSet(kSkipFailedAllocationShortOption))
-                    {
-                        replay_options.skip_failed_allocations = true;
-                    }
-
                     gfxrecon::decode::VulkanDecoder        decoder;
-                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get(), replay_options);
+                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get(),
+                                                                           GetReplayOptions(arg_parser));
 
                     replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });

@@ -853,7 +853,7 @@ void VulkanReplayConsumer::Process_vkCreatePipelineCache(
     VkPipelineCache out_pPipelineCache_value = static_cast<VkPipelineCache>(0);
     VkPipelineCache* out_pPipelineCache = &out_pPipelineCache_value;
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreatePipelineCache(in_device, in_pCreateInfo, in_pAllocator, out_pPipelineCache);
+    VkResult replay_result = OverrideCreatePipelineCache(GetDeviceTable(in_device)->CreatePipelineCache, returnValue, in_device, in_pCreateInfo, in_pAllocator, out_pPipelineCache);
     CheckResult("vkCreatePipelineCache", returnValue, replay_result);
 
     AddHandles<VkPipelineCache>(pPipelineCache.GetPointer(), 1, out_pPipelineCache, 1, &VulkanObjectMapper::AddVkPipelineCache);
