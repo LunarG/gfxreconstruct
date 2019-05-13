@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2019 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,8 +46,23 @@ adb_push = 'adb push'
 
 def PrintUsage():
     print('gfxrecon.py usage:')
-    print('\tgfxrecon.py install-apk <file>')
-    print('\tgfxrecon.py replay [-p | --push-file <file-on-desktop>] <file-on-device>')
+    print('  gfxrecon.py install-apk <file>')
+    print('  gfxrecon.py replay [options] <file-on-device>')
+    print()
+    print('Android-specific replay options:')
+    print('  -p <file-on-desktop>\tPush <file-on-desktop> to <file-on-device> before starting')
+    print('                      \treplay (same as --push-file <file-on-desktop>).')
+    print()
+    print('Common replay options:')
+    print('  --pause-frame <N>\tPause after replaying frame number N')
+    print('  --paused\t\tPause after replaying the first frame (same');
+    print('          \t\tas --pause-frame 1)');
+    print('  --sfa\t\t\tSkip vkAllocateMemory, vkAllocateCommandBuffers, and');
+    print('       \t\t\tvkAllocateDescriptorSets calls that failed during');
+    print('       \t\t\tcapture (same as --skip-failed-allocations)');
+    print('  --opcd\t\tOmit pipeline cache data from calls to');
+    print('        \t\tvkCreatePipelineCache (same as --omit-pipeline-cache-data)');
+
 
 def InstallApk():
     if argc != 3:
