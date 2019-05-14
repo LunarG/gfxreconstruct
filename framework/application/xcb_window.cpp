@@ -116,7 +116,8 @@ bool XcbWindow::Create(
 
     uint32_t value_mask   = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     uint32_t value_list[] = { screen->black_pixel,
-                              XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_STRUCTURE_NOTIFY };
+                              XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_EXPOSURE |
+                                  XCB_EVENT_MASK_STRUCTURE_NOTIFY };
 
     xcb_void_cookie_t cookie = xcb_create_window_checked(connection,
                                                          XCB_COPY_FROM_PARENT,
