@@ -59,7 +59,7 @@ void Application::Run()
         // Only process the next frame if a quit event was not processed or not paused.
         if (running_ && !paused_)
         {
-            running_ = PlaySingleFrame();
+            PlaySingleFrame();
         }
     }
 }
@@ -101,6 +101,10 @@ bool Application::PlaySingleFrame()
             {
                 GFXRECON_LOG_INFO("Paused at frame %u", file_processor_->GetCurrentFrameNumber());
             }
+        }
+        else
+        {
+            running_ = false;
         }
     }
 
