@@ -30,6 +30,7 @@
 
 #include <android_native_app_glue.h>
 
+#include <cstdlib>
 #include <exception>
 #include <memory>
 #include <string>
@@ -38,6 +39,8 @@
 const char kArgsExtentKey[]      = "args";
 const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
 const char kLayerProperty[]      = "debug.vulkan.layers";
+
+const int32_t kSwipeDistance = 200;
 
 std::string GetIntentExtra(struct android_app* app, const char* key);
 void        ProcessAppCmd(struct android_app* app, int32_t cmd);
@@ -212,17 +215,98 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
 
 int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
 {
-    if ((app->userData != nullptr) && (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION))
+    if (app->userData != nullptr)
     {
-        gfxrecon::application::AndroidApplication* android_application =
-            reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+        int32_t type = AInputEvent_getType(event);
 
-        // TODO: Distinguish between tap and swipe actions; swipe to advance to next frame when paused.
-        int32_t action = AMotionEvent_getAction(event);
-        if (action == AMOTION_EVENT_ACTION_UP)
+        if (type == AINPUT_EVENT_TYPE_MOTION)
         {
-            android_application->SetPaused(!android_application->GetPaused());
-            return 1;
+            static int32_t start_pointer_id = 0;
+            static int32_t start_x          = 0;
+            static int32_t start_y          = 0;
+
+            int32_t action = AMotionEvent_getAction(event);
+
+            if (action == AMOTION_EVENT_ACTION_UP)
+            {
+                auto android_application = reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+                int32_t horizontal_distance = 0;
+                int32_t vertical_distance   = 0;
+
+                if (start_pointer_id == AMotionEvent_getPointerId(event, 0))
+                {
+                    horizontal_distance = AMotionEvent_getX(event, 0) - start_x;
+                    vertical_distance   = AMotionEvent_getY(event, 0) - start_y;
+                }
+
+                if (abs(horizontal_distance) > kSwipeDistance)
+                {
+                    if ((horizontal_distance < 0) && (abs(horizontal_distance) > abs(vertical_distance)) &&
+                        android_application->GetPaused())
+                    {
+                        // Treat as swipe right-to-left to advance frame while paused.
+                        android_application->PlaySingleFrame();
+                    }
+                }
+                else if (abs(vertical_distance) > kSwipeDistance)
+                {
+                    // Ignore vertical swipe.
+                }
+                else
+                {
+                    // Treat as a tap to toggle pause state.
+                    android_application->SetPaused(!android_application->GetPaused());
+                }
+
+                return 1;
+            }
+            else if (action == AMOTION_EVENT_ACTION_DOWN)
+            {
+                start_pointer_id = AMotionEvent_getPointerId(event, 0);
+                start_x          = AMotionEvent_getX(event, 0);
+                start_y          = AMotionEvent_getY(event, 0);
+                return 1;
+            }
+        }
+        else if (type == AINPUT_EVENT_TYPE_KEY)
+        {
+            int32_t key    = AKeyEvent_getKeyCode(event);
+            int32_t action = AKeyEvent_getAction(event);
+
+            // Key input can be simulated with 'adb shell input keyevent <keycode>'. Relevant keycodes are:
+            //  Space = 62
+            //  P     = 44
+            //  Right = 22
+            //  N     = 42
+            if (action == AKEY_EVENT_ACTION_UP)
+            {
+                auto android_application = reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+                switch (key)
+                {
+                    case AKEYCODE_SPACE:
+                    case AKEYCODE_P:
+                        android_application->SetPaused(!android_application->GetPaused());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (action == AKEY_EVENT_ACTION_DOWN)
+            {
+                auto android_application = reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+                switch (key)
+                {
+                    case AKEYCODE_DPAD_RIGHT:
+                    case AKEYCODE_N:
+                        if (android_application->GetPaused())
+                        {
+                            android_application->PlaySingleFrame();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 
