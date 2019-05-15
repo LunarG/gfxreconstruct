@@ -98,6 +98,8 @@ class FileProcessor
 
     bool SkipBytes(size_t skip_size);
 
+    void HandleBlockReadError(Error error_code, const char* error_message);
+
     bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
 
     bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type);
