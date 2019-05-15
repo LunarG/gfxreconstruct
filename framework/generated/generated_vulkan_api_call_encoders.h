@@ -1497,6 +1497,12 @@ VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
     size_t*                                     pInfoSize,
     void*                                       pInfo);
 
+VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(
+    VkInstance                                  instance,
+    const VkStreamDescriptorSurfaceCreateInfoGGP* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface);
+
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(
     VkPhysicalDevice                            physicalDevice,
     VkFormat                                    format,
@@ -1915,6 +1921,11 @@ VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(
     uint32_t*                                   pCheckpointDataCount,
     VkCheckpointDataNV*                         pCheckpointData);
 
+VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapChain,
+    VkBool32                                    localDimmingEnable);
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
     VkInstance                                  instance,
     const VkImagePipeSurfaceCreateInfoFUCHSIA*  pCreateInfo,
@@ -1935,6 +1946,42 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(
     VkPhysicalDevice                            physicalDevice,
     uint32_t*                                   pPropertyCount,
     VkCooperativeMatrixPropertiesNV*            pProperties);
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t*                                   pCombinationCount,
+    VkFramebufferMixedSamplesCombinationNV*     pCombinations);
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(
+    VkPhysicalDevice                            physicalDevice,
+    const VkPhysicalDeviceSurfaceInfo2KHR*      pSurfaceInfo,
+    uint32_t*                                   pPresentModeCount,
+    VkPresentModeKHR*                           pPresentModes);
+
+VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain);
+
+VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain);
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(
+    VkDevice                                    device,
+    const VkPhysicalDeviceSurfaceInfo2KHR*      pSurfaceInfo,
+    VkDeviceGroupPresentModeFlagsKHR*           pModes);
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(
+    VkInstance                                  instance,
+    const VkHeadlessSurfaceCreateInfoEXT*       pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface);
+
+VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(
+    VkDevice                                    device,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

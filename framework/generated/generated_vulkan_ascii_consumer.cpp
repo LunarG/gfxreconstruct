@@ -2382,6 +2382,16 @@ void VulkanAsciiConsumer::Process_vkGetShaderInfoAMD(
     fprintf(GetFile(), "%s\n", "vkGetShaderInfoAMD");
 }
 
+void VulkanAsciiConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(
+    VkResult                                    returnValue,
+    format::HandleId                            instance,
+    const StructPointerDecoder<Decoded_VkStreamDescriptorSurfaceCreateInfoGGP>& pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateStreamDescriptorSurfaceGGP");
+}
+
 void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
     VkResult                                    returnValue,
     format::HandleId                            physicalDevice,
@@ -3055,6 +3065,14 @@ void VulkanAsciiConsumer::Process_vkGetQueueCheckpointDataNV(
     fprintf(GetFile(), "%s\n", "vkGetQueueCheckpointDataNV");
 }
 
+void VulkanAsciiConsumer::Process_vkSetLocalDimmingAMD(
+    format::HandleId                            device,
+    format::HandleId                            swapChain,
+    VkBool32                                    localDimmingEnable)
+{
+    fprintf(GetFile(), "%s\n", "vkSetLocalDimmingAMD");
+}
+
 void VulkanAsciiConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     VkResult                                    returnValue,
     format::HandleId                            instance,
@@ -3090,6 +3108,69 @@ void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixProperties
     const StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesNV>& pProperties)
 {
     fprintf(GetFile(), "%s\n", "vkGetPhysicalDeviceCooperativeMatrixPropertiesNV");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    const PointerDecoder<uint32_t>&             pCombinationCount,
+    const StructPointerDecoder<Decoded_VkFramebufferMixedSamplesCombinationNV>& pCombinations)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    const StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>& pSurfaceInfo,
+    const PointerDecoder<uint32_t>&             pPresentModeCount,
+    const PointerDecoder<VkPresentModeKHR>&     pPresentModes)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPhysicalDeviceSurfacePresentModes2EXT");
+}
+
+void VulkanAsciiConsumer::Process_vkAcquireFullScreenExclusiveModeEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain)
+{
+    fprintf(GetFile(), "%s\n", "vkAcquireFullScreenExclusiveModeEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkReleaseFullScreenExclusiveModeEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain)
+{
+    fprintf(GetFile(), "%s\n", "vkReleaseFullScreenExclusiveModeEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkGetDeviceGroupSurfacePresentModes2EXT(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>& pSurfaceInfo,
+    const PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>& pModes)
+{
+    fprintf(GetFile(), "%s\n", "vkGetDeviceGroupSurfacePresentModes2EXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCreateHeadlessSurfaceEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            instance,
+    const StructPointerDecoder<Decoded_VkHeadlessSurfaceCreateInfoEXT>& pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateHeadlessSurfaceEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkResetQueryPoolEXT(
+    format::HandleId                            device,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount)
+{
+    fprintf(GetFile(), "%s\n", "vkResetQueryPoolEXT");
 }
 
 GFXRECON_END_NAMESPACE(decode)

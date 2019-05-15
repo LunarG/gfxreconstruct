@@ -20,7 +20,8 @@
 # and related Python files found in the KhronosGroup/Vulkan-Headers GitHub repository.
 
 import os,re,sys,json
-from generator import *
+from generator import (GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write)
+from vkconventions import VulkanConventions
 
 # Turn a list of strings into a regexp string matching exactly those strings.
 # From Khronos genvk.py
@@ -123,6 +124,7 @@ class BaseGeneratorOptions(GeneratorOptions):
                  prefixText = '',
                  protectFile = False,
                  protectFeature = True,
+                 conventions = VulkanConventions(),
                  apicall = 'VKAPI_ATTR ',
                  apientry = 'VKAPI_CALL ',
                  apientryp = 'VKAPI_PTR *',
@@ -137,7 +139,7 @@ class BaseGeneratorOptions(GeneratorOptions):
                  addExtensions = _addExtensionsPat,
                  removeExtensions = _removeExtensionsPat,
                  emitExtensions = _emitExtensionsPat):
-        GeneratorOptions.__init__(self, filename, directory, apiname, profile,
+        GeneratorOptions.__init__(self, conventions, filename, directory, apiname, profile,
                                   versions, emitversions, defaultExtensions,
                                   addExtensions, removeExtensions,
                                   emitExtensions, sortProcedure)
@@ -800,6 +802,7 @@ class BaseGenerator(OutputGenerator):
             'xcb' : 'VK_USE_PLATFORM_XCB_KHR',
             'xlib' : 'VK_USE_PLATFORM_XLIB_KHR',
             'xlib_xrandr' : 'VK_USE_PLATFORM_XLIB_XRANDR_EXT',
+            'ggp' : 'VK_USE_PLATFORM_GGP'
         }
 
         platform = interface.get('platform')

@@ -1414,11 +1414,11 @@ struct Decoded_VkPhysicalDeviceMultiviewProperties
     std::unique_ptr<PNextNode> pNext;
 };
 
-struct Decoded_VkPhysicalDeviceVariablePointerFeatures
+struct Decoded_VkPhysicalDeviceVariablePointersFeatures
 {
-    using struct_type = VkPhysicalDeviceVariablePointerFeatures;
+    using struct_type = VkPhysicalDeviceVariablePointersFeatures;
 
-    VkPhysicalDeviceVariablePointerFeatures* value{ nullptr };
+    VkPhysicalDeviceVariablePointersFeatures* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
 };
@@ -1690,16 +1690,20 @@ struct Decoded_VkDescriptorSetLayoutSupport
     std::unique_ptr<PNextNode> pNext;
 };
 
-struct Decoded_VkPhysicalDeviceShaderDrawParameterFeatures
+struct Decoded_VkPhysicalDeviceShaderDrawParametersFeatures
 {
-    using struct_type = VkPhysicalDeviceShaderDrawParameterFeatures;
+    using struct_type = VkPhysicalDeviceShaderDrawParametersFeatures;
 
-    VkPhysicalDeviceShaderDrawParameterFeatures* value{ nullptr };
+    VkPhysicalDeviceShaderDrawParametersFeatures* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
 };
 
 typedef Decoded_VkMemoryRequirements2 Decoded_VkMemoryRequirements2KHR;
+
+typedef Decoded_VkPhysicalDeviceVariablePointersFeatures Decoded_VkPhysicalDeviceVariablePointerFeatures;
+
+typedef Decoded_VkPhysicalDeviceShaderDrawParametersFeatures Decoded_VkPhysicalDeviceShaderDrawParameterFeatures;
 
 struct Decoded_VkSurfaceCapabilitiesKHR
 {
@@ -2392,7 +2396,9 @@ struct Decoded_VkSurfaceFormat2KHR
     Decoded_VkSurfaceFormatKHR surfaceFormat;
 };
 
-typedef Decoded_VkPhysicalDeviceVariablePointerFeatures Decoded_VkPhysicalDeviceVariablePointerFeaturesKHR;
+typedef Decoded_VkPhysicalDeviceVariablePointersFeatures Decoded_VkPhysicalDeviceVariablePointerFeaturesKHR;
+
+typedef Decoded_VkPhysicalDeviceVariablePointersFeatures Decoded_VkPhysicalDeviceVariablePointersFeaturesKHR;
 
 struct Decoded_VkDisplayProperties2KHR
 {
@@ -2560,6 +2566,24 @@ struct Decoded_VkPhysicalDeviceVulkanMemoryModelFeaturesKHR
     std::unique_ptr<PNextNode> pNext;
 };
 
+struct Decoded_VkSurfaceProtectedCapabilitiesKHR
+{
+    using struct_type = VkSurfaceProtectedCapabilitiesKHR;
+
+    VkSurfaceProtectedCapabilitiesKHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR;
+
+    VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 struct Decoded_VkDebugReportCallbackCreateInfoEXT
 {
     using struct_type = VkDebugReportCallbackCreateInfoEXT;
@@ -2702,6 +2726,15 @@ struct Decoded_VkShaderStatisticsInfoAMD
 
     Decoded_VkShaderResourceUsageAMD resourceUsage;
     PointerDecoder<uint32_t> computeWorkGroupSize;
+};
+
+struct Decoded_VkStreamDescriptorSurfaceCreateInfoGGP
+{
+    using struct_type = VkStreamDescriptorSurfaceCreateInfoGGP;
+
+    VkStreamDescriptorSurfaceCreateInfoGGP* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
 };
 
 struct Decoded_VkPhysicalDeviceCornerSampledImageFeaturesNV
@@ -3924,6 +3957,33 @@ struct Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT
     std::unique_ptr<PNextNode> pNext;
 };
 
+struct Decoded_VkPresentFrameTokenGGP
+{
+    using struct_type = VkPresentFrameTokenGGP;
+
+    VkPresentFrameTokenGGP* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPipelineCreationFeedbackEXT
+{
+    using struct_type = VkPipelineCreationFeedbackEXT;
+
+    VkPipelineCreationFeedbackEXT* value{ nullptr };
+};
+
+struct Decoded_VkPipelineCreationFeedbackCreateInfoEXT
+{
+    using struct_type = VkPipelineCreationFeedbackCreateInfoEXT;
+
+    VkPipelineCreationFeedbackCreateInfoEXT* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    StructPointerDecoder<Decoded_VkPipelineCreationFeedbackEXT> pPipelineCreationFeedback;
+    StructPointerDecoder<Decoded_VkPipelineCreationFeedbackEXT> pPipelineStageCreationFeedbacks;
+};
+
 struct Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesNV
 {
     using struct_type = VkPhysicalDeviceComputeShaderDerivativesFeaturesNV;
@@ -4025,6 +4085,24 @@ struct Decoded_VkPhysicalDevicePCIBusInfoPropertiesEXT
     std::unique_ptr<PNextNode> pNext;
 };
 
+struct Decoded_VkDisplayNativeHdrSurfaceCapabilitiesAMD
+{
+    using struct_type = VkDisplayNativeHdrSurfaceCapabilitiesAMD;
+
+    VkDisplayNativeHdrSurfaceCapabilitiesAMD* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkSwapchainDisplayNativeHdrCreateInfoAMD
+{
+    using struct_type = VkSwapchainDisplayNativeHdrCreateInfoAMD;
+
+    VkSwapchainDisplayNativeHdrCreateInfoAMD* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 struct Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA
 {
     using struct_type = VkImagePipeSurfaceCreateInfoFUCHSIA;
@@ -4121,11 +4199,11 @@ struct Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV
     std::unique_ptr<PNextNode> pNext;
 };
 
-struct Decoded_VkPhysicalDeviceBufferAddressFeaturesEXT
+struct Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT
 {
-    using struct_type = VkPhysicalDeviceBufferAddressFeaturesEXT;
+    using struct_type = VkPhysicalDeviceBufferDeviceAddressFeaturesEXT;
 
-    VkPhysicalDeviceBufferAddressFeaturesEXT* value{ nullptr };
+    VkPhysicalDeviceBufferDeviceAddressFeaturesEXT* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
 };
@@ -4148,6 +4226,8 @@ struct Decoded_VkBufferDeviceAddressCreateInfoEXT
 
     std::unique_ptr<PNextNode> pNext;
 };
+
+typedef Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT Decoded_VkPhysicalDeviceBufferAddressFeaturesEXT;
 
 struct Decoded_VkImageStencilUsageCreateInfoEXT
 {
@@ -4196,11 +4276,84 @@ struct Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesNV
     std::unique_ptr<PNextNode> pNext;
 };
 
+struct Decoded_VkPhysicalDeviceCoverageReductionModeFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceCoverageReductionModeFeaturesNV;
+
+    VkPhysicalDeviceCoverageReductionModeFeaturesNV* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPipelineCoverageReductionStateCreateInfoNV
+{
+    using struct_type = VkPipelineCoverageReductionStateCreateInfoNV;
+
+    VkPipelineCoverageReductionStateCreateInfoNV* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkFramebufferMixedSamplesCombinationNV
+{
+    using struct_type = VkFramebufferMixedSamplesCombinationNV;
+
+    VkFramebufferMixedSamplesCombinationNV* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 struct Decoded_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceYcbcrImageArraysFeaturesEXT;
 
     VkPhysicalDeviceYcbcrImageArraysFeaturesEXT* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkSurfaceFullScreenExclusiveInfoEXT
+{
+    using struct_type = VkSurfaceFullScreenExclusiveInfoEXT;
+
+    VkSurfaceFullScreenExclusiveInfoEXT* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkSurfaceCapabilitiesFullScreenExclusiveEXT
+{
+    using struct_type = VkSurfaceCapabilitiesFullScreenExclusiveEXT;
+
+    VkSurfaceCapabilitiesFullScreenExclusiveEXT* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkSurfaceFullScreenExclusiveWin32InfoEXT
+{
+    using struct_type = VkSurfaceFullScreenExclusiveWin32InfoEXT;
+
+    VkSurfaceFullScreenExclusiveWin32InfoEXT* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    uint64_t hmonitor{ 0 };
+};
+
+struct Decoded_VkHeadlessSurfaceCreateInfoEXT
+{
+    using struct_type = VkHeadlessSurfaceCreateInfoEXT;
+
+    VkHeadlessSurfaceCreateInfoEXT* value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDeviceHostQueryResetFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceHostQueryResetFeaturesEXT;
+
+    VkPhysicalDeviceHostQueryResetFeaturesEXT* value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
 };
