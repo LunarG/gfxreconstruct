@@ -531,8 +531,6 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetQueryPool>
     }
 };
 
-#if 0
-// TODO: Need to update header for this function.
 template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>
 {
@@ -542,7 +540,6 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>
         manager->PostProcess_vkResetQueryPoolEXT(args...);
     }
 };
-#endif
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
