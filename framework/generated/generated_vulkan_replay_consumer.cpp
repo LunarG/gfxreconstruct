@@ -3805,6 +3805,25 @@ void VulkanReplayConsumer::Process_vkGetShaderInfoAMD(
     FreeArray<uint8_t>(&out_pInfo);
 }
 
+void VulkanReplayConsumer::Process_vkCreateStreamDescriptorSurfaceGGP(
+    VkResult                                    returnValue,
+    format::HandleId                            instance,
+    const StructPointerDecoder<Decoded_VkStreamDescriptorSurfaceCreateInfoGGP>& pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
+{
+    VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
+    const VkStreamDescriptorSurfaceCreateInfoGGP* in_pCreateInfo = pCreateInfo.GetPointer();
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    VkSurfaceKHR out_pSurface_value = static_cast<VkSurfaceKHR>(0);
+    VkSurfaceKHR* out_pSurface = &out_pSurface_value;
+
+    VkResult replay_result = GetInstanceTable(in_instance)->CreateStreamDescriptorSurfaceGGP(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+    CheckResult("vkCreateStreamDescriptorSurfaceGGP", returnValue, replay_result);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), 1, out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
+}
+
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
     VkResult                                    returnValue,
     format::HandleId                            physicalDevice,
@@ -4878,6 +4897,17 @@ void VulkanReplayConsumer::Process_vkGetQueueCheckpointDataNV(
     FreeArray<VkCheckpointDataNV>(&out_pCheckpointData);
 }
 
+void VulkanReplayConsumer::Process_vkSetLocalDimmingAMD(
+    format::HandleId                            device,
+    format::HandleId                            swapChain,
+    VkBool32                                    localDimmingEnable)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    VkSwapchainKHR in_swapChain = GetObjectMapper().MapVkSwapchainKHR(swapChain);
+
+    GetDeviceTable(in_device)->SetLocalDimmingAMD(in_device, in_swapChain, localDimmingEnable);
+}
+
 void VulkanReplayConsumer::Process_vkCreateImagePipeSurfaceFUCHSIA(
     VkResult                                    returnValue,
     format::HandleId                            instance,
@@ -4943,6 +4973,114 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertie
     CheckResult("vkGetPhysicalDeviceCooperativeMatrixPropertiesNV", returnValue, replay_result);
 
     FreeArray<VkCooperativeMatrixPropertiesNV>(&out_pProperties);
+}
+
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    const PointerDecoder<uint32_t>&             pCombinationCount,
+    const StructPointerDecoder<Decoded_VkFramebufferMixedSamplesCombinationNV>& pCombinations)
+{
+    VkPhysicalDevice in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
+    uint32_t out_pCombinationCount_value = pCombinationCount.IsNull() ? static_cast<uint32_t>(0) : *(pCombinationCount.GetPointer());
+    uint32_t* out_pCombinationCount = &out_pCombinationCount_value;
+    VkFramebufferMixedSamplesCombinationNV* out_pCombinations = pCombinations.IsNull() ? nullptr : AllocateArray<VkFramebufferMixedSamplesCombinationNV>(out_pCombinationCount_value, VkFramebufferMixedSamplesCombinationNV{ VK_STRUCTURE_TYPE_FRAMEBUFFER_MIXED_SAMPLES_COMBINATION_NV, nullptr });
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(in_physicalDevice, out_pCombinationCount, out_pCombinations);
+    CheckResult("vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV", returnValue, replay_result);
+
+    FreeArray<VkFramebufferMixedSamplesCombinationNV>(&out_pCombinations);
+}
+
+void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    const StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>& pSurfaceInfo,
+    const PointerDecoder<uint32_t>&             pPresentModeCount,
+    const PointerDecoder<VkPresentModeKHR>&     pPresentModes)
+{
+    VkPhysicalDevice in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
+    const VkPhysicalDeviceSurfaceInfo2KHR* in_pSurfaceInfo = pSurfaceInfo.GetPointer();
+    MapStructHandles(pSurfaceInfo.GetMetaStructPointer(), GetObjectMapper());
+    uint32_t out_pPresentModeCount_value = pPresentModeCount.IsNull() ? static_cast<uint32_t>(0) : *(pPresentModeCount.GetPointer());
+    uint32_t* out_pPresentModeCount = &out_pPresentModeCount_value;
+    VkPresentModeKHR* out_pPresentModes = pPresentModes.IsNull() ? nullptr : AllocateArray<VkPresentModeKHR>(out_pPresentModeCount_value);
+
+    VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceSurfacePresentModes2EXT(in_physicalDevice, in_pSurfaceInfo, out_pPresentModeCount, out_pPresentModes);
+    CheckResult("vkGetPhysicalDeviceSurfacePresentModes2EXT", returnValue, replay_result);
+
+    FreeArray<VkPresentModeKHR>(&out_pPresentModes);
+}
+
+void VulkanReplayConsumer::Process_vkAcquireFullScreenExclusiveModeEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    VkSwapchainKHR in_swapchain = GetObjectMapper().MapVkSwapchainKHR(swapchain);
+
+    VkResult replay_result = GetDeviceTable(in_device)->AcquireFullScreenExclusiveModeEXT(in_device, in_swapchain);
+    CheckResult("vkAcquireFullScreenExclusiveModeEXT", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkReleaseFullScreenExclusiveModeEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            swapchain)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    VkSwapchainKHR in_swapchain = GetObjectMapper().MapVkSwapchainKHR(swapchain);
+
+    VkResult replay_result = GetDeviceTable(in_device)->ReleaseFullScreenExclusiveModeEXT(in_device, in_swapchain);
+    CheckResult("vkReleaseFullScreenExclusiveModeEXT", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkGetDeviceGroupSurfacePresentModes2EXT(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>& pSurfaceInfo,
+    const PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>& pModes)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    const VkPhysicalDeviceSurfaceInfo2KHR* in_pSurfaceInfo = pSurfaceInfo.GetPointer();
+    MapStructHandles(pSurfaceInfo.GetMetaStructPointer(), GetObjectMapper());
+    VkDeviceGroupPresentModeFlagsKHR out_pModes_value = static_cast<VkDeviceGroupPresentModeFlagsKHR>(0);
+    VkDeviceGroupPresentModeFlagsKHR* out_pModes = &out_pModes_value;
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetDeviceGroupSurfacePresentModes2EXT(in_device, in_pSurfaceInfo, out_pModes);
+    CheckResult("vkGetDeviceGroupSurfacePresentModes2EXT", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkCreateHeadlessSurfaceEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            instance,
+    const StructPointerDecoder<Decoded_VkHeadlessSurfaceCreateInfoEXT>& pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+    const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
+{
+    VkInstance in_instance = GetObjectMapper().MapVkInstance(instance);
+    const VkHeadlessSurfaceCreateInfoEXT* in_pCreateInfo = pCreateInfo.GetPointer();
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    VkSurfaceKHR out_pSurface_value = static_cast<VkSurfaceKHR>(0);
+    VkSurfaceKHR* out_pSurface = &out_pSurface_value;
+
+    VkResult replay_result = GetInstanceTable(in_instance)->CreateHeadlessSurfaceEXT(in_instance, in_pCreateInfo, in_pAllocator, out_pSurface);
+    CheckResult("vkCreateHeadlessSurfaceEXT", returnValue, replay_result);
+
+    AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), 1, out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
+}
+
+void VulkanReplayConsumer::Process_vkResetQueryPoolEXT(
+    format::HandleId                            device,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    VkQueryPool in_queryPool = GetObjectMapper().MapVkQueryPool(queryPool);
+
+    GetDeviceTable(in_device)->ResetQueryPoolEXT(in_device, in_queryPool, firstQuery, queryCount);
 }
 
 GFXRECON_END_NAMESPACE(decode)

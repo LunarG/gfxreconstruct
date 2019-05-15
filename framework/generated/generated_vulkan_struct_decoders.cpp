@@ -2764,12 +2764,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceVariablePointerFeatures* wrapper)
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceVariablePointersFeatures* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
 
     size_t bytes_read = 0;
-    VkPhysicalDeviceVariablePointerFeatures* value = wrapper->value;
+    VkPhysicalDeviceVariablePointersFeatures* value = wrapper->value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
@@ -3253,12 +3253,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescrip
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderDrawParameterFeatures* wrapper)
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderDrawParametersFeatures* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
 
     size_t bytes_read = 0;
-    VkPhysicalDeviceShaderDrawParameterFeatures* value = wrapper->value;
+    VkPhysicalDeviceShaderDrawParametersFeatures* value = wrapper->value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
@@ -4604,6 +4604,36 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSurfaceProtectedCapabilitiesKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkSurfaceProtectedCapabilitiesKHR* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->supportsProtected));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->uniformBufferStandardLayout));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDebugReportCallbackCreateInfoEXT* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -4864,6 +4894,22 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkShaderS
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->numAvailableSgprs));
     wrapper->computeWorkGroupSize.SetExternalMemory(value->computeWorkGroupSize, 3);
     bytes_read += wrapper->computeWorkGroupSize.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkStreamDescriptorSurfaceCreateInfoGGP* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkStreamDescriptorSurfaceCreateInfoGGP* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->streamDescriptor));
 
     return bytes_read;
 }
@@ -7122,6 +7168,53 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPresentFrameTokenGGP* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPresentFrameTokenGGP* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->frameToken));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelineCreationFeedbackEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPipelineCreationFeedbackEXT* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->duration));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelineCreationFeedbackCreateInfoEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPipelineCreationFeedbackCreateInfoEXT* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += wrapper->pPipelineCreationFeedback.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pPipelineCreationFeedback = wrapper->pPipelineCreationFeedback.GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->pipelineStageCreationFeedbackCount));
+    bytes_read += wrapper->pPipelineStageCreationFeedbacks.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pPipelineStageCreationFeedbacks = wrapper->pPipelineStageCreationFeedbacks.GetPointer();
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesNV* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -7308,6 +7401,36 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDisplayNativeHdrSurfaceCapabilitiesAMD* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkDisplayNativeHdrSurfaceCapabilitiesAMD* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->localDimmingSupport));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSwapchainDisplayNativeHdrCreateInfoAMD* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkSwapchainDisplayNativeHdrCreateInfoAMD* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->localDimmingEnable));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -7471,12 +7594,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceBufferAddressFeaturesEXT* wrapper)
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
 
     size_t bytes_read = 0;
-    VkPhysicalDeviceBufferAddressFeaturesEXT* value = wrapper->value;
+    VkPhysicalDeviceBufferDeviceAddressFeaturesEXT* value = wrapper->value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
@@ -7514,7 +7637,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkBufferD
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceAddress));
+    bytes_read += ValueDecoder::DecodeVkDeviceAddressValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceAddress));
 
     return bytes_read;
 }
@@ -7607,6 +7730,55 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceCoverageReductionModeFeaturesNV* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPhysicalDeviceCoverageReductionModeFeaturesNV* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->coverageReductionMode));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelineCoverageReductionStateCreateInfoNV* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPipelineCoverageReductionStateCreateInfoNV* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->coverageReductionMode));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkFramebufferMixedSamplesCombinationNV* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkFramebufferMixedSamplesCombinationNV* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->coverageReductionMode));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->rasterizationSamples));
+    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->depthStencilSamples));
+    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->colorSamples));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->value != nullptr));
@@ -7618,6 +7790,82 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysica
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
     value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ycbcrImageArrays));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSurfaceFullScreenExclusiveInfoEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkSurfaceFullScreenExclusiveInfoEXT* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->fullScreenExclusive));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSurfaceCapabilitiesFullScreenExclusiveEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkSurfaceCapabilitiesFullScreenExclusiveEXT* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->fullScreenExclusiveSupported));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkSurfaceFullScreenExclusiveWin32InfoEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkSurfaceFullScreenExclusiveWin32InfoEXT* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->hmonitor));
+    value->hmonitor = nullptr;
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkHeadlessSurfaceCreateInfoEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkHeadlessSurfaceCreateInfoEXT* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPhysicalDeviceHostQueryResetFeaturesEXT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t bytes_read = 0;
+    VkPhysicalDeviceHostQueryResetFeaturesEXT* value = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeVkBool32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->hostQueryReset));
 
     return bytes_read;
 }

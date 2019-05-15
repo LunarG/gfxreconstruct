@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse, cProfile, pdb, string, sys, time
+import argparse, cProfile, pdb, os, string, sys, time
 from reg import *
 from generator import write
 

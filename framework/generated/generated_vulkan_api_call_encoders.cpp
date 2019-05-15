@@ -6143,6 +6143,32 @@ VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
     return result;
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(
+    VkInstance                                  instance,
+    const VkStreamDescriptorSurfaceCreateInfoGGP* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+
+    VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateStreamDescriptorSurfaceGGP(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP);
+    if (encoder)
+    {
+        encoder->EncodeHandleIdValue(instance);
+        EncodeStructPtr(encoder, pCreateInfo);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeHandleIdPtr(pSurface);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkStreamDescriptorSurfaceCreateInfoGGP>(result, instance, pSurface, pCreateInfo, encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP>::Dispatch(TraceManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+
+    return result;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(
     VkPhysicalDevice                            physicalDevice,
     VkFormat                                    format,
@@ -7890,6 +7916,27 @@ VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV>::Dispatch(TraceManager::Get(), queue, pCheckpointDataCount, pCheckpointData);
 }
 
+VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapChain,
+    VkBool32                                    localDimmingEnable)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>::Dispatch(TraceManager::Get(), device, swapChain, localDimmingEnable);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetLocalDimmingAMD);
+    if (encoder)
+    {
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(swapChain);
+        encoder->EncodeVkBool32Value(localDimmingEnable);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    TraceManager::Get()->GetDeviceTable(device)->SetLocalDimmingAMD(device, swapChain, localDimmingEnable);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>::Dispatch(TraceManager::Get(), device, swapChain, localDimmingEnable);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
     VkInstance                                  instance,
     const VkImagePipeSurfaceCreateInfoFUCHSIA*  pCreateInfo,
@@ -7986,6 +8033,173 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV>::Dispatch(TraceManager::Get(), result, physicalDevice, pPropertyCount, pProperties);
 
     return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t*                                   pCombinationCount,
+    VkFramebufferMixedSamplesCombinationNV*     pCombinations)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>::Dispatch(TraceManager::Get(), physicalDevice, pCombinationCount, pCombinations);
+
+    VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(physicalDevice, pCombinationCount, pCombinations);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleIdValue(physicalDevice);
+        encoder->EncodeUInt32Ptr(pCombinationCount);
+        EncodeStructArray(encoder, pCombinations, (pCombinationCount != nullptr) ? (*pCombinationCount) : 0);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>::Dispatch(TraceManager::Get(), result, physicalDevice, pCombinationCount, pCombinations);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(
+    VkPhysicalDevice                            physicalDevice,
+    const VkPhysicalDeviceSurfaceInfo2KHR*      pSurfaceInfo,
+    uint32_t*                                   pPresentModeCount,
+    VkPresentModeKHR*                           pPresentModes)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT>::Dispatch(TraceManager::Get(), physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
+
+    VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSurfacePresentModes2EXT(physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleIdValue(physicalDevice);
+        EncodeStructPtr(encoder, pSurfaceInfo);
+        encoder->EncodeUInt32Ptr(pPresentModeCount);
+        encoder->EncodeEnumArray(pPresentModes, (pPresentModeCount != nullptr) ? (*pPresentModeCount) : 0);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT>::Dispatch(TraceManager::Get(), result, physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>::Dispatch(TraceManager::Get(), device, swapchain);
+
+    VkResult result = TraceManager::Get()->GetDeviceTable(device)->AcquireFullScreenExclusiveModeEXT(device, swapchain);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(swapchain);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>::Dispatch(TraceManager::Get(), result, device, swapchain);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT>::Dispatch(TraceManager::Get(), device, swapchain);
+
+    VkResult result = TraceManager::Get()->GetDeviceTable(device)->ReleaseFullScreenExclusiveModeEXT(device, swapchain);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(swapchain);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT>::Dispatch(TraceManager::Get(), result, device, swapchain);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(
+    VkDevice                                    device,
+    const VkPhysicalDeviceSurfaceInfo2KHR*      pSurfaceInfo,
+    VkDeviceGroupPresentModeFlagsKHR*           pModes)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT>::Dispatch(TraceManager::Get(), device, pSurfaceInfo, pModes);
+
+    VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetDeviceGroupSurfacePresentModes2EXT(device, pSurfaceInfo, pModes);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleIdValue(device);
+        EncodeStructPtr(encoder, pSurfaceInfo);
+        encoder->EncodeFlagsPtr(pModes);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT>::Dispatch(TraceManager::Get(), result, device, pSurfaceInfo, pModes);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(
+    VkInstance                                  instance,
+    const VkHeadlessSurfaceCreateInfoEXT*       pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
+
+    VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateHeadlessSurfaceEXT(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleIdValue(instance);
+        EncodeStructPtr(encoder, pCreateInfo);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeHandleIdPtr(pSurface);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndCreateApiCallTrace<VkInstance, SurfaceKHRWrapper, VkHeadlessSurfaceCreateInfoEXT>(result, instance, pSurface, pCreateInfo, encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT>::Dispatch(TraceManager::Get(), result, instance, pCreateInfo, pAllocator, pSurface);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(
+    VkDevice                                    device,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>::Dispatch(TraceManager::Get(), device, queryPool, firstQuery, queryCount);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetQueryPoolEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleIdValue(device);
+        encoder->EncodeHandleIdValue(queryPool);
+        encoder->EncodeUInt32Value(firstQuery);
+        encoder->EncodeUInt32Value(queryCount);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    TraceManager::Get()->GetDeviceTable(device)->ResetQueryPoolEXT(device, queryPool, firstQuery, queryCount);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>::Dispatch(TraceManager::Get(), device, queryPool, firstQuery, queryCount);
 }
 
 GFXRECON_END_NAMESPACE(encode)
