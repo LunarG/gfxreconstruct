@@ -132,8 +132,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
     # Return VulkanReplayConsumer class member function definition.
     def makeConsumerFuncBody(self, returnType, name, values):
         body = ''
+        isOverride = name in self.REPLAY_OVERRIDES
 
-        args, preexpr, postexpr = self.makeBodyExpressions(name, values)
+        args, preexpr, postexpr = self.makeBodyExpressions(name, values, isOverride)
         arglist = ', '.join(args)
 
         dispatchfunc = ''
@@ -142,7 +143,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
             dispatchfunc += '({})->{}'.format(args[0], name[2:])
 
         callExpr = ''
-        if name in self.REPLAY_OVERRIDES:
+        if isOverride:
             if name in ['vkCreateInstance', 'vkCreateDevice']:
                 callExpr = '{}(returnValue, {})'.format(self.REPLAY_OVERRIDES[name], arglist)
             elif returnType == 'VkResult':
@@ -152,7 +153,6 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                 callExpr = '{}({}, {})'.format(self.REPLAY_OVERRIDES[name], dispatchfunc, arglist)
         else:
             callExpr = '{}({})'.format(dispatchfunc, arglist)
-
 
         if preexpr:
             body += '\n'.join(['    ' + val if val else val for val in preexpr])
@@ -172,7 +172,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
 
     #
     # Generating expressions for mapping decoded parameters to arguments used in the API call
-    def makeBodyExpressions(self, name, values):
+    def makeBodyExpressions(self, name, values, isOverride):
         # For array lengths that are stored in pointers, this will map the original parameter name
         # to the temporary parameter name that was created to store the value to be provided to the Vulkan API call.
         arrayLengths = dict()
@@ -191,7 +191,14 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     fullType += '*'
 
                 # Generate temporary variable to reference a pointer value that is encapsulated within a PointerDecoder object.
-                argName = 'in_' + value.name if isInput else 'out_' + value.name
+                if isInput:
+                    argName = 'in_' + value.name
+                else:
+                    argName = 'out_' + value.name
+                    if isOverride:
+                        # The original value read from the file is provided to replay override functions.
+                        args.append(value.name)
+
                 args.append(argName)
 
                 # Assign PointerDecoder pointer to temporary variable.

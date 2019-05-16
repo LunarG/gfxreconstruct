@@ -18,6 +18,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
 #define GFXRECON_DECODE_VULKAN_REPLAY_CONSUMER_BASE_H
 
+#include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/vulkan_object_mapper.h"
 #include "decode/vulkan_replay_options.h"
@@ -167,16 +168,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // Replay function overrides provided to the replay consumer code generator with replay_overrides.json
     //
 
-    VkResult OverrideCreateInstance(VkResult                     original_result,
-                                    const VkInstanceCreateInfo*  pCreateInfo,
-                                    const VkAllocationCallbacks* pAllocator,
-                                    VkInstance*                  pInstance);
+    VkResult OverrideCreateInstance(VkResult                                original_result,
+                                    const VkInstanceCreateInfo*             pCreateInfo,
+                                    const VkAllocationCallbacks*            pAllocator,
+                                    const HandlePointerDecoder<VkInstance>& original_instance,
+                                    VkInstance*                             pInstance);
 
-    VkResult OverrideCreateDevice(VkResult                     original_result,
-                                  VkPhysicalDevice             physicalDevice,
-                                  const VkDeviceCreateInfo*    pCreateInfo,
-                                  const VkAllocationCallbacks* pAllocator,
-                                  VkDevice*                    pDevice);
+    VkResult OverrideCreateDevice(VkResult                              original_result,
+                                  VkPhysicalDevice                      physicalDevice,
+                                  const VkDeviceCreateInfo*             pCreateInfo,
+                                  const VkAllocationCallbacks*          pAllocator,
+                                  const HandlePointerDecoder<VkDevice>& original_device,
+                                  VkDevice*                             pDevice);
 
     VkResult OverrideWaitForFences(PFN_vkWaitForFences func,
                                    VkResult            original_result,
@@ -192,44 +195,49 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VkResult
     OverrideGetEventStatus(PFN_vkGetEventStatus func, VkResult original_result, VkDevice device, VkEvent event);
 
-    VkResult OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults func,
-                                         VkResult                  original_result,
-                                         VkDevice                  device,
-                                         VkQueryPool               queryPool,
-                                         uint32_t                  firstQuery,
-                                         uint32_t                  queryCount,
-                                         size_t                    dataSize,
-                                         void*                     pData,
-                                         VkDeviceSize              stride,
-                                         VkQueryResultFlags        flags);
+    VkResult OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults      func,
+                                         VkResult                       original_result,
+                                         VkDevice                       device,
+                                         VkQueryPool                    queryPool,
+                                         uint32_t                       firstQuery,
+                                         uint32_t                       queryCount,
+                                         size_t                         dataSize,
+                                         const PointerDecoder<uint8_t>& original_data,
+                                         void*                          pData,
+                                         VkDeviceSize                   stride,
+                                         VkQueryResultFlags             flags);
 
-    VkResult OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers       func,
-                                            VkResult                           original_result,
-                                            VkDevice                           device,
-                                            const VkCommandBufferAllocateInfo* pAllocateInfo,
-                                            VkCommandBuffer*                   pCommandBuffers);
+    VkResult OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers                 func,
+                                            VkResult                                     original_result,
+                                            VkDevice                                     device,
+                                            const VkCommandBufferAllocateInfo*           pAllocateInfo,
+                                            const HandlePointerDecoder<VkCommandBuffer>& original_command_buffers,
+                                            VkCommandBuffer*                             pCommandBuffers);
 
-    VkResult OverrideAllocateDescriptorSets(PFN_vkAllocateDescriptorSets       func,
-                                            VkResult                           original_result,
-                                            VkDevice                           device,
-                                            const VkDescriptorSetAllocateInfo* pAllocateInfo,
-                                            VkDescriptorSet*                   pDescriptorSets);
+    VkResult OverrideAllocateDescriptorSets(PFN_vkAllocateDescriptorSets                 func,
+                                            VkResult                                     original_result,
+                                            VkDevice                                     device,
+                                            const VkDescriptorSetAllocateInfo*           pAllocateInfo,
+                                            const HandlePointerDecoder<VkDescriptorSet>& original_descriptor_sets,
+                                            VkDescriptorSet*                             pDescriptorSets);
 
-    VkResult OverrideAllocateMemory(PFN_vkAllocateMemory         func,
-                                    VkResult                     original_result,
-                                    VkDevice                     device,
-                                    const VkMemoryAllocateInfo*  pAllocateInfo,
-                                    const VkAllocationCallbacks* pAllocator,
-                                    VkDeviceMemory*              pMemory);
+    VkResult OverrideAllocateMemory(PFN_vkAllocateMemory                        func,
+                                    VkResult                                    original_result,
+                                    VkDevice                                    device,
+                                    const VkMemoryAllocateInfo*                 pAllocateInfo,
+                                    const VkAllocationCallbacks*                pAllocator,
+                                    const HandlePointerDecoder<VkDeviceMemory>& original_memory,
+                                    VkDeviceMemory*                             pMemory);
 
-    VkResult OverrideMapMemory(PFN_vkMapMemory  func,
-                               VkResult         original_result,
-                               VkDevice         device,
-                               VkDeviceMemory   memory,
-                               VkDeviceSize     offset,
-                               VkDeviceSize     size,
-                               VkMemoryMapFlags flags,
-                               void**           ppData);
+    VkResult OverrideMapMemory(PFN_vkMapMemory                 func,
+                               VkResult                        original_result,
+                               VkDevice                        device,
+                               VkDeviceMemory                  memory,
+                               VkDeviceSize                    offset,
+                               VkDeviceSize                    size,
+                               VkMemoryMapFlags                flags,
+                               const PointerDecoder<uint64_t>& original_data,
+                               void**                          ppData);
 
     void OverrideUnmapMemory(PFN_vkUnmapMemory func, VkDevice device, VkDeviceMemory memory);
 
@@ -238,47 +246,53 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             VkDeviceMemory               memory,
                             const VkAllocationCallbacks* pAllocator);
 
-    VkResult OverrideCreateDescriptorUpdateTemplate(PFN_vkCreateDescriptorUpdateTemplate        func,
-                                                    VkResult                                    original_result,
-                                                    VkDevice                                    device,
-                                                    const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
-                                                    const VkAllocationCallbacks*                pAllocator,
-                                                    VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
+    VkResult OverrideCreateDescriptorUpdateTemplate(
+        PFN_vkCreateDescriptorUpdateTemplate                    func,
+        VkResult                                                original_result,
+        VkDevice                                                device,
+        const VkDescriptorUpdateTemplateCreateInfo*             pCreateInfo,
+        const VkAllocationCallbacks*                            pAllocator,
+        const HandlePointerDecoder<VkDescriptorUpdateTemplate>& original_update_template,
+        VkDescriptorUpdateTemplate*                             pDescriptorUpdateTemplate);
 
-    VkResult OverrideCreatePipelineCache(PFN_vkCreatePipelineCache        func,
-                                         VkResult                         original_result,
-                                         VkDevice                         device,
-                                         const VkPipelineCacheCreateInfo* pCreateInfo,
-                                         const VkAllocationCallbacks*     pAllocator,
-                                         VkPipelineCache*                 pPipelineCache);
+    VkResult OverrideCreatePipelineCache(PFN_vkCreatePipelineCache                    func,
+                                         VkResult                                     original_result,
+                                         VkDevice                                     device,
+                                         const VkPipelineCacheCreateInfo*             pCreateInfo,
+                                         const VkAllocationCallbacks*                 pAllocator,
+                                         const HandlePointerDecoder<VkPipelineCache>& original_pipeline_cache,
+                                         VkPipelineCache*                             pPipelineCache);
 
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
-    VkResult OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR        func,
-                                             VkResult                             original_result,
-                                             VkInstance                           instance,
-                                             const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
-                                             const VkAllocationCallbacks*         pAllocator,
-                                             VkSurfaceKHR*                        pSurface);
+    VkResult OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR             func,
+                                             VkResult                                  original_result,
+                                             VkInstance                                instance,
+                                             const VkAndroidSurfaceCreateInfoKHR*      pCreateInfo,
+                                             const VkAllocationCallbacks*              pAllocator,
+                                             const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
+                                             VkSurfaceKHR*                             pSurface);
 
-    VkResult OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR        func,
-                                           VkResult                           original_result,
-                                           VkInstance                         instance,
-                                           const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
-                                           const VkAllocationCallbacks*       pAllocator,
-                                           VkSurfaceKHR*                      pSurface);
+    VkResult OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR               func,
+                                           VkResult                                  original_result,
+                                           VkInstance                                instance,
+                                           const VkWin32SurfaceCreateInfoKHR*        pCreateInfo,
+                                           const VkAllocationCallbacks*              pAllocator,
+                                           const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
+                                           VkSurfaceKHR*                             pSurface);
 
     VkBool32
     OverrideGetPhysicalDeviceWin32PresentationSupportKHR(PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func,
                                                          VkPhysicalDevice physicalDevice,
                                                          uint32_t         queueFamilyIndex);
 
-    VkResult OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR        func,
-                                         VkResult                         original_result,
-                                         VkInstance                       instance,
-                                         const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
-                                         const VkAllocationCallbacks*     pAllocator,
-                                         VkSurfaceKHR*                    pSurface);
+    VkResult OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR                 func,
+                                         VkResult                                  original_result,
+                                         VkInstance                                instance,
+                                         const VkXcbSurfaceCreateInfoKHR*          pCreateInfo,
+                                         const VkAllocationCallbacks*              pAllocator,
+                                         const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
+                                         VkSurfaceKHR*                             pSurface);
 
     VkBool32 OverrideGetPhysicalDeviceXcbPresentationSupportKHR(PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func,
                                                                 VkPhysicalDevice  physicalDevice,
@@ -286,12 +300,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                                 xcb_connection_t* connection,
                                                                 xcb_visualid_t    visual_id);
 
-    VkResult OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR        func,
-                                          VkResult                          original_result,
-                                          VkInstance                        instance,
-                                          const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
-                                          const VkAllocationCallbacks*      pAllocator,
-                                          VkSurfaceKHR*                     pSurface);
+    VkResult OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR                func,
+                                          VkResult                                  original_result,
+                                          VkInstance                                instance,
+                                          const VkXlibSurfaceCreateInfoKHR*         pCreateInfo,
+                                          const VkAllocationCallbacks*              pAllocator,
+                                          const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
+                                          VkSurfaceKHR*                             pSurface);
 
     VkBool32 OverrideGetPhysicalDeviceXlibPresentationSupportKHR(PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR func,
                                                                  VkPhysicalDevice physicalDevice,
@@ -299,12 +314,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                                  Display*         dpy,
                                                                  VisualID         visualID);
 
-    VkResult OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR        func,
-                                             VkResult                             original_result,
-                                             VkInstance                           instance,
-                                             const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
-                                             const VkAllocationCallbacks*         pAllocator,
-                                             VkSurfaceKHR*                        pSurface);
+    VkResult OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR             func,
+                                             VkResult                                  original_result,
+                                             VkInstance                                instance,
+                                             const VkWaylandSurfaceCreateInfoKHR*      pCreateInfo,
+                                             const VkAllocationCallbacks*              pAllocator,
+                                             const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
+                                             VkSurfaceKHR*                             pSurface);
 
     VkBool32
     OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,

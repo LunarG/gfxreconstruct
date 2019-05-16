@@ -333,12 +333,14 @@ VkResult VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags fl
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateInstance(VkResult                     original_result,
-                                                          const VkInstanceCreateInfo*  pCreateInfo,
-                                                          const VkAllocationCallbacks* pAllocator,
-                                                          VkInstance*                  pInstance)
+VkResult VulkanReplayConsumerBase::OverrideCreateInstance(VkResult                                original_result,
+                                                          const VkInstanceCreateInfo*             pCreateInfo,
+                                                          const VkAllocationCallbacks*            pAllocator,
+                                                          const HandlePointerDecoder<VkInstance>& original_instance,
+                                                          VkInstance*                             pInstance)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(original_instance);
 
     if (loader_handle_ == nullptr)
     {
@@ -402,13 +404,15 @@ VkResult VulkanReplayConsumerBase::OverrideCreateInstance(VkResult              
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                     original_result,
-                                                        VkPhysicalDevice             physicalDevice,
-                                                        const VkDeviceCreateInfo*    pCreateInfo,
-                                                        const VkAllocationCallbacks* pAllocator,
-                                                        VkDevice*                    pDevice)
+VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                              original_result,
+                                                        VkPhysicalDevice                      physicalDevice,
+                                                        const VkDeviceCreateInfo*             pCreateInfo,
+                                                        const VkAllocationCallbacks*          pAllocator,
+                                                        const HandlePointerDecoder<VkDevice>& original_device,
+                                                        VkDevice*                             pDevice)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(original_device);
 
     VkResult                result               = VK_ERROR_INITIALIZATION_FAILED;
     PFN_vkGetDeviceProcAddr get_device_proc_addr = GetDeviceAddrProc(physicalDevice);
@@ -486,17 +490,20 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus f
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults func,
-                                                               VkResult                  original_result,
-                                                               VkDevice                  device,
-                                                               VkQueryPool               queryPool,
-                                                               uint32_t                  firstQuery,
-                                                               uint32_t                  queryCount,
-                                                               size_t                    dataSize,
-                                                               void*                     pData,
-                                                               VkDeviceSize              stride,
-                                                               VkQueryResultFlags        flags)
+VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults      func,
+                                                               VkResult                       original_result,
+                                                               VkDevice                       device,
+                                                               VkQueryPool                    queryPool,
+                                                               uint32_t                       firstQuery,
+                                                               uint32_t                       queryCount,
+                                                               size_t                         dataSize,
+                                                               const PointerDecoder<uint8_t>& original_data,
+                                                               void*                          pData,
+                                                               VkDeviceSize                   stride,
+                                                               VkQueryResultFlags             flags)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(original_data);
+
     VkResult result;
 
     do
@@ -507,12 +514,16 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers       func,
-                                                                  VkResult                           original_result,
-                                                                  VkDevice                           device,
-                                                                  const VkCommandBufferAllocateInfo* pAllocateInfo,
-                                                                  VkCommandBuffer*                   pCommandBuffers)
+VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
+    PFN_vkAllocateCommandBuffers                 func,
+    VkResult                                     original_result,
+    VkDevice                                     device,
+    const VkCommandBufferAllocateInfo*           pAllocateInfo,
+    const HandlePointerDecoder<VkCommandBuffer>& original_command_buffers,
+    VkCommandBuffer*                             pCommandBuffers)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(original_command_buffers);
+
     VkResult result = original_result;
 
     if ((original_result >= 0) || !options_.skip_failed_allocations)
@@ -528,12 +539,16 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(PFN_vkAllocate
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(PFN_vkAllocateDescriptorSets       func,
-                                                                  VkResult                           original_result,
-                                                                  VkDevice                           device,
-                                                                  const VkDescriptorSetAllocateInfo* pAllocateInfo,
-                                                                  VkDescriptorSet*                   pDescriptorSets)
+VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
+    PFN_vkAllocateDescriptorSets                 func,
+    VkResult                                     original_result,
+    VkDevice                                     device,
+    const VkDescriptorSetAllocateInfo*           pAllocateInfo,
+    const HandlePointerDecoder<VkDescriptorSet>& original_descriptor_sets,
+    VkDescriptorSet*                             pDescriptorSets)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(original_descriptor_sets);
+
     VkResult result = original_result;
 
     if ((original_result >= 0) || !options_.skip_failed_allocations)
@@ -549,13 +564,16 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(PFN_vkAllocate
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(PFN_vkAllocateMemory         func,
-                                                          VkResult                     original_result,
-                                                          VkDevice                     device,
-                                                          const VkMemoryAllocateInfo*  pAllocateInfo,
-                                                          const VkAllocationCallbacks* pAllocator,
-                                                          VkDeviceMemory*              pMemory)
+VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(PFN_vkAllocateMemory                        func,
+                                                          VkResult                                    original_result,
+                                                          VkDevice                                    device,
+                                                          const VkMemoryAllocateInfo*                 pAllocateInfo,
+                                                          const VkAllocationCallbacks*                pAllocator,
+                                                          const HandlePointerDecoder<VkDeviceMemory>& original_memory,
+                                                          VkDeviceMemory*                             pMemory)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(original_memory);
+
     VkResult result = original_result;
 
     if ((original_result >= 0) || !options_.skip_failed_allocations)
@@ -571,16 +589,18 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(PFN_vkAllocateMemory  
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory  func,
-                                                     VkResult         original_result,
-                                                     VkDevice         device,
-                                                     VkDeviceMemory   memory,
-                                                     VkDeviceSize     offset,
-                                                     VkDeviceSize     size,
-                                                     VkMemoryMapFlags flags,
-                                                     void**           ppData)
+VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory                 func,
+                                                     VkResult                        original_result,
+                                                     VkDevice                        device,
+                                                     VkDeviceMemory                  memory,
+                                                     VkDeviceSize                    offset,
+                                                     VkDeviceSize                    size,
+                                                     VkMemoryMapFlags                flags,
+                                                     const PointerDecoder<uint64_t>& original_data,
+                                                     void**                          ppData)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(original_data);
 
     VkResult result = func(device, memory, offset, size, flags, ppData);
 
@@ -610,14 +630,16 @@ void VulkanReplayConsumerBase::OverrideFreeMemory(PFN_vkFreeMemory             f
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
-    PFN_vkCreateDescriptorUpdateTemplate        func,
-    VkResult                                    original_result,
-    VkDevice                                    device,
-    const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
-    const VkAllocationCallbacks*                pAllocator,
-    VkDescriptorUpdateTemplate*                 pDescriptorUpdateTemplate)
+    PFN_vkCreateDescriptorUpdateTemplate                    func,
+    VkResult                                                original_result,
+    VkDevice                                                device,
+    const VkDescriptorUpdateTemplateCreateInfo*             pCreateInfo,
+    const VkAllocationCallbacks*                            pAllocator,
+    const HandlePointerDecoder<VkDescriptorUpdateTemplate>& original_update_template,
+    VkDescriptorUpdateTemplate*                             pDescriptorUpdateTemplate)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(original_update_template);
 
     if (pCreateInfo != nullptr)
     {
@@ -710,13 +732,18 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
     }
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(PFN_vkCreatePipelineCache        func,
-                                                               VkResult                         original_result,
-                                                               VkDevice                         device,
-                                                               const VkPipelineCacheCreateInfo* pCreateInfo,
-                                                               const VkAllocationCallbacks*     pAllocator,
-                                                               VkPipelineCache*                 pPipelineCache)
+VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
+    PFN_vkCreatePipelineCache                    func,
+    VkResult                                     original_result,
+    VkDevice                                     device,
+    const VkPipelineCacheCreateInfo*             pCreateInfo,
+    const VkAllocationCallbacks*                 pAllocator,
+    const HandlePointerDecoder<VkPipelineCache>& original_pipeline_cache,
+    VkPipelineCache*                             pPipelineCache)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(original_pipeline_cache);
+
     if (options_.omit_pipeline_cache_data && (pCreateInfo != nullptr))
     {
         // Make a shallow copy of the create info structure and clear the cache data.
@@ -732,29 +759,35 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(PFN_vkCreatePipel
     }
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR        func,
-                                                                   VkResult                             original_result,
-                                                                   VkInstance                           instance,
-                                                                   const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
-                                                                   const VkAllocationCallbacks*         pAllocator,
-                                                                   VkSurfaceKHR*                        pSurface)
+VkResult
+VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR             func,
+                                                          VkResult                                  original_result,
+                                                          VkInstance                                instance,
+                                                          const VkAndroidSurfaceCreateInfoKHR*      pCreateInfo,
+                                                          const VkAllocationCallbacks*              pAllocator,
+                                                          const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
+                                                          VkSurfaceKHR*                             pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(original_surface);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR        func,
-                                                                 VkResult                           original_result,
-                                                                 VkInstance                         instance,
-                                                                 const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
-                                                                 const VkAllocationCallbacks*       pAllocator,
-                                                                 VkSurfaceKHR*                      pSurface)
+VkResult
+VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR               func,
+                                                        VkResult                                  original_result,
+                                                        VkInstance                                instance,
+                                                        const VkWin32SurfaceCreateInfoKHR*        pCreateInfo,
+                                                        const VkAllocationCallbacks*              pAllocator,
+                                                        const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
+                                                        VkSurfaceKHR*                             pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(original_surface);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
@@ -766,16 +799,19 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSup
         GetInstanceTable(physicalDevice), physicalDevice, queueFamilyIndex);
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR        func,
-                                                               VkResult                         original_result,
-                                                               VkInstance                       instance,
-                                                               const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
-                                                               const VkAllocationCallbacks*     pAllocator,
-                                                               VkSurfaceKHR*                    pSurface)
+VkResult
+VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR                 func,
+                                                      VkResult                                  original_result,
+                                                      VkInstance                                instance,
+                                                      const VkXcbSurfaceCreateInfoKHR*          pCreateInfo,
+                                                      const VkAllocationCallbacks*              pAllocator,
+                                                      const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
+                                                      VkSurfaceKHR*                             pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(original_surface);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
@@ -793,16 +829,19 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSuppo
         GetInstanceTable(physicalDevice), physicalDevice, queueFamilyIndex);
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR        func,
-                                                                VkResult                          original_result,
-                                                                VkInstance                        instance,
-                                                                const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
-                                                                const VkAllocationCallbacks*      pAllocator,
-                                                                VkSurfaceKHR*                     pSurface)
+VkResult
+VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR                func,
+                                                       VkResult                                  original_result,
+                                                       VkInstance                                instance,
+                                                       const VkXlibSurfaceCreateInfoKHR*         pCreateInfo,
+                                                       const VkAllocationCallbacks*              pAllocator,
+                                                       const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
+                                                       VkSurfaceKHR*                             pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(original_surface);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
@@ -820,16 +859,19 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupp
         GetInstanceTable(physicalDevice), physicalDevice, queueFamilyIndex);
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR        func,
-                                                                   VkResult                             original_result,
-                                                                   VkInstance                           instance,
-                                                                   const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
-                                                                   const VkAllocationCallbacks*         pAllocator,
-                                                                   VkSurfaceKHR*                        pSurface)
+VkResult
+VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR             func,
+                                                          VkResult                                  original_result,
+                                                          VkInstance                                instance,
+                                                          const VkWaylandSurfaceCreateInfoKHR*      pCreateInfo,
+                                                          const VkAllocationCallbacks*              pAllocator,
+                                                          const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
+                                                          VkSurfaceKHR*                             pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(original_surface);
     return CreateSurface(instance, pCreateInfo->flags, pSurface);
 }
 
