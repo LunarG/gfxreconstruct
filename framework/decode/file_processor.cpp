@@ -522,6 +522,56 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read display message meta-data block header");
         }
     }
+    else if (meta_type == format::MetaDataType::kSetSwapchainImageStateCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetSwapchainImageStateCommandHeader header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
+        success = success && ReadBytes(&header.swapchain_id, sizeof(header.swapchain_id));
+        success = success && ReadBytes(&header.queue_family_index, sizeof(header.queue_family_index));
+        success = success && ReadBytes(&header.image_entry_count, sizeof(header.image_entry_count));
+
+        if (success)
+        {
+            std::vector<format::SwapchainImageStateEntry> entries;
+
+            for (uint64_t i = 0; i < header.image_entry_count; ++i)
+            {
+                format::SwapchainImageStateEntry entry;
+
+                if (!ReadBytes(&entry, sizeof(entry)))
+                {
+                    success = false;
+                    break;
+                }
+
+                entries.emplace_back(entry);
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchSetSwapchainImageStateCommand(
+                        header.thread_id, header.device_id, header.swapchain_id, header.queue_family_index, entries);
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockData,
+                                     "Failed to read set swapchain image state meta-data block");
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read set swapchain image state meta-data block header");
+        }
+    }
     else
     {
         // Unrecognized metadata type.

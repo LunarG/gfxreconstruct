@@ -68,6 +68,13 @@ class VulkanDecoderBase : public ApiDecoder
                                              uint32_t         width,
                                              uint32_t         height) override;
 
+    virtual void
+    DispatchSetSwapchainImageStateCommand(format::ThreadId                                     thread_id,
+                                          format::HandleId                                     device_id,
+                                          format::HandleId                                     swapchain_id,
+                                          uint32_t                                             queue_family_index,
+                                          const std::vector<format::SwapchainImageStateEntry>& image_state) override;
+
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }
 

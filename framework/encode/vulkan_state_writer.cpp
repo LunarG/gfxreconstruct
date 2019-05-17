@@ -255,7 +255,7 @@ void VulkanStateWriter::WriteEventState(const VulkanStateTable& state_table)
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
         // Check and set signaled state if necessary.
-        const DeviceWrapper* device_wrapper   = wrapper->device;
+        const DeviceWrapper* device_wrapper = wrapper->device;
         assert(device_wrapper != nullptr);
 
         VkResult result = device_wrapper->layer_table.GetEventStatus(device_wrapper->handle, wrapper->handle);
@@ -277,9 +277,7 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
         // Write event creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
-        // Only semaphores that are pending signal from a queue operation need to be signaled here. Semaphores pending
-        // signal from a swapchain acquire image operation will be processed when swapchain images are processed.
-        if (wrapper->signaled == SemaphoreWrapper::SignalSourceQueue)
+        if (wrapper->signaled != SemaphoreWrapper::SignalSourceNone)
         {
             signaled[wrapper->device].push_back(wrapper->handle_id);
         }
@@ -1404,207 +1402,78 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
 void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const SwapchainKHRWrapper* wrapper) {
-        assert(wrapper != nullptr);
-        assert(wrapper->device != VK_NULL_HANDLE);
+        assert((wrapper != nullptr) && (wrapper->device != nullptr) &&
+               (wrapper->child_images.size() == wrapper->image_acquired_info.size()));
 
-        std::vector<format::HandleId> signal_semaphores;
-        const auto                    device_wrapper = reinterpret_cast<DeviceWrapper*>(wrapper->device);
+        const DeviceWrapper* device_wrapper = wrapper->device;
+        size_t               image_count    = wrapper->child_images.size();
 
-        WriteCommandProcessingCreateCommands(device_wrapper->handle_id,
-                                             wrapper->queue_family_index,
-                                             kTempQueueId,
-                                             kTempCommandPoolId,
-                                             kTempCommandBufferId);
+        format::SetSwapchainImageStateCommandHeader header;
+        format::SwapchainImageStateEntry            entry;
 
-        WriteCreateFence(device_wrapper->handle_id, kTempFenceId, false);
+        header.meta_header.block_header.size = sizeof(header) + (image_count * sizeof(entry));
+        header.meta_header.block_header.type = format::kMetaDataBlock;
+        header.meta_header.meta_data_type    = format::kSetSwapchainImageStateCommand;
+        header.thread_id                     = thread_id_;
+        header.device_id                     = device_wrapper->handle_id;
+        header.swapchain_id                  = wrapper->handle_id;
+        header.queue_family_index            = wrapper->queue_family_index;
+        header.image_entry_count             = static_cast<uint32_t>(wrapper->child_images.size());
 
-        assert(wrapper->child_images.size() == wrapper->image_acquired_info.size());
+        output_stream_->Write(&header, sizeof(header));
 
-        // First loop over all images to transition them to the VK_IMAGE_LAYOUT_PRESENT_SRC_KHR layout.
-        // This requires acquiring each image and then presenting it to release it.
-        for (size_t i = 0; i < wrapper->child_images.size(); ++i)
-        {
-            ImageWrapper*    image_wrapper    = wrapper->child_images[i];
-            format::HandleId present_queue_id = GetWrappedId(wrapper->image_acquired_info[i].last_presented_queue);
-
-            WriteAcquireNextImage(
-                device_wrapper->handle_id, wrapper->handle_id, 0, kTempFenceId, static_cast<uint32_t>(i));
-
-            WriteWaitForFence(device_wrapper->handle_id, kTempFenceId);
-            WriteResetFence(device_wrapper->handle_id, kTempFenceId);
-
-            WriteCommandBegin(kTempCommandBufferId);
-            WriteImageLayoutTransitionCommand(kTempCommandBufferId,
-                                              image_wrapper->handle_id,
-                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                              0,
-                                              VK_ACCESS_MEMORY_READ_BIT,
-                                              VK_IMAGE_LAYOUT_UNDEFINED,
-                                              VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                                              1,
-                                              image_wrapper->array_layers,
-                                              VK_IMAGE_ASPECT_COLOR_BIT);
-            WriteCommandEnd(kTempCommandBufferId);
-            WriteCommandExecution(kTempQueueId, kTempCommandBufferId);
-
-            if (present_queue_id == 0)
-            {
-                // TODO: Queue selection should be improved to handle cases where graphics and present queues are
-                // separate.
-                present_queue_id = kTempQueueId;
-            }
-
-            WriteQueuePresent(present_queue_id, wrapper->handle_id, static_cast<uint32_t>(i));
-        }
-
-        // Do a second pass on the image array to set image acquired state.
         for (size_t i = 0; i < wrapper->child_images.size(); ++i)
         {
             ImageWrapper* image_wrapper = wrapper->child_images[i];
 
+            entry.image_index  = static_cast<uint32_t>(i);
+            entry.image_id     = image_wrapper->handle_id;
+            entry.image_layout = image_wrapper->current_layout;
+
+            if (wrapper->image_acquired_info[i].last_presented_queue != VK_NULL_HANDLE)
+            {
+                auto queue_wrapper =
+                    reinterpret_cast<const QueueWrapper*>(wrapper->image_acquired_info[i].last_presented_queue);
+                entry.last_presented_queue_id = queue_wrapper->handle_id;
+            }
+            else
+            {
+                // Image has not been presented.
+                entry.last_presented_queue_id = 0;
+            }
+
             if (wrapper->image_acquired_info[i].is_acquired)
             {
-                bool                fence_signaled        = false;
-                format::HandleId    acquired_fence_id     = 0;
-                format::HandleId    acquired_semaphore_id = 0;
-                const FenceWrapper* acquired_fence_wrapper =
-                    state_table.GetFenceWrapper(wrapper->image_acquired_info[i].acquired_fence_id);
-                const SemaphoreWrapper* acquired_semaphore_wrapper =
+                entry.acquired = true;
+
+                // Only provide sync object IDs if the objects have not been destroyed between now and image acquire.
+                const SemaphoreWrapper* semaphore_wrapper =
                     state_table.GetSemaphoreWrapper(wrapper->image_acquired_info[i].acquired_semaphore_id);
-
-                // The original call either did not use a fence, or the fence has been destroyed prior to writing the
-                // state snapshot.
-                if (acquired_fence_wrapper != nullptr)
+                if (semaphore_wrapper != nullptr)
                 {
-                    acquired_fence_id = acquired_fence_wrapper->handle_id;
-
-                    GetFenceStatus(device_wrapper, acquired_fence_wrapper->handle, &fence_signaled);
-
-                    // If fence was created with a signaled state, we will need to unsignal it before image acquire.
-                    if (fence_signaled)
-                    {
-                        WriteResetFence(device_wrapper->handle_id, acquired_fence_wrapper->handle_id);
-                    }
+                    entry.acquire_semaphore_id = wrapper->image_acquired_info[i].acquired_semaphore_id;
                 }
 
-                // The original call either did not use a semaphore, or the semaphore has been destroyed prior to
-                // writing the state snapshot.
-                if (acquired_semaphore_wrapper != nullptr)
+                const FenceWrapper* fence_wrapper =
+                    state_table.GetFenceWrapper(wrapper->image_acquired_info[i].acquired_fence_id);
+                if (fence_wrapper != nullptr)
                 {
-                    acquired_semaphore_id = acquired_semaphore_wrapper->handle_id;
+                    entry.acquire_fence_id = wrapper->image_acquired_info[i].acquired_fence_id;
                 }
 
-                WriteAcquireNextImage(device_wrapper->handle_id,
-                                      wrapper->handle_id,
-                                      acquired_semaphore_id,
-                                      acquired_fence_id,
-                                      static_cast<uint32_t>(i));
-
-                if (acquired_fence_wrapper != nullptr)
-                {
-                    WriteWaitForFence(device_wrapper->handle_id, acquired_fence_id);
-
-                    // If the fence was not created as signaled, we need to set it back to the unsignaled state.
-                    if (!fence_signaled)
-                    {
-                        WriteResetFence(device_wrapper->handle_id, acquired_fence_id);
-                    }
-                }
-
-                if ((image_wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
-                    (image_wrapper->current_layout != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR))
-                {
-                    const VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-
-                    uint32_t                    wait_semaphore_count = 0;
-                    const format::HandleId*     wait_semaphore_ids   = nullptr;
-                    const VkPipelineStageFlags* wait_dst_stage_mask  = nullptr;
-
-                    if (acquired_semaphore_wrapper != nullptr)
-                    {
-                        wait_semaphore_count = 1;
-                        wait_semaphore_ids   = &acquired_semaphore_id;
-                        wait_dst_stage_mask  = &wait_stage;
-                    }
-
-                    // Transition to the current layout.
-                    WriteCommandBegin(kTempCommandBufferId);
-                    WriteImageLayoutTransitionCommand(kTempCommandBufferId,
-                                                      image_wrapper->handle_id,
-                                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                      0,
-                                                      VK_ACCESS_MEMORY_READ_BIT,
-                                                      VK_IMAGE_LAYOUT_UNDEFINED,
-                                                      image_wrapper->current_layout,
-                                                      1,
-                                                      image_wrapper->array_layers,
-                                                      VK_IMAGE_ASPECT_COLOR_BIT);
-                    WriteCommandEnd(kTempCommandBufferId);
-
-                    WriteCommandExecution(kTempQueueId,
-                                          1,
-                                          &kTempCommandBufferId,
-                                          0,
-                                          nullptr,
-                                          wait_semaphore_count,
-                                          wait_semaphore_ids,
-                                          wait_dst_stage_mask);
-
-                    if (acquired_semaphore_wrapper != nullptr)
-                    {
-                        // The layout transition has unsignaled the semaphore, which will need to be resubmitted for
-                        // signal if it is pending signal.
-                        if (acquired_semaphore_wrapper->signaled == SemaphoreWrapper::SignalSourceAcquireImage)
-                        {
-                            signal_semaphores.push_back(acquired_semaphore_id);
-                        }
-                    }
-                }
+                // TODO: Track vkAcquireNexteImage2KHR device mask.
+                entry.acquire_device_mask = 0;
             }
-            else if (i <= wrapper->last_presented_image)
+            else
             {
-                // Acquire all images up to the last presented image, to increase the chance that the first image
-                // acquired on replay is the same image acquired by the first captured frame. For this case, the image
-                // will be released with a queue present.
-                WriteAcquireNextImage(
-                    device_wrapper->handle_id, wrapper->handle_id, 0, kTempFenceId, static_cast<uint32_t>(i));
-
-                WriteWaitForFence(device_wrapper->handle_id, kTempFenceId);
-                WriteResetFence(device_wrapper->handle_id, kTempFenceId);
-
-                format::HandleId present_queue_id = GetWrappedId(wrapper->image_acquired_info[i].last_presented_queue);
-
-                if (present_queue_id == 0)
-                {
-                    // TODO: Queue selection should be improved to handle cases where graphics and present queues are
-                    // separate.
-                    present_queue_id = kTempQueueId;
-                }
-
-                WriteQueuePresent(present_queue_id, wrapper->handle_id, static_cast<uint32_t>(i));
+                entry.acquired             = false;
+                entry.acquire_device_mask  = 0;
+                entry.acquire_semaphore_id = 0;
+                entry.acquire_fence_id     = 0;
             }
+
+            output_stream_->Write(&entry, sizeof(entry));
         }
-
-        // Batch submission of any semaphores that need to be signaled.
-        if (!signal_semaphores.empty())
-        {
-            WriteCommandExecution(kTempQueueId,
-                                  0,
-                                  nullptr,
-                                  static_cast<uint32_t>(signal_semaphores.size()),
-                                  signal_semaphores.data(),
-                                  0,
-                                  nullptr,
-                                  nullptr);
-        }
-
-        WriteDestroyDeviceObject(
-            format::ApiCallId::ApiCall_vkDestroyFence, device_wrapper->handle_id, kTempFenceId, nullptr);
-
-        WriteDestroyDeviceObject(
-            format::ApiCallId::ApiCall_vkDestroyCommandPool, device_wrapper->handle_id, kTempCommandPoolId, nullptr);
     });
 }
 

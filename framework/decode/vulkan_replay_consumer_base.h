@@ -20,6 +20,7 @@
 
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
+#include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_object_mapper.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/window.h"
@@ -56,6 +57,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
+
+    virtual void
+    ProcessSetSwapchainImageStateCommand(format::HandleId                                     device_id,
+                                         format::HandleId                                     swapchain_id,
+                                         uint32_t                                             queue_family_index,
+                                         const std::vector<format::SwapchainImageStateEntry>& image_info) override;
 
     virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
                                                            format::HandleId descriptorSet,
@@ -295,6 +302,23 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          const HandlePointerDecoder<VkPipelineCache>& original_pipeline_cache,
                                          VkPipelineCache*                             pPipelineCache);
 
+    VkResult OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR       func,
+                                         VkResult                        original_result,
+                                         VkDevice                        device,
+                                         VkSwapchainKHR                  swapchain,
+                                         uint64_t                        timeout,
+                                         VkSemaphore                     semaphore,
+                                         VkFence                         fence,
+                                         const PointerDecoder<uint32_t>& original_index,
+                                         uint32_t*                       pImageIndex);
+
+    VkResult OverrideAcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
+                                          VkResult                         original_result,
+                                          VkDevice                         device,
+                                          const VkAcquireNextImageInfoKHR* pAcquireInfo,
+                                          const PointerDecoder<uint32_t>&  original_index,
+                                          uint32_t*                        pImageIndex);
+
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
     VkResult OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR             func,
@@ -428,6 +452,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     InstanceDeviceMap                                                instance_devices_;
     PhysicalDevicePropertiesMap                                      device_properties_;
     DescriptorUpdateTemplateImageTypes                               descriptor_update_template_image_types_;
+    SwapchainImageTracker                                            swapchain_image_tracker_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

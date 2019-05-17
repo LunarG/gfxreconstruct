@@ -131,6 +131,170 @@ void VulkanReplayConsumerBase::ProcessResizeWindowCommand(format::HandleId surfa
     }
 }
 
+void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
+    format::HandleId                                     device_id,
+    format::HandleId                                     swapchain_id,
+    uint32_t                                             queue_family_index,
+    const std::vector<format::SwapchainImageStateEntry>& image_info)
+{
+    VkDevice       device    = object_mapper_.MapVkDevice(device_id);
+    VkSwapchainKHR swapchain = object_mapper_.MapVkSwapchainKHR(swapchain_id);
+
+    if ((device != VK_NULL_HANDLE) && (swapchain != VK_NULL_HANDLE))
+    {
+        auto table = GetDeviceTable(device);
+        assert(table != nullptr);
+
+        VkQueue         transition_queue   = VK_NULL_HANDLE;
+        VkCommandPool   transition_pool    = VK_NULL_HANDLE;
+        VkCommandBuffer transition_command = VK_NULL_HANDLE;
+
+        // TODO: Improved queue selection?
+        table->GetDeviceQueue(device, queue_family_index, 0, &transition_queue);
+
+        VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+        pool_create_info.pNext                   = nullptr;
+        pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        pool_create_info.queueFamilyIndex        = queue_family_index;
+
+        table->CreateCommandPool(device, &pool_create_info, nullptr, &transition_pool);
+
+        VkCommandBufferAllocateInfo command_allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+        command_allocate_info.pNext                       = nullptr;
+        command_allocate_info.commandBufferCount          = 1;
+        command_allocate_info.commandPool                 = transition_pool;
+        command_allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+
+        table->AllocateCommandBuffers(device, &command_allocate_info, &transition_command);
+
+        for (size_t i = 0; i < image_info.size(); ++i)
+        {
+            VkImage image = object_mapper_.MapVkImage(image_info[i].image_id);
+
+            // Pre-acquire and transition swapchain images while processing trimming state snapshot.
+            if (image != VK_NULL_HANDLE)
+            {
+                uint32_t image_index = 0;
+
+                VkFence     acquire_fence     = VK_NULL_HANDLE;
+                VkSemaphore acquire_semaphore = VK_NULL_HANDLE;
+
+                VkFenceCreateInfo fence_create_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+                fence_create_info.pNext             = nullptr;
+                fence_create_info.flags             = 0;
+
+                VkSemaphoreCreateInfo semaphore_create_info = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+                semaphore_create_info.pNext                 = nullptr;
+                semaphore_create_info.flags                 = 0;
+
+                table->CreateFence(device, &fence_create_info, nullptr, &acquire_fence);
+                table->CreateSemaphore(device, &semaphore_create_info, nullptr, &acquire_semaphore);
+
+                table->AcquireNextImageKHR(device,
+                                           swapchain,
+                                           std::numeric_limits<uint64_t>::max(),
+                                           acquire_semaphore,
+                                           acquire_fence,
+                                           &image_index);
+
+                table->WaitForFences(device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+
+                // TODO: Handle case where image acquired at replay does not match image acquired at capture.
+                assert(image_index == i);
+
+                VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[image_index].image_layout);
+                if (image_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+                {
+                    VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+                    begin_info.pNext                    = nullptr;
+                    begin_info.flags                    = 0;
+                    begin_info.pInheritanceInfo         = nullptr;
+
+                    VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+                    image_barrier.pNext                           = nullptr;
+                    image_barrier.srcAccessMask                   = 0;
+                    image_barrier.dstAccessMask                   = 0;
+                    image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+                    image_barrier.newLayout                       = image_layout;
+                    image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                    image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                    image_barrier.image                           = image;
+                    image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                    image_barrier.subresourceRange.baseMipLevel   = 0;
+                    image_barrier.subresourceRange.levelCount     = 1;
+                    image_barrier.subresourceRange.baseArrayLayer = 0;
+                    image_barrier.subresourceRange.layerCount     = 1;
+
+                    table->BeginCommandBuffer(transition_command, &begin_info);
+                    table->CmdPipelineBarrier(transition_command,
+                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                              0,
+                                              0,
+                                              nullptr,
+                                              0,
+                                              nullptr,
+                                              1,
+                                              &image_barrier);
+                    table->EndCommandBuffer(transition_command);
+
+                    VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+                    submit_info.pNext              = nullptr;
+                    submit_info.commandBufferCount = 1;
+                    submit_info.pCommandBuffers    = &transition_command;
+
+                    table->ResetFences(device, 1, &acquire_fence);
+                    table->QueueSubmit(transition_queue, 1, &submit_info, acquire_fence);
+                    table->WaitForFences(device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+                }
+
+                if (image_info[image_index].acquired)
+                {
+                    // The upcoming frames expect the image to be acquired. The synchronization objects used to acquire
+                    // the image were already set to the appropriate signaled state when created, so the temporary
+                    // objects used to acquire the image here can be destroyed.
+                    table->DestroyFence(device, acquire_fence, nullptr);
+                    table->DestroySemaphore(device, acquire_semaphore, nullptr);
+                }
+                else
+                {
+                    // The upcoming frames do not expect the image to be acquired. We will store the image and the
+                    // synchronization objects used to acquire it in a data structure.  Replay of vkAcquireNextImage
+                    // will retrieve and use the stored objects.
+                    swapchain_image_tracker_.TrackPreAcquiredImage(
+                        swapchain, image_index, acquire_semaphore, acquire_fence);
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkImage object (%" PRIx64 ")",
+                                     image_info[i].image_id);
+            }
+        }
+
+        table->DestroyCommandPool(device, transition_pool, nullptr);
+    }
+    else
+    {
+        if (device != VK_NULL_HANDLE)
+        {
+            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkDevice object (%" PRIx64 ")", device_id);
+        }
+        else if (swapchain != VK_NULL_HANDLE)
+        {
+            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkSwapchainKHR object (%" PRIx64 ")",
+                                 swapchain_id);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkDevice (%" PRIx64
+                                 ") and VkSwapchainKHR (%" PRIx64 ") objects",
+                                 device_id,
+                                 swapchain_id);
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
 {
     // TODO: Should there be a default action if no error handler has been provided?
@@ -970,6 +1134,111 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     {
         return func(device, pCreateInfo, pAllocator, pPipelineCache);
     }
+}
+
+VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR       func,
+                                                               VkResult                        original_result,
+                                                               VkDevice                        device,
+                                                               VkSwapchainKHR                  swapchain,
+                                                               uint64_t                        timeout,
+                                                               VkSemaphore                     semaphore,
+                                                               VkFence                         fence,
+                                                               const PointerDecoder<uint32_t>& original_index,
+                                                               uint32_t*                       pImageIndex)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    assert(original_index.GetPointer() != nullptr);
+
+    VkResult    result               = VK_SUCCESS;
+    uint32_t    captured_index       = *original_index.GetPointer();
+    VkSemaphore preacquire_semaphore = VK_NULL_HANDLE;
+    VkFence     preacquire_fence     = VK_NULL_HANDLE;
+
+    if (swapchain_image_tracker_.RetrievePreAcquiredImage(swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
+    {
+        auto table = GetDeviceTable(device);
+        assert(table != nullptr);
+
+        // The image has already been acquired. Swap the synchronization objects.
+        if (semaphore != VK_NULL_HANDLE)
+        {
+            // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
+            // swap can be performed with the original handle ID and the semaphore can be guaranteed not to be used
+            // after destroy.
+            object_mapper_.ReplaceSemaphore(semaphore, preacquire_semaphore);
+            preacquire_semaphore = semaphore;
+        }
+
+        if (fence != VK_NULL_HANDLE)
+        {
+            // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
+            // swap can be performed with the original handle ID and the fence can be guaranteed not to be used
+            // after destroy.
+            object_mapper_.ReplaceFence(fence, preacquire_fence);
+            preacquire_fence = fence;
+        }
+
+        table->DestroySemaphore(device, preacquire_semaphore, nullptr);
+        table->DestroyFence(device, preacquire_fence, nullptr);
+    }
+    else
+    {
+        result = func(device, swapchain, timeout, semaphore, fence, pImageIndex);
+    }
+
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
+                                                                VkResult                         original_result,
+                                                                VkDevice                         device,
+                                                                const VkAcquireNextImageInfoKHR* pAcquireInfo,
+                                                                const PointerDecoder<uint32_t>&  original_index,
+                                                                uint32_t*                        pImageIndex)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    assert(pAcquireInfo != nullptr);
+    assert(original_index.GetPointer() != nullptr);
+
+    VkResult    result               = VK_SUCCESS;
+    uint32_t    captured_index       = *original_index.GetPointer();
+    VkSemaphore preacquire_semaphore = VK_NULL_HANDLE;
+    VkFence     preacquire_fence     = VK_NULL_HANDLE;
+
+    if (swapchain_image_tracker_.RetrievePreAcquiredImage(
+            pAcquireInfo->swapchain, captured_index, &preacquire_semaphore, &preacquire_fence))
+    {
+        auto table = GetDeviceTable(device);
+        assert(table != nullptr);
+
+        // The image has already been acquired. Swap the synchronization objects.
+        if (pAcquireInfo->semaphore != VK_NULL_HANDLE)
+        {
+            // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
+            // swap can be performed with the original handle ID and the semaphore can be guaranteed not to be used
+            // after destroy.
+            object_mapper_.ReplaceSemaphore(pAcquireInfo->semaphore, preacquire_semaphore);
+            preacquire_semaphore = pAcquireInfo->semaphore;
+        }
+
+        if (pAcquireInfo->fence != VK_NULL_HANDLE)
+        {
+            // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
+            // swap can be performed with the original handle ID and the fence can be guaranteed not to be used
+            // after destroy.
+            object_mapper_.ReplaceFence(pAcquireInfo->fence, preacquire_fence);
+            preacquire_fence = pAcquireInfo->fence;
+        }
+
+        table->DestroySemaphore(device, preacquire_semaphore, nullptr);
+        table->DestroyFence(device, preacquire_fence, nullptr);
+    }
+    else
+    {
+        result = func(device, pAcquireInfo, pImageIndex);
+    }
+
+    return result;
 }
 
 VkResult

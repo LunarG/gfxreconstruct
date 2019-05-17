@@ -23,6 +23,7 @@ target_sources(gfxrecon_decode
                    string_decoder.h
                    struct_pointer_decoder.h
                    struct_pointer_decoder_nvx.h
+                   swapchain_image_tracker.h
                    value_decoder.h
                    vulkan_ascii_consumer_base.h
                    vulkan_ascii_consumer_base.cpp
