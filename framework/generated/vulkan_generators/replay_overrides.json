@@ -20,6 +20,8 @@
     "vkCreateDescriptorUpdateTemplateKHR" : "OverrideCreateDescriptorUpdateTemplate",
     "vkDestroyDescriptorUpdateTemplate" : "OverrideDestroyDescriptorUpdateTemplate",
     "vkDestroyDescriptorUpdateTemplateKHR" : "OverrideDestroyDescriptorUpdateTemplate",
+    "vkAcquireNextImageKHR" : "OverrideAcquireNextImageKHR",
+    "vkAcquireNextImage2KHR" : "OverrideAcquireNextImage2KHR",
     "vkCreateAndroidSurfaceKHR" : "OverrideCreateAndroidSurfaceKHR",
     "vkCreateWin32SurfaceKHR" : "OverrideCreateWin32SurfaceKHR",
     "vkGetPhysicalDeviceWin32PresentationSupportKHR" : "OverrideGetPhysicalDeviceWin32PresentationSupportKHR",

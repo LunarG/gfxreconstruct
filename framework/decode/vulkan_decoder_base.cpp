@@ -58,6 +58,21 @@ void VulkanDecoderBase::DispatchResizeWindowCommand(format::ThreadId thread_id,
     }
 }
 
+void VulkanDecoderBase::DispatchSetSwapchainImageStateCommand(
+    format::ThreadId                                     thread_id,
+    format::HandleId                                     device_id,
+    format::HandleId                                     swapchain_id,
+    uint32_t                                             queue_family_index,
+    const std::vector<format::SwapchainImageStateEntry>& image_state)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetSwapchainImageStateCommand(device_id, swapchain_id, queue_family_index, image_state);
+    }
+}
+
 size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;

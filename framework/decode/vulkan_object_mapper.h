@@ -113,6 +113,30 @@ class VulkanObjectMapper
     VkAccelerationStructureNV     MapVkAccelerationStructureNV(format::HandleId id) const     { return MapObject<VkAccelerationStructureNV>(id, &acceleration_structure_nv_map_); }
     // clang-format on
 
+    void ReplaceSemaphore(VkSemaphore target, VkSemaphore replacement)
+    {
+        for (auto& entry : semaphore_map_)
+        {
+            if (entry.second == target)
+            {
+                entry.second = replacement;
+                break;
+            }
+        }
+    }
+
+    void ReplaceFence(VkFence target, VkFence replacement)
+    {
+        for (auto& entry : fence_map_)
+        {
+            if (entry.second == target)
+            {
+                entry.second = replacement;
+                break;
+            }
+        }
+    }
+
   private:
     template <typename T>
     void AddObject(format::HandleId id, T handle, std::unordered_map<format::HandleId, T>* map)

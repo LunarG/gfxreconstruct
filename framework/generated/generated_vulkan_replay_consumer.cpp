@@ -2433,7 +2433,7 @@ void VulkanReplayConsumer::Process_vkAcquireNextImageKHR(
     uint32_t out_pImageIndex_value = static_cast<uint32_t>(0);
     uint32_t* out_pImageIndex = &out_pImageIndex_value;
 
-    VkResult replay_result = GetDeviceTable(in_device)->AcquireNextImageKHR(in_device, in_swapchain, timeout, in_semaphore, in_fence, out_pImageIndex);
+    VkResult replay_result = OverrideAcquireNextImageKHR(GetDeviceTable(in_device)->AcquireNextImageKHR, returnValue, in_device, in_swapchain, timeout, in_semaphore, in_fence, pImageIndex, out_pImageIndex);
     CheckResult("vkAcquireNextImageKHR", returnValue, replay_result);
 }
 
@@ -2509,7 +2509,7 @@ void VulkanReplayConsumer::Process_vkAcquireNextImage2KHR(
     uint32_t out_pImageIndex_value = static_cast<uint32_t>(0);
     uint32_t* out_pImageIndex = &out_pImageIndex_value;
 
-    VkResult replay_result = GetDeviceTable(in_device)->AcquireNextImage2KHR(in_device, in_pAcquireInfo, out_pImageIndex);
+    VkResult replay_result = OverrideAcquireNextImage2KHR(GetDeviceTable(in_device)->AcquireNextImage2KHR, returnValue, in_device, in_pAcquireInfo, pImageIndex, out_pImageIndex);
     CheckResult("vkAcquireNextImage2KHR", returnValue, replay_result);
 }
 

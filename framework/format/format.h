@@ -64,16 +64,15 @@ enum BlockType : uint32_t
 
 enum MetaDataType : uint32_t
 {
-    kUnknownMetaDataType      = 0,
+    kUnknownMetaDataType = 0,
 
     // Platform independent metadata commands.
-    kDisplayMessageCommand    = 1,
-    kFillMemoryCommand        = 2,
-    kResizeWindowCommand      = 3,
+    kDisplayMessageCommand = 1,
+    kFillMemoryCommand     = 2,
+    kResizeWindowCommand   = 3,
 
-    // Vulkan specific metadata.
-    kVulkanPhysicalDeviceInfo = 4,
-    kVulkanMemoryInfo         = 5
+    // Commands for trimmed frame state setup.
+    kSetSwapchainImageStateCommand = 4
 };
 
 enum CompressionType : uint32_t
@@ -196,6 +195,28 @@ struct ResizeWindowCommand
     HandleId         surface_id;
     uint32_t         width;
     uint32_t         height;
+};
+
+struct SetSwapchainImageStateCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId swapchain_id;
+    uint32_t         queue_family_index;
+    uint32_t         image_entry_count;
+};
+
+struct SwapchainImageStateEntry
+{
+    format::HandleId image_id;
+    uint32_t         image_index;
+    uint32_t         image_layout;
+    uint32_t         acquired;
+    uint32_t         acquire_device_mask;
+    format::HandleId acquire_semaphore_id;
+    format::HandleId acquire_fence_id;
+    format::HandleId last_presented_queue_id;
 };
 
 #pragma pack(pop)
