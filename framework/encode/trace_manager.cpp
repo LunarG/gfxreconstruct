@@ -364,6 +364,30 @@ void TraceManager::EndFrame()
     {
         ++current_frame_;
 
+        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        {
+            // Currently capturing a frame range. Check for end of range.
+            --trim_ranges_[trim_current_range_].total;
+            if (trim_ranges_[trim_current_range_].total == 0)
+            {
+                // Stop recording and close file.
+                capture_mode_ &= ~kModeWrite;
+                file_stream_ = nullptr;
+                GFXRECON_LOG_INFO("Finished recording graphics API capture");
+
+                // Advance to next range
+                ++trim_current_range_;
+                if (trim_current_range_ >= trim_ranges_.size())
+                {
+                    // No more frames to capture. Capture can be disabled and resources can be released.
+                    trim_enabled_  = false;
+                    capture_mode_  = kModeDisabled;
+                    state_tracker_ = nullptr;
+                    compressor_    = nullptr;
+                }
+            }
+        }
+
         if ((capture_mode_ & kModeWrite) != kModeWrite)
         {
             // Capture is not active. Check for start of capture frame range.
@@ -388,28 +412,6 @@ void TraceManager::EndFrame()
                 {
                     GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
                     capture_mode_ = kModeDisabled;
-                }
-            }
-        }
-        else
-        {
-            // Currently capture a frame range. Check for end of range.
-            --trim_ranges_[trim_current_range_].total;
-            if (trim_ranges_[trim_current_range_].total == 0)
-            {
-                // Stop recording and close file.
-                capture_mode_ &= ~kModeWrite;
-                file_stream_ = nullptr;
-
-                // Advance to next range
-                ++trim_current_range_;
-                if (trim_current_range_ >= trim_ranges_.size())
-                {
-                    // No more frames to capture. Capture can be disabled and resources can be released.
-                    trim_enabled_  = false;
-                    capture_mode_  = kModeDisabled;
-                    state_tracker_ = nullptr;
-                    compressor_    = nullptr;
                 }
             }
         }
