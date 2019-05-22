@@ -9,6 +9,8 @@ target_sources(gfxrecon_encode
                    custom_vulkan_api_call_encoders.cpp
                    custom_vulkan_struct_encoders.h
                    custom_vulkan_struct_encoders.cpp
+                   custom_vulkan_struct_handle_wrappers.h
+                   custom_vulkan_struct_handle_wrappers.cpp
                    descriptor_update_template_info.h
                    memory_tracker.h
                    memory_tracker.cpp
@@ -25,6 +27,7 @@ target_sources(gfxrecon_encode
                    vulkan_state_tracker_initializers.h
                    vulkan_state_writer.h
                    vulkan_state_writer.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_command_buffer_util.h
@@ -32,7 +35,8 @@ target_sources(gfxrecon_encode
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_encode_pnext_struct.cpp
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
+                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
               )
 
 if (MSVC AND (MSVC_VERSION LESS 1910))

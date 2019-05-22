@@ -43,6 +43,8 @@
     <Compile Include="vulkan_struct_encoders_header_generator.py" />
     <Compile Include="vulkan_struct_handle_mappers_body_generator.py" />
     <Compile Include="vulkan_struct_handle_mappers_header_generator.py" />
+    <Compile Include="vulkan_struct_handle_wrappers_body_generator.py" />
+    <Compile Include="vulkan_struct_handle_wrappers_header_generator.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

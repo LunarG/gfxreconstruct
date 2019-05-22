@@ -30,6 +30,8 @@ generate_targets = [
     'generated_encode_pnext_struct.cpp',
     'generated_vulkan_struct_encoders.h',
     'generated_vulkan_struct_encoders.cpp',
+    'generated_vulkan_struct_handle_wrappers.h',
+    'generated_vulkan_struct_handle_wrappers.cpp',
     'generated_vulkan_api_call_encoders.h',
     'generated_vulkan_api_call_encoders.cpp',
     'generated_vulkan_command_buffer_util.h',

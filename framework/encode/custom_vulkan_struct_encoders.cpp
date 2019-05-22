@@ -118,7 +118,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
             default:
                 GFXRECON_LOG_WARNING("Skipping custom struct encoding for unrecognized VkObjectEntryTypeNVX %u",
                                      value->type);
-                assert(true);
                 break;
         }
     }

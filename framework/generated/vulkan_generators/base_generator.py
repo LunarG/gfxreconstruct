@@ -176,6 +176,9 @@ class BaseGenerator(OutputGenerator):
     # These types represent pointers to non-Vulkan objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
 
+    # Dispatchable handle types.
+    DISPATCHABLE_HANDLE_TYPES = ['VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue', 'VkCommandBuffer']
+
     # Default C++ code indentation size.
     INDENT_SIZE = 4
 
@@ -418,6 +421,13 @@ class BaseGenerator(OutputGenerator):
         return False
 
     #
+    # Check for dispatchable handle type
+    def isDispatchableHandle(self, baseType):
+        if baseType in self.DISPATCHABLE_HANDLE_TYPES:
+            return True
+        return False
+
+    #
     # Check for enum type
     def isEnum(self, baseType):
         if baseType in self.enumNames:
@@ -460,6 +470,14 @@ class BaseGenerator(OutputGenerator):
         elif value.platformBaseType and value.baseType == 'void' and value.pointerCount == 1:
             # For some extensions, platform specific handles are mapped to the 'void*' type without a const qualifier,
             # but need to be treated as an input (eg. if HANDLE is mapped to void*, it should not be treated as an output).
+            return True
+        return False
+
+    #
+    # Determine if a parameter is an output parameter
+    def isOutputParameter(self, value):
+        # Check for an output pointer/array or an in-out pointer.
+        if (value.isPointer or value.isArray) and not self.isInputPointer(value):
             return True
         return False
 
