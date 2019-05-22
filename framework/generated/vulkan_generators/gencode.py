@@ -49,6 +49,8 @@ from layer_func_table_generator import LayerFuncTableGenerator,LayerFuncTableGen
 from vulkan_struct_encoders_body_generator import VulkanStructEncodersBodyGenerator,VulkanStructEncodersBodyGeneratorOptions
 from vulkan_struct_encoders_header_generator import VulkanStructEncodersHeaderGenerator,VulkanStructEncodersHeaderGeneratorOptions
 from encode_pnext_struct_generator import EncodePNextStructGenerator,EncodePNextStructGeneratorOptions
+from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator,VulkanStructHandleWrappersHeaderGeneratorOptions
+from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator,VulkanStructHandleWrappersBodyGeneratorOptions
 
 # Simple timer functions
 startTime = None
@@ -386,6 +388,28 @@ def makeGenOpts(args):
           EncodePNextStructGeneratorOptions(
             filename          = 'generated_encode_pnext_struct.cpp',
             directory         = directory,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_struct_handle_wrappers.h'] = [
+          VulkanStructHandleWrappersHeaderGenerator,
+          VulkanStructHandleWrappersHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_struct_handle_wrappers.h',
+            directory         = directory,
+            blacklists        = blacklists,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_struct_handle_wrappers.cpp'] = [
+          VulkanStructHandleWrappersBodyGenerator,
+          VulkanStructHandleWrappersBodyGeneratorOptions(
+            filename          = 'generated_vulkan_struct_handle_wrappers.cpp',
+            directory         = directory,
+            blacklists        = blacklists,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = False)
