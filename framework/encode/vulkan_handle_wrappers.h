@@ -42,6 +42,9 @@ struct HandleWrapper
 {
     typedef T HandleType;
 
+    // Dispatch table for dispatch handles.
+    void* dispatch_table_{ nullptr };
+
     // Standard state info required for all handles.
     HandleType        handle{ VK_NULL_HANDLE }; // Original handle value provided by the driver.
     format::HandleId  handle_id{ 0 };           // Globally unique ID assigned to the handle by the layer.
@@ -66,8 +69,12 @@ struct DebugUtilsMessengerEXTWrapper    : public HandleWrapper<VkDebugUtilsMesse
 struct ValidationCacheEXTWrapper        : public HandleWrapper<VkValidationCacheEXT> {};
 struct IndirectCommandsLayoutNVXWrapper : public HandleWrapper<VkIndirectCommandsLayoutNVX> {};
 
-// This handle type has a create function, but no destroy function. The handle wrapper will be owned by the VkDisplay
-// handle wrapper, which will ensure it is destroyed when the VkDisplay handle wrapper is destroyed.
+// This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its VkPhysicalDevice
+// handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
+struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR> {};
+
+// This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkPhysicalDevice
+// handle wrapper, which will ensure it is destroyed.
 struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR> {};
 // clang-format on
 
@@ -79,18 +86,12 @@ typedef VkDescriptorUpdateTemplateKHR DescriptorUpdateTemplateKHRWrapper;
 // Declarations for handle wrappers that require additional state info.
 //
 
-// This handle type is retrieved and has no destroy function. The handle wrapper will be owned by the VkPhysicalDevice
-// handle wrapper, which will ensure it is destroyed when the VkPhysicalDevice handle wrapper is destroyed.
-struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
-{
-    std::vector<DisplayModeKHRWrapper*> display_modes;
-};
-
 // This handle type is retrieved and has no destroy function. The handle wrapper will be owned by the VkInstance
 // handle wrapper, which will ensure it is destroyed when the VkInstance handle wrapper is destroyed.
 struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
-    std::unordered_map<VkDisplayKHR, DisplayKHRWrapper*> displays;
+    std::vector<DisplayKHRWrapper*>     child_displays;
+    std::vector<DisplayModeKHRWrapper*> child_display_modes;
 
     // Track memory types for use when creating snapshots of buffer and image resource memory content.
     std::vector<VkMemoryType> memory_types;
@@ -106,12 +107,13 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
 {
-    std::unordered_map<VkPhysicalDevice, PhysicalDeviceWrapper*> physical_devices;
+    std::vector<PhysicalDeviceWrapper*> child_physical_devices;
 };
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
     PhysicalDeviceWrapper*                     physical_device{ nullptr };
+    std::vector<QueueWrapper*>                 child_queues;
     std::unordered_map<VkQueue, QueueWrapper*> queues;
 };
 

@@ -22,6 +22,7 @@
 #include "format/format_util.h"
 #include "util/defines.h"
 
+#include <algorithm>
 #include <cassert>
 #include <vector>
 
@@ -50,68 +51,37 @@ format::HandleId GetWrappedId(const T& handle)
     return (handle != VK_NULL_HANDLE) ? reinterpret_cast<HandleWrapper<T>*>(handle)->handle_id : 0;
 }
 
-template <>
-inline VkInstance GetWrappedHandle<VkInstance>(const VkInstance& handle)
+template <typename ParentWrapper, typename Wrapper>
+void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
+                                 typename Wrapper::HandleType*      handle,
+                                 PFN_GetHandleId                    get_id)
 {
-    return handle;
+    assert(handle != nullptr);
+    if ((*handle) != VK_NULL_HANDLE)
+    {
+        Wrapper* wrapper         = new Wrapper;
+        wrapper->dispatch_table_ = *reinterpret_cast<void**>(*handle);
+        wrapper->handle          = (*handle);
+        wrapper->handle_id       = get_id();
+
+        if (parent != VK_NULL_HANDLE)
+        {
+            // VkQueue and VkCommandBuffer dispatch tables are not assigned until the handles reach the trampoline
+            // function, which comes after the layer. The wrapper will be modified by the trampoline function, but the
+            // wrapped handle will not, so we set it to the parent VkDevice object's dispatch table. This is also
+            // applied to VkPhysicalDevice handles and their parent VkInstance.
+            void* disp                         = *reinterpret_cast<void* const*>(parent);
+            *reinterpret_cast<void**>(*handle) = disp;
+        }
+
+        (*handle) = reinterpret_cast<typename Wrapper::HandleType>(wrapper);
+    }
 }
 
-template <>
-inline VkPhysicalDevice GetWrappedHandle<VkPhysicalDevice>(const VkPhysicalDevice& handle)
-{
-    return handle;
-}
-
-template <>
-inline VkDevice GetWrappedHandle<VkDevice>(const VkDevice& handle)
-{
-    return handle;
-}
-
-template <>
-inline VkQueue GetWrappedHandle<VkQueue>(const VkQueue& handle)
-{
-    return handle;
-}
-
-template <>
-inline VkCommandBuffer GetWrappedHandle<VkCommandBuffer>(const VkCommandBuffer& handle)
-{
-    return handle;
-}
-
-template <>
-inline format::HandleId GetWrappedId<VkInstance>(const VkInstance& handle)
-{
-    return format::ToHandleId(handle);
-}
-
-template <>
-inline format::HandleId GetWrappedId<VkPhysicalDevice>(const VkPhysicalDevice& handle)
-{
-    return format::ToHandleId(handle);
-}
-
-template <>
-inline format::HandleId GetWrappedId<VkDevice>(const VkDevice& handle)
-{
-    return format::ToHandleId(handle);
-}
-
-template <>
-inline format::HandleId GetWrappedId<VkQueue>(const VkQueue& handle)
-{
-    return format::ToHandleId(handle);
-}
-
-template <>
-inline format::HandleId GetWrappedId<VkCommandBuffer>(const VkCommandBuffer& handle)
-{
-    return format::ToHandleId(handle);
-}
-
-template <typename Wrapper>
-void CreateWrappedHandle(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename Wrapper>
+void CreateWrappedNonDispatchHandle(typename ParentWrapper::HandleType,
+                                    typename Wrapper::HandleType* handle,
+                                    PFN_GetHandleId               get_id)
 {
     assert(handle != nullptr);
     if ((*handle) != VK_NULL_HANDLE)
@@ -123,20 +93,173 @@ void CreateWrappedHandle(typename Wrapper::HandleType* handle, PFN_GetHandleId g
     }
 }
 
-template <typename Wrapper>
-void CreateWrappedHandles(typename Wrapper::HandleType* handles, uint32_t count, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename Wrapper>
+void CreateWrappedHandle(typename ParentWrapper::HandleType parent,
+                         typename Wrapper::HandleType*      handle,
+                         PFN_GetHandleId                    get_id)
+{
+    CreateWrappedNonDispatchHandle<ParentWrapper, Wrapper>(parent, handle, get_id);
+}
+
+template <>
+inline void
+CreateWrappedHandle<InstanceWrapper, InstanceWrapper>(VkInstance, VkInstance* handle, PFN_GetHandleId get_id)
+{
+    CreateWrappedDispatchHandle<InstanceWrapper, InstanceWrapper>(VK_NULL_HANDLE, handle, get_id);
+}
+
+template <>
+inline void CreateWrappedHandle<InstanceWrapper, PhysicalDeviceWrapper>(VkInstance        parent,
+                                                                        VkPhysicalDevice* handle,
+                                                                        PFN_GetHandleId   get_id)
+{
+    assert(parent != VK_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = reinterpret_cast<InstanceWrapper*>(parent);
+
+    // Filter duplicate physical device retrieval.
+    PhysicalDeviceWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_physical_devices)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper != nullptr)
+    {
+        (*handle) = reinterpret_cast<VkPhysicalDevice>(wrapper);
+    }
+    else
+    {
+        CreateWrappedDispatchHandle<InstanceWrapper, PhysicalDeviceWrapper>(parent, handle, get_id);
+        parent_wrapper->child_physical_devices.push_back(reinterpret_cast<PhysicalDeviceWrapper*>(*handle));
+    }
+}
+
+template <>
+inline void
+CreateWrappedHandle<PhysicalDeviceWrapper, DeviceWrapper>(VkPhysicalDevice, VkDevice* handle, PFN_GetHandleId get_id)
+{
+    CreateWrappedDispatchHandle<PhysicalDeviceWrapper, DeviceWrapper>(VK_NULL_HANDLE, handle, get_id);
+}
+
+template <>
+inline void CreateWrappedHandle<DeviceWrapper, QueueWrapper>(VkDevice parent, VkQueue* handle, PFN_GetHandleId get_id)
+{
+    assert(parent != VK_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = reinterpret_cast<DeviceWrapper*>(parent);
+
+    // Filter duplicate physical device retrieval.
+    QueueWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_queues)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper != nullptr)
+    {
+        (*handle) = reinterpret_cast<VkQueue>(wrapper);
+    }
+    else
+    {
+        CreateWrappedDispatchHandle<DeviceWrapper, QueueWrapper>(parent, handle, get_id);
+        parent_wrapper->child_queues.push_back(reinterpret_cast<QueueWrapper*>(*handle));
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<DeviceWrapper, CommandBufferWrapper>(VkDevice         parent,
+                                                                     VkCommandBuffer* handle,
+                                                                     PFN_GetHandleId  get_id)
+{
+    CreateWrappedDispatchHandle<DeviceWrapper, CommandBufferWrapper>(parent, handle, get_id);
+}
+
+template <>
+inline void CreateWrappedHandle<PhysicalDeviceWrapper, DisplayKHRWrapper>(VkPhysicalDevice parent,
+                                                                          VkDisplayKHR*    handle,
+                                                                          PFN_GetHandleId  get_id)
+{
+    assert(parent != VK_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(parent);
+
+    // Filter duplicate display retrieval.
+    DisplayKHRWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_displays)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper != nullptr)
+    {
+        (*handle) = reinterpret_cast<VkDisplayKHR>(wrapper);
+    }
+    else
+    {
+        CreateWrappedNonDispatchHandle<PhysicalDeviceWrapper, DisplayKHRWrapper>(parent, handle, get_id);
+        parent_wrapper->child_displays.push_back(reinterpret_cast<DisplayKHRWrapper*>(*handle));
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<PhysicalDeviceWrapper, DisplayModeKHRWrapper>(VkPhysicalDevice  parent,
+                                                                              VkDisplayModeKHR* handle,
+                                                                              PFN_GetHandleId   get_id)
+{
+    assert(parent != VK_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(parent);
+
+    // Display modes can either be retrieved or created; filter duplicate display mode retrieval.
+    DisplayModeKHRWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_display_modes)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper != nullptr)
+    {
+        (*handle) = reinterpret_cast<VkDisplayModeKHR>(wrapper);
+    }
+    else
+    {
+        CreateWrappedNonDispatchHandle<PhysicalDeviceWrapper, DisplayModeKHRWrapper>(parent, handle, get_id);
+        parent_wrapper->child_display_modes.push_back(reinterpret_cast<DisplayModeKHRWrapper*>(*handle));
+    }
+}
+
+template <typename ParentWrapper, typename Wrapper>
+void CreateWrappedHandles(typename ParentWrapper::HandleType parent,
+                          typename Wrapper::HandleType*      handles,
+                          uint32_t                           count,
+                          PFN_GetHandleId                    get_id)
 {
     if (handles != nullptr)
     {
         for (uint32_t i = 0; i < count; ++i)
         {
-            if (handles[i] != VK_NULL_HANDLE)
-            {
-                Wrapper* wrapper   = new Wrapper;
-                wrapper->handle    = handles[i];
-                wrapper->handle_id = get_id();
-                handles[i]         = reinterpret_cast<typename Wrapper::HandleType>(wrapper);
-            }
+            CreateWrappedHandle<ParentWrapper, Wrapper>(parent, &handles[i], get_id);
         }
     }
 }
@@ -147,6 +270,62 @@ void DestroyWrappedHandle(typename Wrapper::HandleType handle)
     if (handle != VK_NULL_HANDLE)
     {
         delete reinterpret_cast<Wrapper*>(handle);
+    }
+}
+
+template <>
+inline void DestroyWrappedHandle<InstanceWrapper>(VkInstance handle)
+{
+    if (handle != VK_NULL_HANDLE)
+    {
+        // Destroy child wrappers.
+        auto wrapper = reinterpret_cast<InstanceWrapper*>(handle);
+
+        for (auto entry : wrapper->child_physical_devices)
+        {
+            delete entry;
+        }
+
+        delete wrapper;
+    }
+}
+
+template <>
+inline void DestroyWrappedHandle<PhysicalDeviceWrapper>(VkPhysicalDevice handle)
+{
+    if (handle != VK_NULL_HANDLE)
+    {
+        // Destroy child wrappers.
+        auto wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(handle);
+
+        for (auto entry : wrapper->child_displays)
+        {
+            delete entry;
+        }
+
+        for (auto entry : wrapper->child_display_modes)
+        {
+            delete entry;
+        }
+
+        delete wrapper;
+    }
+}
+
+template <>
+inline void DestroyWrappedHandle<DeviceWrapper>(VkDevice handle)
+{
+    if (handle != VK_NULL_HANDLE)
+    {
+        // Destroy child wrappers.
+        auto wrapper = reinterpret_cast<DeviceWrapper*>(handle);
+
+        for (auto entry : wrapper->child_queues)
+        {
+            delete entry;
+        }
+
+        delete wrapper;
     }
 }
 

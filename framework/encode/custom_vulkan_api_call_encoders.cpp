@@ -216,6 +216,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
     auto handle_store         = TraceManager::Get()->GetHandleStore();
     auto handle_array_store   = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DescriptorSetWrapper>(&descriptorSet, handle_store);
     UnwrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, handle_store);
     UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_store, handle_array_store, handle_unwrap_memory);
@@ -225,6 +226,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
 
     auto handle_store_iter       = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DescriptorSetWrapper>(&descriptorSet, &handle_store_iter);
     RewrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, &handle_store_iter);
     RewrapDescriptorUpdateTemplateInfoHandles(info, pData, &handle_store_iter, &handle_array_store_iter);
@@ -267,6 +269,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
     auto handle_store         = TraceManager::Get()->GetHandleStore();
     auto handle_array_store   = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, handle_store);
     UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_store, handle_array_store, handle_unwrap_memory);
 
@@ -275,6 +278,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
 
     auto handle_store_iter       = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, &handle_store_iter);
     RewrapDescriptorUpdateTemplateInfoHandles(info, pData, &handle_store_iter, &handle_array_store_iter);
 
@@ -314,6 +318,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
     auto handle_store         = TraceManager::Get()->GetHandleStore();
     auto handle_array_store   = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DescriptorSetWrapper>(&descriptorSet, handle_store);
     UnwrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, handle_store);
     UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_store, handle_array_store, handle_unwrap_memory);
@@ -323,6 +328,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
 
     auto handle_store_iter       = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DescriptorSetWrapper>(&descriptorSet, &handle_store_iter);
     RewrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, &handle_store_iter);
     RewrapDescriptorUpdateTemplateInfoHandles(info, pData, &handle_store_iter, &handle_array_store_iter);
@@ -346,6 +352,7 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
     auto handle_store         = TraceManager::Get()->GetHandleStore();
     auto handle_array_store   = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ObjectTableNVXWrapper>(&objectTable, handle_store);
     if (ppObjectTableEntries != nullptr)
     {
@@ -362,6 +369,7 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
 
     auto handle_store_iter       = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ObjectTableNVXWrapper>(&objectTable, &handle_store_iter);
     if (ppObjectTableEntries != nullptr)
     {

@@ -18,6 +18,7 @@
 #include "layer/trace_layer.h"
 
 #include "encode/trace_manager.h"
+#include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
 
@@ -175,13 +176,14 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
 
     if (instance != VK_NULL_HANDLE)
     {
+        VkInstance            unwrapped = encode::GetWrappedHandle(instance);
         encode::TraceManager* manager = encode::TraceManager::Get();
         assert(manager != nullptr);
 
-        const auto table = manager->GetInstanceTable(instance);
+        const auto table = manager->GetInstanceTable(unwrapped);
         if (table && table->GetInstanceProcAddr)
         {
-            result = table->GetInstanceProcAddr(instance, pName);
+            result = table->GetInstanceProcAddr(unwrapped, pName);
         }
     }
 
@@ -206,13 +208,14 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
 
     if (device != VK_NULL_HANDLE)
     {
+        VkDevice              unwrapped = encode::GetWrappedHandle(device);
         encode::TraceManager* manager = encode::TraceManager::Get();
         assert(manager != nullptr);
 
-        const auto table = manager->GetDeviceTable(device);
+        const auto table = manager->GetDeviceTable(unwrapped);
         if (table && table->GetDeviceProcAddr)
         {
-            result = table->GetDeviceProcAddr(device, pName);
+            result = table->GetDeviceProcAddr(unwrapped, pName);
 
             if (result != nullptr)
             {
@@ -249,11 +252,12 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     {
         // If this function was not called with the layer's name, we expect to dispatch down the chain to obtain the ICD
         // provided extensions.
+        VkPhysicalDevice      unwrapped = encode::GetWrappedHandle(physicalDevice);
         encode::TraceManager* manager = encode::TraceManager::Get();
         assert(manager != nullptr);
 
-        result = manager->GetInstanceTable(physicalDevice)
-                     ->EnumerateDeviceExtensionProperties(physicalDevice, nullptr, pPropertyCount, pProperties);
+        result = manager->GetInstanceTable(unwrapped)->EnumerateDeviceExtensionProperties(
+            unwrapped, nullptr, pPropertyCount, pProperties);
     }
 
     return result;
