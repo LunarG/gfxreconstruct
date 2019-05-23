@@ -47,6 +47,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(
 
     VkResult result = TraceManager::GetLayerTable()->CreateInstance(pCreateInfo, pAllocator, pInstance);
 
+    if (result == VK_SUCCESS)
+    {
+        CreateWrappedHandle<InstanceWrapper, InstanceWrapper>(VK_NULL_HANDLE, pInstance, TraceManager::GetUniqueId);
+    }
+
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateInstance);
     if (encoder)
     {
@@ -76,7 +81,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(
         TraceManager::Get()->EndDestroyApiCallTrace<InstanceWrapper>(instance, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     TraceManager::Get()->GetInstanceTable(instance)->DestroyInstance(instance, pAllocator);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>::Dispatch(TraceManager::Get(), instance, pAllocator);
 }
@@ -88,7 +99,18 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices>::Dispatch(TraceManager::Get(), instance, pPhysicalDeviceCount, pPhysicalDevices);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->EnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
+
+    if (result == VK_SUCCESS)
+    {
+        CreateWrappedHandles<InstanceWrapper, PhysicalDeviceWrapper>(instance, pPhysicalDevices, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0, TraceManager::GetUniqueId);
+    }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices);
     if (encoder)
@@ -111,7 +133,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures>::Dispatch(TraceManager::Get(), physicalDevice, pFeatures);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceFeatures(physicalDevice, pFeatures);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures);
     if (encoder)
@@ -131,7 +159,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties>::Dispatch(TraceManager::Get(), physicalDevice, format, pFormatProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceFormatProperties(physicalDevice, format, pFormatProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties);
     if (encoder)
@@ -156,7 +190,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties>::Dispatch(TraceManager::Get(), physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceImageFormatProperties(physicalDevice, format, type, tiling, usage, flags, pImageFormatProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties);
     if (encoder)
@@ -183,7 +223,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties>::Dispatch(TraceManager::Get(), physicalDevice, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties(physicalDevice, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties);
     if (encoder)
@@ -203,7 +249,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties>::Dispatch(TraceManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceQueueFamilyProperties(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties);
     if (encoder)
@@ -223,7 +275,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>::Dispatch(TraceManager::Get(), physicalDevice, pMemoryProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceMemoryProperties(physicalDevice, pMemoryProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties);
     if (encoder)
@@ -247,13 +305,20 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::GetLayerTable()->CreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
+
+    if (result == VK_SUCCESS)
+    {
+        CreateWrappedHandle<PhysicalDeviceWrapper, DeviceWrapper>(physicalDevice, pDevice, TraceManager::GetUniqueId);
+    }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDevice);
     if (encoder)
@@ -285,7 +350,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(
         TraceManager::Get()->EndDestroyApiCallTrace<DeviceWrapper>(device, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     TraceManager::Get()->GetDeviceTable(device)->DestroyDevice(device, pAllocator);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDevice>::Dispatch(TraceManager::Get(), device, pAllocator);
 }
@@ -298,7 +369,15 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceQueue>::Dispatch(TraceManager::Get(), device, queueFamilyIndex, queueIndex, pQueue);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     TraceManager::Get()->GetDeviceTable(device)->GetDeviceQueue(device, queueFamilyIndex, queueIndex, pQueue);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
+
+    CreateWrappedHandle<DeviceWrapper, QueueWrapper>(device, pQueue, TraceManager::GetUniqueId);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceQueue);
     if (encoder)
@@ -324,6 +403,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<QueueWrapper>(&queue, handle_store);
     UnwrapStructArrayHandles(pSubmits, submitCount, handle_store, handle_array_store, handle_unwrap_memory);
     UnwrapHandle<FenceWrapper>(&fence, handle_store);
 
@@ -331,6 +411,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<QueueWrapper>(&queue, &handle_store_iter);
     RewrapStructArrayHandles(pSubmits, submitCount, &handle_store_iter, &handle_array_store_iter);
     RewrapHandle<FenceWrapper>(&fence, &handle_store_iter);
 
@@ -355,7 +436,13 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueWaitIdle>::Dispatch(TraceManager::Get(), queue);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<QueueWrapper>(&queue, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(queue)->QueueWaitIdle(queue);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<QueueWrapper>(&queue, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueueWaitIdle);
     if (encoder)
@@ -375,7 +462,13 @@ VKAPI_ATTR VkResult VKAPI_CALL DeviceWaitIdle(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeviceWaitIdle>::Dispatch(TraceManager::Get(), device);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->DeviceWaitIdle(device);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDeviceWaitIdle);
     if (encoder)
@@ -401,17 +494,19 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pAllocateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->AllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pAllocateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceMemoryWrapper>(pMemory, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, DeviceMemoryWrapper>(device, pMemory, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateMemory);
@@ -447,11 +542,13 @@ VKAPI_ATTR void VKAPI_CALL FreeMemory(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DeviceMemoryWrapper>(&memory, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->FreeMemory(device, memory, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DeviceMemoryWrapper>(&memory, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>::Dispatch(TraceManager::Get(), device, memory, pAllocator);
@@ -468,11 +565,13 @@ VKAPI_ATTR VkResult VKAPI_CALL MapMemory(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkMapMemory>::Dispatch(TraceManager::Get(), device, memory, offset, size, flags, ppData);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DeviceMemoryWrapper>(&memory, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->MapMemory(device, memory, offset, size, flags, ppData);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DeviceMemoryWrapper>(&memory, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkMapMemory);
@@ -508,11 +607,13 @@ VKAPI_ATTR void VKAPI_CALL UnmapMemory(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DeviceMemoryWrapper>(&memory, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->UnmapMemory(device, memory);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DeviceMemoryWrapper>(&memory, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUnmapMemory>::Dispatch(TraceManager::Get(), device, memory);
@@ -528,12 +629,14 @@ VKAPI_ATTR VkResult VKAPI_CALL FlushMappedMemoryRanges(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructArrayHandles(pMemoryRanges, memoryRangeCount, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->FlushMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructArrayHandles(pMemoryRanges, memoryRangeCount, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkFlushMappedMemoryRanges);
@@ -561,12 +664,14 @@ VKAPI_ATTR VkResult VKAPI_CALL InvalidateMappedMemoryRanges(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructArrayHandles(pMemoryRanges, memoryRangeCount, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->InvalidateMappedMemoryRanges(device, memoryRangeCount, pMemoryRanges);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructArrayHandles(pMemoryRanges, memoryRangeCount, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkInvalidateMappedMemoryRanges);
@@ -592,11 +697,13 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceMemoryCommitment(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment>::Dispatch(TraceManager::Get(), device, memory, pCommittedMemoryInBytes);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DeviceMemoryWrapper>(&memory, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->GetDeviceMemoryCommitment(device, memory, pCommittedMemoryInBytes);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DeviceMemoryWrapper>(&memory, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceMemoryCommitment);
@@ -620,12 +727,14 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindBufferMemory>::Dispatch(TraceManager::Get(), device, buffer, memory, memoryOffset);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
     UnwrapHandle<DeviceMemoryWrapper>(&memory, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->BindBufferMemory(device, buffer, memory, memoryOffset);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
     RewrapHandle<DeviceMemoryWrapper>(&memory, &handle_store_iter);
 
@@ -654,12 +763,14 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindImageMemory>::Dispatch(TraceManager::Get(), device, image, memory, memoryOffset);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ImageWrapper>(&image, handle_store);
     UnwrapHandle<DeviceMemoryWrapper>(&memory, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->BindImageMemory(device, image, memory, memoryOffset);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&image, &handle_store_iter);
     RewrapHandle<DeviceMemoryWrapper>(&memory, &handle_store_iter);
 
@@ -687,11 +798,13 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements>::Dispatch(TraceManager::Get(), device, buffer, pMemoryRequirements);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->GetBufferMemoryRequirements(device, buffer, pMemoryRequirements);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements);
@@ -714,11 +827,13 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageMemoryRequirements>::Dispatch(TraceManager::Get(), device, image, pMemoryRequirements);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ImageWrapper>(&image, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->GetImageMemoryRequirements(device, image, pMemoryRequirements);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&image, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements);
@@ -742,11 +857,13 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements>::Dispatch(TraceManager::Get(), device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ImageWrapper>(&image, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->GetImageSparseMemoryRequirements(device, image, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&image, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements);
@@ -774,7 +891,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties>::Dispatch(TraceManager::Get(), physicalDevice, format, type, samples, usage, tiling, pPropertyCount, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSparseImageFormatProperties(physicalDevice, format, type, samples, usage, tiling, pPropertyCount, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties);
     if (encoder)
@@ -804,6 +927,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<QueueWrapper>(&queue, handle_store);
     UnwrapStructArrayHandles(pBindInfo, bindInfoCount, handle_store, handle_array_store, handle_unwrap_memory);
     UnwrapHandle<FenceWrapper>(&fence, handle_store);
 
@@ -811,6 +935,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<QueueWrapper>(&queue, &handle_store_iter);
     RewrapStructArrayHandles(pBindInfo, bindInfoCount, &handle_store_iter, &handle_array_store_iter);
     RewrapHandle<FenceWrapper>(&fence, &handle_store_iter);
 
@@ -838,11 +963,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFence(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateFence>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pFence);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateFence(device, pCreateInfo, pAllocator, pFence);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<FenceWrapper>(pFence, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, FenceWrapper>(device, pFence, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateFence);
@@ -878,11 +1009,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyFence(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<FenceWrapper>(&fence, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyFence(device, fence, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<FenceWrapper>(&fence, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFence>::Dispatch(TraceManager::Get(), device, fence, pAllocator);
@@ -895,13 +1028,17 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetFences(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetFences>::Dispatch(TraceManager::Get(), device, fenceCount, pFences);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandles<FenceWrapper>(&pFences, fenceCount, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->ResetFences(device, fenceCount, pFences);
 
+    auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandles<FenceWrapper>(&pFences, fenceCount, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetFences);
@@ -926,11 +1063,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetFenceStatus>::Dispatch(TraceManager::Get(), device, fence);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<FenceWrapper>(&fence, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetFenceStatus(device, fence);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<FenceWrapper>(&fence, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetFenceStatus);
@@ -956,13 +1095,17 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitForFences(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitForFences>::Dispatch(TraceManager::Get(), device, fenceCount, pFences, waitAll, timeout);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandles<FenceWrapper>(&pFences, fenceCount, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->WaitForFences(device, fenceCount, pFences, waitAll, timeout);
 
+    auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandles<FenceWrapper>(&pFences, fenceCount, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWaitForFences);
@@ -990,11 +1133,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSemaphore>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pSemaphore);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateSemaphore(device, pCreateInfo, pAllocator, pSemaphore);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SemaphoreWrapper>(pSemaphore, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, SemaphoreWrapper>(device, pSemaphore, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSemaphore);
@@ -1030,11 +1179,13 @@ VKAPI_ATTR void VKAPI_CALL DestroySemaphore(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SemaphoreWrapper>(&semaphore, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroySemaphore(device, semaphore, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SemaphoreWrapper>(&semaphore, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySemaphore>::Dispatch(TraceManager::Get(), device, semaphore, pAllocator);
@@ -1048,11 +1199,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateEvent>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pEvent);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateEvent(device, pCreateInfo, pAllocator, pEvent);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<EventWrapper>(pEvent, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, EventWrapper>(device, pEvent, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateEvent);
@@ -1088,11 +1245,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyEvent(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<EventWrapper>(&event, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyEvent(device, event, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<EventWrapper>(&event, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyEvent>::Dispatch(TraceManager::Get(), device, event, pAllocator);
@@ -1105,11 +1264,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetEventStatus(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetEventStatus>::Dispatch(TraceManager::Get(), device, event);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<EventWrapper>(&event, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetEventStatus(device, event);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<EventWrapper>(&event, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetEventStatus);
@@ -1133,11 +1294,13 @@ VKAPI_ATTR VkResult VKAPI_CALL SetEvent(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetEvent>::Dispatch(TraceManager::Get(), device, event);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<EventWrapper>(&event, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->SetEvent(device, event);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<EventWrapper>(&event, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetEvent);
@@ -1161,11 +1324,13 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetEvent(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetEvent>::Dispatch(TraceManager::Get(), device, event);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<EventWrapper>(&event, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->ResetEvent(device, event);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<EventWrapper>(&event, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetEvent);
@@ -1190,11 +1355,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateQueryPool>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pQueryPool);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateQueryPool(device, pCreateInfo, pAllocator, pQueryPool);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<QueryPoolWrapper>(pQueryPool, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, QueryPoolWrapper>(device, pQueryPool, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateQueryPool);
@@ -1230,11 +1401,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyQueryPool(device, queryPool, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyQueryPool>::Dispatch(TraceManager::Get(), device, queryPool, pAllocator);
@@ -1253,11 +1426,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueryPoolResults>::Dispatch(TraceManager::Get(), device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetQueryPoolResults(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetQueryPoolResults);
@@ -1288,11 +1463,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateBuffer>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pBuffer);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateBuffer(device, pCreateInfo, pAllocator, pBuffer);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<BufferWrapper>(pBuffer, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, BufferWrapper>(device, pBuffer, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateBuffer);
@@ -1328,11 +1509,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyBuffer(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyBuffer(device, buffer, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBuffer>::Dispatch(TraceManager::Get(), device, buffer, pAllocator);
@@ -1349,17 +1532,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateBufferView(device, pCreateInfo, pAllocator, pView);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<BufferViewWrapper>(pView, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, BufferViewWrapper>(device, pView, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateBufferView);
@@ -1395,11 +1580,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyBufferView(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<BufferViewWrapper>(&bufferView, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyBufferView(device, bufferView, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<BufferViewWrapper>(&bufferView, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBufferView>::Dispatch(TraceManager::Get(), device, bufferView, pAllocator);
@@ -1416,17 +1603,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateImage(device, pCreateInfo, pAllocator, pImage);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<ImageWrapper>(pImage, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, ImageWrapper>(device, pImage, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImage);
@@ -1462,11 +1651,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyImage(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ImageWrapper>(&image, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyImage(device, image, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&image, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImage>::Dispatch(TraceManager::Get(), device, image, pAllocator);
@@ -1481,11 +1672,13 @@ VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageSubresourceLayout>::Dispatch(TraceManager::Get(), device, image, pSubresource, pLayout);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ImageWrapper>(&image, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->GetImageSubresourceLayout(device, image, pSubresource, pLayout);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&image, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSubresourceLayout);
@@ -1512,17 +1705,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateImageView(device, pCreateInfo, pAllocator, pView);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<ImageViewWrapper>(pView, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, ImageViewWrapper>(device, pView, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImageView);
@@ -1558,11 +1753,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyImageView(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ImageViewWrapper>(&imageView, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyImageView(device, imageView, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ImageViewWrapper>(&imageView, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImageView>::Dispatch(TraceManager::Get(), device, imageView, pAllocator);
@@ -1579,17 +1776,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateShaderModule(device, pCreateInfo, pAllocator, pShaderModule);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<ShaderModuleWrapper>(pShaderModule, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, ShaderModuleWrapper>(device, pShaderModule, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateShaderModule);
@@ -1625,11 +1824,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ShaderModuleWrapper>(&shaderModule, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyShaderModule(device, shaderModule, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ShaderModuleWrapper>(&shaderModule, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyShaderModule>::Dispatch(TraceManager::Get(), device, shaderModule, pAllocator);
@@ -1643,11 +1844,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePipelineCache>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pPipelineCache);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreatePipelineCache(device, pCreateInfo, pAllocator, pPipelineCache);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<PipelineCacheWrapper>(pPipelineCache, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, PipelineCacheWrapper>(device, pPipelineCache, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePipelineCache);
@@ -1683,11 +1890,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineCacheWrapper>(&pipelineCache, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyPipelineCache(device, pipelineCache, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineCacheWrapper>(&pipelineCache, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineCache>::Dispatch(TraceManager::Get(), device, pipelineCache, pAllocator);
@@ -1702,11 +1911,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPipelineCacheData>::Dispatch(TraceManager::Get(), device, pipelineCache, pDataSize, pData);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineCacheWrapper>(&pipelineCache, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetPipelineCacheData(device, pipelineCache, pDataSize, pData);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineCacheWrapper>(&pipelineCache, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPipelineCacheData);
@@ -1736,6 +1947,7 @@ VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineCacheWrapper>(&dstCache, handle_store);
     UnwrapHandles<PipelineCacheWrapper>(&pSrcCaches, srcCacheCount, handle_array_store, handle_unwrap_memory);
 
@@ -1743,6 +1955,7 @@ VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineCacheWrapper>(&dstCache, &handle_store_iter);
     RewrapHandles<PipelineCacheWrapper>(&pSrcCaches, srcCacheCount, &handle_array_store_iter);
 
@@ -1775,6 +1988,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineCacheWrapper>(&pipelineCache, handle_store);
     UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_store, handle_array_store, handle_unwrap_memory);
 
@@ -1782,12 +1996,13 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineCacheWrapper>(&pipelineCache, &handle_store_iter);
     RewrapStructArrayHandles(pCreateInfos, createInfoCount, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<PipelineWrapper>(pPipelines, createInfoCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, PipelineWrapper>(device, pPipelines, createInfoCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateGraphicsPipelines);
@@ -1821,6 +2036,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineCacheWrapper>(&pipelineCache, handle_store);
     UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_store, handle_array_store, handle_unwrap_memory);
 
@@ -1828,12 +2044,13 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineCacheWrapper>(&pipelineCache, &handle_store_iter);
     RewrapStructArrayHandles(pCreateInfos, createInfoCount, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<PipelineWrapper>(pPipelines, createInfoCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, PipelineWrapper>(device, pPipelines, createInfoCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateComputePipelines);
@@ -1871,11 +2088,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipeline(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineWrapper>(&pipeline, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyPipeline(device, pipeline, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineWrapper>(&pipeline, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipeline>::Dispatch(TraceManager::Get(), device, pipeline, pAllocator);
@@ -1892,17 +2111,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreatePipelineLayout(device, pCreateInfo, pAllocator, pPipelineLayout);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<PipelineLayoutWrapper>(pPipelineLayout, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, PipelineLayoutWrapper>(device, pPipelineLayout, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePipelineLayout);
@@ -1938,11 +2159,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineLayoutWrapper>(&pipelineLayout, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyPipelineLayout(device, pipelineLayout, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineLayoutWrapper>(&pipelineLayout, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineLayout>::Dispatch(TraceManager::Get(), device, pipelineLayout, pAllocator);
@@ -1959,17 +2182,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateSampler(device, pCreateInfo, pAllocator, pSampler);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SamplerWrapper>(pSampler, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, SamplerWrapper>(device, pSampler, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSampler);
@@ -2005,11 +2230,13 @@ VKAPI_ATTR void VKAPI_CALL DestroySampler(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SamplerWrapper>(&sampler, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroySampler(device, sampler, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SamplerWrapper>(&sampler, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySampler>::Dispatch(TraceManager::Get(), device, sampler, pAllocator);
@@ -2026,17 +2253,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateDescriptorSetLayout(device, pCreateInfo, pAllocator, pSetLayout);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DescriptorSetLayoutWrapper>(pSetLayout, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, DescriptorSetLayoutWrapper>(device, pSetLayout, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout);
@@ -2072,11 +2301,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DescriptorSetLayoutWrapper>(&descriptorSetLayout, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyDescriptorSetLayout(device, descriptorSetLayout, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DescriptorSetLayoutWrapper>(&descriptorSetLayout, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout>::Dispatch(TraceManager::Get(), device, descriptorSetLayout, pAllocator);
@@ -2090,11 +2321,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDescriptorPool>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pDescriptorPool);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateDescriptorPool(device, pCreateInfo, pAllocator, pDescriptorPool);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DescriptorPoolWrapper>(pDescriptorPool, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, DescriptorPoolWrapper>(device, pDescriptorPool, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorPool);
@@ -2130,11 +2367,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DescriptorPoolWrapper>(&descriptorPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyDescriptorPool(device, descriptorPool, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DescriptorPoolWrapper>(&descriptorPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorPool>::Dispatch(TraceManager::Get(), device, descriptorPool, pAllocator);
@@ -2148,11 +2387,13 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetDescriptorPool>::Dispatch(TraceManager::Get(), device, descriptorPool, flags);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DescriptorPoolWrapper>(&descriptorPool, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->ResetDescriptorPool(device, descriptorPool, flags);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DescriptorPoolWrapper>(&descriptorPool, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetDescriptorPool);
@@ -2180,17 +2421,19 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pAllocateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->AllocateDescriptorSets(device, pAllocateInfo, pDescriptorSets);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pAllocateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<DescriptorSetWrapper>(pDescriptorSets, pAllocateInfo->descriptorSetCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, DescriptorSetWrapper>(device, pDescriptorSets, pAllocateInfo->descriptorSetCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateDescriptorSets);
@@ -2219,6 +2462,7 @@ VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DescriptorPoolWrapper>(&descriptorPool, handle_store);
     UnwrapHandles<DescriptorSetWrapper>(&pDescriptorSets, descriptorSetCount, handle_array_store, handle_unwrap_memory);
 
@@ -2226,6 +2470,7 @@ VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DescriptorPoolWrapper>(&descriptorPool, &handle_store_iter);
     RewrapHandles<DescriptorSetWrapper>(&pDescriptorSets, descriptorSetCount, &handle_array_store_iter);
 
@@ -2268,6 +2513,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSets(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructArrayHandles(pDescriptorWrites, descriptorWriteCount, handle_store, handle_array_store, handle_unwrap_memory);
     UnwrapStructArrayHandles(pDescriptorCopies, descriptorCopyCount, handle_store, handle_array_store, handle_unwrap_memory);
 
@@ -2275,6 +2521,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSets(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructArrayHandles(pDescriptorWrites, descriptorWriteCount, &handle_store_iter, &handle_array_store_iter);
     RewrapStructArrayHandles(pDescriptorCopies, descriptorCopyCount, &handle_store_iter, &handle_array_store_iter);
 
@@ -2292,17 +2539,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateFramebuffer(device, pCreateInfo, pAllocator, pFramebuffer);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<FramebufferWrapper>(pFramebuffer, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, FramebufferWrapper>(device, pFramebuffer, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateFramebuffer);
@@ -2338,11 +2587,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<FramebufferWrapper>(&framebuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyFramebuffer(device, framebuffer, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<FramebufferWrapper>(&framebuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFramebuffer>::Dispatch(TraceManager::Get(), device, framebuffer, pAllocator);
@@ -2356,11 +2607,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateRenderPass(device, pCreateInfo, pAllocator, pRenderPass);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<RenderPassWrapper>(pRenderPass, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, RenderPassWrapper>(device, pRenderPass, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass);
@@ -2396,11 +2653,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<RenderPassWrapper>(&renderPass, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyRenderPass(device, renderPass, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<RenderPassWrapper>(&renderPass, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyRenderPass>::Dispatch(TraceManager::Get(), device, renderPass, pAllocator);
@@ -2414,11 +2673,13 @@ VKAPI_ATTR void VKAPI_CALL GetRenderAreaGranularity(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRenderAreaGranularity>::Dispatch(TraceManager::Get(), device, renderPass, pGranularity);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<RenderPassWrapper>(&renderPass, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->GetRenderAreaGranularity(device, renderPass, pGranularity);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<RenderPassWrapper>(&renderPass, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRenderAreaGranularity);
@@ -2441,11 +2702,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateCommandPool>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pCommandPool);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateCommandPool(device, pCreateInfo, pAllocator, pCommandPool);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<CommandPoolWrapper>(pCommandPool, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, CommandPoolWrapper>(device, pCommandPool, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateCommandPool);
@@ -2481,11 +2748,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<CommandPoolWrapper>(&commandPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyCommandPool(device, commandPool, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<CommandPoolWrapper>(&commandPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyCommandPool>::Dispatch(TraceManager::Get(), device, commandPool, pAllocator);
@@ -2499,11 +2768,13 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandPool(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetCommandPool>::Dispatch(TraceManager::Get(), device, commandPool, flags);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<CommandPoolWrapper>(&commandPool, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->ResetCommandPool(device, commandPool, flags);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<CommandPoolWrapper>(&commandPool, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetCommandPool);
@@ -2531,13 +2802,20 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateCommandBuffers(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pAllocateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->AllocateCommandBuffers(device, pAllocateInfo, pCommandBuffers);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pAllocateInfo, &handle_store_iter, &handle_array_store_iter);
+
+    if (result == VK_SUCCESS)
+    {
+        CreateWrappedHandles<DeviceWrapper, CommandBufferWrapper>(device, pCommandBuffers, pAllocateInfo->commandBufferCount, TraceManager::GetUniqueId);
+    }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateCommandBuffers);
     if (encoder)
@@ -2573,12 +2851,19 @@ VKAPI_ATTR void VKAPI_CALL FreeCommandBuffers(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<CommandPoolWrapper>(&commandPool, handle_store);
+    UnwrapHandles<CommandBufferWrapper>(&pCommandBuffers, commandBufferCount, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->FreeCommandBuffers(device, commandPool, commandBufferCount, pCommandBuffers);
 
     auto handle_store_iter = handle_store->cbegin();
+    auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<CommandPoolWrapper>(&commandPool, &handle_store_iter);
+    RewrapHandles<CommandBufferWrapper>(&pCommandBuffers, commandBufferCount, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeCommandBuffers>::Dispatch(TraceManager::Get(), device, commandPool, commandBufferCount, pCommandBuffers);
 }
@@ -2592,12 +2877,14 @@ VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapStructHandles(pBeginInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(commandBuffer)->BeginCommandBuffer(commandBuffer, pBeginInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapStructHandles(pBeginInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkBeginCommandBuffer);
@@ -2619,7 +2906,13 @@ VKAPI_ATTR VkResult VKAPI_CALL EndCommandBuffer(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEndCommandBuffer>::Dispatch(TraceManager::Get(), commandBuffer);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(commandBuffer)->EndCommandBuffer(commandBuffer);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEndCommandBuffer);
     if (encoder)
@@ -2640,7 +2933,13 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandBuffer(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetCommandBuffer>::Dispatch(TraceManager::Get(), commandBuffer, flags);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(commandBuffer)->ResetCommandBuffer(commandBuffer, flags);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkResetCommandBuffer);
     if (encoder)
@@ -2673,11 +2972,13 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<PipelineWrapper>(&pipeline, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBindPipeline(commandBuffer, pipelineBindPoint, pipeline);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<PipelineWrapper>(&pipeline, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindPipeline>::Dispatch(TraceManager::Get(), commandBuffer, pipelineBindPoint, pipeline);
@@ -2701,7 +3002,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewport(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetViewport(commandBuffer, firstViewport, viewportCount, pViewports);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewport>::Dispatch(TraceManager::Get(), commandBuffer, firstViewport, viewportCount, pViewports);
 }
@@ -2724,7 +3031,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissor(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetScissor(commandBuffer, firstScissor, scissorCount, pScissors);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetScissor>::Dispatch(TraceManager::Get(), commandBuffer, firstScissor, scissorCount, pScissors);
 }
@@ -2743,7 +3056,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineWidth(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetLineWidth(commandBuffer, lineWidth);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetLineWidth>::Dispatch(TraceManager::Get(), commandBuffer, lineWidth);
 }
@@ -2766,7 +3085,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetDepthBias(commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBias>::Dispatch(TraceManager::Get(), commandBuffer, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
 }
@@ -2785,7 +3110,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetBlendConstants(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetBlendConstants(commandBuffer, blendConstants);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetBlendConstants>::Dispatch(TraceManager::Get(), commandBuffer, blendConstants);
 }
@@ -2806,7 +3137,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBounds(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetDepthBounds(commandBuffer, minDepthBounds, maxDepthBounds);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthBounds>::Dispatch(TraceManager::Get(), commandBuffer, minDepthBounds, maxDepthBounds);
 }
@@ -2827,7 +3164,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilCompareMask(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetStencilCompareMask(commandBuffer, faceMask, compareMask);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilCompareMask>::Dispatch(TraceManager::Get(), commandBuffer, faceMask, compareMask);
 }
@@ -2848,7 +3191,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilWriteMask(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetStencilWriteMask(commandBuffer, faceMask, writeMask);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilWriteMask>::Dispatch(TraceManager::Get(), commandBuffer, faceMask, writeMask);
 }
@@ -2869,7 +3218,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetStencilReference(commandBuffer, faceMask, reference);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetStencilReference>::Dispatch(TraceManager::Get(), commandBuffer, faceMask, reference);
 }
@@ -2903,6 +3258,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<PipelineLayoutWrapper>(&layout, handle_store);
     UnwrapHandles<DescriptorSetWrapper>(&pDescriptorSets, descriptorSetCount, handle_array_store, handle_unwrap_memory);
 
@@ -2910,6 +3266,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<PipelineLayoutWrapper>(&layout, &handle_store_iter);
     RewrapHandles<DescriptorSetWrapper>(&pDescriptorSets, descriptorSetCount, &handle_array_store_iter);
 
@@ -2935,11 +3292,13 @@ VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBindIndexBuffer(commandBuffer, buffer, offset, indexType);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindIndexBuffer>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, indexType);
@@ -2965,13 +3324,17 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindVertexBuffersHandles, bindingCount, pBuffers);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandles<BufferWrapper>(&pBuffers, bindingCount, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBindVertexBuffers(commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
 
+    auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandles<BufferWrapper>(&pBuffers, bindingCount, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindVertexBuffers>::Dispatch(TraceManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets);
@@ -2997,7 +3360,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDraw(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDraw(commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDraw>::Dispatch(TraceManager::Get(), commandBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
 }
@@ -3024,7 +3393,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexed(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawIndexed(commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexed>::Dispatch(TraceManager::Get(), commandBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
@@ -3050,11 +3425,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawIndirect(commandBuffer, buffer, offset, drawCount, stride);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirect>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
@@ -3081,11 +3458,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirect(commandBuffer, buffer, offset, drawCount, stride);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirect>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
@@ -3109,7 +3488,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatch(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDispatch(commandBuffer, groupCountX, groupCountY, groupCountZ);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatch>::Dispatch(TraceManager::Get(), commandBuffer, groupCountX, groupCountY, groupCountZ);
 }
@@ -3131,11 +3516,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchIndirect(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDispatchIndirect(commandBuffer, buffer, offset);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchIndirect>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset);
@@ -3162,12 +3549,14 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&srcBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&dstBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, regionCount, pRegions);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&srcBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&dstBuffer, &handle_store_iter);
 
@@ -3199,12 +3588,14 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<ImageWrapper>(&srcImage, handle_store);
     UnwrapHandle<ImageWrapper>(&dstImage, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdCopyImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&srcImage, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&dstImage, &handle_store_iter);
 
@@ -3238,12 +3629,14 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<ImageWrapper>(&srcImage, handle_store);
     UnwrapHandle<ImageWrapper>(&dstImage, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBlitImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions, filter);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&srcImage, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&dstImage, &handle_store_iter);
 
@@ -3273,12 +3666,14 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&srcBuffer, handle_store);
     UnwrapHandle<ImageWrapper>(&dstImage, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdCopyBufferToImage(commandBuffer, srcBuffer, dstImage, dstImageLayout, regionCount, pRegions);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&srcBuffer, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&dstImage, &handle_store_iter);
 
@@ -3308,12 +3703,14 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<ImageWrapper>(&srcImage, handle_store);
     UnwrapHandle<BufferWrapper>(&dstBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdCopyImageToBuffer(commandBuffer, srcImage, srcImageLayout, dstBuffer, regionCount, pRegions);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&srcImage, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&dstBuffer, &handle_store_iter);
 
@@ -3341,11 +3738,13 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&dstBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdUpdateBuffer(commandBuffer, dstBuffer, dstOffset, dataSize, pData);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&dstBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdUpdateBuffer>::Dispatch(TraceManager::Get(), commandBuffer, dstBuffer, dstOffset, dataSize, pData);
@@ -3372,11 +3771,13 @@ VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&dstBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdFillBuffer(commandBuffer, dstBuffer, dstOffset, size, data);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&dstBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdFillBuffer>::Dispatch(TraceManager::Get(), commandBuffer, dstBuffer, dstOffset, size, data);
@@ -3405,11 +3806,13 @@ VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<ImageWrapper>(&image, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdClearColorImage(commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&image, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearColorImage>::Dispatch(TraceManager::Get(), commandBuffer, image, imageLayout, pColor, rangeCount, pRanges);
@@ -3438,11 +3841,13 @@ VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<ImageWrapper>(&image, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdClearDepthStencilImage(commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&image, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearDepthStencilImage>::Dispatch(TraceManager::Get(), commandBuffer, image, imageLayout, pDepthStencil, rangeCount, pRanges);
@@ -3468,7 +3873,13 @@ VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdClearAttachments(commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdClearAttachments>::Dispatch(TraceManager::Get(), commandBuffer, attachmentCount, pAttachments, rectCount, pRects);
 }
@@ -3498,12 +3909,14 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<ImageWrapper>(&srcImage, handle_store);
     UnwrapHandle<ImageWrapper>(&dstImage, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdResolveImage(commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&srcImage, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&dstImage, &handle_store_iter);
 
@@ -3527,11 +3940,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetEvent(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<EventWrapper>(&event, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetEvent(commandBuffer, event, stageMask);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<EventWrapper>(&event, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetEvent>::Dispatch(TraceManager::Get(), commandBuffer, event, stageMask);
@@ -3554,11 +3969,13 @@ VKAPI_ATTR void VKAPI_CALL CmdResetEvent(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<EventWrapper>(&event, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdResetEvent(commandBuffer, event, stageMask);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<EventWrapper>(&event, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetEvent>::Dispatch(TraceManager::Get(), commandBuffer, event, stageMask);
@@ -3599,6 +4016,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandles<EventWrapper>(&pEvents, eventCount, handle_array_store, handle_unwrap_memory);
     UnwrapStructArrayHandles(pBufferMemoryBarriers, bufferMemoryBarrierCount, handle_store, handle_array_store, handle_unwrap_memory);
     UnwrapStructArrayHandles(pImageMemoryBarriers, imageMemoryBarrierCount, handle_store, handle_array_store, handle_unwrap_memory);
@@ -3607,6 +4025,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandles<EventWrapper>(&pEvents, eventCount, &handle_array_store_iter);
     RewrapStructArrayHandles(pBufferMemoryBarriers, bufferMemoryBarrierCount, &handle_store_iter, &handle_array_store_iter);
     RewrapStructArrayHandles(pImageMemoryBarriers, imageMemoryBarrierCount, &handle_store_iter, &handle_array_store_iter);
@@ -3647,6 +4066,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapStructArrayHandles(pBufferMemoryBarriers, bufferMemoryBarrierCount, handle_store, handle_array_store, handle_unwrap_memory);
     UnwrapStructArrayHandles(pImageMemoryBarriers, imageMemoryBarrierCount, handle_store, handle_array_store, handle_unwrap_memory);
 
@@ -3654,6 +4074,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapStructArrayHandles(pBufferMemoryBarriers, bufferMemoryBarrierCount, &handle_store_iter, &handle_array_store_iter);
     RewrapStructArrayHandles(pImageMemoryBarriers, imageMemoryBarrierCount, &handle_store_iter, &handle_array_store_iter);
 
@@ -3679,11 +4100,13 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQuery(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBeginQuery(commandBuffer, queryPool, query, flags);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginQuery>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, query, flags);
@@ -3706,11 +4129,13 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQuery(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdEndQuery(commandBuffer, queryPool, query);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndQuery>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, query);
@@ -3735,11 +4160,13 @@ VKAPI_ATTR void VKAPI_CALL CmdResetQueryPool(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdResetQueryPool(commandBuffer, queryPool, firstQuery, queryCount);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetQueryPool>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, firstQuery, queryCount);
@@ -3764,11 +4191,13 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdWriteTimestamp(commandBuffer, pipelineStage, queryPool, query);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteTimestamp>::Dispatch(TraceManager::Get(), commandBuffer, pipelineStage, queryPool, query);
@@ -3801,12 +4230,14 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
     UnwrapHandle<BufferWrapper>(&dstBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdCopyQueryPoolResults(commandBuffer, queryPool, firstQuery, queryCount, dstBuffer, dstOffset, stride, flags);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&dstBuffer, &handle_store_iter);
 
@@ -3836,11 +4267,13 @@ VKAPI_ATTR void VKAPI_CALL CmdPushConstants(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<PipelineLayoutWrapper>(&layout, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdPushConstants(commandBuffer, layout, stageFlags, offset, size, pValues);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<PipelineLayoutWrapper>(&layout, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushConstants>::Dispatch(TraceManager::Get(), commandBuffer, layout, stageFlags, offset, size, pValues);
@@ -3865,12 +4298,14 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapStructHandles(pRenderPassBegin, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBeginRenderPass(commandBuffer, pRenderPassBegin, contents);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapStructHandles(pRenderPassBegin, &handle_store_iter, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>::Dispatch(TraceManager::Get(), commandBuffer, pRenderPassBegin, contents);
@@ -3890,7 +4325,13 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdNextSubpass(commandBuffer, contents);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass>::Dispatch(TraceManager::Get(), commandBuffer, contents);
 }
@@ -3907,7 +4348,13 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdEndRenderPass(commandBuffer);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass>::Dispatch(TraceManager::Get(), commandBuffer);
 }
@@ -3928,7 +4375,18 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdExecuteCommandsHandles, commandBufferCount, pCommandBuffers);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+    UnwrapHandles<CommandBufferWrapper>(&pCommandBuffers, commandBufferCount, handle_array_store, handle_unwrap_memory);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdExecuteCommands(commandBuffer, commandBufferCount, pCommandBuffers);
+
+    auto handle_store_iter = handle_store->cbegin();
+    auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
+    RewrapHandles<CommandBufferWrapper>(&pCommandBuffers, commandBufferCount, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteCommands>::Dispatch(TraceManager::Get(), commandBuffer, commandBufferCount, pCommandBuffers);
 }
@@ -3943,12 +4401,14 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->BindBufferMemory2(device, bindInfoCount, pBindInfos);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructArrayHandles(pBindInfos, bindInfoCount, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindBufferMemory2);
@@ -3976,12 +4436,14 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->BindImageMemory2(device, bindInfoCount, pBindInfos);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructArrayHandles(pBindInfos, bindInfoCount, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindImageMemory2);
@@ -4008,7 +4470,13 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures>::Dispatch(TraceManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     TraceManager::Get()->GetDeviceTable(device)->GetDeviceGroupPeerMemoryFeatures(device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeatures);
     if (encoder)
@@ -4038,7 +4506,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMask(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetDeviceMask(commandBuffer, deviceMask);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMask>::Dispatch(TraceManager::Get(), commandBuffer, deviceMask);
 }
@@ -4067,7 +4541,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBase(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDispatchBase(commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchBase>::Dispatch(TraceManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 }
@@ -4079,11 +4559,17 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups>::Dispatch(TraceManager::Get(), instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->EnumeratePhysicalDeviceGroups(instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<InstanceWrapper, VkPhysicalDeviceGroupProperties>(instance, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups);
@@ -4111,12 +4597,14 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->GetImageMemoryRequirements2(device, pInfo, pMemoryRequirements);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2);
@@ -4141,12 +4629,14 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->GetBufferMemoryRequirements2(device, pInfo, pMemoryRequirements);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2);
@@ -4172,12 +4662,14 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->GetImageSparseMemoryRequirements2(device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2);
@@ -4199,7 +4691,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2>::Dispatch(TraceManager::Get(), physicalDevice, pFeatures);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceFeatures2(physicalDevice, pFeatures);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2);
     if (encoder)
@@ -4218,7 +4716,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2>::Dispatch(TraceManager::Get(), physicalDevice, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2(physicalDevice, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2);
     if (encoder)
@@ -4238,7 +4742,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2>::Dispatch(TraceManager::Get(), physicalDevice, format, pFormatProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceFormatProperties2(physicalDevice, format, pFormatProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2);
     if (encoder)
@@ -4259,7 +4769,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2>::Dispatch(TraceManager::Get(), physicalDevice, pImageFormatInfo, pImageFormatProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceImageFormatProperties2(physicalDevice, pImageFormatInfo, pImageFormatProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2);
     if (encoder)
@@ -4283,7 +4799,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2>::Dispatch(TraceManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceQueueFamilyProperties2(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2);
     if (encoder)
@@ -4303,7 +4825,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2>::Dispatch(TraceManager::Get(), physicalDevice, pMemoryProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceMemoryProperties2(physicalDevice, pMemoryProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2);
     if (encoder)
@@ -4324,7 +4852,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2>::Dispatch(TraceManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSparseImageFormatProperties2(physicalDevice, pFormatInfo, pPropertyCount, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2);
     if (encoder)
@@ -4356,11 +4890,13 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPool(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<CommandPoolWrapper>(&commandPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->TrimCommandPool(device, commandPool, flags);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<CommandPoolWrapper>(&commandPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTrimCommandPool>::Dispatch(TraceManager::Get(), device, commandPool, flags);
@@ -4373,7 +4909,15 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue2(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceQueue2>::Dispatch(TraceManager::Get(), device, pQueueInfo, pQueue);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     TraceManager::Get()->GetDeviceTable(device)->GetDeviceQueue2(device, pQueueInfo, pQueue);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
+
+    CreateWrappedHandle<DeviceWrapper, QueueWrapper>(device, pQueue, TraceManager::GetUniqueId);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceQueue2);
     if (encoder)
@@ -4395,11 +4939,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pYcbcrConversion);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateSamplerYcbcrConversion(device, pCreateInfo, pAllocator, pYcbcrConversion);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SamplerYcbcrConversionWrapper>(pYcbcrConversion, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, SamplerYcbcrConversionWrapper>(device, pYcbcrConversion, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion);
@@ -4435,11 +4985,13 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SamplerYcbcrConversionWrapper>(&ycbcrConversion, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroySamplerYcbcrConversion(device, ycbcrConversion, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SamplerYcbcrConversionWrapper>(&ycbcrConversion, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion>::Dispatch(TraceManager::Get(), device, ycbcrConversion, pAllocator);
@@ -4456,17 +5008,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateDescriptorUpdateTemplate(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DescriptorUpdateTemplateWrapper>(pDescriptorUpdateTemplate, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, DescriptorUpdateTemplateWrapper>(device, pDescriptorUpdateTemplate, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate);
@@ -4502,11 +5056,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyDescriptorUpdateTemplate(device, descriptorUpdateTemplate, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>::Dispatch(TraceManager::Get(), device, descriptorUpdateTemplate, pAllocator);
@@ -4519,7 +5075,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferProperties(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties>::Dispatch(TraceManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalBufferProperties(physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferProperties);
     if (encoder)
@@ -4540,7 +5102,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFenceProperties(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties>::Dispatch(TraceManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalFenceProperties(physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFenceProperties);
     if (encoder)
@@ -4561,7 +5129,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphoreProperties(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties>::Dispatch(TraceManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalSemaphoreProperties(physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphoreProperties);
     if (encoder)
@@ -4585,12 +5159,14 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupport(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->GetDescriptorSetLayoutSupport(device, pCreateInfo, pSupport);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport);
@@ -4622,11 +5198,13 @@ VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
     UnwrapHandle<SurfaceKHRWrapper>(&surface, handle_store);
 
     TraceManager::Get()->GetInstanceTable(instance)->DestroySurfaceKHR(instance, surface, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
     RewrapHandle<SurfaceKHRWrapper>(&surface, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>::Dispatch(TraceManager::Get(), instance, surface, pAllocator);
@@ -4641,11 +5219,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, surface, pSupported);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<SurfaceKHRWrapper>(&surface, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, surface, pSupported);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<SurfaceKHRWrapper>(&surface, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR);
@@ -4672,11 +5252,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, surface, pSurfaceCapabilities);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<SurfaceKHRWrapper>(&surface, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, pSurfaceCapabilities);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<SurfaceKHRWrapper>(&surface, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
@@ -4703,11 +5285,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR>::Dispatch(TraceManager::Get(), physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<SurfaceKHRWrapper>(&surface, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, pSurfaceFormatCount, pSurfaceFormats);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<SurfaceKHRWrapper>(&surface, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormatsKHR);
@@ -4735,11 +5319,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR>::Dispatch(TraceManager::Get(), physicalDevice, surface, pPresentModeCount, pPresentModes);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<SurfaceKHRWrapper>(&surface, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, pPresentModeCount, pPresentModes);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<SurfaceKHRWrapper>(&surface, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModesKHR);
@@ -4769,17 +5355,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateSwapchainKHR(device, pCreateInfo, pAllocator, pSwapchain);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SwapchainKHRWrapper>(pSwapchain, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper>(device, pSwapchain, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSwapchainKHR);
@@ -4815,11 +5403,13 @@ VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SwapchainKHRWrapper>(&swapchain, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroySwapchainKHR(device, swapchain, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SwapchainKHRWrapper>(&swapchain, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySwapchainKHR>::Dispatch(TraceManager::Get(), device, swapchain, pAllocator);
@@ -4834,16 +5424,18 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR>::Dispatch(TraceManager::Get(), device, swapchain, pSwapchainImageCount, pSwapchainImages);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SwapchainKHRWrapper>(&swapchain, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetSwapchainImagesKHR(device, swapchain, pSwapchainImageCount, pSwapchainImages);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SwapchainKHRWrapper>(&swapchain, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<ImageWrapper>(pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, ImageWrapper>(device, pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR);
@@ -4873,6 +5465,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireNextImageKHR>::Dispatch(TraceManager::Get(), device, swapchain, timeout, semaphore, fence, pImageIndex);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SwapchainKHRWrapper>(&swapchain, handle_store);
     UnwrapHandle<SemaphoreWrapper>(&semaphore, handle_store);
     UnwrapHandle<FenceWrapper>(&fence, handle_store);
@@ -4880,6 +5473,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->AcquireNextImageKHR(device, swapchain, timeout, semaphore, fence, pImageIndex);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SwapchainKHRWrapper>(&swapchain, &handle_store_iter);
     RewrapHandle<SemaphoreWrapper>(&semaphore, &handle_store_iter);
     RewrapHandle<FenceWrapper>(&fence, &handle_store_iter);
@@ -4911,12 +5505,14 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<QueueWrapper>(&queue, handle_store);
     UnwrapStructHandles(pPresentInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(queue)->QueuePresentKHR(queue, pPresentInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<QueueWrapper>(&queue, &handle_store_iter);
     RewrapStructHandles(pPresentInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkQueuePresentKHR);
@@ -4939,7 +5535,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupPresentCapabilitiesKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR>::Dispatch(TraceManager::Get(), device, pDeviceGroupPresentCapabilities);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetDeviceGroupPresentCapabilitiesKHR(device, pDeviceGroupPresentCapabilities);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupPresentCapabilitiesKHR);
     if (encoder)
@@ -4963,11 +5565,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModesKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR>::Dispatch(TraceManager::Get(), device, surface, pModes);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SurfaceKHRWrapper>(&surface, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetDeviceGroupSurfacePresentModesKHR(device, surface, pModes);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SurfaceKHRWrapper>(&surface, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModesKHR);
@@ -4994,11 +5598,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDevicePresentRectanglesKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR>::Dispatch(TraceManager::Get(), physicalDevice, surface, pRectCount, pRects);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<SurfaceKHRWrapper>(&surface, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDevicePresentRectanglesKHR(physicalDevice, surface, pRectCount, pRects);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<SurfaceKHRWrapper>(&surface, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDevicePresentRectanglesKHR);
@@ -5027,12 +5633,14 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImage2KHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pAcquireInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->AcquireNextImage2KHR(device, pAcquireInfo, pImageIndex);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pAcquireInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireNextImage2KHR);
@@ -5057,11 +5665,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPropertiesKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pPropertyCount, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceDisplayPropertiesKHR(physicalDevice, pPropertyCount, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<VkDisplayPropertiesKHR>(pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayPropertiesKHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR);
@@ -5086,11 +5700,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlanePropertiesKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pPropertyCount, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceDisplayPlanePropertiesKHR(physicalDevice, pPropertyCount, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<VkDisplayPlanePropertiesKHR>(pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayPlanePropertiesKHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR);
@@ -5116,11 +5736,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR>::Dispatch(TraceManager::Get(), physicalDevice, planeIndex, pDisplayCount, pDisplays);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetDisplayPlaneSupportedDisplaysKHR(physicalDevice, planeIndex, pDisplayCount, pDisplays);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<DisplayKHRWrapper>(pDisplays, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedHandles<PhysicalDeviceWrapper, DisplayKHRWrapper>(physicalDevice, pDisplays, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR);
@@ -5148,16 +5774,18 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, display, pPropertyCount, pProperties);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<DisplayKHRWrapper>(&display, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetDisplayModePropertiesKHR(physicalDevice, display, pPropertyCount, pProperties);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<DisplayKHRWrapper>(&display, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<VkDisplayModePropertiesKHR>(pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayModePropertiesKHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR);
@@ -5186,16 +5814,18 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDisplayModeKHR>::Dispatch(TraceManager::Get(), physicalDevice, display, pCreateInfo, pAllocator, pMode);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<DisplayKHRWrapper>(&display, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->CreateDisplayModeKHR(physicalDevice, display, pCreateInfo, pAllocator, pMode);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<DisplayKHRWrapper>(&display, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DisplayModeKHRWrapper>(pMode, TraceManager::GetUniqueId);
+        CreateWrappedHandle<PhysicalDeviceWrapper, DisplayModeKHRWrapper>(physicalDevice, pMode, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDisplayModeKHR);
@@ -5224,11 +5854,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilitiesKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, mode, planeIndex, pCapabilities);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<DisplayModeKHRWrapper>(&mode, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetDisplayPlaneCapabilitiesKHR(physicalDevice, mode, planeIndex, pCapabilities);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<DisplayModeKHRWrapper>(&mode, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilitiesKHR);
@@ -5258,17 +5890,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateDisplayPlaneSurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR);
@@ -5299,17 +5933,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructArrayHandles(pCreateInfos, swapchainCount, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateSharedSwapchainsKHR(device, swapchainCount, pCreateInfos, pAllocator, pSwapchains);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructArrayHandles(pCreateInfos, swapchainCount, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<SwapchainKHRWrapper>(pSwapchains, swapchainCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, SwapchainKHRWrapper>(device, pSwapchains, swapchainCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR);
@@ -5337,11 +5973,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateXlibSurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR);
@@ -5368,7 +6010,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, dpy, visualID);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkBool32 result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceXlibPresentationSupportKHR(physicalDevice, queueFamilyIndex, dpy, visualID);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR);
     if (encoder)
@@ -5394,11 +6042,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateXcbSurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR);
@@ -5425,7 +6079,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXcbPresentationSupportKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, connection, visual_id);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkBool32 result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceXcbPresentationSupportKHR(physicalDevice, queueFamilyIndex, connection, visual_id);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR);
     if (encoder)
@@ -5451,11 +6111,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateWaylandSurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR);
@@ -5481,7 +6147,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWaylandPresentationSupportKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, display);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkBool32 result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceWaylandPresentationSupportKHR(physicalDevice, queueFamilyIndex, display);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR);
     if (encoder)
@@ -5506,11 +6178,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateAndroidSurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR);
@@ -5537,11 +6215,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateWin32SurfaceKHR(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR);
@@ -5566,7 +6250,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWin32PresentationSupportKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkBool32 result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceWin32PresentationSupportKHR(physicalDevice, queueFamilyIndex);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceWin32PresentationSupportKHR);
     if (encoder)
@@ -5588,7 +6278,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pFeatures);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceFeatures2KHR(physicalDevice, pFeatures);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFeatures2KHR);
     if (encoder)
@@ -5607,7 +6303,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2KHR(physicalDevice, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceProperties2KHR);
     if (encoder)
@@ -5627,7 +6329,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, format, pFormatProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceFormatProperties2KHR(physicalDevice, format, pFormatProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceFormatProperties2KHR);
     if (encoder)
@@ -5648,7 +6356,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pImageFormatInfo, pImageFormatProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceImageFormatProperties2KHR(physicalDevice, pImageFormatInfo, pImageFormatProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceImageFormatProperties2KHR);
     if (encoder)
@@ -5672,7 +6386,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceQueueFamilyProperties2KHR(physicalDevice, pQueueFamilyPropertyCount, pQueueFamilyProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties2KHR);
     if (encoder)
@@ -5692,7 +6412,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2KHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pMemoryProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceMemoryProperties2KHR(physicalDevice, pMemoryProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR);
     if (encoder)
@@ -5713,7 +6439,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2KHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pFormatInfo, pPropertyCount, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSparseImageFormatProperties2KHR(physicalDevice, pFormatInfo, pPropertyCount, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSparseImageFormatProperties2KHR);
     if (encoder)
@@ -5737,7 +6469,13 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR>::Dispatch(TraceManager::Get(), device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     TraceManager::Get()->GetDeviceTable(device)->GetDeviceGroupPeerMemoryFeaturesKHR(device, heapIndex, localDeviceIndex, remoteDeviceIndex, pPeerMemoryFeatures);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupPeerMemoryFeaturesKHR);
     if (encoder)
@@ -5767,7 +6505,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMaskKHR(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetDeviceMaskKHR(commandBuffer, deviceMask);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDeviceMaskKHR>::Dispatch(TraceManager::Get(), commandBuffer, deviceMask);
 }
@@ -5796,7 +6540,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBaseKHR(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDispatchBaseKHR(commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDispatchBaseKHR>::Dispatch(TraceManager::Get(), commandBuffer, baseGroupX, baseGroupY, baseGroupZ, groupCountX, groupCountY, groupCountZ);
 }
@@ -5818,11 +6568,13 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPoolKHR(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<CommandPoolWrapper>(&commandPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->TrimCommandPoolKHR(device, commandPool, flags);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<CommandPoolWrapper>(&commandPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkTrimCommandPoolKHR>::Dispatch(TraceManager::Get(), device, commandPool, flags);
@@ -5835,11 +6587,17 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR>::Dispatch(TraceManager::Get(), instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->EnumeratePhysicalDeviceGroupsKHR(instance, pPhysicalDeviceGroupCount, pPhysicalDeviceGroupProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<InstanceWrapper, VkPhysicalDeviceGroupProperties>(instance, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR);
@@ -5864,7 +6622,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferPropertiesKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalBufferPropertiesKHR(physicalDevice, pExternalBufferInfo, pExternalBufferProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalBufferPropertiesKHR);
     if (encoder)
@@ -5888,12 +6652,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pGetWin32HandleInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetMemoryWin32HandleKHR(device, pGetWin32HandleInfo, pHandle);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pGetWin32HandleInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryWin32HandleKHR);
@@ -5919,7 +6685,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR>::Dispatch(TraceManager::Get(), device, handleType, handle, pMemoryWin32HandleProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetMemoryWin32HandlePropertiesKHR(device, handleType, handle, pMemoryWin32HandleProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryWin32HandlePropertiesKHR);
     if (encoder)
@@ -5947,12 +6719,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pGetFdInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetMemoryFdKHR(device, pGetFdInfo, pFd);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pGetFdInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryFdKHR);
@@ -5978,7 +6752,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdPropertiesKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR>::Dispatch(TraceManager::Get(), device, handleType, fd, pMemoryFdProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetMemoryFdPropertiesKHR(device, handleType, fd, pMemoryFdProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryFdPropertiesKHR);
     if (encoder)
@@ -6003,7 +6783,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphorePropertiesKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalSemaphorePropertiesKHR(physicalDevice, pExternalSemaphoreInfo, pExternalSemaphoreProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR);
     if (encoder)
@@ -6026,12 +6812,14 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreWin32HandleKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pImportSemaphoreWin32HandleInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->ImportSemaphoreWin32HandleKHR(device, pImportSemaphoreWin32HandleInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pImportSemaphoreWin32HandleInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportSemaphoreWin32HandleKHR);
@@ -6058,12 +6846,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pGetWin32HandleInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetSemaphoreWin32HandleKHR(device, pGetWin32HandleInfo, pHandle);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pGetWin32HandleInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreWin32HandleKHR);
@@ -6090,12 +6880,14 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreFdKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pImportSemaphoreFdInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->ImportSemaphoreFdKHR(device, pImportSemaphoreFdInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pImportSemaphoreFdInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportSemaphoreFdKHR);
@@ -6122,12 +6914,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreFdKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pGetFdInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetSemaphoreFdKHR(device, pGetFdInfo, pFd);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pGetFdInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreFdKHR);
@@ -6170,6 +6964,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<PipelineLayoutWrapper>(&layout, handle_store);
     UnwrapStructArrayHandles(pDescriptorWrites, descriptorWriteCount, handle_store, handle_array_store, handle_unwrap_memory);
 
@@ -6177,6 +6972,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<PipelineLayoutWrapper>(&layout, &handle_store_iter);
     RewrapStructArrayHandles(pDescriptorWrites, descriptorWriteCount, &handle_store_iter, &handle_array_store_iter);
 
@@ -6194,17 +6990,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateDescriptorUpdateTemplateKHR(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DescriptorUpdateTemplateWrapper>(pDescriptorUpdateTemplate, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, DescriptorUpdateTemplateWrapper>(device, pDescriptorUpdateTemplate, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR);
@@ -6240,11 +7038,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyDescriptorUpdateTemplateKHR(device, descriptorUpdateTemplate, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>::Dispatch(TraceManager::Get(), device, descriptorUpdateTemplate, pAllocator);
@@ -6258,11 +7058,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass2KHR>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateRenderPass2KHR(device, pCreateInfo, pAllocator, pRenderPass);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<RenderPassWrapper>(pRenderPass, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, RenderPassWrapper>(device, pRenderPass, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass2KHR);
@@ -6300,12 +7106,14 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapStructHandles(pRenderPassBegin, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBeginRenderPass2KHR(commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapStructHandles(pRenderPassBegin, &handle_store_iter, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
@@ -6327,7 +7135,13 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdNextSubpass2KHR(commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 }
@@ -6346,7 +7160,13 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2KHR(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdEndRenderPass2KHR(commandBuffer, pSubpassEndInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassEndInfo);
 }
@@ -6358,11 +7178,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainStatusKHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR>::Dispatch(TraceManager::Get(), device, swapchain);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SwapchainKHRWrapper>(&swapchain, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetSwapchainStatusKHR(device, swapchain);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SwapchainKHRWrapper>(&swapchain, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSwapchainStatusKHR);
@@ -6386,7 +7208,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFencePropertiesKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalFencePropertiesKHR(physicalDevice, pExternalFenceInfo, pExternalFenceProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalFencePropertiesKHR);
     if (encoder)
@@ -6409,12 +7237,14 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportFenceWin32HandleKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pImportFenceWin32HandleInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->ImportFenceWin32HandleKHR(device, pImportFenceWin32HandleInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pImportFenceWin32HandleInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportFenceWin32HandleKHR);
@@ -6441,12 +7271,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pGetWin32HandleInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetFenceWin32HandleKHR(device, pGetWin32HandleInfo, pHandle);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pGetWin32HandleInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetFenceWin32HandleKHR);
@@ -6473,12 +7305,14 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pImportFenceFdInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->ImportFenceFdKHR(device, pImportFenceFdInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pImportFenceFdInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkImportFenceFdKHR);
@@ -6505,12 +7339,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pGetFdInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetFenceFdKHR(device, pGetFdInfo, pFd);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pGetFdInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetFenceFdKHR);
@@ -6538,12 +7374,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapStructHandles(pSurfaceInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSurfaceCapabilities2KHR(physicalDevice, pSurfaceInfo, pSurfaceCapabilities);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapStructHandles(pSurfaceInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2KHR);
@@ -6572,12 +7410,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapStructHandles(pSurfaceInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSurfaceFormats2KHR(physicalDevice, pSurfaceInfo, pSurfaceFormatCount, pSurfaceFormats);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapStructHandles(pSurfaceInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR);
@@ -6603,11 +7443,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pPropertyCount, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceDisplayProperties2KHR(physicalDevice, pPropertyCount, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<VkDisplayProperties2KHR>(pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayProperties2KHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR);
@@ -6632,11 +7478,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, pPropertyCount, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceDisplayPlaneProperties2KHR(physicalDevice, pPropertyCount, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<VkDisplayPlaneProperties2KHR>(pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayPlaneProperties2KHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR);
@@ -6663,16 +7515,18 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR>::Dispatch(TraceManager::Get(), physicalDevice, display, pPropertyCount, pProperties);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<DisplayKHRWrapper>(&display, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetDisplayModeProperties2KHR(physicalDevice, display, pPropertyCount, pProperties);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<DisplayKHRWrapper>(&display, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<VkDisplayModeProperties2KHR>(pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayModeProperties2KHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR);
@@ -6701,12 +7555,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapStructHandles(pDisplayPlaneInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetDisplayPlaneCapabilities2KHR(physicalDevice, pDisplayPlaneInfo, pCapabilities);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapStructHandles(pDisplayPlaneInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayPlaneCapabilities2KHR);
@@ -6734,12 +7590,14 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2KHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->GetImageMemoryRequirements2KHR(device, pInfo, pMemoryRequirements);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageMemoryRequirements2KHR);
@@ -6764,12 +7622,14 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2KHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->GetBufferMemoryRequirements2KHR(device, pInfo, pMemoryRequirements);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR);
@@ -6795,12 +7655,14 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2KHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->GetImageSparseMemoryRequirements2KHR(device, pInfo, pSparseMemoryRequirementCount, pSparseMemoryRequirements);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageSparseMemoryRequirements2KHR);
@@ -6824,11 +7686,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pYcbcrConversion);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateSamplerYcbcrConversionKHR(device, pCreateInfo, pAllocator, pYcbcrConversion);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SamplerYcbcrConversionWrapper>(pYcbcrConversion, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, SamplerYcbcrConversionWrapper>(device, pYcbcrConversion, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR);
@@ -6864,11 +7732,13 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SamplerYcbcrConversionWrapper>(&ycbcrConversion, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroySamplerYcbcrConversionKHR(device, ycbcrConversion, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SamplerYcbcrConversionWrapper>(&ycbcrConversion, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR>::Dispatch(TraceManager::Get(), device, ycbcrConversion, pAllocator);
@@ -6884,12 +7754,14 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2KHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->BindBufferMemory2KHR(device, bindInfoCount, pBindInfos);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructArrayHandles(pBindInfos, bindInfoCount, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindBufferMemory2KHR);
@@ -6917,12 +7789,14 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2KHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->BindImageMemory2KHR(device, bindInfoCount, pBindInfos);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructArrayHandles(pBindInfos, bindInfoCount, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindImageMemory2KHR);
@@ -6950,12 +7824,14 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupportKHR(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->GetDescriptorSetLayoutSupportKHR(device, pCreateInfo, pSupport);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupportKHR);
@@ -6995,12 +7871,14 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
     UnwrapHandle<BufferWrapper>(&countBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawIndirectCountKHR(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&countBuffer, &handle_store_iter);
 
@@ -7032,12 +7910,14 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
     UnwrapHandle<BufferWrapper>(&countBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirectCountKHR(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&countBuffer, &handle_store_iter);
 
@@ -7052,11 +7932,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pCallback);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateDebugReportCallbackEXT(instance, pCreateInfo, pAllocator, pCallback);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DebugReportCallbackEXTWrapper>(pCallback, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, DebugReportCallbackEXTWrapper>(instance, pCallback, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT);
@@ -7092,11 +7978,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
     UnwrapHandle<DebugReportCallbackEXTWrapper>(&callback, handle_store);
 
     TraceManager::Get()->GetInstanceTable(instance)->DestroyDebugReportCallbackEXT(instance, callback, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
     RewrapHandle<DebugReportCallbackEXTWrapper>(&callback, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT>::Dispatch(TraceManager::Get(), instance, callback, pAllocator);
@@ -7128,7 +8016,13 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
         TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     TraceManager::Get()->GetInstanceTable(instance)->DebugReportMessageEXT(instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDebugReportMessageEXT>::Dispatch(TraceManager::Get(), instance, flags, objectType, object, location, messageCode, pLayerPrefix, pMessage);
 }
@@ -7139,7 +8033,13 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT>::Dispatch(TraceManager::Get(), device, pTagInfo);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->DebugMarkerSetObjectTagEXT(device, pTagInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectTagEXT);
     if (encoder)
@@ -7161,7 +8061,13 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT>::Dispatch(TraceManager::Get(), device, pNameInfo);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->DebugMarkerSetObjectNameEXT(device, pNameInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDebugMarkerSetObjectNameEXT);
     if (encoder)
@@ -7191,7 +8097,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDebugMarkerBeginEXT(commandBuffer, pMarkerInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerBeginEXT>::Dispatch(TraceManager::Get(), commandBuffer, pMarkerInfo);
 }
@@ -7208,7 +8120,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerEndEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDebugMarkerEndEXT(commandBuffer);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerEndEXT>::Dispatch(TraceManager::Get(), commandBuffer);
 }
@@ -7227,7 +8145,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerInsertEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDebugMarkerInsertEXT(commandBuffer, pMarkerInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEXT>::Dispatch(TraceManager::Get(), commandBuffer, pMarkerInfo);
 }
@@ -7254,13 +8178,17 @@ VKAPI_ATTR void VKAPI_CALL CmdBindTransformFeedbackBuffersEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindTransformFeedbackBuffersEXTHandles, bindingCount, pBuffers);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandles<BufferWrapper>(&pBuffers, bindingCount, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBindTransformFeedbackBuffersEXT(commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
 
+    auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandles<BufferWrapper>(&pBuffers, bindingCount, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindTransformFeedbackBuffersEXT>::Dispatch(TraceManager::Get(), commandBuffer, firstBinding, bindingCount, pBuffers, pOffsets, pSizes);
@@ -7286,13 +8214,17 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginTransformFeedbackEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginTransformFeedbackEXTHandles, counterBufferCount, pCounterBuffers);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandles<BufferWrapper>(&pCounterBuffers, counterBufferCount, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBeginTransformFeedbackEXT(commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
 
+    auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandles<BufferWrapper>(&pCounterBuffers, counterBufferCount, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginTransformFeedbackEXT>::Dispatch(TraceManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
@@ -7318,13 +8250,17 @@ VKAPI_ATTR void VKAPI_CALL CmdEndTransformFeedbackEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdEndTransformFeedbackEXTHandles, counterBufferCount, pCounterBuffers);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandles<BufferWrapper>(&pCounterBuffers, counterBufferCount, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdEndTransformFeedbackEXT(commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
 
+    auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandles<BufferWrapper>(&pCounterBuffers, counterBufferCount, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndTransformFeedbackEXT>::Dispatch(TraceManager::Get(), commandBuffer, firstCounterBuffer, counterBufferCount, pCounterBuffers, pCounterBufferOffsets);
@@ -7351,11 +8287,13 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQueryIndexedEXT(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBeginQueryIndexedEXT(commandBuffer, queryPool, query, flags, index);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, query, flags, index);
@@ -7380,11 +8318,13 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQueryIndexedEXT(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdEndQueryIndexedEXT(commandBuffer, queryPool, query, index);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndQueryIndexedEXT>::Dispatch(TraceManager::Get(), commandBuffer, queryPool, query, index);
@@ -7415,11 +8355,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectByteCountEXT(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&counterBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawIndirectByteCountEXT(commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&counterBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectByteCountEXT>::Dispatch(TraceManager::Get(), commandBuffer, instanceCount, firstInstance, counterBuffer, counterBufferOffset, counterOffset, vertexStride);
@@ -7434,12 +8376,14 @@ VKAPI_ATTR uint32_t VKAPI_CALL GetImageViewHandleNVX(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     uint32_t result = TraceManager::Get()->GetDeviceTable(device)->GetImageViewHandleNVX(device, pInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageViewHandleNVX);
@@ -7481,12 +8425,14 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
     UnwrapHandle<BufferWrapper>(&countBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawIndirectCountAMD(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&countBuffer, &handle_store_iter);
 
@@ -7518,12 +8464,14 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
     UnwrapHandle<BufferWrapper>(&countBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirectCountAMD(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&countBuffer, &handle_store_iter);
 
@@ -7541,11 +8489,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetShaderInfoAMD>::Dispatch(TraceManager::Get(), device, pipeline, shaderStage, infoType, pInfoSize, pInfo);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineWrapper>(&pipeline, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetShaderInfoAMD(device, pipeline, shaderStage, infoType, pInfoSize, pInfo);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineWrapper>(&pipeline, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetShaderInfoAMD);
@@ -7574,11 +8524,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateStreamDescriptorSurfaceGGP(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP);
@@ -7609,7 +8565,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>::Dispatch(TraceManager::Get(), physicalDevice, format, type, tiling, usage, flags, externalHandleType, pExternalImageFormatProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceExternalImageFormatPropertiesNV(physicalDevice, format, type, tiling, usage, flags, externalHandleType, pExternalImageFormatProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV);
     if (encoder)
@@ -7640,11 +8602,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV>::Dispatch(TraceManager::Get(), device, memory, handleType, pHandle);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DeviceMemoryWrapper>(&memory, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetMemoryWin32HandleNV(device, memory, handleType, pHandle);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DeviceMemoryWrapper>(&memory, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryWin32HandleNV);
@@ -7671,11 +8635,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateViSurfaceNN>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateViSurfaceNN(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateViSurfaceNN);
@@ -7711,12 +8681,14 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginConditionalRenderingEXT(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapStructHandles(pConditionalRenderingBegin, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBeginConditionalRenderingEXT(commandBuffer, pConditionalRenderingBegin);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapStructHandles(pConditionalRenderingBegin, &handle_store_iter, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginConditionalRenderingEXT>::Dispatch(TraceManager::Get(), commandBuffer, pConditionalRenderingBegin);
@@ -7734,7 +8706,13 @@ VKAPI_ATTR void VKAPI_CALL CmdEndConditionalRenderingEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdEndConditionalRenderingEXT(commandBuffer);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT>::Dispatch(TraceManager::Get(), commandBuffer);
 }
@@ -7756,12 +8734,14 @@ VKAPI_ATTR void VKAPI_CALL CmdProcessCommandsNVX(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapStructHandles(pProcessCommandsInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdProcessCommandsNVX(commandBuffer, pProcessCommandsInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapStructHandles(pProcessCommandsInfo, &handle_store_iter, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdProcessCommandsNVX>::Dispatch(TraceManager::Get(), commandBuffer, pProcessCommandsInfo);
@@ -7784,12 +8764,14 @@ VKAPI_ATTR void VKAPI_CALL CmdReserveSpaceForCommandsNVX(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapStructHandles(pReserveSpaceInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdReserveSpaceForCommandsNVX(commandBuffer, pReserveSpaceInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapStructHandles(pReserveSpaceInfo, &handle_store_iter, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdReserveSpaceForCommandsNVX>::Dispatch(TraceManager::Get(), commandBuffer, pReserveSpaceInfo);
@@ -7803,11 +8785,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNVX(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNVX>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateIndirectCommandsLayoutNVX(device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<IndirectCommandsLayoutNVXWrapper>(pIndirectCommandsLayout, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, IndirectCommandsLayoutNVXWrapper>(device, pIndirectCommandsLayout, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNVX);
@@ -7843,11 +8831,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNVX(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<IndirectCommandsLayoutNVXWrapper>(&indirectCommandsLayout, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyIndirectCommandsLayoutNVX(device, indirectCommandsLayout, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<IndirectCommandsLayoutNVXWrapper>(&indirectCommandsLayout, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNVX>::Dispatch(TraceManager::Get(), device, indirectCommandsLayout, pAllocator);
@@ -7861,11 +8851,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateObjectTableNVX(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateObjectTableNVX>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pObjectTable);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateObjectTableNVX(device, pCreateInfo, pAllocator, pObjectTable);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<ObjectTableNVXWrapper>(pObjectTable, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, ObjectTableNVXWrapper>(device, pObjectTable, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateObjectTableNVX);
@@ -7901,11 +8897,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyObjectTableNVX(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ObjectTableNVXWrapper>(&objectTable, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyObjectTableNVX(device, objectTable, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ObjectTableNVXWrapper>(&objectTable, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyObjectTableNVX>::Dispatch(TraceManager::Get(), device, objectTable, pAllocator);
@@ -7921,11 +8919,13 @@ VKAPI_ATTR VkResult VKAPI_CALL UnregisterObjectsNVX(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnregisterObjectsNVX>::Dispatch(TraceManager::Get(), device, objectTable, objectCount, pObjectEntryTypes, pObjectIndices);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ObjectTableNVXWrapper>(&objectTable, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->UnregisterObjectsNVX(device, objectTable, objectCount, pObjectEntryTypes, pObjectIndices);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ObjectTableNVXWrapper>(&objectTable, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUnregisterObjectsNVX);
@@ -7952,7 +8952,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceGeneratedCommandsPropertiesNVX(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX>::Dispatch(TraceManager::Get(), physicalDevice, pFeatures, pLimits);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceGeneratedCommandsPropertiesNVX(physicalDevice, pFeatures, pLimits);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX);
     if (encoder)
@@ -7984,7 +8990,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingNV(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetViewportWScalingNV(commandBuffer, firstViewport, viewportCount, pViewportWScalings);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV>::Dispatch(TraceManager::Get(), commandBuffer, firstViewport, viewportCount, pViewportWScalings);
 }
@@ -7996,11 +9008,13 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleaseDisplayEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseDisplayEXT>::Dispatch(TraceManager::Get(), physicalDevice, display);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<DisplayKHRWrapper>(&display, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->ReleaseDisplayEXT(physicalDevice, display);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<DisplayKHRWrapper>(&display, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseDisplayEXT);
@@ -8025,11 +9039,13 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT>::Dispatch(TraceManager::Get(), physicalDevice, dpy, display);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<DisplayKHRWrapper>(&display, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->AcquireXlibDisplayEXT(physicalDevice, dpy, display);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<DisplayKHRWrapper>(&display, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireXlibDisplayEXT);
@@ -8055,11 +9071,17 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT>::Dispatch(TraceManager::Get(), physicalDevice, dpy, rrOutput, pDisplay);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetRandROutputDisplayEXT(physicalDevice, dpy, rrOutput, pDisplay);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DisplayKHRWrapper>(pDisplay, TraceManager::GetUniqueId);
+        CreateWrappedHandle<PhysicalDeviceWrapper, DisplayKHRWrapper>(physicalDevice, pDisplay, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT);
@@ -8086,11 +9108,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT>::Dispatch(TraceManager::Get(), physicalDevice, surface, pSurfaceCapabilities);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapHandle<SurfaceKHRWrapper>(&surface, handle_store);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSurfaceCapabilities2EXT(physicalDevice, surface, pSurfaceCapabilities);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapHandle<SurfaceKHRWrapper>(&surface, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceCapabilities2EXT);
@@ -8116,11 +9140,13 @@ VKAPI_ATTR VkResult VKAPI_CALL DisplayPowerControlEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDisplayPowerControlEXT>::Dispatch(TraceManager::Get(), device, display, pDisplayPowerInfo);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DisplayKHRWrapper>(&display, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->DisplayPowerControlEXT(device, display, pDisplayPowerInfo);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DisplayKHRWrapper>(&display, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDisplayPowerControlEXT);
@@ -8146,11 +9172,17 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT>::Dispatch(TraceManager::Get(), device, pDeviceEventInfo, pAllocator, pFence);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->RegisterDeviceEventEXT(device, pDeviceEventInfo, pAllocator, pFence);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<FenceWrapper>(pFence, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, FenceWrapper>(device, pFence, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT);
@@ -8179,16 +9211,18 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT>::Dispatch(TraceManager::Get(), device, display, pDisplayEventInfo, pAllocator, pFence);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<DisplayKHRWrapper>(&display, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->RegisterDisplayEventEXT(device, display, pDisplayEventInfo, pAllocator, pFence);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<DisplayKHRWrapper>(&display, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<FenceWrapper>(pFence, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, FenceWrapper>(device, pFence, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT);
@@ -8217,11 +9251,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainCounterEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT>::Dispatch(TraceManager::Get(), device, swapchain, counter, pCounterValue);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SwapchainKHRWrapper>(&swapchain, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetSwapchainCounterEXT(device, swapchain, counter, pCounterValue);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SwapchainKHRWrapper>(&swapchain, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSwapchainCounterEXT);
@@ -8248,11 +9284,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRefreshCycleDurationGOOGLE(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE>::Dispatch(TraceManager::Get(), device, swapchain, pDisplayTimingProperties);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SwapchainKHRWrapper>(&swapchain, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetRefreshCycleDurationGOOGLE(device, swapchain, pDisplayTimingProperties);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SwapchainKHRWrapper>(&swapchain, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRefreshCycleDurationGOOGLE);
@@ -8279,11 +9317,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE>::Dispatch(TraceManager::Get(), device, swapchain, pPresentationTimingCount, pPresentationTimings);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SwapchainKHRWrapper>(&swapchain, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetPastPresentationTimingGOOGLE(device, swapchain, pPresentationTimingCount, pPresentationTimings);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SwapchainKHRWrapper>(&swapchain, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPastPresentationTimingGOOGLE);
@@ -8320,7 +9360,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDiscardRectangleEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetDiscardRectangleEXT(commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDiscardRectangleEXT>::Dispatch(TraceManager::Get(), commandBuffer, firstDiscardRectangle, discardRectangleCount, pDiscardRectangles);
 }
@@ -8343,13 +9389,17 @@ VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(
         TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandles<SwapchainKHRWrapper>(&pSwapchains, swapchainCount, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->SetHdrMetadataEXT(device, swapchainCount, pSwapchains, pMetadata);
 
+    auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandles<SwapchainKHRWrapper>(&pSwapchains, swapchainCount, &handle_array_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetHdrMetadataEXT>::Dispatch(TraceManager::Get(), device, swapchainCount, pSwapchains, pMetadata);
@@ -8363,11 +9413,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateIOSSurfaceMVK(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK);
@@ -8394,11 +9450,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateMacOSSurfaceMVK(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK);
@@ -8423,7 +9485,13 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT>::Dispatch(TraceManager::Get(), device, pNameInfo);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->SetDebugUtilsObjectNameEXT(device, pNameInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectNameEXT);
     if (encoder)
@@ -8445,7 +9513,13 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectTagEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT>::Dispatch(TraceManager::Get(), device, pTagInfo);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->SetDebugUtilsObjectTagEXT(device, pTagInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetDebugUtilsObjectTagEXT);
     if (encoder)
@@ -8475,7 +9549,13 @@ VKAPI_ATTR void VKAPI_CALL QueueBeginDebugUtilsLabelEXT(
         TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<QueueWrapper>(&queue, handle_store);
+
     TraceManager::Get()->GetDeviceTable(queue)->QueueBeginDebugUtilsLabelEXT(queue, pLabelInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<QueueWrapper>(&queue, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueBeginDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), queue, pLabelInfo);
 }
@@ -8492,7 +9572,13 @@ VKAPI_ATTR void VKAPI_CALL QueueEndDebugUtilsLabelEXT(
         TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<QueueWrapper>(&queue, handle_store);
+
     TraceManager::Get()->GetDeviceTable(queue)->QueueEndDebugUtilsLabelEXT(queue);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<QueueWrapper>(&queue, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueEndDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), queue);
 }
@@ -8511,7 +9597,13 @@ VKAPI_ATTR void VKAPI_CALL QueueInsertDebugUtilsLabelEXT(
         TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<QueueWrapper>(&queue, handle_store);
+
     TraceManager::Get()->GetDeviceTable(queue)->QueueInsertDebugUtilsLabelEXT(queue, pLabelInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<QueueWrapper>(&queue, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueInsertDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), queue, pLabelInfo);
 }
@@ -8530,7 +9622,13 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginDebugUtilsLabelEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBeginDebugUtilsLabelEXT(commandBuffer, pLabelInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), commandBuffer, pLabelInfo);
 }
@@ -8547,7 +9645,13 @@ VKAPI_ATTR void VKAPI_CALL CmdEndDebugUtilsLabelEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdEndDebugUtilsLabelEXT(commandBuffer);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), commandBuffer);
 }
@@ -8566,7 +9670,13 @@ VKAPI_ATTR void VKAPI_CALL CmdInsertDebugUtilsLabelEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdInsertDebugUtilsLabelEXT(commandBuffer, pLabelInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT>::Dispatch(TraceManager::Get(), commandBuffer, pLabelInfo);
 }
@@ -8579,11 +9689,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pMessenger);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateDebugUtilsMessengerEXT(instance, pCreateInfo, pAllocator, pMessenger);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DebugUtilsMessengerEXTWrapper>(pMessenger, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, DebugUtilsMessengerEXTWrapper>(instance, pMessenger, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT);
@@ -8619,11 +9735,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
     UnwrapHandle<DebugUtilsMessengerEXTWrapper>(&messenger, handle_store);
 
     TraceManager::Get()->GetInstanceTable(instance)->DestroyDebugUtilsMessengerEXT(instance, messenger, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
     RewrapHandle<DebugUtilsMessengerEXTWrapper>(&messenger, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT>::Dispatch(TraceManager::Get(), instance, messenger, pAllocator);
@@ -8647,7 +9765,13 @@ VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(
         TraceManager::Get()->EndApiCallTrace(encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     TraceManager::Get()->GetInstanceTable(instance)->SubmitDebugUtilsMessageEXT(instance, messageSeverity, messageTypes, pCallbackData);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT>::Dispatch(TraceManager::Get(), instance, messageSeverity, messageTypes, pCallbackData);
 }
@@ -8659,7 +9783,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID>::Dispatch(TraceManager::Get(), device, buffer, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetAndroidHardwareBufferPropertiesANDROID(device, buffer, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAndroidHardwareBufferPropertiesANDROID);
     if (encoder)
@@ -8686,12 +9816,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryAndroidHardwareBufferANDROID(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetMemoryAndroidHardwareBufferANDROID(device, pInfo, pBuffer);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryAndroidHardwareBufferANDROID);
@@ -8723,7 +9855,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetSampleLocationsEXT(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetSampleLocationsEXT(commandBuffer, pSampleLocationsInfo);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetSampleLocationsEXT>::Dispatch(TraceManager::Get(), commandBuffer, pSampleLocationsInfo);
 }
@@ -8735,7 +9873,13 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMultisamplePropertiesEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT>::Dispatch(TraceManager::Get(), physicalDevice, samples, pMultisampleProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceMultisamplePropertiesEXT(physicalDevice, samples, pMultisampleProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceMultisamplePropertiesEXT);
     if (encoder)
@@ -8757,11 +9901,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetImageDrmFormatModifierPropertiesEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT>::Dispatch(TraceManager::Get(), device, image, pProperties);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ImageWrapper>(&image, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetImageDrmFormatModifierPropertiesEXT(device, image, pProperties);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ImageWrapper>(&image, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageDrmFormatModifierPropertiesEXT);
@@ -8787,11 +9933,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateValidationCacheEXT>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pValidationCache);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateValidationCacheEXT(device, pCreateInfo, pAllocator, pValidationCache);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<ValidationCacheEXTWrapper>(pValidationCache, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, ValidationCacheEXTWrapper>(device, pValidationCache, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateValidationCacheEXT);
@@ -8827,11 +9979,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ValidationCacheEXTWrapper>(&validationCache, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyValidationCacheEXT(device, validationCache, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ValidationCacheEXTWrapper>(&validationCache, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT>::Dispatch(TraceManager::Get(), device, validationCache, pAllocator);
@@ -8848,6 +10002,7 @@ VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ValidationCacheEXTWrapper>(&dstCache, handle_store);
     UnwrapHandles<ValidationCacheEXTWrapper>(&pSrcCaches, srcCacheCount, handle_array_store, handle_unwrap_memory);
 
@@ -8855,6 +10010,7 @@ VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ValidationCacheEXTWrapper>(&dstCache, &handle_store_iter);
     RewrapHandles<ValidationCacheEXTWrapper>(&pSrcCaches, srcCacheCount, &handle_array_store_iter);
 
@@ -8883,11 +10039,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetValidationCacheDataEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT>::Dispatch(TraceManager::Get(), device, validationCache, pDataSize, pData);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<ValidationCacheEXTWrapper>(&validationCache, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetValidationCacheDataEXT(device, validationCache, pDataSize, pData);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<ValidationCacheEXTWrapper>(&validationCache, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetValidationCacheDataEXT);
@@ -8923,11 +10081,13 @@ VKAPI_ATTR void VKAPI_CALL CmdBindShadingRateImageNV(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<ImageViewWrapper>(&imageView, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdBindShadingRateImageNV(commandBuffer, imageView, imageLayout);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<ImageViewWrapper>(&imageView, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindShadingRateImageNV>::Dispatch(TraceManager::Get(), commandBuffer, imageView, imageLayout);
@@ -8951,7 +10111,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportShadingRatePaletteNV(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetViewportShadingRatePaletteNV(commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetViewportShadingRatePaletteNV>::Dispatch(TraceManager::Get(), commandBuffer, firstViewport, viewportCount, pShadingRatePalettes);
 }
@@ -8974,7 +10140,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCoarseSampleOrderNV(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetCoarseSampleOrderNV(commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCoarseSampleOrderNV>::Dispatch(TraceManager::Get(), commandBuffer, sampleOrderType, customSampleOrderCount, pCustomSampleOrders);
 }
@@ -8990,17 +10162,19 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pCreateInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CreateAccelerationStructureNV(device, pCreateInfo, pAllocator, pAccelerationStructure);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pCreateInfo, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<AccelerationStructureNVWrapper>(pAccelerationStructure, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, AccelerationStructureNVWrapper>(device, pAccelerationStructure, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV);
@@ -9036,11 +10210,13 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<AccelerationStructureNVWrapper>(&accelerationStructure, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->DestroyAccelerationStructureNV(device, accelerationStructure, pAllocator);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<AccelerationStructureNVWrapper>(&accelerationStructure, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(TraceManager::Get(), device, accelerationStructure, pAllocator);
@@ -9056,12 +10232,14 @@ VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsNV(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     TraceManager::Get()->GetDeviceTable(device)->GetAccelerationStructureMemoryRequirementsNV(device, pInfo, pMemoryRequirements);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV);
@@ -9086,12 +10264,14 @@ VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryNV(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->BindAccelerationStructureMemoryNV(device, bindInfoCount, pBindInfos);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructArrayHandles(pBindInfos, bindInfoCount, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV);
@@ -9140,6 +10320,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
     UnwrapHandle<BufferWrapper>(&instanceData, handle_store);
     UnwrapHandle<AccelerationStructureNVWrapper>(&dst, handle_store);
@@ -9150,6 +10331,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
     RewrapHandle<BufferWrapper>(&instanceData, &handle_store_iter);
     RewrapHandle<AccelerationStructureNVWrapper>(&dst, &handle_store_iter);
@@ -9178,12 +10360,14 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<AccelerationStructureNVWrapper>(&dst, handle_store);
     UnwrapHandle<AccelerationStructureNVWrapper>(&src, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdCopyAccelerationStructureNV(commandBuffer, dst, src, mode);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<AccelerationStructureNVWrapper>(&dst, &handle_store_iter);
     RewrapHandle<AccelerationStructureNVWrapper>(&src, &handle_store_iter);
 
@@ -9231,6 +10415,7 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&raygenShaderBindingTableBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&missShaderBindingTableBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&hitShaderBindingTableBuffer, handle_store);
@@ -9239,6 +10424,7 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdTraceRaysNV(commandBuffer, raygenShaderBindingTableBuffer, raygenShaderBindingOffset, missShaderBindingTableBuffer, missShaderBindingOffset, missShaderBindingStride, hitShaderBindingTableBuffer, hitShaderBindingOffset, hitShaderBindingStride, callableShaderBindingTableBuffer, callableShaderBindingOffset, callableShaderBindingStride, width, height, depth);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&raygenShaderBindingTableBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&missShaderBindingTableBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&hitShaderBindingTableBuffer, &handle_store_iter);
@@ -9260,6 +10446,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineCacheWrapper>(&pipelineCache, handle_store);
     UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_store, handle_array_store, handle_unwrap_memory);
 
@@ -9267,12 +10454,13 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineCacheWrapper>(&pipelineCache, &handle_store_iter);
     RewrapStructArrayHandles(pCreateInfos, createInfoCount, &handle_store_iter, &handle_array_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<PipelineWrapper>(pPipelines, createInfoCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, PipelineWrapper>(device, pPipelines, createInfoCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV);
@@ -9304,11 +10492,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV>::Dispatch(TraceManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineWrapper>(&pipeline, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetRayTracingShaderGroupHandlesNV(device, pipeline, firstGroup, groupCount, dataSize, pData);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineWrapper>(&pipeline, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV);
@@ -9338,11 +10528,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV>::Dispatch(TraceManager::Get(), device, accelerationStructure, dataSize, pData);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<AccelerationStructureNVWrapper>(&accelerationStructure, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetAccelerationStructureHandleNV(device, accelerationStructure, dataSize, pData);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<AccelerationStructureNVWrapper>(&accelerationStructure, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV);
@@ -9386,6 +10578,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandles<AccelerationStructureNVWrapper>(&pAccelerationStructures, accelerationStructureCount, handle_array_store, handle_unwrap_memory);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
 
@@ -9393,6 +10586,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandles<AccelerationStructureNVWrapper>(&pAccelerationStructures, accelerationStructureCount, &handle_array_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
 
@@ -9407,11 +10601,13 @@ VKAPI_ATTR VkResult VKAPI_CALL CompileDeferredNV(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCompileDeferredNV>::Dispatch(TraceManager::Get(), device, pipeline, shader);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<PipelineWrapper>(&pipeline, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->CompileDeferredNV(device, pipeline, shader);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<PipelineWrapper>(&pipeline, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCompileDeferredNV);
@@ -9437,7 +10633,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT>::Dispatch(TraceManager::Get(), device, handleType, pHostPointer, pMemoryHostPointerProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetMemoryHostPointerPropertiesEXT(device, handleType, pHostPointer, pMemoryHostPointerProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetMemoryHostPointerPropertiesEXT);
     if (encoder)
@@ -9476,11 +10678,13 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&dstBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdWriteBufferMarkerAMD(commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&dstBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteBufferMarkerAMD>::Dispatch(TraceManager::Get(), commandBuffer, pipelineStage, dstBuffer, dstOffset, marker);
@@ -9493,7 +10697,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>::Dispatch(TraceManager::Get(), physicalDevice, pTimeDomainCount, pTimeDomains);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceCalibrateableTimeDomainsEXT(physicalDevice, pTimeDomainCount, pTimeDomains);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT);
     if (encoder)
@@ -9519,7 +10729,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT>::Dispatch(TraceManager::Get(), device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
+
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetCalibratedTimestampsEXT(device, timestampCount, pTimestampInfos, pTimestamps, pMaxDeviation);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetCalibratedTimestampsEXT);
     if (encoder)
@@ -9554,7 +10770,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksNV(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawMeshTasksNV(commandBuffer, taskCount, firstTask);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksNV>::Dispatch(TraceManager::Get(), commandBuffer, taskCount, firstTask);
 }
@@ -9580,11 +10802,13 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawMeshTasksIndirectNV(commandBuffer, buffer, offset, drawCount, stride);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawMeshTasksIndirectNV>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, drawCount, stride);
@@ -9615,12 +10839,14 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
     UnwrapHandle<BufferWrapper>(&buffer, handle_store);
     UnwrapHandle<BufferWrapper>(&countBuffer, handle_store);
 
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdDrawMeshTasksIndirectCountNV(commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&buffer, &handle_store_iter);
     RewrapHandle<BufferWrapper>(&countBuffer, &handle_store_iter);
 
@@ -9645,7 +10871,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorNV(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetExclusiveScissorNV(commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetExclusiveScissorNV>::Dispatch(TraceManager::Get(), commandBuffer, firstExclusiveScissor, exclusiveScissorCount, pExclusiveScissors);
 }
@@ -9664,7 +10896,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCheckpointNV(
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
     }
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
+
     TraceManager::Get()->GetDeviceTable(commandBuffer)->CmdSetCheckpointNV(commandBuffer, pCheckpointMarker);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetCheckpointNV>::Dispatch(TraceManager::Get(), commandBuffer, pCheckpointMarker);
 }
@@ -9676,7 +10914,13 @@ VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV>::Dispatch(TraceManager::Get(), queue, pCheckpointDataCount, pCheckpointData);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<QueueWrapper>(&queue, handle_store);
+
     TraceManager::Get()->GetDeviceTable(queue)->GetQueueCheckpointDataNV(queue, pCheckpointDataCount, pCheckpointData);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<QueueWrapper>(&queue, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV);
     if (encoder)
@@ -9707,11 +10951,13 @@ VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SwapchainKHRWrapper>(&swapChain, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->SetLocalDimmingAMD(device, swapChain, localDimmingEnable);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SwapchainKHRWrapper>(&swapChain, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetLocalDimmingAMD>::Dispatch(TraceManager::Get(), device, swapChain, localDimmingEnable);
@@ -9725,11 +10971,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateImagePipeSurfaceFUCHSIA(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA);
@@ -9756,11 +11008,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateMetalSurfaceEXT(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT);
@@ -9788,12 +11046,14 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkDeviceAddress result = TraceManager::Get()->GetDeviceTable(device)->GetBufferDeviceAddressEXT(device, pInfo);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT);
@@ -9817,7 +11077,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV>::Dispatch(TraceManager::Get(), physicalDevice, pPropertyCount, pProperties);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceCooperativeMatrixPropertiesNV(physicalDevice, pPropertyCount, pProperties);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV);
     if (encoder)
@@ -9841,7 +11107,13 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamples
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV>::Dispatch(TraceManager::Get(), physicalDevice, pCombinationCount, pCombinations);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(physicalDevice, pCombinationCount, pCombinations);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV);
     if (encoder)
@@ -9869,12 +11141,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<PhysicalDeviceWrapper>(&physicalDevice, handle_store);
     UnwrapStructHandles(pSurfaceInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetInstanceTable(physicalDevice)->GetPhysicalDeviceSurfacePresentModes2EXT(physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<PhysicalDeviceWrapper>(&physicalDevice, &handle_store_iter);
     RewrapStructHandles(pSurfaceInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT);
@@ -9900,11 +11174,13 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT>::Dispatch(TraceManager::Get(), device, swapchain);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SwapchainKHRWrapper>(&swapchain, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->AcquireFullScreenExclusiveModeEXT(device, swapchain);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SwapchainKHRWrapper>(&swapchain, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT);
@@ -9928,11 +11204,13 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT>::Dispatch(TraceManager::Get(), device, swapchain);
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<SwapchainKHRWrapper>(&swapchain, handle_store);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->ReleaseFullScreenExclusiveModeEXT(device, swapchain);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<SwapchainKHRWrapper>(&swapchain, &handle_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT);
@@ -9959,12 +11237,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(
     auto handle_store = TraceManager::Get()->GetHandleStore();
     auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapStructHandles(pSurfaceInfo, handle_store, handle_array_store, handle_unwrap_memory);
 
     VkResult result = TraceManager::Get()->GetDeviceTable(device)->GetDeviceGroupSurfacePresentModes2EXT(device, pSurfaceInfo, pModes);
 
     auto handle_store_iter = handle_store->cbegin();
     auto handle_array_store_iter = handle_array_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapStructHandles(pSurfaceInfo, &handle_store_iter, &handle_array_store_iter);
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT);
@@ -9990,11 +11270,17 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT>::Dispatch(TraceManager::Get(), instance, pCreateInfo, pAllocator, pSurface);
 
+    auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<InstanceWrapper>(&instance, handle_store);
+
     VkResult result = TraceManager::Get()->GetInstanceTable(instance)->CreateHeadlessSurfaceEXT(instance, pCreateInfo, pAllocator, pSurface);
+
+    auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<InstanceWrapper>(&instance, &handle_store_iter);
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<SurfaceKHRWrapper>(pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT);
@@ -10032,11 +11318,13 @@ VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(
     }
 
     auto handle_store = TraceManager::Get()->GetHandleStore();
+    UnwrapHandle<DeviceWrapper>(&device, handle_store);
     UnwrapHandle<QueryPoolWrapper>(&queryPool, handle_store);
 
     TraceManager::Get()->GetDeviceTable(device)->ResetQueryPoolEXT(device, queryPool, firstQuery, queryCount);
 
     auto handle_store_iter = handle_store->cbegin();
+    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
     RewrapHandle<QueryPoolWrapper>(&queryPool, &handle_store_iter);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>::Dispatch(TraceManager::Get(), device, queryPool, firstQuery, queryCount);

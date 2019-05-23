@@ -58,6 +58,7 @@ void UnwrapStructHandles(const VkSubmitInfo* value, HandleStore* handle_store, H
 
         UnwrapHandles<SemaphoreWrapper>(&value->pWaitSemaphores, value->waitSemaphoreCount, handle_array_store, handle_unwrap_memory);
 
+        UnwrapHandles<CommandBufferWrapper>(&value->pCommandBuffers, value->commandBufferCount, handle_array_store, handle_unwrap_memory);
 
         UnwrapHandles<SemaphoreWrapper>(&value->pSignalSemaphores, value->signalSemaphoreCount, handle_array_store, handle_unwrap_memory);
     }
@@ -74,6 +75,7 @@ void RewrapStructHandles(const VkSubmitInfo* value, HandleStore::const_iterator*
 
         RewrapHandles<SemaphoreWrapper>(&value->pWaitSemaphores, value->waitSemaphoreCount, handle_array_store_iter);
 
+        RewrapHandles<CommandBufferWrapper>(&value->pCommandBuffers, value->commandBufferCount, handle_array_store_iter);
 
         RewrapHandles<SemaphoreWrapper>(&value->pSignalSemaphores, value->signalSemaphoreCount, handle_array_store_iter);
     }
@@ -719,6 +721,7 @@ void UnwrapStructHandles(const VkPhysicalDeviceGroupProperties* value, HandleSto
 {
     if (value != nullptr)
     {
+        UnwrapHandles<PhysicalDeviceWrapper>(value->physicalDevices, value->physicalDeviceCount, handle_store);
     }
 }
 
@@ -726,6 +729,7 @@ void RewrapStructHandles(const VkPhysicalDeviceGroupProperties* value, HandleSto
 {
     if (value != nullptr)
     {
+        RewrapHandles<PhysicalDeviceWrapper>(value->physicalDevices, value->physicalDeviceCount, handle_store_iter);
     }
 }
 
@@ -733,6 +737,7 @@ void UnwrapStructHandles(const VkDeviceGroupDeviceCreateInfo* value, HandleStore
 {
     if (value != nullptr)
     {
+        UnwrapHandles<PhysicalDeviceWrapper>(&value->pPhysicalDevices, value->physicalDeviceCount, handle_array_store, handle_unwrap_memory);
     }
 }
 
@@ -740,6 +745,7 @@ void RewrapStructHandles(const VkDeviceGroupDeviceCreateInfo* value, HandleStore
 {
     if (value != nullptr)
     {
+        RewrapHandles<PhysicalDeviceWrapper>(&value->pPhysicalDevices, value->physicalDeviceCount, handle_array_store_iter);
     }
 }
 
@@ -1349,6 +1355,7 @@ void UnwrapStructHandles(const VkCmdProcessCommandsInfoNVX* value, HandleStore* 
 
         UnwrapStructArrayHandles(value->pIndirectCommandsTokens, value->indirectCommandsTokenCount, handle_store, handle_array_store, handle_unwrap_memory);
 
+        UnwrapHandle<CommandBufferWrapper>(&value->targetCommandBuffer, handle_store);
 
         UnwrapHandle<BufferWrapper>(&value->sequencesCountBuffer, handle_store);
 
@@ -1366,6 +1373,7 @@ void RewrapStructHandles(const VkCmdProcessCommandsInfoNVX* value, HandleStore::
 
         RewrapStructArrayHandles(value->pIndirectCommandsTokens, value->indirectCommandsTokenCount, handle_store_iter, handle_array_store_iter);
 
+        RewrapHandle<CommandBufferWrapper>(&value->targetCommandBuffer, handle_store_iter);
 
         RewrapHandle<BufferWrapper>(&value->sequencesCountBuffer, handle_store_iter);
 
@@ -1814,62 +1822,6 @@ void RewrapPNextStructHandles(const void* value, HandleStore::const_iterator* ha
         }
     }
 }
-
-void CreateWrappedStructHandles(VkPhysicalDeviceGroupProperties* value, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void CreateWrappedStructHandles(VkDisplayPropertiesKHR* value, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-        CreateWrappedHandle<DisplayKHRWrapper>(&value->display, get_id);
-    }
-}
-
-void CreateWrappedStructHandles(VkDisplayPlanePropertiesKHR* value, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-        CreateWrappedHandle<DisplayKHRWrapper>(&value->currentDisplay, get_id);
-    }
-}
-
-void CreateWrappedStructHandles(VkDisplayModePropertiesKHR* value, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-        CreateWrappedHandle<DisplayModeKHRWrapper>(&value->displayMode, get_id);
-    }
-}
-
-void CreateWrappedStructHandles(VkDisplayProperties2KHR* value, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-        CreateWrappedStructHandles(&value->displayProperties, get_id);
-    }
-}
-
-void CreateWrappedStructHandles(VkDisplayPlaneProperties2KHR* value, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-        CreateWrappedStructHandles(&value->displayPlaneProperties, get_id);
-    }
-}
-
-void CreateWrappedStructHandles(VkDisplayModeProperties2KHR* value, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-        CreateWrappedStructHandles(&value->displayModeProperties, get_id);
-    }
-}
-
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

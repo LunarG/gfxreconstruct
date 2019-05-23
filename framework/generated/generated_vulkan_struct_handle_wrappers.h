@@ -309,28 +309,77 @@ void RewrapStructHandles(const VkBufferDeviceAddressInfoEXT* value, HandleStore:
 void UnwrapPNextStructHandles(const void* value, HandleStore* handle_store, HandleArrayStore* handle_array_store, HandleArrayUnwrapMemory* handle_unwrap_memory);
 void RewrapPNextStructHandles(const void* value, HandleStore::const_iterator* handle_store_iter, HandleArrayStore::const_iterator* handle_array_store_iter);
 
-void CreateWrappedStructHandles(VkPhysicalDeviceGroupProperties* value, PFN_GetHandleId get_id);
+template <typename ParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, VkPhysicalDeviceGroupProperties* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedHandles<ParentWrapper, PhysicalDeviceWrapper>(parent, value->physicalDevices, value->physicalDeviceCount, get_id);
+    }
+}
 
-void CreateWrappedStructHandles(VkDisplayPropertiesKHR* value, PFN_GetHandleId get_id);
+template <typename ParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, VkDisplayPropertiesKHR* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedHandle<ParentWrapper, DisplayKHRWrapper>(parent, &value->display, get_id);
+    }
+}
 
-void CreateWrappedStructHandles(VkDisplayPlanePropertiesKHR* value, PFN_GetHandleId get_id);
+template <typename ParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, VkDisplayPlanePropertiesKHR* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedHandle<ParentWrapper, DisplayKHRWrapper>(parent, &value->currentDisplay, get_id);
+    }
+}
 
-void CreateWrappedStructHandles(VkDisplayModePropertiesKHR* value, PFN_GetHandleId get_id);
+template <typename ParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, VkDisplayModePropertiesKHR* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedHandle<ParentWrapper, DisplayModeKHRWrapper>(parent, &value->displayMode, get_id);
+    }
+}
 
-void CreateWrappedStructHandles(VkDisplayProperties2KHR* value, PFN_GetHandleId get_id);
+template <typename ParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, VkDisplayProperties2KHR* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedStructHandles<ParentWrapper>(parent, &value->displayProperties, get_id);
+    }
+}
 
-void CreateWrappedStructHandles(VkDisplayPlaneProperties2KHR* value, PFN_GetHandleId get_id);
+template <typename ParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, VkDisplayPlaneProperties2KHR* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedStructHandles<ParentWrapper>(parent, &value->displayPlaneProperties, get_id);
+    }
+}
 
-void CreateWrappedStructHandles(VkDisplayModeProperties2KHR* value, PFN_GetHandleId get_id);
+template <typename ParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, VkDisplayModeProperties2KHR* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedStructHandles<ParentWrapper>(parent, &value->displayModeProperties, get_id);
+    }
+}
 
-template <typename T>
-void CreateWrappedStructArrayHandles(T* value, size_t len, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename T>
+void CreateWrappedStructArrayHandles(typename ParentWrapper::HandleType parent, T* value, size_t len, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
         for (size_t i = 0; i < len; ++i)
         {
-            CreateWrappedStructHandles(&value[i], get_id);
+            CreateWrappedStructHandles<ParentWrapper>(parent, &value[i], get_id);
         }
     }
 }
