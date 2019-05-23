@@ -59,9 +59,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "encode/trace_manager.h"', file=self.outFile)
+        write('#include "encode/vulkan_handle_wrapper_util.h"', file=self.outFile)
         write('#include "encode/vulkan_handle_wrappers.h"', file=self.outFile)
         write('#include "format/api_call_id.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_command_buffer_util.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_struct_handle_wrappers.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
@@ -169,12 +171,44 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         body += '\n'
 
+        # Check for handles that need unwrapping.
+        unwrapExpr, needStore, needArrayStore = self.makeHandleUnwrapping(values, indent)
+        if unwrapExpr:
+            if needStore:
+                body += indent + 'auto handle_store = TraceManager::Get()->GetHandleStore();\n'
+            if needArrayStore:
+                body += indent + 'auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();\n'
+                body += indent + 'auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();\n'
+            body += unwrapExpr
+            body += '\n'
+
         # Construct the function call to dispatch to the next layer.
         callExpr = self.makeLayerDispatchCall(name, values, argList)
         if returnType and returnType != 'void':
             body += indent + '{} result = {};\n'.format(returnType, callExpr)
         else:
             body += indent + '{};\n'.format(callExpr)
+
+        # Re-wrap handles.
+        if unwrapExpr:
+            body += '\n'
+            if needStore:
+                body += indent + 'auto handle_store_iter = handle_store->cbegin();\n'
+            if needArrayStore:
+                body += indent + 'auto handle_array_store_iter = handle_array_store->cbegin();\n'
+            body += self.makeHandleRewrapping(values, indent)
+
+        # Wrap newly created handles.
+        wrapExpr = self.makeHandleWrapping(values, indent)
+        if wrapExpr:
+            body += '\n'
+            if returnType and returnType != 'void':
+                body += indent + 'if (result == VK_SUCCESS)\n'
+                body += indent + '{\n'
+                body += '    ' + self.makeHandleWrapping(values, indent)
+                body += indent + '}\n'
+            else:
+                body += self.makeHandleWrapping(values, indent)
 
         if encodeAfter:
             body += self.makeParameterEncoding(name, values, returnType, indent)
@@ -300,6 +334,81 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         decl += ';\n'
         return decl
 
+    def makeHandleWrapping(self, values, indent):
+        expr = ''
+        for value in values:
+            if value.isPointer or value.isArray:
+                isInput = self.isInputPointer(value)
+
+                if not isInput:
+                    if value.isArray:
+                        lengthName = value.arrayLength
+                        for len in values:
+                            if (len.name == lengthName) and len.isPointer:
+                                lengthName = '({name} != nullptr) ? (*{name}) : 0'.format(name=lengthName)
+                                break
+                        if self.isHandle(value.baseType) and not self.isDispatchableHandle(value.baseType):
+                            expr += indent + 'CreateWrappedHandles<{}Wrapper>({}, {}, TraceManager::GetUniqueId);\n'.format(value.baseType[2:], value.name, lengthName)
+                        elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
+                            expr += indent + 'CreateWrappedStructArrayHandles<{}>({}, {}, TraceManager::GetUniqueId);\n'.format(value.baseType, value.name, lengthName)
+                    else:
+                        if self.isHandle(value.baseType) and not self.isDispatchableHandle(value.baseType):
+                            expr += indent + 'CreateWrappedHandle<{}Wrapper>({}, TraceManager::GetUniqueId);\n'.format(value.baseType[2:], value.name)
+                        elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
+                            expr += indent + 'CreateWrappedStructHandles({}, TraceManager::GetUniqueId);\n'.format(value.name)
+        return expr
+
+    def makeHandleUnwrapping(self, values, indent):
+        expr = ''
+        needStore = False
+        needArrayStore = False
+        for value in values:
+            if value.isPointer or value.isArray:
+                isInput = self.isInputPointer(value)
+                lengthName = value.arrayLength
+
+                if isInput:
+                    if self.isHandle(value.baseType) and not self.isDispatchableHandle(value.baseType):
+                        if value.isArray:
+                            needArrayStore = True
+                            expr += indent + 'UnwrapHandles<{}Wrapper>(&{}, {}, handle_array_store, handle_unwrap_memory);\n'.format(value.baseType[2:], value.name, lengthName)
+                        else:
+                            needStore = True
+                            expr += indent + 'UnwrapHandle<{}Wrapper>({}, handle_store);\n'.format(value.baseType[2:], value.name)
+                    elif value.baseType in self.structsWithHandles:
+                        needStore = True
+                        needArrayStore = True
+                        if value.isArray:
+                            expr += indent + 'UnwrapStructArrayHandles({}, {}, handle_store, handle_array_store, handle_unwrap_memory);\n'.format(value.name, lengthName)
+                        else:
+                            expr += indent + 'UnwrapStructHandles({}, handle_store, handle_array_store, handle_unwrap_memory);\n'.format(value.name)
+            elif self.isHandle(value.baseType) and not self.isDispatchableHandle(value.baseType):
+                needStore = True
+                expr += indent + 'UnwrapHandle<{}Wrapper>(&{}, handle_store);\n'.format(value.baseType[2:], value.name)
+        return expr, needStore, needArrayStore
+
+    def makeHandleRewrapping(self, values, indent):
+        expr = ''
+        for value in values:
+            if value.isPointer or value.isArray:
+                isInput = self.isInputPointer(value)
+                lengthName = value.arrayLength
+
+                if isInput:
+                    if self.isHandle(value.baseType) and not self.isDispatchableHandle(value.baseType):
+                        if value.isArray:
+                            expr += indent + 'RewrapHandles<{}Wrapper>(&{}, {}, &handle_array_store_iter);\n'.format(value.baseType[2:], value.name, lengthName)
+                        else:
+                            expr += indent + 'RewrapHandle<{}Wrapper>({}, &handle_store_iter);\n'.format(value.baseType[2:], value.name)
+                    elif value.baseType in self.structsWithHandles:
+                        if value.isArray:
+                            expr += indent + 'RewrapStructArrayHandles({}, {}, &handle_store_iter, &handle_array_store_iter);\n'.format(value.name, lengthName)
+                        else:
+                            expr += indent + 'RewrapStructHandles({}, &handle_store_iter, &handle_array_store_iter);\n'.format(value.name)
+            elif self.isHandle(value.baseType) and not self.isDispatchableHandle(value.baseType):
+                expr += indent + 'RewrapHandle<{}Wrapper>(&{}, &handle_store_iter);\n'.format(value.baseType[2:], value.name)
+        return expr
+
     #
     # Create list of parameters that have handle types or are structs that contain handles.
     def getParamListHandles(self, values):
@@ -328,14 +437,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     # Determine if an API call indirectly creates handles by retrieving them (e.g. vkEnumeratePhysicalDevices, vkGetRandROutputDisplayEXT)
     def retrievesHandles(self, values):
         for value in values:
-            if self.isOutputParameter(value, values) and self.isHandle(value.baseType):
+            if self.isOutputParameter(value) and self.isHandle(value.baseType):
                 return True
-        return False
-
-    def isOutputParameter(self, value, values):
-        # Check for an output pointer/array or an in-out pointer.
-        if (value.isPointer or value.isArray) and not self.isInputPointer(value):
-            return True
         return False
 
     def hasOutputs(self, returnValue, parameterValues):
@@ -343,6 +446,6 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             return True
         else:
             for value in parameterValues:
-                if self.isOutputParameter(value, parameterValues):
+                if self.isOutputParameter(value):
                     return True
         return False
