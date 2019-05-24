@@ -514,6 +514,23 @@ class BaseGenerator(OutputGenerator):
         return capacity
 
     #
+    # Determines if the specified struct type can reference pNext extension structs that contain handles.
+    def checkStructPNextHandles(self, typename):
+        validExtensionStructs = self.registry.validextensionstructs.get(typename)
+        if validExtensionStructs:
+            # Need to search the XML tree for pNext structures that have not been processed yet.
+            for structName in validExtensionStructs:
+                typeInfo = self.registry.lookupElementInfo(structName, self.registry.typedict)
+                if typeInfo:
+                    memberTypes = [member.text for member in typeInfo.elem.findall('.//member/type')]
+                    if memberTypes:
+                        for memberType in memberTypes:
+                            found = self.registry.tree.find("types/type/[name='" + memberType + "'][@category='handle']")
+                            if found:
+                                return True
+        return False
+
+    #
     # Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
     # Structs with member handles are added to a dictionary, where the key is teh structure type and the value is a list of the handle members.
     def checkStructMemberHandles(self, typename, structsWithHandles):
@@ -527,18 +544,8 @@ class BaseGenerator(OutputGenerator):
                 handles.append(value)
             elif 'pNext' in value.name:
                 # The pNext chain may include a struct with handles.
-                validExtensionStructs = self.registry.validextensionstructs.get(typename)
-                if validExtensionStructs:
-                    # Need to search the XML tree for pNext structures that have not been processed yet.
-                    for structName in validExtensionStructs:
-                        typeInfo = self.registry.lookupElementInfo(structName, self.registry.typedict)
-                        if typeInfo:
-                            memberTypes = [member.text for member in typeInfo.elem.findall('.//member/type')]
-                            if memberTypes:
-                                for memberType in memberTypes:
-                                    found = self.registry.tree.find("types/type/[name='" + memberType + "'][@category='handle']")
-                                    if found:
-                                        handles.append(value)
+                if self.checkStructPNextHandles(typename):
+                    handles.append(value)
         if handles:
             structsWithHandles[typename] = handles
             return True
