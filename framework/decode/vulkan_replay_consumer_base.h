@@ -36,6 +36,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -180,6 +181,32 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                   const VkAllocationCallbacks*          pAllocator,
                                   const HandlePointerDecoder<VkDevice>& original_device,
                                   VkDevice*                             pDevice);
+
+    VkResult OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysicalDevices                func,
+                                              VkResult                                      returnValue,
+                                              VkInstance                                    instance,
+                                              const PointerDecoder<uint32_t>&               original_device_count,
+                                              uint32_t*                                     pPhysicalDeviceCount,
+                                              const HandlePointerDecoder<VkPhysicalDevice>& original_devices,
+                                              VkPhysicalDevice*                             pPhysicalDevices);
+
+    void OverrideGetPhysicalDeviceProperties(
+        PFN_vkGetPhysicalDeviceProperties                               func,
+        VkPhysicalDevice                                                physicalDevice,
+        const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>& original_properties,
+        VkPhysicalDeviceProperties*                                     pProperties);
+
+    void OverrideGetPhysicalDeviceProperties2(
+        PFN_vkGetPhysicalDeviceProperties2                               func,
+        VkPhysicalDevice                                                 physicalDevice,
+        const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>& original_properties,
+        VkPhysicalDeviceProperties2*                                     pProperties);
+
+    void OverrideGetPhysicalDeviceProperties2KHR(
+        PFN_vkGetPhysicalDeviceProperties2KHR                               func,
+        VkPhysicalDevice                                                    physicalDevice,
+        const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2KHR>& original_properties,
+        VkPhysicalDeviceProperties2KHR*                                     pProperties);
 
     VkResult OverrideWaitForFences(PFN_vkWaitForFences func,
                                    VkResult            original_result,
@@ -346,13 +373,33 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     PFN_vkCreateDevice GetCreateDeviceProc(VkPhysicalDevice physical_device);
 
+    void ProcessPhysicalDeviceProperties(VkPhysicalDevice                  physical_device,
+                                         const VkPhysicalDeviceProperties* capture_properties,
+                                         const VkPhysicalDeviceProperties* replay_properties);
+
+    void OverridePhysicalDevice(VkPhysicalDevice* physical_device);
+
     VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
 
     void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder);
 
   private:
-    typedef std::unordered_map<VkSurfaceKHR, Window*> WindowMap;
-    typedef std::unordered_map<VkDeviceMemory, void*> MappedMemoryMap;
+    struct InstanceDevices
+    {
+        std::vector<format::HandleId> capture_devices;
+        std::vector<VkPhysicalDevice> replay_devices;
+    };
+
+    struct PhysicalDeviceProperties
+    {
+        VkPhysicalDeviceProperties capture_properties;
+        VkPhysicalDeviceProperties replay_properties;
+    };
+
+    typedef std::unordered_map<VkSurfaceKHR, Window*>                      WindowMap;
+    typedef std::unordered_map<VkDeviceMemory, void*>                      MappedMemoryMap;
+    typedef std::unordered_map<VkInstance, InstanceDevices>                InstanceDeviceMap;
+    typedef std::unordered_map<VkPhysicalDevice, PhysicalDeviceProperties> PhysicalDevicePropertiesMap;
 
   private:
     util::platform::LibraryHandle                                    loader_handle_;
@@ -368,6 +415,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     WindowMap                                                        window_map_;
     MappedMemoryMap                                                  memory_map_;
     ReplayOptions                                                    options_;
+    InstanceDeviceMap                                                instance_devices_;
+    PhysicalDevicePropertiesMap                                      device_properties_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

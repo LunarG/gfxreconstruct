@@ -66,7 +66,7 @@ void VulkanReplayConsumer::Process_vkEnumeratePhysicalDevices(
     uint32_t* out_pPhysicalDeviceCount = &out_pPhysicalDeviceCount_value;
     VkPhysicalDevice* out_pPhysicalDevices = pPhysicalDevices.GetHandlePointer();
 
-    VkResult replay_result = GetInstanceTable(in_instance)->EnumeratePhysicalDevices(in_instance, out_pPhysicalDeviceCount, out_pPhysicalDevices);
+    VkResult replay_result = OverrideEnumeratePhysicalDevices(GetInstanceTable(in_instance)->EnumeratePhysicalDevices, returnValue, in_instance, pPhysicalDeviceCount, out_pPhysicalDeviceCount, pPhysicalDevices, out_pPhysicalDevices);
     CheckResult("vkEnumeratePhysicalDevices", returnValue, replay_result);
 
     AddHandles<VkPhysicalDevice>(pPhysicalDevices.GetPointer(), pPhysicalDevices.GetLength(), out_pPhysicalDevices, out_pPhysicalDeviceCount_value, &VulkanObjectMapper::AddVkPhysicalDevice);
@@ -121,7 +121,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceProperties(
     VkPhysicalDeviceProperties out_pProperties_value = {};
     VkPhysicalDeviceProperties* out_pProperties = &out_pProperties_value;
 
-    GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceProperties(in_physicalDevice, out_pProperties);
+    OverrideGetPhysicalDeviceProperties(GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceProperties, in_physicalDevice, pProperties, out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties(
@@ -2068,7 +2068,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceProperties2(
     VkPhysicalDeviceProperties2 out_pProperties_value = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, nullptr };
     VkPhysicalDeviceProperties2* out_pProperties = &out_pProperties_value;
 
-    GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceProperties2(in_physicalDevice, out_pProperties);
+    OverrideGetPhysicalDeviceProperties2(GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceProperties2, in_physicalDevice, pProperties, out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceFormatProperties2(
@@ -2821,7 +2821,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceProperties2KHR(
     VkPhysicalDeviceProperties2 out_pProperties_value = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, nullptr };
     VkPhysicalDeviceProperties2* out_pProperties = &out_pProperties_value;
 
-    GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceProperties2KHR(in_physicalDevice, out_pProperties);
+    OverrideGetPhysicalDeviceProperties2KHR(GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceProperties2KHR, in_physicalDevice, pProperties, out_pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceFormatProperties2KHR(

@@ -1,6 +1,10 @@
 { "functions": {
     "vkCreateInstance" : "OverrideCreateInstance",
     "vkCreateDevice" : "OverrideCreateDevice",
+    "vkEnumeratePhysicalDevices" : "OverrideEnumeratePhysicalDevices",
+    "vkGetPhysicalDeviceProperties" : "OverrideGetPhysicalDeviceProperties",
+    "vkGetPhysicalDeviceProperties2" : "OverrideGetPhysicalDeviceProperties2",
+    "vkGetPhysicalDeviceProperties2KHR" : "OverrideGetPhysicalDeviceProperties2KHR",
     "vkWaitForFences" : "OverrideWaitForFences",
     "vkGetFenceStatus" : "OverrideGetFenceStatus",
     "vkGetEventStatus" : "OverrideGetEventStatus",
