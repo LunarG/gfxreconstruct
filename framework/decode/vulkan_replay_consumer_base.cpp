@@ -302,6 +302,115 @@ void VulkanReplayConsumerBase::CheckResult(const char* func_name, VkResult origi
     }
 }
 
+void VulkanReplayConsumerBase::ProcessPhysicalDeviceProperties(VkPhysicalDevice                  physical_device,
+                                                               const VkPhysicalDeviceProperties* capture_properties,
+                                                               const VkPhysicalDeviceProperties* replay_properties)
+{
+    if (device_properties_.find(physical_device) == device_properties_.end())
+    {
+        PhysicalDeviceProperties properties = { (*capture_properties), (*replay_properties) };
+        device_properties_.emplace(physical_device, properties);
+    }
+}
+
+void VulkanReplayConsumerBase::OverridePhysicalDevice(VkPhysicalDevice* physical_device)
+{
+    assert(physical_device != nullptr);
+
+    // Match the current physical device with its parent instance.
+    VkInstance instance = VK_NULL_HANDLE;
+
+    for (const auto& entry : instance_devices_)
+    {
+        auto result =
+            std::find(entry.second.replay_devices.begin(), entry.second.replay_devices.end(), (*physical_device));
+        if (result != entry.second.replay_devices.end())
+        {
+            instance = entry.first;
+            break;
+        }
+    }
+
+    if (instance != VK_NULL_HANDLE)
+    {
+        auto devices_entry = instance_devices_.find(instance);
+        if (devices_entry != instance_devices_.end())
+        {
+            const auto& replay_devices = devices_entry->second.replay_devices;
+            if (options_.override_gpu_index < replay_devices.size())
+            {
+                VkPhysicalDevice override_device = replay_devices[options_.override_gpu_index];
+
+                if (override_device != (*physical_device))
+                {
+                    GFXRECON_LOG_INFO("Overriding replay device with GPU%d", options_.override_gpu_index);
+                    GFXRECON_LOG_INFO("  Available devices are:");
+                    for (size_t i = 0; i < replay_devices.size(); ++i)
+                    {
+                        GFXRECON_LOG_INFO("    [%d] %p", i, replay_devices[i]);
+                    }
+                    GFXRECON_LOG_INFO("  Original device is: %p", *physical_device);
+                    GFXRECON_LOG_INFO("  Override device is: %p", override_device);
+
+                    // Warn about potential incompatibilities when replay device type does not match capture
+                    // device type.
+                    auto capture_entry = device_properties_.find(*physical_device);
+                    auto replay_entry  = device_properties_.find(override_device);
+                    if ((capture_entry != device_properties_.end()) && (replay_entry != device_properties_.end()))
+                    {
+                        const auto& capture_properties = capture_entry->second.capture_properties;
+                        const auto& replay_properties  = replay_entry->second.replay_properties;
+                        if ((capture_properties.vendorID != replay_properties.vendorID) &&
+                            (capture_properties.deviceID != replay_properties.deviceID))
+                        {
+                            GFXRECON_LOG_WARNING(
+                                "The type of device selected for replay differs from the type of the original capture "
+                                "device; replay may fail due to device incompatibilities:");
+                            GFXRECON_LOG_WARNING(
+                                "  Capture device info:\t[vendorID = 0x%x, deviceId = 0x%x, deviceName = %s]",
+                                capture_properties.vendorID,
+                                capture_properties.deviceID,
+                                capture_properties.deviceName);
+                            GFXRECON_LOG_WARNING(
+                                "  Replay device info:\t[vendorID = 0x%x, deviceId = 0x%x, deviceName = %s]",
+                                replay_properties.vendorID,
+                                replay_properties.deviceID,
+                                replay_properties.deviceName);
+                        }
+                    }
+                    else
+                    {
+                        // No query was made for physical device properties prior to device creation at capture,
+                        // so provide a generic warning.
+                        GFXRECON_LOG_WARNING(
+                            "If the type of device selected for replay differs from the type of the original capture "
+                            "device, replay may fail due to device incompatibilities.");
+                    }
+
+                    (*physical_device) = override_device;
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Index specified for replay device override (%d) exceeds the range of "
+                                   "available physical devices (0-%d); the override will not be applied",
+                                   options_.override_gpu_index,
+                                   (replay_devices.size() - 1));
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Replay device override failed to find a list of physical devices associated with "
+                               "the current instance; the override will not be applied")
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Replay device override failed to match the original physical device handle with an "
+                           "instance; the override will not be applied")
+    }
+}
+
 VkResult VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface)
 {
     // Create a window for our surface.
@@ -420,6 +529,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                
 
     if ((get_device_proc_addr != nullptr) && (create_device_proc != nullptr))
     {
+        if (options_.override_gpu_index >= 0)
+        {
+            OverridePhysicalDevice(&physicalDevice);
+        }
+
         result = create_device_proc(physicalDevice, pCreateInfo, pAllocator, pDevice);
 
         if ((pDevice != nullptr) && (result == VK_SUCCESS))
@@ -429,6 +543,81 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                
     }
 
     return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(
+    PFN_vkEnumeratePhysicalDevices                func,
+    VkResult                                      returnValue,
+    VkInstance                                    instance,
+    const PointerDecoder<uint32_t>&               original_device_count,
+    uint32_t*                                     pPhysicalDeviceCount,
+    const HandlePointerDecoder<VkPhysicalDevice>& original_devices,
+    VkPhysicalDevice*                             pPhysicalDevices)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+
+    VkResult result = func(instance, pPhysicalDeviceCount, pPhysicalDevices);
+
+    if ((result >= 0) && (pPhysicalDevices != nullptr) && (instance_devices_.find(instance) == instance_devices_.end()))
+    {
+        assert(!original_devices.IsNull() && !original_device_count.IsNull() && (pPhysicalDeviceCount != nullptr));
+
+        InstanceDevices   devices;
+        format::HandleId* capture_devices = original_devices.GetPointer();
+        uint32_t          count           = (*original_device_count.GetPointer());
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            devices.capture_devices.push_back(capture_devices[i]);
+        }
+
+        count = (*pPhysicalDeviceCount);
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            devices.replay_devices.push_back(pPhysicalDevices[i]);
+        }
+
+        instance_devices_.emplace(instance, devices);
+    }
+
+    return result;
+}
+
+void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties(
+    PFN_vkGetPhysicalDeviceProperties                               func,
+    VkPhysicalDevice                                                physicalDevice,
+    const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>& original_properties,
+    VkPhysicalDeviceProperties*                                     pProperties)
+{
+    func(physicalDevice, pProperties);
+    ProcessPhysicalDeviceProperties(physicalDevice, original_properties.GetPointer(), pProperties);
+}
+
+void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2(
+    PFN_vkGetPhysicalDeviceProperties2                               func,
+    VkPhysicalDevice                                                 physicalDevice,
+    const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>& original_properties,
+    VkPhysicalDeviceProperties2*                                     pProperties)
+{
+    func(physicalDevice, pProperties);
+
+    auto properties = original_properties.GetPointer();
+    assert((properties != nullptr) && (pProperties != nullptr));
+    ProcessPhysicalDeviceProperties(physicalDevice, &properties->properties, &pProperties->properties);
+}
+
+void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2KHR(
+    PFN_vkGetPhysicalDeviceProperties2KHR                               func,
+    VkPhysicalDevice                                                    physicalDevice,
+    const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2KHR>& original_properties,
+    VkPhysicalDeviceProperties2KHR*                                     pProperties)
+{
+    func(physicalDevice, pProperties);
+
+    auto properties = original_properties.GetPointer();
+    assert((properties != nullptr) && (pProperties != nullptr));
+    ProcessPhysicalDeviceProperties(physicalDevice, &properties->properties, &pProperties->properties);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences func,
