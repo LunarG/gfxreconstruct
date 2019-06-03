@@ -26,6 +26,7 @@
 const char kApplicationName[] = "GFXReconstruct Replay";
 const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 
+const char kOverrideGpuArgument[]              = "--gpu";
 const char kPausedOption[]                     = "--paused";
 const char kPauseFrameArgument[]               = "--pause-frame";
 const char kSkipFailedAllocationShortOption[]  = "--sfa";
@@ -35,10 +36,9 @@ const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
 
 // TODO: Make this a vector of strings.
 const char kOptions[]   = "--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
-const char kArguments[] = "--pause-frame";
+const char kArguments[] = "--gpu,--pause-frame";
 
-    static void
-    CheckActiveLayers(const char* env_var)
+static void CheckActiveLayers(const char* env_var)
 {
     std::string result = gfxrecon::util::platform::GetEnv(env_var);
 
@@ -71,6 +71,12 @@ static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 static gfxrecon::decode::ReplayOptions GetReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     gfxrecon::decode::ReplayOptions replay_options;
+    std::string                     override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
+
+    if (!override_gpu.empty())
+    {
+        replay_options.override_gpu_index = std::stoi(override_gpu);
+    }
 
     if (arg_parser.IsOptionSet(kSkipFailedAllocationLongOption) ||
         arg_parser.IsOptionSet(kSkipFailedAllocationShortOption))
@@ -99,12 +105,17 @@ static void PrintUsage(const char* exe_name)
 
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to replay GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s\t[--pause-frame <N>] [--paused] [--sfa | --skip-failed-allocations]",
-                           app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s\t[--gpu <index>] [--pause-frame <N>] [--paused]", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--sfa | --skip-failed-allocations]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] <file>\n");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
+    GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for replay, where index");
+    GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical devices");
+    GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices; replay may fail");
+    GFXRECON_WRITE_CONSOLE("          \t\tif the specified device is not compatible with the");
+    GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices)");
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1)");
