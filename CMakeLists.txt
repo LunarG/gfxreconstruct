@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.1)
 project(GFXReconstruct)
 
+set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include("CodeStyle")
+include("Test")
 include("StaticAnalysis")
 include("FindVulkanVersion")
 
@@ -12,7 +15,7 @@ include("FindVulkanVersion")
 macro(target_build_directives TARGET)
     target_code_style_build_directives(${TARGET})
     target_static_analysis_build_directives(${TARGET})
-endmacro(target_build_directives)
+endmacro()
 
 if(MSVC)
     # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
@@ -20,7 +23,6 @@ if(MSVC)
     if(NOT CMAKE_CL_64)
         set (PRECOMPILED_ARCH "32")
     endif(NOT CMAKE_CL_64)
-
     set(CMAKE_PREFIX_PATH
         ${CMAKE_PREFIX_PATH}
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"

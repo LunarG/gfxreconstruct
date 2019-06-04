@@ -86,6 +86,10 @@ def parse_args():
         action='store_true', default=False,
         help='Skip applying C++ code style before compiling')
     arg_parser.add_argument(
+        '--skip-tests', dest='skip_tests',
+        action='store_true', default=False,
+        help='Skip running tests')
+    arg_parser.add_argument(
         '--static-analysis', dest='static_analysis',
         action='store_true', default=False,
         help='Run static analysis on the code')
@@ -135,11 +139,16 @@ def cmake_generate_options(args):
     if args.clean or args.clobber:
         generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
         generate_options.append('-DRUN_STATIC_ANALYSIS=OFF')
+        generate_options.append('-DRUN_TESTS=OFF')
     else:
         if args.skip_code_style:
             generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
         else:
             generate_options.append('-DAPPLY_CPP_CODE_STYLE=ON')
+        if args.skip_tests:
+            generate_options.append('-DRUN_TESTS=OFF')
+        else:
+            generate_options.append('-DRUN_TESTS=ON')
         if args.static_analysis:
             generate_options.append('-DRUN_STATIC_ANALYSIS=ON')
         else:
