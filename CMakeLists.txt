@@ -61,6 +61,9 @@ add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES)
 
+add_library(catch2 INTERFACE)
+target_include_directories(catch2 INTERFACE external)
+
 add_subdirectory(framework)
 add_subdirectory(layer)
 add_subdirectory(tools)

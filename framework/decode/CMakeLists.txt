@@ -54,3 +54,11 @@ target_include_directories(gfxrecon_decode
 target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
 target_build_directives(gfxrecon_decode)
+
+add_executable(gfxrecon_decode_test "")
+
+target_sources(gfxrecon_decode_test PRIVATE
+        test/main.cpp)
+
+target_build_directives(gfxrecon_decode_test)
+target_test_directives(gfxrecon_decode_test)

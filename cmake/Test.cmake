@@ -43,6 +43,10 @@ endif()
 
 # Add test post build step to an executable test target
 function(target_test_directives TARGET)
+    # Test executable build directives needed for catch 2
+    target_link_libraries(${TARGET} PRIVATE catch2)
+    target_compile_definitions(${TARGET} PRIVATE $<${MSVC}:_UNICODE>)
+    # Running test directives
     if (${RUN_TESTS})
         get_target_property(TARGET_TYPE ${TARGET} TYPE)
         if (NOT ("EXECUTABLE" STREQUAL ${TARGET_TYPE}))
@@ -50,7 +54,7 @@ function(target_test_directives TARGET)
                     "${TARGET} is not an executable.\n"
                     "Test directives can only be applied to executables.")
         endif()
-        add_custom_target("${TARGET}RunTests" ALL
+        add_custom_target(${TARGET}RunTests ALL
                 COMMAND "${PYTHON}" ${GFXReconstruct_SOURCE_DIR}/test.py
                     -c $<$<CONFIG:Debug>:debug> $<$<CONFIG:Release>:release>
                     -a ${ARCHITECTURE}
