@@ -36,13 +36,22 @@ def is_windows():
 
 
 ARCHITECTURES = ['x64', 'x86']
+DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.split(os.path.abspath(__file__))[0]
 BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
 if is_windows():
     BUILD_CONFIGS['debug'] = 'build'
 CONFIGURATIONS = ['release', 'debug']
+DEFAULT_CONFIG = CONFIGURATIONS[0]
 VERSION = distutils.version.StrictVersion('0.0.0')
-ALL_TESTS = {}  # TODO add all tests
+ALL_TESTS = {
+    'gfxrecon_application_test': [],
+    'gfxrecon_decode_test': [],
+    'gfxrecon_encode_test': [],
+    'gfxrecon_format_test': [],
+    'gfxrecon_util_test': [],
+    'VkLayer_gfxreconstruct_test': [],
+}
 
 
 class TestError(Exception):
@@ -69,15 +78,18 @@ def parse_args():
         action='store',
         help='Test arguments passed to the test executable')
     arg_parser.add_argument(
+        '--build-dir', dest='build_dir', metavar='BUILD_DIR',
+        action='store', default=None)
+    arg_parser.add_argument(
         '-a', '--arch', dest='architecture',
         metavar='ARCH', action='store',
-        choices=ARCHITECTURES, default=ARCHITECTURES[0],
+        choices=ARCHITECTURES, default=DEFAULT_ARCHITECTURE,
         help='Build target architecture. Can be one of: {0}'.format(
                 ', '.join(ARCHITECTURES)))
     arg_parser.add_argument(
         '-c', '--config', dest='configuration',
         metavar='CONFIG', action='store',
-        choices=CONFIGURATIONS, default=CONFIGURATIONS[0],
+        choices=CONFIGURATIONS, default=DEFAULT_CONFIG,
         help='Build target configuration. Can be one of: {0}'.format(
             ', '.join(CONFIGURATIONS)))
     return arg_parser.parse_args()
@@ -87,7 +99,6 @@ def run_test(test_exe, test_args):
     '''
     Run a single test
     '''
-    print(test_exe, test_args)
     run_test_args = [test_exe]
     if args.test_args is not None:
         run_test_args.extend(args.test_args)
@@ -106,14 +117,24 @@ def run_test(test_exe, test_args):
 if '__main__' == __name__:
     try:
         args = parse_args()
-        tests = copy.deepcopy(ALL_TESTS)
+        tests = []
         if args.test_exe is None:
-            if args.test_args is not None:
-                for test_args in tests.values():
+            for test in ALL_TESTS.items():
+                test_exe_dir = args.build_dir
+                if test_exe_dir is None:
+                    test_exe_dir = os.path.join(
+                        BUILD_CONFIGS[args.configuration],
+                        platform.system().lower(),
+                        args.architecture,
+                        'bin')
+                test_exe = os.path.join(test_exe_dir, test[0])
+                test_args = copy.deepcopy(test[1])
+                if args.test_args is not None:
                     test_args.extend(args.test_args)
+                tests.append((test_exe, test_args))
         else:
-            tests = {args.test.exe: args.test.args}
-        for test_exe, test_args in tests.items():
+            tests = [(args.test_exe, args.test_args)]
+        for test_exe, test_args in tests:
             run_test(test_exe, test_args)
     except Exception as error:
         print('Error', *(error.args))
