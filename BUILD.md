@@ -173,8 +173,8 @@ The following optional packages are also recommneded:
 On Ubuntu, the required packages can be installed with the following
 command:
 ```
-sudo apt-get install git cmake build-essential libx11-xcb-dev \
-        libxkbcommon-dev libwayland-dev libxrandr-dev
+sudo apt-get install git cmake build-essential libx11-xcb-dev libxkbcommon-dev \
+        libwayland-dev libxrandr-dev  liblz4-dev clang-format clang-tidy
 ```
 
 ##### Fedora Core
