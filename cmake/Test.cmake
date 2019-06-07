@@ -45,7 +45,7 @@ endif()
 function(target_test_directives TARGET)
     # Test executable build directives needed for catch 2
     target_link_libraries(${TARGET} PRIVATE catch2)
-    target_compile_definitions(${TARGET} PRIVATE $<${MSVC}:_UNICODE>)
+    target_compile_definitions(${TARGET} PRIVATE $<$<BOOL:${MSVC}>:_UNICODE>)
     # Running test directives
     if (${RUN_TESTS})
         get_target_property(TARGET_TYPE ${TARGET} TYPE)
