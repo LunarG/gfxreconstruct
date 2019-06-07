@@ -54,4 +54,4 @@ target_include_directories(gfxrecon_decode
 
 target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
-target_build_directives(gfxrecon_decode)
+common_build_directives(gfxrecon_decode)

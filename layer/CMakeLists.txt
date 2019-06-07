@@ -23,4 +23,4 @@ GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
                          $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VK_LAYER_LUNARG_gfxreconstruct.json
                         )
 
-target_build_directives(VkLayer_gfxreconstruct)
+common_build_directives(VkLayer_gfxreconstruct)

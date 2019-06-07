@@ -32,4 +32,4 @@ target_link_libraries(gfxrecon_application
                       $<$<BOOL:${WAYLAND_FOUND}>:${WAYLAND_LIBRARY}>
                      )
 
-target_build_directives(gfxrecon_application)
+common_build_directives(gfxrecon_application)

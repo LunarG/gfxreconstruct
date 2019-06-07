@@ -75,9 +75,10 @@ after a repository update (e.g. `git pull`).
 - There is a Python-3 build.py script at the repo root that can be used to update
   all dependencies, and build the project on both Windows and Linux.
   Run the script with the -h option to get help on how to run the build using
-  the script.
+  the script.  
+  The script requires Python 3.5 and above.
 - There is an optional pre-build step for every target to run clang-format
-  to apply the GfxRecon code style on the code.  
+  to apply the GfxReconstruct code style on the code.  
   This requires clang-format to be installed on the system.
   Use the `-DAPPLY_CPP_CODE_STYLE=ON` option to enable this pre-build step.
   Use the --code-style option if building with the build script.
@@ -102,6 +103,8 @@ after a repository update (e.g. `git pull`).
   - Some IDEs (e.g., [Visual Studio](https://www.visualstudio.com/),
     [GitHub Desktop](https://desktop.github.com/)) have integrated
     Git client support
+- Clang-format and Clang-tidy can be installed by installing the Windws Clang
+  package from http://llvm.org/builds/
 
 ### Windows Build - Microsoft Visual Studio
 The general approach is to run CMake to generate the Visual Studio project
@@ -162,6 +165,10 @@ Building on Linux requires the installation of the following packages:
 * Git
 * CMake
 * X11 + XCB and/or Wayland development libraries
+* clang-format package
+
+The following optional packages are also recommneded:
+* clang-tidy package
 
 ##### Ubuntu
 On Ubuntu, the required packages can be installed with the following

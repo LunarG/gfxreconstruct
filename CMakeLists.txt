@@ -9,10 +9,10 @@ include("StaticAnalysis")
 include("FindVulkanVersion")
 
 # Apply misc build directives to the given target
-macro(target_build_directives TARGET)
+macro(common_build_directives TARGET)
     target_code_style_build_directives(${TARGET})
     target_static_analysis_build_directives(${TARGET})
-endmacro(target_build_directives)
+endmacro()
 
 if(MSVC)
     # Default to using the precompiled LZ4 and ZLIB binaries for VisualStudio builds.
