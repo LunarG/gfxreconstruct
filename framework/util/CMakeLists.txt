@@ -61,4 +61,4 @@ if (TARGET ZLIB::ZLIB)
     target_link_libraries(gfxrecon_util ZLIB::ZLIB)
 endif()
 
-target_build_directives(gfxrecon_util)
+common_build_directives(gfxrecon_util)

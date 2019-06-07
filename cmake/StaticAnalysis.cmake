@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 # Author: AMD Developer Tools Team
-# Description: CMake code stle build directives
+# Description: CMake code static analysis build directives
 ###############################################################################
 
 cmake_minimum_required(VERSION 3.1)

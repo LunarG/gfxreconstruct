@@ -35,7 +35,8 @@ def is_windows():
 
 
 ARCHITECTURES = ['x64', 'x86']
-BUILD_ROOT = os.path.split(os.path.abspath(__file__))[0]
+BUILD_ROOT = os.path.abspath(
+    os.path.join(os.path.split(os.path.abspath(__file__))[0], '..'))
 BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
 if is_windows():
     BUILD_CONFIGS['debug'] = 'build'
