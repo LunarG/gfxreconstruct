@@ -64,3 +64,51 @@ function(target_test_directives TARGET)
         add_dependencies(${TARGET}RunTests ${TARGET})
     endif()
 endfunction()
+
+option(GENERATE_TEST_ARCHIVE
+    "Generate an archive that contains all test scripts and binaries" OFF)
+
+# Test archive files for a top level CMakeLists
+set_property(GLOBAL PROPERTY TEST_ARCHIVE_FILES "")
+
+# Add a file to the test package
+function(add_test_package_file FILE)
+    get_property(TEST_ARCHIVE_FILES GLOBAL PROPERTY TEST_ARCHIVE_FILES)
+    set_property(GLOBAL PROPERTY TEST_ARCHIVE_FILES "${TEST_ARCHIVE_FILES};${FILE}")
+endfunction()
+
+# Add a target binary output to the test archive
+function(add_target_to_test_package TARGET)
+    add_test_package_file("$<TARGET_FILE:${TARGET}>")
+endfunction()
+
+# Generate a test archive
+#
+# This macro uses target generator expressions, it must be called after the
+# targets have been added.
+function(generate_test_package TEST_ARCHIVE)
+    get_property(TEST_ARCHIVE_FILES GLOBAL PROPERTY TEST_ARCHIVE_FILES)
+    if(${GENERATE_TEST_ARCHIVE})
+        if(CMAKE_HOST_WIN32)
+            set(TEST_ARCHIVE_DIR build/packages/windows/${ARCHITECTURE})
+            file(MAKE_DIRECTORY ${TEST_ARCHIVE_DIR})
+            add_custom_target(GenerateTestPackage ALL
+                COMMAND cmake -E tar "vcf" ${TEST_ARCHIVE_DIR}/${TEST_ARCHIVE}.zip --format=zip --
+                    ${TEST_ARCHIVE_FILES}
+                DEPENDS ${TEST_ARCHIVE_FILES}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+                COMMENT "Generate Windows test package")
+        elseif(CMAKE_HOST_UNIX)
+            set(TEST_ARCHIVE_DIR build/packages/linux/${ARCHITECTURE})
+            file(MAKE_DIRECTORY ${TEST_ARCHIVE_DIR})
+            add_custom_target(GenerateTestPackage ALL
+                COMMAND cmake -E tar "cf" ${TEST_ARCHIVE_DIR}/${TEST_ARCHIVE}.tar --format=gnutar --
+                    ${TEST_ARCHIVE_FILES}
+                DEPENDS ${TEST_ARCHIVE_FILES}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+                COMMENT "Generate Linux test package")
+        else()
+            message(FATAL_ERROR "Unsupported test package generation platform")
+        endif()
+    endif()
+endfunction()
