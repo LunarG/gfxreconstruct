@@ -46,15 +46,35 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
             switch (wp)
             {
                 case VK_SPACE:
+                case 'P':
                 {
-                    Win32Application* app =
-                        reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
+                    auto app = reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
                     app->SetPaused(!app->GetPaused());
                     break;
                 }
                 case VK_ESCAPE:
                     PostQuitMessage(0);
                     break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case WM_KEYDOWN:
+        {
+            switch (wp)
+            {
+                // Using WM_KEYDOWN for repeat when key is held down.
+                case VK_RIGHT:
+                case 'N':
+                {
+                    auto app = reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
+                    if (app->GetPaused())
+                    {
+                        app->PlaySingleFrame();
+                    }
+                    break;
+                }
                 default:
                     break;
             }

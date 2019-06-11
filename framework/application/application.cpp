@@ -59,7 +59,22 @@ void Application::Run()
         // Only process the next frame if a quit event was not processed or not paused.
         if (running_ && !paused_)
         {
-            running_ = PlaySingleFrame();
+            PlaySingleFrame();
+        }
+    }
+}
+
+void Application::SetPaused(bool paused)
+{
+
+    paused_ = paused;
+
+    if (paused_ && (file_processor_ != nullptr))
+    {
+        uint32_t current_frame = file_processor_->GetCurrentFrameNumber();
+        if (current_frame > 0)
+        {
+            GFXRECON_LOG_INFO("Paused at frame %u", file_processor_->GetCurrentFrameNumber());
         }
     }
 }
@@ -71,6 +86,26 @@ bool Application::PlaySingleFrame()
     if (file_processor_)
     {
         success = file_processor_->ProcessNextFrame();
+
+        if (success)
+        {
+            if (file_processor_->GetCurrentFrameNumber() == pause_frame_)
+            {
+                paused_ = true;
+            }
+
+            // Check paused state separately from previous check to print messages for two different cases: replay has
+            // paused on the user specified pause frame (tested above), or the user has pressed a key to advance forward
+            // by one frame while paused.
+            if (paused_)
+            {
+                GFXRECON_LOG_INFO("Paused at frame %u", file_processor_->GetCurrentFrameNumber());
+            }
+        }
+        else
+        {
+            running_ = false;
+        }
     }
 
     return success;

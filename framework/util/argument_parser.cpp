@@ -277,7 +277,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
     }
 }
 
-bool ArgumentParser::IsOptionSet(const std::string& option)
+bool ArgumentParser::IsOptionSet(const std::string& option) const
 {
     auto ret_iterator = options_indices_.find(option);
 
@@ -285,18 +285,20 @@ bool ArgumentParser::IsOptionSet(const std::string& option)
     {
         return options_present_[ret_iterator->second];
     }
+
     return false;
 }
 
-const std::string& ArgumentParser::GetArgumentValue(const std::string& argument)
+const std::string& ArgumentParser::GetArgumentValue(const std::string& argument) const
 {
-    static const std::string empty_string("");
+    static const std::string empty_string;
     auto                     ret_iterator = arguments_indices_.find(argument);
 
-    if (ret_iterator != arguments_indices_.end() && argument_values_[ret_iterator->second].size() > 0)
+    if (ret_iterator != arguments_indices_.end())
     {
         return argument_values_[ret_iterator->second];
     }
+
     return empty_string;
 }
 

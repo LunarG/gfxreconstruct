@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -15,9 +15,12 @@
 ** limitations under the License.
 */
 
+#include "replay_settings.h"
+
 #include "application/android_application.h"
 #include "application/android_window.h"
 #include "decode/file_processor.h"
+#include "decode/vulkan_replay_options.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
@@ -27,30 +30,29 @@
 
 #include <android_native_app_glue.h>
 
+#include <cstdlib>
 #include <exception>
 #include <memory>
 #include <string>
 #include <vector>
 
-const char kApplicationName[]    = "GFXReconstruct Replay";
 const char kArgsExtentKey[]      = "args";
 const char kDefaultCaptureFile[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
 const char kLayerProperty[]      = "debug.vulkan.layers";
-const char kCaptureLayer[]       = "VK_LAYER_LUNARG_gfxreconstruct";
+
+const int32_t kSwipeDistance = 200;
 
 std::string GetIntentExtra(struct android_app* app, const char* key);
 void        ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
-void        CheckActiveLayers();
 void        DestroyActivity(struct android_app* app);
-void        PrintUsage(const char* exe_name);
 
 void android_main(struct android_app* app)
 {
     gfxrecon::util::Log::Init();
 
     std::string                    args = GetIntentExtra(app, kArgsExtentKey);
-    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), "", "", 0);
+    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, kArguments, 0);
 
     app->onAppCmd     = ProcessAppCmd;
     app->onInputEvent = ProcessInputEvent;
@@ -94,16 +96,18 @@ void android_main(struct android_app* app)
                 else
                 {
                     gfxrecon::decode::VulkanDecoder        decoder;
-                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
+                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get(),
+                                                                           GetReplayOptions(arg_parser));
 
                     replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });
 
                     decoder.AddConsumer(&replay_consumer);
                     file_processor.AddDecoder(&decoder);
+                    application->SetPauseFrame(GetPauseFrame(arg_parser));
 
                     // Warn if the capture layer is active.
-                    CheckActiveLayers();
+                    CheckActiveLayers(kLayerProperty);
 
                     // Start the application in the paused state, preventing replay from starting before the app gained
                     // focus event is received.
@@ -211,34 +215,102 @@ void ProcessAppCmd(struct android_app* app, int32_t cmd)
 
 int32_t ProcessInputEvent(struct android_app* app, AInputEvent* event)
 {
-    if ((app->userData != nullptr) && (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION))
+    if (app->userData != nullptr)
     {
-        gfxrecon::application::AndroidApplication* android_application =
-            reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+        int32_t type = AInputEvent_getType(event);
 
-        // TODO: Distinguish between tap and swipe actions; swipe to advance to next frame when paused.
-        int32_t action = AMotionEvent_getAction(event);
-        if (action == AMOTION_EVENT_ACTION_UP)
+        if (type == AINPUT_EVENT_TYPE_MOTION)
         {
-            android_application->SetPaused(!android_application->GetPaused());
-            return 1;
+            static int32_t start_pointer_id = 0;
+            static int32_t start_x          = 0;
+            static int32_t start_y          = 0;
+
+            int32_t action = AMotionEvent_getAction(event);
+
+            if (action == AMOTION_EVENT_ACTION_UP)
+            {
+                auto android_application = reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+                int32_t horizontal_distance = 0;
+                int32_t vertical_distance   = 0;
+
+                if (start_pointer_id == AMotionEvent_getPointerId(event, 0))
+                {
+                    horizontal_distance = AMotionEvent_getX(event, 0) - start_x;
+                    vertical_distance   = AMotionEvent_getY(event, 0) - start_y;
+                }
+
+                if (abs(horizontal_distance) > kSwipeDistance)
+                {
+                    if ((horizontal_distance < 0) && (abs(horizontal_distance) > abs(vertical_distance)) &&
+                        android_application->GetPaused())
+                    {
+                        // Treat as swipe right-to-left to advance frame while paused.
+                        android_application->PlaySingleFrame();
+                    }
+                }
+                else if (abs(vertical_distance) > kSwipeDistance)
+                {
+                    // Ignore vertical swipe.
+                }
+                else
+                {
+                    // Treat as a tap to toggle pause state.
+                    android_application->SetPaused(!android_application->GetPaused());
+                }
+
+                return 1;
+            }
+            else if (action == AMOTION_EVENT_ACTION_DOWN)
+            {
+                start_pointer_id = AMotionEvent_getPointerId(event, 0);
+                start_x          = AMotionEvent_getX(event, 0);
+                start_y          = AMotionEvent_getY(event, 0);
+                return 1;
+            }
+        }
+        else if (type == AINPUT_EVENT_TYPE_KEY)
+        {
+            int32_t key    = AKeyEvent_getKeyCode(event);
+            int32_t action = AKeyEvent_getAction(event);
+
+            // Key input can be simulated with 'adb shell input keyevent <keycode>'. Relevant keycodes are:
+            //  Space = 62
+            //  P     = 44
+            //  Right = 22
+            //  N     = 42
+            if (action == AKEY_EVENT_ACTION_UP)
+            {
+                auto android_application = reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+                switch (key)
+                {
+                    case AKEYCODE_SPACE:
+                    case AKEYCODE_P:
+                        android_application->SetPaused(!android_application->GetPaused());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (action == AKEY_EVENT_ACTION_DOWN)
+            {
+                auto android_application = reinterpret_cast<gfxrecon::application::AndroidApplication*>(app->userData);
+                switch (key)
+                {
+                    case AKEYCODE_DPAD_RIGHT:
+                    case AKEYCODE_N:
+                        if (android_application->GetPaused())
+                        {
+                            android_application->PlaySingleFrame();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 
     return 0;
-}
-
-void CheckActiveLayers()
-{
-    std::string result = gfxrecon::util::platform::GetEnv(kLayerProperty);
-
-    if (!result.empty())
-    {
-        if (result.find(kCaptureLayer) != std::string::npos)
-        {
-            GFXRECON_LOG_WARNING("Replay tool has detected that the capture layer is enabled");
-        }
-    }
 }
 
 void DestroyActivity(struct android_app* app)
@@ -261,22 +333,4 @@ void DestroyActivity(struct android_app* app)
             break;
         }
     }
-}
-
-void PrintUsage(const char* exe_name)
-{
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
-
-    GFXRECON_WRITE_CONSOLE("\n%s\tis a replay tool designed to playback GFXReconstruct capture files.\n",
-                           app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the ");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\tcapture file to replay");
 }

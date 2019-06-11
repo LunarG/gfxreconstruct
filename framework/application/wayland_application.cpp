@@ -167,7 +167,15 @@ bool WaylandApplication::UnregisterWaylandWindow(WaylandWindow* window)
 
 void WaylandApplication::ProcessEvents(bool wait_for_input)
 {
-    wl_display_dispatch_pending(display_);
+    if (!wait_for_input)
+    {
+        wl_display_dispatch_pending(display_);
+        wl_display_flush(display_);
+    }
+    else
+    {
+        wl_display_dispatch(display_);
+    }
 }
 
 void WaylandApplication::HandleRegistryGlobal(
@@ -250,7 +258,27 @@ void WaylandApplication::HandleKeyboardKey(
                 app->StopRunning();
                 break;
             case KEY_SPACE:
+            case KEY_P:
                 app->SetPaused(!app->GetPaused());
+                break;
+            default:
+                break;
+        }
+    }
+    else if (state == WL_KEYBOARD_KEY_STATE_PRESSED)
+    {
+        auto app = reinterpret_cast<WaylandApplication*>(data);
+
+        switch (key)
+        {
+            case KEY_RIGHT:
+            case KEY_N:
+                if (app->GetPaused())
+                {
+                    app->PlaySingleFrame();
+                }
+                break;
+            default:
                 break;
         }
     }
