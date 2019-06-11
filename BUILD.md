@@ -78,7 +78,7 @@ after a repository update (e.g. `git pull`).
   the script.  
   The script requires Python 3.5 and above.
 - There is an optional pre-build step for every target to run clang-format
-  to apply the GfxReconstruct code style on the code.  
+  to apply the GFXReconstruct code style on the code.  
   This requires clang-format to be installed on the system.
   Use the `-DAPPLY_CPP_CODE_STYLE=ON` option to enable this pre-build step.
   Use the --code-style option if building with the build script.
@@ -103,7 +103,7 @@ after a repository update (e.g. `git pull`).
   - Some IDEs (e.g., [Visual Studio](https://www.visualstudio.com/),
     [GitHub Desktop](https://desktop.github.com/)) have integrated
     Git client support
-- Clang-format and Clang-tidy can be installed by installing the Windws Clang
+- Clang-format and Clang-tidy can be installed by installing the Windows Clang
   package from http://llvm.org/builds/
 
 ### Windows Build - Microsoft Visual Studio
@@ -167,7 +167,7 @@ Building on Linux requires the installation of the following packages:
 * X11 + XCB and/or Wayland development libraries
 * clang-format package
 
-The following optional packages are also recommneded:
+The following optional packages are also recommended:
 * clang-tidy package
 
 ##### Ubuntu
@@ -183,7 +183,7 @@ On Fedora Core, the required packages can be installed with the following
 command:
 ```
 sudo dnf install git cmake libxcb-devel libxkbcommon-devel \
-        libXrandr-devel wayland-devel
+        libXrandr-devel wayland-devel clang clang-tools-extra
 ```
 
 ### Linux Build
