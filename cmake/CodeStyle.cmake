@@ -19,7 +19,7 @@
 
 cmake_minimum_required(VERSION 3.1)
 
-option(APPLY_CPP_CODE_STYLE "Apply C++ code style using clang format" ON)
+option(APPLY_CPP_CODE_STYLE "Apply C++ code style using clang format" OFF)
 
 find_program(CLANG_FORMAT clang-format DOC "Clang format executable")
 
@@ -30,7 +30,7 @@ macro(target_code_style_build_directives TARGET)
             message(FATAL_ERROR "Failed to find clang-format in system path")
         endif()
         get_target_property(TARGET_SOURCE_FILES ${TARGET} SOURCES)
-        list(FILTER TARGET_SOURCE_FILES EXCLUDE REGEX ".+\.def")
+        list(FILTER TARGET_SOURCE_FILES EXCLUDE REGEX ".+\.def|generated_.+")
         add_custom_target("${TARGET}ClangFormat"
                 COMMAND ${CLANG_FORMAT} -i ${TARGET_SOURCE_FILES}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
