@@ -35,6 +35,7 @@ def is_windows():
 
 
 ARCHITECTURES = ['x64', 'x86']
+DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.abspath(
     os.path.join(os.path.split(os.path.abspath(__file__))[0], '..'))
 BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
@@ -42,6 +43,7 @@ if is_windows():
     BUILD_CONFIGS['debug'] = 'build'
 CMAKE_VERSION_3_13 = distutils.version.StrictVersion('3.13.0')
 CONFIGURATIONS = ['release', 'debug']
+DEFAULT_CONFIGURATION = CONFIGURATIONS[0]
 VERSION = distutils.version.StrictVersion('0.0.0')
 
 
@@ -63,13 +65,13 @@ def parse_args():
     arg_parser.add_argument(
         '-a', '--arch', dest='architecture',
         metavar='ARCH', action='store',
-        choices=ARCHITECTURES, default=ARCHITECTURES[0],
+        choices=ARCHITECTURES, default=DEFAULT_ARCHITECTURE,
         help='Build target architecture. Can be one of: {0}'.format(
                 ', '.join(ARCHITECTURES)))
     arg_parser.add_argument(
         '-c', '--config', dest='configuration',
         metavar='CONFIG', action='store',
-        choices=CONFIGURATIONS, default=CONFIGURATIONS[0],
+        choices=CONFIGURATIONS, default=DEFAULT_CONFIGURATION,
         help='Build target configuration. Can be one of: {0}'.format(
             ', '.join(CONFIGURATIONS)))
     arg_parser.add_argument(
