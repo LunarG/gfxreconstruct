@@ -7,4 +7,4 @@ target_sources(gfxrecon-compress
 
 target_link_libraries(gfxrecon-compress gfxrecon_decode gfxrecon_format gfxrecon_util platform_specific)
 
-target_build_directives(gfxrecon-compress)
+common_build_directives(gfxrecon-compress)

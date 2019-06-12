@@ -113,9 +113,9 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
             if (event->response_type == 0)
             {
                 // Set error status and break from event processing loop.
-                xcb_generic_error_t* error = reinterpret_cast<xcb_generic_error_t*>(event);
-                last_error_sequence_       = error->sequence;
-                last_error_code_           = error->error_code;
+                auto error           = reinterpret_cast<xcb_generic_error_t*>(event);
+                last_error_sequence_ = error->sequence;
+                last_error_code_     = error->error_code;
                 break;
             }
 
@@ -131,8 +131,8 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 }
                 case XCB_CLIENT_MESSAGE:
                 {
-                    xcb_client_message_event_t* message_event = reinterpret_cast<xcb_client_message_event_t*>(event);
-                    auto                        entry         = xcb_windows_.find(message_event->window);
+                    auto message_event = reinterpret_cast<xcb_client_message_event_t*>(event);
+                    auto entry         = xcb_windows_.find(message_event->window);
 
                     if (entry != xcb_windows_.end())
                     {
@@ -149,15 +149,40 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 }
                 case XCB_KEY_RELEASE:
                 {
-                    const xcb_key_release_event_t* key = (const xcb_key_release_event_t*)event;
+                    auto key = reinterpret_cast<xcb_key_release_event_t*>(event);
 
+                    // TODO: This needs something like XkbKeycodeToKeysym
                     switch (key->detail)
                     {
                         case 0x9: // Escape
                             StopRunning();
                             break;
+                        case 0x21: // p
                         case 0x41: // Space
                             SetPaused(!GetPaused());
+                            break;
+                        default:
+                            break;
+                    }
+
+                    break;
+                }
+                case XCB_KEY_PRESS:
+                {
+                    auto key = reinterpret_cast<xcb_key_press_event_t*>(event);
+
+                    // TODO: This needs something like XkbKeycodeToKeysym
+                    switch (key->detail)
+                    {
+                        // Using XCB_KEY_PRESS for repeat when key is held down.
+                        case 0x72: // Right arrow
+                        case 0x39: // n
+                            if (GetPaused())
+                            {
+                                PlaySingleFrame();
+                            }
+                            break;
+                        default:
                             break;
                     }
 
@@ -165,9 +190,8 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 }
                 case XCB_CONFIGURE_NOTIFY:
                 {
-                    xcb_configure_notify_event_t* configure_event =
-                        reinterpret_cast<xcb_configure_notify_event_t*>(event);
-                    auto entry = xcb_windows_.find(configure_event->window);
+                    auto configure_event = reinterpret_cast<xcb_configure_notify_event_t*>(event);
+                    auto entry           = xcb_windows_.find(configure_event->window);
 
                     if (entry != xcb_windows_.end())
                     {
@@ -180,8 +204,8 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 }
                 case XCB_MAP_NOTIFY:
                 {
-                    xcb_map_notify_event_t* map_event = reinterpret_cast<xcb_map_notify_event_t*>(event);
-                    auto                    entry     = xcb_windows_.find(map_event->window);
+                    auto map_event = reinterpret_cast<xcb_map_notify_event_t*>(event);
+                    auto entry     = xcb_windows_.find(map_event->window);
 
                     if (entry != xcb_windows_.end())
                     {
@@ -193,8 +217,8 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 }
                 case XCB_UNMAP_NOTIFY:
                 {
-                    xcb_unmap_notify_event_t* unmap_event = reinterpret_cast<xcb_unmap_notify_event_t*>(event);
-                    auto                      entry       = xcb_windows_.find(unmap_event->window);
+                    auto unmap_event = reinterpret_cast<xcb_unmap_notify_event_t*>(event);
+                    auto entry       = xcb_windows_.find(unmap_event->window);
 
                     if (entry != xcb_windows_.end())
                     {
@@ -206,8 +230,8 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
                 }
                 case XCB_DESTROY_NOTIFY:
                 {
-                    xcb_destroy_notify_event_t* destroy_event = reinterpret_cast<xcb_destroy_notify_event_t*>(event);
-                    auto                        entry         = xcb_windows_.find(destroy_event->window);
+                    auto destroy_event = reinterpret_cast<xcb_destroy_notify_event_t*>(event);
+                    auto entry         = xcb_windows_.find(destroy_event->window);
 
                     if (entry != xcb_windows_.end())
                     {

@@ -12,7 +12,7 @@ include("StaticAnalysis")
 include("FindVulkanVersion")
 
 # Apply misc build directives to the given target
-macro(target_build_directives TARGET)
+macro(common_build_directives TARGET)
     target_code_style_build_directives(${TARGET})
     target_static_analysis_build_directives(${TARGET})
     add_target_to_test_package(${TARGET})
@@ -69,5 +69,5 @@ add_subdirectory(framework)
 add_subdirectory(layer)
 add_subdirectory(tools)
 
-add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/test.py)
+add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/test.py)
 generate_test_package(gfx_reconstruct_test)

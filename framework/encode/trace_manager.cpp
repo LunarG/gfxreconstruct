@@ -298,11 +298,11 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 
         // Write parameter data.
         bytes_written_ += file_stream_->Write(data_pointer, data_size);
-    }
 
-    if (force_file_flush_)
-    {
-        file_stream_->Flush();
+        if (force_file_flush_)
+        {
+            file_stream_->Flush();
+        }
     }
 
     parameter_encoder->Reset();
@@ -322,6 +322,11 @@ void TraceManager::WriteFileHeader()
 
     bytes_written_ += file_stream_->Write(&file_header, sizeof(file_header));
     bytes_written_ += file_stream_->Write(option_list.data(), option_list.size() * sizeof(format::FileOptionPair));
+
+    if (force_file_flush_)
+    {
+        file_stream_->Flush();
+    }
 }
 
 void TraceManager::BuildOptionList(const format::EnabledOptions&        enabled_options,
@@ -348,6 +353,11 @@ void TraceManager::WriteDisplayMessageCmd(const char* message)
 
         bytes_written_ += file_stream_->Write(&message_cmd, sizeof(message_cmd));
         bytes_written_ += file_stream_->Write(message, message_length);
+
+        if (force_file_flush_)
+        {
+            file_stream_->Flush();
+        }
     }
 }
 
@@ -368,6 +378,11 @@ void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, ui
     {
         std::lock_guard<std::mutex> lock(file_lock_);
         bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+
+        if (force_file_flush_)
+        {
+            file_stream_->Flush();
+        }
     }
 }
 
@@ -414,6 +429,11 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
 
         bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
         bytes_written_ += file_stream_->Write(write_address, write_size);
+
+        if (force_file_flush_)
+        {
+            file_stream_->Flush();
+        }
     }
 }
 

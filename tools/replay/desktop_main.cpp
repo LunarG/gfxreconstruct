@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -15,9 +15,11 @@
 ** limitations under the License.
 */
 
+#include "replay_settings.h"
+
 #include "application/application.h"
 #include "decode/file_processor.h"
-#include "decode/window.h"
+#include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
 #include "util/argument_parser.h"
@@ -45,47 +47,16 @@
 #endif
 #endif
 
-const std::string kApplicationName = "GFXReconstruct Replay";
-const char        kLayerEnvVar[]   = "VK_INSTANCE_LAYERS";
-const char        kCaptureLayer[]  = "VK_LAYER_LUNARG_gfxreconstruct";
-
-void CheckActiveLayers()
-{
-    std::string result = gfxrecon::util::platform::GetEnv(kLayerEnvVar);
-
-    if (!result.empty())
-    {
-        if (result.find(kCaptureLayer) != std::string::npos)
-        {
-            GFXRECON_LOG_WARNING("Replay tool has detected that the capture layer is enabled");
-        }
-    }
-}
-
-void PrintUsage(const char* exe_name)
-{
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
-    GFXRECON_WRITE_CONSOLE("\n%s\tis a replay tool designed to playback GFXReconstruct capture files.\n",
-                           app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the ");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\tcapture file to replay");
-}
+const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
 
 int main(int argc, const char** argv)
 {
-    int return_code = 0;
+    int         return_code = 0;
     std::string filename;
 
     gfxrecon::util::Log::Init();
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "", 1);
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments, 1);
 
     if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
@@ -143,30 +114,33 @@ int main(int argc, const char** argv)
             else
             {
                 gfxrecon::decode::VulkanDecoder        decoder;
-                gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get());
+                gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get(),
+                                                                       GetReplayOptions(arg_parser));
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 
                 decoder.AddConsumer(&replay_consumer);
                 file_processor.AddDecoder(&decoder);
+                application->SetPauseFrame(GetPauseFrame(arg_parser));
 
                 // Warn if the capture layer is active.
-                CheckActiveLayers();
+                CheckActiveLayers(kLayerEnvVar);
 
                 // Grab the start frame/time information for the FPS result.
-                uint32_t start_frame = file_processor.GetCurrentFrameNumber();
+                uint32_t start_frame = 1;
                 int64_t  start_time  = gfxrecon::util::datetime::GetTimestamp();
 
                 application->Run();
 
-                if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
+                if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
                 {
-                    // Grab the end frame/time information and calculate out FPS.
+                    // Grab the end frame/time information and calculate FPS.
                     int64_t end_time      = gfxrecon::util::datetime::GetTimestamp();
                     double  diff_time_sec = gfxrecon::util::datetime::ConvertTimestampToSeconds(
                         gfxrecon::util::datetime::DiffTimestamps(start_time, end_time));
                     uint32_t end_frame    = file_processor.GetCurrentFrameNumber();
-                    uint32_t total_frames = end_frame - start_frame;
+                    uint32_t total_frames = (end_frame - start_frame) + 1;
                     double   fps          = static_cast<double>(total_frames) / diff_time_sec;
                     GFXRECON_WRITE_CONSOLE("%f fps, %f seconds, %u frame%s, 1 loop, framerange %u-%u",
                                            fps,
@@ -174,12 +148,16 @@ int main(int argc, const char** argv)
                                            total_frames,
                                            total_frames > 1 ? "s" : "",
                                            start_frame,
-                                           end_frame - 1);
+                                           end_frame);
                 }
-                else
+                else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
                 {
                     GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                     return_code = -1;
+                }
+                else
+                {
+                    GFXRECON_WRITE_CONSOLE("File did not contain any frames");
                 }
             }
         }

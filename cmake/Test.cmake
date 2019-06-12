@@ -55,7 +55,7 @@ function(target_test_directives TARGET)
                     "Test directives can only be applied to executables.")
         endif()
         add_custom_target(${TARGET}RunTests ALL
-                COMMAND "${PYTHON}" ${GFXReconstruct_SOURCE_DIR}/test.py
+                COMMAND "${PYTHON}" ${GFXReconstruct_SOURCE_DIR}/scripts/test.py
                     -c $<$<CONFIG:Debug>:debug> $<$<CONFIG:Release>:release>
                     -a ${ARCHITECTURE}
                     --test-exe $<TARGET_FILE:${TARGET}>

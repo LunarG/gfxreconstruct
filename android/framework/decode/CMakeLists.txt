@@ -31,6 +31,7 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_mapper.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_options.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/window.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp
