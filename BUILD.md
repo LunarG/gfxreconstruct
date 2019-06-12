@@ -75,11 +75,12 @@ after a repository update (e.g. `git pull`).
 - There is a Python-3 build.py script at the repo root that can be used to update
   all dependencies, and build the project on both Windows and Linux.
   Run the script with the -h option to get help on how to run the build using
-  the script.
+  the script.  
+  The script requires Python 3.5 and above.
 - By default there is a pre-build step for every target to run clang-format
-  to apply the GfxRecon code style on the code.  
+  to apply the GFXReconstruct code style on the code.  
   This requires clang-format to be installed on the system.
-  Use the -DAPPLY_CPP_CODE_STYLE=OFF option to skip this pre-build step.
+  Use the `-DAPPLY_CPP_CODE_STYLE=OFF` option to skip this pre-build step.
   Use the --skip-code-style option if building with the build script.
 - It is recommended to run static analysis on the code before submission.
   Use the -DRUN_STATIC_ANALYSIS=ON to run a post-build static analysis using
@@ -101,6 +102,8 @@ after a repository update (e.g. `git pull`).
   - Some IDEs (e.g., [Visual Studio](https://www.visualstudio.com/),
     [GitHub Desktop](https://desktop.github.com/)) have integrated
     Git client support
+- Clang-format and Clang-tidy can be installed by installing the Windows Clang
+  package from http://llvm.org/builds/
 
 ### Windows Build - Microsoft Visual Studio
 The general approach is to run CMake to generate the Visual Studio project
@@ -161,13 +164,17 @@ Building on Linux requires the installation of the following packages:
 * Git
 * CMake
 * X11 + XCB and/or Wayland development libraries
+* clang-format package
+
+The following optional packages are also recommended:
+* clang-tidy package
 
 ##### Ubuntu
 On Ubuntu, the required packages can be installed with the following
 command:
 ```
-sudo apt-get install git cmake build-essential libx11-xcb-dev \
-        libxkbcommon-dev libwayland-dev libxrandr-dev
+sudo apt-get install git cmake build-essential libx11-xcb-dev libxkbcommon-dev \
+        libwayland-dev libxrandr-dev  liblz4-dev clang-format clang-tidy
 ```
 
 ##### Fedora Core
@@ -175,7 +182,7 @@ On Fedora Core, the required packages can be installed with the following
 command:
 ```
 sudo dnf install git cmake libxcb-devel libxkbcommon-devel \
-        libXrandr-devel wayland-devel
+        libXrandr-devel wayland-devel clang clang-tools-extra
 ```
 
 ### Linux Build
