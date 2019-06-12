@@ -20,6 +20,7 @@ GFX reconstruct build script
 import argparse
 import copy
 import distutils.version
+import importlib
 import os
 import platform
 import re
@@ -35,16 +36,8 @@ def is_windows():
     return 'windows' == platform.system().lower()
 
 
-ARCHITECTURES = ['x64', 'x86']
-DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.abspath(os.path.join(
     os.path.split(os.path.abspath(__file__))[0], '..'))
-BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
-if is_windows():
-    BUILD_CONFIGS['debug'] = 'build'
-CONFIGURATIONS = ['release', 'debug']
-DEFAULT_CONFIG = CONFIGURATIONS[0]
-VERSION = distutils.version.StrictVersion('0.0.0')
 ALL_TESTS = {
     'gfxrecon_application_test': [],
     'gfxrecon_decode_test': [],
@@ -61,7 +54,16 @@ class TestError(Exception):
     '''
 
 
-def parse_args():
+def import_build_script():
+    '''
+    Import the build script - reuse build script constants
+    '''
+    sys.path.insert(0, os.path.join(BUILD_ROOT, 'scripts'))
+    build_script = importlib.import_module('build')
+    return build_script
+
+
+def parse_args(build_script):
     '''
     Parse command line arguments
     '''
@@ -69,7 +71,7 @@ def parse_args():
         description="gfxreconstruct build script",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     arg_parser.add_argument('--version', dest='version',
-                            action='version', version=str(VERSION))
+                            action='version', version=str(build_script.VERSION))
     arg_parser.add_argument(
         '--test-exe', dest='test_exe', metavar='TEST_EXE',
         action='store', default=None,
@@ -83,16 +85,16 @@ def parse_args():
         action='store', default=None)
     arg_parser.add_argument(
         '-a', '--arch', dest='architecture',
-        metavar='ARCH', action='store',
-        choices=ARCHITECTURES, default=DEFAULT_ARCHITECTURE,
+        metavar='ARCH', action='store', choices=build_script.ARCHITECTURES,
+        default=build_script.DEFAULT_ARCHITECTURE,
         help='Build target architecture. Can be one of: {0}'.format(
-                ', '.join(ARCHITECTURES)))
+                ', '.join(build_script.ARCHITECTURES)))
     arg_parser.add_argument(
         '-c', '--config', dest='configuration',
-        metavar='CONFIG', action='store',
-        choices=CONFIGURATIONS, default=DEFAULT_CONFIG,
+        metavar='CONFIG', action='store', choices=build_script.CONFIGURATIONS,
+        default=build_script.DEFAULT_CONFIGURATION,
         help='Build target configuration. Can be one of: {0}'.format(
-            ', '.join(CONFIGURATIONS)))
+            ', '.join(build_script.CONFIGURATIONS)))
     return arg_parser.parse_args()
 
 
@@ -117,14 +119,15 @@ def run_test(test_exe, test_args):
 # Main entry point
 if '__main__' == __name__:
     try:
-        args = parse_args()
+        build_script = import_build_script()
+        args = parse_args(build_script)
         tests = []
         if args.test_exe is None:
             for test in ALL_TESTS.items():
                 test_exe_dir = args.build_dir
                 if test_exe_dir is None:
                     test_exe_dir = os.path.join(
-                        BUILD_CONFIGS[args.configuration],
+                        build_script.BUILD_CONFIGS[args.configuration],
                         platform.system().lower(),
                         args.architecture,
                         'bin')
