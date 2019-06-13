@@ -69,12 +69,8 @@ struct DebugUtilsMessengerEXTWrapper    : public HandleWrapper<VkDebugUtilsMesse
 struct ValidationCacheEXTWrapper        : public HandleWrapper<VkValidationCacheEXT> {};
 struct IndirectCommandsLayoutNVXWrapper : public HandleWrapper<VkIndirectCommandsLayoutNVX> {};
 
-// This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its VkPhysicalDevice
+// This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
-struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR> {};
-
-// This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkPhysicalDevice
-// handle wrapper, which will ensure it is destroyed.
 struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR> {};
 // clang-format on
 
@@ -86,12 +82,18 @@ typedef VkDescriptorUpdateTemplateKHR DescriptorUpdateTemplateKHRWrapper;
 // Declarations for handle wrappers that require additional state info.
 //
 
-// This handle type is retrieved and has no destroy function. The handle wrapper will be owned by the VkInstance
-// handle wrapper, which will ensure it is destroyed when the VkInstance handle wrapper is destroyed.
+// This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent VkPhysicalDevice
+// handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
+struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
+{
+    std::vector<DisplayModeKHRWrapper*> child_display_modes;
+};
+
+// This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent VkInstance
+// handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
 struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
-    std::vector<DisplayKHRWrapper*>     child_displays;
-    std::vector<DisplayModeKHRWrapper*> child_display_modes;
+    std::vector<DisplayKHRWrapper*> child_displays;
 
     // Track memory types for use when creating snapshots of buffer and image resource memory content.
     std::vector<VkMemoryType> memory_types;
@@ -193,6 +195,11 @@ struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
 struct CommandPoolWrapper;
 struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 {
+    // Members for general wrapper support.
+    // TODO: Remove overlap with trimming state tracking.
+    CommandPoolWrapper* parent_pool{ nullptr };
+
+    // Members for trimming state tracking.
     VkCommandBufferLevel       level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
     util::MemoryOutputStream   command_data;
     std::set<format::HandleId> command_handles[CommandHandleType::NumHandleTypes];
@@ -279,6 +286,11 @@ struct DescriptorSetLayoutWrapper : public HandleWrapper<VkDescriptorSetLayout>
 struct DescriptorPoolWrapper;
 struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
 {
+    // Members for general wrapper support.
+    // TODO: Remove overlap with trimming state tracking.
+    DescriptorPoolWrapper* parent_pool{ nullptr };
+
+    // Members for trimming state tracking.
     VkDevice device{ VK_NULL_HANDLE };
 
     // Map for descriptor binding index to array of descriptor info.
@@ -290,12 +302,22 @@ struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
 
 struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
 {
+    // Members for general wrapper support.
+    // TODO: Remove overlap with trimming state tracking.
+    std::unordered_map<format::HandleId, DescriptorSetWrapper*> child_sets;
+
+    // Members for trimming state tracking.
     // Track descriptor set info, which must be destroyed on descriptor pool reset.
     std::unordered_map<VkDescriptorSet, DescriptorSetWrapper*> allocated_sets;
 };
 
 struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 {
+    // Members for general wrapper support.
+    // TODO: Remove overlap with trimming state tracking.
+    std::unordered_map<format::HandleId, CommandBufferWrapper*> child_buffers;
+
+    // Members for trimming state tracking.
     uint32_t queue_family_index{ 0 };
 
     // Track command buffer info, which must be destroyed on command pool reset.
@@ -314,6 +336,11 @@ struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
 
 struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 {
+    // Members for general wrapper support.
+    // TODO: Remove overlap with trimming state tracking.
+    std::vector<ImageWrapper*> child_images;
+
+    // Members for trimming state tracking.
     VkDevice                       device{ VK_NULL_HANDLE };
     VkSurfaceKHR                   surface{ VK_NULL_HANDLE };
     uint32_t                       queue_family_index{ 0 };

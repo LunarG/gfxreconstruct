@@ -49,7 +49,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, InstanceWrapper>(VK_NULL_HANDLE, pInstance, TraceManager::GetUniqueId);
+        CreateWrappedHandle<NoParentWrapper, NoParentWrapper, InstanceWrapper>(NoParentWrapper::kHandleValue, NoParentWrapper::kHandleValue, pInstance, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateInstance);
@@ -109,7 +109,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<InstanceWrapper, PhysicalDeviceWrapper>(instance, pPhysicalDevices, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedHandles<InstanceWrapper, NoParentWrapper, PhysicalDeviceWrapper>(instance, NoParentWrapper::kHandleValue, pPhysicalDevices, (pPhysicalDeviceCount != nullptr) ? (*pPhysicalDeviceCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices);
@@ -317,7 +317,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<PhysicalDeviceWrapper, DeviceWrapper>(physicalDevice, pDevice, TraceManager::GetUniqueId);
+        CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DeviceWrapper>(physicalDevice, NoParentWrapper::kHandleValue, pDevice, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDevice);
@@ -377,7 +377,7 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(
     auto handle_store_iter = handle_store->cbegin();
     RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
-    CreateWrappedHandle<DeviceWrapper, QueueWrapper>(device, pQueue, TraceManager::GetUniqueId);
+    CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(device, NoParentWrapper::kHandleValue, pQueue, TraceManager::GetUniqueId);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceQueue);
     if (encoder)
@@ -506,7 +506,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, DeviceMemoryWrapper>(device, pMemory, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DeviceMemoryWrapper>(device, NoParentWrapper::kHandleValue, pMemory, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateMemory);
@@ -973,7 +973,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFence(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, FenceWrapper>(device, pFence, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, FenceWrapper>(device, NoParentWrapper::kHandleValue, pFence, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateFence);
@@ -1143,7 +1143,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, SemaphoreWrapper>(device, pSemaphore, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SemaphoreWrapper>(device, NoParentWrapper::kHandleValue, pSemaphore, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSemaphore);
@@ -1209,7 +1209,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, EventWrapper>(device, pEvent, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, EventWrapper>(device, NoParentWrapper::kHandleValue, pEvent, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateEvent);
@@ -1365,7 +1365,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, QueryPoolWrapper>(device, pQueryPool, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueryPoolWrapper>(device, NoParentWrapper::kHandleValue, pQueryPool, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateQueryPool);
@@ -1473,7 +1473,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, BufferWrapper>(device, pBuffer, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, BufferWrapper>(device, NoParentWrapper::kHandleValue, pBuffer, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateBuffer);
@@ -1544,7 +1544,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, BufferViewWrapper>(device, pView, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, BufferViewWrapper>(device, NoParentWrapper::kHandleValue, pView, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateBufferView);
@@ -1615,7 +1615,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, ImageWrapper>(device, pImage, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ImageWrapper>(device, NoParentWrapper::kHandleValue, pImage, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImage);
@@ -1717,7 +1717,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, ImageViewWrapper>(device, pView, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ImageViewWrapper>(device, NoParentWrapper::kHandleValue, pView, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImageView);
@@ -1788,7 +1788,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, ShaderModuleWrapper>(device, pShaderModule, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ShaderModuleWrapper>(device, NoParentWrapper::kHandleValue, pShaderModule, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateShaderModule);
@@ -1854,7 +1854,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, PipelineCacheWrapper>(device, pPipelineCache, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PipelineCacheWrapper>(device, NoParentWrapper::kHandleValue, pPipelineCache, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePipelineCache);
@@ -2002,7 +2002,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<DeviceWrapper, PipelineWrapper>(device, pPipelines, createInfoCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(device, pipelineCache, pPipelines, createInfoCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateGraphicsPipelines);
@@ -2050,7 +2050,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<DeviceWrapper, PipelineWrapper>(device, pPipelines, createInfoCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(device, pipelineCache, pPipelines, createInfoCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateComputePipelines);
@@ -2123,7 +2123,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, PipelineLayoutWrapper>(device, pPipelineLayout, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PipelineLayoutWrapper>(device, NoParentWrapper::kHandleValue, pPipelineLayout, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePipelineLayout);
@@ -2194,7 +2194,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, SamplerWrapper>(device, pSampler, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SamplerWrapper>(device, NoParentWrapper::kHandleValue, pSampler, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSampler);
@@ -2265,7 +2265,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, DescriptorSetLayoutWrapper>(device, pSetLayout, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorSetLayoutWrapper>(device, NoParentWrapper::kHandleValue, pSetLayout, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorSetLayout);
@@ -2331,7 +2331,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, DescriptorPoolWrapper>(device, pDescriptorPool, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorPoolWrapper>(device, NoParentWrapper::kHandleValue, pDescriptorPool, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorPool);
@@ -2433,7 +2433,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<DeviceWrapper, DescriptorSetWrapper>(device, pDescriptorSets, pAllocateInfo->descriptorSetCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, DescriptorPoolWrapper, DescriptorSetWrapper>(device, pAllocateInfo->descriptorPool, pDescriptorSets, pAllocateInfo->descriptorSetCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateDescriptorSets);
@@ -2551,7 +2551,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, FramebufferWrapper>(device, pFramebuffer, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, FramebufferWrapper>(device, NoParentWrapper::kHandleValue, pFramebuffer, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateFramebuffer);
@@ -2617,7 +2617,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, RenderPassWrapper>(device, pRenderPass, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, RenderPassWrapper>(device, NoParentWrapper::kHandleValue, pRenderPass, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass);
@@ -2712,7 +2712,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, CommandPoolWrapper>(device, pCommandPool, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, CommandPoolWrapper>(device, NoParentWrapper::kHandleValue, pCommandPool, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateCommandPool);
@@ -2814,7 +2814,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateCommandBuffers(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<DeviceWrapper, CommandBufferWrapper>(device, pCommandBuffers, pAllocateInfo->commandBufferCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, CommandPoolWrapper, CommandBufferWrapper>(device, pAllocateInfo->commandPool, pCommandBuffers, pAllocateInfo->commandBufferCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkAllocateCommandBuffers);
@@ -4569,7 +4569,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<InstanceWrapper, VkPhysicalDeviceGroupProperties>(instance, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<InstanceWrapper, NoParentWrapper, VkPhysicalDeviceGroupProperties>(instance, NoParentWrapper::kHandleValue, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroups);
@@ -4917,7 +4917,7 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue2(
     auto handle_store_iter = handle_store->cbegin();
     RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
 
-    CreateWrappedHandle<DeviceWrapper, QueueWrapper>(device, pQueue, TraceManager::GetUniqueId);
+    CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(device, NoParentWrapper::kHandleValue, pQueue, TraceManager::GetUniqueId);
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceQueue2);
     if (encoder)
@@ -4949,7 +4949,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, SamplerYcbcrConversionWrapper>(device, pYcbcrConversion, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SamplerYcbcrConversionWrapper>(device, NoParentWrapper::kHandleValue, pYcbcrConversion, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversion);
@@ -5020,7 +5020,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, DescriptorUpdateTemplateWrapper>(device, pDescriptorUpdateTemplate, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorUpdateTemplateWrapper>(device, NoParentWrapper::kHandleValue, pDescriptorUpdateTemplate, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplate);
@@ -5367,7 +5367,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper>(device, pSwapchain, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SwapchainKHRWrapper>(device, NoParentWrapper::kHandleValue, pSwapchain, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSwapchainKHR);
@@ -5435,7 +5435,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<DeviceWrapper, ImageWrapper>(device, pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(device, swapchain, pSwapchainImages, (pSwapchainImageCount != nullptr) ? (*pSwapchainImageCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR);
@@ -5675,7 +5675,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPropertiesKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayPropertiesKHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayPropertiesKHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPropertiesKHR);
@@ -5710,7 +5710,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlanePropertiesKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayPlanePropertiesKHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayPlanePropertiesKHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlanePropertiesKHR);
@@ -5746,7 +5746,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<PhysicalDeviceWrapper, DisplayKHRWrapper>(physicalDevice, pDisplays, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedHandles<PhysicalDeviceWrapper, NoParentWrapper, DisplayKHRWrapper>(physicalDevice, NoParentWrapper::kHandleValue, pDisplays, (pDisplayCount != nullptr) ? (*pDisplayCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayPlaneSupportedDisplaysKHR);
@@ -5785,7 +5785,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayModePropertiesKHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, DisplayKHRWrapper, VkDisplayModePropertiesKHR>(physicalDevice, display, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayModePropertiesKHR);
@@ -5825,7 +5825,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<PhysicalDeviceWrapper, DisplayModeKHRWrapper>(physicalDevice, pMode, TraceManager::GetUniqueId);
+        CreateWrappedHandle<PhysicalDeviceWrapper, DisplayKHRWrapper, DisplayModeKHRWrapper>(physicalDevice, display, pMode, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDisplayModeKHR);
@@ -5902,7 +5902,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDisplayPlaneSurfaceKHR);
@@ -5945,7 +5945,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<DeviceWrapper, SwapchainKHRWrapper>(device, pSwapchains, swapchainCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, NoParentWrapper, SwapchainKHRWrapper>(device, NoParentWrapper::kHandleValue, pSwapchains, swapchainCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSharedSwapchainsKHR);
@@ -5983,7 +5983,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR);
@@ -6052,7 +6052,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR);
@@ -6121,7 +6121,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR);
@@ -6188,7 +6188,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAndroidSurfaceKHR);
@@ -6225,7 +6225,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateWin32SurfaceKHR);
@@ -6597,7 +6597,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<InstanceWrapper, VkPhysicalDeviceGroupProperties>(instance, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<InstanceWrapper, NoParentWrapper, VkPhysicalDeviceGroupProperties>(instance, NoParentWrapper::kHandleValue, pPhysicalDeviceGroupProperties, (pPhysicalDeviceGroupCount != nullptr) ? (*pPhysicalDeviceGroupCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceGroupsKHR);
@@ -7002,7 +7002,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, DescriptorUpdateTemplateWrapper>(device, pDescriptorUpdateTemplate, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DescriptorUpdateTemplateWrapper>(device, NoParentWrapper::kHandleValue, pDescriptorUpdateTemplate, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDescriptorUpdateTemplateKHR);
@@ -7068,7 +7068,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, RenderPassWrapper>(device, pRenderPass, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, RenderPassWrapper>(device, NoParentWrapper::kHandleValue, pRenderPass, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass2KHR);
@@ -7453,7 +7453,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayProperties2KHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayProperties2KHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayProperties2KHR);
@@ -7488,7 +7488,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayPlaneProperties2KHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, NoParentWrapper, VkDisplayPlaneProperties2KHR>(physicalDevice, NoParentWrapper::kHandleValue, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceDisplayPlaneProperties2KHR);
@@ -7526,7 +7526,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, VkDisplayModeProperties2KHR>(physicalDevice, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
+        CreateWrappedStructArrayHandles<PhysicalDeviceWrapper, DisplayKHRWrapper, VkDisplayModeProperties2KHR>(physicalDevice, display, pProperties, (pPropertyCount != nullptr) ? (*pPropertyCount) : 0, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDisplayModeProperties2KHR);
@@ -7696,7 +7696,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, SamplerYcbcrConversionWrapper>(device, pYcbcrConversion, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, SamplerYcbcrConversionWrapper>(device, NoParentWrapper::kHandleValue, pYcbcrConversion, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateSamplerYcbcrConversionKHR);
@@ -7942,7 +7942,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, DebugReportCallbackEXTWrapper>(instance, pCallback, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, DebugReportCallbackEXTWrapper>(instance, NoParentWrapper::kHandleValue, pCallback, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT);
@@ -8534,7 +8534,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP);
@@ -8645,7 +8645,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateViSurfaceNN);
@@ -8795,7 +8795,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNVX(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, IndirectCommandsLayoutNVXWrapper>(device, pIndirectCommandsLayout, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, IndirectCommandsLayoutNVXWrapper>(device, NoParentWrapper::kHandleValue, pIndirectCommandsLayout, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNVX);
@@ -8861,7 +8861,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateObjectTableNVX(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, ObjectTableNVXWrapper>(device, pObjectTable, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ObjectTableNVXWrapper>(device, NoParentWrapper::kHandleValue, pObjectTable, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateObjectTableNVX);
@@ -9081,7 +9081,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<PhysicalDeviceWrapper, DisplayKHRWrapper>(physicalDevice, pDisplay, TraceManager::GetUniqueId);
+        CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayKHRWrapper>(physicalDevice, NoParentWrapper::kHandleValue, pDisplay, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkGetRandROutputDisplayEXT);
@@ -9182,7 +9182,7 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, FenceWrapper>(device, pFence, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, FenceWrapper>(device, NoParentWrapper::kHandleValue, pFence, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkRegisterDeviceEventEXT);
@@ -9222,7 +9222,7 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, FenceWrapper>(device, pFence, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, DisplayKHRWrapper, FenceWrapper>(device, display, pFence, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkRegisterDisplayEventEXT);
@@ -9423,7 +9423,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateIOSSurfaceMVK);
@@ -9460,7 +9460,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateMacOSSurfaceMVK);
@@ -9699,7 +9699,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, DebugUtilsMessengerEXTWrapper>(instance, pMessenger, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, DebugUtilsMessengerEXTWrapper>(instance, NoParentWrapper::kHandleValue, pMessenger, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDebugUtilsMessengerEXT);
@@ -9943,7 +9943,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, ValidationCacheEXTWrapper>(device, pValidationCache, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ValidationCacheEXTWrapper>(device, NoParentWrapper::kHandleValue, pValidationCache, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateValidationCacheEXT);
@@ -10174,7 +10174,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<DeviceWrapper, AccelerationStructureNVWrapper>(device, pAccelerationStructure, TraceManager::GetUniqueId);
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, AccelerationStructureNVWrapper>(device, NoParentWrapper::kHandleValue, pAccelerationStructure, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV);
@@ -10460,7 +10460,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandles<DeviceWrapper, PipelineWrapper>(device, pPipelines, createInfoCount, TraceManager::GetUniqueId);
+        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(device, pipelineCache, pPipelines, createInfoCount, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV);
@@ -10981,7 +10981,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA);
@@ -11018,7 +11018,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateMetalSurfaceEXT);
@@ -11280,7 +11280,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(
 
     if (result == VK_SUCCESS)
     {
-        CreateWrappedHandle<InstanceWrapper, SurfaceKHRWrapper>(instance, pSurface, TraceManager::GetUniqueId);
+        CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SurfaceKHRWrapper>(instance, NoParentWrapper::kHandleValue, pSurface, TraceManager::GetUniqueId);
     }
 
     auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT);

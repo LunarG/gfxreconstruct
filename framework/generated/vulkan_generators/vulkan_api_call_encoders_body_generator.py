@@ -337,12 +337,31 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     def makeHandleWrapping(self, values, indent):
         expr = ''
         for value in values:
-            if self.isOutputParameter(value):
-                parentType = 'InstanceWrapper'
-                parentValue = 'VK_NULL_HANDLE'
+            if self.isOutputParameter(value) and (self.isHandle(value.baseType) or (self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles))):
+                # The VkInstance handle does not have parent, so the 'unused'
+                # values will be provided to the wrapper creation function.
+                parentType = 'NoParentWrapper'
+                parentValue = 'NoParentWrapper::kHandleValue'
                 if self.isHandle(values[0].baseType):
                     parentType = values[0].baseType[2:] + 'Wrapper'
                     parentValue = values[0].name
+
+                # Some handles have two parent handles, such swapchain images and display modes,
+                # or command buffers and descriptor sets allocated from pools.
+                coParentType = 'NoParentWrapper'
+                coParentValue = 'NoParentWrapper::kHandleValue'
+                if self.isHandle(values[1].baseType):
+                    coParentType = values[1].baseType[2:] + 'Wrapper'
+                    coParentValue = values[1].name
+                elif values[1].baseType.endswith('AllocateInfo') and value.isArray and ('->' in value.arrayLength):
+                    # An array of handles with length specified by an AllocateInfo structure (there is a -> in the length name) is a pool allocation.
+                    # Extract the pool handle from the AllocateInfo structure, which is currently the first and only handle member.
+                    members = self.structsWithHandles[values[1].baseType]
+                    for member in members:
+                        if self.isHandle(member.baseType):
+                            coParentType = member.baseType[2:] + 'Wrapper'
+                            coParentValue = values[1].name + '->' + member.name
+                            break
 
                 if value.isArray:
                     lengthName = value.arrayLength
@@ -351,14 +370,14 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                             lengthName = '({name} != nullptr) ? (*{name}) : 0'.format(name=lengthName)
                             break
                     if self.isHandle(value.baseType):
-                        expr += indent + 'CreateWrappedHandles<{}, {}Wrapper>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, value.baseType[2:], parentValue, value.name, lengthName)
+                        expr += indent + 'CreateWrappedHandles<{}, {}, {}Wrapper>({}, {}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, coParentType, value.baseType[2:], parentValue, coParentValue, value.name, lengthName)
                     elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
-                        expr += indent + 'CreateWrappedStructArrayHandles<{}, {}>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, value.baseType, parentValue, value.name, lengthName)
+                        expr += indent + 'CreateWrappedStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, coParentType, value.baseType, parentValue, coParentValue, value.name, lengthName)
                 else:
                     if self.isHandle(value.baseType):
-                        expr += indent + 'CreateWrappedHandle<{}, {}Wrapper>({}, {}, TraceManager::GetUniqueId);\n'.format(parentType, value.baseType[2:], parentValue, value.name)
+                        expr += indent + 'CreateWrappedHandle<{}, {}, {}Wrapper>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, coParentType, value.baseType[2:], parentValue, coParentValue, value.name)
                     elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
-                        expr += indent + 'CreateWrappedStructHandles<{}>({}, {}, TraceManager::GetUniqueId);\n'.format(parentType, parentValue, value.name)
+                        expr += indent + 'CreateWrappedStructHandles<{}, {}>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, coParentType, parentValue, coParentValue, value.name)
         return expr
 
     def makeHandleUnwrapping(self, values, indent):
@@ -368,11 +387,10 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         for value in values:
             if value.isPointer or value.isArray:
                 if self.isInputPointer(value):
-                    lengthName = value.arrayLength
                     if self.isHandle(value.baseType):
                         if value.isArray:
                             needArrayStore = True
-                            expr += indent + 'UnwrapHandles<{}Wrapper>(&{}, {}, handle_array_store, handle_unwrap_memory);\n'.format(value.baseType[2:], value.name, lengthName)
+                            expr += indent + 'UnwrapHandles<{}Wrapper>(&{}, {}, handle_array_store, handle_unwrap_memory);\n'.format(value.baseType[2:], value.name, value.arrayLength)
                         else:
                             needStore = True
                             expr += indent + 'UnwrapHandle<{}Wrapper>({}, handle_store);\n'.format(value.baseType[2:], value.name)
@@ -380,7 +398,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         needStore = True
                         needArrayStore = True
                         if value.isArray:
-                            expr += indent + 'UnwrapStructArrayHandles({}, {}, handle_store, handle_array_store, handle_unwrap_memory);\n'.format(value.name, lengthName)
+                            expr += indent + 'UnwrapStructArrayHandles({}, {}, handle_store, handle_array_store, handle_unwrap_memory);\n'.format(value.name, value.arrayLength)
                         else:
                             expr += indent + 'UnwrapStructHandles({}, handle_store, handle_array_store, handle_unwrap_memory);\n'.format(value.name)
             elif self.isHandle(value.baseType):
@@ -393,15 +411,14 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         for value in values:
             if value.isPointer or value.isArray:
                 if self.isInputPointer(value):
-                    lengthName = value.arrayLength
                     if self.isHandle(value.baseType):
                         if value.isArray:
-                            expr += indent + 'RewrapHandles<{}Wrapper>(&{}, {}, &handle_array_store_iter);\n'.format(value.baseType[2:], value.name, lengthName)
+                            expr += indent + 'RewrapHandles<{}Wrapper>(&{}, {}, &handle_array_store_iter);\n'.format(value.baseType[2:], value.name, value.arrayLength)
                         else:
                             expr += indent + 'RewrapHandle<{}Wrapper>({}, &handle_store_iter);\n'.format(value.baseType[2:], value.name)
                     elif value.baseType in self.structsWithHandles:
                         if value.isArray:
-                            expr += indent + 'RewrapStructArrayHandles({}, {}, &handle_store_iter, &handle_array_store_iter);\n'.format(value.name, lengthName)
+                            expr += indent + 'RewrapStructArrayHandles({}, {}, &handle_store_iter, &handle_array_store_iter);\n'.format(value.name, value.arrayLength)
                         else:
                             expr += indent + 'RewrapStructHandles({}, &handle_store_iter, &handle_array_store_iter);\n'.format(value.name)
             elif self.isHandle(value.baseType):
