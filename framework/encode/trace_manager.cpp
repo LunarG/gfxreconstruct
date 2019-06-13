@@ -17,6 +17,7 @@
 
 #include "encode/trace_manager.h"
 
+#include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_writer.h"
 #include "format/format_util.h"
 #include "util/compressor.h"
@@ -532,7 +533,7 @@ void TraceManager::WriteDisplayMessageCmd(const char* message)
     }
 }
 
-void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height)
+void TraceManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -544,7 +545,7 @@ void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, ui
         resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
         resize_cmd.thread_id                  = GetThreadData()->thread_id_;
 
-        resize_cmd.surface_id = format::ToHandleId(surface);
+        resize_cmd.surface_id = surface_id;
         resize_cmd.width      = width;
         resize_cmd.height     = height;
 
@@ -560,7 +561,10 @@ void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, ui
     }
 }
 
-void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data)
+void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
+                                      VkDeviceSize     offset,
+                                      VkDeviceSize     size,
+                                      const void*      data)
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
@@ -573,7 +577,7 @@ void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset
         fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
         fill_cmd.thread_id                     = GetThreadData()->thread_id_;
-        fill_cmd.memory_id                     = format::ToHandleId(memory);
+        fill_cmd.memory_id                     = memory_id;
         fill_cmd.memory_offset                 = offset;
         fill_cmd.memory_size                   = size;
 
@@ -740,7 +744,8 @@ void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        
 
     if (pCreateInfo)
     {
-        WriteResizeWindowCmd(pCreateInfo->surface, pCreateInfo->imageExtent.width, pCreateInfo->imageExtent.height);
+        WriteResizeWindowCmd(
+            GetWrappedId(pCreateInfo->surface), pCreateInfo->imageExtent.width, pCreateInfo->imageExtent.height);
     }
 }
 
@@ -795,7 +800,7 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
                     assert(manager != nullptr);
 
                     info->tracked_memory = manager->AddMemory(
-                        format::ToHandleId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false);
+                        GetWrappedId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false);
                 }
                 else
                 {
@@ -842,10 +847,9 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
                     if ((info != nullptr) && (info->mapped_memory != nullptr))
                     {
                         manager->ProcessMemoryEntry(
-                            format::ToHandleId(current_memory),
+                            GetWrappedId(current_memory),
                             [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                                WriteFillMemoryCmd(
-                                    format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
+                                WriteFillMemoryCmd(memory_id, offset, size, start_address);
                             });
                     }
                 }
@@ -880,7 +884,8 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
                         size = info->allocation_size - pMemoryRanges[i].offset;
                     }
 
-                    WriteFillMemoryCmd(pMemoryRanges[i].memory, relative_offset, size, info->mapped_memory);
+                    WriteFillMemoryCmd(
+                        GetWrappedId(pMemoryRanges[i].memory), relative_offset, size, info->mapped_memory);
                 }
             }
         }
@@ -908,13 +913,11 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
             if ((info != nullptr) && (info->mapped_memory != nullptr))
             {
                 manager->ProcessMemoryEntry(
-                    format::ToHandleId(memory),
-                    [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                        WriteFillMemoryCmd(
-                            format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
+                    GetWrappedId(memory), [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                        WriteFillMemoryCmd(memory_id, offset, size, start_address);
                     });
 
-                manager->RemoveMemory(format::ToHandleId(memory));
+                manager->RemoveMemory(GetWrappedId(memory));
             }
         }
         else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
@@ -924,7 +927,7 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
             if ((info != nullptr) && (info->mapped_memory != nullptr))
             {
                 // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-                WriteFillMemoryCmd(memory, 0, info->mapped_size, info->mapped_memory);
+                WriteFillMemoryCmd(GetWrappedId(memory), 0, info->mapped_size, info->mapped_memory);
             }
         }
 
@@ -949,7 +952,7 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
 
-        manager->RemoveMemory(format::ToHandleId(memory));
+        manager->RemoveMemory(GetWrappedId(memory));
     }
 }
 
@@ -971,7 +974,7 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
         assert(manager != nullptr);
 
         manager->ProcessMemoryEntries([this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-            WriteFillMemoryCmd(format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
+            WriteFillMemoryCmd(memory_id, offset, size, start_address);
         });
     }
     else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
@@ -983,7 +986,7 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
             if (entry.mapped_memory != nullptr)
             {
                 // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-                WriteFillMemoryCmd(memory, 0, entry.mapped_size, entry.mapped_memory);
+                WriteFillMemoryCmd(GetWrappedId(memory), 0, entry.mapped_size, entry.mapped_memory);
             }
         });
     }

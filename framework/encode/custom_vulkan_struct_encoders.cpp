@@ -26,10 +26,35 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorImageInfo& value)
+void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDescriptorImageInfo& value)
 {
-    encoder->EncodeHandleIdValue(value.sampler);
-    encoder->EncodeHandleIdValue(value.imageView);
+    // Conditional encoding for sampler handle based on descriptor type.
+    if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
+    {
+        // TODO: This should be ignored if the descriptor set layout was created with an immutable sampler.
+        encoder->EncodeHandleIdValue(value.sampler);
+    }
+    else
+    {
+        // The sampler handle should be ignored by the driver and may not be a valid handle.
+        // A value will still be encoded for the handle, but it will be the current handle value cast to an
+        // integer type instead of the unique handle ID retrieved from the handle wrapper.
+        encoder->EncodeUInt64Value(format::ToHandleId(value.sampler));
+    }
+
+    // Conditional encoding for image view handle based on descriptor type.
+    if (type != VK_DESCRIPTOR_TYPE_SAMPLER)
+    {
+        encoder->EncodeHandleIdValue(value.imageView);
+    }
+    else
+    {
+        // The image view handle should be ignored by the driver and may not be a valid handle.
+        // A value will still be encoded for the handle, but it will be the current handle value cast to an
+        // integer type instead of the unique handle ID retrieved from the handle wrapper.
+        encoder->EncodeUInt64Value(format::ToHandleId(value.imageView));
+    }
+
     encoder->EncodeEnumValue(value.imageLayout);
 }
 
@@ -89,7 +114,15 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
             break;
     }
 
-    EncodeStructArray(encoder, value.pImageInfo, value.descriptorCount, omit_image_data);
+    encoder->EncodeStructArrayPreamble(value.pImageInfo, value.descriptorCount, omit_image_data);
+    if (!omit_image_data && (value.pImageInfo != nullptr) && (value.descriptorCount > 0))
+    {
+        for (size_t i = 0; i < value.descriptorCount; ++i)
+        {
+            EncodeStruct(encoder, value.descriptorType, value.pImageInfo[i]);
+        }
+    }
+
     EncodeStructArray(encoder, value.pBufferInfo, value.descriptorCount, omit_buffer_data);
     encoder->EncodeHandleIdArray(value.pTexelBufferView, value.descriptorCount, omit_texel_buffer_data);
 }

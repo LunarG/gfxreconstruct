@@ -152,7 +152,7 @@ static void EncodeDescriptorUpdateTemplateInfo(TraceManager*             manager
             {
                 size_t                       offset = entry_info.offset + (entry_info.stride * i);
                 const VkDescriptorImageInfo* entry  = reinterpret_cast<const VkDescriptorImageInfo*>(bytes + offset);
-                EncodeStruct(encoder, (*entry));
+                EncodeStruct(encoder, entry_info.type, (*entry));
             }
         }
 
