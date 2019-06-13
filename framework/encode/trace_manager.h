@@ -646,10 +646,15 @@ class TraceManager
                                            VkDescriptorPool descriptorPool,
                                            VkDescriptorPoolResetFlags)
     {
-        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        if (result == VK_SUCCESS)
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackResetDescriptorPool(descriptorPool);
+            if ((capture_mode_ & kModeTrack) == kModeTrack)
+            {
+                assert(state_tracker_ != nullptr);
+                state_tracker_->TrackResetDescriptorPool(descriptorPool);
+            }
+
+            ResetDescriptorPoolWrapper(descriptorPool);
         }
     }
 
