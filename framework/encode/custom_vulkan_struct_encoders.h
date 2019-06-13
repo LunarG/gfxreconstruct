@@ -32,7 +32,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkClearColorValue& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkClearValue& value);
 
 // Vulkan structures that require special processing that the code generator cannot infer from the XML registry.
-void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorImageInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDescriptorImageInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value);
 
