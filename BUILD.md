@@ -77,11 +77,12 @@ after a repository update (e.g. `git pull`).
   Run the script with the -h option to get help on how to run the build using
   the script.  
   The script requires Python 3.5 and above.
-- By default there is a pre-build step for every target to run clang-format
+- There is optional pre-build step for every target to run clang-format
   to apply the GFXReconstruct code style on the code.  
   This requires clang-format to be installed on the system.
-  Use the `-DAPPLY_CPP_CODE_STYLE=OFF` option to skip this pre-build step.
-  Use the --skip-code-style option if building with the build script.
+  Use the `-DAPPLY_CPP_CODE_STYLE=ON` option to enable this pre-build step.
+  Use the --code-style option if building with the build script.
+  Code style is not applied to generated files.
 - It is recommended to run static analysis on the code before submission.
   Use the -DRUN_STATIC_ANALYSIS=ON to run a post-build static analysis using
   clang-tidy.
