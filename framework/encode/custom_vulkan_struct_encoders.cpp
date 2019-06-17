@@ -32,27 +32,27 @@ void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDesc
     if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
     {
         // TODO: This should be ignored if the descriptor set layout was created with an immutable sampler.
-        encoder->EncodeHandleIdValue(value.sampler);
+        encoder->EncodeHandleValue(value.sampler);
     }
     else
     {
         // The sampler handle should be ignored by the driver and may not be a valid handle.
         // A value will still be encoded for the handle, but it will be the current handle value cast to an
         // integer type instead of the unique handle ID retrieved from the handle wrapper.
-        encoder->EncodeUInt64Value(format::ToHandleId(value.sampler));
+        encoder->EncodeHandleIdValue(format::ToHandleId(value.sampler));
     }
 
     // Conditional encoding for image view handle based on descriptor type.
     if (type != VK_DESCRIPTOR_TYPE_SAMPLER)
     {
-        encoder->EncodeHandleIdValue(value.imageView);
+        encoder->EncodeHandleValue(value.imageView);
     }
     else
     {
         // The image view handle should be ignored by the driver and may not be a valid handle.
         // A value will still be encoded for the handle, but it will be the current handle value cast to an
         // integer type instead of the unique handle ID retrieved from the handle wrapper.
-        encoder->EncodeUInt64Value(format::ToHandleId(value.imageView));
+        encoder->EncodeHandleIdValue(format::ToHandleId(value.imageView));
     }
 
     encoder->EncodeEnumValue(value.imageLayout);
@@ -74,7 +74,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleIdValue(value.dstSet);
+    encoder->EncodeHandleValue(value.dstSet);
     encoder->EncodeUInt32Value(value.dstBinding);
     encoder->EncodeUInt32Value(value.dstArrayElement);
     encoder->EncodeUInt32Value(value.descriptorCount);
@@ -124,7 +124,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
     }
 
     EncodeStructArray(encoder, value.pBufferInfo, value.descriptorCount, omit_buffer_data);
-    encoder->EncodeHandleIdArray(value.pTexelBufferView, value.descriptorCount, omit_texel_buffer_data);
+    encoder->EncodeHandleArray(value.pTexelBufferView, value.descriptorCount, omit_texel_buffer_data);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)

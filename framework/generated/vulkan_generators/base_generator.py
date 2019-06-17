@@ -645,7 +645,7 @@ class BaseGenerator(OutputGenerator):
         if self.isStruct(baseType):
             return baseType
         elif self.isHandle(baseType):
-            return 'HandleId'
+            return 'Handle'
         elif self.isFlags(baseType):
             return 'Flags'
         elif self.isEnum(baseType):

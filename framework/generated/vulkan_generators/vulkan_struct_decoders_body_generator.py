@@ -131,7 +131,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
             isString = True
         elif typeName == 'FunctionPtr':
             isFuncp = True
-        elif typeName == 'HandleId':
+        elif typeName == 'Handle':
             isHandle = True
 
         # isPointer will be False for static arrays.

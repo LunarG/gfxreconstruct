@@ -337,9 +337,9 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
         // Perform memory binding.
         if (wrapper->bind_memory != VK_NULL_HANDLE)
         {
-            encoder_.EncodeHandleIdValue(wrapper->bind_device);
-            encoder_.EncodeHandleIdValue(wrapper->handle);
-            encoder_.EncodeHandleIdValue(wrapper->bind_memory);
+            encoder_.EncodeHandleValue(wrapper->bind_device);
+            encoder_.EncodeHandleValue(wrapper->handle);
+            encoder_.EncodeHandleValue(wrapper->bind_memory);
             encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
             encoder_.EncodeEnumValue(VK_SUCCESS);
 
@@ -429,9 +429,9 @@ void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
         // Perform memory binding.
         if (wrapper->bind_memory != VK_NULL_HANDLE)
         {
-            encoder_.EncodeHandleIdValue(wrapper->bind_device);
-            encoder_.EncodeHandleIdValue(wrapper->handle);
-            encoder_.EncodeHandleIdValue(wrapper->bind_memory);
+            encoder_.EncodeHandleValue(wrapper->bind_device);
+            encoder_.EncodeHandleValue(wrapper->handle);
+            encoder_.EncodeHandleValue(wrapper->bind_memory);
             encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
             encoder_.EncodeEnumValue(VK_SUCCESS);
 
@@ -1454,8 +1454,8 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
             const VkResult result = VK_SUCCESS;
 
             // Map the replay memory.
-            encoder_.EncodeHandleIdValue(wrapper->map_device);
-            encoder_.EncodeHandleIdValue(wrapper->handle);
+            encoder_.EncodeHandleValue(wrapper->map_device);
+            encoder_.EncodeHandleValue(wrapper->handle);
             encoder_.EncodeVkDeviceSizeValue(wrapper->mapped_offset);
             encoder_.EncodeVkDeviceSizeValue(wrapper->mapped_size);
             encoder_.EncodeFlagsValue(wrapper->mapped_flags);
@@ -1677,7 +1677,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiC
                                                                     T*                properties)
 {
     // First write the call to retrieve the size.
-    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeHandleValue(physical_device);
     encoder_.EncodeUInt32Ptr(&property_count);
     EncodeStructArray<T>(&encoder_, nullptr, 0);
 
@@ -1685,7 +1685,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiC
     parameter_stream_.Reset();
 
     // Then write the call with the data.
-    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeHandleValue(physical_device);
     encoder_.EncodeUInt32Ptr(&property_count);
     EncodeStructArray(&encoder_, properties, property_count);
 
@@ -1700,9 +1700,9 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceSupport(VkPhysicalDevice ph
 {
     const VkResult result = VK_SUCCESS;
 
-    encoder_.EncodeHandleIdValue(physical_device);
+    encoder_.EncodeHandleValue(physical_device);
     encoder_.EncodeUInt32Value(queue_family_index);
-    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeHandleValue(surface);
     encoder_.EncodeVkBool32Ptr(&supported);
     encoder_.EncodeEnumValue(result);
 
@@ -1716,8 +1716,8 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceCapabilities(VkPhysicalDevi
 {
     const VkResult result = VK_SUCCESS;
 
-    encoder_.EncodeHandleIdValue(physical_device);
-    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeHandleValue(physical_device);
+    encoder_.EncodeHandleValue(surface);
     EncodeStructPtr(&encoder_, &capabilities);
     encoder_.EncodeEnumValue(result);
 
@@ -1733,8 +1733,8 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(VkPhysicalDevice   
     const VkResult result = VK_SUCCESS;
 
     // First write the call to retrieve the size.
-    encoder_.EncodeHandleIdValue(physical_device);
-    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeHandleValue(physical_device);
+    encoder_.EncodeHandleValue(surface);
     encoder_.EncodeUInt32Ptr(&format_count);
     EncodeStructArray<VkSurfaceFormatKHR>(&encoder_, nullptr, 0);
     encoder_.EncodeEnumValue(result);
@@ -1743,8 +1743,8 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(VkPhysicalDevice   
     parameter_stream_.Reset();
 
     // Then write the call with the data.
-    encoder_.EncodeHandleIdValue(physical_device);
-    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeHandleValue(physical_device);
+    encoder_.EncodeHandleValue(surface);
     encoder_.EncodeUInt32Ptr(&format_count);
     EncodeStructArray(&encoder_, formats, format_count);
     encoder_.EncodeEnumValue(result);
@@ -1761,8 +1761,8 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfacePresentModes(VkPhysicalDevi
     const VkResult result = VK_SUCCESS;
 
     // First write the call to retrieve the size.
-    encoder_.EncodeHandleIdValue(physical_device);
-    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeHandleValue(physical_device);
+    encoder_.EncodeHandleValue(surface);
     encoder_.EncodeUInt32Ptr(&mode_count);
     encoder_.EncodeEnumArray<VkPresentModeKHR>(nullptr, 0);
     encoder_.EncodeEnumValue(result);
@@ -1771,8 +1771,8 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfacePresentModes(VkPhysicalDevi
     parameter_stream_.Reset();
 
     // Then write the call with the data.
-    encoder_.EncodeHandleIdValue(physical_device);
-    encoder_.EncodeHandleIdValue(surface);
+    encoder_.EncodeHandleValue(physical_device);
+    encoder_.EncodeHandleValue(surface);
     encoder_.EncodeUInt32Ptr(&mode_count);
     encoder_.EncodeEnumArray(pPresentModes, mode_count);
     encoder_.EncodeEnumValue(result);
@@ -1801,18 +1801,18 @@ void VulkanStateWriter::WriteStagingBufferCreateCommands(VkDevice               
     create_info.queueFamilyIndexCount = 0;
     create_info.pQueueFamilyIndices   = nullptr;
 
-    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleValue(device);
     EncodeStructPtr(&encoder_, &create_info);
     EncodeStructPtr(&encoder_, allocator);
-    encoder_.EncodeHandleIdPtr(&buffer);
+    encoder_.EncodeHandlePtr(&buffer);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateBuffer, &parameter_stream_);
     parameter_stream_.Reset();
 
     // Get the buffer memory requirements.
-    encoder_.EncodeHandleIdValue(device);
-    encoder_.EncodeHandleIdValue(buffer);
+    encoder_.EncodeHandleValue(device);
+    encoder_.EncodeHandleValue(buffer);
     EncodeStructPtr(&encoder_, &memory_requirements);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
@@ -1824,19 +1824,19 @@ void VulkanStateWriter::WriteStagingBufferCreateCommands(VkDevice               
     alloc_info.allocationSize       = memory_requirements.size;
     alloc_info.memoryTypeIndex      = memory_type_index;
 
-    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleValue(device);
     EncodeStructPtr(&encoder_, &alloc_info);
     EncodeStructPtr(&encoder_, allocator);
-    encoder_.EncodeHandleIdPtr(&memory);
+    encoder_.EncodeHandlePtr(&memory);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkAllocateMemory, &parameter_stream_);
     parameter_stream_.Reset();
 
     // Bind the buffer to the memory.
-    encoder_.EncodeHandleIdValue(device);
-    encoder_.EncodeHandleIdValue(buffer);
-    encoder_.EncodeHandleIdValue(memory);
+    encoder_.EncodeHandleValue(device);
+    encoder_.EncodeHandleValue(buffer);
+    encoder_.EncodeHandleValue(memory);
     encoder_.EncodeVkDeviceSizeValue(0);
     encoder_.EncodeEnumValue(result);
 
@@ -1854,10 +1854,10 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(VkDevice        dev
     const VkAllocationCallbacks* allocator = nullptr;
 
     // Retrieve the queue for the queue family index.
-    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleValue(device);
     encoder_.EncodeUInt32Value(queue_family_index);
     encoder_.EncodeUInt32Value(0);
-    encoder_.EncodeHandleIdPtr(&queue);
+    encoder_.EncodeHandlePtr(&queue);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetDeviceQueue, &parameter_stream_);
     parameter_stream_.Reset();
@@ -1868,10 +1868,10 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(VkDevice        dev
     create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     create_info.queueFamilyIndex        = queue_family_index;
 
-    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleValue(device);
     EncodeStructPtr(&encoder_, &create_info);
     EncodeStructPtr(&encoder_, allocator);
-    encoder_.EncodeHandleIdPtr(&command_pool);
+    encoder_.EncodeHandlePtr(&command_pool);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateCommandPool, &parameter_stream_);
@@ -1884,9 +1884,9 @@ void VulkanStateWriter::WriteCommandProcessingCreateCommands(VkDevice        dev
     alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     alloc_info.commandBufferCount          = 1;
 
-    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleValue(device);
     EncodeStructPtr(&encoder_, &alloc_info);
-    encoder_.EncodeHandleIdArray(&command_buffer, 1);
+    encoder_.EncodeHandleArray(&command_buffer, 1);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkAllocateCommandBuffers, &parameter_stream_);
@@ -1925,8 +1925,8 @@ void VulkanStateWriter::WriteMappedMemoryCopyCommands(VkDevice           device,
     }
 
     // Map the replay memory.
-    encoder_.EncodeHandleIdValue(device);
-    encoder_.EncodeHandleIdValue(replay_memory);
+    encoder_.EncodeHandleValue(device);
+    encoder_.EncodeHandleValue(replay_memory);
     encoder_.EncodeVkDeviceSizeValue(replay_offset);
     encoder_.EncodeVkDeviceSizeValue(replay_size);
     encoder_.EncodeFlagsValue(0);
@@ -1940,8 +1940,8 @@ void VulkanStateWriter::WriteMappedMemoryCopyCommands(VkDevice           device,
     WriteFillMemoryCmd(replay_memory, 0, replay_size, source_data);
 
     // Unmap the replay memory.
-    encoder_.EncodeHandleIdValue(device);
-    encoder_.EncodeHandleIdValue(replay_memory);
+    encoder_.EncodeHandleValue(device);
+    encoder_.EncodeHandleValue(replay_memory);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkUnmapMemory, &parameter_stream_);
     parameter_stream_.Reset();
@@ -1970,9 +1970,9 @@ void VulkanStateWriter::WriteBufferCopyCommandExecution(VkQueue         queue,
     copy_region.dstOffset = destination_offset;
     copy_region.size      = size;
 
-    encoder_.EncodeHandleIdValue(command_buffer);
-    encoder_.EncodeHandleIdValue(source);
-    encoder_.EncodeHandleIdValue(destination);
+    encoder_.EncodeHandleValue(command_buffer);
+    encoder_.EncodeHandleValue(source);
+    encoder_.EncodeHandleValue(destination);
     encoder_.EncodeUInt32Value(1);
     EncodeStructArray(&encoder_, &copy_region, 1);
 
@@ -2011,9 +2011,9 @@ void VulkanStateWriter::WriteImageCopyCommandExecution(VkQueue                  
                                       transition_aspect);
 
     // Record the copy command.
-    encoder_.EncodeHandleIdValue(command_buffer);
-    encoder_.EncodeHandleIdValue(source);
-    encoder_.EncodeHandleIdValue(destination);
+    encoder_.EncodeHandleValue(command_buffer);
+    encoder_.EncodeHandleValue(source);
+    encoder_.EncodeHandleValue(destination);
     encoder_.EncodeEnumValue(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     encoder_.EncodeUInt32Value(copy_regions_size);
     EncodeStructArray(&encoder_, copy_regions, copy_regions_size);
@@ -2070,7 +2070,7 @@ void VulkanStateWriter::WriteImageLayoutTransitionCommand(VkCommandBuffer      c
     image_barrier.subresourceRange.baseArrayLayer = 0;
     image_barrier.subresourceRange.layerCount     = array_layers;
 
-    encoder_.EncodeHandleIdValue(command_buffer);
+    encoder_.EncodeHandleValue(command_buffer);
     encoder_.EncodeFlagsValue(src_stages);
     encoder_.EncodeFlagsValue(dst_stages);
     encoder_.EncodeFlagsValue(0);
@@ -2123,7 +2123,7 @@ void VulkanStateWriter::WriteCommandBegin(VkCommandBuffer command_buffer)
     begin_info.flags                    = 0;
     begin_info.pInheritanceInfo         = nullptr;
 
-    encoder_.EncodeHandleIdValue(command_buffer);
+    encoder_.EncodeHandleValue(command_buffer);
     EncodeStructPtr(&encoder_, &begin_info);
     encoder_.EncodeEnumValue(result);
 
@@ -2135,7 +2135,7 @@ void VulkanStateWriter::WriteCommandEnd(VkCommandBuffer command_buffer)
 {
     const VkResult result = VK_SUCCESS;
 
-    encoder_.EncodeHandleIdValue(command_buffer);
+    encoder_.EncodeHandleValue(command_buffer);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkEndCommandBuffer, &parameter_stream_);
@@ -2164,17 +2164,17 @@ void VulkanStateWriter::WriteCommandExecution(VkQueue                queue,
     submit_info.signalSemaphoreCount = signal_semaphore_count;
     submit_info.pSignalSemaphores    = signal_semaphores;
 
-    encoder_.EncodeHandleIdValue(queue);
+    encoder_.EncodeHandleValue(queue);
     encoder_.EncodeUInt32Value(1);
     EncodeStructArray(&encoder_, &submit_info, 1);
-    encoder_.EncodeHandleIdValue(fence);
+    encoder_.EncodeHandleValue(fence);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueSubmit, &parameter_stream_);
     parameter_stream_.Reset();
 
     // Write queue wait idle.
-    encoder_.EncodeHandleIdValue(queue);
+    encoder_.EncodeHandleValue(queue);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueWaitIdle, &parameter_stream_);
@@ -2255,7 +2255,7 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(VkDevice              devic
             break;
     }
 
-    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleValue(device);
     encoder_.EncodeUInt32Value(1);
     EncodeStructArray(&encoder_, write, 1);
     encoder_.EncodeUInt32Value(0);
@@ -2286,9 +2286,9 @@ void VulkanStateWriter::WriteQueryActivation(VkDevice                   device,
     {
         if (query_entry.type == VK_QUERY_TYPE_TIMESTAMP)
         {
-            encoder_.EncodeHandleIdValue(temp_command_buffer);
+            encoder_.EncodeHandleValue(temp_command_buffer);
             encoder_.EncodeEnumValue(timestamp_stage);
-            encoder_.EncodeHandleIdValue(query_entry.pool);
+            encoder_.EncodeHandleValue(query_entry.pool);
             encoder_.EncodeUInt32Value(query_entry.index);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdWriteTimestamp, &parameter_stream_);
@@ -2296,8 +2296,8 @@ void VulkanStateWriter::WriteQueryActivation(VkDevice                   device,
         }
         else if (query_entry.type == VK_QUERY_TYPE_TRANSFORM_FEEDBACK_STREAM_EXT)
         {
-            encoder_.EncodeHandleIdValue(temp_command_buffer);
-            encoder_.EncodeHandleIdValue(query_entry.pool);
+            encoder_.EncodeHandleValue(temp_command_buffer);
+            encoder_.EncodeHandleValue(query_entry.pool);
             encoder_.EncodeUInt32Value(query_entry.index);
             encoder_.EncodeFlagsValue(query_entry.flags);
             encoder_.EncodeUInt32Value(query_entry.type_index);
@@ -2305,8 +2305,8 @@ void VulkanStateWriter::WriteQueryActivation(VkDevice                   device,
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT, &parameter_stream_);
             parameter_stream_.Reset();
 
-            encoder_.EncodeHandleIdValue(temp_command_buffer);
-            encoder_.EncodeHandleIdValue(query_entry.pool);
+            encoder_.EncodeHandleValue(temp_command_buffer);
+            encoder_.EncodeHandleValue(query_entry.pool);
             encoder_.EncodeUInt32Value(query_entry.index);
             encoder_.EncodeUInt32Value(query_entry.type_index);
 
@@ -2319,16 +2319,16 @@ void VulkanStateWriter::WriteQueryActivation(VkDevice                   device,
         }
         else
         {
-            encoder_.EncodeHandleIdValue(temp_command_buffer);
-            encoder_.EncodeHandleIdValue(query_entry.pool);
+            encoder_.EncodeHandleValue(temp_command_buffer);
+            encoder_.EncodeHandleValue(query_entry.pool);
             encoder_.EncodeUInt32Value(query_entry.index);
             encoder_.EncodeFlagsValue(query_entry.flags);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdBeginQuery, &parameter_stream_);
             parameter_stream_.Reset();
 
-            encoder_.EncodeHandleIdValue(temp_command_buffer);
-            encoder_.EncodeHandleIdValue(query_entry.pool);
+            encoder_.EncodeHandleValue(temp_command_buffer);
+            encoder_.EncodeHandleValue(query_entry.pool);
             encoder_.EncodeUInt32Value(query_entry.index);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdEndQuery, &parameter_stream_);
@@ -2349,11 +2349,11 @@ void VulkanStateWriter::WriteAcquireNextImage(
 {
     const VkResult result = VK_SUCCESS;
 
-    encoder_.EncodeHandleIdValue(device);
-    encoder_.EncodeHandleIdValue(swapchain);
+    encoder_.EncodeHandleValue(device);
+    encoder_.EncodeHandleValue(swapchain);
     encoder_.EncodeUInt64Value(std::numeric_limits<uint64_t>::max());
-    encoder_.EncodeHandleIdValue(semaphore);
-    encoder_.EncodeHandleIdValue(fence);
+    encoder_.EncodeHandleValue(semaphore);
+    encoder_.EncodeHandleValue(fence);
     encoder_.EncodeUInt32Ptr(&image_index);
     encoder_.EncodeEnumValue(result);
 
@@ -2374,7 +2374,7 @@ void VulkanStateWriter::WriteQueuePresent(VkQueue queue, VkSwapchainKHR swapchai
     present_info.pImageIndices      = &image_index;
     present_info.pResults           = nullptr;
 
-    encoder_.EncodeHandleIdValue(queue);
+    encoder_.EncodeHandleValue(queue);
     EncodeStructPtr(&encoder_, &present_info);
     encoder_.EncodeEnumValue(result);
 
@@ -2382,7 +2382,7 @@ void VulkanStateWriter::WriteQueuePresent(VkQueue queue, VkSwapchainKHR swapchai
     parameter_stream_.Reset();
 
     // Write queue wait idle.
-    encoder_.EncodeHandleIdValue(queue);
+    encoder_.EncodeHandleValue(queue);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkQueueWaitIdle, &parameter_stream_);
@@ -2405,10 +2405,10 @@ void VulkanStateWriter::WriteCreateFence(VkDevice device, VkFence fence, bool si
         create_info.flags |= VK_FENCE_CREATE_SIGNALED_BIT;
     }
 
-    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleValue(device);
     EncodeStructPtr(&encoder_, &create_info);
     EncodeStructPtr(&encoder_, alloc_callbacks);
-    encoder_.EncodeHandleIdPtr(&fence);
+    encoder_.EncodeHandlePtr(&fence);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkCreateFence, &parameter_stream_);
@@ -2419,9 +2419,9 @@ void VulkanStateWriter::WriteWaitForFence(VkDevice device, VkFence fence)
 {
     const VkResult result = VK_SUCCESS;
 
-    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleValue(device);
     encoder_.EncodeUInt32Value(1);
-    encoder_.EncodeHandleIdArray(&fence, 1);
+    encoder_.EncodeHandleArray(&fence, 1);
     encoder_.EncodeVkBool32Value(VK_TRUE);
     encoder_.EncodeUInt64Value(std::numeric_limits<uint64_t>::max());
     encoder_.EncodeEnumValue(result);
@@ -2434,9 +2434,9 @@ void VulkanStateWriter::WriteResetFence(VkDevice device, VkFence fence)
 {
     const VkResult result = VK_SUCCESS;
 
-    encoder_.EncodeHandleIdValue(device);
+    encoder_.EncodeHandleValue(device);
     encoder_.EncodeUInt32Value(1);
-    encoder_.EncodeHandleIdArray(&fence, 1);
+    encoder_.EncodeHandleArray(&fence, 1);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkResetFences, &parameter_stream_);
@@ -2447,8 +2447,8 @@ void VulkanStateWriter::WriteSetEvent(VkDevice device, VkEvent event)
 {
     const VkResult result = VK_SUCCESS;
 
-    encoder_.EncodeHandleIdValue(device);
-    encoder_.EncodeHandleIdValue(event);
+    encoder_.EncodeHandleValue(device);
+    encoder_.EncodeHandleValue(event);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkSetEvent, &parameter_stream_);
@@ -2460,8 +2460,8 @@ void VulkanStateWriter::WriteDestroyDeviceObject(format::ApiCallId            ca
                                                  format::HandleId             object_id,
                                                  const VkAllocationCallbacks* allocator)
 {
-    encoder_.EncodeHandleIdValue(device_id);
-    encoder_.EncodeHandleIdValue(object_id);
+    encoder_.EncodeHandleValue(device_id);
+    encoder_.EncodeHandleValue(object_id);
     EncodeStructPtr(&encoder_, allocator);
 
     WriteFunctionCall(call_id, &parameter_stream_);
