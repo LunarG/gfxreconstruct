@@ -174,7 +174,7 @@ static void EncodeDescriptorUpdateTemplateInfo(TraceManager*             manager
             {
                 size_t              offset = entry_info.offset + (entry_info.stride * i);
                 const VkBufferView* entry  = reinterpret_cast<const VkBufferView*>(bytes + offset);
-                encoder->EncodeHandleIdValue((*entry));
+                encoder->EncodeHandleValue(*entry);
             }
         }
     }
@@ -204,9 +204,9 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
     auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate);
     if (encoder)
     {
-        encoder->EncodeHandleIdValue(device);
-        encoder->EncodeHandleIdValue(descriptorSet);
-        encoder->EncodeHandleIdValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(descriptorSet);
+        encoder->EncodeHandleValue(descriptorUpdateTemplate);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
@@ -256,9 +256,9 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
     auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleIdValue(commandBuffer);
-        encoder->EncodeHandleIdValue(descriptorUpdateTemplate);
-        encoder->EncodeHandleIdValue(layout);
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleValue(layout);
         encoder->EncodeUInt32Value(set);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
@@ -306,9 +306,9 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
     auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR);
     if (encoder)
     {
-        encoder->EncodeHandleIdValue(device);
-        encoder->EncodeHandleIdValue(descriptorSet);
-        encoder->EncodeHandleIdValue(descriptorUpdateTemplate);
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(descriptorSet);
+        encoder->EncodeHandleValue(descriptorUpdateTemplate);
 
         EncodeDescriptorUpdateTemplateInfo(manager, encoder, info, pData);
 
@@ -384,8 +384,8 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
     auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkRegisterObjectsNVX);
     if (encoder)
     {
-        encoder->EncodeHandleIdValue(device);
-        encoder->EncodeHandleIdValue(objectTable);
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(objectTable);
         encoder->EncodeUInt32Value(objectCount);
         EncodeStructArray(encoder, ppObjectTableEntries, objectCount);
         encoder->EncodeUInt32Array(pObjectIndices, objectCount);

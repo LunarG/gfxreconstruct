@@ -58,6 +58,7 @@ class ParameterEncoder
     void EncodeVkDeviceSizeValue(VkDeviceSize value)                                                                  { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }
     void EncodeVkDeviceAddressValue(VkDeviceAddress value)                                                            { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }
     void EncodeSizeTValue(size_t value)                                                                               { EncodeValue(static_cast<format::SizeTEncodeType>(value)); }
+    void EncodeHandleIdValue(format::HandleId value)                                                                  { EncodeValue(static_cast<format::HandleEncodeType>(value)); }
 
     // Encode the address values for pointers to non-Vulkan objects to be used as object IDs.
     void EncodeAddress(const void* value)                                                                             { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
@@ -66,7 +67,7 @@ class ParameterEncoder
     void EncodeFunctionPtr(T value)                                                                                   { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
 
     template<typename T>
-    void EncodeHandleIdValue(T value)                                                                                 { EncodeValue(GetWrappedId(value)); }
+    void EncodeHandleValue(T value)                                                                                   { EncodeHandleIdValue(GetWrappedId(value)); }
     template<typename T>
     void EncodeEnumValue(T value)                                                                                     { EncodeValue(static_cast<format::EnumEncodeType>(value)); }
     template<typename T>
@@ -82,13 +83,14 @@ class ParameterEncoder
     void EncodeVkSampleMaskPtr(const VkSampleMask* ptr, bool omit_data = false, bool omit_addr = false)               { EncodePointerConverted<format::SampleMaskEncodeType>(ptr, omit_data, omit_addr); }
     void EncodeVkDeviceSizePtr(const VkDeviceSize* ptr, bool omit_data = false, bool omit_addr = false)               { EncodePointerConverted<format::DeviceSizeEncodeType>(ptr, omit_data, omit_addr); }
     void EncodeSizeTPtr(const size_t* ptr, bool omit_data = false, bool omit_addr = false)                            { EncodePointerConverted<format::SizeTEncodeType>(ptr, omit_data, omit_addr); }
+    void EncodeHandleIdPtr(const format::HandleId* ptr, bool omit_data = false, bool omit_addr = false)               { EncodePointerConverted<format::HandleEncodeType>(ptr, omit_data, omit_addr); }
 
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
     template<typename T>
     void EncodeVoidPtrPtr(const T* const* ptr, bool omit_data = false, bool omit_addr = false)                        { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_data, omit_addr); }
 
     template<typename T>
-    void EncodeHandleIdPtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                              { EncodePointerHandleId(ptr, omit_data, omit_addr); }
+    void EncodeHandlePtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                                { EncodeWrappedHandlePointer(ptr, omit_data, omit_addr); }
     template<typename T>
     void EncodeEnumPtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                                  { EncodePointerConverted<format::EnumEncodeType>(ptr, omit_data, omit_addr); }
     template<typename T>
@@ -104,13 +106,14 @@ class ParameterEncoder
     void EncodeVkSampleMaskArray(const VkSampleMask* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::SampleMaskEncodeType>(arr, len, omit_data, omit_addr); }
     void EncodeVkDeviceSizeArray(const VkDeviceSize* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::DeviceSizeEncodeType>(arr, len, omit_data, omit_addr); }
     void EncodeSizeTArray(const size_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)              { EncodeArrayConverted<format::SizeTEncodeType>(arr, len, omit_data, omit_addr); }
+    void EncodeHandleIdArray(const format::HandleId* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::HandleEncodeType>(arr, len, omit_data, omit_addr); }
 
     // Array of bytes.
     void EncodeUInt8Array(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)                { EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_data, omit_addr); }
     void EncodeVoidArray(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_data, omit_addr); }
 
     template<typename T>
-    void EncodeHandleIdArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                { EncodeArrayHandleId(arr, len, omit_data, omit_addr); }
+    void EncodeHandleArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                  { EncodeWrappedHandleArray(arr, len, omit_data, omit_addr); }
     template<typename T>
     void EncodeEnumArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                    { EncodeArrayConverted<format::EnumEncodeType>(arr, len, omit_data, omit_addr); }
     template<typename T>
@@ -246,7 +249,7 @@ class ParameterEncoder
     }
 
     template <typename SrcT>
-    void EncodePointerHandleId(const SrcT* ptr, bool omit_data = false, bool omit_addr = false)
+    void EncodeWrappedHandlePointer(const SrcT* ptr, bool omit_data = false, bool omit_addr = false)
     {
         uint32_t pointer_attrib =
             format::PointerAttributes::kIsSingle | GetPointerAttributeMask(ptr, omit_data, omit_addr);
@@ -262,8 +265,7 @@ class ParameterEncoder
 
             if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
             {
-                format::HandleId id = GetWrappedId(*ptr);
-                output_stream_->Write(&id, sizeof(id));
+                EncodeHandleValue(*ptr);
             }
         }
     }
@@ -335,7 +337,7 @@ class ParameterEncoder
     }
 
     template <typename SrcT>
-    void EncodeArrayHandleId(const SrcT* arr, size_t len, bool omit_data = false, bool omit_addr = false)
+    void EncodeWrappedHandleArray(const SrcT* arr, size_t len, bool omit_data = false, bool omit_addr = false)
     {
         uint32_t pointer_attrib =
             format::PointerAttributes::kIsArray | GetPointerAttributeMask(arr, omit_data, omit_addr);
@@ -356,8 +358,7 @@ class ParameterEncoder
             {
                 for (size_t i = 0; i < len; ++i)
                 {
-                    format::HandleId id = GetWrappedId(arr[i]);
-                    output_stream_->Write(&id, sizeof(id));
+                    EncodeHandleValue(arr[i]);
                 }
             }
         }
