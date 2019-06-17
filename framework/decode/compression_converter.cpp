@@ -74,7 +74,7 @@ bool CompressionConverter::Initialize(std::string                               
                 write_packet_timestamps_ = (option.value != 0);
                 break;
             default:
-                GFXRECON_LOG_WARNING("Ignoring unrecognized file header option %u", option.key);
+                GFXRECON_LOG_WARNING("@@Ignoring unrecognized file header option %u", option.key);
                 break;
         }
     }

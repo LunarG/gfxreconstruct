@@ -28,7 +28,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
-    file_descriptor_(nullptr), current_frame_number_(1), bytes_read_(0), error_state_(kErrorInvalidFileDescriptor),
+    file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0), error_state_(kErrorInvalidFileDescriptor),
     compressor_(nullptr)
 {}
 
@@ -319,72 +319,97 @@ bool FileProcessor::SkipBytes(size_t skip_size)
     return success;
 }
 
+void FileProcessor::HandleBlockReadError(Error error_code, const char* error_message)
+{
+    // Report incomplete block at end of file as a warning, other I/O errors as an error.
+    if (feof(file_descriptor_) && !ferror(file_descriptor_))
+    {
+        GFXRECON_LOG_WARNING("Incomplete block at end of file");
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("%s", error_message);
+        error_state_ = kErrorReadingCompressedBlockData;
+    }
+}
+
 bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
 {
     size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t    uncompressed_size     = 0;
     ApiCallInfo call_info             = {};
-    bool        success               = true;
 
-    if (format::IsBlockCompressed(block_header.type))
+    bool success = ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
+
+    if (success)
     {
-        // Compressed
-
-        // Read thread id
         parameter_buffer_size -= sizeof(call_info.thread_id);
-        success = success && ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
 
-        // Read uncompressed size
-        parameter_buffer_size -= sizeof(uncompressed_size);
-        success = success && ReadBytes(&uncompressed_size, sizeof(uncompressed_size));
-
-        // Read timestamp
-        if (enabled_options_.packet_timestamps)
+        if (format::IsBlockCompressed(block_header.type))
         {
-            parameter_buffer_size -= sizeof(uint64_t);
-            success = success && ReadBytes(&call_info.timestamp, sizeof(call_info.timestamp));
-        }
-
-        // Read parameter buffer
-        size_t actual_size = 0;
-        success            = success && ReadCompressedParameterBuffer(
-                                 parameter_buffer_size, static_cast<size_t>(uncompressed_size), &actual_size);
-        success               = success && (actual_size == uncompressed_size);
-        parameter_buffer_size = static_cast<size_t>(uncompressed_size);
-    }
-    else
-    {
-        // Not compressed
-
-        // Read thread id
-        parameter_buffer_size -= sizeof(call_info.thread_id);
-        success = success && ReadBytes(&call_info.thread_id, sizeof(call_info.thread_id));
-
-        // Read timestamp
-        if (enabled_options_.packet_timestamps)
-        {
-            parameter_buffer_size -= sizeof(uint64_t);
-            success = success && ReadBytes(&call_info.timestamp, sizeof(call_info.timestamp));
-        }
-
-        // Read parameter buffer
-        success = success && ReadParameterBuffer(parameter_buffer_size);
-    }
-
-    if (!success)
-    {
-        GFXRECON_LOG_ERROR("Failed to read function call data");
-        error_state_ = kErrorReadingBlockHeader;
-    }
-    else
-    {
-        for (auto decoder : decoders_)
-        {
-            if (decoder->SupportsApiCall(call_id))
+            parameter_buffer_size -= sizeof(uncompressed_size);
+            success = ReadBytes(&uncompressed_size, sizeof(uncompressed_size));
+            if (enabled_options_.packet_timestamps)
             {
-                decoder->DecodeFunctionCall(call_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
+                parameter_buffer_size -= sizeof(uint64_t);
+                success = success && ReadBytes(&call_info.timestamp, sizeof(call_info.timestamp));
+            }
+
+            if (success)
+            {
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, uncompressed_size);
+
+                size_t actual_size = 0;
+                success            = ReadCompressedParameterBuffer(
+                    parameter_buffer_size, static_cast<size_t>(uncompressed_size), &actual_size);
+
+                if (success)
+                {
+                    assert(actual_size == uncompressed_size);
+                    parameter_buffer_size = static_cast<size_t>(uncompressed_size);
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                         "Failed to read compressed function call block data");
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingCompressedBlockHeader,
+                                     "Failed to read compressed function call block header");
             }
         }
+        else
+        {
+            if (enabled_options_.packet_timestamps)
+            {
+                parameter_buffer_size -= sizeof(uint64_t);
+                success = success && ReadBytes(&call_info.timestamp, sizeof(call_info.timestamp));
+            }
+
+            success = ReadParameterBuffer(parameter_buffer_size);
+
+            if (!success)
+            {
+                HandleBlockReadError(kErrorReadingBlockData, "Failed to read function call block data");
+            }
+        }
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                if (decoder->SupportsApiCall(call_id))
+                {
+                    decoder->DecodeFunctionCall(call_id, call_info, parameter_buffer_.data(), parameter_buffer_size);
+                }
+            }
+        }
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
     }
 
     return success;
@@ -435,21 +460,20 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             }
             else
             {
-                GFXRECON_LOG_ERROR("Failed to read fill memory meta-data block");
-
                 if (format::IsBlockCompressed(block_header.type))
                 {
-                    error_state_ = kErrorReadingCompressedBlockData;
+                    HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                         "Failed to read fill memory meta-data block");
                 }
                 else
                 {
-                    error_state_ = kErrorReadingBlockData;
+                    HandleBlockReadError(kErrorReadingBlockData, "Failed to read fill memory meta-data block");
                 }
             }
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to read fill memory meta-data block header");
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read fill memory meta-data block header");
         }
     }
     else if (meta_type == format::MetaDataType::kResizeWindowCommand)
@@ -473,8 +497,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to read resize window meta-data block");
-            error_state_ = kErrorReadingBlockData;
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read resize window meta-data block");
         }
     }
     else if (meta_type == format::MetaDataType::kDisplayMessageCommand)
@@ -505,14 +528,12 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             }
             else
             {
-                GFXRECON_LOG_ERROR("Failed to read display message meta-data block");
-                error_state_ = kErrorReadingBlockData;
+                HandleBlockReadError(kErrorReadingBlockData, "Failed to read display message meta-data block");
             }
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to read display message meta-data block header");
-            error_state_ = kErrorReadingBlockHeader;
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read display message meta-data block header");
         }
     }
     else
