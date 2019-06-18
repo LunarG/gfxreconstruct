@@ -77,7 +77,7 @@ after a repository update (e.g. `git pull`).
   Run the script with the -h option to get help on how to run the build using
   the script.  
   The script requires Python 3.5 and above.
-- There is optional pre-build step for every target to run clang-format
+- There is an optional pre-build step for every target to run clang-format
   to apply the GFXReconstruct code style on the code.  
   This requires clang-format to be installed on the system.
   Use the `-DAPPLY_CPP_CODE_STYLE=ON` option to enable this pre-build step.
