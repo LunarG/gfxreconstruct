@@ -122,7 +122,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
     std::string              sub_string2;
 
     uint32_t option_index = 0;
-    if (options.size() > 0)
+    if (!options.empty())
     {
         std::stringstream option_strstr(options);
         while (option_strstr.good())
@@ -152,7 +152,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
     options_present_.resize(option_index);
 
     uint32_t argument_index = 0;
-    if (arguments.size() > 0)
+    if (!arguments.empty())
     {
         std::stringstream arguments_strstr(arguments);
         while (arguments_strstr.good())
@@ -188,17 +188,17 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
 
         // Strip off any quotes surrounding the whole string
         std::string current_argument = command_line_args[cur_arg];
-        if (current_argument[0] == '\"')
+        if (current_argument.front() == '\"')
         {
-            current_argument.erase(0, 1);
+            current_argument.erase(current_argument.begin());
         }
-        if (current_argument[current_argument.size() - 1] == '\"')
+        if (current_argument.back() == '\"')
         {
-            current_argument.erase(current_argument.size() - 1);
+            current_argument.pop_back();
         }
 
         // Optional option/argument
-        if (current_argument[0] == '-')
+        if (current_argument.front() == '-')
         {
             for (const auto& cur_option : options_indices_)
             {
@@ -226,13 +226,13 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
                         {
                             // Get the next value and strip off any quotes surrounding the whole string
                             std::string argument_value = command_line_args[++cur_arg];
-                            if (argument_value[0] == '\"')
+                            if (argument_value.front() == '\"')
                             {
-                                argument_value.erase(0, 1);
+                                argument_value.erase(argument_value.begin());
                             }
-                            if (argument_value[argument_value.size() - 1] == '\"')
+                            if (argument_value.back() == '\"')
                             {
-                                argument_value.erase(argument_value.size() - 1);
+                                argument_value.pop_back();
                             }
                             argument_values_[cur_argument.second] = argument_value;
                         }

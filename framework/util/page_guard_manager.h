@@ -66,9 +66,9 @@ class PageGuardManager
 
     void RemoveMemory(uint64_t memory_id);
 
-    void ProcessMemoryEntry(uint64_t memory_id, ModifiedMemoryFunc handle_modified);
+    void ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemoryFunc& handle_modified);
 
-    void ProcessMemoryEntries(ModifiedMemoryFunc handle_modified);
+    void ProcessMemoryEntries(const ModifiedMemoryFunc& handle_modified);
 
     bool HandleGuardPageViolation(void* address, bool is_write, bool clear_guard);
 
@@ -110,7 +110,7 @@ class PageGuardManager
 #if defined(WIN32)
             if (shadow_memory == nullptr)
             {
-                modified_addresses = std::make_unique<void* []>(total_pages);
+                modified_addresses = std::make_unique<void*[]>(total_pages);
             }
 #endif
         }
@@ -133,7 +133,7 @@ class PageGuardManager
 
 #if defined(WIN32)
         // Memory for retrieving modified pages with GetWriteWatch.
-        std::unique_ptr<void* []> modified_addresses;
+        std::unique_ptr<void*[]> modified_addresses;
 #endif
     };
 
@@ -151,12 +151,12 @@ class PageGuardManager
     bool   FindMemory(void* address, MemoryInfo** watched_memory_info);
     bool   SetMemoryProtection(void* protect_address, size_t protect_size, uint32_t protect_mask);
     void   LoadActiveWriteStates(MemoryInfo* memory_info);
-    void   ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info, ModifiedMemoryFunc handle_modified);
-    void   ProcessActiveRange(uint64_t           memory_id,
-                              MemoryInfo*        memory_info,
-                              size_t             start_index,
-                              size_t             end_index,
-                              ModifiedMemoryFunc handle_modified);
+    void   ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info, const ModifiedMemoryFunc& handle_modified);
+    void   ProcessActiveRange(uint64_t                  memory_id,
+                              MemoryInfo*               memory_info,
+                              size_t                    start_index,
+                              size_t                    end_index,
+                              const ModifiedMemoryFunc& handle_modified);
 
     size_t GetOffsetFromPageStart(void* address) const
     {
