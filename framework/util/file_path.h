@@ -34,7 +34,7 @@ bool IsDirectory(const std::string& path);
 
 std::string Join(const std::string& lhs, const std::string& rhs);
 
-std::string InsertFilenamePostfix(const std::string& filename, const std::string postfix);
+std::string InsertFilenamePostfix(const std::string& filename, const std::string& postfix);
 
 std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt = false);
 
