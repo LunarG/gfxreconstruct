@@ -142,7 +142,7 @@ std::string Join(const std::string& lhs, const std::string& rhs)
     return joined;
 }
 
-std::string InsertFilenamePostfix(const std::string& filename, const std::string postfix)
+std::string InsertFilenamePostfix(const std::string& filename, const std::string& postfix)
 {
     std::string file_extension;
     std::string file_part;

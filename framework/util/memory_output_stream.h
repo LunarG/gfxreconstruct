@@ -37,7 +37,7 @@ class MemoryOutputStream : public OutputStream
 
     MemoryOutputStream(size_t initial_size);
 
-    MemoryOutputStream(const void* initial_data, size_t initial_size);
+    MemoryOutputStream(const void* initial_data, size_t initial_data_size);
 
     virtual ~MemoryOutputStream() override;
 

@@ -500,7 +500,9 @@ void PageGuardManager::LoadActiveWriteStates(MemoryInfo* memory_info)
 #endif
 }
 
-void PageGuardManager::ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info, ModifiedMemoryFunc handle_modified)
+void PageGuardManager::ProcessEntry(uint64_t                  memory_id,
+                                    MemoryInfo*               memory_info,
+                                    const ModifiedMemoryFunc& handle_modified)
 {
     assert(memory_info != nullptr);
 
@@ -558,11 +560,11 @@ void PageGuardManager::ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info,
     }
 }
 
-void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
-                                          MemoryInfo*        memory_info,
-                                          size_t             start_index,
-                                          size_t             end_index,
-                                          ModifiedMemoryFunc handle_modified)
+void PageGuardManager::ProcessActiveRange(uint64_t                  memory_id,
+                                          MemoryInfo*               memory_info,
+                                          size_t                    start_index,
+                                          size_t                    end_index,
+                                          const ModifiedMemoryFunc& handle_modified)
 {
     assert((memory_info != nullptr) && (memory_info->aligned_address != nullptr));
     assert(end_index > start_index);
@@ -751,7 +753,7 @@ void PageGuardManager::RemoveMemory(uint64_t memory_id)
     }
 }
 
-void PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, ModifiedMemoryFunc handle_modified)
+void PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemoryFunc& handle_modified)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 
@@ -775,7 +777,7 @@ void PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, ModifiedMemoryFunc
     }
 }
 
-void PageGuardManager::ProcessMemoryEntries(ModifiedMemoryFunc handle_modified)
+void PageGuardManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_modified)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
 

@@ -34,7 +34,8 @@ MemoryOutputStream::MemoryOutputStream(size_t initial_size)
 
 MemoryOutputStream::MemoryOutputStream(const void* initial_data, size_t initial_data_size)
 {
-    Write(initial_data, initial_data_size);
+    const uint8_t* bytes = reinterpret_cast<const uint8_t*>(initial_data);
+    buffer_.insert(buffer_.end(), bytes, bytes + initial_data_size);
 }
 
 MemoryOutputStream::~MemoryOutputStream() {}

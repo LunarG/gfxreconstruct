@@ -50,6 +50,8 @@ const char kSettingsEnvVar[] = "VK_LAYER_SETTINGS_PATH";
 const char kSettingsFilename[] = "vk_layer_settings.txt";
 const char kCommentDelimiter   = '#';
 
+const size_t kDefaultTokenSize = 512;
+
 std::string RemoveQuotes(const std::string& source)
 {
     size_t start_index = 0;
@@ -213,8 +215,8 @@ int32_t LoadLayerSettingsFile(const std::string&                            file
 
     if (file.good())
     {
-        char        key[512]   = { '\0' };
-        char        value[512] = { '\0' };
+        char        key[kDefaultTokenSize]   = { '\0' };
+        char        value[kDefaultTokenSize] = { '\0' };
         std::string line;
 
         std::getline(file, line);
@@ -230,7 +232,12 @@ int32_t LoadLayerSettingsFile(const std::string&                            file
 
             // This is the same format string that the Vulkan validation layers use.
 #if defined(WIN32)
-            if (sscanf_s(line.c_str(), " %511[^\r\n\t =] = %511[^\r\n \t]", key, 512, value, 512) == 2)
+            if (sscanf_s(line.c_str(),
+                         " %511[^\r\n\t =] = %511[^\r\n \t]",
+                         key,
+                         kDefaultTokenSize,
+                         value,
+                         kDefaultTokenSize) == 2)
 #else
             if (sscanf(line.c_str(), " %511[^\r\n\t =] = %511[^\r\n \t]", key, value) == 2)
 #endif
