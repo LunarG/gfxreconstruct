@@ -35,6 +35,7 @@ def is_windows():
 
 
 ARCHITECTURES = ['x64', 'x86']
+DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.abspath(
     os.path.join(os.path.split(os.path.abspath(__file__))[0], '..'))
 BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
@@ -42,6 +43,7 @@ if is_windows():
     BUILD_CONFIGS['debug'] = 'build'
 CMAKE_VERSION_3_13 = distutils.version.StrictVersion('3.13.0')
 CONFIGURATIONS = ['release', 'debug']
+DEFAULT_CONFIGURATION = CONFIGURATIONS[0]
 VERSION = distutils.version.StrictVersion('0.0.0')
 
 
@@ -63,13 +65,13 @@ def parse_args():
     arg_parser.add_argument(
         '-a', '--arch', dest='architecture',
         metavar='ARCH', action='store',
-        choices=ARCHITECTURES, default=ARCHITECTURES[0],
+        choices=ARCHITECTURES, default=DEFAULT_ARCHITECTURE,
         help='Build target architecture. Can be one of: {0}'.format(
                 ', '.join(ARCHITECTURES)))
     arg_parser.add_argument(
         '-c', '--config', dest='configuration',
         metavar='CONFIG', action='store',
-        choices=CONFIGURATIONS, default=CONFIGURATIONS[0],
+        choices=CONFIGURATIONS, default=DEFAULT_CONFIGURATION,
         help='Build target configuration. Can be one of: {0}'.format(
             ', '.join(CONFIGURATIONS)))
     arg_parser.add_argument(
@@ -86,6 +88,13 @@ def parse_args():
         '--code-style', dest='code_style',
         action='store_true', default=False,
         help='Apply C++ code style before compiling')
+    arg_parser.add_argument(
+        '--skip-tests', dest='skip_tests',
+        action='store_true', default=False,
+        help='Skip running tests')
+    arg_parser.add_argument('--test-archive', dest='test_archive',
+                            action='store_true', default=False,
+                            help='Generate a test archive package')
     arg_parser.add_argument(
         '--static-analysis', dest='static_analysis',
         action='store_true', default=False,
@@ -136,11 +145,21 @@ def cmake_generate_options(args):
     if args.clean or args.clobber:
         generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
         generate_options.append('-DRUN_STATIC_ANALYSIS=OFF')
+        generate_options.append('-DRUN_TESTS=OFF')
+        generate_options.append('-DGENERATE_TEST_ARCHIVE=OFF')
     else:
         if args.code_style:
             generate_options.append('-DAPPLY_CPP_CODE_STYLE=ON')
         else:
             generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
+        if args.skip_tests:
+            generate_options.append('-DRUN_TESTS=OFF')
+        else:
+            generate_options.append('-DRUN_TESTS=ON')
+        if args.test_archive:
+            generate_options.append('-DGENERATE_TEST_ARCHIVE=ON')
+        else:
+            generate_options.append('-DGENERATE_TEST_ARCHIVE=OFF')
         if args.static_analysis:
             generate_options.append('-DRUN_STATIC_ANALYSIS=ON')
         else:
