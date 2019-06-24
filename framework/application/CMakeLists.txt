@@ -33,3 +33,11 @@ target_link_libraries(gfxrecon_application
                      )
 
 common_build_directives(gfxrecon_application)
+
+add_executable(gfxrecon_application_test "")
+
+target_sources(gfxrecon_application_test PRIVATE
+        test/main.cpp)
+
+common_build_directives(gfxrecon_application_test)
+common_test_directives(gfxrecon_application_test)
