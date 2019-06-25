@@ -58,12 +58,12 @@ ArgumentParser::ArgumentParser(bool               first_is_exe_name,
     is_invalid_(false)
 {
     std::vector<std::string> command_line_args;
-    size_t args_len = strlen(args);
+    size_t                   args_len = strlen(args);
 
     if (nullptr != args && args_len > 0)
     {
-        std::string              arg_string = args;
-        size_t                   last_start = 0;
+        std::string arg_string = args;
+        size_t      last_start = 0;
 
         // We don't want to save the executable name, just the arguments.
         // So, if the executable name is in the list, skip the first argument.

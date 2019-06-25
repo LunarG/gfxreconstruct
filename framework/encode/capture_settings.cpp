@@ -89,22 +89,22 @@ const char CaptureSettings::kDefaultCaptureFileName[] = "gfxrecon_capture" GFXRE
 
 // Desktop environment settings
 #define GFXRECON_ENV_VAR_PREFIX "GFXRECON_"
-const char kCaptureCompressionTypeEnvVar[]   = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_UPPER;
-const char kCaptureFileFlushEnvVar[]         = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_UPPER;
-const char kCaptureFileNameEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
-const char kCaptureFileUseTimestampEnvVar[]  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_UPPER;
-const char kLogAllowIndentsEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
-const char kLogBreakOnErrorEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
-const char kLogDetailedEnvVar[]              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
-const char kLogErrorsToStderrEnvVar[]        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_UPPER;
-const char kLogFileNameEnvVar[]              = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_UPPER;
-const char kLogFileCreateNewEnvVar[]         = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_UPPER;
-const char kLogFileFlushAfterWriteEnvVar[]   = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_UPPER;
-const char kLogFileKeepFileOpenEnvVar[]      = GFXRECON_ENV_VAR_PREFIX LOG_FILE_KEEP_OPEN_UPPER;
-const char kLogLevelEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL_UPPER;
-const char kLogOutputToConsoleEnvVar[]       = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_UPPER;
-const char kLogOutputToOsDebugStringEnvVar[] = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER;
-const char kMemoryTrackingModeEnvVar[]       = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_UPPER;
+const char kCaptureCompressionTypeEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_UPPER;
+const char kCaptureFileFlushEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_UPPER;
+const char kCaptureFileNameEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
+const char kCaptureFileUseTimestampEnvVar[]           = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_UPPER;
+const char kLogAllowIndentsEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
+const char kLogBreakOnErrorEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
+const char kLogDetailedEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
+const char kLogErrorsToStderrEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_UPPER;
+const char kLogFileNameEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_UPPER;
+const char kLogFileCreateNewEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_UPPER;
+const char kLogFileFlushAfterWriteEnvVar[]            = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_UPPER;
+const char kLogFileKeepFileOpenEnvVar[]               = GFXRECON_ENV_VAR_PREFIX LOG_FILE_KEEP_OPEN_UPPER;
+const char kLogLevelEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL_UPPER;
+const char kLogOutputToConsoleEnvVar[]                = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_UPPER;
+const char kLogOutputToOsDebugStringEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER;
+const char kMemoryTrackingModeEnvVar[]                = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_UPPER;
 #endif
 
 // Capture options for settings file.

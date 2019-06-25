@@ -188,7 +188,7 @@ void Log::LogMessage(
         {
             case 0: // Output to console
 #if defined(WIN32)
-                // On Windows, pass 0 should output to console or debug string if enabled.
+                    // On Windows, pass 0 should output to console or debug string if enabled.
                 if (!settings_.write_to_console && !settings_.output_to_os_debug_string)
 #else
                 if (!settings_.write_to_console)

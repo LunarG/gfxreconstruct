@@ -119,8 +119,7 @@ PageGuardManager::PageGuardManager() :
     enable_copy_on_map_(kDefaultEnableCopyOnMap), enable_lazy_copy_(kDefaultEnableLazyCopy),
     enable_separate_read_tracking_(kDefaultEnableSeparateReadTracking),
     enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
-{
-}
+{}
 
 PageGuardManager::PageGuardManager(bool enable_shadow_cached_memory,
                                    bool enable_uncached_read,
@@ -134,8 +133,7 @@ PageGuardManager::PageGuardManager(bool enable_shadow_cached_memory,
     enable_copy_on_map_(enable_copy_on_map), enable_lazy_copy_(enable_lazy_copy),
     enable_separate_read_tracking_(enable_separate_read_tracking),
     enable_read_write_same_page_(expect_read_write_same_page)
-{
-}
+{}
 
 PageGuardManager::~PageGuardManager()
 {
@@ -585,15 +583,11 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
         {
             assert(memory_info_.find(memory_id) == memory_info_.end());
 
-            auto entry = memory_info_.emplace(std::piecewise_construct,
-                                              std::forward_as_tuple(memory_id),
-                                              std::forward_as_tuple(mapped_memory,
-                                                                    size,
-                                                                    shadow_memory,
-                                                                    shadow_size,
-                                                                    total_pages,
-                                                                    last_segment_size,
-                                                                    is_cached));
+            auto entry = memory_info_.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(memory_id),
+                std::forward_as_tuple(
+                    mapped_memory, size, shadow_memory, shadow_size, total_pages, last_segment_size, is_cached));
 
             if (!entry.second)
             {

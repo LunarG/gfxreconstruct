@@ -37,8 +37,7 @@ const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
 const char kOptions[]   = "--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
 const char kArguments[] = "--pause-frame";
 
-    static void
-    CheckActiveLayers(const char* env_var)
+static void CheckActiveLayers(const char* env_var)
 {
     std::string result = gfxrecon::util::platform::GetEnv(env_var);
 

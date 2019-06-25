@@ -141,8 +141,9 @@ int main(int argc, const char** argv)
                     float    percent_reduction =
                         100.f * (1.f - (static_cast<float>(bytes_written) / static_cast<float>(bytes_read)));
                     GFXRECON_WRITE_CONSOLE("Compression Results:");
-                    GFXRECON_WRITE_CONSOLE(
-                        "  Original Size   [Compression: %5s] = %" PRIu64 " bytes", src_compression.c_str(), bytes_read);
+                    GFXRECON_WRITE_CONSOLE("  Original Size   [Compression: %5s] = %" PRIu64 " bytes",
+                                           src_compression.c_str(),
+                                           bytes_read);
                     GFXRECON_WRITE_CONSOLE("  Compressed Size [Compression: %5s] = %" PRIu64 " bytes",
                                            dst_compression_string.c_str(),
                                            bytes_written);
@@ -155,8 +156,9 @@ int main(int argc, const char** argv)
                     float    percent_increase =
                         100.f * ((static_cast<float>(bytes_written) / static_cast<float>(bytes_read)) - 1.f);
                     GFXRECON_WRITE_CONSOLE("Uncompression Results:");
-                    GFXRECON_WRITE_CONSOLE(
-                        "  Original Size   [Compression: %5s] = %" PRIu64 " bytes", src_compression.c_str(), bytes_read);
+                    GFXRECON_WRITE_CONSOLE("  Original Size   [Compression: %5s] = %" PRIu64 " bytes",
+                                           src_compression.c_str(),
+                                           bytes_read);
                     GFXRECON_WRITE_CONSOLE("  Uncompressed Size                    = %" PRIu64 " bytes", bytes_written);
                     GFXRECON_WRITE_CONSOLE("  Percent Increase                     = %.2f%%", percent_increase);
                 }

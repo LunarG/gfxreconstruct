@@ -37,8 +37,8 @@ static void EncodeDescriptorUpdateTemplateInfo(TraceManager*              manage
 {
     assert((manager != nullptr) && (encoder != nullptr));
 
-    bool                                            found = false;
-    const TraceManager::UpdateTemplateInfo*         info  = nullptr;
+    bool                                    found = false;
+    const TraceManager::UpdateTemplateInfo* info  = nullptr;
 
     if (data != nullptr)
     {
