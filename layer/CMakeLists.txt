@@ -24,3 +24,11 @@ GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
                         )
 
 common_build_directives(VkLayer_gfxreconstruct)
+
+add_executable(VkLayer_gfxreconstruct_test "")
+
+target_sources(VkLayer_gfxreconstruct_test PRIVATE
+        test/main.cpp)
+
+common_build_directives(VkLayer_gfxreconstruct_test)
+target_test_directives(VkLayer_gfxreconstruct_test)

@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 3.1)
 project(GFXReconstruct)
 
+set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include("CodeStyle")
+include("Test")
 include("StaticAnalysis")
 include("FindVulkanVersion")
 
@@ -12,6 +15,7 @@ include("FindVulkanVersion")
 macro(common_build_directives TARGET)
     target_code_style_build_directives(${TARGET})
     target_static_analysis_build_directives(${TARGET})
+    add_target_to_test_package(${TARGET})
 endmacro()
 
 if(MSVC)
@@ -20,7 +24,6 @@ if(MSVC)
     if(NOT CMAKE_CL_64)
         set (PRECOMPILED_ARCH "32")
     endif(NOT CMAKE_CL_64)
-
     set(CMAKE_PREFIX_PATH
         ${CMAKE_PREFIX_PATH}
        "${CMAKE_SOURCE_DIR}/external/precompiled/win${PRECOMPILED_ARCH}"
@@ -59,6 +62,12 @@ add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include)
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES)
 
+add_library(catch2 INTERFACE)
+target_include_directories(catch2 INTERFACE external)
+
 add_subdirectory(framework)
 add_subdirectory(layer)
 add_subdirectory(tools)
+
+add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/test.py)
+generate_test_package(gfx_reconstruct_test)

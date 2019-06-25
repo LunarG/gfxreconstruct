@@ -30,3 +30,11 @@ target_include_directories(gfxrecon_encode
 target_link_libraries(gfxrecon_encode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
 common_build_directives(gfxrecon_encode)
+
+add_executable(gfxrecon_encode_test "")
+
+target_sources(gfxrecon_encode_test PRIVATE
+        test/main.cpp)
+
+common_build_directives(gfxrecon_encode_test)
+target_test_directives(gfxrecon_encode_test)

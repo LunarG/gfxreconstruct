@@ -62,3 +62,11 @@ if (TARGET ZLIB::ZLIB)
 endif()
 
 common_build_directives(gfxrecon_util)
+
+add_executable(gfxrecon_util_test "")
+
+target_sources(gfxrecon_util_test PRIVATE
+        test/main.cpp)
+
+common_build_directives(gfxrecon_util_test)
+target_test_directives(gfxrecon_util_test)
