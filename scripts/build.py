@@ -83,7 +83,7 @@ def parse_args():
         action='store_true', default=False,
         help='Skip updating external dependencies')
     arg_parser.add_argument(
-        '--code-style', dest='code_style',
+        '--skip-code-style', dest='skip_code_style',
         action='store_true', default=False,
         help='Apply C++ code style before compiling')
     arg_parser.add_argument(
@@ -137,10 +137,10 @@ def cmake_generate_options(args):
         generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
         generate_options.append('-DRUN_STATIC_ANALYSIS=OFF')
     else:
-        if args.code_style:
-            generate_options.append('-DAPPLY_CPP_CODE_STYLE=ON')
-        else:
+        if args.skip_code_style:
             generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
+        else:
+            generate_options.append('-DAPPLY_CPP_CODE_STYLE=ON')
         if args.static_analysis:
             generate_options.append('-DRUN_STATIC_ANALYSIS=ON')
         else:
