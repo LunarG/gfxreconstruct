@@ -794,6 +794,7 @@ class TraceManager
 
     std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
     bool        CreateCaptureFile(const std::string& base_filename);
+    void        ActivateTrimming();
 
     void WriteFileHeader();
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
