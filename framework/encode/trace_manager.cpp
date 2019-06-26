@@ -272,10 +272,10 @@ ParameterEncoder* TraceManager::InitApiCallTrace(format::ApiCallId call_id)
 
 void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 {
-    assert(encoder != nullptr);
-
     if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
+        assert(encoder != nullptr);
+
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
 
@@ -385,34 +385,20 @@ void TraceManager::EndFrame()
                     state_tracker_ = nullptr;
                     compressor_    = nullptr;
                 }
+                else if (trim_ranges_[trim_current_range_].first == current_frame_)
+                {
+                    // Trimming was configured to capture two consecutive frames, so we need to start a new capture file
+                    // for the current frame.
+                    ActivateTrimming();
+                }
             }
         }
-
-        if ((capture_mode_ & kModeWrite) != kModeWrite)
+        else if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             // Capture is not active. Check for start of capture frame range.
             if (trim_ranges_[trim_current_range_].first == current_frame_)
             {
-                bool success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_ranges_[trim_current_range_]));
-                if (success)
-                {
-                    capture_mode_ |= kModeWrite;
-
-                    auto thread_data = GetThreadData();
-                    assert(thread_data != nullptr);
-
-                    VulkanStateWriter state_writer(file_stream_.get(),
-                                                   compressor_.get(),
-                                                   thread_data->thread_id_,
-                                                   &instance_tables_,
-                                                   &device_tables_);
-                    state_tracker_->WriteState(&state_writer);
-                }
-                else
-                {
-                    GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
-                    capture_mode_ = kModeDisabled;
-                }
+                ActivateTrimming();
             }
         }
     }
@@ -465,6 +451,28 @@ bool TraceManager::CreateCaptureFile(const std::string& base_filename)
     }
 
     return success;
+}
+
+void TraceManager::ActivateTrimming()
+{
+    bool success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_ranges_[trim_current_range_]));
+    if (success)
+    {
+        capture_mode_ |= kModeWrite;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        VulkanStateWriter state_writer(
+            file_stream_.get(), compressor_.get(), thread_data->thread_id_, &instance_tables_, &device_tables_);
+        state_tracker_->WriteState(&state_writer);
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
+        trim_enabled_ = false;
+        capture_mode_ = kModeDisabled;
+    }
 }
 
 void TraceManager::WriteFileHeader()
