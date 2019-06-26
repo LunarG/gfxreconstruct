@@ -66,27 +66,21 @@ class VulkanStateTracker
 
         if (*new_handle != VK_NULL_HANDLE)
         {
-            Wrapper* wrapper = new Wrapper;
-            wrapper->handle  = (*new_handle);
+            auto wrapper = reinterpret_cast<Wrapper*>(*new_handle);
 
             {
                 std::unique_lock<std::mutex> lock(mutex_);
 
-                wrapper->handle_id = ++object_count_;
-                vulkan_state_tracker::InitializeState<ParentHandle, Wrapper, CreateInfo>(
-                    parent_handle,
-                    wrapper,
-                    create_info,
-                    create_call_id,
-                    std::make_shared<util::MemoryOutputStream>(create_parameter_buffer->GetData(),
-                                                               create_parameter_buffer->GetDataSize()),
-                    &state_table_);
-
-                // Attempts to add a new entry to the table. Operation will fail for duplicate handles.
-                // TODO: Handle wrapping will introduce a unique ID that eliminates duplicates.
-                if (!state_table_.InsertWrapper(format::ToHandleId(*new_handle), wrapper))
+                // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
+                if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
                 {
-                    delete wrapper;
+                    vulkan_state_tracker::InitializeState<ParentHandle, Wrapper, CreateInfo>(
+                        parent_handle,
+                        wrapper,
+                        create_info,
+                        create_call_id,
+                        std::make_shared<util::MemoryOutputStream>(create_parameter_buffer->GetData(),
+                                                                   create_parameter_buffer->GetDataSize()));
                 }
             }
         }
@@ -113,17 +107,13 @@ class VulkanStateTracker
             {
                 if (new_handles[i] != VK_NULL_HANDLE)
                 {
-                    Wrapper* wrapper   = new Wrapper;
-                    wrapper->handle    = new_handles[i];
-                    wrapper->handle_id = ++object_count_;
-                    vulkan_state_tracker::InitializePoolObjectState(
-                        parent_handle, wrapper, i, alloc_info, create_call_id, create_parameters, &state_table_);
+                    auto wrapper = reinterpret_cast<Wrapper*>(new_handles[i]);
 
-                    // Attempts to add a new entry to the table. Operation will fail for duplicate handles.
-                    // TODO: Handle wrapping will introduce a unique ID that eliminates duplicates.
-                    if (!state_table_.InsertWrapper(format::ToHandleId(new_handles[i]), wrapper))
+                    // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
+                    if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
                     {
-                        delete wrapper;
+                        vulkan_state_tracker::InitializePoolObjectState(
+                            parent_handle, wrapper, i, alloc_info, create_call_id, create_parameters);
                     }
                 }
             }
@@ -152,33 +142,28 @@ class VulkanStateTracker
             {
                 if (new_handles[i] != VK_NULL_HANDLE)
                 {
-                    const CreateInfo* create_info = nullptr;
+                    auto wrapper = reinterpret_cast<Wrapper*>(new_handles[i]);
 
-                    // Not all handle creation operations will have a create info structure (e.g. VkPhysicalDevice
-                    // handles retrieved with vkEnumeratePhysicalDevices).
-                    if (create_infos != nullptr)
+                    // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
+                    if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
                     {
-                        create_info = vulkan_state_tracker::GetCreateInfoEntry(i, create_infos);
-                    }
+                        const CreateInfo* create_info = nullptr;
 
-                    Wrapper* wrapper   = new Wrapper;
-                    wrapper->handle    = new_handles[i];
-                    wrapper->handle_id = ++object_count_;
-                    vulkan_state_tracker::
-                        InitializeGroupObjectState<ParentHandle, SecondaryHandle, Wrapper, CreateInfo>(
-                            parent_handle,
-                            secondary_handle,
-                            wrapper,
-                            create_info,
-                            create_call_id,
-                            create_parameters,
-                            &state_table_);
+                        // Not all handle creation operations will have a create info structure (e.g. VkPhysicalDevice
+                        // handles retrieved with vkEnumeratePhysicalDevices).
+                        if (create_infos != nullptr)
+                        {
+                            create_info = vulkan_state_tracker::GetCreateInfoEntry(i, create_infos);
+                        }
 
-                    // Attempts to add a new entry to the table. Operation will fail for duplicate handles.
-                    // TODO: Handle wrapping will introduce a unique ID that eliminates duplicates.
-                    if (!state_table_.InsertWrapper(format::ToHandleId(new_handles[i]), wrapper))
-                    {
-                        delete wrapper;
+                        vulkan_state_tracker::
+                            InitializeGroupObjectState<ParentHandle, SecondaryHandle, Wrapper, CreateInfo>(
+                                parent_handle,
+                                secondary_handle,
+                                wrapper,
+                                create_info,
+                                create_call_id,
+                                create_parameters);
                     }
                 }
             }
@@ -190,23 +175,17 @@ class VulkanStateTracker
     {
         if (handle != VK_NULL_HANDLE)
         {
-            Wrapper* wrapper = nullptr;
+            auto wrapper = reinterpret_cast<Wrapper*>(handle);
 
-            {
-                std::unique_lock<std::mutex> lock(mutex_);
-                state_table_.RemoveWrapper(format::ToHandleId(handle), &wrapper);
-                DestroyState(wrapper);
-            }
+            std::unique_lock<std::mutex> lock(mutex_);
 
-            if (wrapper != nullptr)
-            {
-                delete wrapper;
-            }
-            else
+            if (!state_table_.RemoveWrapper(wrapper))
             {
                 GFXRECON_LOG_WARNING(
                     "Attempting to remove entry from state tracker for object that is not being tracked");
             }
+
+            DestroyState(wrapper);
         }
     }
 
@@ -214,15 +193,12 @@ class VulkanStateTracker
                       format::ApiCallId               call_id,
                       const util::MemoryOutputStream* parameter_buffer)
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-        CommandBufferWrapper*        wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
-        if (wrapper != nullptr)
+        if (command_buffer != VK_NULL_HANDLE)
         {
+            auto wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
+
+            std::unique_lock<std::mutex> lock(mutex_);
             TrackCommandExecution(wrapper, call_id, parameter_buffer);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Attempting to update command state for unrecognized command buffer handle");
         }
     }
 
@@ -233,16 +209,13 @@ class VulkanStateTracker
                       GetHandlesFunc                  func,
                       GetHandlesArgs... args)
     {
-        std::unique_lock<std::mutex> lock(mutex_);
-        CommandBufferWrapper*        wrapper = state_table_.GetCommandBufferWrapper(format::ToHandleId(command_buffer));
-        if (wrapper != nullptr)
+        if (command_buffer != VK_NULL_HANDLE)
         {
+            auto wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
+
+            std::unique_lock<std::mutex> lock(mutex_);
             TrackCommandExecution(wrapper, call_id, parameter_buffer);
             func(wrapper, args...);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Attempting to update command state for unrecognized command buffer handle");
         }
     }
 
@@ -361,20 +334,12 @@ class VulkanStateTracker
 
     void DestroyState(CommandPoolWrapper* wrapper);
 
-    void DestroyState(CommandBufferWrapper* wrapper);
-
     void DestroyState(DescriptorPoolWrapper* wrapper);
-
-    void DestroyState(DescriptorSetWrapper* wrapper);
 
     void DestroyState(SwapchainKHRWrapper* wrapper);
 
   private:
-    // TODO: Evaluate need for per-type locks.
-    std::mutex mutex_;
-    // TODO: Per-type counts.
-    uint32_t object_count_;
-
+    std::mutex       mutex_;
     VulkanStateTable state_table_;
 };
 

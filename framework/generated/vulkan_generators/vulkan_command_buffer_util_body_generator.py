@@ -56,8 +56,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
         write('#include "generated/generated_vulkan_command_buffer_util.h"', file=self.outFile)
         self.newline()
-        write('#include "format/format.h"', file=self.outFile)
-        write('#include "format/format_util.h"', file=self.outFile)
+        write('#include "encode/vulkan_handle_wrapper_util.h"', file=self.outFile)
         write('#include "encode/vulkan_state_info.h"', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -158,17 +157,17 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
             if self.isHandle(value.baseType):
                 typeEnumValue = '{}Handle'.format(value.baseType[2:])
-                body += indent + 'wrapper->command_handles[CommandHandleType::{}].insert(format::ToHandleId({}));\n'.format(typeEnumValue, valueName)
+                body += indent + 'wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId({}));\n'.format(typeEnumValue, valueName)
 
             elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
                 for entry in self.structsWithHandles[value.baseType]:
                     if self.isHandle(entry.baseType) and not (entry.isPointer or entry.isArray):
                         typeEnumValue = '{}Handle'.format(entry.baseType[2:])
-                        body += indent + 'wrapper->command_handles[CommandHandleType::{}].insert(format::ToHandleId({}.{}));\n'.format(typeEnumValue, valueName, entry.name)
+                        body += indent + 'wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId({}.{}));\n'.format(typeEnumValue, valueName, entry.name)
 
                     else:
-                        # TODO
-                        pass
+                        # TODO - process handles in structs
+                        body += indent + '// TODO: Process handles from parameter "{}" with type "{}"\n'.format(entry.name, entry.fullType)
 
             if value.isPointer or value.isArray:
                 indent = indent[0:-self.INDENT_SIZE]

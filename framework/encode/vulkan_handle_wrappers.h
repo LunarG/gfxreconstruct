@@ -114,37 +114,47 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
-    PhysicalDeviceWrapper*                     physical_device{ nullptr };
-    std::vector<QueueWrapper*>                 child_queues;
-    std::unordered_map<VkQueue, QueueWrapper*> queues;
+    PhysicalDeviceWrapper*     physical_device{ nullptr };
+    std::vector<QueueWrapper*> child_queues;
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
 {
     // Signaled state at creation to be compared with signaled state at snapshot write. If states are different, the
     // create parameters will need to be modified to reflect the state at snapshot write.
-    bool     created_signaled{ false };
-    VkDevice device{ VK_NULL_HANDLE };
+    bool           created_signaled{ false };
+    DeviceWrapper* device{ nullptr };
 };
 
 struct EventWrapper : public HandleWrapper<VkEvent>
 {
-    VkDevice device{ VK_NULL_HANDLE };
+    DeviceWrapper* device{ nullptr };
+};
+
+struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
+{
+    uint32_t         memory_type_index{ std::numeric_limits<uint32_t>::max() };
+    VkDeviceSize     allocation_size{ 0 };
+    DeviceWrapper*   map_device{ nullptr };
+    const void*      mapped_data{ nullptr };
+    VkDeviceSize     mapped_offset{ 0 };
+    VkDeviceSize     mapped_size{ 0 };
+    VkMemoryMapFlags mapped_flags{ 0 };
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
 {
-    VkDevice       bind_device{ VK_NULL_HANDLE };
-    VkDeviceMemory bind_memory{ VK_NULL_HANDLE };
-    VkDeviceSize   bind_offset{ 0 };
-    uint32_t       queue_family_index{ 0 };
-    VkDeviceSize   created_size{ 0 };
+    DeviceWrapper*       bind_device{ nullptr };
+    DeviceMemoryWrapper* bind_memory{ nullptr };
+    VkDeviceSize         bind_offset{ 0 };
+    uint32_t             queue_family_index{ 0 };
+    VkDeviceSize         created_size{ 0 };
 };
 
 struct ImageWrapper : public HandleWrapper<VkImage>
 {
-    VkDevice              bind_device{ VK_NULL_HANDLE };
-    VkDeviceMemory        bind_memory{ VK_NULL_HANDLE };
+    DeviceWrapper*        bind_device{ nullptr };
+    DeviceMemoryWrapper*  bind_memory{ nullptr };
     VkDeviceSize          bind_offset{ 0 };
     uint32_t              queue_family_index{ 0 };
     VkImageType           image_type{ VK_IMAGE_TYPE_2D };
@@ -160,19 +170,17 @@ struct ImageWrapper : public HandleWrapper<VkImage>
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
 {
     // Store handle to associated image for tracking render pass layout transitions.
-    VkImage image{ VK_NULL_HANDLE };
+    ImageWrapper* image{ nullptr };
 };
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
 {
-    // TODO: This only requires the unique sequence number once handles are fully wrapped.
-    VkRenderPass      render_pass{ VK_NULL_HANDLE };
     format::HandleId  render_pass_id{ 0 };
     format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  render_pass_create_parameters;
 
     // Track handles of image attachments for processing render pass layout transitions.
-    std::vector<VkImage> attachments;
+    std::vector<ImageWrapper*> attachments;
 };
 
 struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
@@ -188,65 +196,15 @@ struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
         SignalSourceAcquireImage = 2  // Semaphore is pending signal from a swapchain acquire image operation.
     };
 
-    SignalSource signaled{ SignalSourceNone };
-    VkDevice     device{ VK_NULL_HANDLE };
-};
-
-struct CommandPoolWrapper;
-struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
-{
-    // Members for general wrapper support.
-    // TODO: Remove overlap with trimming state tracking.
-    CommandPoolWrapper* parent_pool{ nullptr };
-
-    // Members for trimming state tracking.
-    VkCommandBufferLevel       level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
-    util::MemoryOutputStream   command_data;
-    std::set<format::HandleId> command_handles[CommandHandleType::NumHandleTypes];
-
-    // Pool from which command buffer was allocated. The command buffer must be removed from the pool's allocation list
-    // when destroyed.
-    CommandPoolWrapper* pool{ nullptr };
-
-    // Image layout info tracked for image barriers recorded to the command buffer. To be updated on calls to
-    // vkCmdPipelineBarrier and vkCmdEndRenderPass and applied to the image wrapper on calls to vkQueueSubmit. To be
-    // transferred from secondary command buffers to primary command buffers on calls to vkCmdExecuteCommands.
-    std::unordered_map<VkImage, VkImageLayout> pending_layouts;
-
-    // Active query info for queries that have been recorded to this command buffer, which will be transfered to the
-    // QueryPoolWrapper as pending queries when the command buffer is submitted to a queue.
-    std::unordered_map<VkQueryPool, std::unordered_map<uint32_t, QueryInfo>> recorded_queries;
-
-    // Render pass object tracking for processing image layout transitions. Render pass and framebuffer values
-    // for the active render pass instance will be set on calls to vkCmdBeginRenderPass and will be used to update the
-    // pending image layout on calls to vkCmdEndRenderPass.
-    VkRenderPass  active_render_pass{ VK_NULL_HANDLE };
-    VkFramebuffer render_pass_framebuffer{ VK_NULL_HANDLE };
-};
-
-struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
-{
-    uint32_t         memory_type_index{ std::numeric_limits<uint32_t>::max() };
-    VkDeviceSize     allocation_size{ 0 };
-    VkDevice         map_device{ VK_NULL_HANDLE };
-    const void*      mapped_data{ nullptr };
-    VkDeviceSize     mapped_offset{ 0 };
-    VkDeviceSize     mapped_size{ 0 };
-    VkMemoryMapFlags mapped_flags{ 0 };
+    SignalSource   signaled{ SignalSourceNone };
+    DeviceWrapper* device{ nullptr };
 };
 
 struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>
 {
-    VkDevice               device{ VK_NULL_HANDLE };
+    DeviceWrapper*         device{ nullptr };
     VkQueryType            query_type{};
     std::vector<QueryInfo> pending_queries;
-};
-
-struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
-{
-    // Creation info for objects used to create the pipeline layout, which may have been destroyed after pipeline layout
-    // creation.
-    std::shared_ptr<PipelineLayoutDependencies> layout_dependencies;
 };
 
 struct RenderPassWrapper : public HandleWrapper<VkRenderPass>
@@ -256,19 +214,51 @@ struct RenderPassWrapper : public HandleWrapper<VkRenderPass>
     std::vector<VkImageLayout> attachment_final_layouts;
 };
 
+struct CommandPoolWrapper;
+struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
+{
+    // Members for general wrapper support.
+    // Pool from which command buffer was allocated. The command buffer must be removed from the pool's allocation list
+    // when destroyed.
+    CommandPoolWrapper* parent_pool{ nullptr };
+
+    // Members for trimming state tracking.
+    VkCommandBufferLevel       level{ VK_COMMAND_BUFFER_LEVEL_PRIMARY };
+    util::MemoryOutputStream   command_data;
+    std::set<format::HandleId> command_handles[CommandHandleType::NumHandleTypes];
+
+    // Image layout info tracked for image barriers recorded to the command buffer. To be updated on calls to
+    // vkCmdPipelineBarrier and vkCmdEndRenderPass and applied to the image wrapper on calls to vkQueueSubmit. To be
+    // transferred from secondary command buffers to primary command buffers on calls to vkCmdExecuteCommands.
+    std::unordered_map<ImageWrapper*, VkImageLayout> pending_layouts;
+
+    // Active query info for queries that have been recorded to this command buffer, which will be transfered to the
+    // QueryPoolWrapper as pending queries when the command buffer is submitted to a queue.
+    std::unordered_map<QueryPoolWrapper*, std::unordered_map<uint32_t, QueryInfo>> recorded_queries;
+
+    // Render pass object tracking for processing image layout transitions. Render pass and framebuffer values
+    // for the active render pass instance will be set on calls to vkCmdBeginRenderPass and will be used to update the
+    // pending image layout on calls to vkCmdEndRenderPass.
+    RenderPassWrapper*  active_render_pass{ nullptr };
+    FramebufferWrapper* render_pass_framebuffer{ nullptr };
+};
+
+struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
+{
+    // Creation info for objects used to create the pipeline layout, which may have been destroyed after pipeline layout
+    // creation.
+    std::shared_ptr<PipelineLayoutDependencies> layout_dependencies;
+};
+
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
     std::vector<ShaderModuleInfo> shader_modules;
 
-    // TODO: This only requires the unique sequence number once handles are fully wrapped.
-    VkRenderPass      render_pass{ VK_NULL_HANDLE };
     format::HandleId  render_pass_id{ 0 };
     format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  render_pass_create_parameters;
 
-    // TODO: This only requires the unique sequence number once handles are fully wrapped.
-    VkPipelineLayout                            layout{ VK_NULL_HANDLE };
     format::HandleId                            layout_id{ 0 };
     format::ApiCallId                           layout_create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters                            layout_create_parameters;
@@ -287,69 +277,58 @@ struct DescriptorPoolWrapper;
 struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
 {
     // Members for general wrapper support.
-    // TODO: Remove overlap with trimming state tracking.
+    // Pool from which set was allocated. The set must be removed from the pool's allocation list when destroyed.
     DescriptorPoolWrapper* parent_pool{ nullptr };
 
     // Members for trimming state tracking.
-    VkDevice device{ VK_NULL_HANDLE };
+    DeviceWrapper* device{ nullptr };
 
     // Map for descriptor binding index to array of descriptor info.
     std::unordered_map<uint32_t, DescriptorInfo> bindings;
-
-    // Pool from which set was allocated. The set must be removed from the pool's allocation list when destroyed.
-    DescriptorPoolWrapper* pool{ nullptr };
 };
 
 struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
 {
     // Members for general wrapper support.
-    // TODO: Remove overlap with trimming state tracking.
-    std::unordered_map<format::HandleId, DescriptorSetWrapper*> child_sets;
-
-    // Members for trimming state tracking.
     // Track descriptor set info, which must be destroyed on descriptor pool reset.
-    std::unordered_map<VkDescriptorSet, DescriptorSetWrapper*> allocated_sets;
+    std::unordered_map<format::HandleId, DescriptorSetWrapper*> child_sets;
 };
 
 struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 {
     // Members for general wrapper support.
-    // TODO: Remove overlap with trimming state tracking.
+    // Track command buffer info, which must be destroyed on command pool reset.
     std::unordered_map<format::HandleId, CommandBufferWrapper*> child_buffers;
 
     // Members for trimming state tracking.
     uint32_t queue_family_index{ 0 };
-
-    // Track command buffer info, which must be destroyed on command pool reset.
-    std::unordered_map<VkCommandBuffer, CommandBufferWrapper*> allocated_buffers;
 };
 
 struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
 {
     // Track results from calls to vkGetPhysicalDeviceSurfaceSupportKHR to write to the state snapshot after surface
     // creation. The call is only written to the state snapshot if it was previously called by the application.
-    std::unordered_map<VkPhysicalDevice, std::unordered_map<uint32_t, VkBool32>> surface_support;
-    std::unordered_map<VkPhysicalDevice, VkSurfaceCapabilitiesKHR>               surface_capabilities;
-    std::unordered_map<VkPhysicalDevice, std::vector<VkSurfaceFormatKHR>>        surface_formats;
-    std::unordered_map<VkPhysicalDevice, std::vector<VkPresentModeKHR>>          surface_present_modes;
+    // Keys are the VkPhysicalDevice handle ID.
+    std::unordered_map<format::HandleId, std::unordered_map<uint32_t, VkBool32>> surface_support;
+    std::unordered_map<format::HandleId, VkSurfaceCapabilitiesKHR>               surface_capabilities;
+    std::unordered_map<format::HandleId, std::vector<VkSurfaceFormatKHR>>        surface_formats;
+    std::unordered_map<format::HandleId, std::vector<VkPresentModeKHR>>          surface_present_modes;
 };
 
 struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 {
     // Members for general wrapper support.
-    // TODO: Remove overlap with trimming state tracking.
     std::vector<ImageWrapper*> child_images;
 
     // Members for trimming state tracking.
-    VkDevice                       device{ VK_NULL_HANDLE };
-    VkSurfaceKHR                   surface{ VK_NULL_HANDLE };
+    DeviceWrapper*                 device{ nullptr };
+    SurfaceKHRWrapper*             surface{ nullptr };
     uint32_t                       queue_family_index{ 0 };
     VkFormat                       format{ VK_FORMAT_UNDEFINED };
     VkExtent3D                     extent{ 0, 0, 0 };
     uint32_t                       array_layers{ 0 };
     uint32_t                       last_presented_image{ std::numeric_limits<uint32_t>::max() };
     std::vector<ImageAcquiredInfo> image_acquired_info;
-    std::vector<ImageWrapper*>     images;
 };
 
 struct ObjectTableNVXWrapper : public HandleWrapper<VkObjectTableNVX>

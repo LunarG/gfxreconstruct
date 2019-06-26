@@ -60,6 +60,8 @@ struct DescriptorInfo
     VkDescriptorType                          type;
     uint32_t                                  count{ 0 };
     std::unique_ptr<bool[]>                   written;
+    std::unique_ptr<format::HandleId[]>       handle_ids;  // Image, buffer, or buffer view IDs depending on type.
+    std::unique_ptr<format::HandleId[]>       sampler_ids; // Sampler IDs for image type.
     std::unique_ptr<VkDescriptorImageInfo[]>  images;
     std::unique_ptr<VkDescriptorBufferInfo[]> buffers;
     std::unique_ptr<VkBufferView[]>           texel_buffer_views;
@@ -68,10 +70,9 @@ struct DescriptorInfo
 // VkDescriptorSetLayout create info stored with VkPipelineLayout handle.
 struct DescriptorSetLayoutInfo
 {
-    VkDescriptorSetLayout handle{ VK_NULL_HANDLE };
-    format::HandleId      handle_id{ 0 };
-    format::ApiCallId     create_call_id{ format::ApiCallId::ApiCall_Unknown };
-    CreateParameters      create_parameters;
+    format::HandleId  handle_id{ 0 };
+    format::ApiCallId create_call_id{ format::ApiCallId::ApiCall_Unknown };
+    CreateParameters  create_parameters;
 };
 
 // Create info for all descriptor set layouts required by a pipeline layout.
@@ -84,7 +85,6 @@ struct PipelineLayoutDependencies
 // VkShaderModule create info stored with VkPipeline handle.
 struct ShaderModuleInfo
 {
-    VkShaderModule    handle{ VK_NULL_HANDLE };
     format::HandleId  handle_id{ 0 };
     format::ApiCallId create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  create_parameters;
@@ -92,10 +92,10 @@ struct ShaderModuleInfo
 
 struct ImageAcquiredInfo
 {
-    bool        is_acquired{ true };
-    VkSemaphore acquired_semaphore{ VK_NULL_HANDLE };
-    VkFence     acquired_fence{ VK_NULL_HANDLE };
-    VkQueue     last_presented_queue{ VK_NULL_HANDLE };
+    bool             is_acquired{ true };
+    format::HandleId acquired_semaphore_id{ 0 };
+    format::HandleId acquired_fence_id{ 0 };
+    VkQueue          last_presented_queue{ VK_NULL_HANDLE };
 };
 
 // Types for Vulkan object handles that are recorded to command buffers.

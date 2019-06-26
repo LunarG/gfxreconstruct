@@ -336,7 +336,7 @@ CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(VkDevice, 
 
     // Filter duplicate display retrieval.
     ImageWrapper* wrapper = nullptr;
-    for (auto entry : parent_wrapper->images)
+    for (auto entry : parent_wrapper->child_images)
     {
         if (entry->handle == (*handle))
         {

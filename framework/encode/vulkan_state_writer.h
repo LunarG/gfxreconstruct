@@ -101,7 +101,7 @@ class VulkanStateWriter
 
     struct QueryActivationData
     {
-        VkQueryPool         pool{ VK_NULL_HANDLE };
+        format::HandleId    pool_id{ 0 };
         VkQueryType         type{};
         VkQueryControlFlags flags{ 0 };
         uint32_t            index{ 0 };
@@ -142,12 +142,12 @@ class VulkanStateWriter
 
     void WriteSwapchainKhrState(const VulkanStateTable& state_table);
 
-    void ProcessBufferMemory(VkDevice                  device,
+    void ProcessBufferMemory(const DeviceWrapper*      device_wrapper,
                              const BufferSnapshotData& snapshot_data,
                              const VulkanStateTable&   state_table,
                              const DeviceTable&        dispatch_table);
 
-    void ProcessImageMemory(VkDevice                 device,
+    void ProcessImageMemory(const DeviceWrapper*     device_wrapper,
                             const ImageSnapshotData& snapshot_data,
                             const VulkanStateTable&  state_table,
                             const DeviceTable&       dispatch_table);
@@ -158,71 +158,71 @@ class VulkanStateWriter
 
     template <typename T>
     void WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiCallId call_id,
-                                                     VkPhysicalDevice  physical_device,
+                                                     format::HandleId  physical_device_id,
                                                      uint32_t          property_count,
                                                      T*                properties);
 
-    void WriteGetPhysicalDeviceSurfaceSupport(VkPhysicalDevice physical_device,
+    void WriteGetPhysicalDeviceSurfaceSupport(format::HandleId physical_device_id,
                                               uint32_t         queue_family_index,
-                                              VkSurfaceKHR     surface,
+                                              format::HandleId surface_id,
                                               VkBool32         supported);
 
-    void WriteGetPhysicalDeviceSurfaceCapabilities(VkPhysicalDevice                physical_device,
-                                                   VkSurfaceKHR                    surface,
+    void WriteGetPhysicalDeviceSurfaceCapabilities(format::HandleId                physical_device_id,
+                                                   format::HandleId                surface_id,
                                                    const VkSurfaceCapabilitiesKHR& capabilities);
 
-    void WriteGetPhysicalDeviceSurfaceFormats(VkPhysicalDevice          physical_device,
-                                              VkSurfaceKHR              surface,
+    void WriteGetPhysicalDeviceSurfaceFormats(format::HandleId          physical_device_id,
+                                              format::HandleId          surface_id,
                                               uint32_t                  format_count,
                                               const VkSurfaceFormatKHR* formats);
 
-    void WriteGetPhysicalDeviceSurfacePresentModes(VkPhysicalDevice        physical_device,
-                                                   VkSurfaceKHR            surface,
+    void WriteGetPhysicalDeviceSurfacePresentModes(format::HandleId        physical_device_id,
+                                                   format::HandleId        surface_id,
                                                    uint32_t                mode_count,
                                                    const VkPresentModeKHR* pPresentModes);
 
-    void WriteStagingBufferCreateCommands(VkDevice                    device,
+    void WriteStagingBufferCreateCommands(format::HandleId            device_id,
                                           VkDeviceSize                buffer_size,
-                                          VkBuffer                    buffer,
+                                          format::HandleId            buffer_id,
                                           const VkMemoryRequirements& memory_requirements,
                                           uint32_t                    memory_type_index,
-                                          VkDeviceMemory              memory);
+                                          format::HandleId            memory_id);
 
-    void WriteCommandProcessingCreateCommands(VkDevice        device,
-                                              uint32_t        queue_family_index,
-                                              VkQueue         queue,
-                                              VkCommandPool   command_pool,
-                                              VkCommandBuffer command_buffer);
+    void WriteCommandProcessingCreateCommands(format::HandleId device_id,
+                                              uint32_t         queue_family_index,
+                                              format::HandleId queue_id,
+                                              format::HandleId command_pool_id,
+                                              format::HandleId command_buffer_id);
 
-    void WriteMappedMemoryCopyCommands(VkDevice           device,
-                                       VkDeviceMemory     source_memory,
-                                       const void*        source_data,
-                                       VkDeviceSize       source_offset,
-                                       VkDeviceSize       source_size,
-                                       VkDeviceMemory     replay_memory,
-                                       VkDeviceSize       replay_offset,
-                                       VkDeviceSize       replay_size,
-                                       const DeviceTable& dispatch_table);
+    void WriteMappedMemoryCopyCommands(const DeviceWrapper* device_wrapper,
+                                       VkDeviceMemory       source_memory,
+                                       const void*          source_data,
+                                       VkDeviceSize         source_offset,
+                                       VkDeviceSize         source_size,
+                                       format::HandleId     replay_memory_id,
+                                       VkDeviceSize         replay_offset,
+                                       VkDeviceSize         replay_size,
+                                       const DeviceTable&   dispatch_table);
 
-    void WriteBufferCopyCommandExecution(VkQueue         queue,
-                                         VkCommandBuffer command_buffer,
-                                         VkBuffer        source,
-                                         VkBuffer        destination,
-                                         VkDeviceSize    source_offset,
-                                         VkDeviceSize    destination_offset,
-                                         VkDeviceSize    size);
+    void WriteBufferCopyCommandExecution(format::HandleId queue_id,
+                                         format::HandleId command_buffer_id,
+                                         format::HandleId source_id,
+                                         format::HandleId destination_id,
+                                         VkDeviceSize     source_offset,
+                                         VkDeviceSize     destination_offset,
+                                         VkDeviceSize     size);
 
-    void WriteImageCopyCommandExecution(VkQueue                  queue,
-                                        VkCommandBuffer          command_buffer,
-                                        VkBuffer                 source,
-                                        VkImage                  destination,
+    void WriteImageCopyCommandExecution(format::HandleId         queue_id,
+                                        format::HandleId         command_buffer_id,
+                                        format::HandleId         source_id,
+                                        format::HandleId         destination_id,
                                         VkImageLayout            final_layout,
                                         uint32_t                 copy_regions_size,
                                         const VkBufferImageCopy* copy_regions,
                                         VkImageAspectFlags       transition_aspect);
 
-    void WriteImageLayoutTransitionCommand(VkCommandBuffer      command_buffer,
-                                           VkImage              image,
+    void WriteImageLayoutTransitionCommand(format::HandleId     command_buffer_id,
+                                           format::HandleId     image_id,
                                            VkPipelineStageFlags src_stages,
                                            VkPipelineStageFlags dst_stages,
                                            VkAccessFlags        src_access,
@@ -233,9 +233,9 @@ class VulkanStateWriter
                                            uint32_t             array_layers,
                                            VkImageAspectFlags   aspect);
 
-    void WriteImageLayoutTransitionCommandExecution(VkQueue              queue,
-                                                    VkCommandBuffer      command_buffer,
-                                                    VkImage              image,
+    void WriteImageLayoutTransitionCommandExecution(format::HandleId     queue_id,
+                                                    format::HandleId     command_buffer_id,
+                                                    format::HandleId     image_id,
                                                     VkPipelineStageFlags src_stages,
                                                     VkPipelineStageFlags dst_stages,
                                                     VkAccessFlags        src_access,
@@ -246,51 +246,64 @@ class VulkanStateWriter
                                                     uint32_t             array_layers,
                                                     VkImageAspectFlags   aspect);
 
-    void WriteCommandBegin(VkCommandBuffer command_buffer);
+    void WriteCommandBegin(format::HandleId command_buffer_id);
 
-    void WriteCommandEnd(VkCommandBuffer command_buffer);
+    void WriteCommandEnd(format::HandleId command_buffer_id);
 
-    void WriteCommandExecution(VkQueue                queue,
-                               uint32_t               command_buffer_count,
-                               const VkCommandBuffer* command_buffers,
-                               uint32_t               signal_semaphore_count,
-                               const VkSemaphore*     signal_semaphores,
-                               uint32_t               wait_semaphore_count,
-                               const VkSemaphore*     wait_semaphores);
+    void WriteCommandExecution(format::HandleId            queue_id,
+                               uint32_t                    command_buffer_count,
+                               const format::HandleId*     command_buffer_ids,
+                               uint32_t                    signal_semaphore_count,
+                               const format::HandleId*     signal_semaphore_ids,
+                               uint32_t                    wait_semaphore_count,
+                               const format::HandleId*     wait_semaphore_ids,
+                               const VkPipelineStageFlags* wait_dst_stage_mask);
+
+    void WriteCommandExecution(format::HandleId queue_id, format::HandleId command_buffer_id)
+    {
+        WriteCommandExecution(queue_id, 1, &command_buffer_id, 0, nullptr, 0, nullptr, nullptr);
+    }
 
     void WriteCommandBufferCommands(const CommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
 
-    void WriteDescriptorUpdateCommand(VkDevice device, const DescriptorInfo* binding, VkWriteDescriptorSet* write);
+    void WriteDescriptorUpdateCommand(format::HandleId      device_id,
+                                      const DescriptorInfo* binding,
+                                      VkWriteDescriptorSet* write);
 
-    void WriteQueryActivation(VkDevice device, uint32_t queue_family_index, const QueryActivationList& active_queries);
+    void WriteQueryActivation(format::HandleId           device_id,
+                              uint32_t                   queue_family_index,
+                              const QueryActivationList& active_queries);
 
-    void WriteAcquireNextImage(
-        VkDevice device, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t image_index);
+    void WriteAcquireNextImage(format::HandleId device_id,
+                               format::HandleId swapchain_id,
+                               format::HandleId semaphore_id,
+                               format::HandleId fence_id,
+                               uint32_t         image_index);
 
-    void WriteQueuePresent(VkQueue queue, VkSwapchainKHR swapchain, uint32_t image_index);
+    void WriteQueuePresent(format::HandleId queue_id, format::HandleId swapchain_id, uint32_t image_index);
 
-    void WriteCreateFence(VkDevice device, VkFence fence, bool signaled);
+    void WriteCreateFence(format::HandleId device_id, format::HandleId fence_id, bool signaled);
 
-    void WriteWaitForFence(VkDevice device, VkFence fence);
+    void WriteWaitForFence(format::HandleId device_id, format::HandleId fence_id);
 
-    void WriteResetFence(VkDevice device, VkFence fence);
+    void WriteResetFence(format::HandleId device_id, format::HandleId fence_id);
 
-    void WriteSetEvent(VkDevice device, VkEvent event);
+    void WriteSetEvent(format::HandleId device_id, format::HandleId event_id);
 
     void WriteDestroyDeviceObject(format::ApiCallId            call_id,
                                   format::HandleId             device_id,
                                   format::HandleId             object_id,
                                   const VkAllocationCallbacks* allocator);
 
-    void DestroyTemporaryDeviceObject(format::ApiCallId         call_id,
-                                      format::HandleId          object_id,
-                                      util::MemoryOutputStream* create_parameters);
+    void DestroyTemporaryDeviceObject(format::ApiCallId               call_id,
+                                      format::HandleId                object_id,
+                                      const util::MemoryOutputStream* create_parameters);
 
     void WriteFunctionCall(format::ApiCallId call_id, util::MemoryOutputStream* parameter_buffer);
 
-    void WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data);
+    void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
 
-    void WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height);
+    void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
 
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)
@@ -307,15 +320,16 @@ class VulkanStateWriter
         });
     }
 
-    void GetFenceStatus(VkDevice device, VkFence fence, bool* result);
+    VkMemoryPropertyFlags GetMemoryProperties(const DeviceWrapper*       device_wrapper,
+                                              const DeviceMemoryWrapper* memory_wrapper,
+                                              const VulkanStateTable&    state_table);
 
-    VkMemoryPropertyFlags
-    GetMemoryProperties(VkDevice device, VkDeviceMemory memory, const VulkanStateTable& state_table);
-
-    uint32_t FindMemoryTypeIndex(VkDevice                device,
+    uint32_t FindMemoryTypeIndex(const DeviceWrapper*    device,
                                  uint32_t                memory_type_bits,
                                  VkMemoryPropertyFlags   memory_property_flags,
                                  const VulkanStateTable& state_table);
+
+    void GetFenceStatus(VkDevice device, VkFence fence, bool* result);
 
     VkQueue
     GetQueue(VkDevice device, uint32_t queue_family_index, uint32_t queue_index, const DeviceTable& dispatch_table);
@@ -326,7 +340,7 @@ class VulkanStateWriter
 
     VkResult SubmitCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer, const DeviceTable& dispatch_table);
 
-    VkResult CreateStagingBuffer(VkDevice                device,
+    VkResult CreateStagingBuffer(const DeviceWrapper*    device_wrapper,
                                  VkDeviceSize            size,
                                  VkBuffer*               buffer,
                                  VkMemoryRequirements*   memory_requirements,
