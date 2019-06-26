@@ -76,43 +76,43 @@ class VulkanStateTable
     bool InsertWrapper(format::HandleId id, ValidationCacheEXTWrapper* wrapper)         { return InsertEntry(id, wrapper, validation_cache_ext_map_); }
     bool InsertWrapper(format::HandleId id, AccelerationStructureNVWrapper* wrapper)    { return InsertEntry(id, wrapper, acceleration_structure_nv_map_); }
 
-    void RemoveWrapper(format::HandleId id, InstanceWrapper** result)                   { assert(result); (*result) = RemoveEntry(id, instance_map_); }
-    void RemoveWrapper(format::HandleId id, PhysicalDeviceWrapper** result)             { assert(result); (*result) = RemoveEntry(id, physical_device_map_); }
-    void RemoveWrapper(format::HandleId id, DeviceWrapper** result)                     { assert(result); (*result) = RemoveEntry(id, device_map_); }
-    void RemoveWrapper(format::HandleId id, QueueWrapper** result)                      { assert(result); (*result) = RemoveEntry(id, queue_map_); }
-    void RemoveWrapper(format::HandleId id, SemaphoreWrapper** result)                  { assert(result); (*result) = RemoveEntry(id, semaphore_map_); }
-    void RemoveWrapper(format::HandleId id, CommandBufferWrapper** result)              { assert(result); (*result) = RemoveEntry(id, command_buffer_map_); }
-    void RemoveWrapper(format::HandleId id, FenceWrapper** result)                      { assert(result); (*result) = RemoveEntry(id, fence_map_); }
-    void RemoveWrapper(format::HandleId id, DeviceMemoryWrapper** result)               { assert(result); (*result) = RemoveEntry(id, device_memory_map_); }
-    void RemoveWrapper(format::HandleId id, BufferWrapper** result)                     { assert(result); (*result) = RemoveEntry(id, buffer_map_); }
-    void RemoveWrapper(format::HandleId id, ImageWrapper** result)                      { assert(result); (*result) = RemoveEntry(id, image_map_); }
-    void RemoveWrapper(format::HandleId id, EventWrapper** result)                      { assert(result); (*result) = RemoveEntry(id, event_map_); }
-    void RemoveWrapper(format::HandleId id, QueryPoolWrapper** result)                  { assert(result); (*result) = RemoveEntry(id, query_pool_map_); }
-    void RemoveWrapper(format::HandleId id, BufferViewWrapper** result)                 { assert(result); (*result) = RemoveEntry(id, buffer_view_map_); }
-    void RemoveWrapper(format::HandleId id, ImageViewWrapper** result)                  { assert(result); (*result) = RemoveEntry(id, image_view_map_); }
-    void RemoveWrapper(format::HandleId id, ShaderModuleWrapper** result)               { assert(result); (*result) = RemoveEntry(id, shader_module_map_); }
-    void RemoveWrapper(format::HandleId id, PipelineCacheWrapper** result)              { assert(result); (*result) = RemoveEntry(id, pipeline_cache_map_); }
-    void RemoveWrapper(format::HandleId id, PipelineLayoutWrapper** result)             { assert(result); (*result) = RemoveEntry(id, pipeline_layout_map_); }
-    void RemoveWrapper(format::HandleId id, RenderPassWrapper** result)                 { assert(result); (*result) = RemoveEntry(id, render_pass_map_); }
-    void RemoveWrapper(format::HandleId id, PipelineWrapper** result)                   { assert(result); (*result) = RemoveEntry(id, pipeline_map_); }
-    void RemoveWrapper(format::HandleId id, DescriptorSetLayoutWrapper** result)        { assert(result); (*result) = RemoveEntry(id, descriptor_set_layout_map_); }
-    void RemoveWrapper(format::HandleId id, SamplerWrapper** result)                    { assert(result); (*result) = RemoveEntry(id, sampler_map_); }
-    void RemoveWrapper(format::HandleId id, DescriptorPoolWrapper** result)             { assert(result); (*result) = RemoveEntry(id, descriptor_pool_map_); }
-    void RemoveWrapper(format::HandleId id, DescriptorSetWrapper** result)              { assert(result); (*result) = RemoveEntry(id, descriptor_set_map_); }
-    void RemoveWrapper(format::HandleId id, FramebufferWrapper** result)                { assert(result); (*result) = RemoveEntry(id, framebuffer_map_); }
-    void RemoveWrapper(format::HandleId id, CommandPoolWrapper** result)                { assert(result); (*result) = RemoveEntry(id, command_pool_map_); }
-    void RemoveWrapper(format::HandleId id, SamplerYcbcrConversionWrapper** result)     { assert(result); (*result) = RemoveEntry(id, sampler_ycbcr_conversion_map_); }
-    void RemoveWrapper(format::HandleId id, DescriptorUpdateTemplateWrapper** result)   { assert(result); (*result) = RemoveEntry(id, descriptor_update_template_map_); }
-    void RemoveWrapper(format::HandleId id, SurfaceKHRWrapper** result)                 { assert(result); (*result) = RemoveEntry(id, surface_khr_map_); }
-    void RemoveWrapper(format::HandleId id, SwapchainKHRWrapper** result)               { assert(result); (*result) = RemoveEntry(id, swapchain_khr_map_); }
-    void RemoveWrapper(format::HandleId id, DisplayKHRWrapper** result)                 { assert(result); (*result) = RemoveEntry(id, display_khr_map_); }
-    void RemoveWrapper(format::HandleId id, DisplayModeKHRWrapper** result)             { assert(result); (*result) = RemoveEntry(id, display_mode_khr_map_); }
-    void RemoveWrapper(format::HandleId id, DebugReportCallbackEXTWrapper** result)     { assert(result); (*result) = RemoveEntry(id, debug_report_callback_ext_map_); }
-    void RemoveWrapper(format::HandleId id, ObjectTableNVXWrapper** result)             { assert(result); (*result) = RemoveEntry(id, object_table_nvx_map_); }
-    void RemoveWrapper(format::HandleId id, IndirectCommandsLayoutNVXWrapper** result)  { assert(result); (*result) = RemoveEntry(id, indirect_commands_layout_nvx_map_); }
-    void RemoveWrapper(format::HandleId id, DebugUtilsMessengerEXTWrapper** result)     { assert(result); (*result) = RemoveEntry(id, debug_utils_messenger_ext_map_); }
-    void RemoveWrapper(format::HandleId id, ValidationCacheEXTWrapper** result)         { assert(result); (*result) = RemoveEntry(id, validation_cache_ext_map_); }
-    void RemoveWrapper(format::HandleId id, AccelerationStructureNVWrapper** result)    { assert(result); (*result) = RemoveEntry(id, acceleration_structure_nv_map_); }
+    bool RemoveWrapper(const InstanceWrapper* wrapper)                  { return RemoveEntry(wrapper, instance_map_); }
+    bool RemoveWrapper(const PhysicalDeviceWrapper* wrapper)            { return RemoveEntry(wrapper, physical_device_map_); }
+    bool RemoveWrapper(const DeviceWrapper* wrapper)                    { return RemoveEntry(wrapper, device_map_); }
+    bool RemoveWrapper(const QueueWrapper* wrapper)                     { return RemoveEntry(wrapper, queue_map_); }
+    bool RemoveWrapper(const SemaphoreWrapper* wrapper)                 { return RemoveEntry(wrapper, semaphore_map_); }
+    bool RemoveWrapper(const CommandBufferWrapper* wrapper)             { return RemoveEntry(wrapper, command_buffer_map_); }
+    bool RemoveWrapper(const FenceWrapper* wrapper)                     { return RemoveEntry(wrapper, fence_map_); }
+    bool RemoveWrapper(const DeviceMemoryWrapper* wrapper)              { return RemoveEntry(wrapper, device_memory_map_); }
+    bool RemoveWrapper(const BufferWrapper* wrapper)                    { return RemoveEntry(wrapper, buffer_map_); }
+    bool RemoveWrapper(const ImageWrapper* wrapper)                     { return RemoveEntry(wrapper, image_map_); }
+    bool RemoveWrapper(const EventWrapper* wrapper)                     { return RemoveEntry(wrapper, event_map_); }
+    bool RemoveWrapper(const QueryPoolWrapper* wrapper)                 { return RemoveEntry(wrapper, query_pool_map_); }
+    bool RemoveWrapper(const BufferViewWrapper* wrapper)                { return RemoveEntry(wrapper, buffer_view_map_); }
+    bool RemoveWrapper(const ImageViewWrapper* wrapper)                 { return RemoveEntry(wrapper, image_view_map_); }
+    bool RemoveWrapper(const ShaderModuleWrapper* wrapper)              { return RemoveEntry(wrapper, shader_module_map_); }
+    bool RemoveWrapper(const PipelineCacheWrapper* wrapper)             { return RemoveEntry(wrapper, pipeline_cache_map_); }
+    bool RemoveWrapper(const PipelineLayoutWrapper* wrapper)            { return RemoveEntry(wrapper, pipeline_layout_map_); }
+    bool RemoveWrapper(const RenderPassWrapper* wrapper)                { return RemoveEntry(wrapper, render_pass_map_); }
+    bool RemoveWrapper(const PipelineWrapper* wrapper)                  { return RemoveEntry(wrapper, pipeline_map_); }
+    bool RemoveWrapper(const DescriptorSetLayoutWrapper* wrapper)       { return RemoveEntry(wrapper, descriptor_set_layout_map_); }
+    bool RemoveWrapper(const SamplerWrapper* wrapper)                   { return RemoveEntry(wrapper, sampler_map_); }
+    bool RemoveWrapper(const DescriptorPoolWrapper* wrapper)            { return RemoveEntry(wrapper, descriptor_pool_map_); }
+    bool RemoveWrapper(const DescriptorSetWrapper* wrapper)             { return RemoveEntry(wrapper, descriptor_set_map_); }
+    bool RemoveWrapper(const FramebufferWrapper* wrapper)               { return RemoveEntry(wrapper, framebuffer_map_); }
+    bool RemoveWrapper(const CommandPoolWrapper* wrapper)               { return RemoveEntry(wrapper, command_pool_map_); }
+    bool RemoveWrapper(const SamplerYcbcrConversionWrapper* wrapper)    { return RemoveEntry(wrapper, sampler_ycbcr_conversion_map_); }
+    bool RemoveWrapper(const DescriptorUpdateTemplateWrapper* wrapper)  { return RemoveEntry(wrapper, descriptor_update_template_map_); }
+    bool RemoveWrapper(const SurfaceKHRWrapper* wrapper)                { return RemoveEntry(wrapper, surface_khr_map_); }
+    bool RemoveWrapper(const SwapchainKHRWrapper* wrapper)              { return RemoveEntry(wrapper, swapchain_khr_map_); }
+    bool RemoveWrapper(const DisplayKHRWrapper* wrapper)                { return RemoveEntry(wrapper, display_khr_map_); }
+    bool RemoveWrapper(const DisplayModeKHRWrapper* wrapper)            { return RemoveEntry(wrapper, display_mode_khr_map_); }
+    bool RemoveWrapper(const DebugReportCallbackEXTWrapper* wrapper)    { return RemoveEntry(wrapper, debug_report_callback_ext_map_); }
+    bool RemoveWrapper(const ObjectTableNVXWrapper* wrapper)            { return RemoveEntry(wrapper, object_table_nvx_map_); }
+    bool RemoveWrapper(const IndirectCommandsLayoutNVXWrapper* wrapper) { return RemoveEntry(wrapper, indirect_commands_layout_nvx_map_); }
+    bool RemoveWrapper(const DebugUtilsMessengerEXTWrapper* wrapper)    { return RemoveEntry(wrapper, debug_utils_messenger_ext_map_); }
+    bool RemoveWrapper(const ValidationCacheEXTWrapper* wrapper)        { return RemoveEntry(wrapper, validation_cache_ext_map_); }
+    bool RemoveWrapper(const AccelerationStructureNVWrapper* wrapper)   { return RemoveEntry(wrapper, acceleration_structure_nv_map_); }
 
     void VisitWrappers(std::function<void(const InstanceWrapper*)> visitor) const                   { for (auto entry : instance_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const PhysicalDeviceWrapper*)> visitor) const             { for (auto entry : physical_device_map_) { visitor(entry.second); } }
@@ -248,19 +248,11 @@ class VulkanStateTable
         return inserted.second;
     }
 
-    template <typename T>
-    T* RemoveEntry(format::HandleId id, std::map<format::HandleId, T*>& map)
+    template <typename Wrapper>
+    bool RemoveEntry(const Wrapper* wrapper, std::map<format::HandleId, Wrapper*>& map)
     {
-        T*   result = nullptr;
-        auto entry  = map.find(id);
-
-        if (entry != map.end())
-        {
-            result = entry->second;
-            map.erase(entry);
-        }
-
-        return result;
+        assert(wrapper != nullptr);
+        return (map.erase(wrapper->handle_id) != 0);
     }
 
     template <typename T>
