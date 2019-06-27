@@ -58,7 +58,7 @@ bool FileProcessor::Initialize(const std::string& filename)
 
         if (success)
         {
-            filename_ = filename;
+            filename_    = filename;
             error_state_ = kErrorNone;
         }
         else
@@ -150,7 +150,7 @@ bool FileProcessor::ProcessFileHeader()
                     GFXRECON_LOG_ERROR("Failed to initialized file compression module (type = %u); replay of "
                                        "compressed data will not be possible",
                                        enabled_options_.compression_type);
-                    success = false;
+                    success      = false;
                     error_state_ = kErrorUnsupportedCompressionType;
                 }
             }
@@ -478,7 +478,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchResizeWindowCommand(command.thread_id, command.surface_id, command.width, command.height);
+                decoder->DispatchResizeWindowCommand(
+                    command.thread_id, command.surface_id, command.width, command.height);
             }
         }
         else

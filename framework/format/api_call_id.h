@@ -38,8 +38,8 @@ constexpr uint32_t MakeApiCallId(uint16_t family, uint16_t api_call)
 
 enum ApiFamilyId : uint16_t
 {
-    ApiFamily_None    = 0,
-    ApiFamily_Vulkan  = 1
+    ApiFamily_None   = 0,
+    ApiFamily_Vulkan = 1
 };
 
 enum ApiCallId : uint32_t

@@ -316,7 +316,6 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMetalSurfaceEXT(VkInstance,
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 
-
 #if !defined(VK_USE_PLATFORM_MIR_KHR)
 #define VK_KHR_MIR_SURFACE_EXTENSION_NAME "VK_KHR_mir_surface"
 

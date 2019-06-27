@@ -44,11 +44,21 @@ function(target_static_analysis_build_directives TARGET)
         get_target_property(INCLUDE_DIRECTORIES ${TARGET} INCLUDE_DIRECTORIES)
         prepend_to_list_items(
             TARGET_INCLUDE_DIRS ${INCLUDE_DIRECTORIES} "-I")
+        get_target_property(COMPILE_DEFINITIONS ${TARGET} COMPILE_DEFINITIONS)
+        prepend_to_list_items(
+            TARGET_COMPILE_DEFS ${COMPILE_DEFINITIONS} "-D")
+        set(CLANG_TIDY_ARGS -checks=)
+        string(APPEND CLANG_TIDY_ARGS clang-analyzer-core*,)
+        string(APPEND CLANG_TIDY_ARGS clang-analyzer-cplusplus*,)
+        string(APPEND CLANG_TIDY_ARGS llvm-include-order,)
+        string(APPEND CLANG_TIDY_ARGS performance*,)
+        string(APPEND CLANG_TIDY_ARGS readability*)
         add_custom_command(TARGET ${TARGET} POST_BUILD
             COMMAND ${CLANG_TIDY}
-            ARGS ${SOURCES}
-                -checks=clang-analyzer-core*,clang-analyzer-cplusplus*,-llvm-include-order,performance*,readability*
-                -- ${TARGET_INCLUDE_DIRS}
+            ARGS
+                ${SOURCES}
+                ${CLANG_TIDY_ARGS}
+                -- ${TARGET_INCLUDE_DIRS} ${TARGET_COMPILE_DEFS}
             WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
     endif()
 endfunction()
