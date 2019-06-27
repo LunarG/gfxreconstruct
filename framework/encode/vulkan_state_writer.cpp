@@ -315,7 +315,7 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
     state_table.VisitWrappers([&](const SemaphoreWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        // Write event creation call.
+        // Write semaphore creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
         if (wrapper->signaled)
@@ -350,22 +350,38 @@ void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_tabl
     state_table.VisitWrappers([&](const FramebufferWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        // Write buffer creation call.
-        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        bool is_valid = true;
 
-        auto render_pass_wrapper = state_table.GetRenderPassWrapper(wrapper->render_pass_id);
-        if (render_pass_wrapper == nullptr)
+        // Omit the current framebuffer object if an image view used to create it no longer exists.
+        for (auto handle_id : wrapper->image_view_ids)
         {
-            // The object no longer exists, so a temporary object must be created.
-            auto        create_parameters = wrapper->render_pass_create_parameters.get();
-            const auto& inserted =
-                temp_render_passes.insert(std::make_pair(wrapper->render_pass_id, create_parameters));
-
-            // Create a temporary object on first encounter.
-            if (inserted.second)
+            auto image_view_wrapper = state_table.GetImageViewWrapper(handle_id);
+            if (image_view_wrapper == nullptr)
             {
-                WriteFunctionCall(wrapper->render_pass_create_call_id, create_parameters);
+                is_valid = false;
+                break;
             }
+        }
+
+        if (is_valid)
+        {
+            auto render_pass_wrapper = state_table.GetRenderPassWrapper(wrapper->render_pass_id);
+            if (render_pass_wrapper == nullptr)
+            {
+                // The object no longer exists, so a temporary object must be created.
+                auto        create_parameters = wrapper->render_pass_create_parameters.get();
+                const auto& inserted =
+                    temp_render_passes.insert(std::make_pair(wrapper->render_pass_id, create_parameters));
+
+                // Create a temporary object on first encounter.
+                if (inserted.second)
+                {
+                    WriteFunctionCall(wrapper->render_pass_create_call_id, create_parameters);
+                }
+            }
+
+            // Write framebuffer creation call.
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
         }
     });
 

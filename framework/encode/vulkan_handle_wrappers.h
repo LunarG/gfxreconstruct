@@ -182,9 +182,12 @@ struct ImageViewWrapper : public HandleWrapper<VkImageView>
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
 {
+    // Creation info for objects used to create the framebuffer, which may have been destroyed after creation.
     format::HandleId  render_pass_id{ 0 };
     format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  render_pass_create_parameters;
+
+    std::vector<format::HandleId> image_view_ids;
 
     // Track handles of image attachments for processing render pass layout transitions.
     std::vector<ImageWrapper*> attachments;
@@ -255,7 +258,7 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
-    std::vector<ShaderModuleInfo> shader_modules;
+    std::vector<CreateDependencyInfo> shader_modules;
 
     format::HandleId  render_pass_id{ 0 };
     format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };

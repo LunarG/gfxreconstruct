@@ -128,7 +128,7 @@ inline void InitializeState<VkDevice, PipelineLayoutWrapper, VkPipelineLayoutCre
         assert(create_info->pSetLayouts[i] != VK_NULL_HANDLE);
 
         auto layout_wrapper = reinterpret_cast<DescriptorSetLayoutWrapper*>(create_info->pSetLayouts[i]);
-        DescriptorSetLayoutInfo info;
+        CreateDependencyInfo info;
         info.handle_id         = layout_wrapper->handle_id;
         info.create_call_id    = layout_wrapper->create_call_id;
         info.create_parameters = layout_wrapper->create_parameters;
@@ -265,6 +265,8 @@ InitializeState<VkDevice, FramebufferWrapper, VkFramebufferCreateInfo>(VkDevice 
         {
             auto image_view_wrapper = reinterpret_cast<ImageViewWrapper*>(create_info->pAttachments[i]);
             assert(image_view_wrapper != nullptr);
+
+            wrapper->image_view_ids.push_back(image_view_wrapper->handle_id);
             wrapper->attachments.push_back(image_view_wrapper->image);
         }
     }
@@ -322,7 +324,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
         auto shader_wrapper = reinterpret_cast<ShaderModuleWrapper*>(create_info->pStages[i].module);
         assert(shader_wrapper != nullptr);
 
-        ShaderModuleInfo info;
+        CreateDependencyInfo info;
         info.handle_id         = shader_wrapper->handle_id;
         info.create_call_id    = shader_wrapper->create_call_id;
         info.create_parameters = shader_wrapper->create_parameters;
@@ -370,7 +372,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     auto shader_wrapper = reinterpret_cast<ShaderModuleWrapper*>(create_info->stage.module);
     assert(shader_wrapper != nullptr);
 
-    ShaderModuleInfo info;
+    CreateDependencyInfo info;
     info.handle_id         = shader_wrapper->handle_id;
     info.create_call_id    = shader_wrapper->create_call_id;
     info.create_parameters = shader_wrapper->create_parameters;
@@ -412,7 +414,7 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
         auto shader_wrapper = reinterpret_cast<ShaderModuleWrapper*>(create_info->pStages[i].module);
         assert(shader_wrapper != nullptr);
 
-        ShaderModuleInfo info;
+        CreateDependencyInfo info;
         info.handle_id         = shader_wrapper->handle_id;
         info.create_call_id    = shader_wrapper->create_call_id;
         info.create_parameters = shader_wrapper->create_parameters;
