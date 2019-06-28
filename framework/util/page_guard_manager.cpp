@@ -87,10 +87,11 @@ static uint32_t kGuardReadWriteProtect = PROT_NONE;
 static uint32_t kGuardReadOnlyProtect  = PROT_READ;
 static uint32_t kGuardNoProtect        = PROT_READ | PROT_WRITE;
 
-static struct sigaction s_old_sigaction;
+static struct sigaction s_old_sigaction = {};
 
 static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 {
+    bool              handled = false;
     PageGuardManager* manager = PageGuardManager::Get();
     if ((id == SIGSEGV) && (info->si_addr != nullptr) && (manager != nullptr))
     {
@@ -103,10 +104,28 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
             ucontext_t* ucontext = reinterpret_cast<ucontext_t*>(data);
             is_write             = (ucontext->uc_mcontext.gregs[REG_ERR] & 0x2) ? true : false;
         }
-#else
-        GFXRECON_UNREFERENCED_PARAMETER(data);
 #endif
-        manager->HandleGuardPageViolation(info->si_addr, is_write, true);
+        handled = manager->HandleGuardPageViolation(info->si_addr, is_write, true);
+    }
+
+    if (!handled)
+    {
+        // This was not a SIGSEGV signal for an address that was protected with mprotect().
+        // Raise the original signal handler for this case.
+        if ((s_old_sigaction.sa_flags & SA_SIGINFO) == SA_SIGINFO)
+        {
+            if (s_old_sigaction.sa_sigaction != nullptr)
+            {
+                s_old_sigaction.sa_sigaction(id, info, data);
+            }
+        }
+        else
+        {
+            if (s_old_sigaction.sa_handler != nullptr)
+            {
+                s_old_sigaction.sa_handler(id);
+            }
+        }
     }
 }
 #endif
