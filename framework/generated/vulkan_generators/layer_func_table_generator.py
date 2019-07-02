@@ -92,7 +92,7 @@ class LayerFuncTableGenerator(BaseGenerator):
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        for cmd in self.featureCmdParams:
+        for cmd in self.getFilteredCmdNames():
             align = 100 - len(cmd)
             if (cmd in self.LAYER_FUNCTIONS):
                 body = '    {{ "{}",{}reinterpret_cast<PFN_vkVoidFunction>({}) }},'.format(cmd, (' ' * align), cmd[2:])

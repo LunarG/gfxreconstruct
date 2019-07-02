@@ -315,7 +315,7 @@ class BaseGenerator(OutputGenerator):
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
-        if self.processStructs and (typename not in self.STRUCT_BLACKLIST):
+        if self.processStructs:
             if not alias:
                 self.featureStructMembers[typename] = self.makeValueInfo(typeinfo.elem.findall('.//member'))
             else:
@@ -338,7 +338,7 @@ class BaseGenerator(OutputGenerator):
     # Command generation
     def genCmd(self, cmdinfo, name, alias):
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
-        if self.processCmds and (name not in self.APICALL_BLACKLIST):
+        if self.processCmds:
             # Create the declaration for the function prototype
             proto = cmdinfo.elem.find('proto')
             protoDecl = self.genOpts.apicall + noneStr(proto.text)
@@ -514,6 +514,30 @@ class BaseGenerator(OutputGenerator):
         return capacity
 
     #
+    # Determines if a struct with the specified typename is blacklisted.
+    def isStructBlackListed(self, typename):
+        if typename in self.STRUCT_BLACKLIST:
+            return True
+        return False
+
+    #
+    # Determines if a struct with the specified typename is blacklisted.
+    def isCmdBlackListed(self, name):
+        if name in self.APICALL_BLACKLIST:
+            return True
+        return False
+
+    #
+    # Retrieves a filtered list of keys from self.featureStructMemebers with blacklisted items removed.
+    def getFilteredStructNames(self):
+        return [key for key in self.featureStructMembers if not self.isStructBlackListed(key)]
+
+    #
+    # Retrieves a filtered list of keys from self.featureCmdParams with blacklisted items removed.
+    def getFilteredCmdNames(self):
+        return [key for key in self.featureCmdParams if not self.isCmdBlackListed(key)]
+
+    #
     # Determines if the specified struct type can reference pNext extension structs that contain handles.
     def checkStructPNextHandles(self, typename):
         validExtensionStructs = self.registry.validextensionstructs.get(typename)
@@ -550,7 +574,6 @@ class BaseGenerator(OutputGenerator):
             structsWithHandles[typename] = handles
             return True
         return False
-
 
     #
     # Extract length value from latexmath expression.  Currently an inflexible solution that looks for specific
