@@ -77,7 +77,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for struct in self.featureStructMembers:
+        for struct in self.getFilteredStructNames():
             body = '' if first else '\n'
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(struct)
             body += '{\n'

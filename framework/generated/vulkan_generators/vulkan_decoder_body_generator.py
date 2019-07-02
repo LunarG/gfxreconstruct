@@ -93,7 +93,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for cmd in self.featureCmdParams:
+        for cmd in self.getFilteredCmdNames():
             self.cmdNames.append(cmd)
 
             info = self.featureCmdParams[cmd]

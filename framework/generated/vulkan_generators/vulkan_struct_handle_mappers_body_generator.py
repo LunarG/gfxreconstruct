@@ -114,7 +114,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
     def genStruct(self, typeinfo, typename, alias):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if (typename not in self.STRUCT_BLACKLIST) and not alias:
+        if not alias:
             if self.checkStructMemberHandles(typename, self.structsWithHandles):
                 # Track this struct if it can be present in a pNext chain, for generating the MapPNextStructHandles code.
                 parentStructs = typeinfo.elem.get('structextends')
@@ -133,7 +133,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        for struct in self.featureStructMembers:
+        for struct in self.getFilteredStructNames():
             if struct in self.structsWithHandles:
                 members = self.structsWithHandles[struct]
 

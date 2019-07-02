@@ -77,7 +77,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
     def genStruct(self, typeinfo, typename, alias):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if (typename not in self.STRUCT_BLACKLIST) and not alias:
+        if not alias:
             self.checkStructMemberHandles(typename, self.structsWithHandles)
 
     #
@@ -90,7 +90,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        for cmd in self.featureCmdParams:
+        for cmd in self.getFilteredCmdNames():
             info = self.featureCmdParams[cmd]
             returnType = info[0]
             values = info[2]
