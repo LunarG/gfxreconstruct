@@ -111,7 +111,7 @@ void MapStructHandles(Decoded_VkSparseBufferMemoryBindInfo* wrapper, const Vulka
 
         value->buffer = object_mapper.MapVkBuffer(wrapper->buffer);
 
-        MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds.GetMetaStructPointer(), wrapper->pBinds.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_mapper);
     }
 }
 
@@ -123,7 +123,7 @@ void MapStructHandles(Decoded_VkSparseImageOpaqueMemoryBindInfo* wrapper, const 
 
         value->image = object_mapper.MapVkImage(wrapper->image);
 
-        MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds.GetMetaStructPointer(), wrapper->pBinds.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_mapper);
     }
 }
 
@@ -145,7 +145,7 @@ void MapStructHandles(Decoded_VkSparseImageMemoryBindInfo* wrapper, const Vulkan
 
         value->image = object_mapper.MapVkImage(wrapper->image);
 
-        MapStructArrayHandles<Decoded_VkSparseImageMemoryBind>(wrapper->pBinds.GetMetaStructPointer(), wrapper->pBinds.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseImageMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_mapper);
     }
 }
 
@@ -157,11 +157,11 @@ void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const VulkanObjectMappe
 
         MapHandleArray<VkSemaphore>(wrapper->pWaitSemaphores.GetPointer(), wrapper->pWaitSemaphores.GetHandlePointer(), wrapper->pWaitSemaphores.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSemaphore);
 
-        MapStructArrayHandles<Decoded_VkSparseBufferMemoryBindInfo>(wrapper->pBufferBinds.GetMetaStructPointer(), wrapper->pBufferBinds.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseBufferMemoryBindInfo>(wrapper->pBufferBinds->GetMetaStructPointer(), wrapper->pBufferBinds->GetLength(), object_mapper);
 
-        MapStructArrayHandles<Decoded_VkSparseImageOpaqueMemoryBindInfo>(wrapper->pImageOpaqueBinds.GetMetaStructPointer(), wrapper->pImageOpaqueBinds.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseImageOpaqueMemoryBindInfo>(wrapper->pImageOpaqueBinds->GetMetaStructPointer(), wrapper->pImageOpaqueBinds->GetLength(), object_mapper);
 
-        MapStructArrayHandles<Decoded_VkSparseImageMemoryBindInfo>(wrapper->pImageBinds.GetMetaStructPointer(), wrapper->pImageBinds.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseImageMemoryBindInfo>(wrapper->pImageBinds->GetMetaStructPointer(), wrapper->pImageBinds->GetLength(), object_mapper);
 
         MapHandleArray<VkSemaphore>(wrapper->pSignalSemaphores.GetPointer(), wrapper->pSignalSemaphores.GetHandlePointer(), wrapper->pSignalSemaphores.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSemaphore);
     }
@@ -230,7 +230,7 @@ void MapStructHandles(Decoded_VkGraphicsPipelineCreateInfo* wrapper, const Vulka
     {
         VkGraphicsPipelineCreateInfo* value = wrapper->value;
 
-        MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages.GetMetaStructPointer(), wrapper->pStages.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_mapper);
 
         value->layout = object_mapper.MapVkPipelineLayout(wrapper->layout);
 
@@ -246,7 +246,7 @@ void MapStructHandles(Decoded_VkComputePipelineCreateInfo* wrapper, const Vulkan
     {
         VkComputePipelineCreateInfo* value = wrapper->value;
 
-        MapStructHandles(&wrapper->stage, object_mapper);
+        MapStructHandles(wrapper->stage.get(), object_mapper);
 
         value->layout = object_mapper.MapVkPipelineLayout(wrapper->layout);
 
@@ -289,7 +289,7 @@ void MapStructHandles(Decoded_VkDescriptorSetLayoutCreateInfo* wrapper, const Vu
 {
     if (wrapper != nullptr)
     {
-        MapStructArrayHandles<Decoded_VkDescriptorSetLayoutBinding>(wrapper->pBindings.GetMetaStructPointer(), wrapper->pBindings.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkDescriptorSetLayoutBinding>(wrapper->pBindings->GetMetaStructPointer(), wrapper->pBindings->GetLength(), object_mapper);
     }
 }
 
@@ -340,9 +340,9 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectM
 
         value->dstSet = object_mapper.MapVkDescriptorSet(wrapper->dstSet);
 
-        MapStructArrayHandles<Decoded_VkDescriptorImageInfo>(wrapper->pImageInfo.GetMetaStructPointer(), wrapper->pImageInfo.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkDescriptorImageInfo>(wrapper->pImageInfo->GetMetaStructPointer(), wrapper->pImageInfo->GetLength(), object_mapper);
 
-        MapStructArrayHandles<Decoded_VkDescriptorBufferInfo>(wrapper->pBufferInfo.GetMetaStructPointer(), wrapper->pBufferInfo.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkDescriptorBufferInfo>(wrapper->pBufferInfo->GetMetaStructPointer(), wrapper->pBufferInfo->GetLength(), object_mapper);
 
         MapHandleArray<VkBufferView>(wrapper->pTexelBufferView.GetPointer(), wrapper->pTexelBufferView.GetHandlePointer(), wrapper->pTexelBufferView.GetLength(), object_mapper, &VulkanObjectMapper::MapVkBufferView);
     }
@@ -398,7 +398,7 @@ void MapStructHandles(Decoded_VkCommandBufferBeginInfo* wrapper, const VulkanObj
 {
     if (wrapper != nullptr)
     {
-        MapStructArrayHandles<Decoded_VkCommandBufferInheritanceInfo>(wrapper->pInheritanceInfo.GetMetaStructPointer(), 1, object_mapper);
+        MapStructArrayHandles<Decoded_VkCommandBufferInheritanceInfo>(wrapper->pInheritanceInfo->GetMetaStructPointer(), 1, object_mapper);
     }
 }
 
@@ -771,7 +771,7 @@ void MapStructHandles(Decoded_VkDisplayProperties2KHR* wrapper, const VulkanObje
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(&wrapper->displayProperties, object_mapper);
+        MapStructHandles(wrapper->displayProperties.get(), object_mapper);
     }
 }
 
@@ -779,7 +779,7 @@ void MapStructHandles(Decoded_VkDisplayPlaneProperties2KHR* wrapper, const Vulka
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(&wrapper->displayPlaneProperties, object_mapper);
+        MapStructHandles(wrapper->displayPlaneProperties.get(), object_mapper);
     }
 }
 
@@ -787,7 +787,7 @@ void MapStructHandles(Decoded_VkDisplayModeProperties2KHR* wrapper, const Vulkan
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(&wrapper->displayModeProperties, object_mapper);
+        MapStructHandles(wrapper->displayModeProperties.get(), object_mapper);
     }
 }
 
@@ -867,7 +867,7 @@ void MapStructHandles(Decoded_VkCmdProcessCommandsInfoNVX* wrapper, const Vulkan
 
         value->indirectCommandsLayout = object_mapper.MapVkIndirectCommandsLayoutNVX(wrapper->indirectCommandsLayout);
 
-        MapStructArrayHandles<Decoded_VkIndirectCommandsTokenNVX>(wrapper->pIndirectCommandsTokens.GetMetaStructPointer(), wrapper->pIndirectCommandsTokens.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkIndirectCommandsTokenNVX>(wrapper->pIndirectCommandsTokens->GetMetaStructPointer(), wrapper->pIndirectCommandsTokens->GetLength(), object_mapper);
 
         value->targetCommandBuffer = object_mapper.MapVkCommandBuffer(wrapper->targetCommandBuffer);
 
@@ -967,7 +967,7 @@ void MapStructHandles(Decoded_VkRayTracingPipelineCreateInfoNV* wrapper, const V
     {
         VkRayTracingPipelineCreateInfoNV* value = wrapper->value;
 
-        MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages.GetMetaStructPointer(), wrapper->pStages.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_mapper);
 
         value->layout = object_mapper.MapVkPipelineLayout(wrapper->layout);
 
@@ -1003,9 +1003,9 @@ void MapStructHandles(Decoded_VkGeometryDataNV* wrapper, const VulkanObjectMappe
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(&wrapper->triangles, object_mapper);
+        MapStructHandles(wrapper->triangles.get(), object_mapper);
 
-        MapStructHandles(&wrapper->aabbs, object_mapper);
+        MapStructHandles(wrapper->aabbs.get(), object_mapper);
     }
 }
 
@@ -1013,7 +1013,7 @@ void MapStructHandles(Decoded_VkGeometryNV* wrapper, const VulkanObjectMapper& o
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(&wrapper->geometry, object_mapper);
+        MapStructHandles(wrapper->geometry.get(), object_mapper);
     }
 }
 
@@ -1021,7 +1021,7 @@ void MapStructHandles(Decoded_VkAccelerationStructureInfoNV* wrapper, const Vulk
 {
     if (wrapper != nullptr)
     {
-        MapStructArrayHandles<Decoded_VkGeometryNV>(wrapper->pGeometries.GetMetaStructPointer(), wrapper->pGeometries.GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkGeometryNV>(wrapper->pGeometries->GetMetaStructPointer(), wrapper->pGeometries->GetLength(), object_mapper);
     }
 }
 
@@ -1029,7 +1029,7 @@ void MapStructHandles(Decoded_VkAccelerationStructureCreateInfoNV* wrapper, cons
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(&wrapper->info, object_mapper);
+        MapStructHandles(wrapper->info.get(), object_mapper);
     }
 }
 

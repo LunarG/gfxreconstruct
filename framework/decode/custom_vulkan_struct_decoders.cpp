@@ -45,8 +45,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearVa
     size_t        bytes_read = 0;
     VkClearValue* value      = wrapper->value;
 
-    wrapper->color.value = &(value->color);
-    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->color));
+    wrapper->color        = std::make_unique<Decoded_VkClearColorValue>();
+    wrapper->color->value = &(value->color);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->color.get());
 
     return bytes_read;
 }
@@ -112,11 +113,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_
     wrapper->Group = unpack_sid_struct(wrapper->PackedOwner);
     value->Group   = wrapper->Group.get();
 
-    bytes_read += wrapper->Sacl.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->Sacl = wrapper->Sacl.GetPointer();
+    wrapper->Sacl = std::make_unique<StructPointerDecoder<Decoded_ACL>>();
+    bytes_read += wrapper->Sacl->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->Sacl = wrapper->Sacl->GetPointer();
 
-    bytes_read += wrapper->Dacl.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->Dacl = wrapper->Dacl.GetPointer();
+    wrapper->Dacl = std::make_unique<StructPointerDecoder<Decoded_ACL>>();
+    bytes_read += wrapper->Dacl->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->Dacl = wrapper->Dacl->GetPointer();
 
     return bytes_read;
 }
@@ -132,8 +135,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &nLength);
     value->nLength = nLength;
 
-    bytes_read += wrapper->lpSecurityDescriptor.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->lpSecurityDescriptor = wrapper->lpSecurityDescriptor.GetPointer();
+    wrapper->lpSecurityDescriptor = std::make_unique<StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>>();
+    bytes_read += wrapper->lpSecurityDescriptor->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->lpSecurityDescriptor = wrapper->lpSecurityDescriptor->GetPointer();
 
     bytes_read +=
         ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bInheritHandle));
