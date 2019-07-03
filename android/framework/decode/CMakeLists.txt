@@ -6,6 +6,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders_forward.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_handle_mappers.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_handle_mappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/compression_converter.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/compression_converter.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/descriptor_update_template_decoder.h

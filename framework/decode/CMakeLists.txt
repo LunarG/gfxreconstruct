@@ -6,6 +6,8 @@ target_sources(gfxrecon_decode
                    custom_vulkan_struct_decoders.h
                    custom_vulkan_struct_decoders.cpp
                    custom_vulkan_struct_decoders_forward.h
+                   custom_vulkan_struct_handle_mappers.h
+                   custom_vulkan_struct_handle_mappers.cpp
                    compression_converter.h
                    compression_converter.cpp
                    descriptor_update_template_decoder.h

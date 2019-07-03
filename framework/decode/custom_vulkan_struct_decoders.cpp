@@ -18,12 +18,15 @@
 #include "decode/custom_vulkan_struct_decoders.h"
 
 #include "decode/value_decoder.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"
 
 #include <cassert>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, std::unique_ptr<PNextNode>* pNext);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper)
 {
@@ -48,6 +51,62 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearVa
     wrapper->color        = std::make_unique<Decoded_VkClearColorValue>();
     wrapper->color->value = &(value->color);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->color.get());
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t                 bytes_read = 0;
+    VkDescriptorImageInfo* value      = wrapper->value;
+
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->sampler));
+    value->sampler = VK_NULL_HANDLE;
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->imageView));
+    value->imageView = VK_NULL_HANDLE;
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageLayout));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWriteDescriptorSet* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+
+    size_t                bytes_read = 0;
+    VkWriteDescriptorSet* value      = wrapper->value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
+    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;
+
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->dstSet));
+    value->dstSet = VK_NULL_HANDLE;
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstBinding));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->dstArrayElement));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorCount));
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->descriptorType));
+
+    wrapper->pImageInfo = std::make_unique<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>();
+    bytes_read += wrapper->pImageInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pImageInfo = wrapper->pImageInfo->GetPointer();
+
+    wrapper->pBufferInfo = std::make_unique<StructPointerDecoder<Decoded_VkDescriptorBufferInfo>>();
+    bytes_read += wrapper->pBufferInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pBufferInfo = wrapper->pBufferInfo->GetPointer();
+
+    bytes_read += wrapper->pTexelBufferView.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pTexelBufferView = wrapper->pTexelBufferView.GetHandlePointer();
 
     return bytes_read;
 }

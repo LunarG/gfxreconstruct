@@ -20,8 +20,10 @@
 **
 */
 
-#include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
+
+#include "decode/custom_vulkan_struct_decoders.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -305,18 +307,6 @@ void MapStructHandles(Decoded_VkDescriptorSetAllocateInfo* wrapper, const Vulkan
     }
 }
 
-void MapStructHandles(Decoded_VkDescriptorImageInfo* wrapper, const VulkanObjectMapper& object_mapper)
-{
-    if ((wrapper != nullptr) && (wrapper->value != nullptr))
-    {
-        VkDescriptorImageInfo* value = wrapper->value;
-
-        value->sampler = object_mapper.MapVkSampler(wrapper->sampler);
-
-        value->imageView = object_mapper.MapVkImageView(wrapper->imageView);
-    }
-}
-
 void MapStructHandles(Decoded_VkDescriptorBufferInfo* wrapper, const VulkanObjectMapper& object_mapper)
 {
     if ((wrapper != nullptr) && (wrapper->value != nullptr))
@@ -324,27 +314,6 @@ void MapStructHandles(Decoded_VkDescriptorBufferInfo* wrapper, const VulkanObjec
         VkDescriptorBufferInfo* value = wrapper->value;
 
         value->buffer = object_mapper.MapVkBuffer(wrapper->buffer);
-    }
-}
-
-void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectMapper& object_mapper)
-{
-    if ((wrapper != nullptr) && (wrapper->value != nullptr))
-    {
-        VkWriteDescriptorSet* value = wrapper->value;
-
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
-        }
-
-        value->dstSet = object_mapper.MapVkDescriptorSet(wrapper->dstSet);
-
-        MapStructArrayHandles<Decoded_VkDescriptorImageInfo>(wrapper->pImageInfo->GetMetaStructPointer(), wrapper->pImageInfo->GetLength(), object_mapper);
-
-        MapStructArrayHandles<Decoded_VkDescriptorBufferInfo>(wrapper->pBufferInfo->GetMetaStructPointer(), wrapper->pBufferInfo->GetLength(), object_mapper);
-
-        MapHandleArray<VkBufferView>(wrapper->pTexelBufferView.GetPointer(), wrapper->pTexelBufferView.GetHandlePointer(), wrapper->pTexelBufferView.GetLength(), object_mapper, &VulkanObjectMapper::MapVkBufferView);
     }
 }
 

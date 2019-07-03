@@ -23,7 +23,7 @@
 #ifndef  GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_H
 #define  GFXRECON_GENERATED_VULKAN_STRUCT_DECODERS_H
 
-#include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pnext_node.h"
 #include "decode/pointer_decoder.h"
@@ -760,16 +760,6 @@ struct Decoded_VkDescriptorSetAllocateInfo
     HandlePointerDecoder<VkDescriptorSetLayout> pSetLayouts;
 };
 
-struct Decoded_VkDescriptorImageInfo
-{
-    using struct_type = VkDescriptorImageInfo;
-
-    VkDescriptorImageInfo* value{ nullptr };
-
-    format::HandleId sampler{ 0 };
-    format::HandleId imageView{ 0 };
-};
-
 struct Decoded_VkDescriptorBufferInfo
 {
     using struct_type = VkDescriptorBufferInfo;
@@ -777,19 +767,6 @@ struct Decoded_VkDescriptorBufferInfo
     VkDescriptorBufferInfo* value{ nullptr };
 
     format::HandleId buffer{ 0 };
-};
-
-struct Decoded_VkWriteDescriptorSet
-{
-    using struct_type = VkWriteDescriptorSet;
-
-    VkWriteDescriptorSet* value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-    format::HandleId dstSet{ 0 };
-    std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorImageInfo>> pImageInfo;
-    std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorBufferInfo>> pBufferInfo;
-    HandlePointerDecoder<VkBufferView> pTexelBufferView;
 };
 
 struct Decoded_VkCopyDescriptorSet

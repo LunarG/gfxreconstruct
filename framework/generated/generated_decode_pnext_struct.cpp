@@ -20,10 +20,10 @@
 **
 */
 
-#include "generated/generated_vulkan_struct_decoders.h"
-
+#include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/pnext_node.h"
 #include "decode/pnext_typed_node.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 #include "util/logging.h"
 
 #include <cassert>

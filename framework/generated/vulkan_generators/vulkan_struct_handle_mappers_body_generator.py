@@ -55,8 +55,10 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_handle_mappers.h"', file=self.outFile)
+        self.newline()
+        write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)

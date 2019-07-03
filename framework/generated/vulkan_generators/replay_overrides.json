@@ -18,6 +18,8 @@
     "vkCreatePipelineCache" : "OverrideCreatePipelineCache",
     "vkCreateDescriptorUpdateTemplate" : "OverrideCreateDescriptorUpdateTemplate",
     "vkCreateDescriptorUpdateTemplateKHR" : "OverrideCreateDescriptorUpdateTemplate",
+    "vkDestroyDescriptorUpdateTemplate" : "OverrideDestroyDescriptorUpdateTemplate",
+    "vkDestroyDescriptorUpdateTemplateKHR" : "OverrideDestroyDescriptorUpdateTemplate",
     "vkCreateAndroidSurfaceKHR" : "OverrideCreateAndroidSurfaceKHR",
     "vkCreateWin32SurfaceKHR" : "OverrideCreateWin32SurfaceKHR",
     "vkGetPhysicalDeviceWin32PresentationSupportKHR" : "OverrideGetPhysicalDeviceWin32PresentationSupportKHR",

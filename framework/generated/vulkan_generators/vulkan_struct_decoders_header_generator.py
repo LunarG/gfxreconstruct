@@ -48,7 +48,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
+        write('#include "decode/custom_vulkan_struct_decoders_forward.h"', file=self.outFile)
         write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pointer_decoder.h"', file=self.outFile)

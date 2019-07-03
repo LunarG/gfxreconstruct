@@ -282,6 +282,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const HandlePointerDecoder<VkDescriptorUpdateTemplate>& original_update_template,
         VkDescriptorUpdateTemplate*                             pDescriptorUpdateTemplate);
 
+    void OverrideDestroyDescriptorUpdateTemplate(PFN_vkDestroyDescriptorUpdateTemplate func,
+                                                 VkDevice                              device,
+                                                 VkDescriptorUpdateTemplate            descriptorUpdateTemplate,
+                                                 const VkAllocationCallbacks*          pAllocator);
+
     VkResult OverrideCreatePipelineCache(PFN_vkCreatePipelineCache                    func,
                                          VkResult                                     original_result,
                                          VkDevice                                     device,
@@ -381,7 +386,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
 
-    void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder);
+    void MapDescriptorUpdateTemplateHandles(VkDescriptorUpdateTemplate             update_template,
+                                            const DescriptorUpdateTemplateDecoder& decoder);
 
   private:
     struct InstanceDevices
@@ -401,6 +407,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_map<VkInstance, InstanceDevices>                InstanceDeviceMap;
     typedef std::unordered_map<VkPhysicalDevice, PhysicalDeviceProperties> PhysicalDevicePropertiesMap;
 
+    // Map the descriptor update template handle ID read from the capture file to an array of descriptor image types.
+    typedef std::vector<VkDescriptorType>                                        DescriptorImageTypes;
+    typedef std::unordered_map<VkDescriptorUpdateTemplate, DescriptorImageTypes> DescriptorUpdateTemplateImageTypes;
+
   private:
     util::platform::LibraryHandle                                    loader_handle_;
     PFN_vkGetInstanceProcAddr                                        get_instance_proc_addr_;
@@ -417,6 +427,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     ReplayOptions                                                    options_;
     InstanceDeviceMap                                                instance_devices_;
     PhysicalDevicePropertiesMap                                      device_properties_;
+    DescriptorUpdateTemplateImageTypes                               descriptor_update_template_image_types_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -17,6 +17,7 @@
 
 #include "decode/vulkan_replay_consumer_base.h"
 
+#include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/vulkan_enum_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
@@ -878,6 +879,9 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
         size_t buffer_info_offset       = image_info_count * sizeof(VkDescriptorImageInfo);
         size_t texel_buffer_view_offset = buffer_info_offset + (buffer_info_count * sizeof(VkDescriptorBufferInfo));
 
+        // Track descriptor image type.
+        DescriptorImageTypes image_types;
+
         for (auto entry = entries.begin(); entry != entries.end(); ++entry)
         {
             VkDescriptorType type = entry->descriptorType;
@@ -886,6 +890,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
                 (type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
                 (type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
             {
+                image_types.insert(image_types.end(), entry->descriptorCount, entry->descriptorType);
+
                 entry->stride = sizeof(VkDescriptorImageInfo);
                 entry->offset = image_info_offset;
                 image_info_offset += entry->descriptorCount * sizeof(VkDescriptorImageInfo);
@@ -913,12 +919,30 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
 
         override_create_info.pDescriptorUpdateEntries = entries.data();
 
-        return func(device, &override_create_info, pAllocator, pDescriptorUpdateTemplate);
+        VkResult result = func(device, &override_create_info, pAllocator, pDescriptorUpdateTemplate);
+
+        if ((result == VK_SUCCESS) && (pDescriptorUpdateTemplate != nullptr) &&
+            (*pDescriptorUpdateTemplate != VK_NULL_HANDLE))
+        {
+            descriptor_update_template_image_types_.emplace(*pDescriptorUpdateTemplate, image_types);
+        }
+
+        return result;
     }
     else
     {
         return func(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
     }
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyDescriptorUpdateTemplate(
+    PFN_vkDestroyDescriptorUpdateTemplate func,
+    VkDevice                              device,
+    VkDescriptorUpdateTemplate            descriptorUpdateTemplate,
+    const VkAllocationCallbacks*          pAllocator)
+{
+    descriptor_update_template_image_types_.erase(descriptorUpdateTemplate);
+    func(device, descriptorUpdateTemplate, pAllocator);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
@@ -1095,7 +1119,8 @@ void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(PFN_vkDestroySurfaceKHR
     }
 }
 
-void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateDecoder& decoder)
+void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(VkDescriptorUpdateTemplate update_template,
+                                                                  const DescriptorUpdateTemplateDecoder& decoder)
 {
     size_t image_info_count        = decoder.GetImageInfoCount();
     size_t buffer_info_count       = decoder.GetBufferInfoCount();
@@ -1103,7 +1128,26 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(const Descript
 
     if (image_info_count > 0)
     {
-        MapStructArrayHandles(decoder.GetImageInfoMetaStructPointer(), image_info_count, object_mapper_);
+        auto image_types_iter = descriptor_update_template_image_types_.find(update_template);
+        if (image_types_iter != descriptor_update_template_image_types_.end())
+        {
+            Decoded_VkDescriptorImageInfo* structs = decoder.GetImageInfoMetaStructPointer();
+            for (size_t i = 0; i < image_info_count; ++i)
+            {
+                MapStructHandles(image_types_iter->second[i], &structs[i], object_mapper_);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Missing descriptor update template image descriptor type info; attempting to map both "
+                               "VkDescriptorImageInfo handles");
+
+            Decoded_VkDescriptorImageInfo* structs = decoder.GetImageInfoMetaStructPointer();
+            for (size_t i = 0; i < image_info_count; ++i)
+            {
+                MapStructHandles(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &structs[i], object_mapper_);
+            }
+        }
     }
 
     if (buffer_info_count > 0)
@@ -1131,7 +1175,7 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format:
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate =
         object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
 
-    MapDescriptorUpdateTemplateHandles(pData);
+    MapDescriptorUpdateTemplateHandles(in_descriptorUpdateTemplate, pData);
 
     GetDeviceTable(in_device)->UpdateDescriptorSetWithTemplate(
         in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData.GetPointer());
@@ -1149,7 +1193,7 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
         object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
     VkPipelineLayout in_layout = object_mapper_.MapVkPipelineLayout(layout);
 
-    MapDescriptorUpdateTemplateHandles(pData);
+    MapDescriptorUpdateTemplateHandles(in_descriptorUpdateTemplate, pData);
 
     GetDeviceTable(in_commandBuffer)
         ->CmdPushDescriptorSetWithTemplateKHR(
@@ -1167,7 +1211,7 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate =
         object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
 
-    MapDescriptorUpdateTemplateHandles(pData);
+    MapDescriptorUpdateTemplateHandles(in_descriptorUpdateTemplate, pData);
 
     GetDeviceTable(in_device)->UpdateDescriptorSetWithTemplateKHR(
         in_device, in_descriptorSet, in_descriptorUpdateTemplate, pData.GetPointer());

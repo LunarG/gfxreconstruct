@@ -26,6 +26,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorImageInfo& value)
+{
+    encoder->EncodeHandleIdValue(value.sampler);
+    encoder->EncodeHandleIdValue(value.imageView);
+    encoder->EncodeEnumValue(value.imageLayout);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkClearColorValue& value)
 {
     encoder->EncodeUInt32Array(value.uint32, 4);
@@ -35,6 +42,56 @@ void EncodeStruct(ParameterEncoder* encoder, const VkClearValue& value)
 {
     // VkClearColorValue is used becaue it is the larger of the two union members.
     EncodeStruct(encoder, value.color);
+}
+
+// Encodes both VkWriteDescriptorSet and VkDescriptorImageInfo based on descriptor type.
+void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleIdValue(value.dstSet);
+    encoder->EncodeUInt32Value(value.dstBinding);
+    encoder->EncodeUInt32Value(value.dstArrayElement);
+    encoder->EncodeUInt32Value(value.descriptorCount);
+    encoder->EncodeEnumValue(value.descriptorType);
+
+    bool omit_image_data        = true;
+    bool omit_buffer_data       = true;
+    bool omit_texel_buffer_data = true;
+
+    switch (value.descriptorType)
+    {
+        case VK_DESCRIPTOR_TYPE_SAMPLER:
+        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            omit_image_data = false;
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+            omit_buffer_data = false;
+            break;
+        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            omit_texel_buffer_data = false;
+            break;
+        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
+            // TODO
+            break;
+        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+            // TODO
+            break;
+        default:
+            GFXRECON_LOG_WARNING("Attempting to track descriptor state for unrecognized descriptor type");
+            break;
+    }
+
+    EncodeStructArray(encoder, value.pImageInfo, value.descriptorCount, omit_image_data);
+    EncodeStructArray(encoder, value.pBufferInfo, value.descriptorCount, omit_buffer_data);
+    encoder->EncodeHandleIdArray(value.pTexelBufferView, value.descriptorCount, omit_texel_buffer_data);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
