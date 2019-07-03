@@ -178,11 +178,11 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
             elif self.isStruct(member.baseType):
                 # This is a struct that includes handles.
                 if member.isArray:
-                    body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{name}.GetMetaStructPointer(), wrapper->{name}.GetLength(), object_mapper);\n'.format(member.baseType, name=member.name)
+                    body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength(), object_mapper);\n'.format(member.baseType, name=member.name)
                 elif member.isPointer:
-                    body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{}.GetMetaStructPointer(), 1, object_mapper);\n'.format(member.baseType, member.name)
+                    body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{}->GetMetaStructPointer(), 1, object_mapper);\n'.format(member.baseType, member.name)
                 else:
-                    body += '        MapStructHandles(&wrapper->{}, object_mapper);\n'.format(member.name)
+                    body += '        MapStructHandles(wrapper->{}.get(), object_mapper);\n'.format(member.name)
             else:
                 # If it is an array or pointer, map with the utility function.
                 if (member.isArray or member.isPointer):

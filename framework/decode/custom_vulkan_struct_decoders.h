@@ -42,8 +42,8 @@ struct Decoded_VkClearColorValue
 struct Decoded_VkClearValue
 {
     using struct_type = VkClearValue;
-    VkClearValue*             value{ nullptr };
-    Decoded_VkClearColorValue color;
+    VkClearValue*                              value{ nullptr };
+    std::unique_ptr<Decoded_VkClearColorValue> color;
 };
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
@@ -71,8 +71,8 @@ struct Decoded_SECURITY_DESCRIPTOR
     PointerDecoder<uint8_t>    PackedOwner;
     PointerDecoder<uint8_t>    PackedGroup;
 
-    StructPointerDecoder<Decoded_ACL> Sacl;
-    StructPointerDecoder<Decoded_ACL> Dacl;
+    std::unique_ptr<StructPointerDecoder<Decoded_ACL>> Sacl;
+    std::unique_ptr<StructPointerDecoder<Decoded_ACL>> Dacl;
 };
 
 struct Decoded_SECURITY_ATTRIBUTES
@@ -81,7 +81,7 @@ struct Decoded_SECURITY_ATTRIBUTES
 
     SECURITY_ATTRIBUTES* value{ nullptr };
 
-    StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR> lpSecurityDescriptor;
+    std::unique_ptr<StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>> lpSecurityDescriptor;
 };
 
 GFXRECON_END_NAMESPACE(decode)
