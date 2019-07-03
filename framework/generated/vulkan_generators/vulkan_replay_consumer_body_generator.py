@@ -67,8 +67,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         if genOpts.replayOverrides:
             self.__loadReplayOverrides(genOpts.replayOverrides)
 
-        write('#include "generated/generated_vulkan_dispatch_table.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_replay_consumer.h"', file=self.outFile)
+        self.newline()
+        write('#include "decode/custom_vulkan_struct_handle_mappers.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_dispatch_table.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_handle_mappers.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()

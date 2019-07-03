@@ -20,6 +20,7 @@
 
 #include "format/format.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
 

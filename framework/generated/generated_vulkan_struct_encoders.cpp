@@ -912,32 +912,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetAllocateInfo& 
     encoder->EncodeHandleIdArray(value.pSetLayouts, value.descriptorSetCount);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorImageInfo& value)
-{
-    encoder->EncodeHandleIdValue(value.sampler);
-    encoder->EncodeHandleIdValue(value.imageView);
-    encoder->EncodeEnumValue(value.imageLayout);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorBufferInfo& value)
 {
     encoder->EncodeHandleIdValue(value.buffer);
     encoder->EncodeVkDeviceSizeValue(value.offset);
     encoder->EncodeVkDeviceSizeValue(value.range);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleIdValue(value.dstSet);
-    encoder->EncodeUInt32Value(value.dstBinding);
-    encoder->EncodeUInt32Value(value.dstArrayElement);
-    encoder->EncodeUInt32Value(value.descriptorCount);
-    encoder->EncodeEnumValue(value.descriptorType);
-    EncodeStructArray(encoder, value.pImageInfo, value.descriptorCount);
-    EncodeStructArray(encoder, value.pBufferInfo, value.descriptorCount);
-    encoder->EncodeHandleIdArray(value.pTexelBufferView, value.descriptorCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyDescriptorSet& value)

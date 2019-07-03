@@ -50,6 +50,8 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
 
         write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         self.newline()
+        write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
+        self.newline()
         write('#include <cassert>', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)

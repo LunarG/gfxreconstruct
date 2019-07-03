@@ -641,6 +641,7 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
                 image_info.count         = entry->descriptorCount;
                 image_info.offset        = entry->offset;
                 image_info.stride        = entry->stride;
+                image_info.type          = type;
 
                 info.image_info_count += entry->descriptorCount;
                 info.image_info.emplace_back(image_info);
@@ -655,6 +656,7 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
                 buffer_info.count         = entry->descriptorCount;
                 buffer_info.offset        = entry->offset;
                 buffer_info.stride        = entry->stride;
+                buffer_info.type          = type;
 
                 info.buffer_info_count += entry->descriptorCount;
                 info.buffer_info.emplace_back(buffer_info);
@@ -668,6 +670,7 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
                 texel_buffer_view_info.count         = entry->descriptorCount;
                 texel_buffer_view_info.offset        = entry->offset;
                 texel_buffer_view_info.stride        = entry->stride;
+                texel_buffer_view_info.type          = type;
 
                 info.texel_buffer_view_count += entry->descriptorCount;
                 info.texel_buffer_view.emplace_back(texel_buffer_view_info);

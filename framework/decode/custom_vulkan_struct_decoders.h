@@ -20,8 +20,11 @@
 
 #include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
+#include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
+#include "decode/pnext_node.h"
 #include "decode/struct_pointer_decoder.h"
+#include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -47,6 +50,29 @@ struct Decoded_VkClearValue
 };
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
+struct Decoded_VkDescriptorImageInfo
+{
+    using struct_type = VkDescriptorImageInfo;
+
+    VkDescriptorImageInfo* value{ nullptr };
+
+    format::HandleId sampler{ 0 };
+    format::HandleId imageView{ 0 };
+};
+
+struct Decoded_VkWriteDescriptorSet
+{
+    using struct_type = VkWriteDescriptorSet;
+
+    VkWriteDescriptorSet* value{ nullptr };
+
+    std::unique_ptr<PNextNode>                                            pNext;
+    format::HandleId                                                      dstSet{ 0 };
+    std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>  pImageInfo;
+    std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorBufferInfo>> pBufferInfo;
+    HandlePointerDecoder<VkBufferView>                                    pTexelBufferView;
+};
+
 struct Decoded_VkObjectTableEntryNVX
 {
     VkObjectTableEntryNVX* value{ nullptr };

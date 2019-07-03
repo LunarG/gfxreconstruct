@@ -20,8 +20,10 @@
 **
 */
 
-#include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+
+#include "decode/custom_vulkan_struct_handle_mappers.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/defines.h"
 
@@ -2227,7 +2229,7 @@ void VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = GetObjectMapper().MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
-    GetDeviceTable(in_device)->DestroyDescriptorUpdateTemplate(in_device, in_descriptorUpdateTemplate, in_pAllocator);
+    OverrideDestroyDescriptorUpdateTemplate(GetDeviceTable(in_device)->DestroyDescriptorUpdateTemplate, in_device, in_descriptorUpdateTemplate, in_pAllocator);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
@@ -3155,7 +3157,7 @@ void VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = GetObjectMapper().MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
-    GetDeviceTable(in_device)->DestroyDescriptorUpdateTemplateKHR(in_device, in_descriptorUpdateTemplate, in_pAllocator);
+    OverrideDestroyDescriptorUpdateTemplate(GetDeviceTable(in_device)->DestroyDescriptorUpdateTemplateKHR, in_device, in_descriptorUpdateTemplate, in_pAllocator);
 }
 
 void VulkanReplayConsumer::Process_vkCreateRenderPass2KHR(

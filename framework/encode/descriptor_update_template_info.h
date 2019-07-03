@@ -28,11 +28,12 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 struct UpdateTemplateEntryInfo
 {
-    uint32_t binding;       // Used for state tracking only.
-    uint32_t array_element; // Used for state tracking only.
-    uint32_t count;
-    size_t   offset;
-    size_t   stride;
+    uint32_t         binding;       // Used for state tracking only.
+    uint32_t         array_element; // Used for state tracking only.
+    uint32_t         count;
+    size_t           offset;
+    size_t           stride;
+    VkDescriptorType type;
 };
 
 struct UpdateTemplateInfo

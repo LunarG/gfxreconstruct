@@ -111,9 +111,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutCreateIn
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorPoolSize& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorPoolCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetAllocateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorImageInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorBufferInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkCopyDescriptorSet& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkFramebufferCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentDescription& value);
