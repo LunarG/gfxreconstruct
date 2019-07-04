@@ -142,7 +142,7 @@ class VulkanObjectMapper
             }
             else
             {
-                GFXRECON_LOG_DEBUG("Failed to map handle for object id %" PRIx64, id);
+                GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIx64, id);
             }
         }
 
