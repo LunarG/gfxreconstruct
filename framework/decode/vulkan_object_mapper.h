@@ -65,7 +65,6 @@ class VulkanObjectMapper
     void AddVkSwapchainKHR(format::HandleId id, VkSwapchainKHR handle)                               { AddObject<VkSwapchainKHR>(id, handle, &swapchain_khr_map_); }
     void AddVkDisplayKHR(format::HandleId id, VkDisplayKHR handle)                                   { AddObject<VkDisplayKHR>(id, handle, &display_khr_map_); }
     void AddVkDisplayModeKHR(format::HandleId id, VkDisplayModeKHR handle)                           { AddObject<VkDisplayModeKHR>(id, handle, &display_mode_khr_map_); }
-    void AddVkDescriptorUpdateTemplateKHR(format::HandleId id, VkDescriptorUpdateTemplateKHR handle) { AddObject<VkDescriptorUpdateTemplateKHR>(id, handle, &descriptor_update_template_khr_map_); }
     void AddVkSamplerYcbcrConversionKHR(format::HandleId id, VkSamplerYcbcrConversionKHR handle)     { AddObject<VkSamplerYcbcrConversionKHR>(id, handle, &sampler_ycbcr_conversion_khr_map_); }
     void AddVkDebugReportCallbackEXT(format::HandleId id, VkDebugReportCallbackEXT handle)           { AddObject<VkDebugReportCallbackEXT>(id, handle, &debug_report_callback_ext_map_); }
     void AddVkObjectTableNVX(format::HandleId id, VkObjectTableNVX handle)                           { AddObject<VkObjectTableNVX>(id, handle, &object_table_nvx_map_); }
@@ -105,7 +104,6 @@ class VulkanObjectMapper
     VkSwapchainKHR                MapVkSwapchainKHR(format::HandleId id) const                { return MapObject<VkSwapchainKHR>(id, &swapchain_khr_map_); }
     VkDisplayKHR                  MapVkDisplayKHR(format::HandleId id) const                  { return MapObject<VkDisplayKHR>(id, &display_khr_map_); }
     VkDisplayModeKHR              MapVkDisplayModeKHR(format::HandleId id) const              { return MapObject<VkDisplayModeKHR>(id, &display_mode_khr_map_); }
-    VkDescriptorUpdateTemplateKHR MapVkDescriptorUpdateTemplateKHR(format::HandleId id) const { return MapObject<VkDescriptorUpdateTemplateKHR>(id, &descriptor_update_template_khr_map_); }
     VkSamplerYcbcrConversionKHR   MapVkSamplerYcbcrConversionKHR(format::HandleId id) const   { return MapObject<VkSamplerYcbcrConversionKHR>(id, &sampler_ycbcr_conversion_khr_map_); }
     VkDebugReportCallbackEXT      MapVkDebugReportCallbackEXT(format::HandleId id) const      { return MapObject<VkDebugReportCallbackEXT>(id, &debug_report_callback_ext_map_); }
     VkObjectTableNVX              MapVkObjectTableNVX(format::HandleId id) const              { return MapObject<VkObjectTableNVX>(id, &object_table_nvx_map_); }
@@ -183,7 +181,6 @@ class VulkanObjectMapper
     std::unordered_map<format::HandleId, VkSwapchainKHR>                swapchain_khr_map_;
     std::unordered_map<format::HandleId, VkDisplayKHR>                  display_khr_map_;
     std::unordered_map<format::HandleId, VkDisplayModeKHR>              display_mode_khr_map_;
-    std::unordered_map<format::HandleId, VkDescriptorUpdateTemplateKHR> descriptor_update_template_khr_map_;
     std::unordered_map<format::HandleId, VkSamplerYcbcrConversionKHR>   sampler_ycbcr_conversion_khr_map_;
     std::unordered_map<format::HandleId, VkDebugReportCallbackEXT>      debug_report_callback_ext_map_;
     std::unordered_map<format::HandleId, VkObjectTableNVX>              object_table_nvx_map_;
