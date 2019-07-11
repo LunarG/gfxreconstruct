@@ -744,14 +744,6 @@ class TraceManager
                                                         const VkAllocationCallbacks*                pAllocator,
                                                         VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
-    void PreProcess_vkDestroyDescriptorUpdateTemplate(VkDevice                     device,
-                                                      VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
-                                                      const VkAllocationCallbacks* pAllocator);
-
-    void PreProcess_vkDestroyDescriptorUpdateTemplateKHR(VkDevice                     device,
-                                                         VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
-                                                         const VkAllocationCallbacks* pAllocator);
-
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
@@ -798,8 +790,6 @@ class TraceManager
         static std::unordered_map<uint64_t, format::ThreadId> id_map_;
     };
 
-    typedef std::unordered_map<VkDescriptorUpdateTemplate, UpdateTemplateInfo> UpdateTemplateMap;
-
   private:
     ThreadData* GetThreadData()
     {
@@ -823,9 +813,8 @@ class TraceManager
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
     void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
 
-    void AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate                  update_template,
-                                     const VkDescriptorUpdateTemplateCreateInfo* create_info);
-    void RemoveDescriptorUpdateTemplate(VkDescriptorUpdateTemplate update_template);
+    void SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
+                                         const VkDescriptorUpdateTemplateCreateInfo* create_info);
 
     void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet            set,
                                               VkDescriptorUpdateTemplate update_templat,
@@ -851,8 +840,6 @@ class TraceManager
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
     MemoryTracker                                   memory_tracker_;
     mutable std::mutex                              memory_tracker_lock_;
-    UpdateTemplateMap                               update_template_map_;
-    mutable std::mutex                              update_template_map_lock_;
     bool                                            trim_enabled_;
     std::vector<CaptureSettings::TrimRange>         trim_ranges_;
     size_t                                          trim_current_range_;

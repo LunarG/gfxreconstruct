@@ -618,15 +618,16 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
     }
 }
 
-void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate                  update_template,
-                                               const VkDescriptorUpdateTemplateCreateInfo* create_info)
+void TraceManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
+                                                   const VkDescriptorUpdateTemplateCreateInfo* create_info)
 {
     // A NULL check should have been performed by the caller.
     assert((create_info != nullptr));
 
     if (create_info->descriptorUpdateEntryCount > 0)
     {
-        UpdateTemplateInfo info;
+        DescriptorUpdateTemplateWrapper* wrapper = reinterpret_cast<DescriptorUpdateTemplateWrapper*>(update_template);
+        UpdateTemplateInfo*              info    = &wrapper->info;
 
         for (size_t i = 0; i < create_info->descriptorUpdateEntryCount; ++i)
         {
@@ -649,8 +650,8 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
                 image_info.stride        = entry->stride;
                 image_info.type          = type;
 
-                info.image_info_count += entry->descriptorCount;
-                info.image_info.emplace_back(image_info);
+                info->image_info_count += entry->descriptorCount;
+                info->image_info.emplace_back(image_info);
 
                 entry_size = sizeof(VkDescriptorImageInfo);
             }
@@ -666,8 +667,8 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
                 buffer_info.stride        = entry->stride;
                 buffer_info.type          = type;
 
-                info.buffer_info_count += entry->descriptorCount;
-                info.buffer_info.emplace_back(buffer_info);
+                info->buffer_info_count += entry->descriptorCount;
+                info->buffer_info.emplace_back(buffer_info);
 
                 entry_size = sizeof(VkDescriptorBufferInfo);
             }
@@ -682,8 +683,8 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
                 texel_buffer_view_info.stride        = entry->stride;
                 texel_buffer_view_info.type          = type;
 
-                info.texel_buffer_view_count += entry->descriptorCount;
-                info.texel_buffer_view.emplace_back(texel_buffer_view_info);
+                info->texel_buffer_view_count += entry->descriptorCount;
+                info->texel_buffer_view.emplace_back(texel_buffer_view_info);
 
                 entry_size = sizeof(VkBufferView);
             }
@@ -696,24 +697,13 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
             if (entry->descriptorCount > 0)
             {
                 size_t max_size = ((entry->descriptorCount - 1) * entry->stride) + entry->offset + entry_size;
-                if (max_size > info.max_size)
+                if (max_size > info->max_size)
                 {
-                    info.max_size = max_size;
+                    info->max_size = max_size;
                 }
             }
         }
-
-        {
-            std::lock_guard<std::mutex> lock(update_template_map_lock_);
-            update_template_map_.emplace(std::make_pair(update_template, info));
-        }
     }
-}
-
-void TraceManager::RemoveDescriptorUpdateTemplate(VkDescriptorUpdateTemplate update_template)
-{
-    std::lock_guard<std::mutex> lock(update_template_map_lock_);
-    update_template_map_.erase(update_template);
 }
 
 bool TraceManager::GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
@@ -723,14 +713,12 @@ bool TraceManager::GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate up
 
     bool found = false;
 
-    // We assume that the application will not destroy an update template while it is in use, and that we only need
-    // to lock on find for protection from data strcuture changes due to adds and removes of other update templates.
-    std::lock_guard<std::mutex> lock(update_template_map_lock_);
-    auto                        entry = update_template_map_.find(update_template);
-    if (entry != update_template_map_.end())
+    if (update_template != VK_NULL_HANDLE)
     {
+        DescriptorUpdateTemplateWrapper* wrapper = reinterpret_cast<DescriptorUpdateTemplateWrapper*>(update_template);
+
+        (*info) = &wrapper->info;
         found   = true;
-        (*info) = &(entry->second);
     }
 
     return found;
@@ -1020,7 +1008,7 @@ void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplate(VkResult         
 
     if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pDescriptorUpdateTemplate != nullptr))
     {
-        AddDescriptorUpdateTemplate((*pDescriptorUpdateTemplate), pCreateInfo);
+        SetDescriptorUpdateTemplateInfo((*pDescriptorUpdateTemplate), pCreateInfo);
     }
 }
 
@@ -1036,28 +1024,8 @@ void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
 
     if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pDescriptorUpdateTemplate != nullptr))
     {
-        AddDescriptorUpdateTemplate((*pDescriptorUpdateTemplate), pCreateInfo);
+        SetDescriptorUpdateTemplateInfo((*pDescriptorUpdateTemplate), pCreateInfo);
     }
-}
-
-void TraceManager::PreProcess_vkDestroyDescriptorUpdateTemplate(VkDevice                     device,
-                                                                VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
-                                                                const VkAllocationCallbacks* pAllocator)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    RemoveDescriptorUpdateTemplate(descriptorUpdateTemplate);
-}
-
-void TraceManager::PreProcess_vkDestroyDescriptorUpdateTemplateKHR(VkDevice                   device,
-                                                                   VkDescriptorUpdateTemplate descriptorUpdateTemplate,
-                                                                   const VkAllocationCallbacks* pAllocator)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    RemoveDescriptorUpdateTemplate(descriptorUpdateTemplate);
 }
 
 #if defined(__ANDROID__)

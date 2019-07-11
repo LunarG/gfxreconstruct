@@ -17,6 +17,7 @@
 #ifndef GFXRECON_ENCODE_VULKAN_HANDLE_WRAPPERS_H
 #define GFXRECON_ENCODE_VULKAN_HANDLE_WRAPPERS_H
 
+#include "encode/descriptor_update_template_info.h"
 #include "encode/vulkan_state_info.h"
 #include "format/format.h"
 #include "util/defines.h"
@@ -63,7 +64,6 @@ struct ShaderModuleWrapper              : public HandleWrapper<VkShaderModule> {
 struct PipelineCacheWrapper             : public HandleWrapper<VkPipelineCache> {};
 struct SamplerWrapper                   : public HandleWrapper<VkSampler> {};
 struct SamplerYcbcrConversionWrapper    : public HandleWrapper<VkSamplerYcbcrConversion> {};
-struct DescriptorUpdateTemplateWrapper  : public HandleWrapper<VkDescriptorUpdateTemplate> {};
 struct DebugReportCallbackEXTWrapper    : public HandleWrapper<VkDebugReportCallbackEXT> {};
 struct DebugUtilsMessengerEXTWrapper    : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
 struct ValidationCacheEXTWrapper        : public HandleWrapper<VkValidationCacheEXT> {};
@@ -73,10 +73,6 @@ struct IndirectCommandsLayoutNVXWrapper : public HandleWrapper<VkIndirectCommand
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
 struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR> {};
 // clang-format on
-
-// Handle alias types for extension handle types that have been promoted to core types.
-typedef VkSamplerYcbcrConversionKHR   SamplerYcbcrConversionKHRWrapper;
-typedef VkDescriptorUpdateTemplateKHR DescriptorUpdateTemplateKHRWrapper;
 
 //
 // Declarations for handle wrappers that require additional state info.
@@ -268,8 +264,15 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
     // TODO: Pipeline cache
 };
 
+struct DescriptorUpdateTemplateWrapper : public HandleWrapper<VkDescriptorUpdateTemplate>
+{
+    // Members for general wrapper support.
+    UpdateTemplateInfo info;
+};
+
 struct DescriptorSetLayoutWrapper : public HandleWrapper<VkDescriptorSetLayout>
 {
+    // Members for trimming state tracking.
     std::vector<DescriptorBindingInfo> binding_info;
 };
 
@@ -340,6 +343,10 @@ struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStruc
 {
     // TODO: Determine what additional state tracking is needed.
 };
+
+// Handle alias types for extension handle types that have been promoted to core types.
+typedef VkSamplerYcbcrConversionKHR   SamplerYcbcrConversionKHRWrapper;
+typedef VkDescriptorUpdateTemplateKHR DescriptorUpdateTemplateKHRWrapper;
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

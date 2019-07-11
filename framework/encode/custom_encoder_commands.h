@@ -462,26 +462,6 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdate
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>
-{
-    template <typename... Args>
-    static void Dispatch(TraceManager* manager, Args... args)
-    {
-        manager->PreProcess_vkDestroyDescriptorUpdateTemplate(args...);
-    }
-};
-
-template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>
-{
-    template <typename... Args>
-    static void Dispatch(TraceManager* manager, Args... args)
-    {
-        manager->PreProcess_vkDestroyDescriptorUpdateTemplateKHR(args...);
-    }
-};
-
-template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginQuery>
 {
     template <typename... Args>
