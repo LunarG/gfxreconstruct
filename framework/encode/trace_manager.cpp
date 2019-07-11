@@ -757,13 +757,13 @@ void TraceManager::PostProcess_vkAllocateMemory(VkResult                     res
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    if ((result == VK_SUCCESS) && (pAllocateInfo != nullptr) && (pMemory != nullptr))
+    if (((capture_mode_ & kModeTrack) != kModeTrack) && (result == VK_SUCCESS) && (pAllocateInfo != nullptr) &&
+        (pMemory != nullptr) && (*pMemory != VK_NULL_HANDLE))
     {
-        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-        // TODO: Get property flags for type index (for pageguard).
-        // TODO: Key memory tracker by VkDevice + VkDeviceMemory for multi-device support.
-        memory_tracker_.AddEntry((*pMemory), 0, pAllocateInfo->allocationSize);
+        // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here to
+        // ensure it is available for mapped memory tracking.
+        auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
+        wrapper->allocation_size = pAllocateInfo->allocationSize;
     }
 }
 
@@ -777,44 +777,58 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
 {
     if ((result == VK_SUCCESS) && (ppData != nullptr))
     {
-        if ((capture_mode_ & kModeTrack) == kModeTrack)
-        {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackMappedMemory(device, memory, (*ppData), offset, size, flags);
-        }
+        auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+        assert(wrapper != nullptr);
 
+        if (wrapper->mapped_data == nullptr)
         {
-            std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-            MemoryTracker::EntryInfo*   info      = nullptr;
-            bool                        first_map = memory_tracker_.MapEntry(memory, offset, size, (*ppData), &info);
-
-            if ((info != nullptr) && (info->mapped_size > 0) &&
-                (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard))
+            if ((capture_mode_ & kModeTrack) == kModeTrack)
             {
-                if (first_map)
+                assert(state_tracker_ != nullptr);
+                state_tracker_->TrackMappedMemory(device, memory, (*ppData), offset, size, flags);
+            }
+            else
+            {
+                // Perform subset of the state tracking performed by VulkanStateTracker::TrackMappedMemory, only storing
+                // values needed for non-tracking capture.
+                wrapper->mapped_data   = (*ppData);
+                wrapper->mapped_offset = offset;
+                wrapper->mapped_size   = size;
+            }
+
+            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+            {
+                if (size == VK_WHOLE_SIZE)
                 {
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, info->mapped_size);
+                    size = wrapper->allocation_size;
+                }
+
+                if (size > 0)
+                {
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
                     util::PageGuardManager* manager = util::PageGuardManager::Get();
-
                     assert(manager != nullptr);
 
-                    info->tracked_memory = manager->AddMemory(
-                        GetWrappedId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false);
+                    // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
+                    // not the mapped memory.
+                    (*ppData) = manager->AddMemory(wrapper->handle_id, (*ppData), static_cast<size_t>(size), false);
                 }
-                else
-                {
-                    // The application has mapped the same VkDeviceMemory object more than once and the pageguard
-                    // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
-                    // on the first map call.
-                    GFXRECON_LOG_WARNING(
-                        "VkDeviceMemory object with handle = %" PRIx64 " has been mapped more than once", memory);
-                }
-
-                // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory, not
-                // the mapped memory.
-                (*ppData) = info->tracked_memory;
             }
+            else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+            {
+                // Need to keep track of mapped memory objects so memory content can be written at queue submit.
+                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                mapped_memory_.insert(wrapper);
+            }
+        }
+        else
+        {
+            // The application has mapped the same VkDeviceMemory object more than once and the pageguard
+            // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
+            // on the first map call.
+            GFXRECON_LOG_WARNING("VkDeviceMemory object with handle = %" PRIx64 " has been mapped more than once",
+                                 memory);
         }
     }
 }
@@ -829,63 +843,58 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
     {
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
-            // TODO: Determine if this can be deferred to vkQueueSubmit for memory types with the HOST_COHERENT
-            // property.
-            VkDeviceMemory          current_memory = VK_NULL_HANDLE;
-            util::PageGuardManager* manager        = util::PageGuardManager::Get();
+            const DeviceMemoryWrapper* current_memory_wrapper = nullptr;
+            util::PageGuardManager*    manager                = util::PageGuardManager::Get();
             assert(manager != nullptr);
-
-            std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
             for (uint32_t i = 0; i < memoryRangeCount; ++i)
             {
-                if (current_memory != pMemoryRanges[i].memory)
-                {
-                    current_memory = pMemoryRanges[i].memory;
-                    auto info      = memory_tracker_.GetEntryInfo(current_memory);
+                auto next_memory_wrapper = reinterpret_cast<const DeviceMemoryWrapper*>(pMemoryRanges[i].memory);
 
-                    if ((info != nullptr) && (info->mapped_memory != nullptr))
+                // Currently processing all dirty pages for the mapped memory, so filter multiple ranges from the same object.
+                if (next_memory_wrapper != current_memory_wrapper)
+                {
+                    current_memory_wrapper = next_memory_wrapper;
+
+                    if ((current_memory_wrapper != nullptr) && (current_memory_wrapper->mapped_data != nullptr))
                     {
                         manager->ProcessMemoryEntry(
-                            GetWrappedId(current_memory),
+                            current_memory_wrapper->handle_id,
                             [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
                                 WriteFillMemoryCmd(memory_id, offset, size, start_address);
                             });
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING("vkFlushMappedMemoryRanges called for memory that is not mapped");
                     }
                 }
             }
         }
         else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kAssisted)
         {
-            VkDeviceMemory                  current_memory = VK_NULL_HANDLE;
-            const MemoryTracker::EntryInfo* info           = nullptr;
-
-            std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+            const DeviceMemoryWrapper* current_memory_wrapper = nullptr;
 
             for (uint32_t i = 0; i < memoryRangeCount; ++i)
             {
-                if (current_memory != pMemoryRanges[i].memory)
-                {
-                    current_memory = pMemoryRanges[i].memory;
-                    info           = memory_tracker_.GetEntryInfo(current_memory);
-                }
+                current_memory_wrapper = reinterpret_cast<const DeviceMemoryWrapper*>(pMemoryRanges[i].memory);
 
-                if ((info != nullptr) && (info->mapped_memory != nullptr))
+                if ((current_memory_wrapper != nullptr) && (current_memory_wrapper->mapped_data != nullptr))
                 {
-                    assert(pMemoryRanges[i].offset >= info->mapped_offset);
+                    assert(pMemoryRanges[i].offset >= current_memory_wrapper->mapped_offset);
 
                     // The mapped pointer already includes the mapped offset.  Because the memory range
                     // offset is realtive to the start of the memory object, we need to adjust it to be
                     // realitve to the start of the mapped pointer.
-                    VkDeviceSize relative_offset = pMemoryRanges[i].offset - info->mapped_offset;
+                    VkDeviceSize relative_offset = pMemoryRanges[i].offset - current_memory_wrapper->mapped_offset;
                     VkDeviceSize size            = pMemoryRanges[i].size;
                     if (size == VK_WHOLE_SIZE)
                     {
-                        size = info->allocation_size - pMemoryRanges[i].offset;
+                        size = current_memory_wrapper->allocation_size - pMemoryRanges[i].offset;
                     }
 
                     WriteFillMemoryCmd(
-                        GetWrappedId(pMemoryRanges[i].memory), relative_offset, size, info->mapped_memory);
+                        current_memory_wrapper->handle_id, relative_offset, size, current_memory_wrapper->mapped_data);
                 }
             }
         }
@@ -894,44 +903,59 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
 
 void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
 {
-    if ((capture_mode_ & kModeTrack) == kModeTrack)
-    {
-        assert(state_tracker_ != nullptr);
-        state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0);
-    }
+    auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+    assert(wrapper != nullptr);
 
+    if (wrapper->mapped_data != nullptr)
     {
-        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0);
+        }
+        else
+        {
+            // Perform subset of the state tracking performed by VulkanStateTracker::TrackMappedMemory, only storing
+            // values needed for non-tracking capture.
+            wrapper->mapped_data   = nullptr;
+            wrapper->mapped_offset = 0;
+            wrapper->mapped_size   = 0;
+        }
 
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
 
-            auto info = memory_tracker_.GetEntryInfo(memory);
+            manager->ProcessMemoryEntry(wrapper->handle_id,
+                                        [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                                            WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                        });
 
-            if ((info != nullptr) && (info->mapped_memory != nullptr))
-            {
-                manager->ProcessMemoryEntry(
-                    GetWrappedId(memory), [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                        WriteFillMemoryCmd(memory_id, offset, size, start_address);
-                    });
-
-                manager->RemoveMemory(GetWrappedId(memory));
-            }
+            manager->RemoveMemory(wrapper->handle_id);
         }
         else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
         {
             // Write the entire mapped region.
-            auto info = memory_tracker_.GetEntryInfo(memory);
-            if ((info != nullptr) && (info->mapped_memory != nullptr))
+            // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
+            VkDeviceSize size = wrapper->mapped_size;
+            if (size == VK_WHOLE_SIZE)
             {
-                // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-                WriteFillMemoryCmd(GetWrappedId(memory), 0, info->mapped_size, info->mapped_memory);
+                size = wrapper->allocation_size;
+            }
+
+            WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
+
+            {
+                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                mapped_memory_.erase(wrapper);
             }
         }
-
-        memory_tracker_.UnmapEntry(memory);
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING(
+            "Attempting to unmap VkDeviceMemory object with handle = %" PRIx64 " that has not been mapped", memory);
     }
 }
 
@@ -942,17 +966,15 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
-    std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+    auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+    assert(wrapper != nullptr);
 
-    bool is_mapped = false;
-    memory_tracker_.RemoveEntry(memory, &is_mapped);
-
-    if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) && is_mapped)
+    if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) && (wrapper->mapped_data != nullptr))
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
 
-        manager->RemoveMemory(GetWrappedId(memory));
+        manager->RemoveMemory(wrapper->handle_id);
     }
 }
 
@@ -968,8 +990,6 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
 
     if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
-        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
 
@@ -979,16 +999,14 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     }
     else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
     {
-        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+        std::lock_guard<std::mutex> lock(mapped_memory_lock_);
 
-        memory_tracker_.VisitEntries([this](VkDeviceMemory memory, const MemoryTracker::EntryInfo& entry) {
+        for (auto wrapper : mapped_memory_)
+        {
             // If the memory is mapped, write the entire mapped region.
-            if (entry.mapped_memory != nullptr)
-            {
-                // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-                WriteFillMemoryCmd(GetWrappedId(memory), 0, entry.mapped_size, entry.mapped_memory);
-            }
-        });
+            // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
+            WriteFillMemoryCmd(wrapper->handle_id, 0, wrapper->mapped_size, wrapper->mapped_data);
+        }
     }
 }
 

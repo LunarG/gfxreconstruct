@@ -12,8 +12,6 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_handle_wrappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_handle_wrappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/descriptor_update_template_info.h
-                   ${GFXRECON_SOURCE_DIR}/framework/encode/memory_tracker.h
-                   ${GFXRECON_SOURCE_DIR}/framework/encode/memory_tracker.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/struct_pointer_encoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/trace_manager.h

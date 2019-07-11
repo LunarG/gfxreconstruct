@@ -20,9 +20,9 @@
 
 #include "encode/capture_settings.h"
 #include "encode/descriptor_update_template_info.h"
-#include "encode/memory_tracker.h"
 #include "encode/parameter_encoder.h"
 #include "encode/vulkan_handle_wrapper_util.h"
+#include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_tracker.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
@@ -39,6 +39,7 @@
 #include <cassert>
 #include <memory>
 #include <mutex>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -832,8 +833,8 @@ class TraceManager
     uint64_t                                        bytes_written_;
     std::unique_ptr<util::Compressor>               compressor_;
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
-    MemoryTracker                                   memory_tracker_;
-    mutable std::mutex                              memory_tracker_lock_;
+    std::mutex                                      mapped_memory_lock_;
+    std::set<DeviceMemoryWrapper*>                  mapped_memory_; // Track mapped memory for unassisted tracking mode.
     bool                                            trim_enabled_;
     std::vector<CaptureSettings::TrimRange>         trim_ranges_;
     size_t                                          trim_current_range_;
