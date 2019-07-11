@@ -171,30 +171,26 @@ void TraceManager::DestroyInstance()
     }
 }
 
-void TraceManager::AddInstanceTable(VkInstance instance, PFN_vkGetInstanceProcAddr gpa)
+void TraceManager::InitInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa)
 {
-    InstanceTable& table = instance_tables_[GetDispatchKey(instance)];
-    LoadInstanceTable(gpa, instance, &table);
+    assert(instance != nullptr);
+
+    CreateWrappedHandle<NoParentWrapper, NoParentWrapper, InstanceWrapper>(
+        NoParentWrapper::kHandleValue, NoParentWrapper::kHandleValue, instance, GetUniqueId);
+
+    auto wrapper = reinterpret_cast<InstanceWrapper*>(*instance);
+    LoadInstanceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
-void TraceManager::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
+void TraceManager::InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa)
 {
-    DeviceTable& table = device_tables_[GetDispatchKey(device)];
-    LoadDeviceTable(gpa, device, &table);
-}
+    assert((device != nullptr) && ((*device) != VK_NULL_HANDLE));
 
-const encode::InstanceTable* TraceManager::GetInstanceTable(const void* handle) const
-{
-    auto table = instance_tables_.find(GetDispatchKey(handle));
-    assert(table != instance_tables_.end());
-    return (table != instance_tables_.end()) ? &table->second : nullptr;
-}
+    CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DeviceWrapper>(
+        VK_NULL_HANDLE, NoParentWrapper::kHandleValue, device, GetUniqueId);
 
-const encode::DeviceTable* TraceManager::GetDeviceTable(const void* handle) const
-{
-    auto table = device_tables_.find(GetDispatchKey(handle));
-    assert(table != device_tables_.end());
-    return (table != device_tables_.end()) ? &table->second : nullptr;
+    auto wrapper = reinterpret_cast<DeviceWrapper*>(*device);
+    LoadDeviceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
 bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
@@ -465,8 +461,7 @@ void TraceManager::ActivateTrimming()
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
 
-        VulkanStateWriter state_writer(
-            file_stream_.get(), compressor_.get(), thread_data->thread_id_, &instance_tables_, &device_tables_);
+        VulkanStateWriter state_writer(file_stream_.get(), compressor_.get(), thread_data->thread_id_);
         state_tracker_->WriteState(&state_writer);
     }
     else

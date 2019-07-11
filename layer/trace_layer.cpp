@@ -25,6 +25,7 @@
 #include "vulkan/vk_layer.h"
 
 #include <cstring>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 
@@ -65,17 +66,20 @@ static const VkLayerDeviceCreateInfo* get_device_chain_info(const VkDeviceCreate
     return chain_info;
 }
 
+static std::mutex                                  instance_handles_lock;
 static std::unordered_map<const void*, VkInstance> instance_handles;
 
 static void add_instance_handle(VkInstance instance)
 {
     // Store the instance for use with vkCreateDevice.
+    std::lock_guard<std::mutex> lock(instance_handles_lock);
     instance_handles[encode::GetDispatchKey(instance)] = instance;
 }
 
 static VkInstance get_instance_handle(const void* handle)
 {
-    auto entry = instance_handles.find(encode::GetDispatchKey(handle));
+    std::lock_guard<std::mutex> lock(instance_handles_lock);
+    auto                        entry = instance_handles.find(encode::GetDispatchKey(handle));
     return (entry != instance_handles.end()) ? entry->second : VK_NULL_HANDLE;
 }
 
@@ -112,7 +116,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
 
                         encode::TraceManager* manager = encode::TraceManager::Get();
                         assert(manager != nullptr);
-                        manager->AddInstanceTable(*pInstance, fpGetInstanceProcAddr);
+                        manager->InitInstance(pInstance, fpGetInstanceProcAddr);
                     }
                 }
             }
@@ -154,7 +158,7 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateDevice(VkPhysicalDevice           
                 {
                     encode::TraceManager* manager = encode::TraceManager::Get();
                     assert(manager != nullptr);
-                    manager->AddDeviceTable(*pDevice, fpGetDeviceProcAddr);
+                    manager->InitDevice(pDevice, fpGetDeviceProcAddr);
                 }
             }
         }
@@ -176,14 +180,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
 
     if (instance != VK_NULL_HANDLE)
     {
-        VkInstance            unwrapped = encode::GetWrappedHandle(instance);
-        encode::TraceManager* manager = encode::TraceManager::Get();
-        assert(manager != nullptr);
-
-        const auto table = manager->GetInstanceTable(unwrapped);
-        if (table && table->GetInstanceProcAddr)
+        auto table = encode::GetInstanceTable(instance);
+        if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr))
         {
-            result = table->GetInstanceProcAddr(unwrapped, pName);
+            result = table->GetInstanceProcAddr(encode::GetWrappedHandle(instance), pName);
         }
     }
 
@@ -208,14 +208,10 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
 
     if (device != VK_NULL_HANDLE)
     {
-        VkDevice              unwrapped = encode::GetWrappedHandle(device);
-        encode::TraceManager* manager = encode::TraceManager::Get();
-        assert(manager != nullptr);
-
-        const auto table = manager->GetDeviceTable(unwrapped);
-        if (table && table->GetDeviceProcAddr)
+        auto table = encode::GetDeviceTable(device);
+        if ((table != nullptr) && (table->GetDeviceProcAddr != nullptr))
         {
-            result = table->GetDeviceProcAddr(unwrapped, pName);
+            result = table->GetDeviceProcAddr(encode::GetWrappedHandle(device), pName);
 
             if (result != nullptr)
             {
@@ -252,12 +248,9 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
     {
         // If this function was not called with the layer's name, we expect to dispatch down the chain to obtain the ICD
         // provided extensions.
-        VkPhysicalDevice      unwrapped = encode::GetWrappedHandle(physicalDevice);
-        encode::TraceManager* manager = encode::TraceManager::Get();
-        assert(manager != nullptr);
-
-        result = manager->GetInstanceTable(unwrapped)->EnumerateDeviceExtensionProperties(
-            unwrapped, nullptr, pPropertyCount, pProperties);
+        result = encode::GetInstanceTable(physicalDevice)
+                     ->EnumerateDeviceExtensionProperties(
+                         encode::GetWrappedHandle(physicalDevice), nullptr, pPropertyCount, pProperties);
     }
 
     return result;

@@ -187,9 +187,8 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
     auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);
     auto pData_unwrapped = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
-    manager->GetDeviceTable(device_unwrapped)
-        ->UpdateDescriptorSetWithTemplate(
-            device_unwrapped, descriptorSet_unwrapped, descriptorUpdateTemplate_unwrapped, pData_unwrapped);
+    GetDeviceTable(device)->UpdateDescriptorSetWithTemplate(
+        device_unwrapped, descriptorSet_unwrapped, descriptorUpdateTemplate_unwrapped, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate>::Dispatch(
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
@@ -232,7 +231,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
     auto layout_unwrapped                   = GetWrappedHandle<VkPipelineLayout>(layout);
     auto pData_unwrapped = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
-    manager->GetDeviceTable(commandBuffer_unwrapped)
+    GetDeviceTable(commandBuffer)
         ->CmdPushDescriptorSetWithTemplateKHR(
             commandBuffer_unwrapped, descriptorUpdateTemplate_unwrapped, layout_unwrapped, set, pData_unwrapped);
 
@@ -275,9 +274,8 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
     auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);
     auto pData_unwrapped = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
-    manager->GetDeviceTable(device_unwrapped)
-        ->UpdateDescriptorSetWithTemplateKHR(
-            device_unwrapped, descriptorSet_unwrapped, descriptorUpdateTemplate_unwrapped, pData_unwrapped);
+    GetDeviceTable(device)->UpdateDescriptorSetWithTemplateKHR(
+        device_unwrapped, descriptorSet_unwrapped, descriptorUpdateTemplate_unwrapped, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
@@ -301,10 +299,8 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
     auto ppObjectTableEntries_unwrapped =
         UnwrapStructArrayHandles(ppObjectTableEntries, objectCount, handle_unwrap_memory);
 
-    VkResult result =
-        manager->GetDeviceTable(device_unwrapped)
-            ->RegisterObjectsNVX(
-                device_unwrapped, objectTable_unwrapped, objectCount, ppObjectTableEntries_unwrapped, pObjectIndices);
+    VkResult result = GetDeviceTable(device)->RegisterObjectsNVX(
+        device_unwrapped, objectTable_unwrapped, objectCount, ppObjectTableEntries_unwrapped, pObjectIndices);
 
     auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkRegisterObjectsNVX);
     if (encoder)

@@ -151,8 +151,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             # CreateDevice requires special processing for VkLayerDeviceCreateInfo.
             return 'TraceManager::GetLayerTable()->CreateDevice({})'.format(argList)
 
-        dispatchfunc = 'TraceManager::Get()->GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'TraceManager::Get()->GetDeviceTable'
-        return '{}({}_unwrapped)->{}({})'.format(dispatchfunc, values[0].name, name[2:], argList)
+        dispatchfunc = 'GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'GetDeviceTable'
+        return '{}({})->{}({})'.format(dispatchfunc, values[0].name, name[2:], argList)
 
     #
     # Command definition
@@ -195,8 +195,12 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         else:
             body += indent + '{};\n'.format(callExpr)
 
-        # Wrap newly created handles.
-        wrapExpr = self.makeHandleWrapping(values, indent)
+        # Wrap newly created handles. Instance and device creation is a special case that does not wrap here.
+        # VkCreateInstance and VkCreateDevice have enough special cases that they may need to move to a non-generated custom implementation.
+        wrapExpr = None
+        if name not in ['vkCreateInstance', 'vkCreateDevice']:
+            wrapExpr = self.makeHandleWrapping(values, indent)
+
         if wrapExpr:
             body += '\n'
             if returnType and returnType != 'void':

@@ -37,19 +37,14 @@ const format::HandleId kTempFenceId         = std::numeric_limits<format::Handle
 const format::HandleId kTempBufferId        = std::numeric_limits<format::HandleId>::max() - 5;
 const format::HandleId kTempMemoryId        = std::numeric_limits<format::HandleId>::max() - 6;
 
-VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*                               output_stream,
-                                     util::Compressor*                                     compressor,
-                                     format::ThreadId                                      thread_id,
-                                     const std::unordered_map<DispatchKey, InstanceTable>* instance_tables,
-                                     const std::unordered_map<DispatchKey, DeviceTable>*   device_tables) :
+VulkanStateWriter::VulkanStateWriter(util::FileOutputStream* output_stream,
+                                     util::Compressor*       compressor,
+                                     format::ThreadId        thread_id) :
     output_stream_(output_stream),
-    compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_), instance_tables_(instance_tables),
-    device_tables_(device_tables)
+    compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_)
 {
     assert(output_stream != nullptr);
     assert(compressor != nullptr);
-    assert(instance_tables != nullptr);
-    assert(device_tables != nullptr);
 }
 
 VulkanStateWriter::~VulkanStateWriter() {}
@@ -174,18 +169,10 @@ void VulkanStateWriter::WriteDeviceState(const VulkanStateTable& state_table)
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
         // Idle device to ensure all pending work is complete prior to writing state snapshot.
-        auto tables_entry = device_tables_->find(GetDispatchKey(wrapper->handle));
-        if (tables_entry != device_tables_->end())
+        VkResult result = wrapper->layer_table.DeviceWaitIdle(wrapper->handle);
+        if (result != VK_SUCCESS)
         {
-            VkResult result = tables_entry->second.DeviceWaitIdle(wrapper->handle);
-            if (result != VK_SUCCESS)
-            {
-                GFXRECON_LOG_WARNING("Device wait idle failed during state snapshot generation");
-            }
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
+            GFXRECON_LOG_WARNING("Device wait idle failed during state snapshot generation");
         }
     });
 }
@@ -237,7 +224,7 @@ void VulkanStateWriter::WriteFenceState(const VulkanStateTable& state_table)
         const DeviceWrapper* device_wrapper = wrapper->device;
         bool                 signaled       = wrapper->created_signaled;
 
-        GetFenceStatus(device_wrapper->handle, wrapper->handle, &signaled);
+        GetFenceStatus(device_wrapper, wrapper->handle, &signaled);
 
         if (signaled == wrapper->created_signaled)
         {
@@ -263,20 +250,13 @@ void VulkanStateWriter::WriteEventState(const VulkanStateTable& state_table)
 
         // Check and set signaled state if necessary.
         const DeviceWrapper* device_wrapper   = wrapper->device;
-        VkDevice             unwrapped_handle = device_wrapper->handle;
-        auto                 tables_entry     = device_tables_->find(GetDispatchKey(unwrapped_handle));
-        if (tables_entry != device_tables_->end())
+        assert(device_wrapper != nullptr);
+
+        VkResult result = device_wrapper->layer_table.GetEventStatus(device_wrapper->handle, wrapper->handle);
+        if (result == VK_EVENT_SET)
         {
-            VkResult result = tables_entry->second.GetEventStatus(unwrapped_handle, wrapper->handle);
-            if (result == VK_EVENT_SET)
-            {
-                // Write api call to signal the event.
-                WriteSetEvent(device_wrapper->handle_id, wrapper->handle_id);
-            }
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
+            // Write api call to signal the event.
+            WriteSetEvent(device_wrapper->handle_id, wrapper->handle_id);
         }
     });
 }
@@ -329,9 +309,9 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
         // Perform memory binding.
-        if (wrapper->bind_memory != VK_NULL_HANDLE)
+        if (wrapper->bind_memory != nullptr)
         {
-            assert(wrapper->bind_device != VK_NULL_HANDLE);
+            assert(wrapper->bind_device != nullptr);
 
             const DeviceWrapper*       device_wrapper = wrapper->bind_device;
             const DeviceMemoryWrapper* memory_wrapper = wrapper->bind_memory;
@@ -393,16 +373,7 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
     // Write snapshot of buffer memory content.
     for (auto buffers_entry : buffers)
     {
-        auto device_wrapper = buffers_entry.first;
-        auto tables_entry   = device_tables_->find(GetDispatchKey(device_wrapper->handle));
-        if (tables_entry != device_tables_->end())
-        {
-            ProcessBufferMemory(device_wrapper, buffers_entry.second, state_table, tables_entry->second);
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
-        }
+        ProcessBufferMemory(buffers_entry.first, buffers_entry.second, state_table);
     }
 }
 
@@ -424,9 +395,9 @@ void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
         }
 
         // Perform memory binding.
-        if (wrapper->bind_memory != VK_NULL_HANDLE)
+        if (wrapper->bind_memory != nullptr)
         {
-            assert(wrapper->bind_device != VK_NULL_HANDLE);
+            assert(wrapper->bind_device != nullptr);
 
             const DeviceWrapper*       device_wrapper = wrapper->bind_device;
             const DeviceMemoryWrapper* memory_wrapper = wrapper->bind_memory;
@@ -474,39 +445,21 @@ void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
                 insert_list      = &copy_wrappers.staging_copy_wrappers;
             }
 
-            auto tables_entry = device_tables_->find(GetDispatchKey(wrapper->bind_device));
-            if (tables_entry != device_tables_->end())
-            {
-                InsertImageSnapshotEntries(wrapper,
-                                           memory_wrapper,
-                                           is_host_visible,
-                                           is_host_coherent,
-                                           use_staging_copy,
-                                           GetFormatAspectMask(wrapper->format),
-                                           insert_list,
-                                           &snapshot_data,
-                                           tables_entry->second);
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
-            }
+            InsertImageSnapshotEntries(wrapper,
+                                       memory_wrapper,
+                                       is_host_visible,
+                                       is_host_coherent,
+                                       use_staging_copy,
+                                       GetFormatAspectMask(wrapper->format),
+                                       insert_list,
+                                       &snapshot_data);
         }
     });
 
     // Write snapshot of image memory content.
     for (auto image_entry : images)
     {
-        auto device_wrapper = image_entry.first;
-        auto tables_entry   = device_tables_->find(GetDispatchKey(device_wrapper->handle));
-        if (tables_entry != device_tables_->end())
-        {
-            ProcessImageMemory(device_wrapper, image_entry.second, state_table, tables_entry->second);
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
-        }
+        ProcessImageMemory(image_entry.first, image_entry.second, state_table);
     }
 }
 
@@ -899,8 +852,7 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
 
 void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wrapper,
                                             const BufferSnapshotData& snapshot_data,
-                                            const VulkanStateTable&   state_table,
-                                            const DeviceTable&        dispatch_table)
+                                            const VulkanStateTable&   state_table)
 {
     if (!snapshot_data.staging_copy_wrappers.empty())
     {
@@ -917,11 +869,12 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wra
                                               &staging_memory_requirements,
                                               &staging_memory_type_index,
                                               &staging_memory,
-                                              state_table,
-                                              dispatch_table);
+                                              state_table);
 
         if (result == VK_SUCCESS)
         {
+            const DeviceTable* device_table = &device_wrapper->layer_table;
+
             if (snapshot_data.num_device_local_buffers > 0)
             {
                 // Write calls to staging buffer needed to replay the staging copies to device local memory.
@@ -936,15 +889,14 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wra
             for (auto copy_entry : snapshot_data.staging_copy_wrappers)
             {
                 uint32_t queue_family_index = copy_entry.first;
-                VkQueue  queue              = GetQueue(device_wrapper->handle, queue_family_index, 0, dispatch_table);
+                VkQueue  queue              = GetQueue(device_wrapper, queue_family_index, 0);
 
                 // Create a command pool for the current queue family index.
-                VkCommandPool command_pool = GetCommandPool(device_wrapper->handle, queue_family_index, dispatch_table);
+                VkCommandPool command_pool = GetCommandPool(device_wrapper, queue_family_index);
 
                 if (command_pool != VK_NULL_HANDLE)
                 {
-                    VkCommandBuffer command_buffer =
-                        GetCommandBuffer(device_wrapper->handle, command_pool, dispatch_table);
+                    VkCommandBuffer command_buffer = GetCommandBuffer(device_wrapper, command_pool);
 
                     if (command_buffer != VK_NULL_HANDLE)
                     {
@@ -965,7 +917,7 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wra
                             begin_info.flags                    = 0;
                             begin_info.pInheritanceInfo         = nullptr;
 
-                            result = dispatch_table.BeginCommandBuffer(command_buffer, &begin_info);
+                            result = device_table->BeginCommandBuffer(command_buffer, &begin_info);
 
                             if (result == VK_SUCCESS)
                             {
@@ -977,11 +929,11 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wra
                                 copy_region.dstOffset = 0;
                                 copy_region.size      = buffer_wrapper->created_size;
 
-                                dispatch_table.CmdCopyBuffer(
+                                device_table->CmdCopyBuffer(
                                     command_buffer, buffer_wrapper->handle, staging_buffer, 1, &copy_region);
-                                dispatch_table.EndCommandBuffer(command_buffer);
+                                device_table->EndCommandBuffer(command_buffer);
 
-                                result = SubmitCommandBuffer(queue, command_buffer, dispatch_table);
+                                result = SubmitCommandBuffer(queue, command_buffer, device_table);
 
                                 if (result == VK_SUCCESS)
                                 {
@@ -996,8 +948,7 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wra
                                                                       buffer_wrapper->created_size,
                                                                       memory_wrapper->handle_id,
                                                                       buffer_wrapper->bind_offset,
-                                                                      buffer_wrapper->created_size,
-                                                                      dispatch_table);
+                                                                      buffer_wrapper->created_size);
                                     }
                                     else
                                     {
@@ -1010,8 +961,7 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wra
                                                                       buffer_wrapper->created_size,
                                                                       kTempMemoryId,
                                                                       0,
-                                                                      buffer_wrapper->created_size,
-                                                                      dispatch_table);
+                                                                      buffer_wrapper->created_size);
 
                                         WriteBufferCopyCommandExecution(kTempQueueId,
                                                                         kTempCommandBufferId,
@@ -1048,7 +998,7 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wra
                         GFXRECON_LOG_ERROR("Failed to create a command buffer to process trim state");
                     }
 
-                    dispatch_table.DestroyCommandPool(device_wrapper->handle, command_pool, nullptr);
+                    device_table->DestroyCommandPool(device_wrapper->handle, command_pool, nullptr);
                     command_pool = VK_NULL_HANDLE;
                 }
                 else
@@ -1067,8 +1017,8 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wra
                     format::ApiCallId::ApiCall_vkFreeMemory, device_wrapper->handle_id, kTempMemoryId, nullptr);
             }
 
-            dispatch_table.DestroyBuffer(device_wrapper->handle, staging_buffer, nullptr);
-            dispatch_table.FreeMemory(device_wrapper->handle, staging_memory, nullptr);
+            device_table->DestroyBuffer(device_wrapper->handle, staging_buffer, nullptr);
+            device_table->FreeMemory(device_wrapper->handle, staging_memory, nullptr);
         }
     }
 
@@ -1087,7 +1037,7 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wra
             invalidate_range.memory              = memory_wrapper->handle;
             invalidate_range.offset              = buffer_wrapper->bind_offset;
             invalidate_range.size                = buffer_wrapper->created_size;
-            dispatch_table.InvalidateMappedMemoryRanges(device_wrapper->handle, 1, &invalidate_range);
+            device_wrapper->layer_table.InvalidateMappedMemoryRanges(device_wrapper->handle, 1, &invalidate_range);
         }
 
         WriteMappedMemoryCopyCommands(device_wrapper,
@@ -1097,15 +1047,13 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*      device_wra
                                       buffer_wrapper->created_size,
                                       memory_wrapper->handle_id,
                                       buffer_wrapper->bind_offset,
-                                      buffer_wrapper->created_size,
-                                      dispatch_table);
+                                      buffer_wrapper->created_size);
     }
 }
 
 void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapper,
                                            const ImageSnapshotData& snapshot_data,
-                                           const VulkanStateTable&  state_table,
-                                           const DeviceTable&       dispatch_table)
+                                           const VulkanStateTable&  state_table)
 {
     assert(device_wrapper != nullptr);
 
@@ -1122,8 +1070,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
                                               &staging_memory_requirements,
                                               &staging_memory_type_index,
                                               &staging_memory,
-                                              state_table,
-                                              dispatch_table);
+                                              state_table);
 
         if (result == VK_SUCCESS)
         {
@@ -1144,14 +1091,15 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
     {
         // Create a queue and command buffer to process image layout transitions and staging copies.
         uint32_t queue_family_index = copy_entry.first;
-        VkQueue  queue              = GetQueue(device_wrapper->handle, queue_family_index, 0, dispatch_table);
+        VkQueue  queue              = GetQueue(device_wrapper, queue_family_index, 0);
 
         // Create a command pool for the current queue family index.
-        VkCommandPool command_pool = GetCommandPool(device_wrapper->handle, queue_family_index, dispatch_table);
+        VkCommandPool command_pool = GetCommandPool(device_wrapper, queue_family_index);
 
         if (command_pool != VK_NULL_HANDLE)
         {
-            VkCommandBuffer command_buffer = GetCommandBuffer(device_wrapper->handle, command_pool, dispatch_table);
+            const DeviceTable* device_table   = &device_wrapper->layer_table;
+            VkCommandBuffer    command_buffer = GetCommandBuffer(device_wrapper, command_pool);
 
             if (command_buffer != VK_NULL_HANDLE)
             {
@@ -1173,7 +1121,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
                     begin_info.flags                    = 0;
                     begin_info.pInheritanceInfo         = nullptr;
 
-                    VkResult result = dispatch_table.BeginCommandBuffer(command_buffer, &begin_info);
+                    VkResult result = device_table->BeginCommandBuffer(command_buffer, &begin_info);
 
                     if (result == VK_SUCCESS)
                     {
@@ -1210,16 +1158,16 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
                             memory_barrier.subresourceRange.baseArrayLayer = 0;
                             memory_barrier.subresourceRange.layerCount     = image_wrapper->array_layers;
 
-                            dispatch_table.CmdPipelineBarrier(command_buffer,
-                                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                              0,
-                                                              0,
-                                                              nullptr,
-                                                              0,
-                                                              nullptr,
-                                                              1,
-                                                              &memory_barrier);
+                            device_table->CmdPipelineBarrier(command_buffer,
+                                                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                             0,
+                                                             0,
+                                                             nullptr,
+                                                             0,
+                                                             nullptr,
+                                                             1,
+                                                             &memory_barrier);
                         }
 
                         // Create one copy region per mip-level.
@@ -1247,12 +1195,12 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
                             copy_region.bufferOffset += image_entry.level_sizes[i];
                         }
 
-                        dispatch_table.CmdCopyImageToBuffer(command_buffer,
-                                                            image_wrapper->handle,
-                                                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                            staging_buffer,
-                                                            static_cast<uint32_t>(copy_regions.size()),
-                                                            copy_regions.data());
+                        device_table->CmdCopyImageToBuffer(command_buffer,
+                                                           image_wrapper->handle,
+                                                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                           staging_buffer,
+                                                           static_cast<uint32_t>(copy_regions.size()),
+                                                           copy_regions.data());
 
                         if (image_wrapper->current_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
                         {
@@ -1261,21 +1209,21 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
                             memory_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                             memory_barrier.newLayout     = image_wrapper->current_layout;
 
-                            dispatch_table.CmdPipelineBarrier(command_buffer,
-                                                              VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                              0,
-                                                              0,
-                                                              nullptr,
-                                                              0,
-                                                              nullptr,
-                                                              1,
-                                                              &memory_barrier);
+                            device_table->CmdPipelineBarrier(command_buffer,
+                                                             VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                             VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                             0,
+                                                             0,
+                                                             nullptr,
+                                                             0,
+                                                             nullptr,
+                                                             1,
+                                                             &memory_barrier);
                         }
 
-                        dispatch_table.EndCommandBuffer(command_buffer);
+                        device_table->EndCommandBuffer(command_buffer);
 
-                        result = SubmitCommandBuffer(queue, command_buffer, dispatch_table);
+                        result = SubmitCommandBuffer(queue, command_buffer, device_table);
 
                         if (result == VK_SUCCESS)
                         {
@@ -1290,8 +1238,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
                                                               image_entry.resource_size,
                                                               memory_wrapper->handle_id,
                                                               image_wrapper->bind_offset,
-                                                              image_entry.resource_size,
-                                                              dispatch_table);
+                                                              image_entry.resource_size);
 
                                 if ((image_wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
                                     (image_wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED))
@@ -1321,8 +1268,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
                                                               image_entry.resource_size,
                                                               kTempMemoryId,
                                                               0,
-                                                              image_entry.resource_size,
-                                                              dispatch_table);
+                                                              image_entry.resource_size);
 
                                 WriteImageCopyCommandExecution(kTempQueueId,
                                                                kTempCommandBufferId,
@@ -1362,7 +1308,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
                         invalidate_range.memory              = memory_wrapper->handle;
                         invalidate_range.offset              = image_wrapper->bind_offset;
                         invalidate_range.size                = image_entry.resource_size;
-                        dispatch_table.InvalidateMappedMemoryRanges(device_wrapper->handle, 1, &invalidate_range);
+                        device_table->InvalidateMappedMemoryRanges(device_wrapper->handle, 1, &invalidate_range);
                     }
 
                     WriteMappedMemoryCopyCommands(device_wrapper,
@@ -1372,8 +1318,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
                                                   image_entry.resource_size,
                                                   memory_wrapper->handle_id,
                                                   image_wrapper->bind_offset,
-                                                  image_entry.resource_size,
-                                                  dispatch_table);
+                                                  image_entry.resource_size);
 
                     if ((image_wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
                         (image_wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED))
@@ -1413,7 +1358,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
                 GFXRECON_LOG_ERROR("Failed to create a command buffer to process trim state");
             }
 
-            dispatch_table.DestroyCommandPool(device_wrapper->handle, command_pool, nullptr);
+            device_table->DestroyCommandPool(device_wrapper->handle, command_pool, nullptr);
             command_pool = VK_NULL_HANDLE;
         }
         else
@@ -1424,6 +1369,8 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
 
     if (staging_buffer != VK_NULL_HANDLE)
     {
+        const DeviceTable* device_table = &device_wrapper->layer_table;
+
         // Write calls to staging buffer needed to replay the staging copies to device local memory.
         WriteDestroyDeviceObject(
             format::ApiCallId::ApiCall_vkDestroyBuffer, device_wrapper->handle_id, kTempBufferId, nullptr);
@@ -1431,8 +1378,8 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
         WriteDestroyDeviceObject(
             format::ApiCallId::ApiCall_vkFreeMemory, device_wrapper->handle_id, kTempMemoryId, nullptr);
 
-        dispatch_table.DestroyBuffer(device_wrapper->handle, staging_buffer, nullptr);
-        dispatch_table.FreeMemory(device_wrapper->handle, staging_memory, nullptr);
+        device_table->DestroyBuffer(device_wrapper->handle, staging_buffer, nullptr);
+        device_table->FreeMemory(device_wrapper->handle, staging_memory, nullptr);
     }
 }
 
@@ -1539,7 +1486,7 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
                 {
                     acquired_fence_id = acquired_fence_wrapper->handle_id;
 
-                    GetFenceStatus(device_wrapper->handle, acquired_fence_wrapper->handle, &fence_signaled);
+                    GetFenceStatus(device_wrapper, acquired_fence_wrapper->handle, &fence_signaled);
 
                     // If fence was created with a signaled state, we will need to unsignal it before image acquire.
                     if (fence_signaled)
@@ -1902,8 +1849,7 @@ void VulkanStateWriter::WriteMappedMemoryCopyCommands(const DeviceWrapper* devic
                                                       VkDeviceSize         source_size,
                                                       format::HandleId     replay_memory_id,
                                                       VkDeviceSize         replay_offset,
-                                                      VkDeviceSize         replay_size,
-                                                      const DeviceTable&   dispatch_table)
+                                                      VkDeviceSize         replay_size)
 {
     assert(device_wrapper != nullptr);
 
@@ -1916,7 +1862,8 @@ void VulkanStateWriter::WriteMappedMemoryCopyCommands(const DeviceWrapper* devic
         need_unmap = true;
 
         void* data = nullptr;
-        dispatch_table.MapMemory(device_wrapper->handle, source_memory, source_offset, source_size, 0, &data);
+        device_wrapper->layer_table.MapMemory(
+            device_wrapper->handle, source_memory, source_offset, source_size, 0, &data);
 
         source_data = data;
     }
@@ -1952,7 +1899,7 @@ void VulkanStateWriter::WriteMappedMemoryCopyCommands(const DeviceWrapper* devic
 
     if (need_unmap)
     {
-        dispatch_table.UnmapMemory(device_wrapper->handle, source_memory);
+        device_wrapper->layer_table.UnmapMemory(device_wrapper->handle, source_memory);
     }
 }
 
@@ -2643,16 +2590,10 @@ VkMemoryPropertyFlags VulkanStateWriter::GetMemoryProperties(const DeviceWrapper
         // The application has not queried for memory types.
         VkPhysicalDeviceMemoryProperties properties;
 
-        auto entry = instance_tables_->find(GetDispatchKey(physical_device_wrapper->handle));
-        if (entry != instance_tables_->end())
-        {
-            entry->second.GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR(
-                "Attempting to call vkGetPhysicalDeviceMemoryProperties through an untracked device handle");
-        }
+        const InstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
+        assert(instance_table != nullptr);
+
+        instance_table->GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
 
         flags = properties.memoryTypes[memory_wrapper->memory_type_index].propertyFlags;
     }
@@ -2689,58 +2630,46 @@ uint32_t VulkanStateWriter::FindMemoryTypeIndex(const DeviceWrapper*    device_w
         // The application has not queried for memory types.
         VkPhysicalDeviceMemoryProperties properties;
 
-        auto entry = instance_tables_->find(GetDispatchKey(physical_device_wrapper->handle));
-        if (entry != instance_tables_->end())
-        {
-            entry->second.GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
+        const InstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
+        assert(instance_table != nullptr);
 
-            for (uint32_t i = 0; i < properties.memoryTypeCount; ++i)
-            {
-                if ((memory_type_bits & (1 << i)) &&
-                    ((properties.memoryTypes[i].propertyFlags & memory_property_flags) == memory_property_flags))
-                {
-                    index = i;
-                    break;
-                }
-            }
-        }
-        else
+        instance_table->GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
+
+        for (uint32_t i = 0; i < properties.memoryTypeCount; ++i)
         {
-            GFXRECON_LOG_ERROR(
-                "Attempting to call vkGetPhysicalDeviceMemoryProperties through an untracked device handle");
+            if ((memory_type_bits & (1 << i)) &&
+                ((properties.memoryTypes[i].propertyFlags & memory_property_flags) == memory_property_flags))
+            {
+                index = i;
+                break;
+            }
         }
     }
 
     return index;
 }
 
-void VulkanStateWriter::GetFenceStatus(VkDevice device, VkFence fence, bool* status)
+void VulkanStateWriter::GetFenceStatus(const DeviceWrapper* device_wrapper, VkFence fence, bool* status)
 {
-    auto tables_entry = device_tables_->find(GetDispatchKey(device));
-    if (tables_entry != device_tables_->end())
-    {
-        VkResult result = tables_entry->second.GetFenceStatus(device, fence);
-        (*status)       = (result == VK_SUCCESS);
-    }
-    else
-    {
-        GFXRECON_LOG_ERROR("Attempting to retrieve a device dispatch table for an unrecognized device handle");
-    }
+    assert(device_wrapper != nullptr);
+
+    VkResult result = device_wrapper->layer_table.GetFenceStatus(device_wrapper->handle, fence);
+    (*status)       = (result == VK_SUCCESS);
 }
 
-VkQueue VulkanStateWriter::GetQueue(VkDevice           device,
-                                    uint32_t           queue_family_index,
-                                    uint32_t           queue_index,
-                                    const DeviceTable& dispatch_table)
+VkQueue
+VulkanStateWriter::GetQueue(const DeviceWrapper* device_wrapper, uint32_t queue_family_index, uint32_t queue_index)
 {
+    assert(device_wrapper != nullptr);
+
     VkQueue queue = VK_NULL_HANDLE;
 
-    dispatch_table.GetDeviceQueue(device, queue_family_index, queue_index, &queue);
+    device_wrapper->layer_table.GetDeviceQueue(device_wrapper->handle, queue_family_index, queue_index, &queue);
 
     if (queue != VK_NULL_HANDLE)
     {
         // Because this queue was not allocated through the loader, it must be assigned a dispatch table.
-        *reinterpret_cast<void**>(queue) = *reinterpret_cast<void**>(device);
+        *reinterpret_cast<void**>(queue) = *reinterpret_cast<void**>(device_wrapper->handle);
     }
     else
     {
@@ -2750,9 +2679,10 @@ VkQueue VulkanStateWriter::GetQueue(VkDevice           device,
     return queue;
 }
 
-VkCommandPool
-VulkanStateWriter::GetCommandPool(VkDevice device, uint32_t queue_family_index, const DeviceTable& dispatch_table)
+VkCommandPool VulkanStateWriter::GetCommandPool(const DeviceWrapper* device_wrapper, uint32_t queue_family_index)
 {
+    assert(device_wrapper != nullptr);
+
     VkCommandPool command_pool = VK_NULL_HANDLE;
 
     VkCommandPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
@@ -2760,7 +2690,8 @@ VulkanStateWriter::GetCommandPool(VkDevice device, uint32_t queue_family_index, 
     create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     create_info.queueFamilyIndex        = queue_family_index;
 
-    VkResult result = dispatch_table.CreateCommandPool(device, &create_info, nullptr, &command_pool);
+    VkResult result =
+        device_wrapper->layer_table.CreateCommandPool(device_wrapper->handle, &create_info, nullptr, &command_pool);
 
     if (result != VK_SUCCESS)
     {
@@ -2770,9 +2701,10 @@ VulkanStateWriter::GetCommandPool(VkDevice device, uint32_t queue_family_index, 
     return command_pool;
 }
 
-VkCommandBuffer
-VulkanStateWriter::GetCommandBuffer(VkDevice device, VkCommandPool command_pool, const DeviceTable& dispatch_table)
+VkCommandBuffer VulkanStateWriter::GetCommandBuffer(const DeviceWrapper* device_wrapper, VkCommandPool command_pool)
 {
+    assert(device_wrapper != nullptr);
+
     VkCommandBuffer command_buffer = VK_NULL_HANDLE;
 
     VkCommandBufferAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
@@ -2781,13 +2713,14 @@ VulkanStateWriter::GetCommandBuffer(VkDevice device, VkCommandPool command_pool,
     alloc_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     alloc_info.commandBufferCount          = 1;
 
-    VkResult result = dispatch_table.AllocateCommandBuffers(device, &alloc_info, &command_buffer);
+    VkResult result =
+        device_wrapper->layer_table.AllocateCommandBuffers(device_wrapper->handle, &alloc_info, &command_buffer);
 
     if (result == VK_SUCCESS)
     {
         // Because this command buffer was not allocated through the loader, it must be assigned a dispatch
         // table.
-        *reinterpret_cast<void**>(command_buffer) = *reinterpret_cast<void**>(device);
+        *reinterpret_cast<void**>(command_buffer) = *reinterpret_cast<void**>(device_wrapper->handle);
     }
     else
     {
@@ -2798,8 +2731,10 @@ VulkanStateWriter::GetCommandBuffer(VkDevice device, VkCommandPool command_pool,
 }
 
 VkResult
-VulkanStateWriter::SubmitCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer, const DeviceTable& dispatch_table)
+VulkanStateWriter::SubmitCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer, const DeviceTable* device_table)
 {
+    assert(device_table != nullptr);
+
     VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
     submit_info.pNext                = nullptr;
     submit_info.waitSemaphoreCount   = 0;
@@ -2810,9 +2745,9 @@ VulkanStateWriter::SubmitCommandBuffer(VkQueue queue, VkCommandBuffer command_bu
     submit_info.signalSemaphoreCount = 0;
     submit_info.pSignalSemaphores    = nullptr;
 
-    dispatch_table.QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+    device_table->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
 
-    return dispatch_table.QueueWaitIdle(queue);
+    return device_table->QueueWaitIdle(queue);
 }
 
 VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_wrapper,
@@ -2821,11 +2756,12 @@ VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_w
                                                 VkMemoryRequirements*   memory_requirements,
                                                 uint32_t*               memory_type_index,
                                                 VkDeviceMemory*         memory,
-                                                const VulkanStateTable& state_table,
-                                                const DeviceTable&      dispatch_table)
+                                                const VulkanStateTable& state_table)
 {
     assert((device_wrapper != nullptr) && (buffer != nullptr) && (memory_type_index != nullptr) &&
            (memory_requirements != nullptr) && (memory != nullptr));
+
+    const DeviceTable* device_table = &device_wrapper->layer_table;
 
     VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -2836,10 +2772,10 @@ VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_w
     create_info.queueFamilyIndexCount = 0;
     create_info.pQueueFamilyIndices   = nullptr;
 
-    VkResult result = dispatch_table.CreateBuffer(device_wrapper->handle, &create_info, nullptr, buffer);
+    VkResult result = device_table->CreateBuffer(device_wrapper->handle, &create_info, nullptr, buffer);
     if (result == VK_SUCCESS)
     {
-        dispatch_table.GetBufferMemoryRequirements(device_wrapper->handle, (*buffer), memory_requirements);
+        device_table->GetBufferMemoryRequirements(device_wrapper->handle, (*buffer), memory_requirements);
 
         (*memory_type_index) = FindMemoryTypeIndex(
             device_wrapper, memory_requirements->memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, state_table);
@@ -2849,15 +2785,15 @@ VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_w
         alloc_info.allocationSize       = memory_requirements->size;
         alloc_info.memoryTypeIndex      = (*memory_type_index);
 
-        result = dispatch_table.AllocateMemory(device_wrapper->handle, &alloc_info, nullptr, memory);
+        result = device_table->AllocateMemory(device_wrapper->handle, &alloc_info, nullptr, memory);
         if (result == VK_SUCCESS)
         {
-            dispatch_table.BindBufferMemory(device_wrapper->handle, (*buffer), (*memory), 0);
+            device_table->BindBufferMemory(device_wrapper->handle, (*buffer), (*memory), 0);
         }
         else
         {
             GFXRECON_LOG_ERROR("Failed to allocate staging buffer memory for resource memory snapshot");
-            dispatch_table.DestroyBuffer(device_wrapper->handle, *buffer, nullptr);
+            device_table->DestroyBuffer(device_wrapper->handle, *buffer, nullptr);
         }
     }
     else
@@ -3018,14 +2954,14 @@ VkFormat VulkanStateWriter::GetImageAspectFormat(VkFormat format, VkImageAspectF
     }
 }
 
-void VulkanStateWriter::GetImageSizes(const ImageWrapper* image_wrapper,
-                                      ImageSnapshotEntry* entry,
-                                      const DeviceTable&  dispatch_table)
+void VulkanStateWriter::GetImageSizes(const ImageWrapper* image_wrapper, ImageSnapshotEntry* entry)
 {
     assert((image_wrapper != nullptr) && (entry != nullptr));
 
     const DeviceWrapper* device_wrapper = image_wrapper->bind_device;
     assert(device_wrapper != nullptr);
+
+    const DeviceTable* device_table = &device_wrapper->layer_table;
 
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -3047,13 +2983,13 @@ void VulkanStateWriter::GetImageSizes(const ImageWrapper* image_wrapper,
     VkMemoryRequirements memory_requirements;
 
     // Size of first level.
-    VkResult result = dispatch_table.CreateImage(device_wrapper->handle, &create_info, nullptr, &image);
+    VkResult result = device_table->CreateImage(device_wrapper->handle, &create_info, nullptr, &image);
     if (result == VK_SUCCESS)
     {
-        dispatch_table.GetImageMemoryRequirements(device_wrapper->handle, image, &memory_requirements);
+        device_table->GetImageMemoryRequirements(device_wrapper->handle, image, &memory_requirements);
         entry->resource_size = memory_requirements.size;
         entry->level_sizes.push_back(memory_requirements.size);
-        dispatch_table.DestroyImage(device_wrapper->handle, image, nullptr);
+        device_table->DestroyImage(device_wrapper->handle, image, nullptr);
     }
     else
     {
@@ -3067,13 +3003,13 @@ void VulkanStateWriter::GetImageSizes(const ImageWrapper* image_wrapper,
         create_info.extent.height = std::max(1u, (image_wrapper->extent.height >> i));
         create_info.extent.depth  = std::max(1u, (image_wrapper->extent.depth >> i));
 
-        result = dispatch_table.CreateImage(device_wrapper->handle, &create_info, nullptr, &image);
+        result = device_table->CreateImage(device_wrapper->handle, &create_info, nullptr, &image);
         if (result == VK_SUCCESS)
         {
-            dispatch_table.GetImageMemoryRequirements(device_wrapper->handle, image, &memory_requirements);
+            device_table->GetImageMemoryRequirements(device_wrapper->handle, image, &memory_requirements);
             entry->resource_size += memory_requirements.size;
             entry->level_sizes.push_back(memory_requirements.size);
-            dispatch_table.DestroyImage(device_wrapper->handle, image, nullptr);
+            device_table->DestroyImage(device_wrapper->handle, image, nullptr);
         }
         else
         {
@@ -3113,8 +3049,7 @@ void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        im
                                                    bool                       use_staging_copy,
                                                    VkImageAspectFlags         aspect_mask,
                                                    ImageSnapshotList*         insert_list,
-                                                   ImageSnapshotData*         snapshot_data,
-                                                   const DeviceTable&         dispatch_table)
+                                                   ImageSnapshotData*         snapshot_data)
 
 {
     assert((image_wrapper != nullptr) && (memory_wrapper != nullptr) && (insert_list != nullptr) &&
@@ -3129,7 +3064,7 @@ void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        im
     if (aspect_mask == VK_IMAGE_ASPECT_COLOR_BIT)
     {
         entry.aspect = VK_IMAGE_ASPECT_COLOR_BIT;
-        GetImageSizes(image_wrapper, &entry, dispatch_table);
+        GetImageSizes(image_wrapper, &entry);
         UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
         insert_list->emplace_back(entry);
     }
@@ -3142,7 +3077,7 @@ void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        im
         if ((aspect_mask & VK_IMAGE_ASPECT_DEPTH_BIT) == VK_IMAGE_ASPECT_DEPTH_BIT)
         {
             entry.aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
-            GetImageSizes(image_wrapper, &entry, dispatch_table);
+            GetImageSizes(image_wrapper, &entry);
             UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
             insert_list->push_back(entry);
         }
@@ -3150,7 +3085,7 @@ void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        im
         if ((aspect_mask & VK_IMAGE_ASPECT_STENCIL_BIT) == VK_IMAGE_ASPECT_STENCIL_BIT)
         {
             entry.aspect = VK_IMAGE_ASPECT_STENCIL_BIT;
-            GetImageSizes(image_wrapper, &entry, dispatch_table);
+            GetImageSizes(image_wrapper, &entry);
             UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
             insert_list->push_back(entry);
         }
@@ -3158,7 +3093,7 @@ void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        im
         if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_0_BIT) == VK_IMAGE_ASPECT_PLANE_0_BIT)
         {
             entry.aspect = VK_IMAGE_ASPECT_PLANE_0_BIT;
-            GetImageSizes(image_wrapper, &entry, dispatch_table);
+            GetImageSizes(image_wrapper, &entry);
             UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
             insert_list->push_back(entry);
         }
@@ -3166,7 +3101,7 @@ void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        im
         if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_1_BIT) == VK_IMAGE_ASPECT_PLANE_1_BIT)
         {
             entry.aspect = VK_IMAGE_ASPECT_PLANE_1_BIT;
-            GetImageSizes(image_wrapper, &entry, dispatch_table);
+            GetImageSizes(image_wrapper, &entry);
             UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
             insert_list->push_back(entry);
         }
@@ -3174,7 +3109,7 @@ void VulkanStateWriter::InsertImageSnapshotEntries(const ImageWrapper*        im
         if ((aspect_mask & VK_IMAGE_ASPECT_PLANE_2_BIT) == VK_IMAGE_ASPECT_PLANE_2_BIT)
         {
             entry.aspect = VK_IMAGE_ASPECT_PLANE_2_BIT;
-            GetImageSizes(image_wrapper, &entry, dispatch_table);
+            GetImageSizes(image_wrapper, &entry);
             UpdateImageSnapshotSizes(entry.resource_size, is_host_visible, use_staging_copy, snapshot_data);
             insert_list->push_back(entry);
         }
