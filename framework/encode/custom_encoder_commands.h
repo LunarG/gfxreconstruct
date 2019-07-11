@@ -210,7 +210,6 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>
     }
 };
 
-// Dispatch custom commands for fill memory command generation.
 template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateMemory>
 {

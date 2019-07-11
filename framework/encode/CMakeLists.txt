@@ -12,8 +12,6 @@ target_sources(gfxrecon_encode
                    custom_vulkan_struct_handle_wrappers.h
                    custom_vulkan_struct_handle_wrappers.cpp
                    descriptor_update_template_info.h
-                   memory_tracker.h
-                   memory_tracker.cpp
                    parameter_encoder.h
                    struct_pointer_encoder.h
                    trace_manager.h
