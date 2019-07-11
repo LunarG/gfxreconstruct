@@ -30,13 +30,62 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 typedef format::HandleId (*PFN_GetHandleId)();
-typedef std::vector<format::HandleId> HandleStore;
-typedef std::vector<const void*>      HandleArrayStore;
 
-struct HandleArrayUnwrapMemory
+typedef std::vector<uint8_t> HandleUnwrapBuffer;
+
+class HandleUnwrapMemory
 {
-    size_t                   handle_store_count{ 0 };
-    std::vector<HandleStore> handle_stores;
+  public:
+    HandleUnwrapMemory() : current_buffer_(0) {}
+
+    uint8_t* GetBuffer(size_t len)
+    {
+        HandleUnwrapBuffer* next_buffer = nullptr;
+        size_t              next_index  = current_buffer_++;
+
+        if (next_index < buffers_.size())
+        {
+            next_buffer = &buffers_[next_index];
+
+            if (len > next_buffer->size())
+            {
+                next_buffer->resize(len);
+            }
+        }
+        else
+        {
+            buffers_.emplace_back(len);
+            next_buffer = &buffers_[next_index];
+        }
+
+        return next_buffer->data();
+    }
+
+    uint8_t* GetFilledBuffer(const uint8_t* data, size_t len)
+    {
+        HandleUnwrapBuffer* next_buffer = nullptr;
+        size_t              next_index  = current_buffer_++;
+
+        if (next_index < buffers_.size())
+        {
+            next_buffer = &buffers_[next_index];
+            next_buffer->clear();
+            next_buffer->insert(next_buffer->end(), data, data + len);
+        }
+        else
+        {
+            buffers_.emplace_back(data, data + len);
+            next_buffer = &buffers_[next_index];
+        }
+
+        return next_buffer->data();
+    }
+
+    void Reset() { current_buffer_ = 0; }
+
+  private:
+    size_t                          current_buffer_;
+    std::vector<HandleUnwrapBuffer> buffers_;
 };
 
 template <typename T>
@@ -274,11 +323,11 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayK
 // Override for images retrieved from a swapchain, which requires the handle wrapper to be owned by a parent to ensure
 // the wrapper memory is released when the parent is destroyed.
 template <>
-inline void CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(
-    VkDevice, // Unused for swapchain image retrieval.
-    VkSwapchainKHR  co_parent,
-    VkImage*        handle,
-    PFN_GetHandleId get_id)
+inline void
+CreateWrappedHandle<DeviceWrapper, SwapchainKHRWrapper, ImageWrapper>(VkDevice, // Unused for swapchain image retrieval.
+                                                                      VkSwapchainKHR  co_parent,
+                                                                      VkImage*        handle,
+                                                                      PFN_GetHandleId get_id)
 {
     assert(co_parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
@@ -514,118 +563,26 @@ inline void ResetDescriptorPoolWrapper(VkDescriptorPool handle)
     wrapper->child_sets.clear();
 }
 
-// Unwrap individual handles.
-template <typename Wrapper>
-void UnwrapHandle(const typename Wrapper::HandleType* handle, HandleStore* handle_store)
+// Unwrap arrays of handles.
+template <typename Handle>
+const Handle* UnwrapHandles(const Handle* handles, uint32_t len, HandleUnwrapMemory* unwrap_memory)
 {
-    assert((handle != nullptr) && (handle_store != nullptr));
-
-    if ((*handle) != VK_NULL_HANDLE)
+    if ((handles != nullptr) && (len > 0))
     {
-        handle_store->push_back(format::ToHandleId(*handle));
-        (*const_cast<typename Wrapper::HandleType*>(handle)) = reinterpret_cast<Wrapper*>(*handle)->handle;
+        assert(unwrap_memory != nullptr);
+
+        const uint8_t* bytes     = reinterpret_cast<const uint8_t*>(handles);
+        size_t         num_bytes = len * sizeof(Handle);
+
+        // Copy and transform handles.
+        auto unwrapped_handles = reinterpret_cast<Handle*>(unwrap_memory->GetFilledBuffer(bytes, num_bytes));
+        std::transform(unwrapped_handles, unwrapped_handles + len, unwrapped_handles, GetWrappedHandle<Handle>);
+
+        return unwrapped_handles;
     }
-}
 
-// Unwrap statically sized arrays of handles.
-template <typename Wrapper>
-void UnwrapHandles(const typename Wrapper::HandleType* handles, uint32_t count, HandleStore* handle_store)
-{
-    if (handles != nullptr)
-    {
-        for (uint32_t i = 0; i < count; ++i)
-        {
-            UnwrapHandle<Wrapper>(&handles[i], handle_store);
-        }
-    }
-}
-
-// Unwrap dynamically allocated arrays of handles.
-template <typename Wrapper>
-void UnwrapHandles(const typename Wrapper::HandleType* const* handles,
-                   uint32_t                                   count,
-                   HandleArrayStore*                          handle_array_store,
-                   HandleArrayUnwrapMemory*                   unwrap_memory)
-{
-    assert((handles != nullptr) && (handle_array_store != nullptr) && (unwrap_memory != nullptr));
-
-    if ((*handles) != nullptr)
-    {
-        HandleStore* handle_store  = nullptr;
-        auto         handle_stores = &unwrap_memory->handle_stores;
-        handle_array_store->push_back(*handles);
-
-        if (unwrap_memory->handle_store_count < handle_stores->size())
-        {
-            handle_store = &(*handle_stores)[unwrap_memory->handle_store_count];
-            handle_store->clear();
-        }
-        else
-        {
-            handle_stores->emplace_back(HandleStore{});
-            handle_store = &handle_stores->back();
-            handle_store->reserve(count);
-        }
-
-        ++unwrap_memory->handle_store_count;
-
-        for (uint32_t i = 0; i < count; ++i)
-        {
-            if ((*handles)[i] != VK_NULL_HANDLE)
-            {
-                handle_store->push_back(format::ToHandleId(reinterpret_cast<const Wrapper*>((*handles)[i])->handle));
-            }
-            else
-            {
-                handle_store->push_back(VK_NULL_HANDLE);
-            }
-        }
-
-        (*const_cast<const typename Wrapper::HandleType**>(handles)) =
-            reinterpret_cast<typename Wrapper::HandleType*>(handle_store->data());
-    }
-}
-
-template <typename Wrapper>
-void RewrapHandle(const typename Wrapper::HandleType* handle, HandleStore::const_iterator* handle_store_iter)
-{
-    assert((handle != nullptr) && (handle_store_iter != nullptr));
-
-    if ((*handle) != VK_NULL_HANDLE)
-    {
-        (*const_cast<typename Wrapper::HandleType*>(handle)) =
-            format::FromHandleId<typename Wrapper::HandleType>(**handle_store_iter);
-        ++(*handle_store_iter);
-    }
-}
-
-template <typename Wrapper>
-void RewrapHandles(const typename Wrapper::HandleType* handles,
-                   uint32_t                            count,
-                   HandleStore::const_iterator*        handle_store_iter)
-{
-    if (handles != nullptr)
-    {
-        for (uint32_t i = 0; i < count; ++i)
-        {
-            RewrapHandle<Wrapper>(&handles[i], handle_store_iter);
-        }
-    }
-}
-
-template <typename Wrapper>
-void RewrapHandles(const typename Wrapper::HandleType* const* handles,
-                   uint32_t                                   count,
-                   HandleArrayStore::const_iterator*          handle_array_store_iter)
-{
-    assert((handles != nullptr) && (handle_array_store_iter != nullptr));
-
-    if ((*handles) != nullptr)
-    {
-        (*const_cast<const typename Wrapper::HandleType**>(handles)) =
-            reinterpret_cast<const typename Wrapper::HandleType*>(**handle_array_store_iter);
-        ++(*handle_array_store_iter);
-    }
+    // Leave the original memory in place when the pointer is not null, but size is zero.
+    return handles;
 }
 
 GFXRECON_END_NAMESPACE(encode)

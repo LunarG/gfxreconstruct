@@ -49,7 +49,8 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
-        self.pNextStructs = dict()          # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
+        self.pNextStructsWithHandles = dict()          # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and contain handles.
+        self.pNextStructsWithoutHandles = dict()       # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain and do not contain handles.
 
     # Method override
     def beginFile(self, genOpts):
@@ -57,65 +58,67 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
 
         write('#include "generated/generated_vulkan_struct_handle_wrappers.h"', file=self.outFile)
         self.newline()
+        write('#include "vulkan/vk_layer.h"', file=self.outFile)
+        self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
     # Method override
     def endFile(self):
-        # Generate the pNext handle mapping code.
+        # Generate the pNext shallow copy code, for pNext structs that don't have handles, but need to be preserved in the overall copy for handle wrapping.
         self.newline()
-        write('void UnwrapPNextStructHandles(const void* value, HandleStore* handle_store, HandleArrayStore* handle_array_store, HandleArrayUnwrapMemory* handle_unwrap_memory)', file=self.outFile)
+        write('static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMemory* unwrap_memory)', file=self.outFile)
         write('{', file=self.outFile)
-        write('    const VkBaseInStructure* base = reinterpret_cast<const VkBaseInStructure*>(value);', file=self.outFile)
+        write('    assert(base != nullptr);', file=self.outFile)
         self.newline()
-        write('    // Ignore the structures added to the pnext chain by the loader.', file=self.outFile)
-        write('    while ((base != nullptr) && ((base->sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||', file=self.outFile)
-        write('                                 (base->sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))', file=self.outFile)
+        write('    VkBaseInStructure* copy = nullptr;', file=self.outFile)
+        write('    switch (base->sType)', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        base = reinterpret_cast<const VkBaseInStructure*>(base->pNext);', file=self.outFile)
+        write('    default:', file=self.outFile)
+        write('        GFXRECON_LOG_WARNING("Failed to copy entire pNext chain when unwrapping handles due to unrecognized sType %d", base->sType);', file=self.outFile)
+        write('        break;', file=self.outFile)
+        write('    case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO:', file=self.outFile)
+        write('        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLayerInstanceCreateInfo*>(base), 1, unwrap_memory));', file=self.outFile)
+        write('        break;', file=self.outFile)
+        write('    case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO:', file=self.outFile)
+        write('        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLayerDeviceCreateInfo*>(base), 1, unwrap_memory));', file=self.outFile)
+        write('        break;', file=self.outFile)
+        for baseType in self.pNextStructsWithoutHandles:
+            write('    case {}:'.format(self.pNextStructsWithoutHandles[baseType]), file=self.outFile)
+            write('        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'.format(baseType), file=self.outFile)
+            write('        break;', file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
-        write('    if (base != nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        switch (base->sType)', file=self.outFile)
-        write('        {', file=self.outFile)
-        write('        default:', file=self.outFile)
-        write('            // This structure does not contain handles, but may point to a structure that does.', file=self.outFile)
-        write('            UnwrapPNextStructHandles(base->pNext, handle_store, handle_array_store, handle_unwrap_memory);', file=self.outFile)
-        write('            break;', file=self.outFile)
-        for baseType in self.pNextStructs:
-            write('        case {}:'.format(self.pNextStructs[baseType]), file=self.outFile)
-            write('            UnwrapStructHandles(reinterpret_cast<const {}*>(base), handle_store, handle_array_store, handle_unwrap_memory);'.format(baseType), file=self.outFile)
-            write('            break;', file=self.outFile)
-        write('        }', file=self.outFile)
-        write('    }', file=self.outFile)
+        write('    return copy;', file=self.outFile)
         write('}', file=self.outFile)
+
+        # Generate the pNext handle wrapping code.
         self.newline()
-        write('void RewrapPNextStructHandles(const void* value, HandleStore::const_iterator* handle_store_iter, HandleArrayStore::const_iterator* handle_array_store_iter)', file=self.outFile)
+        write('const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)', file=self.outFile)
         write('{', file=self.outFile)
-        write('    const VkBaseInStructure* base = reinterpret_cast<const VkBaseInStructure*>(value);', file=self.outFile)
-        self.newline()
-        write('    // Ignore the structures added to the pnext chain by the loader.', file=self.outFile)
-        write('    while ((base != nullptr) && ((base->sType == VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO) ||', file=self.outFile)
-        write('                                 (base->sType == VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO)))', file=self.outFile)
+        write('    if (value != nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        base = reinterpret_cast<const VkBaseInStructure*>(base->pNext);', file=self.outFile)
-        write('    }', file=self.outFile)
+        write('        const VkBaseInStructure* base = reinterpret_cast<const VkBaseInStructure*>(value);', file=self.outFile)
         self.newline()
-        write('    if (base != nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
         write('        switch (base->sType)', file=self.outFile)
         write('        {', file=self.outFile)
         write('        default:', file=self.outFile)
+        write('        {', file=self.outFile)
         write('            // This structure does not contain handles, but may point to a structure that does.', file=self.outFile)
-        write('            RewrapPNextStructHandles(base->pNext, handle_store_iter, handle_array_store_iter);', file=self.outFile)
-        write('            break;', file=self.outFile)
-        for baseType in self.pNextStructs:
-            write('        case {}:'.format(self.pNextStructs[baseType]), file=self.outFile)
-            write('            RewrapStructHandles(reinterpret_cast<const {}*>(base), handle_store_iter, handle_array_store_iter);'.format(baseType), file=self.outFile)
-            write('            break;', file=self.outFile)
+        write('            VkBaseInStructure* copy = CopyPNextStruct(base, unwrap_memory);', file=self.outFile)
+        write('            if (copy != nullptr)', file=self.outFile)
+        write('            {', file=self.outFile)
+        write('                copy->pNext = reinterpret_cast<const VkBaseInStructure*>(UnwrapPNextStructHandles(base->pNext, unwrap_memory));', file=self.outFile)
+        write('            }', file=self.outFile)
+        write('            return copy;', file=self.outFile)
+        write('        }', file=self.outFile)
+        for baseType in self.pNextStructsWithHandles:
+            write('        case {}:'.format(self.pNextStructsWithHandles[baseType]), file=self.outFile)
+            write('            return UnwrapStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'.format(baseType), file=self.outFile)
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
+        self.newline()
+        write('    return nullptr;', file=self.outFile)
         write('}', file=self.outFile)
 
         self.newline()
@@ -131,13 +134,17 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            if self.checkStructMemberHandles(typename, self.structsWithHandles):
-                # Track this struct if it can be present in a pNext chain, for generating the MapPNextStructHandles code.
-                parentStructs = typeinfo.elem.get('structextends')
-                if parentStructs:
-                    sType = self.makeStructureTypeEnum(typeinfo, typename)
-                    if sType:
-                        self.pNextStructs[typename] = sType
+            hasHandles = self.checkStructMemberHandles(typename, self.structsWithHandles)
+
+            # Track this struct if it can be present in a pNext chain.
+            parentStructs = typeinfo.elem.get('structextends')
+            if parentStructs:
+                sType = self.makeStructureTypeEnum(typeinfo, typename)
+                if sType:
+                    if hasHandles:
+                        self.pNextStructsWithHandles[typename] = sType
+                    else:
+                        self.pNextStructsWithoutHandles[typename] = sType
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -154,20 +161,11 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
                 members = self.structsWithHandles[struct]
 
                 body = '\n'
-                body += 'void UnwrapStructHandles(const {}* value, HandleStore* handle_store, HandleArrayStore* handle_array_store, HandleArrayUnwrapMemory* handle_unwrap_memory)\n'.format(struct)
+                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(struct)
                 body += '{\n'
                 body += '    if (value != nullptr)\n'
                 body += '    {'
                 body += self.makeStructHandleUnwrappings(struct, members)
-                body += '    }\n'
-                body += '}\n'
-
-                body += '\n'
-                body += 'void RewrapStructHandles(const {}* value, HandleStore::const_iterator* handle_store_iter, HandleArrayStore::const_iterator* handle_array_store_iter)\n'.format(struct)
-                body += '{\n'
-                body += '    if (value != nullptr)\n'
-                body += '    {'
-                body += self.makeStructHandleRewrappings(struct, members)
                 body += '    }\n'
                 body += '}'
 
@@ -184,61 +182,26 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             if 'pNext' in member.name:
                 body += '        if (value->pNext != nullptr)\n'
                 body += '        {\n'
-                body += '            UnwrapPNextStructHandles(value->pNext, handle_store, handle_array_store, handle_unwrap_memory);\n'
+                body += '            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);\n'
                 body += '        }\n'
             elif self.isStruct(member.baseType):
                 # This is a struct that includes handles.
                 if member.isArray:
-                    body += '        UnwrapStructArrayHandles(value->{}, value->{}, handle_store, handle_array_store, handle_unwrap_memory);\n'.format(member.name, member.arrayLength)
+                    body += '        value->{name} = UnwrapStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(member.arrayLength, name=member.name)
                 elif member.isPointer:
-                    body += '        UnwrapStructHandles(value->{}, handle_store, handle_array_store, handle_unwrap_memory);\n'.format(member.name)
+                    body += '        value->{name} = UnwrapStructPtrHandles(value->{name}, unwrap_memory);\n'.format(name=member.name)
                 else:
-                    body += '        UnwrapStructHandles(&value->{}, handle_store, handle_array_store, handle_unwrap_memory);\n'.format(member.name)
+                    body += '        UnwrapStructHandles(&value->{}, unwrap_memory);\n'.format(member.name)
             else:
                 # If it is an array or pointer, map with the utility function.
                 if member.isArray:
                     if member.isDynamic:
-                        body += '        UnwrapHandles<{}Wrapper>(&value->{}, value->{}, handle_array_store, handle_unwrap_memory);\n'.format(member.baseType[2:], member.name, member.arrayLength);
+                        body += '        value->{name} = UnwrapHandles<{}>(value->{name}, value->{}, unwrap_memory);\n'.format(member.baseType, member.arrayLength, name=member.name);
                     else:
-                        body += '        UnwrapHandles<{}Wrapper>(value->{}, value->{}, handle_store);\n'.format(member.baseType[2:], member.name, member.arrayLength);
+                        body += '        std::transform(value->{name}, value->{name} + value->{}, value->{name}, GetWrappedHandle<{}>);\n'.format(member.arrayLength, member.baseType, name=member.name);
                 elif member.isPointer:
-                    body += '        UnwrapHandle<{}Wrapper>(value->{}, handle_store);\n'.format(member.baseType[2:], member.name);
+                    body += '        value->{name} = UnwrapHandles<{}>(value->{name}, 1, unwrap_memory);\n'.format(member.baseType, name=member.name);
                 else:
-                    body += '        UnwrapHandle<{}Wrapper>(&value->{}, handle_store);\n'.format(member.baseType[2:], member.name);
-
-        return body
-
-    #
-    # Generating expressions for rewrapping struct handles after to an API call.
-    def makeStructHandleRewrappings(self, name, members):
-        body = ''
-
-        for member in members:
-            body += '\n'
-
-            if 'pNext' in member.name:
-                body += '        if (value->pNext != nullptr)\n'
-                body += '        {\n'
-                body += '            RewrapPNextStructHandles(value->pNext, handle_store_iter, handle_array_store_iter);\n'
-                body += '        }\n'
-            elif self.isStruct(member.baseType):
-                # This is a struct that includes handles.
-                if member.isArray:
-                    body += '        RewrapStructArrayHandles(value->{}, value->{}, handle_store_iter, handle_array_store_iter);\n'.format(member.name, member.arrayLength)
-                elif member.isPointer:
-                    body += '        RewrapStructHandles(value->{}, handle_store_iter, handle_array_store_iter);\n'.format(member.name)
-                else:
-                    body += '        RewrapStructHandles(&value->{}, handle_store_iter, handle_array_store_iter);\n'.format(member.name)
-            else:
-                # If it is an array or pointer, map with the utility function.
-                if member.isArray:
-                    if member.isDynamic:
-                        body += '        RewrapHandles<{}Wrapper>(&value->{}, value->{}, handle_array_store_iter);\n'.format(member.baseType[2:], member.name, member.arrayLength);
-                    else:
-                        body += '        RewrapHandles<{}Wrapper>(value->{}, value->{}, handle_store_iter);\n'.format(member.baseType[2:], member.name, member.arrayLength);
-                elif member.isPointer:
-                    body += '        RewrapHandle<{}Wrapper>(value->{}, handle_store_iter);\n'.format(member.baseType[2:], member.name);
-                else:
-                    body += '        RewrapHandle<{}Wrapper>(&value->{}, handle_store_iter);\n'.format(member.baseType[2:], member.name);
+                    body += '        value->{name} = GetWrappedHandle<{}>(value->{name});\n'.format(member.baseType, name=member.name);
 
         return body

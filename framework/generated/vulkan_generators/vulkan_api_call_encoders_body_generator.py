@@ -152,7 +152,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             return 'TraceManager::GetLayerTable()->CreateDevice({})'.format(argList)
 
         dispatchfunc = 'TraceManager::Get()->GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'TraceManager::Get()->GetDeviceTable'
-        return '{}({})->{}({})'.format(dispatchfunc, values[0].name, name[2:], argList)
+        return '{}({}_unwrapped)->{}({})'.format(dispatchfunc, values[0].name, name[2:], argList)
 
     #
     # Command definition
@@ -172,31 +172,19 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         body += '\n'
 
         # Check for handles that need unwrapping.
-        unwrapExpr, needStore, needArrayStore = self.makeHandleUnwrapping(values, indent)
+        unwrapExpr, unwrappedArgList, needUnwrapMemory = self.makeHandleUnwrapping(values, indent)
         if unwrapExpr:
-            if needStore:
-                body += indent + 'auto handle_store = TraceManager::Get()->GetHandleStore();\n'
-            if needArrayStore:
-                body += indent + 'auto handle_array_store = TraceManager::Get()->GetHandleArrayStore();\n'
+            if needUnwrapMemory:
                 body += indent + 'auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();\n'
             body += unwrapExpr
             body += '\n'
 
         # Construct the function call to dispatch to the next layer.
-        callExpr = self.makeLayerDispatchCall(name, values, argList)
+        callExpr = self.makeLayerDispatchCall(name, values, unwrappedArgList)
         if returnType and returnType != 'void':
             body += indent + '{} result = {};\n'.format(returnType, callExpr)
         else:
             body += indent + '{};\n'.format(callExpr)
-
-        # Re-wrap handles.
-        if unwrapExpr:
-            body += '\n'
-            if needStore:
-                body += indent + 'auto handle_store_iter = handle_store->cbegin();\n'
-            if needArrayStore:
-                body += indent + 'auto handle_array_store_iter = handle_array_store->cbegin();\n'
-            body += self.makeHandleRewrapping(values, indent)
 
         # Wrap newly created handles.
         wrapExpr = self.makeHandleWrapping(values, indent)
@@ -381,49 +369,30 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         return expr
 
     def makeHandleUnwrapping(self, values, indent):
+        args = []
         expr = ''
-        needStore = False
-        needArrayStore = False
+        needUnwrapMemory = False
         for value in values:
+            argName = value.name
             if value.isPointer or value.isArray:
                 if self.isInputPointer(value):
                     if self.isHandle(value.baseType):
-                        if value.isArray:
-                            needArrayStore = True
-                            expr += indent + 'UnwrapHandles<{}Wrapper>(&{}, {}, handle_array_store, handle_unwrap_memory);\n'.format(value.baseType[2:], value.name, value.arrayLength)
-                        else:
-                            needStore = True
-                            expr += indent + 'UnwrapHandle<{}Wrapper>({}, handle_store);\n'.format(value.baseType[2:], value.name)
+                        needUnwrapMemory = True
+                        argName += '_unwrapped'
+                        arrayLength = value.arrayLength if value.isArray else 1  # At this time, all pointer unwrap cases are arrays
+                        expr += indent + '{} {name}_unwrapped = UnwrapHandles<{}>({name}, {}, handle_unwrap_memory);\n'.format(value.fullType, value.baseType, arrayLength, name=value.name)
                     elif value.baseType in self.structsWithHandles:
-                        needStore = True
-                        needArrayStore = True
+                        needUnwrapMemory = True
+                        argName += '_unwrapped'
                         if value.isArray:
-                            expr += indent + 'UnwrapStructArrayHandles({}, {}, handle_store, handle_array_store, handle_unwrap_memory);\n'.format(value.name, value.arrayLength)
+                            expr += indent + '{} {name}_unwrapped = UnwrapStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(value.fullType, value.arrayLength, name=value.name)
                         else:
-                            expr += indent + 'UnwrapStructHandles({}, handle_store, handle_array_store, handle_unwrap_memory);\n'.format(value.name)
+                            expr += indent + '{} {name}_unwrapped = UnwrapStructPtrHandles({name}, handle_unwrap_memory);\n'.format(value.fullType, name=value.name)
             elif self.isHandle(value.baseType):
-                needStore = True
-                expr += indent + 'UnwrapHandle<{}Wrapper>(&{}, handle_store);\n'.format(value.baseType[2:], value.name)
-        return expr, needStore, needArrayStore
-
-    def makeHandleRewrapping(self, values, indent):
-        expr = ''
-        for value in values:
-            if value.isPointer or value.isArray:
-                if self.isInputPointer(value):
-                    if self.isHandle(value.baseType):
-                        if value.isArray:
-                            expr += indent + 'RewrapHandles<{}Wrapper>(&{}, {}, &handle_array_store_iter);\n'.format(value.baseType[2:], value.name, value.arrayLength)
-                        else:
-                            expr += indent + 'RewrapHandle<{}Wrapper>({}, &handle_store_iter);\n'.format(value.baseType[2:], value.name)
-                    elif value.baseType in self.structsWithHandles:
-                        if value.isArray:
-                            expr += indent + 'RewrapStructArrayHandles({}, {}, &handle_store_iter, &handle_array_store_iter);\n'.format(value.name, value.arrayLength)
-                        else:
-                            expr += indent + 'RewrapStructHandles({}, &handle_store_iter, &handle_array_store_iter);\n'.format(value.name)
-            elif self.isHandle(value.baseType):
-                expr += indent + 'RewrapHandle<{}Wrapper>(&{}, &handle_store_iter);\n'.format(value.baseType[2:], value.name)
-        return expr
+                argName += '_unwrapped'
+                expr += indent + '{type} {name}_unwrapped = GetWrappedHandle<{type}>({name});\n'.format(type=value.baseType, name=value.name)
+            args.append(argName)
+        return expr, ', '.join(args), needUnwrapMemory
 
     #
     # Create list of parameters that have handle types or are structs that contain handles.
