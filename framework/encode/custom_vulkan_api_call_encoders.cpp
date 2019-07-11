@@ -24,6 +24,7 @@
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/trace_manager.h"
+#include "encode/vulkan_handle_wrapper_util.h"
 #include "format/api_call_id.h"
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
@@ -34,24 +35,27 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-static void UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplateInfo* info,
-                                                      const void*               data,
-                                                      HandleStore*              handle_store,
-                                                      HandleArrayStore*         handle_array_store,
-                                                      HandleArrayUnwrapMemory*  handle_unwrap_memory)
+static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplateInfo* info,
+                                                             const void*               data,
+                                                             HandleUnwrapMemory*       unwrap_memory)
 {
     if (info != nullptr)
     {
-        const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
+        uint8_t* unwrapped_data = unwrap_memory->GetBuffer(info->max_size);
+        auto     bytes          = reinterpret_cast<const uint8_t*>(data);
+
+        assert((unwrapped_data != nullptr) && (bytes != nullptr));
 
         // Process VkDescriptorImageInfo
         for (const auto& entry_info : info->image_info)
         {
             for (size_t i = 0; i < entry_info.count; ++i)
             {
-                size_t                       offset = entry_info.offset + (entry_info.stride * i);
-                const VkDescriptorImageInfo* entry  = reinterpret_cast<const VkDescriptorImageInfo*>(bytes + offset);
-                UnwrapStructHandles(entry_info.type, entry, handle_store, handle_array_store, handle_unwrap_memory);
+                size_t offset          = entry_info.offset + (entry_info.stride * i);
+                auto   unwrapped_entry = reinterpret_cast<VkDescriptorImageInfo*>(unwrapped_data + offset);
+
+                memcpy(unwrapped_entry, bytes + offset, sizeof(VkDescriptorImageInfo));
+                UnwrapStructHandles(entry_info.type, unwrapped_entry, unwrap_memory);
             }
         }
 
@@ -60,9 +64,11 @@ static void UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplateInfo* 
         {
             for (size_t i = 0; i < entry_info.count; ++i)
             {
-                size_t                        offset = entry_info.offset + (entry_info.stride * i);
-                const VkDescriptorBufferInfo* entry  = reinterpret_cast<const VkDescriptorBufferInfo*>(bytes + offset);
-                UnwrapStructHandles(entry, handle_store, handle_array_store, handle_unwrap_memory);
+                size_t offset          = entry_info.offset + (entry_info.stride * i);
+                auto   unwrapped_entry = reinterpret_cast<VkDescriptorBufferInfo*>(unwrapped_data + offset);
+
+                memcpy(unwrapped_entry, bytes + offset, sizeof(VkDescriptorBufferInfo));
+                UnwrapStructHandles(unwrapped_entry, unwrap_memory);
             }
         }
 
@@ -71,56 +77,18 @@ static void UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplateInfo* 
         {
             for (size_t i = 0; i < entry_info.count; ++i)
             {
-                size_t              offset = entry_info.offset + (entry_info.stride * i);
-                const VkBufferView* entry  = reinterpret_cast<const VkBufferView*>(bytes + offset);
-                UnwrapHandle<BufferViewWrapper>(entry, handle_store);
+                size_t offset          = entry_info.offset + (entry_info.stride * i);
+                auto   unwrapped_entry = reinterpret_cast<VkBufferView*>(unwrapped_data + offset);
+                auto   entry           = reinterpret_cast<const VkBufferView*>(bytes + offset);
+
+                *unwrapped_entry = GetWrappedHandle<VkBufferView>(*entry);
             }
         }
+
+        return unwrapped_data;
     }
-}
 
-static void RewrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplateInfo*         info,
-                                                      const void*                       data,
-                                                      HandleStore::const_iterator*      handle_store_iter,
-                                                      HandleArrayStore::const_iterator* handle_array_store_iter)
-{
-    if (info != nullptr)
-    {
-        const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
-
-        // Process VkDescriptorImageInfo
-        for (const auto& entry_info : info->image_info)
-        {
-            for (size_t i = 0; i < entry_info.count; ++i)
-            {
-                size_t                       offset = entry_info.offset + (entry_info.stride * i);
-                const VkDescriptorImageInfo* entry  = reinterpret_cast<const VkDescriptorImageInfo*>(bytes + offset);
-                RewrapStructHandles(entry_info.type, entry, handle_store_iter, handle_array_store_iter);
-            }
-        }
-
-        // Process VkDescriptorBufferInfo
-        for (const auto& entry_info : info->buffer_info)
-        {
-            for (size_t i = 0; i < entry_info.count; ++i)
-            {
-                size_t                        offset = entry_info.offset + (entry_info.stride * i);
-                const VkDescriptorBufferInfo* entry  = reinterpret_cast<const VkDescriptorBufferInfo*>(bytes + offset);
-                RewrapStructHandles(entry, handle_store_iter, handle_array_store_iter);
-            }
-        }
-
-        // Process VkBufferView
-        for (const auto& entry_info : info->texel_buffer_view)
-        {
-            for (size_t i = 0; i < entry_info.count; ++i)
-            {
-                size_t              offset = entry_info.offset + (entry_info.stride * i);
-                const VkBufferView* entry  = reinterpret_cast<const VkBufferView*>(bytes + offset);
-                RewrapHandle<BufferViewWrapper>(entry, handle_store_iter);
-            }
-        }
-    }
+    return data;
 }
 
 static void EncodeDescriptorUpdateTemplateInfo(TraceManager*             manager,
@@ -213,23 +181,15 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice             
         manager->EndApiCallTrace(encoder);
     }
 
-    auto handle_store         = TraceManager::Get()->GetHandleStore();
-    auto handle_array_store   = TraceManager::Get()->GetHandleArrayStore();
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    UnwrapHandle<DeviceWrapper>(&device, handle_store);
-    UnwrapHandle<DescriptorSetWrapper>(&descriptorSet, handle_store);
-    UnwrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, handle_store);
-    UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_store, handle_array_store, handle_unwrap_memory);
+    auto handle_unwrap_memory               = TraceManager::Get()->GetHandleUnwrapMemory();
+    auto device_unwrapped                   = GetWrappedHandle<VkDevice>(device);
+    auto descriptorSet_unwrapped            = GetWrappedHandle<VkDescriptorSet>(descriptorSet);
+    auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);
+    auto pData_unwrapped = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
-    manager->GetDeviceTable(device)->UpdateDescriptorSetWithTemplate(
-        device, descriptorSet, descriptorUpdateTemplate, pData);
-
-    auto handle_store_iter       = handle_store->cbegin();
-    auto handle_array_store_iter = handle_array_store->cbegin();
-    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
-    RewrapHandle<DescriptorSetWrapper>(&descriptorSet, &handle_store_iter);
-    RewrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, &handle_store_iter);
-    RewrapDescriptorUpdateTemplateInfoHandles(info, pData, &handle_store_iter, &handle_array_store_iter);
+    manager->GetDeviceTable(device_unwrapped)
+        ->UpdateDescriptorSetWithTemplate(
+            device_unwrapped, descriptorSet_unwrapped, descriptorUpdateTemplate_unwrapped, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplate>::Dispatch(
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
@@ -266,21 +226,15 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
         manager->EndApiCallTrace(encoder);
     }
 
-    auto handle_store         = TraceManager::Get()->GetHandleStore();
-    auto handle_array_store   = TraceManager::Get()->GetHandleArrayStore();
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    UnwrapHandle<CommandBufferWrapper>(&commandBuffer, handle_store);
-    UnwrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, handle_store);
-    UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_store, handle_array_store, handle_unwrap_memory);
+    auto handle_unwrap_memory               = TraceManager::Get()->GetHandleUnwrapMemory();
+    auto commandBuffer_unwrapped            = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);
+    auto layout_unwrapped                   = GetWrappedHandle<VkPipelineLayout>(layout);
+    auto pData_unwrapped = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
-    manager->GetDeviceTable(commandBuffer)
-        ->CmdPushDescriptorSetWithTemplateKHR(commandBuffer, descriptorUpdateTemplate, layout, set, pData);
-
-    auto handle_store_iter       = handle_store->cbegin();
-    auto handle_array_store_iter = handle_array_store->cbegin();
-    RewrapHandle<CommandBufferWrapper>(&commandBuffer, &handle_store_iter);
-    RewrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, &handle_store_iter);
-    RewrapDescriptorUpdateTemplateInfoHandles(info, pData, &handle_store_iter, &handle_array_store_iter);
+    manager->GetDeviceTable(commandBuffer_unwrapped)
+        ->CmdPushDescriptorSetWithTemplateKHR(
+            commandBuffer_unwrapped, descriptorUpdateTemplate_unwrapped, layout_unwrapped, set, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
         manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
@@ -315,23 +269,15 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
         manager->EndApiCallTrace(encoder);
     }
 
-    auto handle_store         = TraceManager::Get()->GetHandleStore();
-    auto handle_array_store   = TraceManager::Get()->GetHandleArrayStore();
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    UnwrapHandle<DeviceWrapper>(&device, handle_store);
-    UnwrapHandle<DescriptorSetWrapper>(&descriptorSet, handle_store);
-    UnwrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, handle_store);
-    UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_store, handle_array_store, handle_unwrap_memory);
+    auto handle_unwrap_memory               = TraceManager::Get()->GetHandleUnwrapMemory();
+    auto device_unwrapped                   = GetWrappedHandle<VkDevice>(device);
+    auto descriptorSet_unwrapped            = GetWrappedHandle<VkDescriptorSet>(descriptorSet);
+    auto descriptorUpdateTemplate_unwrapped = GetWrappedHandle<VkDescriptorUpdateTemplate>(descriptorUpdateTemplate);
+    auto pData_unwrapped = UnwrapDescriptorUpdateTemplateInfoHandles(info, pData, handle_unwrap_memory);
 
-    manager->GetDeviceTable(device)->UpdateDescriptorSetWithTemplateKHR(
-        device, descriptorSet, descriptorUpdateTemplate, pData);
-
-    auto handle_store_iter       = handle_store->cbegin();
-    auto handle_array_store_iter = handle_array_store->cbegin();
-    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
-    RewrapHandle<DescriptorSetWrapper>(&descriptorSet, &handle_store_iter);
-    RewrapHandle<DescriptorUpdateTemplateWrapper>(&descriptorUpdateTemplate, &handle_store_iter);
-    RewrapDescriptorUpdateTemplateInfoHandles(info, pData, &handle_store_iter, &handle_array_store_iter);
+    manager->GetDeviceTable(device_unwrapped)
+        ->UpdateDescriptorSetWithTemplateKHR(
+            device_unwrapped, descriptorSet_unwrapped, descriptorUpdateTemplate_unwrapped, pData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR>::Dispatch(
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
@@ -349,37 +295,16 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                      
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterObjectsNVX>::Dispatch(
         manager, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
 
-    auto handle_store         = TraceManager::Get()->GetHandleStore();
-    auto handle_array_store   = TraceManager::Get()->GetHandleArrayStore();
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    UnwrapHandle<DeviceWrapper>(&device, handle_store);
-    UnwrapHandle<ObjectTableNVXWrapper>(&objectTable, handle_store);
-    if (ppObjectTableEntries != nullptr)
-    {
-        for (size_t i = 0; i < objectCount; ++i)
-        {
-            // This is an array of struct pointers, not an array of structs, and is incompatible with the standard
-            // UnwrapStructArrayHandles function.
-            UnwrapStructHandles(ppObjectTableEntries[i], handle_store, handle_array_store, handle_unwrap_memory);
-        }
-    }
+    auto handle_unwrap_memory  = TraceManager::Get()->GetHandleUnwrapMemory();
+    auto device_unwrapped      = GetWrappedHandle<VkDevice>(device);
+    auto objectTable_unwrapped = GetWrappedHandle<VkObjectTableNVX>(objectTable);
+    auto ppObjectTableEntries_unwrapped =
+        UnwrapStructArrayHandles(ppObjectTableEntries, objectCount, handle_unwrap_memory);
 
-    VkResult result = manager->GetDeviceTable(device)->RegisterObjectsNVX(
-        device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
-
-    auto handle_store_iter       = handle_store->cbegin();
-    auto handle_array_store_iter = handle_array_store->cbegin();
-    RewrapHandle<DeviceWrapper>(&device, &handle_store_iter);
-    RewrapHandle<ObjectTableNVXWrapper>(&objectTable, &handle_store_iter);
-    if (ppObjectTableEntries != nullptr)
-    {
-        for (size_t i = 0; i < objectCount; ++i)
-        {
-            // This is an array of struct pointers, not an array of structs, and is incompatible with the standard
-            // UnwrapStructArrayHandles function.
-            RewrapStructHandles(ppObjectTableEntries[i], &handle_store_iter, &handle_array_store_iter);
-        }
-    }
+    VkResult result =
+        manager->GetDeviceTable(device_unwrapped)
+            ->RegisterObjectsNVX(
+                device_unwrapped, objectTable_unwrapped, objectCount, ppObjectTableEntries_unwrapped, pObjectIndices);
 
     auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkRegisterObjectsNVX);
     if (encoder)

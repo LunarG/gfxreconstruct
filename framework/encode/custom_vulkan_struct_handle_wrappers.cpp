@@ -24,91 +24,60 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-static void UnwrapDescriptorImageInfoStructArrayHandles(VkDescriptorType             type,
-                                                        const VkDescriptorImageInfo* values,
-                                                        size_t                       len,
-                                                        HandleStore*                 handle_store,
-                                                        HandleArrayStore*            handle_array_store,
-                                                        HandleArrayUnwrapMemory*     handle_unwrap_memory)
+static const VkDescriptorImageInfo* UnwrapDescriptorImageInfoStructArrayHandles(VkDescriptorType             type,
+                                                                                const VkDescriptorImageInfo* values,
+                                                                                size_t                       len,
+                                                                                HandleUnwrapMemory* unwrap_memory)
 {
-    if (values != nullptr)
+    assert(unwrap_memory != nullptr);
+
+    if ((values != nullptr) && (len > 0))
     {
+        const uint8_t* bytes     = reinterpret_cast<const uint8_t*>(values);
+        size_t         num_bytes = len * sizeof(values[0]);
+
+        // Copy and transform handles.
+        VkDescriptorImageInfo* unwrapped_structs = MakeUnwrapStructs(values, len, unwrap_memory);
+
         for (size_t i = 0; i < len; ++i)
         {
-            UnwrapStructHandles(type, &values[i], handle_store, handle_array_store, handle_unwrap_memory);
+            UnwrapStructHandles(type, &unwrapped_structs[i], unwrap_memory);
         }
+
+        return unwrapped_structs;
     }
+
+    // Leave the original memory in place when the pointer is not null, but size is zero.
+    return values;
 }
 
-static void RewrapDescriptorImageInfoStructArrayHandles(VkDescriptorType                  type,
-                                                        const VkDescriptorImageInfo*      values,
-                                                        size_t                            len,
-                                                        HandleStore::const_iterator*      handle_store_iter,
-                                                        HandleArrayStore::const_iterator* handle_array_store_iter)
-{
-    if (values != nullptr)
-    {
-        for (size_t i = 0; i < len; ++i)
-        {
-            RewrapStructHandles(type, &values[i], handle_store_iter, handle_array_store_iter);
-        }
-    }
-}
-
-void UnwrapStructHandles(VkDescriptorType             type,
-                         const VkDescriptorImageInfo* value,
-                         HandleStore*                 handle_store,
-                         HandleArrayStore*            handle_array_store,
-                         HandleArrayUnwrapMemory*     handle_unwrap_memory)
+void UnwrapStructHandles(VkDescriptorType type, VkDescriptorImageInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
         if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
         {
             // TODO: This should be ignored if the descriptor set layout was created with an immutable sampler.
-            UnwrapHandle<SamplerWrapper>(&value->sampler, handle_store);
+            value->sampler = GetWrappedHandle<VkSampler>(value->sampler);
         }
 
         if (type != VK_DESCRIPTOR_TYPE_SAMPLER)
         {
-            UnwrapHandle<ImageViewWrapper>(&value->imageView, handle_store);
+            value->imageView = GetWrappedHandle<VkImageView>(value->imageView);
         }
     }
 }
 
-void RewrapStructHandles(VkDescriptorType                  type,
-                         const VkDescriptorImageInfo*      value,
-                         HandleStore::const_iterator*      handle_store_iter,
-                         HandleArrayStore::const_iterator* handle_array_store_iter)
-{
-    if (value != nullptr)
-    {
-        if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
-        {
-            // TODO: This should be ignored if the descriptor set layout was created with an immutable sampler.
-            RewrapHandle<SamplerWrapper>(&value->sampler, handle_store_iter);
-        }
-
-        if (type != VK_DESCRIPTOR_TYPE_SAMPLER)
-        {
-            RewrapHandle<ImageViewWrapper>(&value->imageView, handle_store_iter);
-        }
-    }
-}
-
-void UnwrapStructHandles(const VkWriteDescriptorSet* value,
-                         HandleStore*                handle_store,
-                         HandleArrayStore*           handle_array_store,
-                         HandleArrayUnwrapMemory*    handle_unwrap_memory)
+void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
         if (value->pNext != nullptr)
         {
-            UnwrapPNextStructHandles(value->pNext, handle_store, handle_array_store, handle_unwrap_memory);
+            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
 
-        UnwrapHandle<DescriptorSetWrapper>(&value->dstSet, handle_store);
+        value->dstSet = GetWrappedHandle<VkDescriptorSet>(value->dstSet);
 
         switch (value->descriptorType)
         {
@@ -117,24 +86,20 @@ void UnwrapStructHandles(const VkWriteDescriptorSet* value,
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
             case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                UnwrapDescriptorImageInfoStructArrayHandles(value->descriptorType,
-                                                            value->pImageInfo,
-                                                            value->descriptorCount,
-                                                            handle_store,
-                                                            handle_array_store,
-                                                            handle_unwrap_memory);
+                value->pImageInfo = UnwrapDescriptorImageInfoStructArrayHandles(
+                    value->descriptorType, value->pImageInfo, value->descriptorCount, unwrap_memory);
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                UnwrapStructArrayHandles(
-                    value->pBufferInfo, value->descriptorCount, handle_store, handle_array_store, handle_unwrap_memory);
+                value->pBufferInfo =
+                    UnwrapStructArrayHandles(value->pBufferInfo, value->descriptorCount, unwrap_memory);
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                UnwrapHandles<BufferViewWrapper>(
-                    &value->pTexelBufferView, value->descriptorCount, handle_array_store, handle_unwrap_memory);
+                value->pTexelBufferView =
+                    UnwrapHandles<VkBufferView>(value->pTexelBufferView, value->descriptorCount, unwrap_memory);
                 break;
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
                 // TODO
@@ -149,148 +114,75 @@ void UnwrapStructHandles(const VkWriteDescriptorSet* value,
     }
 }
 
-void RewrapStructHandles(const VkWriteDescriptorSet*       value,
-                         HandleStore::const_iterator*      handle_store_iter,
-                         HandleArrayStore::const_iterator* handle_array_store_iter)
+const VkObjectTableEntryNVX* const*
+UnwrapStructArrayHandles(const VkObjectTableEntryNVX* const* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
-    if (value != nullptr)
+    if ((values != nullptr) && (len > 0))
     {
-        if (value->pNext != nullptr)
+        size_t table_size      = sizeof(values[0]) * len;
+        auto   unwrapped_table = reinterpret_cast<const VkObjectTableEntryNVX**>(unwrap_memory->GetBuffer(table_size));
+
+        for (size_t i = 0; i < len; ++i)
         {
-            RewrapPNextStructHandles(value->pNext, handle_store_iter, handle_array_store_iter);
+            const VkObjectTableEntryNVX* entry = values[i];
+
+            if (entry != nullptr)
+            {
+                switch (entry->type)
+                {
+                    case VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX:
+                    {
+                        auto unwrapped_struct = UnwrapStructPtrHandles(
+                            reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(entry), unwrap_memory);
+                        unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
+                        break;
+                    }
+                    case VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX:
+                    {
+                        auto unwrapped_struct = UnwrapStructPtrHandles(
+                            reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(entry), unwrap_memory);
+                        unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
+                        break;
+                    }
+                    case VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX:
+                    {
+                        auto unwrapped_struct = UnwrapStructPtrHandles(
+                            reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(entry), unwrap_memory);
+                        unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
+                        break;
+                    }
+                    case VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX:
+                    {
+                        auto unwrapped_struct = UnwrapStructPtrHandles(
+                            reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(entry), unwrap_memory);
+                        unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
+                        break;
+                    }
+                    case VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX:
+                    {
+                        auto unwrapped_struct = UnwrapStructPtrHandles(
+                            reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(entry), unwrap_memory);
+                        unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
+                        break;
+                    }
+                    default:
+                        GFXRECON_LOG_WARNING("Skipping custom struct handle unwrapping for VkObjectTableEntryNVX "
+                                             "struct with unrecognized type %u",
+                                             entry->type);
+                        break;
+                }
+            }
+            else
+            {
+                unwrapped_table[i] = nullptr;
+            }
         }
 
-        RewrapHandle<DescriptorSetWrapper>(&value->dstSet, handle_store_iter);
-
-        switch (value->descriptorType)
-        {
-            case VK_DESCRIPTOR_TYPE_SAMPLER:
-            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                RewrapDescriptorImageInfoStructArrayHandles(value->descriptorType,
-                                                            value->pImageInfo,
-                                                            value->descriptorCount,
-                                                            handle_store_iter,
-                                                            handle_array_store_iter);
-                break;
-            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                RewrapStructArrayHandles(
-                    value->pBufferInfo, value->descriptorCount, handle_store_iter, handle_array_store_iter);
-                break;
-            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                RewrapHandles<BufferViewWrapper>(
-                    &value->pTexelBufferView, value->descriptorCount, handle_array_store_iter);
-                break;
-            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                // TODO
-                break;
-            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
-                // TODO
-                break;
-            default:
-                GFXRECON_LOG_WARNING("Attempting to track descriptor state for unrecognized descriptor type");
-                break;
-        }
+        return unwrapped_table;
     }
-}
 
-void UnwrapStructHandles(const VkObjectTableEntryNVX* value,
-                         HandleStore*                 handle_store,
-                         HandleArrayStore*            handle_array_store,
-                         HandleArrayUnwrapMemory*     handle_unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        switch (value->type)
-        {
-            case VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX:
-            {
-                auto object = reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(value);
-                UnwrapStructHandles(object, handle_store, handle_array_store, handle_unwrap_memory);
-                break;
-            }
-            case VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX:
-            {
-                auto object = reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(value);
-                UnwrapStructHandles(object, handle_store, handle_array_store, handle_unwrap_memory);
-                break;
-            }
-            case VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX:
-            {
-                auto object = reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(value);
-                UnwrapStructHandles(object, handle_store, handle_array_store, handle_unwrap_memory);
-                break;
-            }
-            case VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX:
-            {
-                auto object = reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(value);
-                UnwrapStructHandles(object, handle_store, handle_array_store, handle_unwrap_memory);
-                break;
-            }
-            case VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX:
-            {
-                auto object = reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(value);
-                UnwrapStructHandles(object, handle_store, handle_array_store, handle_unwrap_memory);
-                break;
-            }
-            default:
-                GFXRECON_LOG_WARNING(
-                    "Skipping custom struct handle rewrapping for unrecognized VkObjectEntryTypeNVX %u", value->type);
-                break;
-        }
-    }
-}
-
-void RewrapStructHandles(const VkObjectTableEntryNVX*      value,
-                         HandleStore::const_iterator*      handle_store_iter,
-                         HandleArrayStore::const_iterator* handle_array_store_iter)
-{
-    if (value != nullptr)
-    {
-        switch (value->type)
-        {
-            case VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX:
-            {
-                auto object = reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(value);
-                RewrapStructHandles(object, handle_store_iter, handle_array_store_iter);
-                break;
-            }
-            case VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX:
-            {
-                auto object = reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(value);
-                RewrapStructHandles(object, handle_store_iter, handle_array_store_iter);
-                break;
-            }
-            case VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX:
-            {
-                auto object = reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(value);
-                RewrapStructHandles(object, handle_store_iter, handle_array_store_iter);
-                break;
-            }
-            case VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX:
-            {
-                auto object = reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(value);
-                RewrapStructHandles(object, handle_store_iter, handle_array_store_iter);
-                break;
-            }
-            case VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX:
-            {
-                auto object = reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(value);
-                RewrapStructHandles(object, handle_store_iter, handle_array_store_iter);
-                break;
-            }
-            default:
-                GFXRECON_LOG_WARNING(
-                    "Skipping custom struct handle rewrapping for unrecognized VkObjectEntryTypeNVX %u", value->type);
-                break;
-        }
-    }
+    // Leave the original memory in place when the pointer is not null, but size is zero.
+    return values;
 }
 
 GFXRECON_END_NAMESPACE(encode)

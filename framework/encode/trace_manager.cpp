@@ -630,8 +630,9 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
 
         for (size_t i = 0; i < create_info->descriptorUpdateEntryCount; ++i)
         {
-            const VkDescriptorUpdateTemplateEntry* entry = &create_info->pDescriptorUpdateEntries[i];
-            VkDescriptorType                       type  = entry->descriptorType;
+            const VkDescriptorUpdateTemplateEntry* entry      = &create_info->pDescriptorUpdateEntries[i];
+            VkDescriptorType                       type       = entry->descriptorType;
+            size_t                                 entry_size = 0;
 
             // Sort the descriptor update template info by type, so it can be written to the capture file
             // as tightly packed arrays of structures.  One array will be written for each descriptor info
@@ -650,6 +651,8 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
 
                 info.image_info_count += entry->descriptorCount;
                 info.image_info.emplace_back(image_info);
+
+                entry_size = sizeof(VkDescriptorImageInfo);
             }
             else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
                      (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
@@ -665,6 +668,8 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
 
                 info.buffer_info_count += entry->descriptorCount;
                 info.buffer_info.emplace_back(buffer_info);
+
+                entry_size = sizeof(VkDescriptorBufferInfo);
             }
             else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) ||
                      (type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
@@ -679,10 +684,22 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
 
                 info.texel_buffer_view_count += entry->descriptorCount;
                 info.texel_buffer_view.emplace_back(texel_buffer_view_info);
+
+                entry_size = sizeof(VkBufferView);
             }
             else
             {
+                GFXRECON_LOG_ERROR("Unrecognized/unsupported descriptor type in descriptor update template.");
                 assert(false);
+            }
+
+            if (entry->descriptorCount > 0)
+            {
+                size_t max_size = ((entry->descriptorCount - 1) * entry->stride) + entry->offset + entry_size;
+                if (max_size > info.max_size)
+                {
+                    info.max_size = max_size;
+                }
             }
         }
 

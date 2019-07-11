@@ -82,27 +82,11 @@ class TraceManager
 
     const DeviceTable* GetDeviceTable(const void* handle) const;
 
-    HandleStore* GetHandleStore()
+    HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
-        thread_data->handle_store_.clear();
-        return &thread_data->handle_store_;
-    }
-
-    HandleArrayStore* GetHandleArrayStore()
-    {
-        auto thread_data = GetThreadData();
-        assert(thread_data != nullptr);
-        thread_data->handle_array_store_.clear();
-        return &thread_data->handle_array_store_;
-    }
-
-    HandleArrayUnwrapMemory* GetHandleUnwrapMemory()
-    {
-        auto thread_data = GetThreadData();
-        assert(thread_data != nullptr);
-        thread_data->handle_unwrap_memory_.handle_store_count = 0;
+        thread_data->handle_unwrap_memory_.Reset();
         return &thread_data->handle_unwrap_memory_;
     }
 
@@ -803,9 +787,7 @@ class TraceManager
         std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
         std::unique_ptr<ParameterEncoder>         parameter_encoder_;
         std::vector<uint8_t>                      compressed_buffer_;
-        HandleStore                               handle_store_;
-        HandleArrayStore                          handle_array_store_;
-        HandleArrayUnwrapMemory                   handle_unwrap_memory_;
+        HandleUnwrapMemory                        handle_unwrap_memory_;
 
       private:
         static format::ThreadId GetThreadId();

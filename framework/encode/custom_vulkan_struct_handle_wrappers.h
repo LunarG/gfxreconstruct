@@ -26,31 +26,12 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 // Vulkan structures that require special processing that the code generator cannot infer from the XML registry.
-void UnwrapStructHandles(VkDescriptorType             type,
-                         const VkDescriptorImageInfo* value,
-                         HandleStore*                 handle_store,
-                         HandleArrayStore*            handle_array_store,
-                         HandleArrayUnwrapMemory*     handle_unwrap_memory);
-void RewrapStructHandles(VkDescriptorType                  type,
-                         const VkDescriptorImageInfo*      value,
-                         HandleStore::const_iterator*      handle_store_iter,
-                         HandleArrayStore::const_iterator* handle_array_store_iter);
+void UnwrapStructHandles(VkDescriptorType type, VkDescriptorImageInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(const VkWriteDescriptorSet* value,
-                         HandleStore*                handle_store,
-                         HandleArrayStore*           handle_array_store,
-                         HandleArrayUnwrapMemory*    handle_unwrap_memory);
-void RewrapStructHandles(const VkWriteDescriptorSet*       value,
-                         HandleStore::const_iterator*      handle_store_iter,
-                         HandleArrayStore::const_iterator* handle_array_store_iter);
+void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(const VkObjectTableEntryNVX* value,
-                         HandleStore*                 handle_store,
-                         HandleArrayStore*            handle_array_store,
-                         HandleArrayUnwrapMemory*     handle_unwrap_memory);
-void RewrapStructHandles(const VkObjectTableEntryNVX*      value,
-                         HandleStore::const_iterator*      handle_store_iter,
-                         HandleArrayStore::const_iterator* handle_array_store_iter);
+const VkObjectTableEntryNVX* const*
+UnwrapStructArrayHandles(const VkObjectTableEntryNVX* const* values, size_t len, HandleUnwrapMemory* unwrap_memory);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
