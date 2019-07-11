@@ -20,6 +20,7 @@
 #include "encode/vulkan_handle_wrappers.h"
 #include "format/format.h"
 #include "format/format_util.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
 #include <algorithm>
@@ -100,6 +101,44 @@ format::HandleId GetWrappedId(const T& handle)
     return (handle != VK_NULL_HANDLE) ? reinterpret_cast<HandleWrapper<T>*>(handle)->handle_id : 0;
 }
 
+inline const InstanceTable* GetInstanceTable(VkInstance handle)
+{
+    assert(handle != VK_NULL_HANDLE);
+    auto wrapper = reinterpret_cast<const InstanceWrapper*>(handle);
+    return &wrapper->layer_table;
+}
+
+inline const InstanceTable* GetInstanceTable(VkPhysicalDevice handle)
+{
+    assert(handle != VK_NULL_HANDLE);
+    auto wrapper = reinterpret_cast<const PhysicalDeviceWrapper*>(handle);
+    assert(wrapper->layer_table_ref != nullptr);
+    return wrapper->layer_table_ref;
+}
+
+inline const DeviceTable* GetDeviceTable(VkDevice handle)
+{
+    assert(handle != VK_NULL_HANDLE);
+    auto wrapper = reinterpret_cast<const DeviceWrapper*>(handle);
+    return &wrapper->layer_table;
+}
+
+inline const DeviceTable* GetDeviceTable(VkQueue handle)
+{
+    assert(handle != VK_NULL_HANDLE);
+    auto wrapper = reinterpret_cast<const QueueWrapper*>(handle);
+    assert(wrapper->layer_table_ref != nullptr);
+    return wrapper->layer_table_ref;
+}
+
+inline const DeviceTable* GetDeviceTable(VkCommandBuffer handle)
+{
+    assert(handle != VK_NULL_HANDLE);
+    auto wrapper = reinterpret_cast<const CommandBufferWrapper*>(handle);
+    assert(wrapper->layer_table_ref != nullptr);
+    return wrapper->layer_table_ref;
+}
+
 // Wrapper for create wrapper template instantiations that do not make use of all handle parameters.
 struct NoParentWrapper : public HandleWrapper<uint64_t>
 {
@@ -115,16 +154,16 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
     if ((*handle) != VK_NULL_HANDLE)
     {
         Wrapper* wrapper         = new Wrapper;
-        wrapper->dispatch_table_ = *reinterpret_cast<void**>(*handle);
+        wrapper->dispatch_key    = *reinterpret_cast<void**>(*handle);
         wrapper->handle          = (*handle);
         wrapper->handle_id       = get_id();
 
         if (parent != VK_NULL_HANDLE)
         {
-            // VkQueue and VkCommandBuffer dispatch tables are not assigned until the handles reach the trampoline
-            // function, which comes after the layer. The wrapper will be modified by the trampoline function, but the
-            // wrapped handle will not, so we set it to the parent VkDevice object's dispatch table. This is also
-            // applied to VkPhysicalDevice handles and their parent VkInstance.
+            // VkQueue and VkCommandBuffer loader dispatch tables are not assigned until the handles reach the
+            // trampoline function, which comes after the layer. The wrapper will be modified by the trampoline
+            // function, but the wrapped handle will not, so we set it to the parent VkDevice object's dispatch table.
+            // This is also applied to VkPhysicalDevice handles and their parent VkInstance.
             void* disp                         = *reinterpret_cast<void* const*>(parent);
             *reinterpret_cast<void**>(*handle) = disp;
         }
@@ -195,7 +234,10 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, PhysicalDevice
     else
     {
         CreateWrappedDispatchHandle<InstanceWrapper, PhysicalDeviceWrapper>(parent, handle, get_id);
-        parent_wrapper->child_physical_devices.push_back(reinterpret_cast<PhysicalDeviceWrapper*>(*handle));
+
+        wrapper                  = reinterpret_cast<PhysicalDeviceWrapper*>(*handle);
+        wrapper->layer_table_ref = &parent_wrapper->layer_table;
+        parent_wrapper->child_physical_devices.push_back(wrapper);
     }
 }
 
@@ -239,7 +281,10 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
     else
     {
         CreateWrappedDispatchHandle<DeviceWrapper, QueueWrapper>(parent, handle, get_id);
-        parent_wrapper->child_queues.push_back(reinterpret_cast<QueueWrapper*>(*handle));
+
+        wrapper                  = reinterpret_cast<QueueWrapper*>(*handle);
+        wrapper->layer_table_ref = &parent_wrapper->layer_table;
+        parent_wrapper->child_queues.push_back(wrapper);
     }
 }
 
@@ -256,11 +301,13 @@ inline void CreateWrappedHandle<DeviceWrapper, CommandPoolWrapper, CommandBuffer
 
     // The command pool must keep track of allocated command buffers, whose wrappers will need to be destroyed when the
     // pool is destroyed.
-    auto parent_wrapper = reinterpret_cast<CommandPoolWrapper*>(co_parent);
-    auto wrapper        = reinterpret_cast<CommandBufferWrapper*>(*handle);
+    auto parent_wrapper    = reinterpret_cast<DeviceWrapper*>(parent);
+    auto co_parent_wrapper = reinterpret_cast<CommandPoolWrapper*>(co_parent);
+    auto wrapper           = reinterpret_cast<CommandBufferWrapper*>(*handle);
 
-    parent_wrapper->child_buffers.insert(std::make_pair(wrapper->handle_id, wrapper));
-    wrapper->parent_pool = parent_wrapper;
+    wrapper->layer_table_ref = &parent_wrapper->layer_table;
+    wrapper->parent_pool     = co_parent_wrapper;
+    co_parent_wrapper->child_buffers.insert(std::make_pair(wrapper->handle_id, wrapper));
 }
 
 template <>

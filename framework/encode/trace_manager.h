@@ -64,7 +64,7 @@ class TraceManager
     // the appropriate resource cleanup.
     static void CheckCreateInstanceStatus(VkResult result);
 
-    // Dectement the instance reference count, releasing reources when the count reaches zero.  Ignored if the count is
+    // Dectement the instance reference count, releasing resources when the count reaches zero.  Ignored if the count is
     // already zero.
     static void DestroyInstance();
 
@@ -74,13 +74,9 @@ class TraceManager
 
     static const LayerTable* GetLayerTable() { return &layer_table_; }
 
-    void AddInstanceTable(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
+    void InitInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa);
 
-    void AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
-
-    const InstanceTable* GetInstanceTable(const void* handle) const;
-
-    const DeviceTable* GetDeviceTable(const void* handle) const;
+    void InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa);
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
@@ -827,8 +823,6 @@ class TraceManager
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static LayerTable                               layer_table_;
     static std::atomic<format::HandleId>            unique_id_counter_;
-    std::unordered_map<DispatchKey, InstanceTable>  instance_tables_;
-    std::unordered_map<DispatchKey, DeviceTable>    device_tables_;
     format::EnabledOptions                          file_options_;
     std::unique_ptr<util::FileOutputStream>         file_stream_;
     std::string                                     base_filename_;

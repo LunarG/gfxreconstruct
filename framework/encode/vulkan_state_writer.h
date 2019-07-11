@@ -38,11 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class VulkanStateWriter
 {
   public:
-    VulkanStateWriter(util::FileOutputStream*                               output_stream,
-                      util::Compressor*                                     compressor,
-                      format::ThreadId                                      thread_id,
-                      const std::unordered_map<DispatchKey, InstanceTable>* instance_tables,
-                      const std::unordered_map<DispatchKey, DeviceTable>*   device_tables);
+    VulkanStateWriter(util::FileOutputStream* output_stream, util::Compressor* compressor, format::ThreadId thread_id);
 
     ~VulkanStateWriter();
 
@@ -144,13 +140,11 @@ class VulkanStateWriter
 
     void ProcessBufferMemory(const DeviceWrapper*      device_wrapper,
                              const BufferSnapshotData& snapshot_data,
-                             const VulkanStateTable&   state_table,
-                             const DeviceTable&        dispatch_table);
+                             const VulkanStateTable&   state_table);
 
     void ProcessImageMemory(const DeviceWrapper*     device_wrapper,
                             const ImageSnapshotData& snapshot_data,
-                            const VulkanStateTable&  state_table,
-                            const DeviceTable&       dispatch_table);
+                            const VulkanStateTable&  state_table);
 
     void WriteMappedMemoryState(const VulkanStateTable& state_table);
 
@@ -201,8 +195,7 @@ class VulkanStateWriter
                                        VkDeviceSize         source_size,
                                        format::HandleId     replay_memory_id,
                                        VkDeviceSize         replay_offset,
-                                       VkDeviceSize         replay_size,
-                                       const DeviceTable&   dispatch_table);
+                                       VkDeviceSize         replay_size);
 
     void WriteBufferCopyCommandExecution(format::HandleId queue_id,
                                          format::HandleId command_buffer_id,
@@ -324,21 +317,20 @@ class VulkanStateWriter
                                               const DeviceMemoryWrapper* memory_wrapper,
                                               const VulkanStateTable&    state_table);
 
-    uint32_t FindMemoryTypeIndex(const DeviceWrapper*    device,
+    uint32_t FindMemoryTypeIndex(const DeviceWrapper*    device_wrapper,
                                  uint32_t                memory_type_bits,
                                  VkMemoryPropertyFlags   memory_property_flags,
                                  const VulkanStateTable& state_table);
 
-    void GetFenceStatus(VkDevice device, VkFence fence, bool* result);
+    void GetFenceStatus(const DeviceWrapper* device_wrapper, VkFence fence, bool* result);
 
-    VkQueue
-    GetQueue(VkDevice device, uint32_t queue_family_index, uint32_t queue_index, const DeviceTable& dispatch_table);
+    VkQueue GetQueue(const DeviceWrapper* device_wrapper, uint32_t queue_family_index, uint32_t queue_index);
 
-    VkCommandPool GetCommandPool(VkDevice device, uint32_t queue_family_index, const DeviceTable& dispatch_table);
+    VkCommandPool GetCommandPool(const DeviceWrapper* device_wrapper, uint32_t queue_family_index);
 
-    VkCommandBuffer GetCommandBuffer(VkDevice device, VkCommandPool command_pool, const DeviceTable& dispatch_table);
+    VkCommandBuffer GetCommandBuffer(const DeviceWrapper* device_wrapper, VkCommandPool command_pool);
 
-    VkResult SubmitCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer, const DeviceTable& dispatch_table);
+    VkResult SubmitCommandBuffer(VkQueue queue, VkCommandBuffer command_buffer, const DeviceTable* device_table);
 
     VkResult CreateStagingBuffer(const DeviceWrapper*    device_wrapper,
                                  VkDeviceSize            size,
@@ -346,14 +338,13 @@ class VulkanStateWriter
                                  VkMemoryRequirements*   memory_requirements,
                                  uint32_t*               memory_type_index,
                                  VkDeviceMemory*         memory,
-                                 const VulkanStateTable& state_table,
-                                 const DeviceTable&      dispatch_table);
+                                 const VulkanStateTable& state_table);
 
     VkImageAspectFlags GetFormatAspectMask(VkFormat format);
 
     VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect);
 
-    void GetImageSizes(const ImageWrapper* image_wrapper, ImageSnapshotEntry* entry, const DeviceTable& dispatch_table);
+    void GetImageSizes(const ImageWrapper* image_wrapper, ImageSnapshotEntry* entry);
 
     void UpdateImageSnapshotSizes(VkDeviceSize       size,
                                   bool               is_host_visible,
@@ -367,8 +358,7 @@ class VulkanStateWriter
                                     bool                       use_staging_copy,
                                     VkImageAspectFlags         aspect_mask,
                                     ImageSnapshotList*         insert_list,
-                                    ImageSnapshotData*         snapshot_data,
-                                    const DeviceTable&         dispatch_table);
+                                    ImageSnapshotData*         snapshot_data);
 
     bool CheckCommandHandles(const CommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
 
@@ -384,10 +374,6 @@ class VulkanStateWriter
     format::ThreadId         thread_id_;
     util::MemoryOutputStream parameter_stream_;
     ParameterEncoder         encoder_;
-
-    // TODO: Dispatch tables should be available from handle wrappers.
-    const std::unordered_map<DispatchKey, InstanceTable>* instance_tables_;
-    const std::unordered_map<DispatchKey, DeviceTable>*   device_tables_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

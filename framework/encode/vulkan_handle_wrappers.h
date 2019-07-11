@@ -20,6 +20,7 @@
 #include "encode/descriptor_update_template_info.h"
 #include "encode/vulkan_state_info.h"
 #include "format/format.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
 
@@ -43,8 +44,9 @@ struct HandleWrapper
 {
     typedef T HandleType;
 
-    // Dispatch table for dispatch handles.
-    void* dispatch_table_{ nullptr };
+    // Dispatch table key for dispatchable handles. Must be the first struct member to be compatible with the
+    // loader defined handles.
+    void* dispatch_key{ nullptr };
 
     // Standard state info required for all handles.
     HandleType        handle{ VK_NULL_HANDLE }; // Original handle value provided by the driver.
@@ -58,7 +60,6 @@ struct HandleWrapper
 //
 
 // clang-format off
-struct QueueWrapper                     : public HandleWrapper<VkQueue> {};
 struct BufferViewWrapper                : public HandleWrapper<VkBufferView> {};
 struct ShaderModuleWrapper              : public HandleWrapper<VkShaderModule> {};
 struct PipelineCacheWrapper             : public HandleWrapper<VkPipelineCache> {};
@@ -78,8 +79,9 @@ struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR>
 // Declarations for handle wrappers that require additional state info.
 //
 
-// This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent VkPhysicalDevice
-// handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
+// This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent
+// VkPhysicalDevice handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is
+// destroyed.
 struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
 {
     std::vector<DisplayModeKHRWrapper*> child_display_modes;
@@ -89,6 +91,7 @@ struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
 struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
+    InstanceTable*                  layer_table_ref{ nullptr };
     std::vector<DisplayKHRWrapper*> child_displays;
 
     // Track memory types for use when creating snapshots of buffer and image resource memory content.
@@ -105,11 +108,18 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
 {
+    InstanceTable                       layer_table;
     std::vector<PhysicalDeviceWrapper*> child_physical_devices;
+};
+
+struct QueueWrapper : public HandleWrapper<VkQueue>
+{
+    DeviceTable* layer_table_ref{ nullptr };
 };
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
+    DeviceTable                layer_table;
     PhysicalDeviceWrapper*     physical_device{ nullptr };
     std::vector<QueueWrapper*> child_queues;
 };
@@ -213,6 +223,8 @@ struct RenderPassWrapper : public HandleWrapper<VkRenderPass>
 struct CommandPoolWrapper;
 struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 {
+    DeviceTable* layer_table_ref{ nullptr };
+
     // Members for general wrapper support.
     // Pool from which command buffer was allocated. The command buffer must be removed from the pool's allocation list
     // when destroyed.
