@@ -120,10 +120,6 @@ class VulkanStateWriter
 
     void WriteSemaphoreState(const VulkanStateTable& state_table);
 
-    void WriteBufferState(const VulkanStateTable& state_table);
-
-    void WriteImageState(const VulkanStateTable& state_table);
-
     void WriteFramebufferState(const VulkanStateTable& state_table);
 
     void WritePipelineLayoutState(const VulkanStateTable& state_table);
@@ -145,6 +141,10 @@ class VulkanStateWriter
     void ProcessImageMemory(const DeviceWrapper*     device_wrapper,
                             const ImageSnapshotData& snapshot_data,
                             const VulkanStateTable&  state_table);
+
+    void WriteBufferMemoryBindState(const VulkanStateTable& state_table);
+
+    void WriteImageMemoryBindState(const VulkanStateTable& state_table);
 
     void WriteMappedMemoryState(const VulkanStateTable& state_table);
 

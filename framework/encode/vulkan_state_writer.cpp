@@ -76,16 +76,22 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
     WriteSwapchainKhrState(state_table);
 
     // Resource creation.
+    StandardCreateWrite<BufferWrapper>(state_table);
+    StandardCreateWrite<ImageWrapper>(state_table);
     StandardCreateWrite<DeviceMemoryWrapper>(state_table);
-    WriteBufferState(state_table);
-    StandardCreateWrite<BufferViewWrapper>(state_table);
-    WriteImageState(state_table);
-    StandardCreateWrite<ImageViewWrapper>(state_table);
-    StandardCreateWrite<SamplerWrapper>(state_table);
-    StandardCreateWrite<SamplerYcbcrConversionWrapper>(state_table);
+
+    // Bind memory after buffer/image creation and memory allocation. The buffer/image needs to be created before memory
+    // allocation for extensions like dedicated allocation that require a valid buffer/image handle at memory allocation.
+    WriteBufferMemoryBindState(state_table);
+    WriteImageMemoryBindState(state_table);
 
     // Map memory after uploading resource data to buffers and images, which may require mapping resource memory ranges.
     WriteMappedMemoryState(state_table);
+
+    StandardCreateWrite<BufferViewWrapper>(state_table);
+    StandardCreateWrite<ImageViewWrapper>(state_table);
+    StandardCreateWrite<SamplerWrapper>(state_table);
+    StandardCreateWrite<SamplerYcbcrConversionWrapper>(state_table);
 
     // Render object creation.
     StandardCreateWrite<RenderPassWrapper>(state_table);
@@ -295,171 +301,6 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
                                   nullptr,
                                   nullptr);
         }
-    }
-}
-
-void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
-{
-    std::unordered_map<const DeviceWrapper*, BufferSnapshotData> buffers;
-
-    state_table.VisitWrappers([&](const BufferWrapper* wrapper) {
-        assert(wrapper != nullptr);
-
-        // Write buffer creation call.
-        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
-
-        // Perform memory binding.
-        if (wrapper->bind_memory != nullptr)
-        {
-            assert(wrapper->bind_device != nullptr);
-
-            const DeviceWrapper*       device_wrapper = wrapper->bind_device;
-            const DeviceMemoryWrapper* memory_wrapper = wrapper->bind_memory;
-
-            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-            encoder_.EncodeHandleIdValue(wrapper->handle_id);
-            encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-            encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
-            encoder_.EncodeEnumValue(VK_SUCCESS);
-
-            WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
-            parameter_stream_.Reset();
-
-            // Group buffers with memory bindings by device for memory snapshot.
-            BufferSnapshotData&   snapshot_data = buffers[device_wrapper];
-            VkMemoryPropertyFlags properties    = GetMemoryProperties(device_wrapper, memory_wrapper, state_table);
-
-            BufferSnapshotEntry entry;
-            entry.buffer_wrapper = wrapper;
-            entry.memory_wrapper = memory_wrapper;
-
-            if ((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-            {
-                entry.is_host_visible = true;
-                entry.is_host_coherent =
-                    (properties & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-            }
-            else
-            {
-                entry.is_host_visible = false;
-                ++snapshot_data.num_device_local_buffers;
-                if (snapshot_data.max_device_local_buffer_size < wrapper->created_size)
-                {
-                    snapshot_data.max_device_local_buffer_size = wrapper->created_size;
-                }
-            }
-
-            // If host visible memory is already mapped, and the entire allocation is not mapped, a staging copy will be
-            // used to ensure that the entire allocation is accessible for the state snapshot.
-            if (entry.is_host_visible && ((memory_wrapper->mapped_data == nullptr) ||
-                                          ((memory_wrapper->mapped_offset == 0) &&
-                                           ((memory_wrapper->mapped_size == memory_wrapper->allocation_size) ||
-                                            (memory_wrapper->mapped_size == VK_WHOLE_SIZE)))))
-            {
-                snapshot_data.map_copy_wrappers.emplace_back(entry);
-            }
-            else
-            {
-                if (snapshot_data.max_staging_copy_size < wrapper->created_size)
-                {
-                    snapshot_data.max_staging_copy_size = wrapper->created_size;
-                }
-
-                snapshot_data.staging_copy_wrappers[wrapper->queue_family_index].emplace_back(entry);
-            }
-        }
-    });
-
-    // Write snapshot of buffer memory content.
-    for (auto buffers_entry : buffers)
-    {
-        ProcessBufferMemory(buffers_entry.first, buffers_entry.second, state_table);
-    }
-}
-
-void VulkanStateWriter::WriteImageState(const VulkanStateTable& state_table)
-{
-    std::set<util::MemoryOutputStream*>                         processed;
-    std::unordered_map<const DeviceWrapper*, ImageSnapshotData> images;
-
-    state_table.VisitWrappers([&](const ImageWrapper* wrapper) {
-        assert(wrapper != nullptr);
-
-        // Filter duplicate calls to vkGetSwapchainImagesKHR, where the wrapper for each retrieved image references the
-        // same parameter buffer.
-        if (processed.find(wrapper->create_parameters.get()) == processed.end())
-        {
-            // Write image creation call.
-            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
-            processed.insert(wrapper->create_parameters.get());
-        }
-
-        // Perform memory binding.
-        if (wrapper->bind_memory != nullptr)
-        {
-            assert(wrapper->bind_device != nullptr);
-
-            const DeviceWrapper*       device_wrapper = wrapper->bind_device;
-            const DeviceMemoryWrapper* memory_wrapper = wrapper->bind_memory;
-
-            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-            encoder_.EncodeHandleIdValue(wrapper->handle_id);
-            encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-            encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
-            encoder_.EncodeEnumValue(VK_SUCCESS);
-
-            WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
-            parameter_stream_.Reset();
-
-            // Group images with memory bindings by device for memory snapshot.
-            ImageSnapshotData&     snapshot_data = images[device_wrapper];
-            ImageSnapshotListPair& copy_wrappers = snapshot_data.copy_wrappers[wrapper->queue_family_index];
-            VkMemoryPropertyFlags  properties    = GetMemoryProperties(device_wrapper, memory_wrapper, state_table);
-
-            bool               is_host_visible  = true;
-            bool               is_host_coherent = false;
-            bool               use_staging_copy = false;
-            ImageSnapshotList* insert_list      = &copy_wrappers.map_copy_wrappers;
-
-            // Only map and read image memory if the memory type is host visible and the image tiling is linear.
-            if (!(((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) &&
-                  (wrapper->tiling == VK_IMAGE_TILING_LINEAR)))
-            {
-                is_host_visible = false;
-                ++snapshot_data.num_device_local_images;
-            }
-            else
-            {
-                is_host_coherent =
-                    (properties & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-            }
-
-            // If host visible memory is already mapped, and the entire allocation is not mapped, a staging copy will be
-            // used to ensure that the entire allocation is accessible for the state snapshot.
-            if (!(is_host_visible && ((memory_wrapper->mapped_data == nullptr) ||
-                                      ((memory_wrapper->mapped_offset == 0) &&
-                                       ((memory_wrapper->mapped_size == memory_wrapper->allocation_size) ||
-                                        (memory_wrapper->mapped_size == VK_WHOLE_SIZE))))))
-            {
-                use_staging_copy = true;
-                insert_list      = &copy_wrappers.staging_copy_wrappers;
-            }
-
-            InsertImageSnapshotEntries(wrapper,
-                                       memory_wrapper,
-                                       is_host_visible,
-                                       is_host_coherent,
-                                       use_staging_copy,
-                                       GetFormatAspectMask(wrapper->format),
-                                       insert_list,
-                                       &snapshot_data);
-        }
-    });
-
-    // Write snapshot of image memory content.
-    for (auto image_entry : images)
-    {
-        ProcessImageMemory(image_entry.first, image_entry.second, state_table);
     }
 }
 
@@ -1380,6 +1221,158 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*     device_wrapp
 
         device_table->DestroyBuffer(device_wrapper->handle, staging_buffer, nullptr);
         device_table->FreeMemory(device_wrapper->handle, staging_memory, nullptr);
+    }
+}
+
+void VulkanStateWriter::WriteBufferMemoryBindState(const VulkanStateTable& state_table)
+{
+    std::unordered_map<const DeviceWrapper*, BufferSnapshotData> buffers;
+
+    state_table.VisitWrappers([&](const BufferWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Perform memory binding.
+        if (wrapper->bind_memory != nullptr)
+        {
+            assert(wrapper->bind_device != nullptr);
+
+            const DeviceWrapper*       device_wrapper = wrapper->bind_device;
+            const DeviceMemoryWrapper* memory_wrapper = wrapper->bind_memory;
+
+            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
+            encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
+            encoder_.EncodeEnumValue(VK_SUCCESS);
+
+            WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
+            parameter_stream_.Reset();
+
+            // Group buffers with memory bindings by device for memory snapshot.
+            BufferSnapshotData&   snapshot_data = buffers[device_wrapper];
+            VkMemoryPropertyFlags properties    = GetMemoryProperties(device_wrapper, memory_wrapper, state_table);
+
+            BufferSnapshotEntry entry;
+            entry.buffer_wrapper = wrapper;
+            entry.memory_wrapper = memory_wrapper;
+
+            if ((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+            {
+                entry.is_host_visible = true;
+                entry.is_host_coherent =
+                    (properties & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            }
+            else
+            {
+                entry.is_host_visible = false;
+                ++snapshot_data.num_device_local_buffers;
+                if (snapshot_data.max_device_local_buffer_size < wrapper->created_size)
+                {
+                    snapshot_data.max_device_local_buffer_size = wrapper->created_size;
+                }
+            }
+
+            // If host visible memory is already mapped, and the entire allocation is not mapped, a staging copy will be
+            // used to ensure that the entire allocation is accessible for the state snapshot.
+            if (entry.is_host_visible && ((memory_wrapper->mapped_data == nullptr) ||
+                                          ((memory_wrapper->mapped_offset == 0) &&
+                                           ((memory_wrapper->mapped_size == memory_wrapper->allocation_size) ||
+                                            (memory_wrapper->mapped_size == VK_WHOLE_SIZE)))))
+            {
+                snapshot_data.map_copy_wrappers.emplace_back(entry);
+            }
+            else
+            {
+                if (snapshot_data.max_staging_copy_size < wrapper->created_size)
+                {
+                    snapshot_data.max_staging_copy_size = wrapper->created_size;
+                }
+
+                snapshot_data.staging_copy_wrappers[wrapper->queue_family_index].emplace_back(entry);
+            }
+        }
+    });
+
+    // Write snapshot of buffer memory content.
+    for (auto buffers_entry : buffers)
+    {
+        ProcessBufferMemory(buffers_entry.first, buffers_entry.second, state_table);
+    }
+}
+
+void VulkanStateWriter::WriteImageMemoryBindState(const VulkanStateTable& state_table)
+{
+    std::unordered_map<const DeviceWrapper*, ImageSnapshotData> images;
+
+    state_table.VisitWrappers([&](const ImageWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Perform memory binding.
+        if (wrapper->bind_memory != nullptr)
+        {
+            assert(wrapper->bind_device != nullptr);
+
+            const DeviceWrapper*       device_wrapper = wrapper->bind_device;
+            const DeviceMemoryWrapper* memory_wrapper = wrapper->bind_memory;
+
+            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
+            encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
+            encoder_.EncodeEnumValue(VK_SUCCESS);
+
+            WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
+            parameter_stream_.Reset();
+
+            // Group images with memory bindings by device for memory snapshot.
+            ImageSnapshotData&     snapshot_data = images[device_wrapper];
+            ImageSnapshotListPair& copy_wrappers = snapshot_data.copy_wrappers[wrapper->queue_family_index];
+            VkMemoryPropertyFlags  properties    = GetMemoryProperties(device_wrapper, memory_wrapper, state_table);
+
+            bool               is_host_visible  = true;
+            bool               is_host_coherent = false;
+            bool               use_staging_copy = false;
+            ImageSnapshotList* insert_list      = &copy_wrappers.map_copy_wrappers;
+
+            // Only map and read image memory if the memory type is host visible and the image tiling is linear.
+            if (!(((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) &&
+                  (wrapper->tiling == VK_IMAGE_TILING_LINEAR)))
+            {
+                is_host_visible = false;
+                ++snapshot_data.num_device_local_images;
+            }
+            else
+            {
+                is_host_coherent =
+                    (properties & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            }
+
+            // If host visible memory is already mapped, and the entire allocation is not mapped, a staging copy will be
+            // used to ensure that the entire allocation is accessible for the state snapshot.
+            if (!(is_host_visible && ((memory_wrapper->mapped_data == nullptr) ||
+                                      ((memory_wrapper->mapped_offset == 0) &&
+                                       ((memory_wrapper->mapped_size == memory_wrapper->allocation_size) ||
+                                        (memory_wrapper->mapped_size == VK_WHOLE_SIZE))))))
+            {
+                use_staging_copy = true;
+                insert_list      = &copy_wrappers.staging_copy_wrappers;
+            }
+
+            InsertImageSnapshotEntries(wrapper,
+                                       memory_wrapper,
+                                       is_host_visible,
+                                       is_host_coherent,
+                                       use_staging_copy,
+                                       GetFormatAspectMask(wrapper->format),
+                                       insert_list,
+                                       &snapshot_data);
+        }
+    });
+
+    // Write snapshot of image memory content.
+    for (auto image_entry : images)
+    {
+        ProcessImageMemory(image_entry.first, image_entry.second, state_table);
     }
 }
 
