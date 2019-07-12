@@ -95,7 +95,7 @@ class DecodePNextStructGenerator(BaseGenerator):
         write('            {', file=self.outFile)
         write('            default:', file=self.outFile)
         write('                // TODO: This may need to be a fatal error', file=self.outFile)
-        write('                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructurType = %x", (*sType));', file=self.outFile)
+        write('                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructurType = %d", (*sType));', file=self.outFile)
         write('                break;', file=self.outFile)
 
     # Method override
