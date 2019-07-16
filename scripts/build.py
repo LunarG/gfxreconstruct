@@ -122,7 +122,6 @@ def build_dir(args):
                         platform.system().lower(),
                         args.architecture)
 
-
 def cmake_version():
     '''
     Get the CMake version
@@ -199,6 +198,7 @@ def cmake_generate_build_files(args):
                     system,
                     args.architecture,
                     output[1]))
+    cmake_generate_args.append('-DPYTHON={0}'.format(sys.executable))
     cmake_generate_args.extend(cmake_generate_options(args))
     work_dir = BUILD_ROOT
     if(cmake_version() < CMAKE_VERSION_3_13):

@@ -23,14 +23,14 @@ option(RUN_TESTS "Run static analysis using clang-tidy" OFF)
 
 # Python
 if(CMAKE_HOST_WIN32)
-    find_program(PYTHON python.exe DOC "Python executable")
+    find_program(PYTHON "python.exe" PATHS $ENV{PATH} DOC "Python 3 executable")
     execute_process(COMMAND ${PYTHON} --version OUTPUT_VARIABLE PYTHON_VERSION)
-    string(REPLACE "Python " "" PYTHON_VERSION ${PYTHON_VERSION})
-    if(${PYTHON_VERSION} VERSION_LESS "3.0.0")
-        message(FATAL_ERROR "Python 3+ is required.")
+    string(REPLACE "Python " "" "PYTHON_VERSION" "${PYTHON_VERSION}")
+    if("${PYTHON_VERSION}" VERSION_LESS "3.0.0")
+        message(FATAL_ERROR "Python 3+ is required. Python version ${PYTHON_VERSION} found.")
     endif()
 else()
-    find_program(PYTHON python3 DOC "Python executable")
+    find_program(PYTHON python3 DOC "Python 3 executable")
 endif()
 
 # Build architecture
@@ -93,7 +93,7 @@ function(generate_test_package TEST_ARCHIVE)
             set(TEST_ARCHIVE_DIR build/packages/windows/${ARCHITECTURE})
             file(MAKE_DIRECTORY ${TEST_ARCHIVE_DIR})
             add_custom_target(GenerateTestPackage ALL
-                COMMAND cmake -E tar "vcf" ${TEST_ARCHIVE_DIR}/${TEST_ARCHIVE}.zip --format=zip --
+                COMMAND ${CMAKE_COMMAND} -E tar "vcf" ${TEST_ARCHIVE_DIR}/${TEST_ARCHIVE}.zip --format=zip --
                     ${TEST_ARCHIVE_FILES}
                 DEPENDS ${TEST_ARCHIVE_FILES}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
@@ -102,7 +102,7 @@ function(generate_test_package TEST_ARCHIVE)
             set(TEST_ARCHIVE_DIR build/packages/linux/${ARCHITECTURE})
             file(MAKE_DIRECTORY ${TEST_ARCHIVE_DIR})
             add_custom_target(GenerateTestPackage ALL
-                COMMAND cmake -E tar "cf" ${TEST_ARCHIVE_DIR}/${TEST_ARCHIVE}.tar --format=gnutar --
+                COMMAND ${CMAKE_COMMAND} -E tar "cf" ${TEST_ARCHIVE_DIR}/${TEST_ARCHIVE}.tar --format=gnutar --
                     ${TEST_ARCHIVE_FILES}
                 DEPENDS ${TEST_ARCHIVE_FILES}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
