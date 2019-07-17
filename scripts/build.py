@@ -93,6 +93,10 @@ def parse_args():
     arg_parser.add_argument('--test-archive', action='store_true',
                             help='Generate a test archive package')
     arg_parser.add_argument(
+        '--skip-check-code-style', dest='skip_check_code_style',
+        action='store_true', default=False,
+        help='Skip checking C++ code style before compiling')
+    arg_parser.add_argument(
         '--static-analysis', dest='static_analysis',
         action='store_true', default=False,
         help='Run static analysis on the code')
@@ -148,6 +152,9 @@ def cmake_generate_options(args):
         generate_options.append(
             '-DAPPLY_CPP_CODE_STYLE={}'.format(
                 'ON' if args.code_style else 'OFF'))
+        generate_options.append(
+            '-DCHECK_CPP_CODE_STYLE={}'.format(
+                'ON' if not args.skip_check_code_style else 'OFF'))
         generate_options.append(
             '-DRUN_TESTS={}'.format('OFF' if args.skip_tests else 'ON'))
         generate_options.append(
