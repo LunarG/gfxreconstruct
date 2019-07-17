@@ -85,9 +85,13 @@ def parse_args():
         action='store_true', default=False,
         help='Skip updating external dependencies')
     arg_parser.add_argument(
-        '--skip-code-style', dest='skip_code_style',
+        '--skip-apply-code-style', dest='skip_apply_code_style',
         action='store_true', default=False,
-        help='Apply C++ code style before compiling')
+        help='Skip applying C++ code style before compiling')
+    arg_parser.add_argument(
+        '--skip-check-code-style', dest='skip_check_code_style',
+        action='store_true', default=False,
+        help='Skip checking C++ code style before compiling')
     arg_parser.add_argument(
         '--skip-tests', dest='skip_tests',
         action='store_true', default=False,
@@ -122,6 +126,7 @@ def build_dir(args):
                         platform.system().lower(),
                         args.architecture)
 
+
 def cmake_version():
     '''
     Get the CMake version
@@ -147,10 +152,14 @@ def cmake_generate_options(args):
         generate_options.append('-DRUN_TESTS=OFF')
         generate_options.append('-DGENERATE_TEST_ARCHIVE=OFF')
     else:
-        if args.skip_code_style:
+        if args.skip_apply_code_style:
             generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
         else:
             generate_options.append('-DAPPLY_CPP_CODE_STYLE=ON')
+        if args.skip_check_code_style:
+            generate_options.append('-DCHECK_CPP_CODE_STYLE=OFF')
+        else:
+            generate_options.append('-DCHECK_CPP_CODE_STYLE=ON')
         if args.skip_tests:
             generate_options.append('-DRUN_TESTS=OFF')
         else:
