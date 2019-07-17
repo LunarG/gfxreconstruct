@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2015-2018 Valve Corporation
-** Copyright (c) 2015-2018 LunarG, Inc.
+** Copyright (c) 2015-2019 Valve Corporation
+** Copyright (c) 2015-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -34,11 +34,8 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class PageGuardManager
 {
   public:
-    static const bool kDefaultEnableShadowCachedMemory   = false;
-    static const bool kDefaultEnableUncachedRead         = false;
     static const bool kDefaultEnableCopyOnMap            = true;
     static const bool kDefaultEnableLazyCopy             = true;
-    static const bool kDefaultEnableSeparateReadTracking = true;
     static const bool kDefaultEnableReadWriteSamePage    = true;
 
   public:
@@ -48,18 +45,15 @@ class PageGuardManager
     typedef std::function<void(uint64_t, void*, size_t, size_t)> ModifiedMemoryFunc;
 
   public:
-    static void Create(bool enable_shadow_cached_memory,
-                       bool enable_uncached_read,
-                       bool enable_copy_on_map,
+    static void Create(bool enable_copy_on_map,
                        bool enable_lazy_copy,
-                       bool enable_separate_read_tracking,
                        bool expect_read_write_same_page);
 
     static void Destroy();
 
     static PageGuardManager* Get() { return instance_; }
 
-    void* AddMemory(uint64_t memory_id, void* mapped_memory, size_t size, bool is_cached);
+    void* AddMemory(uint64_t memory_id, void* mapped_memory, size_t size);
 
     void RemoveMemory(uint64_t memory_id);
 
@@ -72,11 +66,8 @@ class PageGuardManager
   protected:
     PageGuardManager();
 
-    PageGuardManager(bool enable_shadow_cached_memory,
-                     bool enable_uncached_read,
-                     bool enable_copy_on_map,
+    PageGuardManager(bool enable_copy_on_map,
                      bool enable_lazy_copy,
-                     bool enable_separate_read_tracking,
                      bool expect_read_write_same_page);
 
     ~PageGuardManager();
@@ -84,9 +75,9 @@ class PageGuardManager
   private:
     struct MemoryInfo
     {
-        MemoryInfo(void* mm, size_t mr, void* sm, size_t sr, size_t tp, size_t lss, bool ic) :
+        MemoryInfo(void* mm, size_t mr, void* sm, size_t sr, size_t tp, size_t lss) :
             status_tracker(tp), mapped_memory(mm), mapped_range(mr), shadow_memory(sm), shadow_range(sr),
-            total_pages(tp), last_segment_size(lss), is_cached(ic), is_modified(false)
+            total_pages(tp), last_segment_size(lss), is_modified(false)
         {}
 
         PageStatusTracker status_tracker;
@@ -98,7 +89,6 @@ class PageGuardManager
                               // multiple of system page size.
         size_t total_pages;   // Total number of pages contained by the mapped memory.
         size_t last_segment_size; // Size of the last segment of the mapped memory, which may not be a full page.
-        bool   is_cached;
         bool   is_modified;
     };
 
@@ -143,14 +133,10 @@ class PageGuardManager
     void*                    exception_handler_;
     uint32_t                 exception_handler_count_;
     const size_t             system_page_size_;
-    bool                     enable_shadow_cached_memory_;
-    bool                     enable_uncached_read_;
     bool                     enable_copy_on_map_;
     bool                     enable_lazy_copy_;
 
-    // These options only apply to WIN32 builds, or to Linux builds generated with the PAGE_GUARD_ENABLE_X86_64_UCONTEXT
-    // pre-processor directive.
-    bool enable_separate_read_tracking_;
+    // Only applies to WIN32 builds and Linux builds with PAGE_GUARD_ENABLE_X86_64_UCONTEXT defined.
     bool enable_read_write_same_page_;
 };
 

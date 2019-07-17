@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2015-2018 Valve Corporation
-** Copyright (c) 2015-2018 LunarG, Inc.
+** Copyright (c) 2015-2019 Valve Corporation
+** Copyright (c) 2015-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -134,23 +134,13 @@ PageGuardManager* PageGuardManager::instance_ = nullptr;
 
 PageGuardManager::PageGuardManager() :
     exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
-    enable_shadow_cached_memory_(kDefaultEnableShadowCachedMemory), enable_uncached_read_(kDefaultEnableUncachedRead),
     enable_copy_on_map_(kDefaultEnableCopyOnMap), enable_lazy_copy_(kDefaultEnableLazyCopy),
-    enable_separate_read_tracking_(kDefaultEnableSeparateReadTracking),
     enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
 {}
 
-PageGuardManager::PageGuardManager(bool enable_shadow_cached_memory,
-                                   bool enable_uncached_read,
-                                   bool enable_copy_on_map,
-                                   bool enable_lazy_copy,
-                                   bool enable_separate_read_tracking,
-                                   bool expect_read_write_same_page) :
-    exception_handler_(nullptr),
-    exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
-    enable_shadow_cached_memory_(enable_shadow_cached_memory), enable_uncached_read_(enable_uncached_read),
+PageGuardManager::PageGuardManager(bool enable_copy_on_map, bool enable_lazy_copy, bool expect_read_write_same_page) :
+    exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
     enable_copy_on_map_(enable_copy_on_map), enable_lazy_copy_(enable_lazy_copy),
-    enable_separate_read_tracking_(enable_separate_read_tracking),
     enable_read_write_same_page_(expect_read_write_same_page)
 {}
 
@@ -171,21 +161,13 @@ PageGuardManager::~PageGuardManager()
     }
 }
 
-void PageGuardManager::Create(bool enable_shadow_cached_memory,
-                              bool enable_uncached_read,
-                              bool enable_copy_on_map,
+void PageGuardManager::Create(bool enable_copy_on_map,
                               bool enable_lazy_copy,
-                              bool enable_separate_read_tracking,
                               bool expect_read_write_same_page)
 {
     if (instance_ == nullptr)
     {
-        instance_ = new PageGuardManager(enable_shadow_cached_memory,
-                                         enable_uncached_read,
-                                         enable_copy_on_map,
-                                         enable_lazy_copy,
-                                         enable_separate_read_tracking,
-                                         expect_read_write_same_page);
+        instance_ = new PageGuardManager(enable_copy_on_map, enable_lazy_copy, expect_read_write_same_page);
     }
     else
     {
@@ -445,9 +427,8 @@ void PageGuardManager::ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info,
         {
             // If there was no write operation on the current page, check to see if there was a read operation.
             // If a read operation triggered the page guard handler, it needs to be reset.
-            // Note that it is only possible to reach this state when enable_separate_read_tracking_ is true and
-            // enable_read_write_same_page_ is false (eg. no writes are expected to be performed to pages that are
-            // read).
+            // Note that it is only possible to reach this state when enable_read_write_same_page_ is false (eg. no
+            // writes are expected to be performed to pages that are read).
             if (memory_info->status_tracker.IsActiveReadBlock(i))
             {
 
@@ -557,7 +538,7 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
 #endif
 }
 
-void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_t size, bool is_cached)
+void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_t size)
 {
     bool success = true;
 
@@ -605,8 +586,7 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
             auto entry = memory_info_.emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(memory_id),
-                std::forward_as_tuple(
-                    mapped_memory, size, shadow_memory, shadow_size, total_pages, last_segment_size, is_cached));
+                std::forward_as_tuple(mapped_memory, size, shadow_memory, shadow_size, total_pages, last_segment_size));
 
             if (!entry.second)
             {
@@ -707,7 +687,7 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
 
         // For POSIX systems, excluding Linux when compiled with PAGE_GUARD_ENABLE_X86_64_UCONTEXT, is_write is always
         // true because we are not notified if the exception was raised by a read or write operation.
-        if (is_write || !enable_separate_read_tracking_)
+        if (is_write)
         {
             // When shadow memory is used, the content of the mapped memory needs to be copied to the shadow memory if
             // the application is expected to read from that memory or if the applicationis mapping and unmapping memory
@@ -716,12 +696,10 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
             // allocation.  Multiple factors can affect the need to perform the copy:
             //   If there is no shadow memory, the copy is unnecessary.
             //   If the optimization is not enabled, the copy is unnecessary.
-            //   If the optimization is not enabled, but we expect the memory to be read from, the copy is necessary.
             //   If the optimization is enabled, but this is not the first access to the block since it was mapped, the
             //   copy is unnecessary.
             if ((memory_info->shadow_memory != nullptr) &&
-                (memory_info->is_cached || enable_uncached_read_ ||
-                 (enable_copy_on_map_ && enable_lazy_copy_ && !memory_info->status_tracker.IsBlockLoaded(page_index))))
+                (enable_copy_on_map_ && enable_lazy_copy_ && !memory_info->status_tracker.IsBlockLoaded(page_index)))
             {
                 // Advance the mapped memory pointer by the offset from the start of the shadow memory to the start of
                 // the modified page.
