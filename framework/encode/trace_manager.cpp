@@ -245,7 +245,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     {
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
-            util::PageGuardManager::Create(true, false, true, true, true, true);
+            util::PageGuardManager::Create(true, true, true);
         }
 
         if ((capture_mode_ & kModeTrack) == kModeTrack)
@@ -813,7 +813,7 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
 
                     // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
                     // not the mapped memory.
-                    (*ppData) = manager->AddMemory(wrapper->handle_id, (*ppData), static_cast<size_t>(size), false);
+                    (*ppData) = manager->AddMemory(wrapper->handle_id, (*ppData), static_cast<size_t>(size));
                 }
             }
             else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
