@@ -774,7 +774,7 @@ class BaseGenerator(OutputGenerator):
 
     #
     # Generate a parameter encoder method call invocation.
-    def makeEncoderMethodCall(self, value, values, prefix):
+    def makeEncoderMethodCall(self, value, values, prefix, omitOutputParam=None):
         args = [prefix + value.name]
 
         isStruct = False
@@ -830,6 +830,9 @@ class BaseGenerator(OutputGenerator):
                 methodCall += 'Ptr' * value.pointerCount
             else:
                 methodCall += 'Value'
+
+        if self.isOutputParameter(value) and omitOutputParam:
+            args.append(omitOutputParam)
 
         return '{}({})'.format(methodCall, ', '.join(args))
 
