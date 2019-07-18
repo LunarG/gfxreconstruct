@@ -157,17 +157,26 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     #
     # Command definition
     def makeCmdBody(self, returnType, name, values):
-        encodeAfter = self.hasOutputs(returnType, values)
         indent = ' ' * self.INDENT_SIZE
-
+        encodeAfter = False
+        omitOutputParam = None
+        hasOutputs = self.hasOutputs(returnType, values)
         argList = self.makeArgList(values)
 
         body = ''
 
+        if hasOutputs or (returnType and returnType != 'void'):
+            encodeAfter = True
+
+        if hasOutputs and (returnType and returnType != 'void'):
+            omitOutputParam = 'omit_output_data'
+            body += indent + 'bool omit_output_data = false;\n'
+            body += '\n'
+
         body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), {});\n'.format(name, argList)
 
         if not encodeAfter:
-            body += self.makeParameterEncoding(name, values, returnType, indent)
+            body += self.makeParameterEncoding(name, values, returnType, indent, omitOutputParam)
 
         body += '\n'
 
@@ -191,15 +200,25 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if wrapExpr:
             body += '\n'
             if returnType and returnType != 'void':
-                body += indent + 'if (result == VK_SUCCESS)\n'
+                body += indent + 'if (result >= 0)\n'
                 body += indent + '{\n'
-                body += '    ' + self.makeHandleWrapping(values, indent)
+                body += '    ' + wrapExpr
                 body += indent + '}\n'
+                if hasOutputs:
+                    body += indent + 'else\n'
+                    body += indent + '{\n'
+                    body += indent + '    omit_output_data = true;\n'
+                    body += indent + '}\n'
             else:
-                body += self.makeHandleWrapping(values, indent)
+                body += wrapExpr
+        elif hasOutputs and (returnType and returnType != 'void'):
+            body += indent + 'if (result < 0)\n'
+            body += indent + '{\n'
+            body += indent + '    omit_output_data = true;\n'
+            body += indent + '}\n'
 
         if encodeAfter:
-            body += self.makeParameterEncoding(name, values, returnType, indent)
+            body += self.makeParameterEncoding(name, values, returnType, indent, omitOutputParam)
 
         body += '\n'
         if returnType and returnType != 'void':
@@ -211,7 +230,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         return body
 
-    def makeParameterEncoding(self, name, values, returnType, indent):
+    def makeParameterEncoding(self, name, values, returnType, indent, omitOutputParam):
         body = '\n'
         body += indent + self.makeBeginApiCall(name, values)
         body += indent + 'if (encoder)\n'
@@ -219,7 +238,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         indent += ' ' * self.INDENT_SIZE
 
         for value in values:
-            methodCall = self.makeEncoderMethodCall(value, values, '')
+            methodCall = self.makeEncoderMethodCall(value, values, '', omitOutputParam)
             body += indent + '{};\n'.format(methodCall)
 
         if returnType and returnType != 'void':
@@ -334,7 +353,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     parentType = values[0].baseType[2:] + 'Wrapper'
                     parentValue = values[0].name
 
-                # Some handles have two parent handles, such swapchain images and display modes,
+                # Some handles have two parent handles, such as swapchain images and display modes,
                 # or command buffers and descriptor sets allocated from pools.
                 coParentType = 'NoParentWrapper'
                 coParentValue = 'NoParentWrapper::kHandleValue'
@@ -427,10 +446,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         return False
 
     def hasOutputs(self, returnValue, parameterValues):
-        if returnValue != 'void':
-            return True
-        else:
-            for value in parameterValues:
-                if self.isOutputParameter(value):
-                    return True
+        for value in parameterValues:
+            if self.isOutputParameter(value):
+                return True
         return False
