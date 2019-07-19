@@ -135,6 +135,6 @@ if '__main__' == __name__:
         for test_exe, test_args in tests:
             run_test(test_exe, test_args)
     except Exception as error:
-        print('Error', *(error.args))
+        print(error.__class__.__name__, *(error.args))
         sys.exit(1)
     sys.exit(0)
