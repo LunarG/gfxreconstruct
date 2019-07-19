@@ -89,11 +89,8 @@ def parse_args():
         action='store_true', default=False,
         help='Apply C++ code style before compiling')
     arg_parser.add_argument(
-        '--skip-tests', dest='skip_tests',
-        action='store_true', default=False,
-        help='Skip running tests')
-    arg_parser.add_argument('--test-archive', dest='test_archive',
-                            action='store_true', default=False,
+        '--skip-tests', action='store_true', help='Skip running tests')
+    arg_parser.add_argument('--test-archive', action='store_true',
                             help='Generate a test archive package')
     arg_parser.add_argument(
         '--static-analysis', dest='static_analysis',
@@ -148,22 +145,17 @@ def cmake_generate_options(args):
         generate_options.append('-DRUN_TESTS=OFF')
         generate_options.append('-DGENERATE_TEST_ARCHIVE=OFF')
     else:
-        if args.code_style:
-            generate_options.append('-DAPPLY_CPP_CODE_STYLE=ON')
-        else:
-            generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
-        if args.skip_tests:
-            generate_options.append('-DRUN_TESTS=OFF')
-        else:
-            generate_options.append('-DRUN_TESTS=ON')
-        if args.test_archive:
-            generate_options.append('-DGENERATE_TEST_ARCHIVE=ON')
-        else:
-            generate_options.append('-DGENERATE_TEST_ARCHIVE=OFF')
-        if args.static_analysis:
-            generate_options.append('-DRUN_STATIC_ANALYSIS=ON')
-        else:
-            generate_options.append('-DRUN_STATIC_ANALYSIS=OFF')
+        generate_options.append(
+            '-DAPPLY_CPP_CODE_STYLE={}'.format(
+                'ON' if args.code_style else 'OFF'))
+        generate_options.append(
+            '-DRUN_TESTS={}'.format('OFF' if args.skip_tests else 'ON'))
+        generate_options.append(
+            '-DGENERATE_TEST_ARCHIVE={}'.format(
+                'ON' if args.test_archive else 'OFF'))
+        generate_options.append(
+            '-DRUN_STATIC_ANALYSIS={}'.format(
+                'ON' if args.static_analysis else 'OFF'))
     return generate_options
 
 

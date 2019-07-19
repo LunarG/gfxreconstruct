@@ -18,13 +18,9 @@ GFX reconstruct build script
 '''
 
 import argparse
-import copy
-import distutils.version
 import importlib
 import os
 import platform
-import re
-import shutil
 import subprocess
 import sys
 
@@ -68,13 +64,11 @@ def parse_args(build_script):
     Parse command line arguments
     '''
     arg_parser = argparse.ArgumentParser(
-        description="gfxreconstruct build script",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        description="gfxreconstruct test script")
     arg_parser.add_argument('--version', dest='version',
                             action='version', version=str(build_script.VERSION))
     arg_parser.add_argument(
-        '--test-exe', dest='test_exe', metavar='TEST_EXE',
-        action='store', default=None,
+        '--test-exe', metavar='TEST_EXE', action='store', default=None,
         help='Test executable to run')
     arg_parser.add_argument(
         '--test-args', dest='test_args', metavar='TEST_ARGS', nargs='+',
