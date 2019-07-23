@@ -19,7 +19,7 @@
 
 cmake_minimum_required(VERSION 3.1)
 
-option(APPLY_CPP_CODE_STYLE "Apply C++ code style using clang format" ON)
+option(APPLY_CPP_CODE_STYLE "Apply C++ code style using clang format" OFF)
 option(CHECK_CPP_CODE_STYLE "Check C++ code style using clang format" ON)
 
 find_program(CLANG_FORMAT clang-format DOC "Clang format executable")
