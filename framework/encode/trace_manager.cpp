@@ -245,7 +245,10 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     {
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
-            util::PageGuardManager::Create(true, true, true);
+            util::PageGuardManager::Create(util::PageGuardManager::kDefaultEnableShadowMemory,
+                                           util::PageGuardManager::kDefaultEnableCopyOnMap,
+                                           util::PageGuardManager::kDefaultEnableLazyCopy,
+                                           util::PageGuardManager::kDefaultEnableReadWriteSamePage);
         }
 
         if ((capture_mode_ & kModeTrack) == kModeTrack)
