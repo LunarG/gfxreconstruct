@@ -63,6 +63,12 @@ class PageGuardManager
 
     bool HandleGuardPageViolation(void* address, bool is_write, bool clear_guard);
 
+    size_t GetAlignedSize(size_t size) const;
+
+    void* AllocateMemory(size_t aligned_size);
+
+    void FreeMemory(void* pMemory, size_t aligned_size);
+
   protected:
     PageGuardManager();
 
@@ -113,10 +119,6 @@ class PageGuardManager
 
   private:
     size_t GetSystemPageSize() const;
-    size_t GetAdjustedSize(size_t size) const;
-
-    void* AllocateShadowMemory(size_t size);
-    void  FreeShadowMemory(void* pMemory, size_t size);
 
     void AddExceptionHandler();
     void RemoveExceptionHandler();
