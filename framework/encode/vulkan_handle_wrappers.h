@@ -147,6 +147,7 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     VkDeviceSize     mapped_offset{ 0 };
     VkDeviceSize     mapped_size{ 0 };
     VkMemoryMapFlags mapped_flags{ 0 };
+    void*            external_allocation{ nullptr };
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>

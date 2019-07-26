@@ -444,17 +444,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAllocateMemory>::Dispatch(TraceManager::Get(), device, pAllocateInfo, pAllocator, pMemory);
 
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    const VkMemoryAllocateInfo* pAllocateInfo_unwrapped = UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory);
-
-    VkResult result = GetDeviceTable(device)->AllocateMemory(device_unwrapped, pAllocateInfo_unwrapped, pAllocator, pMemory);
-
-    if (result >= 0)
-    {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DeviceMemoryWrapper>(device, NoParentWrapper::kHandleValue, pMemory, TraceManager::GetUniqueId);
-    }
-    else
+    VkResult result = TraceManager::Get()->OverrideAllocateMemory(device, pAllocateInfo, pAllocator, pMemory);
+    if (result < 0)
     {
         omit_output_data = true;
     }

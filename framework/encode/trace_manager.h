@@ -264,6 +264,10 @@ class TraceManager
                                   const VkDeviceCreateInfo*    pCreateInfo,
                                   const VkAllocationCallbacks* pAllocator,
                                   VkDevice*                    pDevice);
+    VkResult OverrideAllocateMemory(VkDevice                     device,
+                                    const VkMemoryAllocateInfo*  pAllocateInfo,
+                                    const VkAllocationCallbacks* pAllocator,
+                                    VkDeviceMemory*              pMemory);
 
     void PostProcess_vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice                  physicalDevice,
                                                          VkPhysicalDeviceMemoryProperties* pMemoryProperties)
@@ -377,12 +381,6 @@ class TraceManager
                                       const VkSwapchainCreateInfoKHR* pCreateInfo,
                                       const VkAllocationCallbacks*    pAllocator,
                                       VkSwapchainKHR*                 pSwapchain);
-
-    void PostProcess_vkAllocateMemory(VkResult                     result,
-                                      VkDevice                     device,
-                                      const VkMemoryAllocateInfo*  pAllocateInfo,
-                                      const VkAllocationCallbacks* pAllocator,
-                                      VkDeviceMemory*              pMemory);
 
     void PostProcess_vkAcquireNextImageKHR(VkResult result,
                                            VkDevice,
@@ -822,6 +820,8 @@ class TraceManager
                                               VkDescriptorUpdateTemplate update_templat,
                                               const void*                data);
 
+    VkMemoryPropertyFlags GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index);
+
   private:
     static TraceManager*                            instance_;
     static uint32_t                                 instance_count_;
@@ -838,6 +838,7 @@ class TraceManager
     uint64_t                                        bytes_written_;
     std::unique_ptr<util::Compressor>               compressor_;
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
+    bool                                            page_guard_external_memory_;
     std::mutex                                      mapped_memory_lock_;
     std::set<DeviceMemoryWrapper*>                  mapped_memory_; // Track mapped memory for unassisted tracking mode.
     bool                                            trim_enabled_;

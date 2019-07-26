@@ -78,8 +78,8 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
 
 TraceManager::TraceManager() :
     force_file_flush_(false), bytes_written_(0), timestamp_filename_(true),
-    memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), trim_enabled_(false),
-    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite)
+    memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_external_memory_(false),
+    trim_enabled_(false), trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite)
 {}
 
 TraceManager::~TraceManager()
@@ -201,6 +201,15 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     memory_tracking_mode_ = trace_settings.memory_tracking_mode;
     force_file_flush_     = trace_settings.force_flush;
 
+    if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
+    {
+        page_guard_external_memory_ = trace_settings.page_guard_external_memory;
+    }
+    else
+    {
+        page_guard_external_memory_ = false;
+    }
+
     if (trace_settings.trim_ranges.empty())
     {
         // Use default kModeWrite capture mode.
@@ -243,7 +252,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     {
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
-            util::PageGuardManager::Create(util::PageGuardManager::kDefaultEnableShadowMemory,
+            util::PageGuardManager::Create(!page_guard_external_memory_,
                                            util::PageGuardManager::kDefaultEnableCopyOnMap,
                                            util::PageGuardManager::kDefaultEnableLazyCopy,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage);
@@ -741,7 +750,45 @@ VkResult TraceManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCrea
 
     if (CreateInstance())
     {
-        result = layer_table_.CreateInstance(pCreateInfo, pAllocator, pInstance);
+        if (instance_->page_guard_external_memory_)
+        {
+            assert(pCreateInfo != nullptr);
+
+            VkInstanceCreateInfo create_info_copy = (*pCreateInfo);
+
+            // TODO: Only enable KHR_get_physical_device_properties_2 for 1.0 API version.
+            size_t                   extension_count = create_info_copy.enabledExtensionCount;
+            const char* const*       extensions      = create_info_copy.ppEnabledExtensionNames;
+            std::vector<const char*> modified_extensions;
+
+            bool has_dev_prop2 = false;
+
+            for (size_t i = 0; i < extension_count; ++i)
+            {
+                auto entry = extensions[i];
+
+                modified_extensions.push_back(entry);
+
+                if (util::platform::StringCompare(entry, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) == 0)
+                {
+                    has_dev_prop2 = true;
+                }
+            }
+
+            if (!has_dev_prop2)
+            {
+                modified_extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+            }
+
+            create_info_copy.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
+            create_info_copy.ppEnabledExtensionNames = modified_extensions.data();
+
+            result = layer_table_.CreateInstance(&create_info_copy, pAllocator, pInstance);
+        }
+        else
+        {
+            result = layer_table_.CreateInstance(pCreateInfo, pAllocator, pInstance);
+        }
     }
 
     return result;
@@ -752,11 +799,208 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
                                             const VkAllocationCallbacks* pAllocator,
                                             VkDevice*                    pDevice)
 {
-    auto                      handle_unwrap_memory     = TraceManager::Get()->GetHandleUnwrapMemory();
-    VkPhysicalDevice          physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
-    const VkDeviceCreateInfo* pCreateInfo_unwrapped    = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+    auto                handle_unwrap_memory     = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkPhysicalDevice    physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
+    VkDeviceCreateInfo* pCreateInfo_unwrapped =
+        const_cast<VkDeviceCreateInfo*>(UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory));
 
-    return layer_table_.CreateDevice(physicalDevice_unwrapped, pCreateInfo_unwrapped, pAllocator, pDevice);
+    if (page_guard_external_memory_)
+    {
+        assert(pCreateInfo_unwrapped != nullptr);
+
+        // TODO: Only enable KHR_external_memory_capabilities for 1.0 API version.
+        size_t                   extension_count = pCreateInfo_unwrapped->enabledExtensionCount;
+        const char* const*       extensions      = pCreateInfo_unwrapped->ppEnabledExtensionNames;
+        std::vector<const char*> modified_extensions;
+
+        bool has_ext_mem_caps = false;
+        bool has_ext_mem      = false;
+        bool has_ext_mem_host = false;
+
+        for (size_t i = 0; i < extension_count; ++i)
+        {
+            auto entry = pCreateInfo_unwrapped->ppEnabledExtensionNames[i];
+
+            modified_extensions.push_back(entry);
+
+            if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME) == 0)
+            {
+                has_ext_mem_caps = true;
+            }
+            else if (util::platform::StringCompare(entry, VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME) == 0)
+            {
+                has_ext_mem = true;
+            }
+            else if (util::platform::StringCompare(entry, VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME) == 0)
+            {
+                has_ext_mem_host = true;
+            }
+        }
+
+        if (!has_ext_mem_caps)
+        {
+            modified_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
+        }
+
+        if (!has_ext_mem)
+        {
+            modified_extensions.push_back(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME);
+        }
+
+        if (!has_ext_mem_host)
+        {
+            modified_extensions.push_back(VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME);
+        }
+
+        pCreateInfo_unwrapped->enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
+        pCreateInfo_unwrapped->ppEnabledExtensionNames = modified_extensions.data();
+
+        VkResult result =
+            layer_table_.CreateDevice(physicalDevice_unwrapped, pCreateInfo_unwrapped, pAllocator, pDevice);
+
+        if ((result == VK_SUCCESS) && (capture_mode_ & kModeTrack) != kModeTrack)
+        {
+            assert((pDevice != nullptr) && (*pDevice != VK_NULL_HANDLE));
+
+            // The state tracker will set this value when it is enabled. When state tracking is disabled it is set
+            // here to ensure it is available for memory allocation.
+            auto wrapper             = reinterpret_cast<DeviceWrapper*>(*pDevice);
+            wrapper->physical_device = reinterpret_cast<PhysicalDeviceWrapper*>(physicalDevice);
+        }
+
+        return result;
+    }
+    else
+    {
+        return layer_table_.CreateDevice(physicalDevice_unwrapped, pCreateInfo_unwrapped, pAllocator, pDevice);
+    }
+}
+
+VkResult TraceManager::OverrideAllocateMemory(VkDevice                     device,
+                                              const VkMemoryAllocateInfo*  pAllocateInfo,
+                                              const VkAllocationCallbacks* pAllocator,
+                                              VkDeviceMemory*              pMemory)
+{
+    VkResult                         result          = VK_SUCCESS;
+    void*                            external_memory = nullptr;
+    VkImportMemoryHostPointerInfoEXT import_info;
+
+    auto                  handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice              device_unwrapped     = GetWrappedHandle<VkDevice>(device);
+    VkMemoryAllocateInfo* pAllocateInfo_unwrapped =
+        const_cast<VkMemoryAllocateInfo*>(UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory));
+
+    if (page_guard_external_memory_)
+    {
+        auto                  device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
+        VkMemoryPropertyFlags properties     = GetMemoryProperties(device_wrapper, pAllocateInfo->memoryTypeIndex);
+
+        if ((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+        {
+            // Use the external memory extension to provide a memory allocation that can be watched directly by the page
+            // guard implementation.
+            assert(pAllocateInfo_unwrapped != nullptr);
+
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pAllocateInfo_unwrapped->allocationSize);
+
+            // TODO: This should be aligned to minImportedHostPointerAlignment, but there is a currently a loader bug
+            // that prevents the layer from querying for that value when a 1.0 application does not explicitly enable
+            // physical_device_properties2.  For now we align to system page size.
+            size_t external_memory_size =
+                manager->GetAlignedSize(static_cast<size_t>(pAllocateInfo_unwrapped->allocationSize));
+            external_memory = manager->AllocateMemory(external_memory_size);
+
+            if (external_memory != nullptr)
+            {
+                pAllocateInfo_unwrapped->allocationSize = external_memory_size;
+
+                import_info.sType        = VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT;
+                import_info.pNext        = nullptr;
+                import_info.handleType   = VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT;
+                import_info.pHostPointer = external_memory;
+
+                // TODO: Check pNext chain for use of incompatible extension types.
+                VkBaseOutStructure* end = reinterpret_cast<VkBaseOutStructure*>(pAllocateInfo_unwrapped);
+                while (end->pNext != nullptr)
+                {
+                    end = end->pNext;
+                }
+
+                end->pNext = reinterpret_cast<VkBaseOutStructure*>(&import_info);
+            }
+        }
+    }
+
+    result = GetDeviceTable(device)->AllocateMemory(device_unwrapped, pAllocateInfo_unwrapped, pAllocator, pMemory);
+
+    if (result == VK_SUCCESS)
+    {
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DeviceMemoryWrapper>(
+            device, NoParentWrapper::kHandleValue, pMemory, TraceManager::GetUniqueId);
+
+        assert(pMemory != nullptr);
+        auto memory_wrapper = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
+
+        memory_wrapper->external_allocation = external_memory;
+
+        if ((capture_mode_ & kModeTrack) != kModeTrack)
+        {
+            // The state tracker will set this value when it is enabled. When state tracking is disabled it is set
+            // here to ensure it is available for mapped memory tracking.
+            auto wrapper             = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
+            wrapper->allocation_size = pAllocateInfo->allocationSize;
+        }
+    }
+    else if (external_memory != nullptr)
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        assert(manager != nullptr);
+
+        size_t external_memory_size = manager->GetAlignedSize(static_cast<size_t>(pAllocateInfo->allocationSize));
+        manager->FreeMemory(external_memory, external_memory_size);
+    }
+
+    return result;
+}
+
+VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index)
+{
+    VkMemoryPropertyFlags  flags                   = 0;
+    PhysicalDeviceWrapper* physical_device_wrapper = device_wrapper->physical_device;
+
+    if (memory_type_index >= physical_device_wrapper->memory_types.size())
+    {
+        // When trimming is enabled, the state tracker would populate this list when the application queried for
+        // available memory types.  If state tracking is not enabled, or the application didn't make the appropriate
+        // query, the query is made here.
+        InstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
+        assert(instance_table != nullptr);
+
+        VkPhysicalDeviceMemoryProperties memory_properties;
+        instance_table->GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &memory_properties);
+
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceMemoryProperties(
+                reinterpret_cast<VkPhysicalDevice>(physical_device_wrapper), &memory_properties);
+            assert(memory_type_index < physical_device_wrapper->memory_types.size());
+        }
+        else
+        {
+            for (size_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+            {
+                physical_device_wrapper->memory_types.push_back(memory_properties.memoryTypes[i]);
+            }
+        }
+    }
+
+    assert(memory_type_index < physical_device_wrapper->memory_types.size());
+
+    return flags = physical_device_wrapper->memory_types[memory_type_index].propertyFlags;
 }
 
 void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
@@ -774,24 +1018,6 @@ void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        
     {
         WriteResizeWindowCmd(
             GetWrappedId(pCreateInfo->surface), pCreateInfo->imageExtent.width, pCreateInfo->imageExtent.height);
-    }
-}
-
-void TraceManager::PostProcess_vkAllocateMemory(VkResult                     result,
-                                                VkDevice                     device,
-                                                const VkMemoryAllocateInfo*  pAllocateInfo,
-                                                const VkAllocationCallbacks* pAllocator,
-                                                VkDeviceMemory*              pMemory)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-    if (((capture_mode_ & kModeTrack) != kModeTrack) && (result == VK_SUCCESS) && (pAllocateInfo != nullptr) &&
-        (pMemory != nullptr) && (*pMemory != VK_NULL_HANDLE))
-    {
-        // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here to
-        // ensure it is available for mapped memory tracking.
-        auto wrapper             = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
-        wrapper->allocation_size = pAllocateInfo->allocationSize;
     }
 }
 
@@ -1004,6 +1230,12 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
         assert(manager != nullptr);
 
         manager->RemoveMemory(wrapper->handle_id);
+
+        if (page_guard_external_memory_)
+        {
+            size_t external_memory_size = manager->GetAlignedSize(static_cast<size_t>(wrapper->allocation_size));
+            manager->FreeMemory(wrapper->external_allocation, external_memory_size);
+        }
     }
 }
 

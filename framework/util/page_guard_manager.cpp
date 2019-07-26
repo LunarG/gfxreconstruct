@@ -164,7 +164,7 @@ PageGuardManager::~PageGuardManager()
         const auto& memory_info = entry->second;
         if (memory_info.shadow_memory != nullptr)
         {
-            FreeShadowMemory(memory_info.shadow_memory, memory_info.shadow_range);
+            FreeMemory(memory_info.shadow_memory, memory_info.shadow_range);
         }
         else
         {
@@ -211,7 +211,7 @@ size_t PageGuardManager::GetSystemPageSize() const
 #endif
 }
 
-size_t PageGuardManager::GetAdjustedSize(size_t size) const
+size_t PageGuardManager::GetAlignedSize(size_t size) const
 {
     size_t extra = size % system_page_size_;
     if (extra != 0)
@@ -223,39 +223,39 @@ size_t PageGuardManager::GetAdjustedSize(size_t size) const
     return size;
 }
 
-void* PageGuardManager::AllocateShadowMemory(size_t size)
+void* PageGuardManager::AllocateMemory(size_t aligned_size)
 {
-    assert(size > 0);
+    assert(aligned_size > 0);
 
     void* memory = nullptr;
 
-    if (size > 0)
+    if (aligned_size > 0)
     {
 #if defined(WIN32)
         DWORD flags = MEM_RESERVE | MEM_COMMIT;
-        memory      = VirtualAlloc(nullptr, size, flags, PAGE_READWRITE);
+        memory      = VirtualAlloc(nullptr, aligned_size, flags, PAGE_READWRITE);
 #else
-        memory = mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        memory = mmap(nullptr, aligned_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #endif
     }
 
     if (memory == nullptr)
     {
-        GFXRECON_LOG_ERROR("PageGuardManager failed to allocate shadow memory with size = %" PRIuPTR, size);
+        GFXRECON_LOG_ERROR("PageGuardManager failed to allocate shadow memory with size = %" PRIuPTR, aligned_size);
     }
 
     return memory;
 }
 
-void PageGuardManager::FreeShadowMemory(void* memory, size_t size)
+void PageGuardManager::FreeMemory(void* memory, size_t aligned_size)
 {
     assert(memory != nullptr);
 
 #if defined(WIN32)
-    GFXRECON_UNREFERENCED_PARAMETER(size);
+    GFXRECON_UNREFERENCED_PARAMETER(aligned_size);
     VirtualFree(memory, 0, MEM_RELEASE);
 #else
-    munmap(memory, size);
+    munmap(memory, aligned_size);
 #endif
 }
 
@@ -535,8 +535,8 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
 
     if (enable_shadow_memory_)
     {
-        shadow_size   = GetAdjustedSize(size);
-        shadow_memory = AllocateShadowMemory(shadow_size);
+        shadow_size   = GetAlignedSize(size);
+        shadow_memory = AllocateMemory(shadow_size);
 
         if (shadow_memory != nullptr)
         {
@@ -606,7 +606,7 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
             {
                 if (shadow_memory != nullptr)
                 {
-                    FreeShadowMemory(shadow_memory, shadow_size);
+                    FreeMemory(shadow_memory, shadow_size);
                     shadow_memory = nullptr;
                 }
                 else
@@ -634,7 +634,7 @@ void PageGuardManager::RemoveMemory(uint64_t memory_id)
 
         if (memory_info.shadow_memory != nullptr)
         {
-            FreeShadowMemory(memory_info.shadow_memory, memory_info.shadow_range);
+            FreeMemory(memory_info.shadow_memory, memory_info.shadow_range);
         }
         else
         {
