@@ -1,0 +1,6 @@
+{
+  "functions": {
+    "vkCreateInstance": "TraceManager::OverrideCreateInstance",
+    "vkCreateDevice": "TraceManager::Get()->OverrideCreateDevice"
+  }
+}

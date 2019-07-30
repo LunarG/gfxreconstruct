@@ -256,6 +256,15 @@ class TraceManager
     bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
                                          const UpdateTemplateInfo** info) const;
 
+    static VkResult OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                           const VkAllocationCallbacks* pAllocator,
+                                           VkInstance*                  pInstance);
+
+    VkResult OverrideCreateDevice(VkPhysicalDevice             physicalDevice,
+                                  const VkDeviceCreateInfo*    pCreateInfo,
+                                  const VkAllocationCallbacks* pAllocator,
+                                  VkDevice*                    pDevice);
+
     void PostProcess_vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice                  physicalDevice,
                                                          VkPhysicalDeviceMemoryProperties* pMemoryProperties)
     {

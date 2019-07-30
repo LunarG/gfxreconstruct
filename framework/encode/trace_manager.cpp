@@ -20,6 +20,7 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_writer.h"
 #include "format/format_util.h"
+#include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
 #include "util/logging.h"
@@ -119,13 +120,10 @@ bool TraceManager::CreateInstance()
         CaptureSettings::TraceSettings trace_settings = settings.GetTraceSettings();
         std::string                    base_filename  = trace_settings.capture_file;
 
-        instance_ = new TraceManager();
-        success   = instance_->Initialize(base_filename, trace_settings);
-        if (success)
-        {
-            instance_count_ = 1;
-        }
-        else
+        instance_count_ = 1;
+        instance_       = new TraceManager();
+        success         = instance_->Initialize(base_filename, trace_settings);
+        if (!success)
         {
             GFXRECON_LOG_FATAL("Failed to initialize TraceManager");
         }
@@ -733,6 +731,32 @@ void TraceManager::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet         
         assert(state_tracker_ != nullptr);
         state_tracker_->TrackUpdateDescriptorSetWithTemplate(set, info, data);
     }
+}
+
+VkResult TraceManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                              const VkAllocationCallbacks* pAllocator,
+                                              VkInstance*                  pInstance)
+{
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if (CreateInstance())
+    {
+        result = layer_table_.CreateInstance(pCreateInfo, pAllocator, pInstance);
+    }
+
+    return result;
+}
+
+VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physicalDevice,
+                                            const VkDeviceCreateInfo*    pCreateInfo,
+                                            const VkAllocationCallbacks* pAllocator,
+                                            VkDevice*                    pDevice)
+{
+    auto                      handle_unwrap_memory     = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkPhysicalDevice          physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
+    const VkDeviceCreateInfo* pCreateInfo_unwrapped    = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    return layer_table_.CreateDevice(physicalDevice_unwrapped, pCreateInfo_unwrapped, pAllocator, pDevice);
 }
 
 void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
