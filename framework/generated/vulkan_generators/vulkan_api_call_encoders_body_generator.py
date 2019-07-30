@@ -21,6 +21,7 @@ from base_generator import *
 class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan API parameter encoding"""
     def __init__(self,
+                 captureOverrides = None,   # Path to JSON file listing Vulkan API calls to override on capture.
                  blacklists = None,         # Path to JSON file listing apicalls and structs to ignore.
                  platformTypes = None,      # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
                  filename = None,
@@ -31,11 +32,17 @@ class VulkanApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
         BaseGeneratorOptions.__init__(self, blacklists, platformTypes,
                                       filename, directory, prefixText,
                                       protectFile, protectFeature)
+        self.captureOverrides = captureOverrides
 
 # VulkanApiCallEncodersBodyGenerator - subclass of BaseGenerator.
 # Generates C++ functions responsible for encoding Vulkan API call parameter data.
 class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan API parameter encoding"""
+
+    # Map of Vulkan function names to override function names.  Calls to Vulkan functions in the map
+    # will be replaced by the override value.
+    CAPTURE_OVERRIDES = {}
+
     def __init__(self,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
@@ -52,6 +59,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
+
+        if genOpts.captureOverrides:
+            self.__loadCaptureOverrides(genOpts.captureOverrides)
 
         write('#include "generated/generated_vulkan_api_call_encoders.h"', file=self.outFile)
         self.newline()
@@ -144,13 +154,6 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     #
     # Generate the layer dispatch call invocation.
     def makeLayerDispatchCall(self, name, values, argList):
-        if name == 'vkCreateInstance':
-            # CreateInstance requires special processing for VkLayerInstanceCreateInfo.
-            return 'TraceManager::GetLayerTable()->CreateInstance({})'.format(argList)
-        elif name == 'vkCreateDevice':
-            # CreateDevice requires special processing for VkLayerDeviceCreateInfo.
-            return 'TraceManager::GetLayerTable()->CreateDevice({})'.format(argList)
-
         dispatchfunc = 'GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'GetDeviceTable'
         return '{}({})->{}({})'.format(dispatchfunc, values[0].name, name[2:], argList)
 
@@ -158,6 +161,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     # Command definition
     def makeCmdBody(self, returnType, name, values):
         indent = ' ' * self.INDENT_SIZE
+        isOverride = name in self.CAPTURE_OVERRIDES
         encodeAfter = False
         omitOutputParam = None
         hasOutputs = self.hasOutputs(returnType, values)
@@ -180,46 +184,57 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         body += '\n'
 
-        # Check for handles that need unwrapping.
-        unwrapExpr, unwrappedArgList, needUnwrapMemory = self.makeHandleUnwrapping(values, indent)
-        if unwrapExpr:
-            if needUnwrapMemory:
-                body += indent + 'auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();\n'
-            body += unwrapExpr
-            body += '\n'
-
-        # Construct the function call to dispatch to the next layer.
-        callExpr = self.makeLayerDispatchCall(name, values, unwrappedArgList)
-        if returnType and returnType != 'void':
-            body += indent + '{} result = {};\n'.format(returnType, callExpr)
-        else:
-            body += indent + '{};\n'.format(callExpr)
-
-        # Wrap newly created handles. Instance and device creation is a special case that does not wrap here.
-        # VkCreateInstance and VkCreateDevice have enough special cases that they may need to move to a non-generated custom implementation.
-        wrapExpr = None
-        if name not in ['vkCreateInstance', 'vkCreateDevice']:
-            wrapExpr = self.makeHandleWrapping(values, indent)
-
-        if wrapExpr:
-            body += '\n'
+        if isOverride:
+            # Capture overrides simply call the override function without handle unwrap/wrap
+            # Construct the function call to dispatch to the next layer.
+            callExpr = '{}({})'.format(self.CAPTURE_OVERRIDES[name], self.makeArgList(values))
             if returnType and returnType != 'void':
-                body += indent + 'if (result >= 0)\n'
-                body += indent + '{\n'
-                body += '    ' + wrapExpr
-                body += indent + '}\n'
-                if hasOutputs:
-                    body += indent + 'else\n'
-                    body += indent + '{\n'
-                    body += indent + '    omit_output_data = true;\n'
-                    body += indent + '}\n'
+                body += indent + '{} result = {};\n'.format(returnType, callExpr)
             else:
-                body += wrapExpr
-        elif hasOutputs and (returnType and returnType != 'void'):
-            body += indent + 'if (result < 0)\n'
-            body += indent + '{\n'
-            body += indent + '    omit_output_data = true;\n'
-            body += indent + '}\n'
+                body += indent + '{};\n'.format(callExpr)
+
+            if hasOutputs and (returnType and returnType != 'void'):
+                body += indent + 'if (result < 0)\n'
+                body += indent + '{\n'
+                body += indent + '    omit_output_data = true;\n'
+                body += indent + '}\n'
+        else:
+            # Check for handles that need unwrapping.
+            unwrapExpr, unwrappedArgList, needUnwrapMemory = self.makeHandleUnwrapping(values, indent)
+            if unwrapExpr:
+                if needUnwrapMemory:
+                    body += indent + 'auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();\n'
+                body += unwrapExpr
+                body += '\n'
+
+            # Construct the function call to dispatch to the next layer.
+            callExpr = self.makeLayerDispatchCall(name, values, unwrappedArgList)
+            if returnType and returnType != 'void':
+                body += indent + '{} result = {};\n'.format(returnType, callExpr)
+            else:
+                body += indent + '{};\n'.format(callExpr)
+
+            # Wrap newly created handles.
+            wrapExpr = self.makeHandleWrapping(values, indent)
+            if wrapExpr:
+                body += '\n'
+                if returnType and returnType != 'void':
+                    body += indent + 'if (result >= 0)\n'
+                    body += indent + '{\n'
+                    body += '    ' + wrapExpr
+                    body += indent + '}\n'
+                    if hasOutputs:
+                        body += indent + 'else\n'
+                        body += indent + '{\n'
+                        body += indent + '    omit_output_data = true;\n'
+                        body += indent + '}\n'
+                else:
+                    body += wrapExpr
+            elif hasOutputs and (returnType and returnType != 'void'):
+                body += indent + 'if (result < 0)\n'
+                body += indent + '{\n'
+                body += indent + '    omit_output_data = true;\n'
+                body += indent + '}\n'
 
         if encodeAfter:
             body += self.makeParameterEncoding(name, values, returnType, indent, omitOutputParam)
@@ -480,3 +495,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             if self.isOutputParameter(value):
                 return True
         return False
+
+    def __loadCaptureOverrides(self, filename):
+        overrides = json.loads(open(filename, 'r').read())
+        self.CAPTURE_OVERRIDES = overrides['functions']
