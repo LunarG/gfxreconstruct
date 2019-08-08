@@ -102,7 +102,10 @@ def run_test(test_exe, test_args):
     '''
     Run a single test
     '''
-    run_test_args = [test_exe]
+    if is_windows():
+        run_test_args = [test_exe]
+    else:
+        run_test_args = ['./' + os.path.split(test_exe)[1]]
     if args.test_args is not None:
         run_test_args.extend(args.test_args)
     run_test_work_dir = os.path.split(test_exe)[0]
