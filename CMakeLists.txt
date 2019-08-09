@@ -69,5 +69,6 @@ add_subdirectory(framework)
 add_subdirectory(layer)
 add_subdirectory(tools)
 
+add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/build.py)
 add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/test.py)
 generate_test_package(gfx_reconstruct_test)
