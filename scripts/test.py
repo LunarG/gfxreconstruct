@@ -130,6 +130,7 @@ if '__main__' == __name__:
                 test_exe_dir = args.build_dir
                 if test_exe_dir is None:
                     test_exe_dir = os.path.join(
+                        BUILD_ROOT,
                         build_script.BUILD_CONFIGS[args.configuration],
                         platform.system().lower(),
                         args.architecture,
