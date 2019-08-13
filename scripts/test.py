@@ -37,7 +37,7 @@ def is_windows():
 
 
 BUILD_ROOT = os.path.abspath(os.path.join(
-    os.path.split(os.path.abspath(__file__))[0], '..'))
+    os.path.split(os.path.abspath(__file__))[0], '../build'))
 ALL_TESTS = {
     'gfxrecon_application_test': [],
     'gfxrecon_decode_test': [],
@@ -126,15 +126,14 @@ if '__main__' == __name__:
         args = parse_args(build_script)
         tests = []
         if args.test_exe is None:
+            test_exe_dir = args.build_dir
+            if test_exe_dir is None:
+                test_exe_dir = os.path.join(
+                    BUILD_ROOT,
+                    platform.system().lower(),
+                    args.architecture,
+                    'bin')
             for test in ALL_TESTS.items():
-                test_exe_dir = args.build_dir
-                if test_exe_dir is None:
-                    test_exe_dir = os.path.join(
-                        BUILD_ROOT,
-                        build_script.BUILD_CONFIGS[args.configuration],
-                        platform.system().lower(),
-                        args.architecture,
-                        'bin')
                 test_exe = os.path.join(test_exe_dir, test[0])
                 test_args = copy.deepcopy(test[1])
                 if args.test_args is not None:
