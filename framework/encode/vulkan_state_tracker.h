@@ -306,11 +306,10 @@ class VulkanStateTracker
 
     void TrackQueryReset(VkQueryPool query_pool, uint32_t first_query, uint32_t query_count);
 
-    void TrackSemaphoreSignalState(uint32_t                       wait_count,
-                                   const VkSemaphore*             waits,
-                                   uint32_t                       signal_count,
-                                   const VkSemaphore*             signals,
-                                   SemaphoreWrapper::SignalSource signal_source);
+    void TrackSemaphoreSignalState(uint32_t           wait_count,
+                                   const VkSemaphore* waits,
+                                   uint32_t           signal_count,
+                                   const VkSemaphore* signals);
 
     void TrackAcquireImage(uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence);
 

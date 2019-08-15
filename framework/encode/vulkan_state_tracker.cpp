@@ -832,11 +832,10 @@ void VulkanStateTracker::TrackQueryReset(VkQueryPool query_pool, uint32_t first_
     }
 }
 
-void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t                       wait_count,
-                                                   const VkSemaphore*             waits,
-                                                   uint32_t                       signal_count,
-                                                   const VkSemaphore*             signals,
-                                                   SemaphoreWrapper::SignalSource signal_source)
+void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count,
+                                                   const VkSemaphore* waits,
+                                                   uint32_t           signal_count,
+                                                   const VkSemaphore* signals)
 {
     if (((waits != nullptr) && (wait_count > 0)) || ((signals != nullptr) && (signal_count > 0)))
     {
@@ -848,7 +847,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t                     
             {
                 auto wrapper = reinterpret_cast<SemaphoreWrapper*>(waits[i]);
                 assert(wrapper != nullptr);
-                wrapper->signaled = SemaphoreWrapper::SignalSourceNone;
+                wrapper->signaled = false;
             }
         }
 
@@ -858,7 +857,7 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t                     
             {
                 auto wrapper = reinterpret_cast<SemaphoreWrapper*>(signals[i]);
                 assert(wrapper != nullptr);
-                wrapper->signaled = signal_source;
+                wrapper->signaled = true;
             }
         }
     }
