@@ -93,6 +93,7 @@ struct ShaderModuleInfo
 struct ImageAcquiredInfo
 {
     bool             is_acquired{ true };
+    uint32_t         acquired_device_mask{ 0 };
     format::HandleId acquired_semaphore_id{ 0 };
     format::HandleId acquired_fence_id{ 0 };
     VkQueue          last_presented_queue{ VK_NULL_HANDLE };

@@ -1444,7 +1444,8 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
 
             if (wrapper->image_acquired_info[i].is_acquired)
             {
-                entry.acquired = true;
+                entry.acquired            = true;
+                entry.acquire_device_mask = wrapper->image_acquired_info[i].acquired_device_mask;
 
                 // Only provide sync object IDs if the objects have not been destroyed between now and image acquire.
                 const SemaphoreWrapper* semaphore_wrapper =
@@ -1460,9 +1461,6 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
                 {
                     entry.acquire_fence_id = wrapper->image_acquired_info[i].acquired_fence_id;
                 }
-
-                // TODO: Track vkAcquireNexteImage2KHR device mask.
-                entry.acquire_device_mask = 0;
             }
             else
             {

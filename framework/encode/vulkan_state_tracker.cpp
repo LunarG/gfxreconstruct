@@ -863,10 +863,8 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
     }
 }
 
-void VulkanStateTracker::TrackAcquireImage(uint32_t       image_index,
-                                           VkSwapchainKHR swapchain,
-                                           VkSemaphore    semaphore,
-                                           VkFence        fence)
+void VulkanStateTracker::TrackAcquireImage(
+    uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t deviceMask)
 {
     assert(swapchain != VK_NULL_HANDLE);
 
@@ -875,6 +873,7 @@ void VulkanStateTracker::TrackAcquireImage(uint32_t       image_index,
     auto wrapper = reinterpret_cast<SwapchainKHRWrapper*>(swapchain);
 
     wrapper->image_acquired_info[image_index].is_acquired           = true;
+    wrapper->image_acquired_info[image_index].acquired_device_mask  = deviceMask;
     wrapper->image_acquired_info[image_index].acquired_semaphore_id = GetWrappedId(semaphore);
     wrapper->image_acquired_info[image_index].acquired_fence_id     = GetWrappedId(fence);
 }
