@@ -386,8 +386,7 @@ class TraceManager
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
         {
             assert((state_tracker_ != nullptr) && (index != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(
-                0, nullptr, 1, &semaphore, SemaphoreWrapper::SignalSourceAcquireImage);
+            state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &semaphore);
             state_tracker_->TrackAcquireImage(*index, swapchain, semaphore, fence);
         }
     }
@@ -400,8 +399,7 @@ class TraceManager
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
         {
             assert((state_tracker_ != nullptr) && (pAcquireInfo != nullptr) && (index != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(
-                0, nullptr, 1, &pAcquireInfo->semaphore, SemaphoreWrapper::SignalSourceAcquireImage);
+            state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &pAcquireInfo->semaphore);
             state_tracker_->TrackAcquireImage(
                 *index, pAcquireInfo->swapchain, pAcquireInfo->semaphore, pAcquireInfo->fence);
         }
@@ -412,11 +410,8 @@ class TraceManager
         if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
         {
             assert((state_tracker_ != nullptr) && (pPresentInfo != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(pPresentInfo->waitSemaphoreCount,
-                                                      pPresentInfo->pWaitSemaphores,
-                                                      0,
-                                                      nullptr,
-                                                      SemaphoreWrapper::SignalSourceQueue);
+            state_tracker_->TrackSemaphoreSignalState(
+                pPresentInfo->waitSemaphoreCount, pPresentInfo->pWaitSemaphores, 0, nullptr);
             state_tracker_->TrackPresentedImages(
                 pPresentInfo->swapchainCount, pPresentInfo->pSwapchains, pPresentInfo->pImageIndices, queue);
         }
@@ -435,8 +430,7 @@ class TraceManager
                 state_tracker_->TrackSemaphoreSignalState(pBindInfo[i].waitSemaphoreCount,
                                                           pBindInfo[i].pWaitSemaphores,
                                                           pBindInfo[i].signalSemaphoreCount,
-                                                          pBindInfo[i].pSignalSemaphores,
-                                                          SemaphoreWrapper::SignalSourceQueue);
+                                                          pBindInfo[i].pSignalSemaphores);
             }
         }
     }
@@ -553,8 +547,7 @@ class TraceManager
                 state_tracker_->TrackSemaphoreSignalState(pSubmits[i].waitSemaphoreCount,
                                                           pSubmits[i].pWaitSemaphores,
                                                           pSubmits[i].signalSemaphoreCount,
-                                                          pSubmits[i].pSignalSemaphores,
-                                                          SemaphoreWrapper::SignalSourceQueue);
+                                                          pSubmits[i].pSignalSemaphores);
             }
         }
     }

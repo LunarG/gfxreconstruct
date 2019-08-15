@@ -195,14 +195,7 @@ struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
     // AcquireNextImageKHR, or AcquireNextImage2KHR as a signal semaphore. State is not signaled when a semaphore is
     // submitted to QueueSubmit, QueueBindSparse, or QueuePresentKHR as a wait semaphore. Initial state after creation
     // is not signaled.
-    enum SignalSource
-    {
-        SignalSourceNone         = 0, // Semaphore is not pending signal.
-        SignalSourceQueue        = 1, // Semaphore is pending signal from a queue operation.
-        SignalSourceAcquireImage = 2  // Semaphore is pending signal from a swapchain acquire image operation.
-    };
-
-    SignalSource   signaled{ SignalSourceNone };
+    bool           signaled{ false };
     DeviceWrapper* device{ nullptr };
 };
 

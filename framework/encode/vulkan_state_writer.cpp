@@ -277,7 +277,7 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
         // Write event creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
-        if (wrapper->signaled != SemaphoreWrapper::SignalSourceNone)
+        if (wrapper->signaled)
         {
             signaled[wrapper->device].push_back(wrapper->handle_id);
         }
