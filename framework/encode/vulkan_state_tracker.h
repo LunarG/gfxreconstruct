@@ -311,7 +311,8 @@ class VulkanStateTracker
                                    uint32_t           signal_count,
                                    const VkSemaphore* signals);
 
-    void TrackAcquireImage(uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence);
+    void TrackAcquireImage(
+        uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t deviceMask);
 
     void TrackPresentedImages(uint32_t              count,
                               const VkSwapchainKHR* swapchains,

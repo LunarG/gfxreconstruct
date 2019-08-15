@@ -387,7 +387,7 @@ class TraceManager
         {
             assert((state_tracker_ != nullptr) && (index != nullptr));
             state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &semaphore);
-            state_tracker_->TrackAcquireImage(*index, swapchain, semaphore, fence);
+            state_tracker_->TrackAcquireImage(*index, swapchain, semaphore, fence, 0);
         }
     }
 
@@ -400,8 +400,11 @@ class TraceManager
         {
             assert((state_tracker_ != nullptr) && (pAcquireInfo != nullptr) && (index != nullptr));
             state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &pAcquireInfo->semaphore);
-            state_tracker_->TrackAcquireImage(
-                *index, pAcquireInfo->swapchain, pAcquireInfo->semaphore, pAcquireInfo->fence);
+            state_tracker_->TrackAcquireImage(*index,
+                                              pAcquireInfo->swapchain,
+                                              pAcquireInfo->semaphore,
+                                              pAcquireInfo->fence,
+                                              pAcquireInfo->deviceMask);
         }
     }
 
