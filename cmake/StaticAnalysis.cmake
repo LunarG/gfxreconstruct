@@ -23,42 +23,32 @@ option(RUN_STATIC_ANALYSIS "Run static analysis using clang-tidy" OFF)
 
 find_program(CLANG_TIDY clang-tidy DOC "Clang tidy executable")
 
-# Prepend a prefix to each elements in list of elements
-function(prepend_to_list_items OUT_LIST IN_LIST PREFIX)
-    set(TMP_LIST "")
-    foreach(ITEM ${IN_LIST})
-        list(APPEND TMP_LIST ${PREFIX}${ITEM})
-    endforeach()
-    set(${OUT_LIST} ${TMP_LIST} PARENT_SCOPE)
-endfunction()
-
-# Apply static analysis build directives
+# Apply static analysis build directives (Linux only)
 function(target_static_analysis_build_directives TARGET)
     if(${RUN_STATIC_ANALYSIS})
-        get_target_property(TARGET_SOURCE_FILES ${TARGET} SOURCES)
-        list(FILTER TARGET_SOURCE_FILES EXCLUDE REGEX ".+\.def")
         if(CLANG_TIDY-NOTFOUND STREQUAL ${CLANG_TIDY})
             message(FATAL_ERROR "Failed to find clang-tidy in system path")
         endif()
-        get_target_property(SOURCES ${TARGET} SOURCES)
-        get_target_property(INCLUDE_DIRECTORIES ${TARGET} INCLUDE_DIRECTORIES)
-        prepend_to_list_items(
-            TARGET_INCLUDE_DIRS ${INCLUDE_DIRECTORIES} "-I")
-        get_target_property(COMPILE_DEFINITIONS ${TARGET} COMPILE_DEFINITIONS)
-        prepend_to_list_items(
-            TARGET_COMPILE_DEFS ${COMPILE_DEFINITIONS} "-D")
-        set(CLANG_TIDY_ARGS -checks=)
+
+        get_target_property(TARGET_SOURCE_FILES ${TARGET} SOURCES)
+        list(FILTER TARGET_SOURCE_FILES EXCLUDE REGEX ".+\.def|generated_.+")
+
+        set(CLANG_TIDY_ARGS "-checks=")
         string(APPEND CLANG_TIDY_ARGS clang-analyzer-core*,)
         string(APPEND CLANG_TIDY_ARGS clang-analyzer-cplusplus*,)
         string(APPEND CLANG_TIDY_ARGS llvm-include-order,)
         string(APPEND CLANG_TIDY_ARGS performance*,)
         string(APPEND CLANG_TIDY_ARGS readability*)
-        add_custom_command(TARGET ${TARGET} POST_BUILD
+        if(${WIN32})
+            message(WARNING "Static analysis not supported in Windows platform yet.")
+        else()
+            add_custom_command(TARGET ${TARGET} POST_BUILD
             COMMAND ${CLANG_TIDY}
             ARGS
-                ${SOURCES}
+                ${TARGET_SOURCE_FILES}
                 ${CLANG_TIDY_ARGS}
-                -- ${TARGET_INCLUDE_DIRS} ${TARGET_COMPILE_DEFS}
+                "-p=${CMAKE_BINARY_DIR}" 
             WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+        endif()
     endif()
 endfunction()
