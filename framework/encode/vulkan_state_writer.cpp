@@ -49,9 +49,16 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream* output_stream,
 
 VulkanStateWriter::~VulkanStateWriter() {}
 
-void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
+void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t frame_number)
 {
     // clang-format off
+
+    format::Marker marker;
+    marker.header.size = sizeof(marker.marker_type) + sizeof(marker.frame_number);
+    marker.header.type = format::kStateMarkerBlock;
+    marker.marker_type = format::kBeginMarker;
+    marker.frame_number = frame_number;
+    output_stream_->Write(&marker, sizeof(marker));
 
     // Instance, device, and queue creation.
     StandardCreateWrite<InstanceWrapper>(state_table);
@@ -119,6 +126,9 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table)
 
     // Process swapchain image acquire.
     WriteSwapchainImageState(state_table);
+
+    marker.marker_type = format::kEndMarker;
+    output_stream_->Write(&marker, sizeof(marker));
 
     // clang-format on
 }

@@ -43,7 +43,7 @@ class VulkanStateWriter
     ~VulkanStateWriter();
 
     // Returns number of bytes written to the output_stream.
-    void WriteState(const VulkanStateTable& state_table);
+    void WriteState(const VulkanStateTable& state_table, uint64_t frame_number);
 
   private:
     // Data structures for processing resource memory snapshots.

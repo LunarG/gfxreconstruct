@@ -71,6 +71,16 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
     }
 }
 
+void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
+{
+    GFXRECON_LOG_INFO("Loading state for captured frame %" PRId64, frame_number)
+}
+
+void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
+{
+    GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, frame_number)
+}
+
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
 {
     GFXRECON_LOG_INFO("Trace Message: %s", message.c_str());

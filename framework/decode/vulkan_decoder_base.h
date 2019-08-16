@@ -58,6 +58,10 @@ class VulkanDecoderBase : public ApiDecoder
                                     const uint8_t*     parameter_buffer,
                                     size_t             buffer_size) override;
 
+    virtual void DispatchStateBeginMarker(uint64_t frame_number) override;
+
+    virtual void DispatchStateEndMarker(uint64_t frame_number) override;
+
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override;
 
     virtual void DispatchFillMemoryCommand(
