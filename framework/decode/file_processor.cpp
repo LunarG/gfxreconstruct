@@ -346,6 +346,23 @@ bool FileProcessor::ProcessBlocks(bool tcp_send_data, std::shared_ptr<TcpClient>
                     error_state_ = kErrorReadingBlockHeader;
                 }
             }
+            else if (block_header.type == format::BlockType::kStateMarkerBlock)
+            {
+                format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
+                uint64_t           frame_number = 0;
+
+                success = ReadBytes(&marker_type, sizeof(marker_type));
+
+                if (success)
+                {
+                    success = ProcessStateMarker(block_header, marker_type);
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to read state marker header");
+                    error_state_ = kErrorReadingBlockHeader;
+                }
+            }
             else
             {
                 // Unrecognized block type.

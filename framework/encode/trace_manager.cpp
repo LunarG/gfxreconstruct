@@ -689,7 +689,6 @@ bool TraceManager::CreateCaptureFile(const std::string& base_filename)
 
 void TraceManager::ActivateTrimming()
 {
-
     capture_mode_ |= kModeWrite;
 
     auto thread_data = GetThreadData();
