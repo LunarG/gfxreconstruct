@@ -46,6 +46,10 @@ class ApiDecoder
                                     const uint8_t*     buffer,
                                     size_t             buffer_size) = 0;
 
+    virtual void DispatchStateBeginMarker(uint64_t frame_number) {}
+
+    virtual void DispatchStateEndMarker(uint64_t frame_number) {}
+
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) {}
 
     virtual void DispatchFillMemoryCommand(

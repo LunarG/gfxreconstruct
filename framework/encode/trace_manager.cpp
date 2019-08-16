@@ -453,7 +453,8 @@ bool TraceManager::CreateCaptureFile(const std::string& base_filename)
 
 void TraceManager::ActivateTrimming()
 {
-    bool success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_ranges_[trim_current_range_]));
+    const CaptureSettings::TrimRange& trim_range = trim_ranges_[trim_current_range_];
+    bool                              success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
     if (success)
     {
         capture_mode_ |= kModeWrite;
@@ -462,7 +463,7 @@ void TraceManager::ActivateTrimming()
         assert(thread_data != nullptr);
 
         VulkanStateWriter state_writer(file_stream_.get(), compressor_.get(), thread_data->thread_id_);
-        state_tracker_->WriteState(&state_writer);
+        state_tracker_->WriteState(&state_writer, trim_range.first);
     }
     else
     {

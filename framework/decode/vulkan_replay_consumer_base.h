@@ -51,6 +51,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
 
+    virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
+
+    virtual void ProcessStateEndMarker(uint64_t frame_number) override;
+
     virtual void ProcessDisplayMessageCommand(const std::string& message) override;
 
     virtual void

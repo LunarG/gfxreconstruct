@@ -58,7 +58,7 @@ bool FileProcessor::Initialize(const std::string& filename)
 
         if (success)
         {
-            filename_ = filename;
+            filename_    = filename;
             error_state_ = kErrorNone;
         }
         else
@@ -150,7 +150,7 @@ bool FileProcessor::ProcessFileHeader()
                     GFXRECON_LOG_ERROR("Failed to initialized file compression module (type = %u); replay of "
                                        "compressed data will not be possible",
                                        enabled_options_.compression_type);
-                    success = false;
+                    success      = false;
                     error_state_ = kErrorUnsupportedCompressionType;
                 }
             }
@@ -218,6 +218,23 @@ bool FileProcessor::ProcessBlocks()
                 else
                 {
                     GFXRECON_LOG_ERROR("Failed to read meta-data block header");
+                    error_state_ = kErrorReadingBlockHeader;
+                }
+            }
+            else if (block_header.type == format::BlockType::kStateMarkerBlock)
+            {
+                format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
+                uint64_t           frame_number = 0;
+
+                success = ReadBytes(&marker_type, sizeof(marker_type));
+
+                if (success)
+                {
+                    success = ProcessStateMarker(block_header, marker_type);
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to read state marker header");
                     error_state_ = kErrorReadingBlockHeader;
                 }
             }
@@ -478,7 +495,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchResizeWindowCommand(command.thread_id, command.surface_id, command.width, command.height);
+                decoder->DispatchResizeWindowCommand(
+                    command.thread_id, command.surface_id, command.width, command.height);
             }
         }
         else
@@ -579,6 +597,37 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
 
         success = SkipBytes(static_cast<size_t>(block_header.size) - sizeof(meta_type));
+    }
+
+    return success;
+}
+
+bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
+{
+    uint64_t frame_number = 0;
+    bool     success      = ReadBytes(&frame_number, sizeof(frame_number));
+
+    if (success)
+    {
+        for (auto decoder : decoders_)
+        {
+            if (marker_type == format::kBeginMarker)
+            {
+                decoder->DispatchStateBeginMarker(frame_number);
+            }
+            else if (marker_type == format::kEndMarker)
+            {
+                decoder->DispatchStateEndMarker(frame_number);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Skipping unrecognized state marker with type %u", marker_type);
+            }
+        }
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockData, "Failed to read state marker data");
     }
 
     return success;

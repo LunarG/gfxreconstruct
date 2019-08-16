@@ -54,12 +54,19 @@ constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
 enum BlockType : uint32_t
 {
     kUnknownBlock                = 0,
-    kFrameBlock                  = 1,
-    kStateBlock                  = 2, // A group of metadata and apicall blocks representing the initial state for a trimmed file.
+    kFrameMarkerBlock            = 1, // Marker to denote frame status, such as the start or end of a frame.
+    kStateMarkerBlock            = 2, // Marker to denote state snapshot status, such as the start or end of a state snapshot.
     kMetaDataBlock               = 3,
     kFunctionCallBlock           = 4,
     kCompressedMetaDataBlock     = MakeCompressedBlockType(kMetaDataBlock),
     kCompressedFunctionCallBlock = MakeCompressedBlockType(kFunctionCallBlock)
+};
+
+enum MarkerType : uint32_t
+{
+    kUnknownMarker = 0,
+    kBeginMarker   = 1,
+    kEndMarker     = 2
 };
 
 enum MetaDataType : uint32_t
@@ -134,6 +141,13 @@ struct BlockHeader
 {
     uint64_t  size;
     BlockType type;
+};
+
+struct Marker
+{
+    BlockHeader header;
+    MarkerType  marker_type;
+    uint64_t    frame_number;
 };
 
 struct FunctionCallHeader
