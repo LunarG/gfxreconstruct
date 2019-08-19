@@ -31,6 +31,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
