@@ -1423,8 +1423,14 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
         format::SetSwapchainImageStateCommandHeader header;
         format::SwapchainImageStateEntry            entry;
 
-        header.meta_header.block_header.size = sizeof(header) + (image_count * sizeof(entry));
+        // Initialize standard block header.
+        header.meta_header.block_header.size = sizeof(header.meta_header.meta_data_type) + sizeof(header.thread_id) +
+                                               sizeof(header.device_id) + sizeof(header.swapchain_id) +
+                                               sizeof(header.queue_family_index) + sizeof(header.image_entry_count) +
+                                               (image_count * sizeof(entry));
         header.meta_header.block_header.type = format::kMetaDataBlock;
+
+        // Initialize block data for set-swapchain-image-state meta-data command.
         header.meta_header.meta_data_type    = format::kSetSwapchainImageStateCommand;
         header.thread_id                     = thread_id_;
         header.device_id                     = device_wrapper->handle_id;
