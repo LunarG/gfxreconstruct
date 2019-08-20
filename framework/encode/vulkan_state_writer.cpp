@@ -1264,7 +1264,8 @@ void VulkanStateWriter::WriteBufferMemoryBindState(const VulkanStateTable& state
             entry.buffer_wrapper = wrapper;
             entry.memory_wrapper = memory_wrapper;
 
-            if ((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+            if ((properties & (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT)) ==
+                (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT))
             {
                 entry.is_host_visible = true;
                 entry.is_host_coherent =
@@ -1343,7 +1344,8 @@ void VulkanStateWriter::WriteImageMemoryBindState(const VulkanStateTable& state_
             ImageSnapshotList* insert_list      = &copy_wrappers.map_copy_wrappers;
 
             // Only map and read image memory if the memory type is host visible and the image tiling is linear.
-            if (!(((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) &&
+            if (!(((properties & (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT)) ==
+                   (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT)) &&
                   (wrapper->tiling == VK_IMAGE_TILING_LINEAR)))
             {
                 is_host_visible = false;
@@ -2647,8 +2649,11 @@ VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_w
     {
         device_table->GetBufferMemoryRequirements(device_wrapper->handle, (*buffer), memory_requirements);
 
-        (*memory_type_index) = FindMemoryTypeIndex(
-            device_wrapper, memory_requirements->memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, state_table);
+        (*memory_type_index) =
+            FindMemoryTypeIndex(device_wrapper,
+                                memory_requirements->memoryTypeBits,
+                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT,
+                                state_table);
 
         VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
         alloc_info.pNext                = nullptr;
