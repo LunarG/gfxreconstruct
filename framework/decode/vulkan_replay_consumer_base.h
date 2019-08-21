@@ -114,6 +114,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
   protected:
     const VulkanObjectMapper& GetObjectMapper() const { return object_mapper_; }
 
+    VulkanObjectMapper& GetObjectMapper() { return object_mapper_; }
+
     const encode::InstanceTable* GetInstanceTable(const void* handle) const;
 
     const encode::DeviceTable* GetDeviceTable(const void* handle) const;

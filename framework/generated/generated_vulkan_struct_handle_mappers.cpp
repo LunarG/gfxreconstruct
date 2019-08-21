@@ -25,6 +25,8 @@
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 
+#include <algorithm>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -40,6 +42,25 @@ static void MapHandleArray(const format::HandleId*   ids,
         for (size_t i = 0; i < len; ++i)
         {
             handles[i] = (object_mapper.*MapFunc)(ids[i]);
+        }
+    }
+}
+
+template <typename T>
+static void AddHandleArray(const format::HandleId*   ids,
+                           size_t                    ids_len,
+                           const T*                  handles,
+                           size_t                    handles_len,
+                           VulkanObjectMapper&       object_mapper,
+                           void (VulkanObjectMapper::*AddFunc)(format::HandleId, T))
+{
+    if ((ids != nullptr) && (handles != nullptr))
+    {
+        // TODO: Improved handling of array size mismatch.
+        size_t len = std::min(ids_len, handles_len);
+        for (size_t i = 0; i < len; ++i)
+        {
+            (object_mapper.*AddFunc)(ids[i], handles[i]);
         }
     }
 }
@@ -1124,6 +1145,62 @@ void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectM
             MapStructHandles(reinterpret_cast<Decoded_VkWriteDescriptorSetAccelerationStructureNV*>(wrapper), object_mapper);
             break;
         }
+    }
+}
+
+void AddStructHandles(const Decoded_VkPhysicalDeviceGroupProperties* id_wrapper, const VkPhysicalDeviceGroupProperties* handle_struct, VulkanObjectMapper& object_mapper)
+{
+    if (id_wrapper != nullptr)
+    {
+        AddHandleArray<VkPhysicalDevice>(id_wrapper->physicalDevices.GetPointer(), id_wrapper->physicalDevices.GetLength(), handle_struct->physicalDevices, handle_struct->physicalDeviceCount, object_mapper, &VulkanObjectMapper::AddVkPhysicalDevice);
+    }
+}
+
+void AddStructHandles(const Decoded_VkDisplayPropertiesKHR* id_wrapper, const VkDisplayPropertiesKHR* handle_struct, VulkanObjectMapper& object_mapper)
+{
+    if (id_wrapper != nullptr)
+    {
+        object_mapper.AddVkDisplayKHR(id_wrapper->display, handle_struct->display);
+    }
+}
+
+void AddStructHandles(const Decoded_VkDisplayPlanePropertiesKHR* id_wrapper, const VkDisplayPlanePropertiesKHR* handle_struct, VulkanObjectMapper& object_mapper)
+{
+    if (id_wrapper != nullptr)
+    {
+        object_mapper.AddVkDisplayKHR(id_wrapper->currentDisplay, handle_struct->currentDisplay);
+    }
+}
+
+void AddStructHandles(const Decoded_VkDisplayModePropertiesKHR* id_wrapper, const VkDisplayModePropertiesKHR* handle_struct, VulkanObjectMapper& object_mapper)
+{
+    if (id_wrapper != nullptr)
+    {
+        object_mapper.AddVkDisplayModeKHR(id_wrapper->displayMode, handle_struct->displayMode);
+    }
+}
+
+void AddStructHandles(const Decoded_VkDisplayProperties2KHR* id_wrapper, const VkDisplayProperties2KHR* handle_struct, VulkanObjectMapper& object_mapper)
+{
+    if (id_wrapper != nullptr)
+    {
+        AddStructHandles(id_wrapper->displayProperties.get(), &handle_struct->displayProperties, object_mapper);
+    }
+}
+
+void AddStructHandles(const Decoded_VkDisplayPlaneProperties2KHR* id_wrapper, const VkDisplayPlaneProperties2KHR* handle_struct, VulkanObjectMapper& object_mapper)
+{
+    if (id_wrapper != nullptr)
+    {
+        AddStructHandles(id_wrapper->displayPlaneProperties.get(), &handle_struct->displayPlaneProperties, object_mapper);
+    }
+}
+
+void AddStructHandles(const Decoded_VkDisplayModeProperties2KHR* id_wrapper, const VkDisplayModeProperties2KHR* handle_struct, VulkanObjectMapper& object_mapper)
+{
+    if (id_wrapper != nullptr)
+    {
+        AddStructHandles(id_wrapper->displayModeProperties.get(), &handle_struct->displayModeProperties, object_mapper);
     }
 }
 
