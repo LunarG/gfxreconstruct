@@ -2002,6 +2002,7 @@ void VulkanReplayConsumer::Process_vkEnumeratePhysicalDeviceGroups(
     VkResult replay_result = GetInstanceTable(in_instance)->EnumeratePhysicalDeviceGroups(in_instance, out_pPhysicalDeviceGroupCount, out_pPhysicalDeviceGroupProperties);
     CheckResult("vkEnumeratePhysicalDeviceGroups", returnValue, replay_result);
 
+    AddStructArrayHandles<Decoded_VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties.GetMetaStructPointer(), pPhysicalDeviceGroupProperties.GetLength(), out_pPhysicalDeviceGroupProperties, out_pPhysicalDeviceGroupCount_value, GetObjectMapper());
     FreeArray<VkPhysicalDeviceGroupProperties>(&out_pPhysicalDeviceGroupProperties);
 }
 
@@ -2527,6 +2528,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayPropertiesKHR(
     VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceDisplayPropertiesKHR(in_physicalDevice, out_pPropertyCount, out_pProperties);
     CheckResult("vkGetPhysicalDeviceDisplayPropertiesKHR", returnValue, replay_result);
 
+    AddStructArrayHandles<Decoded_VkDisplayPropertiesKHR>(pProperties.GetMetaStructPointer(), pProperties.GetLength(), out_pProperties, out_pPropertyCount_value, GetObjectMapper());
     FreeArray<VkDisplayPropertiesKHR>(&out_pProperties);
 }
 
@@ -2544,6 +2546,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
     VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceDisplayPlanePropertiesKHR(in_physicalDevice, out_pPropertyCount, out_pProperties);
     CheckResult("vkGetPhysicalDeviceDisplayPlanePropertiesKHR", returnValue, replay_result);
 
+    AddStructArrayHandles<Decoded_VkDisplayPlanePropertiesKHR>(pProperties.GetMetaStructPointer(), pProperties.GetLength(), out_pProperties, out_pPropertyCount_value, GetObjectMapper());
     FreeArray<VkDisplayPlanePropertiesKHR>(&out_pProperties);
 }
 
@@ -2581,6 +2584,7 @@ void VulkanReplayConsumer::Process_vkGetDisplayModePropertiesKHR(
     VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetDisplayModePropertiesKHR(in_physicalDevice, in_display, out_pPropertyCount, out_pProperties);
     CheckResult("vkGetDisplayModePropertiesKHR", returnValue, replay_result);
 
+    AddStructArrayHandles<Decoded_VkDisplayModePropertiesKHR>(pProperties.GetMetaStructPointer(), pProperties.GetLength(), out_pProperties, out_pPropertyCount_value, GetObjectMapper());
     FreeArray<VkDisplayModePropertiesKHR>(&out_pProperties);
 }
 
@@ -2958,6 +2962,7 @@ void VulkanReplayConsumer::Process_vkEnumeratePhysicalDeviceGroupsKHR(
     VkResult replay_result = GetInstanceTable(in_instance)->EnumeratePhysicalDeviceGroupsKHR(in_instance, out_pPhysicalDeviceGroupCount, out_pPhysicalDeviceGroupProperties);
     CheckResult("vkEnumeratePhysicalDeviceGroupsKHR", returnValue, replay_result);
 
+    AddStructArrayHandles<Decoded_VkPhysicalDeviceGroupProperties>(pPhysicalDeviceGroupProperties.GetMetaStructPointer(), pPhysicalDeviceGroupProperties.GetLength(), out_pPhysicalDeviceGroupProperties, out_pPhysicalDeviceGroupCount_value, GetObjectMapper());
     FreeArray<VkPhysicalDeviceGroupProperties>(&out_pPhysicalDeviceGroupProperties);
 }
 
@@ -3349,6 +3354,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayProperties2KHR(
     VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceDisplayProperties2KHR(in_physicalDevice, out_pPropertyCount, out_pProperties);
     CheckResult("vkGetPhysicalDeviceDisplayProperties2KHR", returnValue, replay_result);
 
+    AddStructArrayHandles<Decoded_VkDisplayProperties2KHR>(pProperties.GetMetaStructPointer(), pProperties.GetLength(), out_pProperties, out_pPropertyCount_value, GetObjectMapper());
     FreeArray<VkDisplayProperties2KHR>(&out_pProperties);
 }
 
@@ -3366,6 +3372,7 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceDisplayPlaneProperties2KHR
     VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceDisplayPlaneProperties2KHR(in_physicalDevice, out_pPropertyCount, out_pProperties);
     CheckResult("vkGetPhysicalDeviceDisplayPlaneProperties2KHR", returnValue, replay_result);
 
+    AddStructArrayHandles<Decoded_VkDisplayPlaneProperties2KHR>(pProperties.GetMetaStructPointer(), pProperties.GetLength(), out_pProperties, out_pPropertyCount_value, GetObjectMapper());
     FreeArray<VkDisplayPlaneProperties2KHR>(&out_pProperties);
 }
 
@@ -3385,6 +3392,7 @@ void VulkanReplayConsumer::Process_vkGetDisplayModeProperties2KHR(
     VkResult replay_result = GetInstanceTable(in_physicalDevice)->GetDisplayModeProperties2KHR(in_physicalDevice, in_display, out_pPropertyCount, out_pProperties);
     CheckResult("vkGetDisplayModeProperties2KHR", returnValue, replay_result);
 
+    AddStructArrayHandles<Decoded_VkDisplayModeProperties2KHR>(pProperties.GetMetaStructPointer(), pProperties.GetLength(), out_pProperties, out_pPropertyCount_value, GetObjectMapper());
     FreeArray<VkDisplayModeProperties2KHR>(&out_pProperties);
 }
 
