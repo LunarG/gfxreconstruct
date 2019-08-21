@@ -340,30 +340,35 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayK
     VkDisplayKHR*   handle,
     PFN_GetHandleId get_id)
 {
-    assert(parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(parent);
-
-    // Filter duplicate display retrieval.
-    DisplayKHRWrapper* wrapper = nullptr;
-    for (auto entry : parent_wrapper->child_displays)
+    // vkGetDisplayPlaneProperties is allowed to pass back VK_NULL_HANDLE for VkDisplayPlaneProperties::currentDisplay
+    // Do not attempt to wrap the null handle in this case
+    if ((*handle) != VK_NULL_HANDLE)
     {
-        if (entry->handle == (*handle))
+        assert(parent != VK_NULL_HANDLE);
+        auto parent_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(parent);
+
+        // Filter duplicate display retrieval.
+        DisplayKHRWrapper* wrapper = nullptr;
+        for (auto entry : parent_wrapper->child_displays)
         {
-            wrapper = entry;
-            break;
+            if (entry->handle == (*handle))
+            {
+                wrapper = entry;
+                break;
+            }
         }
-    }
 
-    if (wrapper != nullptr)
-    {
-        (*handle) = reinterpret_cast<VkDisplayKHR>(wrapper);
-    }
-    else
-    {
-        CreateWrappedNonDispatchHandle<DisplayKHRWrapper>(handle, get_id);
-        parent_wrapper->child_displays.push_back(reinterpret_cast<DisplayKHRWrapper*>(*handle));
+        if (wrapper != nullptr)
+        {
+            (*handle) = reinterpret_cast<VkDisplayKHR>(wrapper);
+        }
+        else
+        {
+            CreateWrappedNonDispatchHandle<DisplayKHRWrapper>(handle, get_id);
+            parent_wrapper->child_displays.push_back(reinterpret_cast<DisplayKHRWrapper*>(*handle));
+        }
     }
 }
 
