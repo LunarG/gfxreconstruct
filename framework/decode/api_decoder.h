@@ -62,11 +62,35 @@ class ApiDecoder
                                              uint32_t         height)
     {}
 
-    virtual void DispatchSetSwapchainImageStateCommand(format::ThreadId thread_id,
-                                                       format::HandleId device_id,
-                                                       format::HandleId swapchain_id,
-                                                       uint32_t         queue_family_index,
-                                                       const std::vector<format::SwapchainImageStateEntry>& image_state)
+    virtual void DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,
+                                                       format::HandleId                                    device_id,
+                                                       format::HandleId                                    swapchain_id,
+                                                       const std::vector<format::SwapchainImageStateInfo>& image_state)
+    {}
+
+    virtual void DispatchBeginResourceInitCommand(format::ThreadId thread_id,
+                                                  format::HandleId device_id,
+                                                  uint64_t         max_resource_size,
+                                                  uint64_t         max_copy_size)
+    {}
+
+    virtual void DispatchEndResourceInitCommand(format::ThreadId thread_id, format::HandleId device_id) {}
+
+    virtual void DispatchInitBufferCommand(format::ThreadId thread_id,
+                                           format::HandleId device_id,
+                                           format::HandleId buffer_id,
+                                           uint64_t         data_size,
+                                           const uint8_t*   data)
+    {}
+
+    virtual void DispatchInitImageCommand(format::ThreadId             thread_id,
+                                          format::HandleId             device_id,
+                                          format::HandleId             image_id,
+                                          uint64_t                     data_size,
+                                          uint32_t                     aspect,
+                                          uint32_t                     layout,
+                                          const std::vector<uint64_t>& level_sizes,
+                                          const uint8_t*               data)
     {}
 };
 
