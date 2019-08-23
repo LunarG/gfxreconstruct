@@ -48,10 +48,30 @@ class VulkanConsumerBase
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) {}
 
-    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,
-                                                      format::HandleId swapchain_id,
-                                                      uint32_t         queue_family_index,
-                                                      const std::vector<format::SwapchainImageStateEntry>& image_state)
+    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
+                                                      format::HandleId                                    swapchain_id,
+                                                      const std::vector<format::SwapchainImageStateInfo>& image_state)
+    {}
+
+    virtual void
+    ProcessBeginResourceInitCommand(format::HandleId device_id, uint64_t max_resource_size, uint64_t max_copy_size)
+    {}
+
+    virtual void ProcessEndResourceInitCommand(format::HandleId device_id) {}
+
+    virtual void ProcessInitBufferCommand(format::HandleId device_id,
+                                          format::HandleId buffer_id,
+                                          uint64_t         data_size,
+                                          const uint8_t*   data)
+    {}
+
+    virtual void ProcessInitImageCommand(format::HandleId             device_id,
+                                         format::HandleId             image_id,
+                                         uint64_t                     data_size,
+                                         uint32_t                     aspect,
+                                         uint32_t                     layout,
+                                         const std::vector<uint64_t>& level_sizes,
+                                         const uint8_t*               data)
     {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,

@@ -75,17 +75,70 @@ void VulkanDecoderBase::DispatchResizeWindowCommand(format::ThreadId thread_id,
 }
 
 void VulkanDecoderBase::DispatchSetSwapchainImageStateCommand(
-    format::ThreadId                                     thread_id,
-    format::HandleId                                     device_id,
-    format::HandleId                                     swapchain_id,
-    uint32_t                                             queue_family_index,
-    const std::vector<format::SwapchainImageStateEntry>& image_state)
+    format::ThreadId                                    thread_id,
+    format::HandleId                                    device_id,
+    format::HandleId                                    swapchain_id,
+    const std::vector<format::SwapchainImageStateInfo>& image_state)
 {
     GFXRECON_UNREFERENCED_PARAMETER(thread_id);
 
     for (auto consumer : consumers_)
     {
-        consumer->ProcessSetSwapchainImageStateCommand(device_id, swapchain_id, queue_family_index, image_state);
+        consumer->ProcessSetSwapchainImageStateCommand(device_id, swapchain_id, image_state);
+    }
+}
+
+void VulkanDecoderBase::DispatchBeginResourceInitCommand(format::ThreadId thread_id,
+                                                         format::HandleId device_id,
+                                                         uint64_t         max_resource_size,
+                                                         uint64_t         max_copy_size)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessBeginResourceInitCommand(device_id, max_resource_size, max_copy_size);
+    }
+}
+
+void VulkanDecoderBase::DispatchEndResourceInitCommand(format::ThreadId thread_id, format::HandleId device_id)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessEndResourceInitCommand(device_id);
+    }
+}
+
+void VulkanDecoderBase::DispatchInitBufferCommand(format::ThreadId thread_id,
+                                                  format::HandleId device_id,
+                                                  format::HandleId buffer_id,
+                                                  uint64_t         data_size,
+                                                  const uint8_t*   data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessInitBufferCommand(device_id, buffer_id, data_size, data);
+    }
+}
+
+void VulkanDecoderBase::DispatchInitImageCommand(format::ThreadId             thread_id,
+                                                 format::HandleId             device_id,
+                                                 format::HandleId             image_id,
+                                                 uint64_t                     data_size,
+                                                 uint32_t                     aspect,
+                                                 uint32_t                     layout,
+                                                 const std::vector<uint64_t>& level_sizes,
+                                                 const uint8_t*               data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessInitImageCommand(device_id, image_id, data_size, aspect, layout, level_sizes, data);
     }
 }
 

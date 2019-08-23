@@ -47,53 +47,33 @@ class VulkanStateWriter
 
   private:
     // Data structures for processing resource memory snapshots.
-    struct BufferSnapshotEntry
+    struct BufferSnapshotInfo
     {
         const BufferWrapper*       buffer_wrapper{ nullptr };
         const DeviceMemoryWrapper* memory_wrapper{ nullptr };
-        bool                       is_host_visible{ false };
-        bool                       is_host_coherent{ false };
+        VkMemoryPropertyFlags      memory_properties{};
+        bool                       need_staging_copy{ false };
     };
 
-    struct ImageSnapshotEntry
+    struct ImageSnapshotInfo
     {
         const ImageWrapper*        image_wrapper{ nullptr };
         const DeviceMemoryWrapper* memory_wrapper{ nullptr };
-        bool                       is_host_visible{ false };
-        bool                       is_host_coherent{ false };
+        VkMemoryPropertyFlags      memory_properties{};
+        bool                       need_staging_copy{ false };
         VkImageAspectFlagBits      aspect{};
         VkDeviceSize               resource_size{ 0 }; // Combined size of all sub-resources.
-        std::vector<VkDeviceSize>  level_sizes;        // Combined size of all layers in a mip level.
+        std::vector<uint64_t>      level_sizes;        // Combined size of all layers in a mip level.
     };
 
-    typedef std::vector<BufferSnapshotEntry>                 BufferSnapshotList;
-    typedef std::unordered_map<uint32_t, BufferSnapshotList> BufferSnapshotQueueFamilyTable;
-    typedef std::vector<ImageSnapshotEntry>                  ImageSnapshotList;
-
-    struct ImageSnapshotListPair
+    struct ResourceSnapshotInfo
     {
-        ImageSnapshotList map_copy_wrappers;
-        ImageSnapshotList staging_copy_wrappers;
+        std::vector<BufferSnapshotInfo> buffers;
+        std::vector<ImageSnapshotInfo>  images;
     };
 
-    typedef std::unordered_map<uint32_t, ImageSnapshotListPair> ImageSnapshotQueueFamilyTable;
-
-    struct BufferSnapshotData
-    {
-        BufferSnapshotList             map_copy_wrappers;
-        BufferSnapshotQueueFamilyTable staging_copy_wrappers;
-        VkDeviceSize                   max_staging_copy_size{ 0 };
-        VkDeviceSize                   max_device_local_buffer_size{ 0 };
-        uint32_t                       num_device_local_buffers{ 0 };
-    };
-
-    struct ImageSnapshotData
-    {
-        ImageSnapshotQueueFamilyTable copy_wrappers;
-        VkDeviceSize                  max_staging_copy_size{ 0 };
-        VkDeviceSize                  max_device_local_image_size{ 0 };
-        uint32_t                      num_device_local_images{ 0 };
-    };
+    typedef std::unordered_map<uint32_t, ResourceSnapshotInfo>                         ResourceSnapshotQueueFamilyTable;
+    typedef std::unordered_map<const DeviceWrapper*, ResourceSnapshotQueueFamilyTable> DeviceResourceTables;
 
     struct QueryActivationData
     {
@@ -134,17 +114,33 @@ class VulkanStateWriter
 
     void WriteSwapchainKhrState(const VulkanStateTable& state_table);
 
-    void ProcessBufferMemory(const DeviceWrapper*      device_wrapper,
-                             const BufferSnapshotData& snapshot_data,
-                             const VulkanStateTable&   state_table);
+    void ProcessBufferMemory(const DeviceWrapper*                   device_wrapper,
+                             const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
+                             uint32_t                               queue_family_index,
+                             VkQueue                                queue,
+                             VkCommandBuffer                        command_buffer,
+                             VkDeviceMemory                         staging_memory,
+                             VkBuffer                               staging_buffer);
 
-    void ProcessImageMemory(const DeviceWrapper*     device_wrapper,
-                            const ImageSnapshotData& snapshot_data,
-                            const VulkanStateTable&  state_table);
+    void ProcessImageMemory(const DeviceWrapper*                  device_wrapper,
+                            const std::vector<ImageSnapshotInfo>& image_snapshot_info,
+                            uint32_t                              queue_family_index,
+                            VkQueue                               queue,
+                            VkCommandBuffer                       command_buffer,
+                            VkDeviceMemory                        staging_memory,
+                            VkBuffer                              staging_buffer);
 
-    void WriteBufferMemoryBindState(const VulkanStateTable& state_table);
+    void WriteBufferMemoryState(const VulkanStateTable& state_table,
+                                DeviceResourceTables*   resources,
+                                VkDeviceSize*           max_resource_size,
+                                VkDeviceSize*           max_staging_copy_size);
 
-    void WriteImageMemoryBindState(const VulkanStateTable& state_table);
+    void WriteImageMemoryState(const VulkanStateTable& state_table,
+                               DeviceResourceTables*   resources,
+                               VkDeviceSize*           max_resource_size,
+                               VkDeviceSize*           max_staging_copy_size);
+
+    void WriteResourceMemoryState(const VulkanStateTable& state_table);
 
     void WriteMappedMemoryState(const VulkanStateTable& state_table);
 
@@ -335,30 +331,16 @@ class VulkanStateWriter
     VkResult CreateStagingBuffer(const DeviceWrapper*    device_wrapper,
                                  VkDeviceSize            size,
                                  VkBuffer*               buffer,
-                                 VkMemoryRequirements*   memory_requirements,
-                                 uint32_t*               memory_type_index,
                                  VkDeviceMemory*         memory,
                                  const VulkanStateTable& state_table);
 
     VkImageAspectFlags GetFormatAspectMask(VkFormat format);
 
+    void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects);
+
     VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect);
 
-    void GetImageSizes(const ImageWrapper* image_wrapper, ImageSnapshotEntry* entry);
-
-    void UpdateImageSnapshotSizes(VkDeviceSize       size,
-                                  bool               is_host_visible,
-                                  bool               use_staging_copy,
-                                  ImageSnapshotData* snapshot_data);
-
-    void InsertImageSnapshotEntries(const ImageWrapper*        image_wrapper,
-                                    const DeviceMemoryWrapper* memory_wrapper,
-                                    bool                       is_host_visible,
-                                    bool                       is_host_coherent,
-                                    bool                       use_staging_copy,
-                                    VkImageAspectFlags         aspect_mask,
-                                    ImageSnapshotList*         insert_list,
-                                    ImageSnapshotData*         snapshot_data);
+    void GetImageSizes(const ImageWrapper* image_wrapper, ImageSnapshotInfo* info);
 
     bool CheckCommandHandles(const CommandBufferWrapper* wrapper, const VulkanStateTable& state_table);
 

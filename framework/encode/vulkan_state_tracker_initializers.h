@@ -491,13 +491,13 @@ inline void InitializeState<VkDevice, ImageWrapper, VkImageCreateInfo>(VkDevice 
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->image_type   = create_info->imageType;
-    wrapper->format       = create_info->format;
-    wrapper->extent       = create_info->extent;
-    wrapper->mip_levels   = create_info->mipLevels;
-    wrapper->array_layers = create_info->arrayLayers;
-    wrapper->samples      = create_info->samples;
-    wrapper->tiling       = create_info->tiling;
+    wrapper->image_type     = create_info->imageType;
+    wrapper->format         = create_info->format;
+    wrapper->extent         = create_info->extent;
+    wrapper->mip_levels     = create_info->mipLevels;
+    wrapper->array_layers   = create_info->arrayLayers;
+    wrapper->samples        = create_info->samples;
+    wrapper->tiling         = create_info->tiling;
 
     // TODO: Do we need to track the queue family that the image is actually used with?
     if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))

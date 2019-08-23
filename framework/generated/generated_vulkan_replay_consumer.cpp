@@ -347,7 +347,7 @@ void VulkanReplayConsumer::Process_vkBindBufferMemory(
     VkBuffer in_buffer = GetObjectMapper().MapVkBuffer(buffer);
     VkDeviceMemory in_memory = GetObjectMapper().MapVkDeviceMemory(memory);
 
-    VkResult replay_result = GetDeviceTable(in_device)->BindBufferMemory(in_device, in_buffer, in_memory, memoryOffset);
+    VkResult replay_result = OverrideBindBufferMemory(GetDeviceTable(in_device)->BindBufferMemory, returnValue, in_device, in_buffer, in_memory, memoryOffset);
     CheckResult("vkBindBufferMemory", returnValue, replay_result);
 }
 
@@ -362,7 +362,7 @@ void VulkanReplayConsumer::Process_vkBindImageMemory(
     VkImage in_image = GetObjectMapper().MapVkImage(image);
     VkDeviceMemory in_memory = GetObjectMapper().MapVkDeviceMemory(memory);
 
-    VkResult replay_result = GetDeviceTable(in_device)->BindImageMemory(in_device, in_image, in_memory, memoryOffset);
+    VkResult replay_result = OverrideBindImageMemory(GetDeviceTable(in_device)->BindImageMemory, returnValue, in_device, in_image, in_memory, memoryOffset);
     CheckResult("vkBindImageMemory", returnValue, replay_result);
 }
 
@@ -681,7 +681,7 @@ void VulkanReplayConsumer::Process_vkCreateBuffer(
     VkBuffer out_pBuffer_value = static_cast<VkBuffer>(0);
     VkBuffer* out_pBuffer = &out_pBuffer_value;
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateBuffer(in_device, in_pCreateInfo, in_pAllocator, out_pBuffer);
+    VkResult replay_result = OverrideCreateBuffer(GetDeviceTable(in_device)->CreateBuffer, returnValue, in_device, in_pCreateInfo, in_pAllocator, pBuffer, out_pBuffer);
     CheckResult("vkCreateBuffer", returnValue, replay_result);
 
     AddHandles<VkBuffer>(pBuffer.GetPointer(), 1, out_pBuffer, 1, &VulkanObjectMapper::AddVkBuffer);
@@ -745,7 +745,7 @@ void VulkanReplayConsumer::Process_vkCreateImage(
     VkImage out_pImage_value = static_cast<VkImage>(0);
     VkImage* out_pImage = &out_pImage_value;
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateImage(in_device, in_pCreateInfo, in_pAllocator, out_pImage);
+    VkResult replay_result = OverrideCreateImage(GetDeviceTable(in_device)->CreateImage, returnValue, in_device, in_pCreateInfo, in_pAllocator, pImage, out_pImage);
     CheckResult("vkCreateImage", returnValue, replay_result);
 
     AddHandles<VkImage>(pImage.GetPointer(), 1, out_pImage, 1, &VulkanObjectMapper::AddVkImage);
@@ -1933,7 +1933,7 @@ void VulkanReplayConsumer::Process_vkBindBufferMemory2(
     const VkBindBufferMemoryInfo* in_pBindInfos = pBindInfos.GetPointer();
     MapStructArrayHandles(pBindInfos.GetMetaStructPointer(), pBindInfos.GetLength(), GetObjectMapper());
 
-    VkResult replay_result = GetDeviceTable(in_device)->BindBufferMemory2(in_device, bindInfoCount, in_pBindInfos);
+    VkResult replay_result = OverrideBindBufferMemory2(GetDeviceTable(in_device)->BindBufferMemory2, returnValue, in_device, bindInfoCount, in_pBindInfos);
     CheckResult("vkBindBufferMemory2", returnValue, replay_result);
 }
 
@@ -1947,7 +1947,7 @@ void VulkanReplayConsumer::Process_vkBindImageMemory2(
     const VkBindImageMemoryInfo* in_pBindInfos = pBindInfos.GetPointer();
     MapStructArrayHandles(pBindInfos.GetMetaStructPointer(), pBindInfos.GetLength(), GetObjectMapper());
 
-    VkResult replay_result = GetDeviceTable(in_device)->BindImageMemory2(in_device, bindInfoCount, in_pBindInfos);
+    VkResult replay_result = OverrideBindImageMemory2(GetDeviceTable(in_device)->BindImageMemory2, returnValue, in_device, bindInfoCount, in_pBindInfos);
     CheckResult("vkBindImageMemory2", returnValue, replay_result);
 }
 
@@ -2380,7 +2380,7 @@ void VulkanReplayConsumer::Process_vkCreateSwapchainKHR(
     VkSwapchainKHR out_pSwapchain_value = static_cast<VkSwapchainKHR>(0);
     VkSwapchainKHR* out_pSwapchain = &out_pSwapchain_value;
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateSwapchainKHR(in_device, in_pCreateInfo, in_pAllocator, out_pSwapchain);
+    VkResult replay_result = OverrideCreateSwapchainKHR(GetDeviceTable(in_device)->CreateSwapchainKHR, returnValue, in_device, in_pCreateInfo, in_pAllocator, pSwapchain, out_pSwapchain);
     CheckResult("vkCreateSwapchainKHR", returnValue, replay_result);
 
     AddHandles<VkSwapchainKHR>(pSwapchain.GetPointer(), 1, out_pSwapchain, 1, &VulkanObjectMapper::AddVkSwapchainKHR);
@@ -3491,7 +3491,7 @@ void VulkanReplayConsumer::Process_vkBindBufferMemory2KHR(
     const VkBindBufferMemoryInfo* in_pBindInfos = pBindInfos.GetPointer();
     MapStructArrayHandles(pBindInfos.GetMetaStructPointer(), pBindInfos.GetLength(), GetObjectMapper());
 
-    VkResult replay_result = GetDeviceTable(in_device)->BindBufferMemory2KHR(in_device, bindInfoCount, in_pBindInfos);
+    VkResult replay_result = OverrideBindBufferMemory2(GetDeviceTable(in_device)->BindBufferMemory2KHR, returnValue, in_device, bindInfoCount, in_pBindInfos);
     CheckResult("vkBindBufferMemory2KHR", returnValue, replay_result);
 }
 
@@ -3505,7 +3505,7 @@ void VulkanReplayConsumer::Process_vkBindImageMemory2KHR(
     const VkBindImageMemoryInfo* in_pBindInfos = pBindInfos.GetPointer();
     MapStructArrayHandles(pBindInfos.GetMetaStructPointer(), pBindInfos.GetLength(), GetObjectMapper());
 
-    VkResult replay_result = GetDeviceTable(in_device)->BindImageMemory2KHR(in_device, bindInfoCount, in_pBindInfos);
+    VkResult replay_result = OverrideBindImageMemory2(GetDeviceTable(in_device)->BindImageMemory2KHR, returnValue, in_device, bindInfoCount, in_pBindInfos);
     CheckResult("vkBindImageMemory2KHR", returnValue, replay_result);
 }
 

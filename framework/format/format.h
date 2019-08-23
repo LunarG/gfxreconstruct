@@ -79,7 +79,11 @@ enum MetaDataType : uint32_t
     kResizeWindowCommand   = 3,
 
     // Commands for trimmed frame state setup.
-    kSetSwapchainImageStateCommand = 4
+    kSetSwapchainImageStateCommand = 4,
+    kBeginResourceInitCommand      = 5,
+    kEndResourceInitCommand        = 6,
+    kInitBufferCommand             = 7,
+    kInitImageCommand              = 8
 };
 
 enum CompressionType : uint32_t
@@ -217,11 +221,10 @@ struct SetSwapchainImageStateCommandHeader
     format::ThreadId thread_id;
     format::HandleId device_id;
     format::HandleId swapchain_id;
-    uint32_t         queue_family_index;
-    uint32_t         image_entry_count;
+    uint32_t         image_info_count;
 };
 
-struct SwapchainImageStateEntry
+struct SwapchainImageStateInfo
 {
     format::HandleId image_id;
     uint32_t         image_index;
@@ -231,6 +234,43 @@ struct SwapchainImageStateEntry
     format::HandleId acquire_semaphore_id;
     format::HandleId acquire_fence_id;
     format::HandleId last_presented_queue_id;
+};
+
+struct BeginResourceInitCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    uint64_t         max_resource_size; // Size of largest resource in upload data set.
+    uint64_t         max_copy_size;     // Size of largest resource requiring a staging copy at capture.
+};
+
+struct EndResourceInitCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+};
+
+struct InitBufferCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId buffer_id;
+    uint64_t         data_size;
+};
+
+struct InitImageCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId image_id;
+    uint64_t         data_size;
+    uint32_t         aspect;
+    uint32_t         layout;
+    uint32_t         level_count;
 };
 
 #pragma pack(pop)
