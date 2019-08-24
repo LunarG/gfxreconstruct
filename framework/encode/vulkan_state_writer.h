@@ -171,69 +171,11 @@ class VulkanStateWriter
                                                    uint32_t                mode_count,
                                                    const VkPresentModeKHR* pPresentModes);
 
-    void WriteStagingBufferCreateCommands(format::HandleId            device_id,
-                                          VkDeviceSize                buffer_size,
-                                          format::HandleId            buffer_id,
-                                          const VkMemoryRequirements& memory_requirements,
-                                          uint32_t                    memory_type_index,
-                                          format::HandleId            memory_id);
-
     void WriteCommandProcessingCreateCommands(format::HandleId device_id,
                                               uint32_t         queue_family_index,
                                               format::HandleId queue_id,
                                               format::HandleId command_pool_id,
                                               format::HandleId command_buffer_id);
-
-    void WriteMappedMemoryCopyCommands(const DeviceWrapper* device_wrapper,
-                                       VkDeviceMemory       source_memory,
-                                       const void*          source_data,
-                                       VkDeviceSize         source_offset,
-                                       VkDeviceSize         source_size,
-                                       format::HandleId     replay_memory_id,
-                                       VkDeviceSize         replay_offset,
-                                       VkDeviceSize         replay_size);
-
-    void WriteBufferCopyCommandExecution(format::HandleId queue_id,
-                                         format::HandleId command_buffer_id,
-                                         format::HandleId source_id,
-                                         format::HandleId destination_id,
-                                         VkDeviceSize     source_offset,
-                                         VkDeviceSize     destination_offset,
-                                         VkDeviceSize     size);
-
-    void WriteImageCopyCommandExecution(format::HandleId         queue_id,
-                                        format::HandleId         command_buffer_id,
-                                        format::HandleId         source_id,
-                                        format::HandleId         destination_id,
-                                        VkImageLayout            final_layout,
-                                        uint32_t                 copy_regions_size,
-                                        const VkBufferImageCopy* copy_regions,
-                                        VkImageAspectFlags       transition_aspect);
-
-    void WriteImageLayoutTransitionCommand(format::HandleId     command_buffer_id,
-                                           format::HandleId     image_id,
-                                           VkPipelineStageFlags src_stages,
-                                           VkPipelineStageFlags dst_stages,
-                                           VkAccessFlags        src_access,
-                                           VkAccessFlags        dst_access,
-                                           VkImageLayout        src_layout,
-                                           VkImageLayout        dst_layout,
-                                           uint32_t             mip_levels,
-                                           uint32_t             array_layers,
-                                           VkImageAspectFlags   aspect);
-
-    void WriteImageLayoutTransitionCommandExecution(format::HandleId     queue_id,
-                                                    format::HandleId     command_buffer_id,
-                                                    format::HandleId     image_id,
-                                                    VkPipelineStageFlags src_stages,
-                                                    VkPipelineStageFlags dst_stages,
-                                                    VkAccessFlags        src_access,
-                                                    VkAccessFlags        dst_access,
-                                                    VkImageLayout        src_layout,
-                                                    VkImageLayout        dst_layout,
-                                                    uint32_t             mip_levels,
-                                                    uint32_t             array_layers,
-                                                    VkImageAspectFlags   aspect);
 
     void WriteCommandBegin(format::HandleId command_buffer_id);
 
@@ -263,19 +205,7 @@ class VulkanStateWriter
                               uint32_t                   queue_family_index,
                               const QueryActivationList& active_queries);
 
-    void WriteAcquireNextImage(format::HandleId device_id,
-                               format::HandleId swapchain_id,
-                               format::HandleId semaphore_id,
-                               format::HandleId fence_id,
-                               uint32_t         image_index);
-
-    void WriteQueuePresent(format::HandleId queue_id, format::HandleId swapchain_id, uint32_t image_index);
-
     void WriteCreateFence(format::HandleId device_id, format::HandleId fence_id, bool signaled);
-
-    void WriteWaitForFence(format::HandleId device_id, format::HandleId fence_id);
-
-    void WriteResetFence(format::HandleId device_id, format::HandleId fence_id);
 
     void WriteSetEvent(format::HandleId device_id, format::HandleId event_id);
 
