@@ -20,9 +20,11 @@
 cmake_minimum_required(VERSION 3.1)
 
 option(APPLY_CPP_CODE_STYLE "Apply C++ code style using clang format" OFF)
-option(CHECK_CPP_CODE_STYLE "Check C++ code style using clang format" ON)
+option(CHECK_CPP_CODE_STYLE "Check C++ code style using clang format" OFF)
 
-find_program(CLANG_FORMAT clang-format DOC "Clang format executable")
+if(${APPLY_CPP_CODE_STYLE} OR ${CHECK_CPP_CODE_STYLE})
+    find_program(CLANG_FORMAT clang-format DOC "Clang format executable")
+endif()
 
 # Python
 if(CMAKE_HOST_WIN32)
