@@ -128,7 +128,8 @@ class VulkanStateWriter
                             VkQueue                               queue,
                             VkCommandBuffer                       command_buffer,
                             VkDeviceMemory                        staging_memory,
-                            VkBuffer                              staging_buffer);
+                            VkBuffer                              staging_buffer,
+                            const VulkanStateTable&               state_table);
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
@@ -263,6 +264,14 @@ class VulkanStateWriter
                                  VkBuffer*               buffer,
                                  VkDeviceMemory*         memory,
                                  const VulkanStateTable& state_table);
+
+    VkResult ResolveImage(const DeviceWrapper*    device_wrapper,
+                          const ImageWrapper*     image_wrapper,
+                          VkQueue                 queue,
+                          VkCommandBuffer         command_buffer,
+                          VkImage*                resolve_image,
+                          VkDeviceMemory*         resolve_memory,
+                          const VulkanStateTable& state_table);
 
     VkImageAspectFlags GetFormatAspectMask(VkFormat format);
 
