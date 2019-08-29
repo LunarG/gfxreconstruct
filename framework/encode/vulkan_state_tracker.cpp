@@ -310,12 +310,30 @@ void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buf
 
     for (uint32_t i = 0; i < command_buffer_count; ++i)
     {
-        auto secondary_wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffer);
+        auto secondary_wrapper = reinterpret_cast<CommandBufferWrapper*>(command_buffers[i]);
         assert(secondary_wrapper != nullptr);
 
         for (const auto& layout_entry : secondary_wrapper->pending_layouts)
         {
             primary_wrapper->pending_layouts[layout_entry.first] = layout_entry.second;
+        }
+
+        for (const auto& secondary_query_pool_entry : secondary_wrapper->recorded_queries)
+        {
+            auto& primary_query_pool_info = primary_wrapper->recorded_queries[secondary_query_pool_entry.first];
+
+            for (const auto& secondary_query_entry : secondary_query_pool_entry.second)
+            {
+                auto& primary_query_info  = primary_query_pool_info[secondary_query_entry.first];
+                primary_query_info.active = secondary_query_entry.second.active;
+
+                if (primary_query_info.active)
+                {
+                    primary_query_info.flags              = secondary_query_entry.second.flags;
+                    primary_query_info.query_type_index   = secondary_query_entry.second.query_type_index;
+                    primary_query_info.queue_family_index = secondary_query_entry.second.queue_family_index;
+                }
+            }
         }
     }
 }
