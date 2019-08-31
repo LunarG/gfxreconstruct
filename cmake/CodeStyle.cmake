@@ -24,18 +24,18 @@ option(CHECK_CPP_CODE_STYLE "Check C++ code style using clang format" OFF)
 
 if(${APPLY_CPP_CODE_STYLE} OR ${CHECK_CPP_CODE_STYLE})
     find_program(CLANG_FORMAT clang-format DOC "Clang format executable")
-endif()
 
-# Python
-if(CMAKE_HOST_WIN32)
-    find_program(PYTHON "python.exe" PATHS $ENV{PATH} DOC "Python 3 executable")
-    execute_process(COMMAND ${PYTHON} --version OUTPUT_VARIABLE PYTHON_VERSION)
-    string(REPLACE "Python " "" "PYTHON_VERSION" "${PYTHON_VERSION}")
-    if("${PYTHON_VERSION}" VERSION_LESS "3.0.0")
-        message(FATAL_ERROR "Python 3+ is required. Python version ${PYTHON_VERSION} found.")
+    # Python
+    if(CMAKE_HOST_WIN32)
+        find_program(PYTHON "python.exe" PATHS $ENV{PATH} DOC "Python 3 executable")
+        execute_process(COMMAND ${PYTHON} --version OUTPUT_VARIABLE PYTHON_VERSION)
+        string(REPLACE "Python " "" "PYTHON_VERSION" "${PYTHON_VERSION}")
+        if("${PYTHON_VERSION}" VERSION_LESS "3.0.0")
+            message(FATAL_ERROR "Python 3+ is required. Python version ${PYTHON_VERSION} found.")
+        endif()
+    else()
+        find_program(PYTHON python3 DOC "Python 3 executable")
     endif()
-else()
-    find_program(PYTHON python3 DOC "Python 3 executable")
 endif()
 
 macro(generate_target_source_files TARGET TARGET_SOURCE_FILES)

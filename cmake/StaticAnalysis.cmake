@@ -21,7 +21,9 @@ cmake_minimum_required(VERSION 3.1)
 
 option(RUN_STATIC_ANALYSIS "Run static analysis using clang-tidy" OFF)
 
-find_program(CLANG_TIDY clang-tidy DOC "Clang tidy executable")
+if(${RUN_STATIC_ANALYSIS})
+    find_program(CLANG_TIDY clang-tidy DOC "Clang tidy executable")
+endif()
 
 # Prepend a prefix to each elements in list of elements
 function(prepend_to_list_items OUT_LIST IN_LIST PREFIX)
