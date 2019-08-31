@@ -64,10 +64,12 @@ target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_regis
 
 common_build_directives(gfxrecon_decode)
 
-add_executable(gfxrecon_decode_test "")
+if (${RUN_TESTS})
+    add_executable(gfxrecon_decode_test "")
 
-target_sources(gfxrecon_decode_test PRIVATE
-        test/main.cpp)
+    target_sources(gfxrecon_decode_test PRIVATE
+            test/main.cpp)
 
-common_build_directives(gfxrecon_decode_test)
-common_test_directives(gfxrecon_decode_test)
+    common_build_directives(gfxrecon_decode_test)
+    common_test_directives(gfxrecon_decode_test)
+endif()

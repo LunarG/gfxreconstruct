@@ -17,10 +17,12 @@ target_link_libraries(gfxrecon_format gfxrecon_util vulkan_registry platform_spe
 
 common_build_directives(gfxrecon_format)
 
-add_executable(gfxrecon_format_test "")
+if (${RUN_TESTS})
+    add_executable(gfxrecon_format_test "")
 
-target_sources(gfxrecon_format_test PRIVATE
-        test/main.cpp)
+    target_sources(gfxrecon_format_test PRIVATE
+            test/main.cpp)
 
-common_build_directives(gfxrecon_format_test)
-common_test_directives(gfxrecon_format_test)
+    common_build_directives(gfxrecon_format_test)
+    common_test_directives(gfxrecon_format_test)
+endif()

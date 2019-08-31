@@ -63,10 +63,12 @@ endif()
 
 common_build_directives(gfxrecon_util)
 
-add_executable(gfxrecon_util_test "")
+if (${RUN_TESTS})
+    add_executable(gfxrecon_util_test "")
 
-target_sources(gfxrecon_util_test PRIVATE
-        test/main.cpp)
+    target_sources(gfxrecon_util_test PRIVATE
+            test/main.cpp)
 
-common_build_directives(gfxrecon_util_test)
-common_test_directives(gfxrecon_util_test)
+    common_build_directives(gfxrecon_util_test)
+    common_test_directives(gfxrecon_util_test)
+endif()
