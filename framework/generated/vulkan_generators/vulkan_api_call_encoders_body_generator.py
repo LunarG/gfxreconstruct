@@ -283,6 +283,25 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         else:
             return 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
 
+    def getStructHandleMemberInfo(self, members):
+        memberHandleType = None
+        memberHandleName = None
+        memberArrayLength = None
+
+        for member in members:
+            if self.isHandle(member.baseType):
+                memberHandleType = member.baseType
+                memberHandleName = member.name
+                if member.isArray:
+                    memberArrayLength = member.arrayLength
+                break
+            elif self.isStruct(member.baseType):
+                # This can't handle the case where 'member' is an array of structs
+                memberHandleType, memberHandleName, memberArrayLength = self.getStructHandleMemberInfo(self.structsWithHandles[member.baseType])
+                memberHandleName = '{}.{}'.format(member.name, memberHandleName)
+
+        return memberHandleType, memberHandleName, memberArrayLength
+
     def makeEndApiCall(self, name, values, returnType):
         decl = 'TraceManager::Get()->'
 
@@ -322,14 +341,26 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     # handle as their second parameter, which is of interest to the state tracker (e.g. the VkPipelineCache handle
                     # from vkCreateGraphicsPipelines or the vkSwapchain handle from vkGetSwapchainImagesKHR). For api calls that do
                     # not receive a handle as the second parameter (e.g. vkEnumeratePhysicalDevices), the handle type is set to 'void*'.
-                    if self.isHandle(values[1].baseType):
+                    if handle.baseType in self.structNames:
+                        # "handle" is actually a struct with embedded handles
+                        unwrapHandleDef = 'nullptr'
+                        memberHandleType, memberHandleName, memberArrayLength = self.getStructHandleMemberInfo(self.structsWithHandles[handle.baseType])
+
+                        if not memberArrayLength:
+                            unwrapHandleDef = '[]({}* handle_struct)->{wrapper}Wrapper* {{ return reinterpret_cast<{wrapper}Wrapper*>(handle_struct->{}); }}'.format(handle.baseType, memberHandleName, wrapper=memberHandleType[2:])
+
+                        decl += 'EndStructGroupCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, memberHandleType[2:], handle.baseType, returnValue, parentHandle.name, lengthName, handle.name, unwrapHandleDef)
+                    elif self.isHandle(values[1].baseType):
                         secondHandle = values[1]
                         decl += 'EndGroupCreateApiCallTrace<{}, {}, {}Wrapper, {}>({}, {}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, secondHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, secondHandle.name, lengthName, handle.name, infoName)
                     else:
                         decl += 'EndGroupCreateApiCallTrace<{}, void*, {}Wrapper, {}>({}, {}, nullptr, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
 
             else:
-                if parentHandle:
+                if handle.baseType in self.structNames:
+                    # TODO: No cases in current Vulkan spec of handle inside non-array output structure
+                    raise NotImplementedError
+                elif parentHandle:
                     decl += 'EndCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, handle.name, infoName)
                 else:
                     # Instance creation does not have a parent handle; set the parent handle type to 'void*'.
@@ -358,10 +389,6 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             else:
                 decl += 'EndCommandApiCallTrace({}, encoder)'.format(values[0].name)
         else:
-            if name in ['vkGetPhysicalDeviceDisplayPropertiesKHR']:
-                # TODO: Handle vkEnumeratePhysicalDevices and vkGetPhysicalDeviceDisplayProprtiesKHR
-                print('WARNING: Skipping special case "create" tracking for', name)
-
             decl += 'EndApiCallTrace(encoder)'
 
         decl += ';\n'
@@ -486,7 +513,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     # Determine if an API call indirectly creates handles by retrieving them (e.g. vkEnumeratePhysicalDevices, vkGetRandROutputDisplayEXT)
     def retrievesHandles(self, values):
         for value in values:
-            if self.isOutputParameter(value) and self.isHandle(value.baseType):
+            if self.isOutputParameter(value) and (self.isHandle(value.baseType) or (value.baseType in self.structsWithHandles)):
                 return True
         return False
 

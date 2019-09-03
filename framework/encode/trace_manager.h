@@ -162,7 +162,8 @@ class TraceManager
                                     const CreateInfo*             create_infos,
                                     ParameterEncoder*             encoder)
     {
-        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (handles != nullptr))
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
+            (handles != nullptr))
         {
             assert(state_tracker_ != nullptr);
 
@@ -175,6 +176,35 @@ class TraceManager
                 count,
                 handles,
                 create_infos,
+                thread_data->call_id_,
+                thread_data->parameter_buffer_.get());
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    // Multiple implicit object creation inside output struct.
+    template <typename ParentHandle, typename Wrapper, typename HandleStruct>
+    void EndStructGroupCreateApiCallTrace(VkResult                               result,
+                                          ParentHandle                           parent_handle,
+                                          uint32_t                               count,
+                                          HandleStruct*                          handle_structs,
+                                          std::function<Wrapper*(HandleStruct*)> unwrap_struct_handle,
+                                          ParameterEncoder*                      encoder)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
+            (handle_structs != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->AddStructGroupEntry<ParentHandle, Wrapper, HandleStruct>(
+                parent_handle,
+                count,
+                handle_structs,
+                unwrap_struct_handle,
                 thread_data->call_id_,
                 thread_data->parameter_buffer_.get());
         }
