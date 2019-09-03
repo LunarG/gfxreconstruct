@@ -33,6 +33,7 @@
 #include "vulkan/vulkan.h"
 
 #include <cassert>
+#include <functional>
 #include <mutex>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -166,6 +167,69 @@ class VulkanStateTracker
                                 create_parameters);
                     }
                 }
+            }
+        }
+    }
+
+    template <typename ParentHandle, typename Wrapper, typename HandleStruct>
+    void AddStructGroupEntry(ParentHandle                           parent_handle,
+                             uint32_t                               count,
+                             HandleStruct*                          handle_structs,
+                             std::function<Wrapper*(HandleStruct*)> unwrap_struct_handle,
+                             format::ApiCallId                      create_call_id,
+                             const util::MemoryOutputStream*        create_parameter_buffer)
+    {
+        assert(handle_structs != nullptr);
+        assert(create_parameter_buffer != nullptr);
+
+        CreateParameters create_parameters = std::make_shared<util::MemoryOutputStream>(
+            create_parameter_buffer->GetData(), create_parameter_buffer->GetDataSize());
+
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                auto wrapper = unwrap_struct_handle(&handle_structs[i]);
+
+                // VkDisplayPlaneProperties::currentDisplay can be a null wrapper.
+                if ((wrapper != nullptr) && (state_table_.InsertWrapper(wrapper->handle_id, wrapper)))
+                {
+                    vulkan_state_tracker::InitializeGroupObjectState<ParentHandle, void*, Wrapper, void>(
+                        parent_handle, nullptr, wrapper, nullptr, create_call_id, create_parameters);
+                }
+            }
+        }
+    }
+
+    void
+    AddStructGroupEntry(VkInstance                                                              parent_handle,
+                        uint32_t                                                                count,
+                        VkPhysicalDeviceGroupProperties*                                        handle_structs,
+                        std::function<PhysicalDeviceWrapper*(VkPhysicalDeviceGroupProperties*)> unwrap_struct_handle,
+                        format::ApiCallId                                                       create_call_id,
+                        const util::MemoryOutputStream*                                         create_parameter_buffer)
+    {
+        assert(handle_structs != nullptr);
+        assert(create_parameter_buffer != nullptr);
+
+        GFXRECON_UNREFERENCED_PARAMETER(unwrap_struct_handle);
+
+        CreateParameters create_parameters = std::make_shared<util::MemoryOutputStream>(
+            create_parameter_buffer->GetData(), create_parameter_buffer->GetDataSize());
+
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                AddGroupEntry<VkInstance, void*, PhysicalDeviceWrapper, void>(parent_handle,
+                                                                              nullptr,
+                                                                              handle_structs[i].physicalDeviceCount,
+                                                                              handle_structs[i].physicalDevices,
+                                                                              nullptr,
+                                                                              create_call_id,
+                                                                              create_parameter_buffer);
             }
         }
     }
