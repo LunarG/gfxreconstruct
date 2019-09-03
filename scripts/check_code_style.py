@@ -20,8 +20,9 @@ GFX reconstruct check code style script
 import subprocess
 import sys
 import argparse
+import os
 
-def check_code_style(file):
+def check_code_style(file_list, style_script=None, style_config_dir=None):
     """
     Run clang format diff on the changed source file(s)
     against current branch. If branch retrieved failed, 
@@ -31,12 +32,20 @@ def check_code_style(file):
     git_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip()
     if git_branch == b'':
         git_branch = "master"
-    cmd = ["git", "diff", "-U0", str(git_branch, 'utf-8'),
-           "--"] + file + ["|", "python", "clang-format-diff.py","-p1","-style=file"]
+    if not style_script:
+        # Look for the clang-format-diff.py script in the same directory as the calling script
+        style_script = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "clang-format-diff.py")
+    if not style_config_dir:
+        # Use the script directory's parent directory as the .clang-format file location
+        style_config_dir = os.path.join(os.path.dirname(style_script), os.pardir)
+    diff_cmd = ["git", "diff", "-U0", str(git_branch, 'utf-8'), "--"] + file_list
+    style_cmd = ["python", style_script,"-p1","-style=file"]
     try:
-        cmd_output = subprocess.check_output(cmd)
-        if cmd_output != b'':
-            raise Exception("FORMATTING ERROR!\n" + str(cmd_output, 'utf-8'))
+        diff_process = subprocess.Popen(diff_cmd, stdout=subprocess.PIPE)
+        style_output = subprocess.check_output(style_cmd, stdin=diff_process.stdout, cwd=style_config_dir)
+
+        if style_output != b'':
+            raise Exception("FORMATTING ERROR!\n" + str(style_output, 'utf-8'))
     except subprocess.CalledProcessError as e:
         print("ERROR calling clang-format-diff.py [{}]".format(e))
         sys.exit(1)
@@ -46,7 +55,7 @@ if '__main__' == __name__:
     # parse params and run check code style function
     parser = argparse.ArgumentParser(prog='check_code_style',
                                      description='Checks if file match the code style specification')
-    parser.add_argument('--sourcefile', nargs='+', dest='file', help="The source file(s)")
+    parser.add_argument('--sourcefile', nargs='+', dest='file_list', help="The source file(s)")
     args = parser.parse_args()
-    check_code_style(args.file)
+    check_code_style(args.file_list)
     sys.exit(0)
