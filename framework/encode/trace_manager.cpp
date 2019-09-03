@@ -763,7 +763,7 @@ void TraceManager::PostProcess_vkAllocateMemory(VkResult                     res
     {
         // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here to
         // ensure it is available for mapped memory tracking.
-        auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
+        auto wrapper             = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
         wrapper->allocation_size = pAllocateInfo->allocationSize;
     }
 }
@@ -852,7 +852,8 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
             {
                 auto next_memory_wrapper = reinterpret_cast<const DeviceMemoryWrapper*>(pMemoryRanges[i].memory);
 
-                // Currently processing all dirty pages for the mapped memory, so filter multiple ranges from the same object.
+                // Currently processing all dirty pages for the mapped memory, so filter multiple ranges from the same
+                // object.
                 if (next_memory_wrapper != current_memory_wrapper)
                 {
                     current_memory_wrapper = next_memory_wrapper;

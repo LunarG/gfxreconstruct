@@ -42,14 +42,14 @@ size_t ZlibCompressor::Compress(const size_t          uncompressed_size,
             compressed_data->resize(uncompressed_size);
         }
 
-        z_stream compress_stream  = {};
-        compress_stream.zalloc    = Z_NULL;
-        compress_stream.zfree     = Z_NULL;
-        compress_stream.opaque    = Z_NULL;
+        z_stream compress_stream = {};
+        compress_stream.zalloc   = Z_NULL;
+        compress_stream.zfree    = Z_NULL;
+        compress_stream.opaque   = Z_NULL;
 
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(uInt, uncompressed_size);
-        compress_stream.avail_in  = static_cast<uInt>(uncompressed_size);
-        compress_stream.next_in   = const_cast<Bytef*>(uncompressed_data);
+        compress_stream.avail_in = static_cast<uInt>(uncompressed_size);
+        compress_stream.next_in  = const_cast<Bytef*>(uncompressed_data);
 
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(uInt, compressed_data->size());
         compress_stream.avail_out = static_cast<uInt>(compressed_data->size());
@@ -83,14 +83,14 @@ size_t ZlibCompressor::Decompress(const size_t                compressed_size,
             return 0;
         }
 
-        z_stream decompress_stream  = {};
-        decompress_stream.zalloc    = Z_NULL;
-        decompress_stream.zfree     = Z_NULL;
-        decompress_stream.opaque    = Z_NULL;
+        z_stream decompress_stream = {};
+        decompress_stream.zalloc   = Z_NULL;
+        decompress_stream.zfree    = Z_NULL;
+        decompress_stream.opaque   = Z_NULL;
 
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(uInt, compressed_size);
-        decompress_stream.avail_in  = static_cast<uInt>(compressed_size);
-        decompress_stream.next_in   = const_cast<Bytef*>(compressed_data.data());
+        decompress_stream.avail_in = static_cast<uInt>(compressed_size);
+        decompress_stream.next_in  = const_cast<Bytef*>(compressed_data.data());
 
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(uInt, expected_uncompressed_size);
         decompress_stream.avail_out = static_cast<uInt>(expected_uncompressed_size);

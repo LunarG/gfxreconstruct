@@ -78,8 +78,7 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
             for (size_t i = 0; i < buffer_info_count_; ++i)
             {
                 decoded_buffer_info_[i].value = &buffer_info_[i];
-                bytes_read +=
-                    DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &decoded_buffer_info_[i]);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &decoded_buffer_info_[i]);
             }
         }
 

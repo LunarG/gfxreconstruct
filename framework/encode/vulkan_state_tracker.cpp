@@ -421,7 +421,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
     {
         for (uint32_t i = 0; i < write_count; ++i)
         {
-            const VkWriteDescriptorSet* write = &writes[i];
+            const VkWriteDescriptorSet* write   = &writes[i];
             auto                        wrapper = reinterpret_cast<DescriptorSetWrapper*>(write->dstSet);
             assert(wrapper != nullptr);
 
@@ -471,7 +471,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                         for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
                              ++i, ++j)
                         {
-                            binding.handle_ids[i]  = GetWrappedId(write->pImageInfo[j].imageView);
+                            binding.handle_ids[i] = GetWrappedId(write->pImageInfo[j].imageView);
                             memcpy(&binding.images[i], &write->pImageInfo[j], sizeof(binding.images[i]));
                         }
                         break;
@@ -658,7 +658,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 const uint8_t* src_address = bytes + current_offset;
                 for (uint32_t i = current_array_element; i < current_writes; ++i)
                 {
-                    auto image_info        = reinterpret_cast<const VkDescriptorImageInfo*>(src_address);
+                    auto image_info = reinterpret_cast<const VkDescriptorImageInfo*>(src_address);
                     if ((binding.type == VK_DESCRIPTOR_TYPE_SAMPLER) ||
                         (binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
                     {
