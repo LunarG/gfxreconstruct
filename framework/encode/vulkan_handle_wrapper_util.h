@@ -153,10 +153,10 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
     assert(handle != nullptr);
     if ((*handle) != VK_NULL_HANDLE)
     {
-        Wrapper* wrapper         = new Wrapper;
-        wrapper->dispatch_key    = *reinterpret_cast<void**>(*handle);
-        wrapper->handle          = (*handle);
-        wrapper->handle_id       = get_id();
+        Wrapper* wrapper      = new Wrapper;
+        wrapper->dispatch_key = *reinterpret_cast<void**>(*handle);
+        wrapper->handle       = (*handle);
+        wrapper->handle_id    = get_id();
 
         if (parent != VK_NULL_HANDLE)
         {

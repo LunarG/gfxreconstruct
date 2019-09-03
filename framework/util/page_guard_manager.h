@@ -91,12 +91,12 @@ class PageGuardManager
 
         PageStatusTracker status_tracker;
 
-        void*  mapped_memory;  // Pointer to mapped memory to be tracked.
-        size_t mapped_range;   // Size of the mapped memory range.
-        void*  shadow_memory;  // Shadow memory for mapped memory types that cannot be tracked by guard pages.
-        size_t shadow_range;   // Size of the shadow memory allocation, which is the mapped memory size adjusted to be a
-                               // multiple of system page size.
-        size_t total_pages;    // Total number of pages contained by the mapped memory.
+        void*  mapped_memory; // Pointer to mapped memory to be tracked.
+        size_t mapped_range;  // Size of the mapped memory range.
+        void*  shadow_memory; // Shadow memory for mapped memory types that cannot be tracked by guard pages.
+        size_t shadow_range;  // Size of the shadow memory allocation, which is the mapped memory size adjusted to be a
+                              // multiple of system page size.
+        size_t total_pages;   // Total number of pages contained by the mapped memory.
         size_t last_segment_size; // Size of the last segment of the mapped memory, which may not be a full page.
         bool   is_cached;
         bool   is_modified;

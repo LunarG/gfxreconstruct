@@ -35,7 +35,8 @@ class SwapchainImageTracker
         return result.second;
     }
 
-    bool RetrievePreAcquiredImage(VkSwapchainKHR swapchain, uint32_t image_index, VkSemaphore* semaphore, VkFence* fence)
+    bool
+    RetrievePreAcquiredImage(VkSwapchainKHR swapchain, uint32_t image_index, VkSemaphore* semaphore, VkFence* fence)
     {
         bool found           = false;
         auto swapchain_entry = images_.find(swapchain);
@@ -71,7 +72,7 @@ class SwapchainImageTracker
         VkFence     fence;
     };
 
-    typedef std::unordered_map<uint32_t, ImageAcquireResources> PreAcquiredImages;
+    typedef std::unordered_map<uint32_t, ImageAcquireResources>   PreAcquiredImages;
     typedef std::unordered_map<VkSwapchainKHR, PreAcquiredImages> SwapchainImages;
 
   private:
