@@ -62,9 +62,10 @@ class ApiDecoder
                                              uint32_t         height)
     {}
 
-    virtual void DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,
-                                                       format::HandleId                                    device_id,
-                                                       format::HandleId                                    swapchain_id,
+    virtual void DispatchSetSwapchainImageStateCommand(format::ThreadId thread_id,
+                                                       format::HandleId device_id,
+                                                       format::HandleId swapchain_id,
+                                                       uint32_t         last_presented_image,
                                                        const std::vector<format::SwapchainImageStateInfo>& image_state)
     {}
 

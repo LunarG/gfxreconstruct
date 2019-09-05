@@ -48,8 +48,9 @@ class VulkanConsumerBase
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) {}
 
-    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
-                                                      format::HandleId                                    swapchain_id,
+    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,
+                                                      format::HandleId swapchain_id,
+                                                      uint32_t         last_presented_image,
                                                       const std::vector<format::SwapchainImageStateInfo>& image_state)
     {}
 

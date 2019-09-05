@@ -76,6 +76,7 @@ class VulkanDecoderBase : public ApiDecoder
     DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,
                                           format::HandleId                                    device_id,
                                           format::HandleId                                    swapchain_id,
+                                          uint32_t                                            last_presented_image,
                                           const std::vector<format::SwapchainImageStateInfo>& image_state) override;
 
     virtual void DispatchBeginResourceInitCommand(format::ThreadId thread_id,
