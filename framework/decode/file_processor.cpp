@@ -551,6 +551,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
         success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
         success = success && ReadBytes(&header.swapchain_id, sizeof(header.swapchain_id));
+        success = success && ReadBytes(&header.last_presented_image, sizeof(header.last_presented_image));
         success = success && ReadBytes(&header.image_info_count, sizeof(header.image_info_count));
 
         if (success)
@@ -575,7 +576,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                 for (auto decoder : decoders_)
                 {
                     decoder->DispatchSetSwapchainImageStateCommand(
-                        header.thread_id, header.device_id, header.swapchain_id, entries);
+                        header.thread_id, header.device_id, header.swapchain_id, header.last_presented_image, entries);
                 }
             }
             else

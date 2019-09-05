@@ -144,6 +144,7 @@ void VulkanReplayConsumerBase::ProcessResizeWindowCommand(format::HandleId surfa
 void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
     format::HandleId                                    device_id,
     format::HandleId                                    swapchain_id,
+    uint32_t                                            last_presented_image,
     const std::vector<format::SwapchainImageStateInfo>& image_info)
 {
     VkDevice       device    = object_mapper_.MapVkDevice(device_id);
@@ -151,24 +152,98 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
 
     if ((device != VK_NULL_HANDLE) && (swapchain != VK_NULL_HANDLE))
     {
-        auto table = GetDeviceTable(device);
-        assert(table != nullptr);
+        VkPhysicalDevice physical_device = device_parents_[device];
+        VkSurfaceKHR     surface         = swapchain_surfaces_[swapchain];
+        assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
 
-        VkQueue         transition_queue   = VK_NULL_HANDLE;
-        VkCommandPool   transition_pool    = VK_NULL_HANDLE;
-        VkCommandBuffer transition_command = VK_NULL_HANDLE;
-        uint32_t        queue_family_index = swapchain_queue_families_[swapchain];
+        auto instance_table = GetInstanceTable(physical_device);
+        auto device_table   = GetDeviceTable(device);
+        assert((instance_table != nullptr) && (device_table != nullptr));
 
-        // TODO: Improved queue selection?
-        table->GetDeviceQueue(device, queue_family_index, 0, &transition_queue);
+        VkSurfaceCapabilitiesKHR surface_caps;
+        uint32_t                 image_count = 0;
 
-        VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
-        pool_create_info.pNext                   = nullptr;
-        pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        pool_create_info.queueFamilyIndex        = queue_family_index;
+        VkResult result =
+            instance_table->GetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &surface_caps);
 
-        table->CreateCommandPool(device, &pool_create_info, nullptr, &transition_pool);
+        if (result == VK_SUCCESS)
+        {
+            result = device_table->GetSwapchainImagesKHR(device, swapchain, &image_count, nullptr);
+        }
 
+        if (result == VK_SUCCESS)
+        {
+            // TODO: Handle swapchain image count mismatch on replay.
+            assert(image_info.size() == image_count);
+
+            // Determine if it is possible to acquire all images at the same time.
+            assert(image_count >= surface_caps.minImageCount);
+            uint32_t max_acquired_images = (image_count - surface_caps.minImageCount) + 1;
+
+            if (image_count > max_acquired_images)
+            {
+                // Cannot acquire all images at the same time.
+                ProcessSetSwapchainImageStateQueueSubmit(device, swapchain, last_presented_image, image_info);
+            }
+            else
+            {
+                ProcessSetSwapchainImageStatePreAcquire(device, swapchain, image_info);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed image initialization for VkSwapchainKHR object (ID = %" PRIu64
+                                 ", handle = %" PRIx64 ")",
+                                 swapchain_id,
+                                 swapchain);
+        }
+    }
+    else
+    {
+        if (device != VK_NULL_HANDLE)
+        {
+            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkSwapchainKHR object (ID = %" PRIu64 ")",
+                                 swapchain_id);
+        }
+        else if (swapchain != VK_NULL_HANDLE)
+        {
+            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkDevice object (ID = %" PRIu64 ")",
+                                 device_id);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkDevice (ID = %" PRIu64
+                                 ") and VkSwapchainKHR (ID = %" PRIu64 ") objects",
+                                 device_id,
+                                 swapchain_id);
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::ProcessSetSwapchainImageStatePreAcquire(
+    VkDevice device, VkSwapchainKHR swapchain, const std::vector<format::SwapchainImageStateInfo>& image_info)
+{
+    auto table = GetDeviceTable(device);
+    assert(table != nullptr);
+
+    VkResult        result             = VK_SUCCESS;
+    VkQueue         transition_queue   = VK_NULL_HANDLE;
+    VkCommandPool   transition_pool    = VK_NULL_HANDLE;
+    VkCommandBuffer transition_command = VK_NULL_HANDLE;
+    uint32_t        queue_family_index = swapchain_queue_families_[swapchain];
+
+    // TODO: Improved queue selection?
+    table->GetDeviceQueue(device, queue_family_index, 0, &transition_queue);
+
+    VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+    pool_create_info.pNext                   = nullptr;
+    pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    pool_create_info.queueFamilyIndex        = queue_family_index;
+
+    result = table->CreateCommandPool(device, &pool_create_info, nullptr, &transition_pool);
+
+    if (result == VK_SUCCESS)
+    {
         VkCommandBufferAllocateInfo command_allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
         command_allocate_info.pNext                       = nullptr;
         command_allocate_info.commandBufferCount          = 1;
@@ -176,6 +251,32 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
         command_allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 
         table->AllocateCommandBuffers(device, &command_allocate_info, &transition_command);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+        begin_info.pNext                    = nullptr;
+        begin_info.flags                    = 0;
+        begin_info.pInheritanceInfo         = nullptr;
+
+        VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit_info.pNext              = nullptr;
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers    = &transition_command;
+
+        VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+        image_barrier.pNext                           = nullptr;
+        image_barrier.srcAccessMask                   = 0;
+        image_barrier.dstAccessMask                   = 0;
+        image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+        image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        image_barrier.subresourceRange.baseMipLevel   = 0;
+        image_barrier.subresourceRange.levelCount     = 1;
+        image_barrier.subresourceRange.baseArrayLayer = 0;
+        image_barrier.subresourceRange.layerCount     = 1;
 
         for (size_t i = 0; i < image_info.size(); ++i)
         {
@@ -197,46 +298,230 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
                 semaphore_create_info.pNext                 = nullptr;
                 semaphore_create_info.flags                 = 0;
 
-                table->CreateFence(device, &fence_create_info, nullptr, &acquire_fence);
-                table->CreateSemaphore(device, &semaphore_create_info, nullptr, &acquire_semaphore);
+                result = table->CreateFence(device, &fence_create_info, nullptr, &acquire_fence);
 
-                table->AcquireNextImageKHR(device,
-                                           swapchain,
-                                           std::numeric_limits<uint64_t>::max(),
-                                           acquire_semaphore,
-                                           acquire_fence,
-                                           &image_index);
-
-                table->WaitForFences(device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
-
-                // TODO: Handle case where image acquired at replay does not match image acquired at capture.
-                assert(image_index == i);
-
-                VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[image_index].image_layout);
-                if (image_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+                if (result == VK_SUCCESS)
                 {
-                    VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-                    begin_info.pNext                    = nullptr;
-                    begin_info.flags                    = 0;
-                    begin_info.pInheritanceInfo         = nullptr;
+                    result = table->CreateSemaphore(device, &semaphore_create_info, nullptr, &acquire_semaphore);
+                }
 
-                    VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
-                    image_barrier.pNext                           = nullptr;
-                    image_barrier.srcAccessMask                   = 0;
-                    image_barrier.dstAccessMask                   = 0;
-                    image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
-                    image_barrier.newLayout                       = image_layout;
-                    image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    image_barrier.image                           = image;
-                    image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-                    image_barrier.subresourceRange.baseMipLevel   = 0;
-                    image_barrier.subresourceRange.levelCount     = 1;
-                    image_barrier.subresourceRange.baseArrayLayer = 0;
-                    image_barrier.subresourceRange.layerCount     = 1;
+                if (result == VK_SUCCESS)
+                {
+                    result = table->AcquireNextImageKHR(device,
+                                                        swapchain,
+                                                        std::numeric_limits<uint64_t>::max(),
+                                                        acquire_semaphore,
+                                                        acquire_fence,
+                                                        &image_index);
+                }
 
-                    table->BeginCommandBuffer(transition_command, &begin_info);
-                    table->CmdPipelineBarrier(transition_command,
+                if (result == VK_SUCCESS)
+                {
+                    // TODO: Handle case where image acquired at replay does not match image acquired at
+                    // capture.
+                    assert(image_index == i);
+
+                    result =
+                        table->WaitForFences(device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+                }
+
+                if (result == VK_SUCCESS)
+                {
+                    VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[image_index].image_layout);
+                    if (image_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+                    {
+                        image_barrier.newLayout = image_layout;
+                        image_barrier.image     = image;
+
+                        result = table->BeginCommandBuffer(transition_command, &begin_info);
+
+                        if (result == VK_SUCCESS)
+                        {
+                            table->CmdPipelineBarrier(transition_command,
+                                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                      0,
+                                                      0,
+                                                      nullptr,
+                                                      0,
+                                                      nullptr,
+                                                      1,
+                                                      &image_barrier);
+                            table->EndCommandBuffer(transition_command);
+
+                            result = table->ResetFences(device, 1, &acquire_fence);
+                        }
+
+                        if (result == VK_SUCCESS)
+                        {
+                            result = table->QueueSubmit(transition_queue, 1, &submit_info, acquire_fence);
+                        }
+
+                        if (result == VK_SUCCESS)
+                        {
+                            result = table->WaitForFences(
+                                device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+                        }
+                    }
+                }
+
+                if (result == VK_SUCCESS)
+                {
+                    if (image_info[image_index].acquired)
+                    {
+                        // The upcoming frames expect the image to be acquired. The synchronization objects used to
+                        // acquire the image were already set to the appropriate signaled state when created, so the
+                        // temporary objects used to acquire the image here can be destroyed.
+                        table->DestroyFence(device, acquire_fence, nullptr);
+                        table->DestroySemaphore(device, acquire_semaphore, nullptr);
+                    }
+                    else
+                    {
+                        // The upcoming frames do not expect the image to be acquired. We will store the image and the
+                        // synchronization objects used to acquire it in a data structure.  Replay of vkAcquireNextImage
+                        // will retrieve and use the stored objects.
+                        swapchain_image_tracker_.TrackPreAcquiredImage(
+                            swapchain, image_index, acquire_semaphore, acquire_fence);
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("Failed to acquire and transition VkImage object (ID = %" PRIu64
+                                         ") for swapchain state initialization",
+                                         image_info[i].image_id);
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkImage object (ID = %" PRIu64 ")",
+                                     image_info[i].image_id);
+            }
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING(
+            "Failed to create image initialization resources for VkSwapchainKHR object (handle = 0x%" PRIx64 ")",
+            swapchain);
+    }
+
+    if (transition_pool != VK_NULL_HANDLE)
+    {
+        table->DestroyCommandPool(device, transition_pool, nullptr);
+    }
+}
+
+void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
+    VkDevice                                            device,
+    VkSwapchainKHR                                      swapchain,
+    uint32_t                                            last_presented_image,
+    const std::vector<format::SwapchainImageStateInfo>& image_info)
+{
+    auto table = GetDeviceTable(device);
+    assert(table != nullptr);
+
+    VkResult        result             = VK_SUCCESS;
+    VkQueue         queue              = VK_NULL_HANDLE;
+    VkCommandPool   pool               = VK_NULL_HANDLE;
+    VkCommandBuffer command            = VK_NULL_HANDLE;
+    VkFence         wait_fence         = VK_NULL_HANDLE;
+    uint32_t        queue_family_index = swapchain_queue_families_[swapchain];
+
+    VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+    pool_create_info.pNext                   = nullptr;
+    pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    pool_create_info.queueFamilyIndex        = queue_family_index;
+
+    // TODO: Improved queue selection?
+    table->GetDeviceQueue(device, queue_family_index, 0, &queue);
+
+    result = table->CreateCommandPool(device, &pool_create_info, nullptr, &pool);
+
+    if (result == VK_SUCCESS)
+    {
+        VkCommandBufferAllocateInfo command_allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+        command_allocate_info.pNext                       = nullptr;
+        command_allocate_info.commandBufferCount          = 1;
+        command_allocate_info.commandPool                 = pool;
+        command_allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+
+        result = table->AllocateCommandBuffers(device, &command_allocate_info, &command);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        VkFenceCreateInfo fence_create_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
+        fence_create_info.pNext             = nullptr;
+        fence_create_info.flags             = 0;
+
+        result = table->CreateFence(device, &fence_create_info, nullptr, &wait_fence);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+        begin_info.pNext                    = nullptr;
+        begin_info.flags                    = 0;
+        begin_info.pInheritanceInfo         = nullptr;
+
+        VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+        submit_info.pNext              = nullptr;
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers    = &command;
+
+        VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+        image_barrier.pNext                           = nullptr;
+        image_barrier.srcAccessMask                   = 0;
+        image_barrier.dstAccessMask                   = 0;
+        image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+        image_barrier.newLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+        image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+        image_barrier.subresourceRange.baseMipLevel   = 0;
+        image_barrier.subresourceRange.levelCount     = 1;
+        image_barrier.subresourceRange.baseArrayLayer = 0;
+        image_barrier.subresourceRange.layerCount     = 1;
+
+        VkPresentInfoKHR present_info   = { VK_STRUCTURE_TYPE_PRESENT_INFO_KHR };
+        present_info.pNext              = nullptr;
+        present_info.waitSemaphoreCount = 0;
+        present_info.pWaitSemaphores    = nullptr;
+        present_info.swapchainCount     = 1;
+        present_info.pSwapchains        = &swapchain;
+        present_info.pResults           = nullptr;
+
+        // Acquire, transition to the present source layout, and present each image.
+        for (size_t i = 0; i < image_info.size(); ++i)
+        {
+            VkImage image = object_mapper_.MapVkImage(image_info[i].image_id);
+
+            if (image != VK_NULL_HANDLE)
+            {
+                uint32_t image_index = 0;
+
+                result = table->AcquireNextImageKHR(
+                    device, swapchain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, wait_fence, &image_index);
+
+                if (result == VK_SUCCESS)
+                {
+                    // TODO: Handle case where image acquired at replay does not match image acquired at capture.
+                    assert(image_index == i);
+
+                    result = table->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
+                }
+
+                if (result == VK_SUCCESS)
+                {
+                    image_barrier.image        = image;
+                    present_info.pImageIndices = &image_index;
+
+                    result = table->BeginCommandBuffer(command, &begin_info);
+                }
+
+                if (result == VK_SUCCESS)
+                {
+                    table->CmdPipelineBarrier(command,
                                               VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                               VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
                                               0,
@@ -246,33 +531,36 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
                                               nullptr,
                                               1,
                                               &image_barrier);
-                    table->EndCommandBuffer(transition_command);
+                    table->EndCommandBuffer(command);
 
-                    VkSubmitInfo submit_info       = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
-                    submit_info.pNext              = nullptr;
-                    submit_info.commandBufferCount = 1;
-                    submit_info.pCommandBuffers    = &transition_command;
-
-                    table->ResetFences(device, 1, &acquire_fence);
-                    table->QueueSubmit(transition_queue, 1, &submit_info, acquire_fence);
-                    table->WaitForFences(device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+                    result = table->ResetFences(device, 1, &wait_fence);
                 }
 
-                if (image_info[image_index].acquired)
+                if (result == VK_SUCCESS)
                 {
-                    // The upcoming frames expect the image to be acquired. The synchronization objects used to acquire
-                    // the image were already set to the appropriate signaled state when created, so the temporary
-                    // objects used to acquire the image here can be destroyed.
-                    table->DestroyFence(device, acquire_fence, nullptr);
-                    table->DestroySemaphore(device, acquire_semaphore, nullptr);
+                    result = table->QueueSubmit(queue, 1, &submit_info, wait_fence);
                 }
-                else
+
+                if (result == VK_SUCCESS)
                 {
-                    // The upcoming frames do not expect the image to be acquired. We will store the image and the
-                    // synchronization objects used to acquire it in a data structure.  Replay of vkAcquireNextImage
-                    // will retrieve and use the stored objects.
-                    swapchain_image_tracker_.TrackPreAcquiredImage(
-                        swapchain, image_index, acquire_semaphore, acquire_fence);
+                    result = table->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
+                }
+
+                if (result == VK_SUCCESS)
+                {
+                    result = table->QueuePresentKHR(queue, &present_info);
+                }
+
+                if (result == VK_SUCCESS)
+                {
+                    result = table->QueueWaitIdle(queue);
+                }
+
+                if (result != VK_SUCCESS)
+                {
+                    GFXRECON_LOG_WARNING("Failed to acquire and transition VkImage object (ID = %" PRIu64
+                                         ") for swapchain state initialization",
+                                         image_info[i].image_id);
                 }
             }
             else
@@ -282,27 +570,150 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
             }
         }
 
-        table->DestroyCommandPool(device, transition_pool, nullptr);
+        // Second pass to set image acquired state.
+        // Acquire all images up to the last presented image, to increase the chance that the first image
+        // acquired on replay is the same image acquired by the first captured frame.
+        for (size_t i = 0; i < image_info.size(); ++i)
+        {
+            VkImage image = object_mapper_.MapVkImage(image_info[i].image_id);
+
+            if ((image != VK_NULL_HANDLE) && ((image_info[i].acquired) || (i <= last_presented_image)))
+            {
+                uint32_t image_index = 0;
+
+                result = table->AcquireNextImageKHR(
+                    device, swapchain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, wait_fence, &image_index);
+
+                if (result == VK_SUCCESS)
+                {
+                    // TODO: Handle case where image acquired at replay does not match image acquired at capture.
+                    assert(image_index == i);
+
+                    result = table->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
+                }
+
+                if (result == VK_SUCCESS)
+                {
+                    if (image_info[i].acquired)
+                    {
+                        // Transition the image to the expected layout and keep it acquired.
+                        VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[i].image_layout);
+                        if ((image_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                            (image_layout != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR))
+                        {
+
+                            image_barrier.newLayout = image_layout;
+                            image_barrier.image     = image;
+
+                            result = table->BeginCommandBuffer(command, &begin_info);
+
+                            if (result == VK_SUCCESS)
+                            {
+                                table->CmdPipelineBarrier(command,
+                                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                          VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                          0,
+                                                          0,
+                                                          nullptr,
+                                                          0,
+                                                          nullptr,
+                                                          1,
+                                                          &image_barrier);
+                                table->EndCommandBuffer(command);
+
+                                result = table->ResetFences(device, 1, &wait_fence);
+                            }
+
+                            if (result == VK_SUCCESS)
+                            {
+                                result = table->QueueSubmit(queue, 1, &submit_info, wait_fence);
+                            }
+
+                            if (result == VK_SUCCESS)
+                            {
+                                result = table->WaitForFences(
+                                    device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Image is not expected to be in the acquired state, so release it.
+                        image_barrier.newLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                        image_barrier.image        = image;
+                        present_info.pImageIndices = &image_index;
+
+                        result = table->BeginCommandBuffer(command, &begin_info);
+
+                        if (result == VK_SUCCESS)
+                        {
+                            table->CmdPipelineBarrier(command,
+                                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                      0,
+                                                      0,
+                                                      nullptr,
+                                                      0,
+                                                      nullptr,
+                                                      1,
+                                                      &image_barrier);
+                            table->EndCommandBuffer(command);
+
+                            result = table->ResetFences(device, 1, &wait_fence);
+                        }
+
+                        if (result == VK_SUCCESS)
+                        {
+                            result = table->QueueSubmit(queue, 1, &submit_info, wait_fence);
+                        }
+
+                        if (result == VK_SUCCESS)
+                        {
+                            result = table->WaitForFences(
+                                device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
+                        }
+
+                        if (result == VK_SUCCESS)
+                        {
+                            result = table->QueuePresentKHR(queue, &present_info);
+                        }
+
+                        if (result == VK_SUCCESS)
+                        {
+                            result = table->QueueWaitIdle(queue);
+                        }
+                    }
+                }
+
+                if (result != VK_SUCCESS)
+                {
+                    GFXRECON_LOG_WARNING("Failed to acquire and transition VkImage object (ID = %" PRIu64
+                                         ") for swapchain state initialization",
+                                         image_info[i].image_id);
+                }
+            }
+            else if (image == VK_NULL_HANDLE)
+            {
+                GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkImage object (ID = %" PRIu64 ")",
+                                     image_info[i].image_id);
+            }
+        }
     }
     else
     {
-        if (device != VK_NULL_HANDLE)
-        {
-            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkSwapchainKHR object (ID = %" PRIu64 ")",
-                                 swapchain_id);
-        }
-        else if (swapchain != VK_NULL_HANDLE)
-        {
-            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkDevice object (ID = %" PRIu64 ")",
-                                 device_id);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkDevice (ID = %" PRIu64
-                                 ") and VkSwapchainKHR (ID = %" PRIu64 ") objects",
-                                 device_id,
-                                 swapchain_id);
-        }
+        GFXRECON_LOG_WARNING(
+            "Failed to create image initialization resources for VkSwapchainKHR object (handle = 0x%" PRIx64 ")",
+            swapchain);
+    }
+
+    if (pool != VK_NULL_HANDLE)
+    {
+        table->DestroyCommandPool(device, pool, nullptr);
+    }
+
+    if (wait_fence != VK_NULL_HANDLE)
+    {
+        table->DestroyFence(device, wait_fence, nullptr);
     }
 }
 
@@ -793,7 +1204,7 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
 
                             if (result == VK_SUCCESS)
                             {
-                                memory_barrier.srcAccessMask = 0;
+                                memory_barrier.srcAccessMask = src_access;
                                 memory_barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
                                 memory_barrier.oldLayout     = old_layout;
                                 memory_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -1987,6 +2398,8 @@ VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(PFN_vkCreateSwapchainKHR   
         {
             swapchain_queue_families_[*pSwapchain] = 0;
         }
+
+        swapchain_surfaces_[*pSwapchain] = pCreateInfo->surface;
     }
 
     return result;

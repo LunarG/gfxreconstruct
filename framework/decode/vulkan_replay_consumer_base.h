@@ -65,6 +65,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void
     ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
                                          format::HandleId                                    swapchain_id,
+                                         uint32_t                                            last_presented_image,
                                          const std::vector<format::SwapchainImageStateInfo>& image_info) override;
 
     virtual void ProcessBeginResourceInitCommand(format::HandleId device_id,
@@ -485,6 +486,20 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void MapDescriptorUpdateTemplateHandles(VkDescriptorUpdateTemplate             update_template,
                                             const DescriptorUpdateTemplateDecoder& decoder);
 
+    // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
+    // the expected layout and keep them acquired until first use.
+    void ProcessSetSwapchainImageStatePreAcquire(VkDevice                                            device,
+                                                 VkSwapchainKHR                                      swapchain,
+                                                 const std::vector<format::SwapchainImageStateInfo>& image_info);
+
+    // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
+    // the expected layout, and then call queue present if the image is not expected to be in the acquired state so that
+    // no more than one image is acquired at a time.
+    void ProcessSetSwapchainImageStateQueueSubmit(VkDevice       device,
+                                                  VkSwapchainKHR swapchain,
+                                                  uint32_t       last_presented_image,
+                                                  const std::vector<format::SwapchainImageStateInfo>& image_info);
+
   private:
     struct InstanceDevices
     {
@@ -552,6 +567,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_map<VkDevice, StagingBuffer>                                  StagingBufferMap;
     typedef std::unordered_map<VkDevice, std::unordered_map<uint32_t, StagingResources>> StagingResourceMap;
     typedef std::unordered_map<VkSwapchainKHR, uint32_t>                                 SwapchainQueueFamilyIndexMap;
+    typedef std::unordered_map<VkSwapchainKHR, VkSurfaceKHR>                             SwapchainSurfaceMap;
     typedef std::unordered_map<VkDeviceMemory, VkMemoryPropertyFlags>                    MemoryPropertyMap;
     typedef std::unordered_map<VkBuffer, BufferInfo>                                     BufferInfoMap;
     typedef std::unordered_map<VkImage, ImageInfo>                                       ImageInfoMap;
@@ -578,6 +594,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     StagingBufferMap                                                 staging_buffers_;
     StagingResourceMap                                               staging_resources_;
     SwapchainQueueFamilyIndexMap                                     swapchain_queue_families_;
+    SwapchainSurfaceMap                                              swapchain_surfaces_;
     MemoryPropertyMap                                                memory_properties_;
     BufferInfoMap                                                    buffer_info_;
     ImageInfoMap                                                     image_info_;
