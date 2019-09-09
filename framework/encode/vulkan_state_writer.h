@@ -119,16 +119,18 @@ class VulkanStateWriter
                              uint32_t                               queue_family_index,
                              VkQueue                                queue,
                              VkCommandBuffer                        command_buffer,
+                             VkBuffer                               staging_buffer,
                              VkDeviceMemory                         staging_memory,
-                             VkBuffer                               staging_buffer);
+                             bool                                   is_staging_memory_coherent);
 
     void ProcessImageMemory(const DeviceWrapper*                  device_wrapper,
                             const std::vector<ImageSnapshotInfo>& image_snapshot_info,
                             uint32_t                              queue_family_index,
                             VkQueue                               queue,
                             VkCommandBuffer                       command_buffer,
-                            VkDeviceMemory                        staging_memory,
                             VkBuffer                              staging_buffer,
+                            VkDeviceMemory                        staging_memory,
+                            bool                                  is_staging_memory_coherent,
                             const VulkanStateTable&               state_table);
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
@@ -244,10 +246,17 @@ class VulkanStateWriter
                                               const DeviceMemoryWrapper* memory_wrapper,
                                               const VulkanStateTable&    state_table);
 
-    uint32_t FindMemoryTypeIndex(const DeviceWrapper*    device_wrapper,
-                                 uint32_t                memory_type_bits,
-                                 VkMemoryPropertyFlags   memory_property_flags,
-                                 const VulkanStateTable& state_table);
+    bool FindMemoryTypeIndex(const DeviceWrapper*    device_wrapper,
+                             uint32_t                memory_type_bits,
+                             VkMemoryPropertyFlags   desired_flags,
+                             uint32_t*               found_index,
+                             VkMemoryPropertyFlags*  found_flags,
+                             const VulkanStateTable& state_table) const;
+
+    void InvalidateMappedMemoryRange(const DeviceWrapper* device_wrapper,
+                                     VkDeviceMemory       memory,
+                                     VkDeviceSize         offset,
+                                     VkDeviceSize         size);
 
     void GetFenceStatus(const DeviceWrapper* device_wrapper, VkFence fence, bool* result);
 
@@ -263,6 +272,7 @@ class VulkanStateWriter
                                  VkDeviceSize            size,
                                  VkBuffer*               buffer,
                                  VkDeviceMemory*         memory,
+                                 VkMemoryPropertyFlags*  memory_property_flags,
                                  const VulkanStateTable& state_table);
 
     VkResult ResolveImage(const DeviceWrapper*    device_wrapper,

@@ -734,8 +734,9 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*                
                                             uint32_t                               queue_family_index,
                                             VkQueue                                queue,
                                             VkCommandBuffer                        command_buffer,
+                                            VkBuffer                               staging_buffer,
                                             VkDeviceMemory                         staging_memory,
-                                            VkBuffer                               staging_buffer)
+                                            bool                                   is_staging_memory_coherent)
 {
     assert(device_wrapper != nullptr);
 
@@ -777,6 +778,12 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*                
                     if (result == VK_SUCCESS)
                     {
                         bytes = reinterpret_cast<uint8_t*>(data);
+
+                        if (!is_staging_memory_coherent)
+                        {
+                            InvalidateMappedMemoryRange(
+                                device_wrapper, staging_memory, 0, buffer_wrapper->created_size);
+                        }
                     }
                 }
             }
@@ -785,15 +792,17 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*                
         {
             assert((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0));
 
+            VkResult result = VK_SUCCESS;
+
             if (memory_wrapper->mapped_data == nullptr)
             {
-                void*    data   = nullptr;
-                VkResult result = device_table->MapMemory(device_wrapper->handle,
-                                                          memory_wrapper->handle,
-                                                          buffer_wrapper->bind_offset,
-                                                          buffer_wrapper->created_size,
-                                                          0,
-                                                          &data);
+                void* data = nullptr;
+                result     = device_table->MapMemory(device_wrapper->handle,
+                                                 memory_wrapper->handle,
+                                                 buffer_wrapper->bind_offset,
+                                                 buffer_wrapper->created_size,
+                                                 0,
+                                                 &data);
                 if (result == VK_SUCCESS)
                 {
                     bytes = reinterpret_cast<uint8_t*>(data);
@@ -802,17 +811,12 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*                
             else
             {
                 bytes = reinterpret_cast<const uint8_t*>(memory_wrapper->mapped_data) + buffer_wrapper->bind_offset;
+            }
 
-                if (!IsMemoryCoherent(snapshot_entry.memory_properties))
-                {
-                    VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
-                    invalidate_range.pNext               = nullptr;
-                    invalidate_range.memory              = memory_wrapper->handle;
-                    invalidate_range.offset              = buffer_wrapper->bind_offset;
-                    invalidate_range.size                = buffer_wrapper->created_size;
-                    device_wrapper->layer_table.InvalidateMappedMemoryRanges(
-                        device_wrapper->handle, 1, &invalidate_range);
-                }
+            if ((result == VK_SUCCESS) && !IsMemoryCoherent(snapshot_entry.memory_properties))
+            {
+                InvalidateMappedMemoryRange(
+                    device_wrapper, memory_wrapper->handle, buffer_wrapper->bind_offset, buffer_wrapper->created_size);
             }
         }
 
@@ -875,8 +879,9 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
                                            uint32_t                              queue_family_index,
                                            VkQueue                               queue,
                                            VkCommandBuffer                       command_buffer,
-                                           VkDeviceMemory                        staging_memory,
                                            VkBuffer                              staging_buffer,
+                                           VkDeviceMemory                        staging_memory,
+                                           bool                                  is_staging_memory_coherent,
                                            const VulkanStateTable&               state_table)
 {
     assert(device_wrapper != nullptr);
@@ -1038,6 +1043,12 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
                         if (result == VK_SUCCESS)
                         {
                             bytes = reinterpret_cast<uint8_t*>(data);
+
+                            if (!is_staging_memory_coherent)
+                            {
+                                InvalidateMappedMemoryRange(
+                                    device_wrapper, staging_memory, 0, snapshot_entry.resource_size);
+                            }
                         }
                     }
                 }
@@ -1054,15 +1065,17 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
             assert((memory_wrapper != nullptr) &&
                    ((memory_wrapper->mapped_data == nullptr) || (memory_wrapper->mapped_offset == 0)));
 
+            VkResult result = VK_SUCCESS;
+
             if (memory_wrapper->mapped_data == nullptr)
             {
-                void*    data   = nullptr;
-                VkResult result = device_table->MapMemory(device_wrapper->handle,
-                                                          memory_wrapper->handle,
-                                                          image_wrapper->bind_offset,
-                                                          snapshot_entry.resource_size,
-                                                          0,
-                                                          &data);
+                void* data = nullptr;
+                result     = device_table->MapMemory(device_wrapper->handle,
+                                                 memory_wrapper->handle,
+                                                 image_wrapper->bind_offset,
+                                                 snapshot_entry.resource_size,
+                                                 0,
+                                                 &data);
                 if (result == VK_SUCCESS)
                 {
                     bytes = reinterpret_cast<uint8_t*>(data);
@@ -1071,16 +1084,12 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
             else
             {
                 bytes = reinterpret_cast<const uint8_t*>(memory_wrapper->mapped_data) + image_wrapper->bind_offset;
+            }
 
-                if (!IsMemoryCoherent(snapshot_entry.memory_properties))
-                {
-                    VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
-                    invalidate_range.pNext               = nullptr;
-                    invalidate_range.memory              = memory_wrapper->handle;
-                    invalidate_range.offset              = image_wrapper->bind_offset;
-                    invalidate_range.size                = snapshot_entry.resource_size;
-                    device_table->InvalidateMappedMemoryRanges(device_wrapper->handle, 1, &invalidate_range);
-                }
+            if ((result == VK_SUCCESS) && !IsMemoryCoherent(snapshot_entry.memory_properties))
+            {
+                InvalidateMappedMemoryRange(
+                    device_wrapper, memory_wrapper->handle, image_wrapper->bind_offset, snapshot_entry.resource_size);
             }
         }
 
@@ -1283,17 +1292,22 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
     // Write resource memory content.
     for (const auto& resource_entry : resources)
     {
-        const DeviceWrapper* device_wrapper = resource_entry.first;
-        VkDeviceMemory       staging_memory = VK_NULL_HANDLE;
-        VkBuffer             staging_buffer = VK_NULL_HANDLE;
-        VkResult             result         = VK_SUCCESS;
+        const DeviceWrapper*  device_wrapper            = resource_entry.first;
+        VkBuffer              staging_buffer            = VK_NULL_HANDLE;
+        VkDeviceMemory        staging_memory            = VK_NULL_HANDLE;
+        VkMemoryPropertyFlags staging_memory_properties = 0;
+        VkResult              result                    = VK_SUCCESS;
 
         if (max_staging_copy_size > 0)
         {
             assert(device_wrapper != nullptr);
 
-            result = CreateStagingBuffer(
-                device_wrapper, max_staging_copy_size, &staging_buffer, &staging_memory, state_table);
+            result = CreateStagingBuffer(device_wrapper,
+                                         max_staging_copy_size,
+                                         &staging_buffer,
+                                         &staging_memory,
+                                         &staging_memory_properties,
+                                         state_table);
         }
 
         if (result == VK_SUCCESS)
@@ -1337,23 +1351,26 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
 
                 if (command_buffer != VK_NULL_HANDLE)
                 {
-                    queue = GetQueue(device_wrapper, queue_family_index, 0);
+                    bool is_staging_memory_coherent = IsMemoryCoherent(staging_memory_properties);
+                    queue                           = GetQueue(device_wrapper, queue_family_index, 0);
 
                     ProcessBufferMemory(device_wrapper,
                                         queue_family_entry.second.buffers,
                                         queue_family_index,
                                         queue,
                                         command_buffer,
+                                        staging_buffer,
                                         staging_memory,
-                                        staging_buffer);
+                                        is_staging_memory_coherent);
 
                     ProcessImageMemory(device_wrapper,
                                        queue_family_entry.second.images,
                                        queue_family_index,
                                        queue,
                                        command_buffer,
-                                       staging_memory,
                                        staging_buffer,
+                                       staging_memory,
+                                       is_staging_memory_coherent,
                                        state_table);
 
                     device_table->DestroyCommandPool(device_wrapper->handle, command_pool, nullptr);
@@ -2108,14 +2125,16 @@ VkMemoryPropertyFlags VulkanStateWriter::GetMemoryProperties(const DeviceWrapper
     return flags;
 }
 
-uint32_t VulkanStateWriter::FindMemoryTypeIndex(const DeviceWrapper*    device_wrapper,
-                                                uint32_t                memory_type_bits,
-                                                VkMemoryPropertyFlags   memory_property_flags,
-                                                const VulkanStateTable& state_table)
+bool VulkanStateWriter::FindMemoryTypeIndex(const DeviceWrapper*    device_wrapper,
+                                            uint32_t                memory_type_bits,
+                                            VkMemoryPropertyFlags   desired_flags,
+                                            uint32_t*               found_index,
+                                            VkMemoryPropertyFlags*  found_flags,
+                                            const VulkanStateTable& state_table) const
 {
     assert(device_wrapper != nullptr);
 
-    uint32_t index = std::numeric_limits<uint32_t>::max();
+    bool found = false;
 
     const PhysicalDeviceWrapper* physical_device_wrapper = device_wrapper->physical_device;
     assert(physical_device_wrapper != nullptr);
@@ -2124,10 +2143,21 @@ uint32_t VulkanStateWriter::FindMemoryTypeIndex(const DeviceWrapper*    device_w
     {
         for (uint32_t i = 0; i < physical_device_wrapper->memory_types.size(); ++i)
         {
-            if ((memory_type_bits & (1 << i)) && ((physical_device_wrapper->memory_types[i].propertyFlags &
-                                                   memory_property_flags) == memory_property_flags))
+            if ((memory_type_bits & (1 << i)) &&
+                ((physical_device_wrapper->memory_types[i].propertyFlags & desired_flags) == desired_flags))
             {
-                index = i;
+                found = true;
+
+                if (found_index != nullptr)
+                {
+                    (*found_index) = i;
+                }
+
+                if (found_flags != nullptr)
+                {
+                    (*found_flags) = physical_device_wrapper->memory_types[i].propertyFlags;
+                }
+
                 break;
             }
         }
@@ -2145,15 +2175,42 @@ uint32_t VulkanStateWriter::FindMemoryTypeIndex(const DeviceWrapper*    device_w
         for (uint32_t i = 0; i < properties.memoryTypeCount; ++i)
         {
             if ((memory_type_bits & (1 << i)) &&
-                ((properties.memoryTypes[i].propertyFlags & memory_property_flags) == memory_property_flags))
+                ((properties.memoryTypes[i].propertyFlags & desired_flags) == desired_flags))
             {
-                index = i;
+                found = true;
+
+                if (found_index != nullptr)
+                {
+                    (*found_index) = i;
+                }
+
+                if (found_flags != nullptr)
+                {
+                    (*found_flags) = physical_device_wrapper->memory_types[i].propertyFlags;
+                }
+
                 break;
             }
         }
     }
 
-    return index;
+    return found;
+}
+
+void VulkanStateWriter::InvalidateMappedMemoryRange(const DeviceWrapper* device_wrapper,
+                                                    VkDeviceMemory       memory,
+                                                    VkDeviceSize         offset,
+                                                    VkDeviceSize         size)
+{
+    assert(device_wrapper != nullptr);
+
+    VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
+    invalidate_range.pNext               = nullptr;
+    invalidate_range.memory              = memory;
+    invalidate_range.offset              = offset;
+    invalidate_range.size                = size;
+
+    device_wrapper->layer_table.InvalidateMappedMemoryRanges(device_wrapper->handle, 1, &invalidate_range);
 }
 
 void VulkanStateWriter::GetFenceStatus(const DeviceWrapper* device_wrapper, VkFence fence, bool* status)
@@ -2261,6 +2318,7 @@ VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_w
                                                 VkDeviceSize            size,
                                                 VkBuffer*               buffer,
                                                 VkDeviceMemory*         memory,
+                                                VkMemoryPropertyFlags*  memory_property_flags,
                                                 const VulkanStateTable& state_table)
 {
     assert((device_wrapper != nullptr) && (buffer != nullptr) && (memory != nullptr));
@@ -2279,28 +2337,41 @@ VkResult VulkanStateWriter::CreateStagingBuffer(const DeviceWrapper*    device_w
     VkResult result = device_table->CreateBuffer(device_wrapper->handle, &create_info, nullptr, buffer);
     if (result == VK_SUCCESS)
     {
+        uint32_t             memory_type_index = std::numeric_limits<uint32_t>::max();
         VkMemoryRequirements memory_requirements;
 
         device_table->GetBufferMemoryRequirements(device_wrapper->handle, (*buffer), &memory_requirements);
 
-        VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-        alloc_info.pNext                = nullptr;
-        alloc_info.allocationSize       = memory_requirements.size;
-        alloc_info.memoryTypeIndex =
-            FindMemoryTypeIndex(device_wrapper,
-                                memory_requirements.memoryTypeBits,
-                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT,
-                                state_table);
+        bool found = FindMemoryTypeIndex(device_wrapper,
+                                         memory_requirements.memoryTypeBits,
+                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT,
+                                         &memory_type_index,
+                                         memory_property_flags,
+                                         state_table);
 
-        result = device_table->AllocateMemory(device_wrapper->handle, &alloc_info, nullptr, memory);
-        if (result == VK_SUCCESS)
+        if (found)
         {
-            device_table->BindBufferMemory(device_wrapper->handle, (*buffer), (*memory), 0);
+            VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+            alloc_info.pNext                = nullptr;
+            alloc_info.allocationSize       = memory_requirements.size;
+            alloc_info.memoryTypeIndex      = memory_type_index;
+
+            result = device_table->AllocateMemory(device_wrapper->handle, &alloc_info, nullptr, memory);
+            if (result == VK_SUCCESS)
+            {
+                device_table->BindBufferMemory(device_wrapper->handle, (*buffer), (*memory), 0);
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to allocate staging buffer memory for resource memory snapshot");
+                device_table->DestroyBuffer(device_wrapper->handle, *buffer, nullptr);
+            }
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to allocate staging buffer memory for resource memory snapshot");
-            device_table->DestroyBuffer(device_wrapper->handle, *buffer, nullptr);
+            GFXRECON_LOG_ERROR("Failed to find a memory type with host visible and host cached properties for resource "
+                               "memory snapshot staging buffer creation");
+            result = VK_ERROR_INITIALIZATION_FAILED;
         }
     }
     else
@@ -2346,156 +2417,173 @@ VkResult VulkanStateWriter::ResolveImage(const DeviceWrapper*    device_wrapper,
     VkResult result = device_table->CreateImage(device_wrapper->handle, &create_info, nullptr, &image);
     if (result == VK_SUCCESS)
     {
+        uint32_t             memory_type_index = std::numeric_limits<uint32_t>::max();
         VkMemoryRequirements memory_requirements;
 
         device_table->GetImageMemoryRequirements(device_wrapper->handle, image, &memory_requirements);
 
-        VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
-        alloc_info.pNext                = nullptr;
-        alloc_info.allocationSize       = memory_requirements.size;
-        alloc_info.memoryTypeIndex      = FindMemoryTypeIndex(
-            device_wrapper, memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, state_table);
+        bool found = FindMemoryTypeIndex(device_wrapper,
+                                         memory_requirements.memoryTypeBits,
+                                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                         &memory_type_index,
+                                         nullptr,
+                                         state_table);
 
-        result = device_table->AllocateMemory(device_wrapper->handle, &alloc_info, nullptr, &memory);
-        if (result == VK_SUCCESS)
+        if (found)
         {
-            device_table->BindImageMemory(device_wrapper->handle, image, memory, 0);
+            VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+            alloc_info.pNext                = nullptr;
+            alloc_info.allocationSize       = memory_requirements.size;
+            alloc_info.memoryTypeIndex      = memory_type_index;
 
-            VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
-            begin_info.pNext                    = nullptr;
-            begin_info.flags                    = 0;
-            begin_info.pInheritanceInfo         = nullptr;
-
-            result = device_table->BeginCommandBuffer(command_buffer, &begin_info);
-
+            result = device_table->AllocateMemory(device_wrapper->handle, &alloc_info, nullptr, &memory);
             if (result == VK_SUCCESS)
             {
-                VkImageAspectFlags aspect_mask = GetFormatAspectMask(image_wrapper->format);
+                device_table->BindImageMemory(device_wrapper->handle, image, memory, 0);
 
-                uint32_t             num_barriers = 1;
-                VkImageMemoryBarrier memory_barriers[2];
+                VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+                begin_info.pNext                    = nullptr;
+                begin_info.flags                    = 0;
+                begin_info.pInheritanceInfo         = nullptr;
 
-                // Destination image
-                memory_barriers[0].sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                memory_barriers[0].pNext                           = nullptr;
-                memory_barriers[0].srcAccessMask                   = 0;
-                memory_barriers[0].dstAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
-                memory_barriers[0].oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
-                memory_barriers[0].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                memory_barriers[0].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                memory_barriers[0].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                memory_barriers[0].image                           = image;
-                memory_barriers[0].subresourceRange.aspectMask     = aspect_mask;
-                memory_barriers[0].subresourceRange.baseMipLevel   = 0;
-                memory_barriers[0].subresourceRange.levelCount     = 1;
-                memory_barriers[0].subresourceRange.baseArrayLayer = 0;
-                memory_barriers[0].subresourceRange.layerCount     = image_wrapper->array_layers;
-
-                // Multi-sample source image
-                if (image_wrapper->current_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-                {
-                    num_barriers = 2;
-
-                    memory_barriers[1].sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-                    memory_barriers[1].pNext                           = nullptr;
-                    memory_barriers[1].srcAccessMask                   = 0;
-                    memory_barriers[1].dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
-                    memory_barriers[1].oldLayout                       = image_wrapper->current_layout;
-                    memory_barriers[1].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                    memory_barriers[1].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    memory_barriers[1].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    memory_barriers[1].image                           = image_wrapper->handle;
-                    memory_barriers[1].subresourceRange.aspectMask     = aspect_mask;
-                    memory_barriers[1].subresourceRange.baseMipLevel   = 0;
-                    memory_barriers[1].subresourceRange.levelCount     = 1;
-                    memory_barriers[1].subresourceRange.baseArrayLayer = 0;
-                    memory_barriers[1].subresourceRange.layerCount     = image_wrapper->array_layers;
-                }
-
-                device_table->CmdPipelineBarrier(command_buffer,
-                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                 0,
-                                                 0,
-                                                 nullptr,
-                                                 0,
-                                                 nullptr,
-                                                 num_barriers,
-                                                 memory_barriers);
-
-                VkImageResolve region;
-                region.srcSubresource.aspectMask     = aspect_mask;
-                region.srcSubresource.mipLevel       = 0;
-                region.srcSubresource.baseArrayLayer = 0;
-                region.srcSubresource.layerCount     = image_wrapper->array_layers;
-                region.srcOffset.x                   = 0;
-                region.srcOffset.y                   = 0;
-                region.srcOffset.z                   = 0;
-                region.dstSubresource.aspectMask     = aspect_mask;
-                region.dstSubresource.mipLevel       = 0;
-                region.dstSubresource.baseArrayLayer = 0;
-                region.dstSubresource.layerCount     = image_wrapper->array_layers;
-                region.dstOffset.x                   = 0;
-                region.dstOffset.y                   = 0;
-                region.dstOffset.z                   = 0;
-                region.extent.width                  = image_wrapper->extent.width;
-                region.extent.height                 = image_wrapper->extent.height;
-                region.extent.depth                  = image_wrapper->extent.depth;
-
-                device_table->CmdResolveImage(command_buffer,
-                                              image_wrapper->handle,
-                                              VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                              image,
-                                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                              1,
-                                              &region);
-
-                memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                memory_barriers[0].dstAccessMask = 0;
-                memory_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-
-                // Prepare the resolved image for the next staging copy.
-                memory_barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-
-                if (num_barriers == 2)
-                {
-                    memory_barriers[1].srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-                    memory_barriers[1].dstAccessMask = 0;
-                    memory_barriers[1].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-                    memory_barriers[1].newLayout     = image_wrapper->current_layout;
-                }
-
-                device_table->CmdPipelineBarrier(command_buffer,
-                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                 0,
-                                                 0,
-                                                 nullptr,
-                                                 0,
-                                                 nullptr,
-                                                 num_barriers,
-                                                 memory_barriers);
-
-                device_table->EndCommandBuffer(command_buffer);
-
-                result = SubmitCommandBuffer(queue, command_buffer, device_table);
+                result = device_table->BeginCommandBuffer(command_buffer, &begin_info);
 
                 if (result == VK_SUCCESS)
                 {
-                    (*resolve_image)  = image;
-                    (*resolve_memory) = memory;
+                    VkImageAspectFlags aspect_mask = GetFormatAspectMask(image_wrapper->format);
+
+                    uint32_t             num_barriers = 1;
+                    VkImageMemoryBarrier memory_barriers[2];
+
+                    // Destination image
+                    memory_barriers[0].sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                    memory_barriers[0].pNext                           = nullptr;
+                    memory_barriers[0].srcAccessMask                   = 0;
+                    memory_barriers[0].dstAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    memory_barriers[0].oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+                    memory_barriers[0].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                    memory_barriers[0].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                    memory_barriers[0].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                    memory_barriers[0].image                           = image;
+                    memory_barriers[0].subresourceRange.aspectMask     = aspect_mask;
+                    memory_barriers[0].subresourceRange.baseMipLevel   = 0;
+                    memory_barriers[0].subresourceRange.levelCount     = 1;
+                    memory_barriers[0].subresourceRange.baseArrayLayer = 0;
+                    memory_barriers[0].subresourceRange.layerCount     = image_wrapper->array_layers;
+
+                    // Multi-sample source image
+                    if (image_wrapper->current_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+                    {
+                        num_barriers = 2;
+
+                        memory_barriers[1].sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                        memory_barriers[1].pNext                           = nullptr;
+                        memory_barriers[1].srcAccessMask                   = 0;
+                        memory_barriers[1].dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
+                        memory_barriers[1].oldLayout                       = image_wrapper->current_layout;
+                        memory_barriers[1].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                        memory_barriers[1].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                        memory_barriers[1].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                        memory_barriers[1].image                           = image_wrapper->handle;
+                        memory_barriers[1].subresourceRange.aspectMask     = aspect_mask;
+                        memory_barriers[1].subresourceRange.baseMipLevel   = 0;
+                        memory_barriers[1].subresourceRange.levelCount     = 1;
+                        memory_barriers[1].subresourceRange.baseArrayLayer = 0;
+                        memory_barriers[1].subresourceRange.layerCount     = image_wrapper->array_layers;
+                    }
+
+                    device_table->CmdPipelineBarrier(command_buffer,
+                                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                     0,
+                                                     0,
+                                                     nullptr,
+                                                     0,
+                                                     nullptr,
+                                                     num_barriers,
+                                                     memory_barriers);
+
+                    VkImageResolve region;
+                    region.srcSubresource.aspectMask     = aspect_mask;
+                    region.srcSubresource.mipLevel       = 0;
+                    region.srcSubresource.baseArrayLayer = 0;
+                    region.srcSubresource.layerCount     = image_wrapper->array_layers;
+                    region.srcOffset.x                   = 0;
+                    region.srcOffset.y                   = 0;
+                    region.srcOffset.z                   = 0;
+                    region.dstSubresource.aspectMask     = aspect_mask;
+                    region.dstSubresource.mipLevel       = 0;
+                    region.dstSubresource.baseArrayLayer = 0;
+                    region.dstSubresource.layerCount     = image_wrapper->array_layers;
+                    region.dstOffset.x                   = 0;
+                    region.dstOffset.y                   = 0;
+                    region.dstOffset.z                   = 0;
+                    region.extent.width                  = image_wrapper->extent.width;
+                    region.extent.height                 = image_wrapper->extent.height;
+                    region.extent.depth                  = image_wrapper->extent.depth;
+
+                    device_table->CmdResolveImage(command_buffer,
+                                                  image_wrapper->handle,
+                                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                  image,
+                                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                  1,
+                                                  &region);
+
+                    memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    memory_barriers[0].dstAccessMask = 0;
+                    memory_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+
+                    // Prepare the resolved image for the next staging copy.
+                    memory_barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+                    if (num_barriers == 2)
+                    {
+                        memory_barriers[1].srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                        memory_barriers[1].dstAccessMask = 0;
+                        memory_barriers[1].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                        memory_barriers[1].newLayout     = image_wrapper->current_layout;
+                    }
+
+                    device_table->CmdPipelineBarrier(command_buffer,
+                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                     VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                     0,
+                                                     0,
+                                                     nullptr,
+                                                     0,
+                                                     nullptr,
+                                                     num_barriers,
+                                                     memory_barriers);
+
+                    device_table->EndCommandBuffer(command_buffer);
+
+                    result = SubmitCommandBuffer(queue, command_buffer, device_table);
+
+                    if (result == VK_SUCCESS)
+                    {
+                        (*resolve_image)  = image;
+                        (*resolve_memory) = memory;
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_ERROR("Failed to resolve multisample image");
+                        device_table->DestroyImage(device_wrapper->handle, image, nullptr);
+                        device_table->FreeMemory(device_wrapper->handle, memory, nullptr);
+                    }
                 }
-                else
-                {
-                    GFXRECON_LOG_ERROR("Failed to resolve multisample image");
-                    device_table->DestroyImage(device_wrapper->handle, image, nullptr);
-                    device_table->FreeMemory(device_wrapper->handle, memory, nullptr);
-                }
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to allocate temporary image memory for multisample resolve");
+                device_table->DestroyImage(device_wrapper->handle, image, nullptr);
             }
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to allocate temporary image memory for multisample resolve");
+            GFXRECON_LOG_ERROR(
+                "Failed to find a device local memory type for multisample resolve temporary image creation");
+            result = VK_ERROR_INITIALIZATION_FAILED;
             device_table->DestroyImage(device_wrapper->handle, image, nullptr);
         }
     }
