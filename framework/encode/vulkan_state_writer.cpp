@@ -2186,7 +2186,7 @@ bool VulkanStateWriter::FindMemoryTypeIndex(const DeviceWrapper*    device_wrapp
 
                 if (found_flags != nullptr)
                 {
-                    (*found_flags) = physical_device_wrapper->memory_types[i].propertyFlags;
+                    (*found_flags) = properties.memoryTypes[i].propertyFlags;
                 }
 
                 break;
