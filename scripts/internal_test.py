@@ -48,14 +48,16 @@ def parse_args():
     arg_parser.add_argument(
         '--version', dest='version',
         action='version', version=str(VERSION))
+
+    default_bin_path = os.path.join(os.getcwd(), "build", platform.system().lower(), "x64", "bin")
     arg_parser.add_argument(
-        '--binary-path', dest='binary_path', type=str, required=True,
+        '--binary-path', dest='binary_path', type=str, default=default_bin_path,
         help='Folder path containing the GFXReconstruct binary')
     arg_parser.add_argument(
-        '--layer-path', dest='layer_path', type=str, required=True,
+        '--layer-path', dest='layer_path', type=str, default=default_bin_path,
         help='Folder path containing the GFXReconstruct layers')
     arg_parser.add_argument(
-        '--testapp-path', dest='test_app_path', type=str, required=True,
+        '--testapp-path', dest='test_app_path', type=str, default=LOCAL_TEST_APP_PATH,
         help='Folder path containing the test app executables and/or golden trace files')
     arg_parser.add_argument(
         '--skip-test-app', dest='skip_test_app',
@@ -70,7 +72,7 @@ def parse_args():
         action='store_true', default=False,
         help='Skip sync down golden traces or app from server path (i.e. test path)')
     arg_parser.add_argument(
-        '-usrpw', '--usernamepw', dest='user_name_pw', type=str,
+        '--usernamepw', dest='user_name_pw', type=str,
         help='\"<username>,<password>\" to access the test app path if it is a server path that need authentication')
     return arg_parser.parse_args()
 
@@ -378,6 +380,7 @@ if '__main__' == __name__:
                     with zipfile.ZipFile(os.path.join(LOCAL_TEST_APP_PATH, traceappfile), 'r') as zip_ref:
                         zip_ref.extractall(LOCAL_TEST_APP_PATH)
                     print("Done unzipping test folders.")
+                    os.remove(os.path.join(LOCAL_TEST_APP_PATH, traceappfile))
             args.test_app_path = LOCAL_TEST_APP_PATH
 
         # if test folder does not exists, create a TestResult directory
@@ -387,9 +390,9 @@ if '__main__' == __name__:
         # running the test suite for each Vulkan test apps
         for file in os.listdir(args.test_app_path):
             app_file_path = os.path.join(args.test_app_path, file)
-
             # running tests (capture, playback and snapshots compare) on executable app files
             is_exe = os.access(app_file_path, os.X_OK)
+
             # os.access does not works well with window, thus add .exe check
             if platform.system().lower() == "windows":
                 is_exe = file.endswith(".exe")
@@ -399,7 +402,7 @@ if '__main__' == __name__:
                 exe = file.split('.')[0]
                 screenshot_frames = APPS_SCREENSHOT_FRAMES
                 print("\n")
-                print(''.join(['=========================== ', 'TEST ', 
+                print(''.join(['=========================== ', 'TEST ',
                       exe, ' ===========================']))
                 suite = get_test(exe+"Capture", "test_capture")
                 test_result = xmlrunner.XMLTestRunner(
@@ -422,7 +425,7 @@ if '__main__' == __name__:
             # on golden GFXRec trace files
             if not args.skip_test_game and app_file_path.endswith('.gfxr'):
                 if not gpu in app_file_path:
-                    print(''.join(["WARNING: Skipping test on ", file, 
+                    print(''.join(["WARNING: Skipping test on ", file,
                           ". Golden Trace file path name should contain GPU name \"", gpu, "\"."]))
                     continue
                 if gpu == "UNKNOWN":
@@ -430,8 +433,8 @@ if '__main__' == __name__:
                 exe = file.split('.')[0]
                 screenshot_frames = RECAP_SCREENSHOT_FRAMES
                 print("\n")
-                print(''.join['=========================== ', 'TEST ',
-                      exe, ' ==========================='])
+                print(''.join(['=========================== ', 'TEST ',
+                      exe, ' ===========================']))
                 gfxrfile = get_latest_gfxrfile(args.test_app_path, exe)
                 suite = get_test(exe+"PlaybackGold", "test_playback")
                 test_result = xmlrunner.XMLTestRunner(
