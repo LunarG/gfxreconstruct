@@ -383,7 +383,7 @@ class TraceManager
                                            VkFence     fence,
                                            uint32_t*   index)
     {
-        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
         {
             assert((state_tracker_ != nullptr) && (index != nullptr));
             state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &semaphore);
@@ -396,7 +396,7 @@ class TraceManager
                                             const VkAcquireNextImageInfoKHR* pAcquireInfo,
                                             uint32_t*                        index)
     {
-        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
         {
             assert((state_tracker_ != nullptr) && (pAcquireInfo != nullptr) && (index != nullptr));
             state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &pAcquireInfo->semaphore);
@@ -410,7 +410,7 @@ class TraceManager
 
     void PostProcess_vkQueuePresentKHR(VkResult result, VkQueue queue, const VkPresentInfoKHR* pPresentInfo)
     {
-        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
         {
             assert((state_tracker_ != nullptr) && (pPresentInfo != nullptr));
             state_tracker_->TrackSemaphoreSignalState(
