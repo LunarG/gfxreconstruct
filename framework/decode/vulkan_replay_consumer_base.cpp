@@ -450,7 +450,7 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
     {
         VkFenceCreateInfo fence_create_info = { VK_STRUCTURE_TYPE_FENCE_CREATE_INFO };
         fence_create_info.pNext             = nullptr;
-        fence_create_info.flags             = 0;
+        fence_create_info.flags             = VK_FENCE_CREATE_SIGNALED_BIT;
 
         result = table->CreateFence(device, &fence_create_info, nullptr, &wait_fence);
     }
@@ -498,8 +498,17 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
             {
                 uint32_t image_index = 0;
 
-                result = table->AcquireNextImageKHR(
-                    device, swapchain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, wait_fence, &image_index);
+                result = table->ResetFences(device, 1, &wait_fence);
+
+                if (result == VK_SUCCESS)
+                {
+                    result = table->AcquireNextImageKHR(device,
+                                                        swapchain,
+                                                        std::numeric_limits<uint64_t>::max(),
+                                                        VK_NULL_HANDLE,
+                                                        wait_fence,
+                                                        &image_index);
+                }
 
                 if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                 {
@@ -580,8 +589,17 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
             {
                 uint32_t image_index = 0;
 
-                result = table->AcquireNextImageKHR(
-                    device, swapchain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, wait_fence, &image_index);
+                result = table->ResetFences(device, 1, &wait_fence);
+
+                if (result == VK_SUCCESS)
+                {
+                    result = table->AcquireNextImageKHR(device,
+                                                        swapchain,
+                                                        std::numeric_limits<uint64_t>::max(),
+                                                        VK_NULL_HANDLE,
+                                                        wait_fence,
+                                                        &image_index);
+                }
 
                 if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                 {
@@ -636,45 +654,10 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
                         }
                         else
                         {
-                            // Image is not expected to be in the acquired state, so release it.
-                            image_barrier.newLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-                            image_barrier.image        = image;
+                            // Image is not expected to be in the acquired state, so present it.
                             present_info.pImageIndices = &image_index;
 
-                            result = table->BeginCommandBuffer(command, &begin_info);
-
-                            if (result == VK_SUCCESS)
-                            {
-                                table->CmdPipelineBarrier(command,
-                                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                          VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                          0,
-                                                          0,
-                                                          nullptr,
-                                                          0,
-                                                          nullptr,
-                                                          1,
-                                                          &image_barrier);
-                                table->EndCommandBuffer(command);
-
-                                result = table->ResetFences(device, 1, &wait_fence);
-                            }
-
-                            if (result == VK_SUCCESS)
-                            {
-                                result = table->QueueSubmit(queue, 1, &submit_info, wait_fence);
-                            }
-
-                            if (result == VK_SUCCESS)
-                            {
-                                result = table->WaitForFences(
-                                    device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
-                            }
-
-                            if (result == VK_SUCCESS)
-                            {
-                                result = table->QueuePresentKHR(queue, &present_info);
-                            }
+                            result = table->QueuePresentKHR(queue, &present_info);
 
                             if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                             {
