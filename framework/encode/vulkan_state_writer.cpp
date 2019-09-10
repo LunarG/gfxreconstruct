@@ -1011,6 +1011,8 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
                                                        copy_regions.data());
 
                     if ((image_wrapper->samples == VK_SAMPLE_COUNT_1_BIT) &&
+                        (image_wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                        (image_wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED) &&
                         (image_wrapper->current_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL))
                     {
                         memory_barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;

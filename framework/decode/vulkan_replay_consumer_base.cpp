@@ -1271,7 +1271,8 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                     }
                 }
 
-                if (layout != old_layout)
+                if ((layout != old_layout) && (layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                    (layout != VK_IMAGE_LAYOUT_PREINITIALIZED))
                 {
                     memory_barrier.srcAccessMask = src_access;
                     memory_barrier.dstAccessMask = 0;
