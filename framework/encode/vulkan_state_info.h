@@ -92,7 +92,7 @@ struct ShaderModuleInfo
 
 struct ImageAcquiredInfo
 {
-    bool             is_acquired{ true };
+    bool             is_acquired{ false };
     uint32_t         acquired_device_mask{ 0 };
     format::HandleId acquired_semaphore_id{ 0 };
     format::HandleId acquired_fence_id{ 0 };

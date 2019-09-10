@@ -1477,7 +1477,7 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
 
             if (wrapper->image_acquired_info[i].is_acquired)
             {
-                info.acquired            = true;
+                info.acquired            = 1;
                 info.acquire_device_mask = wrapper->image_acquired_info[i].acquired_device_mask;
 
                 // Only provide sync object IDs if the objects have not been destroyed between now and image
@@ -1488,6 +1488,10 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
                 {
                     info.acquire_semaphore_id = wrapper->image_acquired_info[i].acquired_semaphore_id;
                 }
+                else
+                {
+                    info.acquire_semaphore_id = 0;
+                }
 
                 const FenceWrapper* fence_wrapper =
                     state_table.GetFenceWrapper(wrapper->image_acquired_info[i].acquired_fence_id);
@@ -1495,10 +1499,14 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
                 {
                     info.acquire_fence_id = wrapper->image_acquired_info[i].acquired_fence_id;
                 }
+                else
+                {
+                    info.acquire_fence_id = 0;
+                }
             }
             else
             {
-                info.acquired             = false;
+                info.acquired             = 0;
                 info.acquire_device_mask  = 0;
                 info.acquire_semaphore_id = 0;
                 info.acquire_fence_id     = 0;
