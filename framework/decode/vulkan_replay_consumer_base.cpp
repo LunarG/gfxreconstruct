@@ -313,82 +313,80 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStatePreAcquire(
                                                         acquire_semaphore,
                                                         acquire_fence,
                                                         &image_index);
-                }
 
-                if (result == VK_SUCCESS)
-                {
-                    // TODO: Handle case where image acquired at replay does not match image acquired at
-                    // capture.
-                    assert(image_index == i);
-
-                    result =
-                        table->WaitForFences(device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
-                }
-
-                if (result == VK_SUCCESS)
-                {
-                    VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[image_index].image_layout);
-                    if (image_layout != VK_IMAGE_LAYOUT_UNDEFINED)
+                    if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                     {
-                        image_barrier.newLayout = image_layout;
-                        image_barrier.image     = image;
+                        // TODO: Handle case where image acquired at replay does not match image acquired at
+                        // capture.
+                        assert(image_index == i);
 
-                        result = table->BeginCommandBuffer(transition_command, &begin_info);
+                        result =
+                            table->WaitForFences(device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
 
-                        if (result == VK_SUCCESS)
+                        VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[image_index].image_layout);
+                        if ((result == VK_SUCCESS) && (image_layout != VK_IMAGE_LAYOUT_UNDEFINED))
                         {
-                            table->CmdPipelineBarrier(transition_command,
-                                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                      0,
-                                                      0,
-                                                      nullptr,
-                                                      0,
-                                                      nullptr,
-                                                      1,
-                                                      &image_barrier);
-                            table->EndCommandBuffer(transition_command);
+                            image_barrier.newLayout = image_layout;
+                            image_barrier.image     = image;
 
-                            result = table->ResetFences(device, 1, &acquire_fence);
+                            result = table->BeginCommandBuffer(transition_command, &begin_info);
+
+                            if (result == VK_SUCCESS)
+                            {
+                                table->CmdPipelineBarrier(transition_command,
+                                                          VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                          VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                          0,
+                                                          0,
+                                                          nullptr,
+                                                          0,
+                                                          nullptr,
+                                                          1,
+                                                          &image_barrier);
+                                table->EndCommandBuffer(transition_command);
+
+                                result = table->ResetFences(device, 1, &acquire_fence);
+                            }
+
+                            if (result == VK_SUCCESS)
+                            {
+                                result = table->QueueSubmit(transition_queue, 1, &submit_info, acquire_fence);
+                            }
+
+                            if (result == VK_SUCCESS)
+                            {
+                                result = table->WaitForFences(
+                                    device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+                            }
                         }
 
                         if (result == VK_SUCCESS)
                         {
-                            result = table->QueueSubmit(transition_queue, 1, &submit_info, acquire_fence);
+                            if (image_info[image_index].acquired)
+                            {
+                                // The upcoming frames expect the image to be acquired. The synchronization objects
+                                // used to acquire the image were already set to the appropriate signaled state when
+                                // created, so the temporary objects used to acquire the image here can be
+                                // destroyed.
+                                table->DestroyFence(device, acquire_fence, nullptr);
+                                table->DestroySemaphore(device, acquire_semaphore, nullptr);
+                            }
+                            else
+                            {
+                                // The upcoming frames do not expect the image to be acquired. We will store the
+                                // image and the synchronization objects used to acquire it in a data structure.
+                                // Replay of vkAcquireNextImage will retrieve and use the stored objects.
+                                swapchain_image_tracker_.TrackPreAcquiredImage(
+                                    swapchain, image_index, acquire_semaphore, acquire_fence);
+                            }
                         }
-
-                        if (result == VK_SUCCESS)
+                        else
                         {
-                            result = table->WaitForFences(
-                                device, 1, &acquire_fence, true, std::numeric_limits<uint64_t>::max());
+                            GFXRECON_LOG_WARNING("Failed to acquire and transition VkImage object (ID = %" PRIu64
+                                                 ") for swapchain state initialization",
+                                                 image_info[i].image_id);
                         }
                     }
-                }
-
-                if (result == VK_SUCCESS)
-                {
-                    if (image_info[image_index].acquired)
-                    {
-                        // The upcoming frames expect the image to be acquired. The synchronization objects used to
-                        // acquire the image were already set to the appropriate signaled state when created, so the
-                        // temporary objects used to acquire the image here can be destroyed.
-                        table->DestroyFence(device, acquire_fence, nullptr);
-                        table->DestroySemaphore(device, acquire_semaphore, nullptr);
-                    }
-                    else
-                    {
-                        // The upcoming frames do not expect the image to be acquired. We will store the image and the
-                        // synchronization objects used to acquire it in a data structure.  Replay of vkAcquireNextImage
-                        // will retrieve and use the stored objects.
-                        swapchain_image_tracker_.TrackPreAcquiredImage(
-                            swapchain, image_index, acquire_semaphore, acquire_fence);
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_WARNING("Failed to acquire and transition VkImage object (ID = %" PRIu64
-                                         ") for swapchain state initialization",
-                                         image_info[i].image_id);
                 }
             }
             else
@@ -503,57 +501,58 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
                 result = table->AcquireNextImageKHR(
                     device, swapchain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, wait_fence, &image_index);
 
-                if (result == VK_SUCCESS)
+                if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                 {
                     // TODO: Handle case where image acquired at replay does not match image acquired at capture.
                     assert(image_index == i);
 
                     result = table->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
-                }
 
-                if (result == VK_SUCCESS)
-                {
-                    image_barrier.image        = image;
-                    present_info.pImageIndices = &image_index;
+                    if (result == VK_SUCCESS)
+                    {
+                        image_barrier.image        = image;
+                        present_info.pImageIndices = &image_index;
 
-                    result = table->BeginCommandBuffer(command, &begin_info);
-                }
+                        result = table->BeginCommandBuffer(command, &begin_info);
+                    }
 
-                if (result == VK_SUCCESS)
-                {
-                    table->CmdPipelineBarrier(command,
-                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                              0,
-                                              0,
-                                              nullptr,
-                                              0,
-                                              nullptr,
-                                              1,
-                                              &image_barrier);
-                    table->EndCommandBuffer(command);
+                    if (result == VK_SUCCESS)
+                    {
+                        table->CmdPipelineBarrier(command,
+                                                  VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                  VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                  0,
+                                                  0,
+                                                  nullptr,
+                                                  0,
+                                                  nullptr,
+                                                  1,
+                                                  &image_barrier);
+                        table->EndCommandBuffer(command);
 
-                    result = table->ResetFences(device, 1, &wait_fence);
-                }
+                        result = table->ResetFences(device, 1, &wait_fence);
+                    }
 
-                if (result == VK_SUCCESS)
-                {
-                    result = table->QueueSubmit(queue, 1, &submit_info, wait_fence);
-                }
+                    if (result == VK_SUCCESS)
+                    {
+                        result = table->QueueSubmit(queue, 1, &submit_info, wait_fence);
+                    }
 
-                if (result == VK_SUCCESS)
-                {
-                    result = table->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
-                }
+                    if (result == VK_SUCCESS)
+                    {
+                        result =
+                            table->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
+                    }
 
-                if (result == VK_SUCCESS)
-                {
-                    result = table->QueuePresentKHR(queue, &present_info);
-                }
+                    if (result == VK_SUCCESS)
+                    {
+                        result = table->QueuePresentKHR(queue, &present_info);
+                    }
 
-                if (result == VK_SUCCESS)
-                {
-                    result = table->QueueWaitIdle(queue);
+                    if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
+                    {
+                        result = table->QueueWaitIdle(queue);
+                    }
                 }
 
                 if (result != VK_SUCCESS)
@@ -584,26 +583,63 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
                 result = table->AcquireNextImageKHR(
                     device, swapchain, std::numeric_limits<uint64_t>::max(), VK_NULL_HANDLE, wait_fence, &image_index);
 
-                if (result == VK_SUCCESS)
+                if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
                 {
                     // TODO: Handle case where image acquired at replay does not match image acquired at capture.
                     assert(image_index == i);
 
                     result = table->WaitForFences(device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
-                }
 
-                if (result == VK_SUCCESS)
-                {
-                    if (image_info[i].acquired)
+                    if (result == VK_SUCCESS)
                     {
-                        // Transition the image to the expected layout and keep it acquired.
-                        VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[i].image_layout);
-                        if ((image_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
-                            (image_layout != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR))
+                        if (image_info[i].acquired)
                         {
+                            // Transition the image to the expected layout and keep it acquired.
+                            VkImageLayout image_layout = static_cast<VkImageLayout>(image_info[i].image_layout);
+                            if ((image_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                                (image_layout != VK_IMAGE_LAYOUT_PRESENT_SRC_KHR))
+                            {
 
-                            image_barrier.newLayout = image_layout;
-                            image_barrier.image     = image;
+                                image_barrier.newLayout = image_layout;
+                                image_barrier.image     = image;
+
+                                result = table->BeginCommandBuffer(command, &begin_info);
+
+                                if (result == VK_SUCCESS)
+                                {
+                                    table->CmdPipelineBarrier(command,
+                                                              VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                              0,
+                                                              0,
+                                                              nullptr,
+                                                              0,
+                                                              nullptr,
+                                                              1,
+                                                              &image_barrier);
+                                    table->EndCommandBuffer(command);
+
+                                    result = table->ResetFences(device, 1, &wait_fence);
+                                }
+
+                                if (result == VK_SUCCESS)
+                                {
+                                    result = table->QueueSubmit(queue, 1, &submit_info, wait_fence);
+                                }
+
+                                if (result == VK_SUCCESS)
+                                {
+                                    result = table->WaitForFences(
+                                        device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Image is not expected to be in the acquired state, so release it.
+                            image_barrier.newLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                            image_barrier.image        = image;
+                            present_info.pImageIndices = &image_index;
 
                             result = table->BeginCommandBuffer(command, &begin_info);
 
@@ -634,53 +670,16 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
                                 result = table->WaitForFences(
                                     device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
                             }
-                        }
-                    }
-                    else
-                    {
-                        // Image is not expected to be in the acquired state, so release it.
-                        image_barrier.newLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-                        image_barrier.image        = image;
-                        present_info.pImageIndices = &image_index;
 
-                        result = table->BeginCommandBuffer(command, &begin_info);
+                            if (result == VK_SUCCESS)
+                            {
+                                result = table->QueuePresentKHR(queue, &present_info);
+                            }
 
-                        if (result == VK_SUCCESS)
-                        {
-                            table->CmdPipelineBarrier(command,
-                                                      VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                                      VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                                                      0,
-                                                      0,
-                                                      nullptr,
-                                                      0,
-                                                      nullptr,
-                                                      1,
-                                                      &image_barrier);
-                            table->EndCommandBuffer(command);
-
-                            result = table->ResetFences(device, 1, &wait_fence);
-                        }
-
-                        if (result == VK_SUCCESS)
-                        {
-                            result = table->QueueSubmit(queue, 1, &submit_info, wait_fence);
-                        }
-
-                        if (result == VK_SUCCESS)
-                        {
-                            result = table->WaitForFences(
-                                device, 1, &wait_fence, true, std::numeric_limits<uint64_t>::max());
-                        }
-
-                        if (result == VK_SUCCESS)
-                        {
-                            result = table->QueuePresentKHR(queue, &present_info);
-                        }
-
-                        if (result == VK_SUCCESS)
-                        {
-                            result = table->QueueWaitIdle(queue);
+                            if ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR))
+                            {
+                                result = table->QueueWaitIdle(queue);
+                            }
                         }
                     }
                 }
