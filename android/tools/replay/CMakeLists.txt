@@ -3,14 +3,20 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 0)
+set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 8)
+set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 0)
+
+get_filename_component(GFXRECON_SOURCE_DIR ../../.. ABSOLUTE)
+
+configure_file("${GFXRECON_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
+
 add_library(native_app_glue STATIC
         ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
 
 # Export ANativeActivity_onCreate(),
 # Refer to: https://github.com/android-ndk/ndk/issues/381.
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
-
-get_filename_component(GFXRECON_SOURCE_DIR ../../.. ABSOLUTE)
 
 include(../../framework/cmake-config/PlatformConfig.cmake)
 add_subdirectory(../../framework/util ${CMAKE_SOURCE_DIR}/../../framework/util/build)
@@ -25,7 +31,8 @@ add_library(gfxrecon-replay
 
 target_include_directories(gfxrecon-replay
                            PUBLIC
-                               ${ANDROID_NDK}/sources/android/native_app_glue)
+                               ${ANDROID_NDK}/sources/android/native_app_glue
+                               ${CMAKE_BINARY_DIR})
 
 target_link_libraries(
         gfxrecon-replay

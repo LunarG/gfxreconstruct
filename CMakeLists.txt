@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.1)
 project(GFXReconstruct)
 
+set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 0)
+set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 8)
+set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 0)
+configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
+
 set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
 
 set(CMAKE_CXX_STANDARD 14)

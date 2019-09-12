@@ -59,15 +59,19 @@ def CreateInstallApkParser():
 def CreateReplayParser():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]) + ' replay', description='Launch the replay tool.')
     parser.add_argument('-p', '--push-file', metavar='local-file', help='Local file to push to the location on device specified by <file>')
+    parser.add_argument('--version', action='store_true', default=False, help='Print version information and exit (forwarded to replay tool)')
     parser.add_argument('--pause-frame', metavar='N', help='Pause after replaying frame number N (forwarded to replay tool)')
     parser.add_argument('--paused', action='store_true', default=False, help='Pause after replaying the first frame (same as "--pause-frame 1"; forwarded to replay tool)')
     parser.add_argument('--sfa', '--skip-failed-allocations', action='store_true', default=False, help='Skip vkAllocateMemory, vkAllocateCommandBuffers, and vkAllocateDescriptorSets calls that failed during capture (forwarded to replay tool)')
     parser.add_argument('--opcd', '--omit-pipeline-cache-data', action='store_true', default=False, help='Omit pipeline cache data from calls to vkCreatePipelineCache (forwarded to replay tool)')
-    parser.add_argument('file', help='File on device to play (forwarded to replay tool)')
+    parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
     return parser
 
 def MakeExtrasString(args):
     arg_list = []
+
+    if args.version:
+        arg_list.append('--version')
 
     if args.pause_frame:
         arg_list.append('--pause-frame')
@@ -82,7 +86,11 @@ def MakeExtrasString(args):
     if args.opcd:
         arg_list.append('--opcd')
 
-    arg_list.append(args.file)
+    if args.file:
+        arg_list.append(args.file)
+    elif not args.version:
+        print('gfxrecon.py release: error: the following arguments are required: file')
+        return None
 
     return ' '.join(arg_list)
 
