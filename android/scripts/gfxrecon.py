@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import os
 import sys
 import shlex
@@ -23,7 +24,7 @@ argv = sys.argv
 argc = len(sys.argv)
 
 # Supported commands
-commands = [
+valid_commands = [
     'install-apk',
     'replay'
 ]
@@ -44,71 +45,80 @@ adb_start = 'adb shell am start -n {} -a {} -c {}'.format(app_activity, app_acti
 adb_stop = 'adb shell am force-stop {}'.format(app_name)
 adb_push = 'adb push'
 
-def PrintUsage():
-    print('gfxrecon.py usage:')
-    print('  gfxrecon.py install-apk <file>')
-    print('  gfxrecon.py replay [options] <file-on-device>')
-    print()
-    print('Android-specific replay options:')
-    print('  -p <file-on-desktop>\tPush <file-on-desktop> to <file-on-device> before starting')
-    print('                      \treplay (same as --push-file <file-on-desktop>).')
-    print()
-    print('Common replay options:')
-    print('  --pause-frame <N>\tPause after replaying frame number N')
-    print('  --paused\t\tPause after replaying the first frame (same');
-    print('          \t\tas --pause-frame 1)');
-    print('  --sfa\t\t\tSkip vkAllocateMemory, vkAllocateCommandBuffers, and');
-    print('       \t\t\tvkAllocateDescriptorSets calls that failed during');
-    print('       \t\t\tcapture (same as --skip-failed-allocations)');
-    print('  --opcd\t\tOmit pipeline cache data from calls to');
-    print('        \t\tvkCreatePipelineCache (same as --omit-pipeline-cache-data)');
+def CreateCommandParser():
+    parser = argparse.ArgumentParser(description='GFXReconstruct utility launcher for Android.')
+    parser.add_argument('command', choices=valid_commands, metavar='command', help='Command to execute. Valid options are [{}]'.format(', '.join(valid_commands)))
+    parser.add_argument('args', nargs=argparse.REMAINDER, help='Command-specific argument list. Specify -h after command name for more.')
+    return parser
 
+def CreateInstallApkParser():
+    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]) + ' install-apk', description='Install the replay tool.')
+    parser.add_argument('file', help='APK file to install')
+    return parser
 
-def InstallApk():
-    if argc != 3:
-        PrintUsage()
-    else:
-        cmd = adb_install + ' ' + argv[2]
-        print('Executing:', cmd)
-        subprocess.check_call(shlex.split(cmd))
+def CreateReplayParser():
+    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]) + ' replay', description='Launch the replay tool.')
+    parser.add_argument('-p', '--push-file', metavar='local-file', help='Local file to push to the location on device specified by <file>')
+    parser.add_argument('--pause-frame', metavar='N', help='Pause after replaying frame number N (forwarded to replay tool)')
+    parser.add_argument('--paused', action='store_true', default=False, help='Pause after replaying the first frame (same as "--pause-frame 1"; forwarded to replay tool)')
+    parser.add_argument('--sfa', '--skip-failed-allocations', action='store_true', default=False, help='Skip vkAllocateMemory, vkAllocateCommandBuffers, and vkAllocateDescriptorSets calls that failed during capture (forwarded to replay tool)')
+    parser.add_argument('--opcd', '--omit-pipeline-cache-data', action='store_true', default=False, help='Omit pipeline cache data from calls to vkCreatePipelineCache (forwarded to replay tool)')
+    parser.add_argument('file', help='File on device to play (forwarded to replay tool)')
+    return parser
 
-def Replay():
-    filename = ''
-    push_source = ''
+def MakeExtrasString(args):
+    arg_list = []
 
-    if argc != 3 or argc != 5:
-        if argc == 5:
-            if argv[2] in ['-p', '--push-file']:
-                push_source = argv[3]
-                filename = argv[4]
-            elif argv[3] in ['-p', '--push-file']:
-                filename = argv[2]
-                push_source = argv[4]
-        else:
-            filename = argv[2]
+    if args.pause_frame:
+        arg_list.append('--pause-frame')
+        arg_list.append('{}'.format(args.pause_frame))
 
-    if filename:
-        if push_source:
-            cmd = adb_push + ' ' + push_source + ' ' + filename
+    if args.paused:
+        arg_list.append('--paused')
+
+    if args.sfa:
+        arg_list.append('--sfa')
+
+    if args.opcd:
+        arg_list.append('--opcd')
+
+    arg_list.append(args.file)
+
+    return ' '.join(arg_list)
+
+def InstallApk(install_args):
+    install_parser = CreateInstallApkParser()
+    args = install_parser.parse_args(install_args)
+    cmd = adb_install + ' ' + args.file
+    print('Executing:', cmd)
+    subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
+
+def Replay(replay_args):
+    replay_parser = CreateReplayParser()
+    args = replay_parser.parse_args(replay_args)
+
+    extras = MakeExtrasString(args)
+
+    if extras:
+        if args.push_file:
+            cmd = ' '.join([adb_push, args.push_file, args.file])
             print('Executing:', cmd)
-            subprocess.check_call(shlex.split(cmd))
+            subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
 
         print('Executing:', adb_stop)
-        subprocess.check_call(shlex.split(adb_stop))
+        subprocess.check_call(shlex.split(adb_stop, posix='win' not in sys.platform))
 
-        cmd = adb_start + ' ' + '--es' + ' ' + '"args"' + ' "' + filename + '"'
+        cmd = ' '.join([adb_start, '--es', '"args"', '"{}"'.format(extras)])
         print('Executing:', cmd)
 
         # Specify posix=False to prevent removal of quotes from adb extras.
         subprocess.check_call(shlex.split(cmd, posix=False))
-    else:
-        PrintUsage()
 
 if __name__ == '__main__':
-    if argc > 1 and argv[1] in commands:
-        if argv[1] == 'install-apk':
-            InstallApk()
-        elif argv[1] == 'replay':
-            Replay()
-    else:
-        PrintUsage()
+    command_parser = CreateCommandParser()
+    command = command_parser.parse_args()
+
+    if command.command == 'install-apk':
+        InstallApk(command.args)
+    elif command.command == 'replay':
+        Replay(command.args)
