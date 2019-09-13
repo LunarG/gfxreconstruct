@@ -1,16 +1,35 @@
 cmake_minimum_required(VERSION 3.1)
 project(GFXReconstruct)
 
-set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 0)
-set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 8)
-set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 0)
-configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
-
 set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/cmake-modules")
+
+# Version info
+set(GFXRECONSTRUCT_PROJECT_VERSION_MAJOR 0)
+set(GFXRECONSTRUCT_PROJECT_VERSION_MINOR 8)
+set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 0)
+
+set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
+
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+
+if (GIT_SHA1)
+    string(SUBSTRING ${GIT_SHA1} 0 7 GFXRECON_PROJECT_VERSION_SHA1)
+
+    git_local_changes(GIT_LOCAL_STATE)
+    string(COMPARE EQUAL ${GIT_LOCAL_STATE} "DIRTY" GIT_DIRTY)
+    if (GIT_DIRTY)
+        string(CONCAT GFXRECON_PROJECT_VERSION_SHA1 ${GFXRECON_PROJECT_VERSION_SHA1} "*")
+    endif()
+endif()
+
+configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
+
+# Code checks
 include("CodeStyle")
 include("Test")
 include("StaticAnalysis")
