@@ -16,11 +16,14 @@ set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
 
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+set(GIT_BRANCH "")
 
 if (GIT_REFSPEC)
-    string(REGEX MATCH ".*master$" GIT_IS_MASTER ${GIT_REFSPEC})
+    string(REGEX REPLACE ".*/(.+)$" "\\1" GIT_BRANCH ${GIT_REFSPEC})
+    string(COMPARE EQUAL ${GIT_BRANCH} "master" GIT_IS_MASTER)
 
     if (GIT_IS_MASTER)
+        set(GIT_BRANCH "")
         set(GFXRECON_PROJECT_VERSION_DESIGNATION "")
     else()
         set(GFXRECON_PROJECT_VERSION_DESIGNATION "-dev")
@@ -29,6 +32,10 @@ endif()
 
 if (GIT_SHA1)
     string(SUBSTRING ${GIT_SHA1} 0 7 GFXRECON_PROJECT_VERSION_SHA1)
+
+    if (GIT_BRANCH)
+        string(CONCAT GFXRECON_PROJECT_VERSION_SHA1 ${GIT_BRANCH} ":" ${GFXRECON_PROJECT_VERSION_SHA1})
+    endif()
 
     git_local_changes(GIT_LOCAL_STATE)
     string(COMPARE EQUAL ${GIT_LOCAL_STATE} "DIRTY" GIT_DIRTY)
