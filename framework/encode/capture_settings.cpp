@@ -67,6 +67,12 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define MEMORY_TRACKING_MODE_UPPER          "MEMORY_TRACKING_MODE"
 #define CAPTURE_FRAMES_LOWER                "capture_frames"
 #define CAPTURE_FRAMES_UPPER                "CAPTURE_FRAMES"
+#define PAGE_GUARD_COPY_ON_MAP_LOWER        "page_guard_copy_on_map"
+#define PAGE_GUARD_COPY_ON_MAP_UPPER        "PAGE_GUARD_COPY_ON_MAP"
+#define PAGE_GUARD_LAZY_COPY_LOWER          "page_guard_lazy_copy"
+#define PAGE_GUARD_LAZY_COPY_UPPER          "PAGE_GUARD_LAZY_COPY"
+#define PAGE_GUARD_EXTERNAL_MEMORY_LOWER    "page_guard_external_memory"
+#define PAGE_GUARD_EXTERNAL_MEMORY_UPPER    "PAGE_GUARD_EXTERNAL_MEMORY"
 // clang-format on
 
 #if defined(__ANDROID__)
@@ -91,34 +97,41 @@ const char kLogOutputToConsoleEnvVar[]       = GFXRECON_ENV_VAR_PREFIX LOG_OUTPU
 const char kLogOutputToOsDebugStringEnvVar[] = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER;
 const char kMemoryTrackingModeEnvVar[]       = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_LOWER;
 const char kCaptureFramesEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
+const char kPageGuardCopyOnMapEnvVar[]       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_LOWER;
+const char kPageGuardLazyCopyEnvVar[]        = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_LAZY_COPY_LOWER;
+const char kPageGuardExternalMemoryEnvVar[]  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
 
 #else
 const char CaptureSettings::kDefaultCaptureFileName[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
 
 // Desktop environment settings
 #define GFXRECON_ENV_VAR_PREFIX "GFXRECON_"
-const char kCaptureCompressionTypeEnvVar[]   = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_UPPER;
-const char kCaptureFileFlushEnvVar[]         = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_UPPER;
-const char kCaptureFileNameEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
-const char kCaptureFileUseTimestampEnvVar[]  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_UPPER;
-const char kLogAllowIndentsEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
-const char kLogBreakOnErrorEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
-const char kLogDetailedEnvVar[]              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
-const char kLogErrorsToStderrEnvVar[]        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_UPPER;
-const char kLogFileNameEnvVar[]              = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_UPPER;
-const char kLogFileCreateNewEnvVar[]         = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_UPPER;
-const char kLogFileFlushAfterWriteEnvVar[]   = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_UPPER;
-const char kLogFileKeepFileOpenEnvVar[]      = GFXRECON_ENV_VAR_PREFIX LOG_FILE_KEEP_OPEN_UPPER;
-const char kLogLevelEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL_UPPER;
-const char kLogOutputToConsoleEnvVar[]       = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_UPPER;
-const char kLogOutputToOsDebugStringEnvVar[] = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER;
-const char kMemoryTrackingModeEnvVar[]       = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_UPPER;
-const char kCaptureFramesEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_UPPER;
+const char kCaptureCompressionTypeEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_UPPER;
+const char kCaptureFileFlushEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_UPPER;
+const char kCaptureFileNameEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
+const char kCaptureFileUseTimestampEnvVar[]           = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_UPPER;
+const char kLogAllowIndentsEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
+const char kLogBreakOnErrorEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
+const char kLogDetailedEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
+const char kLogErrorsToStderrEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_UPPER;
+const char kLogFileNameEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_UPPER;
+const char kLogFileCreateNewEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_UPPER;
+const char kLogFileFlushAfterWriteEnvVar[]            = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_UPPER;
+const char kLogFileKeepFileOpenEnvVar[]               = GFXRECON_ENV_VAR_PREFIX LOG_FILE_KEEP_OPEN_UPPER;
+const char kLogLevelEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL_UPPER;
+const char kLogOutputToConsoleEnvVar[]                = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_UPPER;
+const char kLogOutputToOsDebugStringEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER;
+const char kMemoryTrackingModeEnvVar[]                = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_UPPER;
+const char kCaptureFramesEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_UPPER;
+const char kPageGuardCopyOnMapEnvVar[]                = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_UPPER;
+const char kPageGuardLazyCopyEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_LAZY_COPY_UPPER;
+const char kPageGuardExternalMemoryEnvVar[]           = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
 #endif
 
 // Capture options for settings file.
 // clang-format off
 const char kSettingsFilter[] = "lunarg_gfxrecon.";
+
 const std::string kOptionKeyCaptureCompressionType   = std::string(kSettingsFilter) + std::string(CAPTURE_COMPRESSION_TYPE_LOWER);
 const std::string kOptionKeyCaptureFile              = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_NAME_LOWER);
 const std::string kOptionKeyCaptureFileForceFlush    = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_FLUSH_LOWER);
@@ -136,6 +149,9 @@ const std::string kOptionKeyLogOutputToConsole       = std::string(kSettingsFilt
 const std::string kOptionKeyLogOutputToOsDebugString = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER);
 const std::string kOptionKeyMemoryTrackingMode       = std::string(kSettingsFilter) + std::string(MEMORY_TRACKING_MODE_LOWER);
 const std::string kOptionKeyCaptureFrames            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
+const std::string kOptionKeyPageGuardCopyOnMap       = std::string(kSettingsFilter) + std::string(PAGE_GUARD_COPY_ON_MAP_LOWER);
+const std::string kOptionKeyPageGuardLazyCopy        = std::string(kSettingsFilter) + std::string(PAGE_GUARD_LAZY_COPY_LOWER);
+const std::string kOptionKeyPageGuardExternalMemory  = std::string(kSettingsFilter) + std::string(PAGE_GUARD_EXTERNAL_MEMORY_LOWER);
 // clang-format on
 
 #if defined(ENABLE_LZ4_COMPRESSION)
@@ -214,6 +230,11 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     // Trimming environment variables
     LoadSingleOptionEnvVar(options, kCaptureFramesEnvVar, kOptionKeyCaptureFrames);
+
+    // Page guard environment variables
+    LoadSingleOptionEnvVar(options, kPageGuardCopyOnMapEnvVar, kOptionKeyPageGuardCopyOnMap);
+    LoadSingleOptionEnvVar(options, kPageGuardLazyCopyEnvVar, kOptionKeyPageGuardLazyCopy);
+    LoadSingleOptionEnvVar(options, kPageGuardExternalMemoryEnvVar, kOptionKeyPageGuardExternalMemory);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -259,6 +280,14 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
 
     // Trimming options
     ParseTrimRangeString(FindOption(options, kOptionKeyCaptureFrames), &settings->trace_settings_.trim_ranges);
+
+    // Page guard environment variables
+    settings->trace_settings_.page_guard_copy_on_map = ParseBoolString(
+        FindOption(options, kOptionKeyPageGuardCopyOnMap), settings->trace_settings_.page_guard_copy_on_map);
+    settings->trace_settings_.page_guard_lazy_copy = ParseBoolString(FindOption(options, kOptionKeyPageGuardLazyCopy),
+                                                                     settings->trace_settings_.page_guard_lazy_copy);
+    settings->trace_settings_.page_guard_external_memory = ParseBoolString(
+        FindOption(options, kOptionKeyPageGuardExternalMemory), settings->trace_settings_.page_guard_external_memory);
 
     // Log options
     settings->log_settings_.use_indent =

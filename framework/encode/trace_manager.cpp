@@ -253,8 +253,8 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager::Create(!page_guard_external_memory_,
-                                           util::PageGuardManager::kDefaultEnableCopyOnMap,
-                                           util::PageGuardManager::kDefaultEnableLazyCopy,
+                                           trace_settings.page_guard_copy_on_map,
+                                           trace_settings.page_guard_lazy_copy,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage);
         }
 

@@ -20,6 +20,7 @@
 
 #include "format/format.h"
 #include "util/logging.h"
+#include "util/page_guard_manager.h"
 
 #include <string>
 #include <unordered_map>
@@ -41,7 +42,7 @@ class CaptureSettings
         // Assume the application will always flush after writing to mapped memory, so only write mapped memory data on
         // flush.
         kAssisted = 1,
-        // Use pageguard to determine which regions of memory to write on unmap and queue submit.  This mode replaces
+        // Use guard pages to determine which regions of memory to write on unmap and queue submit.  This mode replaces
         // the mapped memory value returned by the driver with a shadow allocation that the capture layer can monitor
         // to determine which regions of memory have been modified by the application.
         kPageGuard = 2
@@ -61,8 +62,10 @@ class CaptureSettings
         bool                   force_flush{ false };
         MemoryTrackingMode     memory_tracking_mode{ kPageGuard };
         std::vector<TrimRange> trim_ranges;
+        bool                   page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
+        bool                   page_guard_lazy_copy{ util::PageGuardManager::kDefaultEnableLazyCopy };
 
-        // An optimization for the pageguard memory tracking mode that eliminates the need for shadow memory by
+        // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a
         // memory allocation that the capture layer can monitor to determine which regions of memory have been modified
         // by the application.
