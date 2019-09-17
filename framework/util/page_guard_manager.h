@@ -36,7 +36,7 @@ class PageGuardManager
   public:
     static const bool kDefaultEnableShadowMemory         = true;
     static const bool kDefaultEnableCopyOnMap            = true;
-    static const bool kDefaultEnableLazyCopy             = true;
+    static const bool kDefaultEnableLazyCopy             = false;
     static const bool kDefaultEnableReadWriteSamePage    = true;
 
   public:
