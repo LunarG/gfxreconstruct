@@ -154,9 +154,9 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                     body += '    if (wrapper != nullptr)\n'
                     body += '    {'
                 else:
-                    body += '    if ((wrapper != nullptr) && (wrapper->value != nullptr))\n'
+                    body += '    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))\n'
                     body += '    {\n'
-                    body += '        {}* value = wrapper->value;\n'.format(struct)
+                    body += '        {}* value = wrapper->decoded_value;\n'.format(struct)
 
                 body += self.makeStructHandleMappings(struct, members)
                 body += '    }\n'

@@ -30,10 +30,10 @@ size_t DecodePNextStruct(const uint8_t* buffer, size_t buffer_size, std::unique_
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper)
 {
-    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
     size_t             bytes_read = 0;
-    VkClearColorValue* value      = wrapper->value;
+    VkClearColorValue* value      = wrapper->decoded_value;
 
     wrapper->uint32.SetExternalMemory(value->uint32, 4);
     bytes_read += wrapper->uint32.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
@@ -43,13 +43,13 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearCo
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper)
 {
-    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
     size_t        bytes_read = 0;
-    VkClearValue* value      = wrapper->value;
+    VkClearValue* value      = wrapper->decoded_value;
 
-    wrapper->color        = std::make_unique<Decoded_VkClearColorValue>();
-    wrapper->color->value = &(value->color);
+    wrapper->color                = std::make_unique<Decoded_VkClearColorValue>();
+    wrapper->color->decoded_value = &(value->color);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->color.get());
 
     return bytes_read;
@@ -57,10 +57,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearVa
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper)
 {
-    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
     size_t                 bytes_read = 0;
-    VkDescriptorImageInfo* value      = wrapper->value;
+    VkDescriptorImageInfo* value      = wrapper->decoded_value;
 
     bytes_read +=
         ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->sampler));
@@ -76,10 +76,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescrip
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWriteDescriptorSet* wrapper)
 {
-    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
     size_t                bytes_read = 0;
-    VkWriteDescriptorSet* value      = wrapper->value;
+    VkWriteDescriptorSet* value      = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
     bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pNext));
@@ -136,10 +136,10 @@ static std::unique_ptr<uint8_t[]> unpack_sid_struct(const PointerDecoder<uint8_t
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wrapper)
 {
-    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
     size_t bytes_read = 0;
-    ACL*   value      = wrapper->value;
+    ACL*   value      = wrapper->decoded_value;
 
     bytes_read +=
         ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->AclRevision));
@@ -154,10 +154,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_ACL* wrap
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_DESCRIPTOR* wrapper)
 {
-    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
     size_t               bytes_read = 0;
-    SECURITY_DESCRIPTOR* value      = wrapper->value;
+    SECURITY_DESCRIPTOR* value      = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Revision));
     bytes_read += ValueDecoder::DecodeUInt8Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->Sbz1));
@@ -185,10 +185,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_ATTRIBUTES* wrapper)
 {
-    assert((wrapper != nullptr) && (wrapper->value != nullptr));
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
     size_t               bytes_read = 0;
-    SECURITY_ATTRIBUTES* value      = wrapper->value;
+    SECURITY_ATTRIBUTES* value      = wrapper->decoded_value;
 
     uint32_t nLength = 0;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &nLength);

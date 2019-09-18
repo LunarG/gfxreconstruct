@@ -93,7 +93,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
             body += '{\n'
             body += '    using struct_type = {};\n'.format(struct)
             body += '\n'
-            body += '    {}* value{{ nullptr }};\n'.format(struct)
+            body += '    {}* decoded_value{{ nullptr }};\n'.format(struct)
 
             decls = self.makeMemberDeclarations(struct, self.featureStructMembers[struct])
             if decls:
