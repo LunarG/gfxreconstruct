@@ -173,33 +173,28 @@ class GFXTestSuite(unittest.TestCase):
                     start {4}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe, app)
             elif platform.system().lower() == "linux":
                 app = '{0}/{1}'.format(args.test_app_path, exe)
-                command = 'export VK_LAYER_PATH={0}:$PATH&&\
-                    export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
-                    export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
-                    export VK_SCREENSHOT_FRAMES={1}&&\
-                    export GFXRECON_CAPTURE_FILE={2}\\{3}.gfxr&&\
-                    export GFXRECON_LOG_LEVEL=warning&&\
-                    {4}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe, app)
+                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; {4} & (sleep 3 && sudo killall -9 {4})'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe, app)
 
             print(command)
             ret = os.system(command)
-            if not ret:
-                # checking for sufficient # screenshot ppm files exist
-                ppmfiles = []
-                start = time.time()
-                while (len(ppmfiles) < SCREENSHOT_COUNT):
+            if platform.system().lower() == "windows":
+                if not ret:
+                    #checking for sufficient # screenshot ppm files exist before quit apps
                     ppmfiles = []
-                    ppmfiles += [each for each in os.listdir(
-                        os.getcwd()) if each.endswith('.ppm')]
-                    if(time.time()-start > 120):
-                        raise Exception(
-                            'Time Out in capture. Insufficient screenshot generated from capture.')
-                time.sleep(1)
-                if platform.system().lower() == "windows":
-                    result = os.system('taskkill /IM ' + exe + '.exe /f')
-                elif platform.system().lower() == "linux":
-                    result = os.system('sudo killall -9 ' + app)
-                self.assertEqual(result, 0)
+                    start = time.time()
+                    while (len(ppmfiles) < SCREENSHOT_COUNT):
+                        ppmfiles = []
+                        ppmfiles += [each for each in os.listdir(
+                            os.getcwd()) if each.endswith('.ppm')]
+                        if(time.time()-start > 120):
+                            raise Exception(
+                                'Time Out in capture. Insufficient screenshot generated from capture.')
+                    time.sleep(1)
+                    if platform.system().lower() == "windows":
+                        result = os.system('taskkill /IM ' + exe + '.exe /f')
+                    elif platform.system().lower() == "linux":
+                        result = os.system('sudo killall -9 ' + app)
+                    self.assertEqual(result, 0)
 
         except Exception as error:
             print('Error', *(error.args))
@@ -222,13 +217,7 @@ class GFXTestSuite(unittest.TestCase):
                     set GFXRECON_LOG_LEVEL=warning&&\
                     {4}\\gfxrecon-replay.exe {5}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recap", args.binary_path, tracefile)
             elif platform.system().lower() == "linux":
-                command = 'export VK_LAYER_PATH={0}:$PATH&&\
-                    export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
-                    export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
-                    export VK_SCREENSHOT_FRAMES={1}&&\
-                    export GFXRECON_CAPTURE_FILE={2}\\{3}.gfxr&&\
-                    export GFXRECON_LOG_LEVEL=warning&&\
-                    {4}/gfxrecon-replay {5}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recap", args.binary_path, tracefile)
+                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; {4}/gfxrecon-replay {5}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recap", args.binary_path, tracefile)
             print(command)
             ret = os.system(command)
         except Exception as error:
@@ -253,13 +242,7 @@ class GFXTestSuite(unittest.TestCase):
                     set GFXRECON_CAPTURE_FRAMES={4}&&\
                     {5}\\gfxrecon-replay.exe {6}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recaptrim", TRIM_RANGE, args.binary_path, tracefile)
             elif platform.system().lower() == "linux":
-                command = 'export VK_LAYER_PATH={0}:$PATH&&\
-                    export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
-                    export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
-                    export VK_SCREENSHOT_FRAMES={1}&&\
-                    export GFXRECON_CAPTURE_FILE={2}\\{3}.gfxr&&\
-                    export GFXRECON_LOG_LEVEL=warning&&\
-                    export GFXRECON_CAPTURE_FRAMES={4}&&\
+                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; export GFXRECON_CAPTURE_FRAMES={4}&&\
                     {5}/gfxrecon-replay {6}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recaptrim", TRIM_RANGE, args.binary_path, tracefile)
             print(command)
             ret = os.system(command)
@@ -281,13 +264,16 @@ class GFXTestSuite(unittest.TestCase):
                     set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_screenshot;&&\
                     set VK_SCREENSHOT_FRAMES={1}&&\
                     {2}\\gfxrecon-replay.exe {3}'.format(args.layer_path, screenshot_frames, args.binary_path, gfxrfile)
+                print(command)
+                ret = os.system(command)
             elif platform.system().lower() == "linux":
-                command = 'export VK_LAYER_PATH={0}:$PATH&&\
-                    export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_screenshot;&&\
-                    export VK_SCREENSHOT_FRAMES={1}&&\
-                    {2}/gfxrecon-replay {3}'.format(args.layer_path, screenshot_frames, args.binary_path, gfxrfile)
-            print(command)
-            ret = os.system(command)
+                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; {2}/gfxrecon-replay {3}'.format(args.layer_path, screenshot_frames, args.binary_path, gfxrfile)
+                output = os.popen(command).read()
+                print("-----playback output-----")
+                print(output)
+                if not("frames," in output):
+                    raise Exception("0 frame during playback.")
+
         except Exception as error:
             print('Error', *(error.args))
             sys.exit(1)
@@ -335,8 +321,9 @@ if '__main__' == __name__:
             if not os.path.exists(args.test_app_path):
                 raise Exception("Test apps path not found.")
 
-        # detect system GPU
-        gpu = get_system_gpu()
+        # detect system GPU (now only for Windows)
+        if platform.system().lower() == "windows":
+            gpu = get_system_gpu()
 
         # clean up the old ppm files before start tests
         for filename in os.listdir(os.getcwd()):
@@ -391,13 +378,13 @@ if '__main__' == __name__:
         for file in os.listdir(args.test_app_path):
             app_file_path = os.path.join(args.test_app_path, file)
             # running tests (capture, playback and snapshots compare) on executable app files
-            is_exe = os.access(app_file_path, os.X_OK)
+            is_exe = True
 
             # os.access does not works well with window, thus add .exe check
             if platform.system().lower() == "windows":
                 is_exe = file.endswith(".exe")
 
-            if not args.skip_test_app and is_exe == True:
+            if not args.skip_test_app and is_exe == True and not os.path.isdir(app_file_path):
                 time.sleep(1)
                 exe = file.split('.')[0]
                 screenshot_frames = APPS_SCREENSHOT_FRAMES
@@ -414,9 +401,10 @@ if '__main__' == __name__:
                 suite = get_test(exe+"Playback", "test_playback")
                 test_result = xmlrunner.XMLTestRunner(
                     verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                suite = get_test(exe+"ImgCompare", "test_compare_screenshots")
-                test_result = xmlrunner.XMLTestRunner(
-                    verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                if platform.system().lower() == "windows":
+                    suite = get_test(exe+"ImgCompare", "test_compare_screenshots")
+                    test_result = xmlrunner.XMLTestRunner(
+                        verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
                 remove_screenshots(os.getcwd())
                 remove_screenshots(backup_ppm_folder)
 
