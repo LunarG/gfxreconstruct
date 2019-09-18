@@ -48,9 +48,9 @@ void MapStructHandles(VkDescriptorType               type,
                       Decoded_VkDescriptorImageInfo* wrapper,
                       const VulkanObjectMapper&      object_mapper)
 {
-    if ((wrapper != nullptr) && (wrapper->value != nullptr))
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
-        VkDescriptorImageInfo* value = wrapper->value;
+        VkDescriptorImageInfo* value = wrapper->decoded_value;
 
         if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
         {
@@ -67,9 +67,9 @@ void MapStructHandles(VkDescriptorType               type,
 
 void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectMapper& object_mapper)
 {
-    if ((wrapper != nullptr) && (wrapper->value != nullptr))
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
-        VkWriteDescriptorSet* value = wrapper->value;
+        VkWriteDescriptorSet* value = wrapper->decoded_value;
 
         if (wrapper->pNext)
         {

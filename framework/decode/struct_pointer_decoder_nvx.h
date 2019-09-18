@@ -123,7 +123,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
 
                         decoded_structs_[i] = reinterpret_cast<Decoded_VkObjectTableEntryNVX*>(wrapper);
                         struct_memory_[i]   = reinterpret_cast<VkObjectTableEntryNVX*>(value);
-                        wrapper->value      = value;
+                        wrapper->decoded_value = value;
 
                         bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
                     }
@@ -134,7 +134,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
 
                         decoded_structs_[i] = reinterpret_cast<Decoded_VkObjectTableEntryNVX*>(wrapper);
                         struct_memory_[i]   = reinterpret_cast<VkObjectTableEntryNVX*>(value);
-                        wrapper->value      = value;
+                        wrapper->decoded_value = value;
 
                         bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
                     }
@@ -146,7 +146,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
 
                         decoded_structs_[i] = reinterpret_cast<Decoded_VkObjectTableEntryNVX*>(wrapper);
                         struct_memory_[i]   = reinterpret_cast<VkObjectTableEntryNVX*>(value);
-                        wrapper->value      = value;
+                        wrapper->decoded_value = value;
 
                         bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
                     }
@@ -158,7 +158,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
 
                         decoded_structs_[i] = reinterpret_cast<Decoded_VkObjectTableEntryNVX*>(wrapper);
                         struct_memory_[i]   = reinterpret_cast<VkObjectTableEntryNVX*>(value);
-                        wrapper->value      = value;
+                        wrapper->decoded_value = value;
 
                         bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
                     }
@@ -170,7 +170,7 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
 
                         decoded_structs_[i] = reinterpret_cast<Decoded_VkObjectTableEntryNVX*>(wrapper);
                         struct_memory_[i]   = reinterpret_cast<VkObjectTableEntryNVX*>(value);
-                        wrapper->value      = value;
+                        wrapper->decoded_value = value;
 
                         bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper);
                     }

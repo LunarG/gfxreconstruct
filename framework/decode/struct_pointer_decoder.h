@@ -113,7 +113,7 @@ class StructPointerDecoder : public PointerDecoderBase
             {
                 for (size_t i = 0; i < len; ++i)
                 {
-                    decoded_structs_[i].value = &struct_memory_[i];
+                    decoded_structs_[i].decoded_value = &struct_memory_[i];
 
                     // Note: We only expect this class to be used with structs that have a decode_struct function.
                     //       If an error is encoutered here due to a new struct type, the struct decoders need to be

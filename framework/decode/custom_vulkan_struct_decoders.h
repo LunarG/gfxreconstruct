@@ -38,14 +38,14 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 struct Decoded_VkClearColorValue
 {
     using struct_type = VkClearColorValue;
-    VkClearColorValue*       value{ nullptr };
+    VkClearColorValue*       decoded_value{ nullptr };
     PointerDecoder<uint32_t> uint32;
 };
 
 struct Decoded_VkClearValue
 {
     using struct_type = VkClearValue;
-    VkClearValue*                              value{ nullptr };
+    VkClearValue*                              decoded_value{ nullptr };
     std::unique_ptr<Decoded_VkClearColorValue> color;
 };
 
@@ -54,7 +54,7 @@ struct Decoded_VkDescriptorImageInfo
 {
     using struct_type = VkDescriptorImageInfo;
 
-    VkDescriptorImageInfo* value{ nullptr };
+    VkDescriptorImageInfo* decoded_value{ nullptr };
 
     format::HandleId sampler{ 0 };
     format::HandleId imageView{ 0 };
@@ -64,7 +64,7 @@ struct Decoded_VkWriteDescriptorSet
 {
     using struct_type = VkWriteDescriptorSet;
 
-    VkWriteDescriptorSet* value{ nullptr };
+    VkWriteDescriptorSet* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode>                                            pNext;
     format::HandleId                                                      dstSet{ 0 };
@@ -75,7 +75,7 @@ struct Decoded_VkWriteDescriptorSet
 
 struct Decoded_VkObjectTableEntryNVX
 {
-    VkObjectTableEntryNVX* value{ nullptr };
+    VkObjectTableEntryNVX* decoded_value{ nullptr };
 };
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
@@ -83,14 +83,14 @@ struct Decoded_ACL
 {
     using struct_type = ACL;
 
-    ACL* value{ nullptr };
+    ACL* decoded_value{ nullptr };
 };
 
 struct Decoded_SECURITY_DESCRIPTOR
 {
     using struct_type = SECURITY_DESCRIPTOR;
 
-    SECURITY_DESCRIPTOR* value{ nullptr };
+    SECURITY_DESCRIPTOR* decoded_value{ nullptr };
 
     std::unique_ptr<uint8_t[]> Owner;
     std::unique_ptr<uint8_t[]> Group;
@@ -105,7 +105,7 @@ struct Decoded_SECURITY_ATTRIBUTES
 {
     using struct_type = SECURITY_ATTRIBUTES;
 
-    SECURITY_ATTRIBUTES* value{ nullptr };
+    SECURITY_ATTRIBUTES* decoded_value{ nullptr };
 
     std::unique_ptr<StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>> lpSecurityDescriptor;
 };
