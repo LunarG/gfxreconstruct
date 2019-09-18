@@ -3555,6 +3555,66 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCountKHR(in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
 }
 
+void VulkanReplayConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkPipelineInfoKHR>& pPipelineInfo,
+    const PointerDecoder<uint32_t>&             pExecutableCount,
+    const StructPointerDecoder<Decoded_VkPipelineExecutablePropertiesKHR>& pProperties)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    const VkPipelineInfoKHR* in_pPipelineInfo = pPipelineInfo.GetPointer();
+    MapStructHandles(pPipelineInfo.GetMetaStructPointer(), GetObjectMapper());
+    uint32_t out_pExecutableCount_value = pExecutableCount.IsNull() ? static_cast<uint32_t>(0) : *(pExecutableCount.GetPointer());
+    uint32_t* out_pExecutableCount = &out_pExecutableCount_value;
+    VkPipelineExecutablePropertiesKHR* out_pProperties = pProperties.IsNull() ? nullptr : AllocateArray<VkPipelineExecutablePropertiesKHR>(out_pExecutableCount_value, VkPipelineExecutablePropertiesKHR{ VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_PROPERTIES_KHR, nullptr });
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetPipelineExecutablePropertiesKHR(in_device, in_pPipelineInfo, out_pExecutableCount, out_pProperties);
+    CheckResult("vkGetPipelineExecutablePropertiesKHR", returnValue, replay_result);
+
+    FreeArray<VkPipelineExecutablePropertiesKHR>(&out_pProperties);
+}
+
+void VulkanReplayConsumer::Process_vkGetPipelineExecutableStatisticsKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkPipelineExecutableInfoKHR>& pExecutableInfo,
+    const PointerDecoder<uint32_t>&             pStatisticCount,
+    const StructPointerDecoder<Decoded_VkPipelineExecutableStatisticKHR>& pStatistics)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    const VkPipelineExecutableInfoKHR* in_pExecutableInfo = pExecutableInfo.GetPointer();
+    MapStructHandles(pExecutableInfo.GetMetaStructPointer(), GetObjectMapper());
+    uint32_t out_pStatisticCount_value = pStatisticCount.IsNull() ? static_cast<uint32_t>(0) : *(pStatisticCount.GetPointer());
+    uint32_t* out_pStatisticCount = &out_pStatisticCount_value;
+    VkPipelineExecutableStatisticKHR* out_pStatistics = pStatistics.IsNull() ? nullptr : AllocateArray<VkPipelineExecutableStatisticKHR>(out_pStatisticCount_value, VkPipelineExecutableStatisticKHR{ VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_STATISTIC_KHR, nullptr });
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetPipelineExecutableStatisticsKHR(in_device, in_pExecutableInfo, out_pStatisticCount, out_pStatistics);
+    CheckResult("vkGetPipelineExecutableStatisticsKHR", returnValue, replay_result);
+
+    FreeArray<VkPipelineExecutableStatisticKHR>(&out_pStatistics);
+}
+
+void VulkanReplayConsumer::Process_vkGetPipelineExecutableInternalRepresentationsKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkPipelineExecutableInfoKHR>& pExecutableInfo,
+    const PointerDecoder<uint32_t>&             pInternalRepresentationCount,
+    const StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>& pInternalRepresentations)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    const VkPipelineExecutableInfoKHR* in_pExecutableInfo = pExecutableInfo.GetPointer();
+    MapStructHandles(pExecutableInfo.GetMetaStructPointer(), GetObjectMapper());
+    uint32_t out_pInternalRepresentationCount_value = pInternalRepresentationCount.IsNull() ? static_cast<uint32_t>(0) : *(pInternalRepresentationCount.GetPointer());
+    uint32_t* out_pInternalRepresentationCount = &out_pInternalRepresentationCount_value;
+    VkPipelineExecutableInternalRepresentationKHR* out_pInternalRepresentations = pInternalRepresentations.IsNull() ? nullptr : AllocateArray<VkPipelineExecutableInternalRepresentationKHR>(out_pInternalRepresentationCount_value, VkPipelineExecutableInternalRepresentationKHR{ VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR, nullptr });
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetPipelineExecutableInternalRepresentationsKHR(in_device, in_pExecutableInfo, out_pInternalRepresentationCount, out_pInternalRepresentations);
+    CheckResult("vkGetPipelineExecutableInternalRepresentationsKHR", returnValue, replay_result);
+
+    FreeArray<VkPipelineExecutableInternalRepresentationKHR>(&out_pInternalRepresentations);
+}
+
 void VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(
     VkResult                                    returnValue,
     format::HandleId                            instance,
@@ -4899,6 +4959,117 @@ void VulkanReplayConsumer::Process_vkGetQueueCheckpointDataNV(
     FreeArray<VkCheckpointDataNV>(&out_pCheckpointData);
 }
 
+void VulkanReplayConsumer::Process_vkInitializePerformanceApiINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkInitializePerformanceApiInfoINTEL>& pInitializeInfo)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    const VkInitializePerformanceApiInfoINTEL* in_pInitializeInfo = pInitializeInfo.GetPointer();
+
+    VkResult replay_result = GetDeviceTable(in_device)->InitializePerformanceApiINTEL(in_device, in_pInitializeInfo);
+    CheckResult("vkInitializePerformanceApiINTEL", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkUninitializePerformanceApiINTEL(
+    format::HandleId                            device)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+
+    GetDeviceTable(in_device)->UninitializePerformanceApiINTEL(in_device);
+}
+
+void VulkanReplayConsumer::Process_vkCmdSetPerformanceMarkerINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    const StructPointerDecoder<Decoded_VkPerformanceMarkerInfoINTEL>& pMarkerInfo)
+{
+    VkCommandBuffer in_commandBuffer = GetObjectMapper().MapVkCommandBuffer(commandBuffer);
+    const VkPerformanceMarkerInfoINTEL* in_pMarkerInfo = pMarkerInfo.GetPointer();
+
+    VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdSetPerformanceMarkerINTEL(in_commandBuffer, in_pMarkerInfo);
+    CheckResult("vkCmdSetPerformanceMarkerINTEL", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkCmdSetPerformanceStreamMarkerINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    const StructPointerDecoder<Decoded_VkPerformanceStreamMarkerInfoINTEL>& pMarkerInfo)
+{
+    VkCommandBuffer in_commandBuffer = GetObjectMapper().MapVkCommandBuffer(commandBuffer);
+    const VkPerformanceStreamMarkerInfoINTEL* in_pMarkerInfo = pMarkerInfo.GetPointer();
+
+    VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdSetPerformanceStreamMarkerINTEL(in_commandBuffer, in_pMarkerInfo);
+    CheckResult("vkCmdSetPerformanceStreamMarkerINTEL", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkCmdSetPerformanceOverrideINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    const StructPointerDecoder<Decoded_VkPerformanceOverrideInfoINTEL>& pOverrideInfo)
+{
+    VkCommandBuffer in_commandBuffer = GetObjectMapper().MapVkCommandBuffer(commandBuffer);
+    const VkPerformanceOverrideInfoINTEL* in_pOverrideInfo = pOverrideInfo.GetPointer();
+
+    VkResult replay_result = GetDeviceTable(in_commandBuffer)->CmdSetPerformanceOverrideINTEL(in_commandBuffer, in_pOverrideInfo);
+    CheckResult("vkCmdSetPerformanceOverrideINTEL", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkPerformanceConfigurationAcquireInfoINTEL>& pAcquireInfo,
+    const HandlePointerDecoder<VkPerformanceConfigurationINTEL>& pConfiguration)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    const VkPerformanceConfigurationAcquireInfoINTEL* in_pAcquireInfo = pAcquireInfo.GetPointer();
+    VkPerformanceConfigurationINTEL out_pConfiguration_value = static_cast<VkPerformanceConfigurationINTEL>(0);
+    VkPerformanceConfigurationINTEL* out_pConfiguration = &out_pConfiguration_value;
+
+    VkResult replay_result = GetDeviceTable(in_device)->AcquirePerformanceConfigurationINTEL(in_device, in_pAcquireInfo, out_pConfiguration);
+    CheckResult("vkAcquirePerformanceConfigurationINTEL", returnValue, replay_result);
+
+    AddHandles<VkPerformanceConfigurationINTEL>(pConfiguration.GetPointer(), 1, out_pConfiguration, 1, &VulkanObjectMapper::AddVkPerformanceConfigurationINTEL);
+}
+
+void VulkanReplayConsumer::Process_vkReleasePerformanceConfigurationINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            configuration)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    VkPerformanceConfigurationINTEL in_configuration = GetObjectMapper().MapVkPerformanceConfigurationINTEL(configuration);
+
+    VkResult replay_result = GetDeviceTable(in_device)->ReleasePerformanceConfigurationINTEL(in_device, in_configuration);
+    CheckResult("vkReleasePerformanceConfigurationINTEL", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkQueueSetPerformanceConfigurationINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            queue,
+    format::HandleId                            configuration)
+{
+    VkQueue in_queue = GetObjectMapper().MapVkQueue(queue);
+    VkPerformanceConfigurationINTEL in_configuration = GetObjectMapper().MapVkPerformanceConfigurationINTEL(configuration);
+
+    VkResult replay_result = GetDeviceTable(in_queue)->QueueSetPerformanceConfigurationINTEL(in_queue, in_configuration);
+    CheckResult("vkQueueSetPerformanceConfigurationINTEL", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkGetPerformanceParameterINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    VkPerformanceParameterTypeINTEL             parameter,
+    const StructPointerDecoder<Decoded_VkPerformanceValueINTEL>& pValue)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    VkPerformanceValueINTEL out_pValue_value = {};
+    VkPerformanceValueINTEL* out_pValue = &out_pValue_value;
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetPerformanceParameterINTEL(in_device, parameter, out_pValue);
+    CheckResult("vkGetPerformanceParameterINTEL", returnValue, replay_result);
+}
+
 void VulkanReplayConsumer::Process_vkSetLocalDimmingAMD(
     format::HandleId                            device,
     format::HandleId                            swapChain,
@@ -5071,6 +5242,16 @@ void VulkanReplayConsumer::Process_vkCreateHeadlessSurfaceEXT(
     CheckResult("vkCreateHeadlessSurfaceEXT", returnValue, replay_result);
 
     AddHandles<VkSurfaceKHR>(pSurface.GetPointer(), 1, out_pSurface, 1, &VulkanObjectMapper::AddVkSurfaceKHR);
+}
+
+void VulkanReplayConsumer::Process_vkCmdSetLineStippleEXT(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    lineStippleFactor,
+    uint16_t                                    lineStipplePattern)
+{
+    VkCommandBuffer in_commandBuffer = GetObjectMapper().MapVkCommandBuffer(commandBuffer);
+
+    GetDeviceTable(in_commandBuffer)->CmdSetLineStippleEXT(in_commandBuffer, lineStippleFactor, lineStipplePattern);
 }
 
 void VulkanReplayConsumer::Process_vkResetQueryPoolEXT(

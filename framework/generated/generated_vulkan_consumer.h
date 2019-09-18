@@ -1501,6 +1501,27 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) = 0;
 
+    virtual void Process_vkGetPipelineExecutablePropertiesKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkPipelineInfoKHR>& pPipelineInfo,
+        const PointerDecoder<uint32_t>&             pExecutableCount,
+        const StructPointerDecoder<Decoded_VkPipelineExecutablePropertiesKHR>& pProperties) = 0;
+
+    virtual void Process_vkGetPipelineExecutableStatisticsKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkPipelineExecutableInfoKHR>& pExecutableInfo,
+        const PointerDecoder<uint32_t>&             pStatisticCount,
+        const StructPointerDecoder<Decoded_VkPipelineExecutableStatisticKHR>& pStatistics) = 0;
+
+    virtual void Process_vkGetPipelineExecutableInternalRepresentationsKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkPipelineExecutableInfoKHR>& pExecutableInfo,
+        const PointerDecoder<uint32_t>&             pInternalRepresentationCount,
+        const StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>& pInternalRepresentations) = 0;
+
     virtual void Process_vkCreateDebugReportCallbackEXT(
         VkResult                                    returnValue,
         format::HandleId                            instance,
@@ -2081,6 +2102,51 @@ class VulkanConsumer : public VulkanConsumerBase
         const PointerDecoder<uint32_t>&             pCheckpointDataCount,
         const StructPointerDecoder<Decoded_VkCheckpointDataNV>& pCheckpointData) = 0;
 
+    virtual void Process_vkInitializePerformanceApiINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkInitializePerformanceApiInfoINTEL>& pInitializeInfo) = 0;
+
+    virtual void Process_vkUninitializePerformanceApiINTEL(
+        format::HandleId                            device) = 0;
+
+    virtual void Process_vkCmdSetPerformanceMarkerINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        const StructPointerDecoder<Decoded_VkPerformanceMarkerInfoINTEL>& pMarkerInfo) = 0;
+
+    virtual void Process_vkCmdSetPerformanceStreamMarkerINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        const StructPointerDecoder<Decoded_VkPerformanceStreamMarkerInfoINTEL>& pMarkerInfo) = 0;
+
+    virtual void Process_vkCmdSetPerformanceOverrideINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        const StructPointerDecoder<Decoded_VkPerformanceOverrideInfoINTEL>& pOverrideInfo) = 0;
+
+    virtual void Process_vkAcquirePerformanceConfigurationINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkPerformanceConfigurationAcquireInfoINTEL>& pAcquireInfo,
+        const HandlePointerDecoder<VkPerformanceConfigurationINTEL>& pConfiguration) = 0;
+
+    virtual void Process_vkReleasePerformanceConfigurationINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            configuration) = 0;
+
+    virtual void Process_vkQueueSetPerformanceConfigurationINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            queue,
+        format::HandleId                            configuration) = 0;
+
+    virtual void Process_vkGetPerformanceParameterINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        VkPerformanceParameterTypeINTEL             parameter,
+        const StructPointerDecoder<Decoded_VkPerformanceValueINTEL>& pValue) = 0;
+
     virtual void Process_vkSetLocalDimmingAMD(
         format::HandleId                            device,
         format::HandleId                            swapChain,
@@ -2146,6 +2212,11 @@ class VulkanConsumer : public VulkanConsumerBase
         const StructPointerDecoder<Decoded_VkHeadlessSurfaceCreateInfoEXT>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const HandlePointerDecoder<VkSurfaceKHR>&   pSurface) = 0;
+
+    virtual void Process_vkCmdSetLineStippleEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    lineStippleFactor,
+        uint16_t                                    lineStipplePattern) = 0;
 
     virtual void Process_vkResetQueryPoolEXT(
         format::HandleId                            device,

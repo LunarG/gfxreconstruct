@@ -1383,6 +1383,24 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride);
 
+VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(
+    VkDevice                                    device,
+    const VkPipelineInfoKHR*                    pPipelineInfo,
+    uint32_t*                                   pExecutableCount,
+    VkPipelineExecutablePropertiesKHR*          pProperties);
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(
+    VkDevice                                    device,
+    const VkPipelineExecutableInfoKHR*          pExecutableInfo,
+    uint32_t*                                   pStatisticCount,
+    VkPipelineExecutableStatisticKHR*           pStatistics);
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(
+    VkDevice                                    device,
+    const VkPipelineExecutableInfoKHR*          pExecutableInfo,
+    uint32_t*                                   pInternalRepresentationCount,
+    VkPipelineExecutableInternalRepresentationKHR* pInternalRepresentations);
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     VkInstance                                  instance,
     const VkDebugReportCallbackCreateInfoEXT*   pCreateInfo,
@@ -1921,6 +1939,43 @@ VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(
     uint32_t*                                   pCheckpointDataCount,
     VkCheckpointDataNV*                         pCheckpointData);
 
+VKAPI_ATTR VkResult VKAPI_CALL InitializePerformanceApiINTEL(
+    VkDevice                                    device,
+    const VkInitializePerformanceApiInfoINTEL*  pInitializeInfo);
+
+VKAPI_ATTR void VKAPI_CALL UninitializePerformanceApiINTEL(
+    VkDevice                                    device);
+
+VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceMarkerINTEL(
+    VkCommandBuffer                             commandBuffer,
+    const VkPerformanceMarkerInfoINTEL*         pMarkerInfo);
+
+VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceStreamMarkerINTEL(
+    VkCommandBuffer                             commandBuffer,
+    const VkPerformanceStreamMarkerInfoINTEL*   pMarkerInfo);
+
+VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceOverrideINTEL(
+    VkCommandBuffer                             commandBuffer,
+    const VkPerformanceOverrideInfoINTEL*       pOverrideInfo);
+
+VKAPI_ATTR VkResult VKAPI_CALL AcquirePerformanceConfigurationINTEL(
+    VkDevice                                    device,
+    const VkPerformanceConfigurationAcquireInfoINTEL* pAcquireInfo,
+    VkPerformanceConfigurationINTEL*            pConfiguration);
+
+VKAPI_ATTR VkResult VKAPI_CALL ReleasePerformanceConfigurationINTEL(
+    VkDevice                                    device,
+    VkPerformanceConfigurationINTEL             configuration);
+
+VKAPI_ATTR VkResult VKAPI_CALL QueueSetPerformanceConfigurationINTEL(
+    VkQueue                                     queue,
+    VkPerformanceConfigurationINTEL             configuration);
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPerformanceParameterINTEL(
+    VkDevice                                    device,
+    VkPerformanceParameterTypeINTEL             parameter,
+    VkPerformanceValueINTEL*                    pValue);
+
 VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(
     VkDevice                                    device,
     VkSwapchainKHR                              swapChain,
@@ -1976,6 +2031,11 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(
     const VkHeadlessSurfaceCreateInfoEXT*       pCreateInfo,
     const VkAllocationCallbacks*                pAllocator,
     VkSurfaceKHR*                               pSurface);
+
+VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    lineStippleFactor,
+    uint16_t                                    lineStipplePattern);
 
 VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(
     VkDevice                                    device,

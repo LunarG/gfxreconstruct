@@ -147,6 +147,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     // Query object creation.
     StandardCreateWrite<AccelerationStructureNVWrapper>(state_table);
     WriteQueryPoolState(state_table);
+    StandardCreateWrite<PerformanceConfigurationINTELWrapper>(state_table);
 
     // Command creation.
     StandardCreateWrite<CommandPoolWrapper>(state_table);
