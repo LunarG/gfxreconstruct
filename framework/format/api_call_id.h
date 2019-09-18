@@ -404,6 +404,19 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1161),
     ApiCall_vkCreateHeadlessSurfaceEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1162),
     ApiCall_vkResetQueryPoolEXT                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1163),
+    ApiCall_vkGetPipelineExecutablePropertiesKHR                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1164),
+    ApiCall_vkGetPipelineExecutableStatisticsKHR                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1165),
+    ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1166),
+    ApiCall_vkInitializePerformanceApiINTEL                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x1167),
+    ApiCall_vkUninitializePerformanceApiINTEL                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1168),
+    ApiCall_vkCmdSetPerformanceMarkerINTEL                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x1169),
+    ApiCall_vkCmdSetPerformanceStreamMarkerINTEL                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x116a),
+    ApiCall_vkCmdSetPerformanceOverrideINTEL                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x116b),
+    ApiCall_vkAcquirePerformanceConfigurationINTEL                                                = MakeApiCallId(ApiFamily_Vulkan, 0x116c),
+    ApiCall_vkReleasePerformanceConfigurationINTEL                                                = MakeApiCallId(ApiFamily_Vulkan, 0x116d),
+    ApiCall_vkQueueSetPerformanceConfigurationINTEL                                               = MakeApiCallId(ApiFamily_Vulkan, 0x116e),
+    ApiCall_vkGetPerformanceParameterINTEL                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x116f),
+    ApiCall_vkCmdSetLineStippleEXT                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1170),
 
     ApiCall_VulkanLast
     // clang-format on

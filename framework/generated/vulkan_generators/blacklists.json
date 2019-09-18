@@ -16,6 +16,7 @@
     "VkBaseInStructure",
     "VkDescriptorImageInfo",
     "VkWriteDescriptorSet",
+    "VkPerformanceValueINTEL",
     "VkObjectTableEntryNVX"
   ]
 }

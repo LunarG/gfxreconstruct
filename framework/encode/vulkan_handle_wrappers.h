@@ -60,15 +60,16 @@ struct HandleWrapper
 //
 
 // clang-format off
-struct BufferViewWrapper                : public HandleWrapper<VkBufferView> {};
-struct ShaderModuleWrapper              : public HandleWrapper<VkShaderModule> {};
-struct PipelineCacheWrapper             : public HandleWrapper<VkPipelineCache> {};
-struct SamplerWrapper                   : public HandleWrapper<VkSampler> {};
-struct SamplerYcbcrConversionWrapper    : public HandleWrapper<VkSamplerYcbcrConversion> {};
-struct DebugReportCallbackEXTWrapper    : public HandleWrapper<VkDebugReportCallbackEXT> {};
-struct DebugUtilsMessengerEXTWrapper    : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
-struct ValidationCacheEXTWrapper        : public HandleWrapper<VkValidationCacheEXT> {};
-struct IndirectCommandsLayoutNVXWrapper : public HandleWrapper<VkIndirectCommandsLayoutNVX> {};
+struct BufferViewWrapper                    : public HandleWrapper<VkBufferView> {};
+struct ShaderModuleWrapper                  : public HandleWrapper<VkShaderModule> {};
+struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
+struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
+struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
+struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
+struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
+struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
+struct IndirectCommandsLayoutNVXWrapper     : public HandleWrapper<VkIndirectCommandsLayoutNVX> {};
+struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.

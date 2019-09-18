@@ -397,6 +397,11 @@ void MapStructHandles(Decoded_VkRenderPassBeginInfo* wrapper, const VulkanObject
     {
         VkRenderPassBeginInfo* value = wrapper->decoded_value;
 
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+        }
+
         value->renderPass = object_mapper.MapVkRenderPass(wrapper->renderPass);
 
         value->framebuffer = object_mapper.MapVkFramebuffer(wrapper->framebuffer);
@@ -686,6 +691,16 @@ void MapStructHandles(Decoded_VkSemaphoreGetFdInfoKHR* wrapper, const VulkanObje
     }
 }
 
+void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkRenderPassAttachmentBeginInfoKHR* value = wrapper->decoded_value;
+
+        MapHandleArray<VkImageView>(wrapper->pAttachments.GetPointer(), wrapper->pAttachments.GetHandlePointer(), wrapper->pAttachments.GetLength(), object_mapper, &VulkanObjectMapper::MapVkImageView);
+    }
+}
+
 void MapStructHandles(Decoded_VkImportFenceWin32HandleInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -767,6 +782,26 @@ void MapStructHandles(Decoded_VkDisplayPlaneInfo2KHR* wrapper, const VulkanObjec
         VkDisplayPlaneInfo2KHR* value = wrapper->decoded_value;
 
         value->mode = object_mapper.MapVkDisplayModeKHR(wrapper->mode);
+    }
+}
+
+void MapStructHandles(Decoded_VkPipelineInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkPipelineInfoKHR* value = wrapper->decoded_value;
+
+        value->pipeline = object_mapper.MapVkPipeline(wrapper->pipeline);
+    }
+}
+
+void MapStructHandles(Decoded_VkPipelineExecutableInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkPipelineExecutableInfoKHR* value = wrapper->decoded_value;
+
+        value->pipeline = object_mapper.MapVkPipeline(wrapper->pipeline);
     }
 }
 
@@ -1072,6 +1107,9 @@ void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectM
             break;
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
             MapStructHandles(reinterpret_cast<Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR*>(wrapper), object_mapper);
+            break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkRenderPassAttachmentBeginInfoKHR*>(wrapper), object_mapper);
             break;
         case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
             MapStructHandles(reinterpret_cast<Decoded_VkDedicatedAllocationMemoryAllocateInfoNV*>(wrapper), object_mapper);

@@ -55,6 +55,18 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearVa
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelineExecutableStatisticValueKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                 bytes_read = 0;
+    VkPipelineExecutableStatisticValueKHR* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->u64));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -107,6 +119,32 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkWriteDe
 
     bytes_read += wrapper->pTexelBufferView.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->pTexelBufferView = wrapper->pTexelBufferView.GetHandlePointer();
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPerformanceValueINTEL* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                   bytes_read = 0;
+    VkPerformanceValueINTEL* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
+
+    wrapper->data                = std::make_unique<Decoded_VkPerformanceValueDataINTEL>();
+    wrapper->data->decoded_value = &(value->data);
+
+    if (value->type == VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL)
+    {
+        bytes_read += wrapper->data->valueString.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+        value->data.valueString = wrapper->data->valueString.GetPointer();
+    }
+    else
+    {
+        bytes_read +=
+            ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->data.value64));
+    }
 
     return bytes_read;
 }

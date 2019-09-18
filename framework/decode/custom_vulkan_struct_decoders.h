@@ -23,6 +23,7 @@
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/pnext_node.h"
+#include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "util/defines.h"
@@ -49,6 +50,23 @@ struct Decoded_VkClearValue
     std::unique_ptr<Decoded_VkClearColorValue> color;
 };
 
+struct Decoded_VkPipelineExecutableStatisticValueKHR
+{
+    using struct_type = VkPipelineExecutableStatisticValueKHR;
+    VkPipelineExecutableStatisticValueKHR* decoded_value{ nullptr };
+};
+
+// This union wrapper does not have a DecodeStruct function.  It is decoded by the Decoded_VkPerformanceValueINTEL
+// DecodeStruct function, based on the value of VkPerformanceValueINTEL::type.
+struct Decoded_VkPerformanceValueDataINTEL
+{
+    using struct_type = VkPerformanceValueDataINTEL;
+
+    VkPerformanceValueDataINTEL* decoded_value{ nullptr };
+
+    StringDecoder valueString;
+};
+
 // Decoded struct wrappers for Vulkan structures that require special processing.
 struct Decoded_VkDescriptorImageInfo
 {
@@ -71,6 +89,15 @@ struct Decoded_VkWriteDescriptorSet
     std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>  pImageInfo;
     std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorBufferInfo>> pBufferInfo;
     HandlePointerDecoder<VkBufferView>                                    pTexelBufferView;
+};
+
+struct Decoded_VkPerformanceValueINTEL
+{
+    using struct_type = VkPerformanceValueINTEL;
+
+    VkPerformanceValueINTEL* decoded_value{ nullptr };
+
+    std::unique_ptr<Decoded_VkPerformanceValueDataINTEL> data;
 };
 
 struct Decoded_VkObjectTableEntryNVX

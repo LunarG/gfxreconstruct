@@ -256,7 +256,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         return body
 
     def makeBeginApiCall(self, name, values):
-        if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree') or self.retrievesHandles(values) or (values[0].baseType == 'VkCommandBuffer'):
+        if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree') or self.retrievesHandles(values) or (values[0].baseType == 'VkCommandBuffer') or (name == 'vkReleasePerformanceConfigurationINTEL'):
             return 'auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
         else:
             return 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
@@ -313,7 +313,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     # Instance creation does not have a parent handle; set the parent handle type to 'void*'.
                     decl += 'EndCreateApiCallTrace<const void*, {}Wrapper, {}>({}, nullptr, {}, {}, encoder)'.format(handle.baseType[2:], infoBaseType, returnValue, handle.name, infoName)
 
-        elif name.startswith('vkDestroy') or name.startswith('vkFree'):
+        elif name.startswith('vkDestroy') or name.startswith('vkFree') or (name == 'vkReleasePerformanceConfigurationINTEL'):
             handle = None
             if name in ['vkDestroyInstance', 'vkDestroyDevice']:
                 # Instance/device destroy calls are special case where the target handle is the first parameter

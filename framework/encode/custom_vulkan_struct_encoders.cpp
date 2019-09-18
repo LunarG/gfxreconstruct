@@ -65,8 +65,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkClearColorValue& value)
 
 void EncodeStruct(ParameterEncoder* encoder, const VkClearValue& value)
 {
-    // VkClearColorValue is used becaue it is the larger of the two union members.
+    // VkClearColorValue is used because it is the larger of the two union members.
     EncodeStruct(encoder, value.color);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatisticValueKHR& value)
+{
+    encoder->EncodeUInt64Value(value.u64);
 }
 
 // Encodes both VkWriteDescriptorSet and VkDescriptorImageInfo based on descriptor type.
@@ -125,6 +130,21 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
 
     EncodeStructArray(encoder, value.pBufferInfo, value.descriptorCount, omit_buffer_data);
     encoder->EncodeHandleArray(value.pTexelBufferView, value.descriptorCount, omit_texel_buffer_data);
+}
+
+// Encodes the VkPerformanceValueINTEL::data union based on the value of VkPerformanceValueINTEL::type.
+void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceValueINTEL& value)
+{
+    encoder->EncodeEnumValue(value.type);
+
+    if (value.type == VK_PERFORMANCE_VALUE_TYPE_STRING_INTEL)
+    {
+        encoder->EncodeString(value.data.valueString);
+    }
+    else
+    {
+        encoder->EncodeUInt64Value(value.data.value64);
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
