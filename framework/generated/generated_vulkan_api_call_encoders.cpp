@@ -87,6 +87,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(
     GetInstanceTable(instance)->DestroyInstance(instance_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>::Dispatch(TraceManager::Get(), instance, pAllocator);
+
+    DestroyWrappedHandle<InstanceWrapper>(instance);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(
@@ -330,6 +332,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(
     GetDeviceTable(device)->DestroyDevice(device_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDevice>::Dispatch(TraceManager::Get(), device, pAllocator);
+
+    DestroyWrappedHandle<DeviceWrapper>(device);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(
@@ -497,6 +501,8 @@ VKAPI_ATTR void VKAPI_CALL FreeMemory(
     GetDeviceTable(device)->FreeMemory(device_unwrapped, memory_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>::Dispatch(TraceManager::Get(), device, memory, pAllocator);
+
+    DestroyWrappedHandle<DeviceMemoryWrapper>(memory);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL MapMemory(
@@ -899,6 +905,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyFence(
     GetDeviceTable(device)->DestroyFence(device_unwrapped, fence_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFence>::Dispatch(TraceManager::Get(), device, fence, pAllocator);
+
+    DestroyWrappedHandle<FenceWrapper>(fence);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL ResetFences(
@@ -1047,6 +1055,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySemaphore(
     GetDeviceTable(device)->DestroySemaphore(device_unwrapped, semaphore_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySemaphore>::Dispatch(TraceManager::Get(), device, semaphore, pAllocator);
+
+    DestroyWrappedHandle<SemaphoreWrapper>(semaphore);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(
@@ -1110,6 +1120,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyEvent(
     GetDeviceTable(device)->DestroyEvent(device_unwrapped, event_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyEvent>::Dispatch(TraceManager::Get(), device, event, pAllocator);
+
+    DestroyWrappedHandle<EventWrapper>(event);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetEventStatus(
@@ -1248,6 +1260,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(
     GetDeviceTable(device)->DestroyQueryPool(device_unwrapped, queryPool_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyQueryPool>::Dispatch(TraceManager::Get(), device, queryPool, pAllocator);
+
+    DestroyWrappedHandle<QueryPoolWrapper>(queryPool);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(
@@ -1354,6 +1368,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyBuffer(
     GetDeviceTable(device)->DestroyBuffer(device_unwrapped, buffer_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBuffer>::Dispatch(TraceManager::Get(), device, buffer, pAllocator);
+
+    DestroyWrappedHandle<BufferWrapper>(buffer);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(
@@ -1419,6 +1435,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyBufferView(
     GetDeviceTable(device)->DestroyBufferView(device_unwrapped, bufferView_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyBufferView>::Dispatch(TraceManager::Get(), device, bufferView, pAllocator);
+
+    DestroyWrappedHandle<BufferViewWrapper>(bufferView);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
@@ -1484,6 +1502,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyImage(
     GetDeviceTable(device)->DestroyImage(device_unwrapped, image_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImage>::Dispatch(TraceManager::Get(), device, image, pAllocator);
+
+    DestroyWrappedHandle<ImageWrapper>(image);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(
@@ -1575,6 +1595,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyImageView(
     GetDeviceTable(device)->DestroyImageView(device_unwrapped, imageView_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyImageView>::Dispatch(TraceManager::Get(), device, imageView, pAllocator);
+
+    DestroyWrappedHandle<ImageViewWrapper>(imageView);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(
@@ -1640,6 +1662,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(
     GetDeviceTable(device)->DestroyShaderModule(device_unwrapped, shaderModule_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyShaderModule>::Dispatch(TraceManager::Get(), device, shaderModule, pAllocator);
+
+    DestroyWrappedHandle<ShaderModuleWrapper>(shaderModule);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(
@@ -1703,6 +1727,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(
     GetDeviceTable(device)->DestroyPipelineCache(device_unwrapped, pipelineCache_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineCache>::Dispatch(TraceManager::Get(), device, pipelineCache, pAllocator);
+
+    DestroyWrappedHandle<PipelineCacheWrapper>(pipelineCache);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(
@@ -1885,6 +1911,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipeline(
     GetDeviceTable(device)->DestroyPipeline(device_unwrapped, pipeline_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipeline>::Dispatch(TraceManager::Get(), device, pipeline, pAllocator);
+
+    DestroyWrappedHandle<PipelineWrapper>(pipeline);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(
@@ -1950,6 +1978,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(
     GetDeviceTable(device)->DestroyPipelineLayout(device_unwrapped, pipelineLayout_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPipelineLayout>::Dispatch(TraceManager::Get(), device, pipelineLayout, pAllocator);
+
+    DestroyWrappedHandle<PipelineLayoutWrapper>(pipelineLayout);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(
@@ -2015,6 +2045,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySampler(
     GetDeviceTable(device)->DestroySampler(device_unwrapped, sampler_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySampler>::Dispatch(TraceManager::Get(), device, sampler, pAllocator);
+
+    DestroyWrappedHandle<SamplerWrapper>(sampler);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(
@@ -2080,6 +2112,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(
     GetDeviceTable(device)->DestroyDescriptorSetLayout(device_unwrapped, descriptorSetLayout_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorSetLayout>::Dispatch(TraceManager::Get(), device, descriptorSetLayout, pAllocator);
+
+    DestroyWrappedHandle<DescriptorSetLayoutWrapper>(descriptorSetLayout);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(
@@ -2143,6 +2177,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(
     GetDeviceTable(device)->DestroyDescriptorPool(device_unwrapped, descriptorPool_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorPool>::Dispatch(TraceManager::Get(), device, descriptorPool, pAllocator);
+
+    DestroyWrappedHandle<DescriptorPoolWrapper>(descriptorPool);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(
@@ -2238,6 +2274,8 @@ VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeDescriptorSets>::Dispatch(TraceManager::Get(), result, device, descriptorPool, descriptorSetCount, pDescriptorSets);
+
+    DestroyWrappedHandles<DescriptorSetWrapper>(pDescriptorSets, descriptorSetCount);
 
     return result;
 }
@@ -2335,6 +2373,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(
     GetDeviceTable(device)->DestroyFramebuffer(device_unwrapped, framebuffer_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyFramebuffer>::Dispatch(TraceManager::Get(), device, framebuffer, pAllocator);
+
+    DestroyWrappedHandle<FramebufferWrapper>(framebuffer);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(
@@ -2398,6 +2438,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(
     GetDeviceTable(device)->DestroyRenderPass(device_unwrapped, renderPass_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyRenderPass>::Dispatch(TraceManager::Get(), device, renderPass, pAllocator);
+
+    DestroyWrappedHandle<RenderPassWrapper>(renderPass);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetRenderAreaGranularity(
@@ -2485,6 +2527,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(
     GetDeviceTable(device)->DestroyCommandPool(device_unwrapped, commandPool_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyCommandPool>::Dispatch(TraceManager::Get(), device, commandPool, pAllocator);
+
+    DestroyWrappedHandle<CommandPoolWrapper>(commandPool);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL ResetCommandPool(
@@ -2579,6 +2623,8 @@ VKAPI_ATTR void VKAPI_CALL FreeCommandBuffers(
     GetDeviceTable(device)->FreeCommandBuffers(device_unwrapped, commandPool_unwrapped, commandBufferCount, pCommandBuffers_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeCommandBuffers>::Dispatch(TraceManager::Get(), device, commandPool, commandBufferCount, pCommandBuffers);
+
+    DestroyWrappedHandles<CommandBufferWrapper>(pCommandBuffers, commandBufferCount);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(
@@ -4386,6 +4432,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion(
     GetDeviceTable(device)->DestroySamplerYcbcrConversion(device_unwrapped, ycbcrConversion_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversion>::Dispatch(TraceManager::Get(), device, ycbcrConversion, pAllocator);
+
+    DestroyWrappedHandle<SamplerYcbcrConversionWrapper>(ycbcrConversion);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(
@@ -4451,6 +4499,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(
     GetDeviceTable(device)->DestroyDescriptorUpdateTemplate(device_unwrapped, descriptorUpdateTemplate_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplate>::Dispatch(TraceManager::Get(), device, descriptorUpdateTemplate, pAllocator);
+
+    DestroyWrappedHandle<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferProperties(
@@ -4569,6 +4619,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(
     GetInstanceTable(instance)->DestroySurfaceKHR(instance_unwrapped, surface_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySurfaceKHR>::Dispatch(TraceManager::Get(), instance, surface, pAllocator);
+
+    DestroyWrappedHandle<SurfaceKHRWrapper>(surface);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(
@@ -4772,6 +4824,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(
     GetDeviceTable(device)->DestroySwapchainKHR(device_unwrapped, swapchain_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySwapchainKHR>::Dispatch(TraceManager::Get(), device, swapchain, pAllocator);
+
+    DestroyWrappedHandle<SwapchainKHRWrapper>(swapchain);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
@@ -6331,6 +6385,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(
     GetDeviceTable(device)->DestroyDescriptorUpdateTemplateKHR(device_unwrapped, descriptorUpdateTemplate_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDescriptorUpdateTemplateKHR>::Dispatch(TraceManager::Get(), device, descriptorUpdateTemplate, pAllocator);
+
+    DestroyWrappedHandle<DescriptorUpdateTemplateWrapper>(descriptorUpdateTemplate);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
@@ -6965,6 +7021,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(
     GetDeviceTable(device)->DestroySamplerYcbcrConversionKHR(device_unwrapped, ycbcrConversion_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroySamplerYcbcrConversionKHR>::Dispatch(TraceManager::Get(), device, ycbcrConversion, pAllocator);
+
+    DestroyWrappedHandle<SamplerYcbcrConversionWrapper>(ycbcrConversion);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2KHR(
@@ -7283,6 +7341,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(
     GetInstanceTable(instance)->DestroyDebugReportCallbackEXT(instance_unwrapped, callback_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugReportCallbackEXT>::Dispatch(TraceManager::Get(), instance, callback, pAllocator);
+
+    DestroyWrappedHandle<DebugReportCallbackEXTWrapper>(callback);
 }
 
 VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
@@ -8037,6 +8097,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNVX(
     GetDeviceTable(device)->DestroyIndirectCommandsLayoutNVX(device_unwrapped, indirectCommandsLayout_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNVX>::Dispatch(TraceManager::Get(), device, indirectCommandsLayout, pAllocator);
+
+    DestroyWrappedHandle<IndirectCommandsLayoutNVXWrapper>(indirectCommandsLayout);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateObjectTableNVX(
@@ -8100,6 +8162,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyObjectTableNVX(
     GetDeviceTable(device)->DestroyObjectTableNVX(device_unwrapped, objectTable_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyObjectTableNVX>::Dispatch(TraceManager::Get(), device, objectTable, pAllocator);
+
+    DestroyWrappedHandle<ObjectTableNVXWrapper>(objectTable);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL UnregisterObjectsNVX(
@@ -8877,6 +8941,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(
     GetInstanceTable(instance)->DestroyDebugUtilsMessengerEXT(instance_unwrapped, messenger_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDebugUtilsMessengerEXT>::Dispatch(TraceManager::Get(), instance, messenger, pAllocator);
+
+    DestroyWrappedHandle<DebugUtilsMessengerEXTWrapper>(messenger);
 }
 
 VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(
@@ -9108,6 +9174,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(
     GetDeviceTable(device)->DestroyValidationCacheEXT(device_unwrapped, validationCache_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyValidationCacheEXT>::Dispatch(TraceManager::Get(), device, validationCache, pAllocator);
+
+    DestroyWrappedHandle<ValidationCacheEXTWrapper>(validationCache);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(
@@ -9313,6 +9381,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(
     GetDeviceTable(device)->DestroyAccelerationStructureNV(device_unwrapped, accelerationStructure_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(TraceManager::Get(), device, accelerationStructure, pAllocator);
+
+    DestroyWrappedHandle<AccelerationStructureNVWrapper>(accelerationStructure);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsNV(
@@ -10122,6 +10192,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleasePerformanceConfigurationINTEL(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleasePerformanceConfigurationINTEL>::Dispatch(TraceManager::Get(), result, device, configuration);
+
+    DestroyWrappedHandle<PerformanceConfigurationINTELWrapper>(configuration);
 
     return result;
 }

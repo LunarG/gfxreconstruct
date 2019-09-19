@@ -327,8 +327,11 @@ class VulkanStateTracker
     template <typename Wrapper>
     void DestroyState(Wrapper* wrapper)
     {
+        assert(wrapper != nullptr);
         wrapper->create_parameters = nullptr;
     }
+
+    void DestroyState(InstanceWrapper* wrapper);
 
     void DestroyState(DeviceWrapper* wrapper);
 

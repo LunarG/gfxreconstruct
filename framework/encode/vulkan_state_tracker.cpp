@@ -917,55 +917,78 @@ void VulkanStateTracker::TrackPresentedImages(uint32_t              count,
     }
 }
 
+void VulkanStateTracker::DestroyState(InstanceWrapper* wrapper)
+{
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    // Physical devices are not explicitly destroyed, so need to be removed from the state tracker when their parent
+    // instance is destroyed.
+    for (const auto physical_device_entry : wrapper->child_physical_devices)
+    {
+        for (const auto display_entry : physical_device_entry->child_displays)
+        {
+            for (const auto display_mode_entry : display_entry->child_display_modes)
+            {
+                state_table_.RemoveWrapper(display_mode_entry);
+            }
+
+            state_table_.RemoveWrapper(display_entry);
+        }
+
+        state_table_.RemoveWrapper(physical_device_entry);
+    }
+}
+
 void VulkanStateTracker::DestroyState(DeviceWrapper* wrapper)
 {
-    if (wrapper != nullptr)
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    // Queues are not explicitly destroyed, so need to be removed from the state tracker when their parent device is
+    // destroyed.
+    for (const auto& entry : wrapper->child_queues)
     {
-        // Queues are not explicitly destroyed, so need to be removed from the state tracker when their parent device is
-        // destroyed.
-        for (const auto& entry : wrapper->child_queues)
-        {
-            state_table_.RemoveWrapper(entry);
-        }
+        state_table_.RemoveWrapper(entry);
     }
 }
 
 void VulkanStateTracker::DestroyState(CommandPoolWrapper* wrapper)
 {
-    if (wrapper != nullptr)
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    // Destroying the pool implicitly destroys objects allocated from the pool, which need to be removed from state
+    // tracking.
+    for (const auto& entry : wrapper->child_buffers)
     {
-        // Destroying the pool implicitly destroys objects allocated from the pool, which need to be removed from state
-        // tracking.
-        for (const auto& entry : wrapper->child_buffers)
-        {
-            state_table_.RemoveWrapper(entry.second);
-        }
+        state_table_.RemoveWrapper(entry.second);
     }
 }
 
 void VulkanStateTracker::DestroyState(DescriptorPoolWrapper* wrapper)
 {
-    if (wrapper != nullptr)
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    // Destroying the pool implicitly destroys objects allocated from the pool, which need to be removed from state
+    // tracking.
+    for (const auto& entry : wrapper->child_sets)
     {
-        // Destroying the pool implicitly destroys objects allocated from the pool, which need to be removed from state
-        // tracking.
-        for (const auto& entry : wrapper->child_sets)
-        {
-            state_table_.RemoveWrapper(entry.second);
-        }
+        state_table_.RemoveWrapper(entry.second);
     }
 }
 
 void VulkanStateTracker::DestroyState(SwapchainKHRWrapper* wrapper)
 {
-    if (wrapper != nullptr)
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    // Swapchain images are not explicitly destroyed, so need to be removed from state tracking when the parent
+    // swapchain is destroyed.
+    for (auto entry : wrapper->child_images)
     {
-        // Swapchain images are not explicitly destroyed, so need to be removed from state tracking when the parent
-        // swapchain is destroyed.
-        for (auto entry : wrapper->child_images)
-        {
-            state_table_.RemoveWrapper(entry);
-        }
+        state_table_.RemoveWrapper(entry);
     }
 }
 
