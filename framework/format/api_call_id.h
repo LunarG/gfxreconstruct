@@ -395,6 +395,15 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1158),
     ApiCall_vkGetImageViewHandleNVX                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1159),
     ApiCall_vkCreateMetalSurfaceEXT                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x115a),
+    ApiCall_vkCreateStreamDescriptorSurfaceGGP                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x115b),
+    ApiCall_vkSetLocalDimmingAMD                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x115c),
+    ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV                     = MakeApiCallId(ApiFamily_Vulkan, 0x115d),
+    ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT                                            = MakeApiCallId(ApiFamily_Vulkan, 0x115e),
+    ApiCall_vkAcquireFullScreenExclusiveModeEXT                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x115f),
+    ApiCall_vkReleaseFullScreenExclusiveModeEXT                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1160),
+    ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x1161),
+    ApiCall_vkCreateHeadlessSurfaceEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1162),
+    ApiCall_vkResetQueryPoolEXT                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1163),
 
     ApiCall_VulkanLast
     // clang-format on

@@ -17,6 +17,7 @@
 
 #include "decode/descriptor_update_template_decoder.h"
 
+#include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/value_decoder.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders.h"

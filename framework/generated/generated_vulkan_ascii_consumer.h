@@ -1620,6 +1620,13 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         const PointerDecoder<size_t>&               pInfoSize,
         const PointerDecoder<uint8_t>&              pInfo) override;
 
+    virtual void Process_vkCreateStreamDescriptorSurfaceGGP(
+        VkResult                                    returnValue,
+        format::HandleId                            instance,
+        const StructPointerDecoder<Decoded_VkStreamDescriptorSurfaceCreateInfoGGP>& pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+        const HandlePointerDecoder<VkSurfaceKHR>&   pSurface) override;
+
     virtual void Process_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
         VkResult                                    returnValue,
         format::HandleId                            physicalDevice,
@@ -2074,6 +2081,11 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         const PointerDecoder<uint32_t>&             pCheckpointDataCount,
         const StructPointerDecoder<Decoded_VkCheckpointDataNV>& pCheckpointData) override;
 
+    virtual void Process_vkSetLocalDimmingAMD(
+        format::HandleId                            device,
+        format::HandleId                            swapChain,
+        VkBool32                                    localDimmingEnable) override;
+
     virtual void Process_vkCreateImagePipeSurfaceFUCHSIA(
         VkResult                                    returnValue,
         format::HandleId                            instance,
@@ -2098,6 +2110,48 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         format::HandleId                            physicalDevice,
         const PointerDecoder<uint32_t>&             pPropertyCount,
         const StructPointerDecoder<Decoded_VkCooperativeMatrixPropertiesNV>& pProperties) override;
+
+    virtual void Process_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        const PointerDecoder<uint32_t>&             pCombinationCount,
+        const StructPointerDecoder<Decoded_VkFramebufferMixedSamplesCombinationNV>& pCombinations) override;
+
+    virtual void Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        const StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>& pSurfaceInfo,
+        const PointerDecoder<uint32_t>&             pPresentModeCount,
+        const PointerDecoder<VkPresentModeKHR>&     pPresentModes) override;
+
+    virtual void Process_vkAcquireFullScreenExclusiveModeEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            swapchain) override;
+
+    virtual void Process_vkReleaseFullScreenExclusiveModeEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            swapchain) override;
+
+    virtual void Process_vkGetDeviceGroupSurfacePresentModes2EXT(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR>& pSurfaceInfo,
+        const PointerDecoder<VkDeviceGroupPresentModeFlagsKHR>& pModes) override;
+
+    virtual void Process_vkCreateHeadlessSurfaceEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            instance,
+        const StructPointerDecoder<Decoded_VkHeadlessSurfaceCreateInfoEXT>& pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
+        const HandlePointerDecoder<VkSurfaceKHR>&   pSurface) override;
+
+    virtual void Process_vkResetQueryPoolEXT(
+        format::HandleId                            device,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery,
+        uint32_t                                    queryCount) override;
 };
 
 GFXRECON_END_NAMESPACE(decode)

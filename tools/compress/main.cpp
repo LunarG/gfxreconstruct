@@ -15,6 +15,8 @@
 ** limitations under the License.
 */
 
+#include "project_version.h"
+
 #include "decode/compression_converter.h"
 #include "decode/file_processor.h"
 #include "format/format.h"
@@ -22,7 +24,33 @@
 #include "util/compressor.h"
 #include "util/logging.h"
 
+#include "vulkan/vulkan_core.h"
+
 #include <cassert>
+
+const char kVersionOption[] = "--version";
+
+static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kVersionOption))
+    {
+        std::string app_name     = exe_name;
+        size_t      dir_location = app_name.find_last_of("/\\");
+
+        if (dir_location >= 0)
+        {
+            app_name.replace(0, dir_location + 1, "");
+        }
+
+        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
+        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
+        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version 1.1.%u", VK_HEADER_VERSION);
+
+        return true;
+    }
+
+    return false;
+}
 
 void PrintUsage(const char* exe_name)
 {
@@ -32,19 +60,19 @@ void PrintUsage(const char* exe_name)
     {
         app_name.replace(0, dir_location + 1, "");
     }
-    GFXRECON_WRITE_CONSOLE("\n\n%s\tis a compression/decompression tool for working with", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("\t\tGFXReconstruct capture files.\n");
+    GFXRECON_WRITE_CONSOLE("\n%s - A tool to compress/decompress GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("\t%s <input_file> <output_file> <compression_format>\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("\t<input_file>\t\tThe filename (including path if necessary) of the ");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\tincoming capture file to manipulate");
-    GFXRECON_WRITE_CONSOLE("\t<output_file>\t\tThe filename (including path if necessary) of the ");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\tresulting capture file to generate");
-    GFXRECON_WRITE_CONSOLE("\t<compression_format>\tThe compression format to use when generating");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\tthe output file.  Possible values are: ");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\t\tLZ4  - To output using LZ4 compression");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\t\tZLIB - To output using Zlib compression");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\t\tNONE - To output without using compression");
+    GFXRECON_WRITE_CONSOLE("  %s [--version] <input_file> <output_file> <compression_format>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("Required arguments:");
+    GFXRECON_WRITE_CONSOLE("  <input_file>\t\tPath to the input file to process.");
+    GFXRECON_WRITE_CONSOLE("  <output_file>\t\tPath to the output file to generate.");
+    GFXRECON_WRITE_CONSOLE("  <compression_format>\tCompression format to apply to the output file.");
+    GFXRECON_WRITE_CONSOLE("                      \tOptions are: ");
+    GFXRECON_WRITE_CONSOLE("                      \t  LZ4  - To output using LZ4 compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  ZLIB - To output using Zlib compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  NONE - To output without using compression.");
+    GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
+    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit");
 }
 
 int main(int argc, const char** argv)
@@ -59,9 +87,13 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::Log::Init();
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "", 3);
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kVersionOption, "");
 
-    if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 3))
+    if (PrintVersion(argv[0], arg_parser))
+    {
+        exit(0);
+    }
+    else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 3))
     {
         print_usage = true;
     }

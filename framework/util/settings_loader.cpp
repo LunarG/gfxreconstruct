@@ -50,6 +50,30 @@ const char kSettingsEnvVar[] = "VK_LAYER_SETTINGS_PATH";
 const char kSettingsFilename[] = "vk_layer_settings.txt";
 const char kCommentDelimiter   = '#';
 
+std::string RemoveQuotes(const std::string& source)
+{
+    size_t start_index = 0;
+    size_t quote_count = 0;
+
+    if (source.front() == '\"' || source.front() == '\'')
+    {
+        start_index = 1;
+        ++quote_count;
+    }
+
+    if (source.back() == '\"' || source.back() == '\'')
+    {
+        ++quote_count;
+    }
+
+    if (quote_count > 0)
+    {
+        return source.substr(start_index, source.length() - quote_count);
+    }
+
+    return source;
+}
+
 std::string FindLayerSettingsFile()
 {
     std::string settings_file;
@@ -214,7 +238,7 @@ int32_t LoadLayerSettingsFile(const std::string&                            file
                 // Ignore entries with keys that do not start with the filter prefix.
                 if (filter.empty() || (platform::StringCompare(key, filter.c_str(), filter.length()) == 0))
                 {
-                    (*settings)[key] = value;
+                    (*settings)[key] = RemoveQuotes(value);
                 }
             }
 

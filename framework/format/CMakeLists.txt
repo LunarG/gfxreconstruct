@@ -23,4 +23,4 @@ target_sources(gfxrecon_format_test PRIVATE
         test/main.cpp)
 
 common_build_directives(gfxrecon_format_test)
-target_test_directives(gfxrecon_format_test)
+common_test_directives(gfxrecon_format_test)

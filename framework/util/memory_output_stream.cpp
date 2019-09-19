@@ -32,6 +32,11 @@ MemoryOutputStream::MemoryOutputStream(size_t initial_size)
     buffer_.reserve(initial_size);
 }
 
+MemoryOutputStream::MemoryOutputStream(const void* initial_data, size_t initial_data_size)
+{
+    Write(initial_data, initial_data_size);
+}
+
 MemoryOutputStream::~MemoryOutputStream() {}
 
 size_t MemoryOutputStream::Write(const void* data, size_t len)

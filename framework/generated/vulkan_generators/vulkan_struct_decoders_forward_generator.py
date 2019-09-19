@@ -76,10 +76,10 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        for struct in self.featureStructMembers:
+        for struct in self.getFilteredStructNames():
             write('struct Decoded_{};'.format(struct), file=self.outFile)
 
         self.newline()
 
-        for struct in self.featureStructMembers:
+        for struct in self.getFilteredStructNames():
             write('size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'.format(struct), file=self.outFile)

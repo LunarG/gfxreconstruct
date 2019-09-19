@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ typedef const wchar_t* LPCWSTR;
 typedef void*          HINSTANCE;
 typedef void*          HWND;
 typedef void*          HANDLE;
+typedef void*          HMONITOR;
 
 // Define a version of the WIN32 SECURITY_ATTRIBUTES struct that
 // is suitable for decoding on non-WIN32 platforms.
@@ -441,6 +442,19 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWaylandPresentationSupp
 
 typedef VkFlags VkWin32SurfaceCreateFlagsKHR;
 
+enum VkFullScreenExclusiveEXT
+{
+    VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT                = 0,
+    VK_FULL_SCREEN_EXCLUSIVE_ALLOWED_EXT                = 1,
+    VK_FULL_SCREEN_EXCLUSIVE_DISALLOWED_EXT             = 2,
+    VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT = 3,
+    VK_FULL_SCREEN_EXCLUSIVE_BEGIN_RANGE_EXT            = VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT,
+    VK_FULL_SCREEN_EXCLUSIVE_END_RANGE_EXT              = VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT,
+    VK_FULL_SCREEN_EXCLUSIVE_RANGE_SIZE_EXT =
+        (VK_FULL_SCREEN_EXCLUSIVE_APPLICATION_CONTROLLED_EXT - VK_FULL_SCREEN_EXCLUSIVE_DEFAULT_EXT + 1),
+    VK_FULL_SCREEN_EXCLUSIVE_MAX_ENUM_EXT = 0x7FFFFFFF
+};
+
 struct VkWin32SurfaceCreateInfoKHR
 {
     VkStructureType              sType;
@@ -448,6 +462,27 @@ struct VkWin32SurfaceCreateInfoKHR
     VkWin32SurfaceCreateFlagsKHR flags;
     HINSTANCE                    hinstance;
     HWND                         hwnd;
+};
+
+struct VkSurfaceFullScreenExclusiveInfoEXT
+{
+    VkStructureType          sType;
+    void*                    pNext;
+    VkFullScreenExclusiveEXT fullScreenExclusive;
+};
+
+struct VkSurfaceCapabilitiesFullScreenExclusiveEXT
+{
+    VkStructureType sType;
+    void*           pNext;
+    VkBool32        fullScreenExclusiveSupported;
+};
+
+struct VkSurfaceFullScreenExclusiveWin32InfoEXT
+{
+    VkStructureType sType;
+    const void*     pNext;
+    HMONITOR        hmonitor;
 };
 
 struct VkImportMemoryWin32HandleInfoKHR
@@ -598,6 +633,15 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateWin32SurfaceKHR)(VkInstance             
                                                          VkSurfaceKHR*                      pSurface);
 typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice,
                                                                                 uint32_t         queueFamilyIndex);
+typedef VkResult(VKAPI_PTR* PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT)(
+    VkPhysicalDevice                       physicalDevice,
+    const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+    uint32_t*                              pPresentModeCount,
+    VkPresentModeKHR*                      pPresentModes);
+typedef VkResult(VKAPI_PTR* PFN_vkAcquireFullScreenExclusiveModeEXT)(VkDevice device, VkSwapchainKHR swapchain);
+typedef VkResult(VKAPI_PTR* PFN_vkReleaseFullScreenExclusiveModeEXT)(VkDevice device, VkSwapchainKHR swapchain);
+typedef VkResult(VKAPI_PTR* PFN_vkGetDeviceGroupSurfacePresentModes2EXT)(
+    VkDevice device, const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo, VkDeviceGroupPresentModeFlagsKHR* pModes);
 typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandleKHR)(VkDevice                             device,
                                                            const VkMemoryGetWin32HandleInfoKHR* pGetWin32HandleInfo,
                                                            HANDLE*                              pHandle);
@@ -634,6 +678,37 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWin32PresentationSuppor
     GFXRECON_LOG_ERROR(
         "Calling unsupported platform extension function vkGetPhysicalDeviceWin32PresentationSupportKHR");
     return VK_FALSE;
+}
+
+static VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModes2EXT(VkPhysicalDevice,
+                                                                                 const VkPhysicalDeviceSurfaceInfo2KHR*,
+                                                                                 uint32_t*,
+                                                                                 VkPresentModeKHR*)
+{
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceSurfacePresentModes2EXT");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+static VKAPI_ATTR VkResult VKAPI_CALL vkAcquireFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR)
+{
+    // Convert full screen exclusive calls to no-op functions that report success on non-WIN32 platforms.
+    GFXRECON_LOG_INFO("Ignoring WIN32 platform-specific extension function vkAcquireFullScreenExclusiveModeEXT");
+    return VK_SUCCESS;
+}
+
+static VKAPI_ATTR VkResult VKAPI_CALL vkReleaseFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR)
+{
+    // Convert full screen exclusive calls to no-op functions that report success on non-WIN32 platforms.
+    GFXRECON_LOG_INFO("Ignoring WIN32 platform-specific extension function vkReleaseFullScreenExclusiveModeEXT");
+    return VK_SUCCESS;
+}
+
+static VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModes2EXT(VkDevice,
+                                                                              const VkPhysicalDeviceSurfaceInfo2KHR*,
+                                                                              VkDeviceGroupPresentModeFlagsKHR*)
+{
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetDeviceGroupSurfacePresentModes2EXT");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(VkDevice, const VkMemoryGetWin32HandleInfoKHR*, HANDLE*)
@@ -813,5 +888,49 @@ static VKAPI_ATTR VkResult VKAPI_CALL vkGetRandROutputDisplayEXT(VkPhysicalDevic
 }
 }
 #endif // VK_USE_PLATFORM_XLIB_XRANDR_EXT
+
+#if !defined(VK_USE_PLATFORM_GGP)
+#define VK_GGP_STREAM_DESCRIPTOR_SURFACE_EXTENSION_NAME "VK_GGP_stream_descriptor_surface"
+
+typedef VkFlags VkStreamDescriptorSurfaceCreateFlagsGGP;
+
+// Using a type that is large enough to hold any integer/pointer value; actual types are currently unknown.
+typedef uint64_t GgpStreamDescriptor;
+typedef uint64_t GgpFrameToken;
+
+struct VkStreamDescriptorSurfaceCreateInfoGGP
+{
+    VkStructureType                         sType;
+    const void*                             pNext;
+    VkStreamDescriptorSurfaceCreateFlagsGGP flags;
+    GgpStreamDescriptor                     streamDescriptor;
+};
+
+struct VkPresentFrameTokenGGP
+{
+    VkStructureType sType;
+    const void*     pNext;
+    GgpFrameToken   frameToken;
+};
+
+typedef VkResult(VKAPI_PTR* PFN_vkCreateStreamDescriptorSurfaceGGP)(
+    VkInstance                                    instance,
+    const VkStreamDescriptorSurfaceCreateInfoGGP* pCreateInfo,
+    const VkAllocationCallbacks*                  pAllocator,
+    VkSurfaceKHR*                                 pSurface);
+
+extern "C" {
+static VKAPI_ATTR VkResult VKAPI_CALL
+                           vkCreateStreamDescriptorSurfaceGGP(VkInstance                                    instance,
+                                                              const VkStreamDescriptorSurfaceCreateInfoGGP* pCreateInfo,
+                                                              const VkAllocationCallbacks*                  pAllocator,
+                                                              VkSurfaceKHR*                                 pSurface)
+{
+    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateStreamDescriptorSurfaceGGP");
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+}
+
+#endif // VK_USE_PLATFORM_GGP
 
 #endif // GFXRECON_PLATFORM_TYPES_H

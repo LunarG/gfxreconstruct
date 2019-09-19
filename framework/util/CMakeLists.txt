@@ -1,6 +1,6 @@
 ###############################################################################
 # Copyright (c) 2019 LunarG, Inc.
-# Copyright (c) 2019 Advanced Micro Devices, Inc. 
+# Copyright (c) 2019 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -92,4 +92,4 @@ target_sources(gfxrecon_util_test PRIVATE
         test/main.cpp)
 
 common_build_directives(gfxrecon_util_test)
-target_test_directives(gfxrecon_util_test)
+common_test_directives(gfxrecon_util_test)
