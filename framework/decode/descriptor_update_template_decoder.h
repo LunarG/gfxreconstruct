@@ -18,6 +18,7 @@
 #ifndef GFXRECON_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
 #define GFXRECON_DECODE_DESCRIPTOR_UPDATE_TEMPLATE_DECODER_H
 
+#include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/pointer_decoder_base.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"

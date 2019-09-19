@@ -142,24 +142,28 @@ std::string Join(const std::string& lhs, const std::string& rhs)
     return joined;
 }
 
-std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt)
+std::string InsertFilenamePostfix(const std::string& filename, const std::string postfix)
 {
     std::string file_extension;
-    std::string core_filename;
-    size_t      period_loc = filename.rfind('.');
+    std::string file_part;
+    size_t      sep_index = filename.rfind('.');
 
-    if (period_loc != std::string::npos)
+    if (sep_index != std::string::npos)
     {
-        file_extension = filename.substr(period_loc, filename.length() - period_loc + 1);
-        core_filename  = filename.substr(0, period_loc);
-    }
-    else
-    {
-        file_extension = "";
-        core_filename  = filename;
+        file_extension = filename.substr(sep_index);
+        file_part      = filename.substr(0, sep_index);
+
+        return file_part + postfix + file_extension;
     }
 
-    return core_filename + "_" + util::datetime::GetDateTimeString(use_gmt) + file_extension;
+    return filename + postfix;
+}
+
+std::string GenerateTimestampedFilename(const std::string& filename, bool use_gmt)
+{
+    std::string timestamp = "_";
+    timestamp += util::datetime::GetDateTimeString(use_gmt);
+    return InsertFilenamePostfix(filename, timestamp);
 }
 
 GFXRECON_END_NAMESPACE(filepath)

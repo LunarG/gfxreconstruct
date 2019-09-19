@@ -38,11 +38,42 @@ class VulkanConsumerBase
 
     virtual ~VulkanConsumerBase() {}
 
+    virtual void ProcessStateBeginMarker(uint64_t frame_number) {}
+
+    virtual void ProcessStateEndMarker(uint64_t frame_number) {}
+
     virtual void ProcessDisplayMessageCommand(const std::string& message) {}
 
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) {}
+
+    virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,
+                                                      format::HandleId swapchain_id,
+                                                      uint32_t         last_presented_image,
+                                                      const std::vector<format::SwapchainImageStateInfo>& image_state)
+    {}
+
+    virtual void
+    ProcessBeginResourceInitCommand(format::HandleId device_id, uint64_t max_resource_size, uint64_t max_copy_size)
+    {}
+
+    virtual void ProcessEndResourceInitCommand(format::HandleId device_id) {}
+
+    virtual void ProcessInitBufferCommand(format::HandleId device_id,
+                                          format::HandleId buffer_id,
+                                          uint64_t         data_size,
+                                          const uint8_t*   data)
+    {}
+
+    virtual void ProcessInitImageCommand(format::HandleId             device_id,
+                                         format::HandleId             image_id,
+                                         uint64_t                     data_size,
+                                         uint32_t                     aspect,
+                                         uint32_t                     layout,
+                                         const std::vector<uint64_t>& level_sizes,
+                                         const uint8_t*               data)
+    {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
                                                            format::HandleId descriptorSet,

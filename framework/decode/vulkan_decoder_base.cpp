@@ -24,6 +24,22 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+void VulkanDecoderBase::DispatchStateBeginMarker(uint64_t frame_number)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessStateBeginMarker(frame_number);
+    }
+}
+
+void VulkanDecoderBase::DispatchStateEndMarker(uint64_t frame_number)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessStateEndMarker(frame_number);
+    }
+}
+
 void VulkanDecoderBase::DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message)
 {
     GFXRECON_UNREFERENCED_PARAMETER(thread_id);
@@ -55,6 +71,75 @@ void VulkanDecoderBase::DispatchResizeWindowCommand(format::ThreadId thread_id,
     for (auto consumer : consumers_)
     {
         consumer->ProcessResizeWindowCommand(surface_id, width, height);
+    }
+}
+
+void VulkanDecoderBase::DispatchSetSwapchainImageStateCommand(
+    format::ThreadId                                    thread_id,
+    format::HandleId                                    device_id,
+    format::HandleId                                    swapchain_id,
+    uint32_t                                            last_presented_image,
+    const std::vector<format::SwapchainImageStateInfo>& image_state)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetSwapchainImageStateCommand(device_id, swapchain_id, last_presented_image, image_state);
+    }
+}
+
+void VulkanDecoderBase::DispatchBeginResourceInitCommand(format::ThreadId thread_id,
+                                                         format::HandleId device_id,
+                                                         uint64_t         max_resource_size,
+                                                         uint64_t         max_copy_size)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessBeginResourceInitCommand(device_id, max_resource_size, max_copy_size);
+    }
+}
+
+void VulkanDecoderBase::DispatchEndResourceInitCommand(format::ThreadId thread_id, format::HandleId device_id)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessEndResourceInitCommand(device_id);
+    }
+}
+
+void VulkanDecoderBase::DispatchInitBufferCommand(format::ThreadId thread_id,
+                                                  format::HandleId device_id,
+                                                  format::HandleId buffer_id,
+                                                  uint64_t         data_size,
+                                                  const uint8_t*   data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessInitBufferCommand(device_id, buffer_id, data_size, data);
+    }
+}
+
+void VulkanDecoderBase::DispatchInitImageCommand(format::ThreadId             thread_id,
+                                                 format::HandleId             device_id,
+                                                 format::HandleId             image_id,
+                                                 uint64_t                     data_size,
+                                                 uint32_t                     aspect,
+                                                 uint32_t                     layout,
+                                                 const std::vector<uint64_t>& level_sizes,
+                                                 const uint8_t*               data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessInitImageCommand(device_id, image_id, data_size, aspect, layout, level_sizes, data);
     }
 }
 

@@ -301,6 +301,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdDrawIndirectCountAMD",                                                                           reinterpret_cast<PFN_vkVoidFunction>(encode::CmdDrawIndirectCountAMD) },
     { "vkCmdDrawIndexedIndirectCountAMD",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::CmdDrawIndexedIndirectCountAMD) },
     { "vkGetShaderInfoAMD",                                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::GetShaderInfoAMD) },
+    { "vkCreateStreamDescriptorSurfaceGGP",                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::CreateStreamDescriptorSurfaceGGP) },
     { "vkGetPhysicalDeviceExternalImageFormatPropertiesNV",                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceExternalImageFormatPropertiesNV) },
     { "vkGetMemoryWin32HandleNV",                                                                            reinterpret_cast<PFN_vkVoidFunction>(encode::GetMemoryWin32HandleNV) },
     { "vkCreateViSurfaceNN",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::CreateViSurfaceNN) },
@@ -375,10 +376,18 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdSetExclusiveScissorNV",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetExclusiveScissorNV) },
     { "vkCmdSetCheckpointNV",                                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetCheckpointNV) },
     { "vkGetQueueCheckpointDataNV",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::GetQueueCheckpointDataNV) },
+    { "vkSetLocalDimmingAMD",                                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::SetLocalDimmingAMD) },
     { "vkCreateImagePipeSurfaceFUCHSIA",                                                                     reinterpret_cast<PFN_vkVoidFunction>(encode::CreateImagePipeSurfaceFUCHSIA) },
     { "vkCreateMetalSurfaceEXT",                                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::CreateMetalSurfaceEXT) },
     { "vkGetBufferDeviceAddressEXT",                                                                         reinterpret_cast<PFN_vkVoidFunction>(encode::GetBufferDeviceAddressEXT) },
     { "vkGetPhysicalDeviceCooperativeMatrixPropertiesNV",                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceCooperativeMatrixPropertiesNV) },
+    { "vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV",                                   reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV) },
+    { "vkGetPhysicalDeviceSurfacePresentModes2EXT",                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::GetPhysicalDeviceSurfacePresentModes2EXT) },
+    { "vkAcquireFullScreenExclusiveModeEXT",                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::AcquireFullScreenExclusiveModeEXT) },
+    { "vkReleaseFullScreenExclusiveModeEXT",                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::ReleaseFullScreenExclusiveModeEXT) },
+    { "vkGetDeviceGroupSurfacePresentModes2EXT",                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::GetDeviceGroupSurfacePresentModes2EXT) },
+    { "vkCreateHeadlessSurfaceEXT",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::CreateHeadlessSurfaceEXT) },
+    { "vkResetQueryPoolEXT",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::ResetQueryPoolEXT) },
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

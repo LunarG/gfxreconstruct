@@ -23,6 +23,7 @@
 #include "util/platform.h"
 
 #include <cassert>
+#include <numeric>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -218,6 +219,23 @@ bool FileProcessor::ProcessBlocks()
                 else
                 {
                     GFXRECON_LOG_ERROR("Failed to read meta-data block header");
+                    error_state_ = kErrorReadingBlockHeader;
+                }
+            }
+            else if (block_header.type == format::BlockType::kStateMarkerBlock)
+            {
+                format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
+                uint64_t           frame_number = 0;
+
+                success = ReadBytes(&marker_type, sizeof(marker_type));
+
+                if (success)
+                {
+                    success = ProcessStateMarker(block_header, marker_type);
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to read state marker header");
                     error_state_ = kErrorReadingBlockHeader;
                 }
             }
@@ -523,6 +541,226 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read display message meta-data block header");
         }
     }
+    else if (meta_type == format::MetaDataType::kSetSwapchainImageStateCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetSwapchainImageStateCommandHeader header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
+        success = success && ReadBytes(&header.swapchain_id, sizeof(header.swapchain_id));
+        success = success && ReadBytes(&header.last_presented_image, sizeof(header.last_presented_image));
+        success = success && ReadBytes(&header.image_info_count, sizeof(header.image_info_count));
+
+        if (success)
+        {
+            std::vector<format::SwapchainImageStateInfo> entries;
+
+            for (uint64_t i = 0; i < header.image_info_count; ++i)
+            {
+                format::SwapchainImageStateInfo entry;
+
+                if (!ReadBytes(&entry, sizeof(entry)))
+                {
+                    success = false;
+                    break;
+                }
+
+                entries.emplace_back(entry);
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchSetSwapchainImageStateCommand(
+                        header.thread_id, header.device_id, header.swapchain_id, header.last_presented_image, entries);
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockData,
+                                     "Failed to read set swapchain image state meta-data block");
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read set swapchain image state meta-data block header");
+        }
+    }
+    else if (meta_type == format::MetaDataType::kBeginResourceInitCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::BeginResourceInitCommand header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
+        success = success && ReadBytes(&header.max_resource_size, sizeof(header.max_resource_size));
+        success = success && ReadBytes(&header.max_copy_size, sizeof(header.max_copy_size));
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchBeginResourceInitCommand(
+                    header.thread_id, header.device_id, header.max_resource_size, header.max_copy_size);
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read begin resource init meta-data block header");
+        }
+    }
+    else if (meta_type == format::MetaDataType::kEndResourceInitCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::EndResourceInitCommand header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchEndResourceInitCommand(header.thread_id, header.device_id);
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read end resource init meta-data block header");
+        }
+    }
+    else if (meta_type == format::MetaDataType::kInitBufferCommand)
+    {
+        format::InitBufferCommandHeader header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
+        success = success && ReadBytes(&header.buffer_id, sizeof(header.buffer_id));
+        success = success && ReadBytes(&header.data_size, sizeof(header.data_size));
+
+        if (success)
+        {
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
+
+            if (format::IsBlockCompressed(block_header.type))
+            {
+                size_t uncompressed_size = 0;
+                size_t compressed_size =
+                    static_cast<size_t>(block_header.size) - (sizeof(header) - sizeof(header.meta_header.block_header));
+
+                success = ReadCompressedParameterBuffer(
+                    compressed_size, static_cast<size_t>(header.data_size), &uncompressed_size);
+            }
+            else
+            {
+                success = ReadParameterBuffer(static_cast<size_t>(header.data_size));
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchInitBufferCommand(header.thread_id,
+                                                       header.device_id,
+                                                       header.buffer_id,
+                                                       header.data_size,
+                                                       parameter_buffer_.data());
+                }
+            }
+            else
+            {
+                if (format::IsBlockCompressed(block_header.type))
+                {
+                    HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                         "Failed to read init buffer data meta-data block");
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingBlockData, "Failed to read init buffer data meta-data block");
+                }
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init buffer data meta-data block header");
+        }
+    }
+    else if (meta_type == format::MetaDataType::kInitImageCommand)
+    {
+        format::InitImageCommandHeader header;
+        std::vector<uint64_t>          level_sizes;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
+        success = success && ReadBytes(&header.image_id, sizeof(header.image_id));
+        success = success && ReadBytes(&header.data_size, sizeof(header.data_size));
+        success = success && ReadBytes(&header.aspect, sizeof(header.aspect));
+        success = success && ReadBytes(&header.layout, sizeof(header.layout));
+        success = success && ReadBytes(&header.level_count, sizeof(header.level_count));
+
+        if (success && (header.level_count > 0))
+        {
+            level_sizes.resize(header.level_count);
+            success = success && ReadBytes(level_sizes.data(), header.level_count * sizeof(level_sizes[0]));
+        }
+
+        if (success && (header.data_size > 0))
+        {
+            assert(header.data_size == std::accumulate(level_sizes.begin(), level_sizes.end(), 0ull));
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, header.data_size);
+
+            if (format::IsBlockCompressed(block_header.type))
+            {
+                size_t uncompressed_size = 0;
+                size_t compressed_size   = static_cast<size_t>(block_header.size) -
+                                         (sizeof(header) - sizeof(header.meta_header.block_header)) -
+                                         (level_sizes.size() * sizeof(level_sizes[0]));
+
+                success = ReadCompressedParameterBuffer(
+                    compressed_size, static_cast<size_t>(header.data_size), &uncompressed_size);
+            }
+            else
+            {
+                success = ReadParameterBuffer(static_cast<size_t>(header.data_size));
+            }
+        }
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchInitImageCommand(header.thread_id,
+                                                  header.device_id,
+                                                  header.image_id,
+                                                  header.data_size,
+                                                  header.aspect,
+                                                  header.layout,
+                                                  level_sizes,
+                                                  parameter_buffer_.data());
+            }
+        }
+        else
+        {
+            if (format::IsBlockCompressed(block_header.type))
+            {
+                HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                     "Failed to read init image data meta-data block");
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockData, "Failed to read init image data meta-data block");
+            }
+        }
+    }
     else
     {
         // Unrecognized metadata type.
@@ -530,6 +768,37 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
 
         success = SkipBytes(static_cast<size_t>(block_header.size) - sizeof(meta_type));
+    }
+
+    return success;
+}
+
+bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
+{
+    uint64_t frame_number = 0;
+    bool     success      = ReadBytes(&frame_number, sizeof(frame_number));
+
+    if (success)
+    {
+        for (auto decoder : decoders_)
+        {
+            if (marker_type == format::kBeginMarker)
+            {
+                decoder->DispatchStateBeginMarker(frame_number);
+            }
+            else if (marker_type == format::kEndMarker)
+            {
+                decoder->DispatchStateEndMarker(frame_number);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Skipping unrecognized state marker with type %u", marker_type);
+            }
+        }
+    }
+    else
+    {
+        HandleBlockReadError(kErrorReadingBlockData, "Failed to read state marker data");
     }
 
     return success;

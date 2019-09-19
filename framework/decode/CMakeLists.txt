@@ -6,6 +6,8 @@ target_sources(gfxrecon_decode
                    custom_vulkan_struct_decoders.h
                    custom_vulkan_struct_decoders.cpp
                    custom_vulkan_struct_decoders_forward.h
+                   custom_vulkan_struct_handle_mappers.h
+                   custom_vulkan_struct_handle_mappers.cpp
                    compression_converter.h
                    compression_converter.cpp
                    descriptor_update_template_decoder.h
@@ -21,6 +23,7 @@ target_sources(gfxrecon_decode
                    string_decoder.h
                    struct_pointer_decoder.h
                    struct_pointer_decoder_nvx.h
+                   swapchain_image_tracker.h
                    value_decoder.h
                    vulkan_ascii_consumer_base.h
                    vulkan_ascii_consumer_base.cpp
@@ -48,6 +51,11 @@ target_sources(gfxrecon_decode
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_decode_pnext_struct.cpp
               )
 
+if (MSVC AND (MSVC_VERSION LESS 1910))
+    # This file fails to compile with VS2015, requiring the default section limit of 2^16 to be increased.
+    set_source_files_properties(vulkan_replay_consumer_base.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+endif()
+
 target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
@@ -62,4 +70,5 @@ target_sources(gfxrecon_decode_test PRIVATE
         test/main.cpp)
 
 common_build_directives(gfxrecon_decode_test)
-target_test_directives(gfxrecon_decode_test)
+common_test_directives(gfxrecon_decode_test)
+

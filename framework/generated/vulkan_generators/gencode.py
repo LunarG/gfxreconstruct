@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse, cProfile, pdb, string, sys, time
+import argparse, cProfile, pdb, os, string, sys, time
 from reg import *
 from generator import write
 
@@ -40,6 +40,8 @@ from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMapper
 # API Call Encoders
 from vulkan_api_call_encoders_body_generator import VulkanApiCallEncodersBodyGenerator,VulkanApiCallEncodersBodyGeneratorOptions
 from vulkan_api_call_encoders_header_generator import VulkanApiCallEncodersHeaderGenerator,VulkanApiCallEncodersHeaderGeneratorOptions
+from vulkan_command_buffer_util_body_generator import VulkanCommandBufferUtilBodyGenerator,VulkanCommandBufferUtilBodyGeneratorOptions
+from vulkan_command_buffer_util_header_generator import VulkanCommandBufferUtilHeaderGenerator,VulkanCommandBufferUtilHeaderGeneratorOptions
 from vulkan_dispatch_table_generator import VulkanDispatchTableGenerator, VulkanDispatchTableGeneratorOptions
 from layer_func_table_generator import LayerFuncTableGenerator,LayerFuncTableGeneratorOptions
 
@@ -47,18 +49,21 @@ from layer_func_table_generator import LayerFuncTableGenerator,LayerFuncTableGen
 from vulkan_struct_encoders_body_generator import VulkanStructEncodersBodyGenerator,VulkanStructEncodersBodyGeneratorOptions
 from vulkan_struct_encoders_header_generator import VulkanStructEncodersHeaderGenerator,VulkanStructEncodersHeaderGeneratorOptions
 from encode_pnext_struct_generator import EncodePNextStructGenerator,EncodePNextStructGeneratorOptions
+from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator,VulkanStructHandleWrappersHeaderGeneratorOptions
+from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator,VulkanStructHandleWrappersBodyGeneratorOptions
 
 # Simple timer functions
 startTime = None
 
 def startTimer(timeit):
     global startTime
-    startTime = time.clock()
+    if timeit:
+        startTime = time.process_time()
 
 def endTimer(timeit, msg):
     global startTime
-    endTime = time.clock()
-    if (timeit):
+    if timeit:
+        endTime = time.process_time()
         write(msg, endTime - startTime, file=sys.stderr)
         startTime = None
 
@@ -309,6 +314,30 @@ def makeGenOpts(args):
             protectFeature    = False)
         ]
 
+    genOpts['generated_vulkan_command_buffer_util.h'] = [
+          VulkanCommandBufferUtilHeaderGenerator,
+          VulkanCommandBufferUtilHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_command_buffer_util.h',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_command_buffer_util.cpp'] = [
+          VulkanCommandBufferUtilBodyGenerator,
+          VulkanCommandBufferUtilBodyGeneratorOptions(
+            filename          = 'generated_vulkan_command_buffer_util.cpp',
+            directory         = directory,
+            blacklists        = blacklists,
+            platformTypes     = platformTypes,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False)
+        ]
+
     genOpts['generated_vulkan_dispatch_table.h'] = [
             VulkanDispatchTableGenerator,
             VulkanDispatchTableGeneratorOptions(
@@ -360,6 +389,28 @@ def makeGenOpts(args):
           EncodePNextStructGeneratorOptions(
             filename          = 'generated_encode_pnext_struct.cpp',
             directory         = directory,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = False,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_struct_handle_wrappers.h'] = [
+          VulkanStructHandleWrappersHeaderGenerator,
+          VulkanStructHandleWrappersHeaderGeneratorOptions(
+            filename          = 'generated_vulkan_struct_handle_wrappers.h',
+            directory         = directory,
+            blacklists        = blacklists,
+            prefixText        = prefixStrings + vkPrefixStrings,
+            protectFile       = True,
+            protectFeature    = False)
+        ]
+
+    genOpts['generated_vulkan_struct_handle_wrappers.cpp'] = [
+          VulkanStructHandleWrappersBodyGenerator,
+          VulkanStructHandleWrappersBodyGeneratorOptions(
+            filename          = 'generated_vulkan_struct_handle_wrappers.cpp',
+            directory         = directory,
+            blacklists        = blacklists,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
             protectFeature    = False)

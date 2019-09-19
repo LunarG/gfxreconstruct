@@ -22,6 +22,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <limits>
+#include <unistd.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -253,6 +254,11 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
             {
                 GFXRECON_LOG_ERROR("Failed to resize window with error %u", xcb_application_->GetLastErrorCode());
             }
+            else
+            {
+                // Sleep to ensure window resize has completed.
+                usleep(50000); // 0.05 seconds (same as vktrace)
+            }
         }
     }
 }
@@ -307,6 +313,9 @@ void XcbWindow::SetFullscreen(bool fullscreen)
                                     &bypass);
                 xcb_flush(connection);
             }
+
+            // Sleep to ensure window resize has completed.
+            usleep(50000); // 0.05 seconds (same as vktrace)
         }
         else
         {

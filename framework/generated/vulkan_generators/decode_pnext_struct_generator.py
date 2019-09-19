@@ -51,10 +51,10 @@ class DecodePNextStructGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
-        self.newline()
+        write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pnext_typed_node.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         write('#include "util/logging.h"', file=self.outFile)
         self.newline()
         write('#include <cassert>', file=self.outFile)
@@ -95,7 +95,7 @@ class DecodePNextStructGenerator(BaseGenerator):
         write('            {', file=self.outFile)
         write('            default:', file=self.outFile)
         write('                // TODO: This may need to be a fatal error', file=self.outFile)
-        write('                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructurType = %x", (*sType));', file=self.outFile)
+        write('                GFXRECON_LOG_ERROR("Failed to decode pNext value with unrecognized VkStructurType = %d", (*sType));', file=self.outFile)
         write('                break;', file=self.outFile)
 
     # Method override

@@ -20,8 +20,11 @@
 
 #include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
+#include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
+#include "decode/pnext_node.h"
 #include "decode/struct_pointer_decoder.h"
+#include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -42,11 +45,34 @@ struct Decoded_VkClearColorValue
 struct Decoded_VkClearValue
 {
     using struct_type = VkClearValue;
-    VkClearValue*             value{ nullptr };
-    Decoded_VkClearColorValue color;
+    VkClearValue*                              value{ nullptr };
+    std::unique_ptr<Decoded_VkClearColorValue> color;
 };
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
+struct Decoded_VkDescriptorImageInfo
+{
+    using struct_type = VkDescriptorImageInfo;
+
+    VkDescriptorImageInfo* value{ nullptr };
+
+    format::HandleId sampler{ 0 };
+    format::HandleId imageView{ 0 };
+};
+
+struct Decoded_VkWriteDescriptorSet
+{
+    using struct_type = VkWriteDescriptorSet;
+
+    VkWriteDescriptorSet* value{ nullptr };
+
+    std::unique_ptr<PNextNode>                                            pNext;
+    format::HandleId                                                      dstSet{ 0 };
+    std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>  pImageInfo;
+    std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorBufferInfo>> pBufferInfo;
+    HandlePointerDecoder<VkBufferView>                                    pTexelBufferView;
+};
+
 struct Decoded_VkObjectTableEntryNVX
 {
     VkObjectTableEntryNVX* value{ nullptr };
@@ -71,8 +97,8 @@ struct Decoded_SECURITY_DESCRIPTOR
     PointerDecoder<uint8_t>    PackedOwner;
     PointerDecoder<uint8_t>    PackedGroup;
 
-    StructPointerDecoder<Decoded_ACL> Sacl;
-    StructPointerDecoder<Decoded_ACL> Dacl;
+    std::unique_ptr<StructPointerDecoder<Decoded_ACL>> Sacl;
+    std::unique_ptr<StructPointerDecoder<Decoded_ACL>> Dacl;
 };
 
 struct Decoded_SECURITY_ATTRIBUTES
@@ -81,7 +107,7 @@ struct Decoded_SECURITY_ATTRIBUTES
 
     SECURITY_ATTRIBUTES* value{ nullptr };
 
-    StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR> lpSecurityDescriptor;
+    std::unique_ptr<StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>> lpSecurityDescriptor;
 };
 
 GFXRECON_END_NAMESPACE(decode)

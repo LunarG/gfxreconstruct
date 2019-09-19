@@ -101,3 +101,12 @@ limitations under the License.
   2. Altered source versions must be plainly marked as such, and must not be
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
+
+
+### cmake-modules (https://github.com/rpavlik/cmake-modules)
+
+Copyright Iowa State University 2009-2014, or Copyright Sensics, Inc. 2014-2015, or Copyright Ryan A. Pavlik 2009-2015
+
+Distributed under the Boost Software License, Version 1.0.
+
+(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)

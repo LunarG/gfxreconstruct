@@ -31,4 +31,4 @@ target_sources(VkLayer_gfxreconstruct_test PRIVATE
         test/main.cpp)
 
 common_build_directives(VkLayer_gfxreconstruct_test)
-target_test_directives(VkLayer_gfxreconstruct_test)
+common_test_directives(VkLayer_gfxreconstruct_test)

@@ -19,18 +19,19 @@
 
 cmake_minimum_required(VERSION 3.1)
 
-option(RUN_TESTS "Run static analysis using clang-tidy" OFF)
+
+option(RUN_TESTS "Run unit tests" OFF)
 
 # Python
 if(CMAKE_HOST_WIN32)
-    find_program(PYTHON "python.exe" PATHS $ENV{PATH} DOC "Python 3 executable")
+    find_program(PYTHON python.exe DOC "Python executable")
     execute_process(COMMAND ${PYTHON} --version OUTPUT_VARIABLE PYTHON_VERSION)
-    string(REPLACE "Python " "" "PYTHON_VERSION" "${PYTHON_VERSION}")
-    if("${PYTHON_VERSION}" VERSION_LESS "3.0.0")
-        message(FATAL_ERROR "Python 3+ is required. Python version ${PYTHON_VERSION} found.")
+    string(REPLACE "Python " "" PYTHON_VERSION ${PYTHON_VERSION})
+    if(${PYTHON_VERSION} VERSION_LESS "3.0.0")
+        message(FATAL_ERROR "Python 3+ is required.")
     endif()
 else()
-    find_program(PYTHON python3 DOC "Python 3 executable")
+    find_program(PYTHON python3 DOC "Python executable")
 endif()
 
 # Build architecture
@@ -42,7 +43,7 @@ if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
 endif()
 
 # Add test post build step to an executable test target
-function(target_test_directives TARGET)
+function(common_test_directives TARGET)
     # Test executable build directives needed for catch 2
     target_link_libraries(${TARGET} PRIVATE catch2)
     target_compile_definitions(${TARGET} PRIVATE $<$<BOOL:${MSVC}>:_UNICODE>)

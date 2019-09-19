@@ -73,7 +73,7 @@ class HandlePointerDecoder
     {
         size_t result = decoder_.DecodeHandleId(buffer, buffer_size);
 
-        if (!IsNull() && HasData() && !is_memory_external_)
+        if (!IsNull() && !is_memory_external_)
         {
             assert(handle_data_ == nullptr);
 

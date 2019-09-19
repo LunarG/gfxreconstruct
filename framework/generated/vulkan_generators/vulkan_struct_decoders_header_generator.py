@@ -48,7 +48,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
+        write('#include "decode/custom_vulkan_struct_decoders_forward.h"', file=self.outFile)
         write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
         write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pointer_decoder.h"', file=self.outFile)
@@ -87,7 +87,7 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for struct in self.featureStructMembers:
+        for struct in self.getFilteredStructNames():
             body = '' if first else '\n'
             body += 'struct Decoded_{}\n'.format(struct)
             body += '{\n'
@@ -144,6 +144,9 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
                 body += '    std::unique_ptr<PNextNode> pNext;\n'
             elif self.needsMemberDeclaration(value):
                 typeName = self.makeDecodedParamType(value)
+                if self.isStruct(value.baseType):
+                    typeName = 'std::unique_ptr<{}>'.format(typeName)
+
                 defaultValue = self.getDefaultInitValue(typeName)
                 if defaultValue:
                     body += '    {} {}{{ {} }};\n'.format(typeName, value.name, defaultValue)

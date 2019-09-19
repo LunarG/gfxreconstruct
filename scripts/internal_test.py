@@ -32,10 +32,11 @@ VERSION = distutils.version.StrictVersion('0.0.0')
 TEST_RESULT_FOLDER = "TestResult"
 LOCAL_TEST_APP_PATH = "TestApp"
 APPS_SCREENSHOT_FRAMES = "100,150,200,250,300"
-RECAP_SCREENSHOT_FRAMES = "5000,5050,5100,5150,5200"
+RECAP_SCREENSHOT_FRAMES = "4000,4050,4100,4150,4200"
 SCREENSHOT_COUNT = 5
 TOLERANCE = 0.03
-TRIM_RANGE = "5000-5500"
+TRIM_RANGE = "3800-4300"
+TRIM_PLAYBACK_SCREENSHOT = "200,250,300,350,400"
 
 
 def parse_args():
@@ -164,7 +165,7 @@ class GFXTestSuite(unittest.TestCase):
             command = ''
             if platform.system().lower() == "windows":
                 app = '{0}\\{1}.exe'.format(args.test_app_path, exe)
-                command = 'set VK_LAYER_PATH={0};%VK_LAYER_PATH%&&\
+                command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
                     set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
                     set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
                     set VK_SCREENSHOT_FRAMES={1}&&\
@@ -186,7 +187,11 @@ class GFXTestSuite(unittest.TestCase):
                         ppmfiles = []
                         ppmfiles += [each for each in os.listdir(
                             os.getcwd()) if each.endswith('.ppm')]
-                        if(time.time()-start > 120):
+                        if(time.time()-start > 120  and len(ppmfiles) < 1):
+                            if platform.system().lower() == "windows":
+                                result = os.system('taskkill /IM ' + exe + '.exe /f')
+                            elif platform.system().lower() == "linux":
+                                result = os.system('sudo killall -9 ' + app)
                             raise Exception(
                                 'Time Out in capture. Insufficient screenshot generated from capture.')
                     time.sleep(1)
@@ -209,7 +214,7 @@ class GFXTestSuite(unittest.TestCase):
             command = ''
             tracefile = get_latest_gfxrfile(args.test_app_path, exe)
             if platform.system().lower() == "windows":
-                command = 'set VK_LAYER_PATH={0};%VK_LAYER_PATH%&&\
+                command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
                     set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
                     set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
                     set VK_SCREENSHOT_FRAMES={1}&&\
@@ -233,7 +238,7 @@ class GFXTestSuite(unittest.TestCase):
             command = ''
             tracefile = get_latest_gfxrfile(args.test_app_path, exe)
             if platform.system().lower() == "windows":
-                command = 'set VK_LAYER_PATH={0};%VK_LAYER_PATH%&&\
+                command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
                     set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
                     set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
                     set VK_SCREENSHOT_FRAMES={1}&&\
@@ -260,19 +265,19 @@ class GFXTestSuite(unittest.TestCase):
                     "Failed to retrieve tracefile for playback test.")
 
             if platform.system().lower() == "windows":
-                command = 'set VK_LAYER_PATH={0};%VK_LAYER_PATH%&&\
+                command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
                     set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_screenshot;&&\
                     set VK_SCREENSHOT_FRAMES={1}&&\
                     {2}\\gfxrecon-replay.exe {3}'.format(args.layer_path, screenshot_frames, args.binary_path, gfxrfile)
                 print(command)
-                ret = os.system(command)
             elif platform.system().lower() == "linux":
                 command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; {2}/gfxrecon-replay {3}'.format(args.layer_path, screenshot_frames, args.binary_path, gfxrfile)
-                output = os.popen(command).read()
-                print("-----playback output-----")
-                print(output)
-                if not("frames," in output):
-                    raise Exception("0 frame during playback.")
+
+            output = os.popen(command).read()
+            print("-----playback output-----")
+            print(output)
+            if not("frames," in output):
+                raise Exception("0 frame during playback.")
 
         except Exception as error:
             print('Error', *(error.args))
@@ -346,7 +351,8 @@ if '__main__' == __name__:
                         shutil.rmtree(LOCAL_TEST_APP_PATH)
                     print(
                         "Start syncing down apps from network to local. Please wait...")
-                    shutil.copytree(args.test_app_path, LOCAL_TEST_APP_PATH)
+                    command = 'robocopy {0} {1} /E'.format(args.test_app_path, LOCAL_TEST_APP_PATH)
+                    output = os.popen(command).read()
                     print('Done syncing down apps from network to local test folder.')
                 except Exception as e:
                     print(e)
@@ -373,7 +379,11 @@ if '__main__' == __name__:
         # if test folder does not exists, create a TestResult directory
         if not os.path.exists(TEST_RESULT_FOLDER):
             os.mkdir(TEST_RESULT_FOLDER)
-
+        # detect if it is sashasample, if yes then override the test app path
+        # this is because sashasample has asset data folder relative to app
+        # executable
+        if os.path.exists(os.path.join(LOCAL_TEST_APP_PATH, "sashasample.dat")):
+            args.test_app_path = os.path.join(args.test_app_path,"bin")
         # running the test suite for each Vulkan test apps
         for file in os.listdir(args.test_app_path):
             app_file_path = os.path.join(args.test_app_path, file)
@@ -445,20 +455,27 @@ if '__main__' == __name__:
                     verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
                 remove_screenshots(os.getcwd())
                 remove_screenshots(backup_ppm_folder)
-                #TODO: enable trim only after dev branch is merged to master
-                # suite = get_test(exe+"RecaptureTrim", "test_recapture_trim")
-                # test_result = xmlrunner.XMLTestRunner(verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                # backup_ppm_folder = os.path.join(os.path.abspath(TEST_RESULT_FOLDER), "LastCapture")
-                # backup_screenshot_for_compare(backup_ppm_folder)
-                # exe = exe+"_recaptrim"
-                # gfxrfile = get_latest_gfxrfile(TEST_RESULT_FOLDER, exe)
-                # suite = get_test(exe+"PlaybackRecapTrim", "test_playback")
-                # test_result = xmlrunner.XMLTestRunner(verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                # exe = file.split('.')[0]
-                # suite = get_test(exe+"ImgCompare", "test_compare_screenshots")
-                # test_result = xmlrunner.XMLTestRunner(verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                # remove_screenshots(os.getcwd())
-                # remove_screenshots(backup_ppm_folder)
+                suite = get_test(exe+"RecaptureTrim", "test_recapture_trim")
+                test_result = xmlrunner.XMLTestRunner(verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                backup_ppm_folder = os.path.join(os.path.abspath(TEST_RESULT_FOLDER), "LastCapture")
+                backup_screenshot_for_compare(backup_ppm_folder)
+                exe = exe+"_recaptrim"
+                screenshot_frames = TRIM_PLAYBACK_SCREENSHOT
+                gfxrfile = get_latest_gfxrfile(TEST_RESULT_FOLDER, exe)
+                suite = get_test(exe+"PlaybackRecapTrim", "test_playback")
+                test_result = xmlrunner.XMLTestRunner(verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                #TODO: image comparison for trim is disabled for now, due to the test limitation
+                #rename the playback screenschot ppm files accordingly for image comparison
+                #trim_recap_files = RECAP_SCREENSHOT_FRAMES.split(',')
+                #trim_playback_files = TRIM_PLAYBACK_SCREENSHOT.split(',')
+                #for  i in range(len(trim_playback_files)):
+                #    if os.path.exists(trim_playback_files[i]+".ppm"):
+                #        os.rename(trim_playback_files[i]+".ppm", trim_recap_files[i]+".ppm")
+                #exe = file.split('.')[0]
+                #suite = get_test(exe+"ImgCompare", "test_compare_screenshots")
+                #test_result = xmlrunner.XMLTestRunner(verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                remove_screenshots(os.getcwd())
+                remove_screenshots(backup_ppm_folder)
 
     except Exception as error:
         print('Error', *(error.args))

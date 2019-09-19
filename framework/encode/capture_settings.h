@@ -23,6 +23,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -44,13 +45,20 @@ class CaptureSettings
         kPageGuard = 2
     };
 
+    struct TrimRange
+    {
+        uint32_t first{ 0 }; // First frame to capture.
+        uint32_t total{ 0 }; // Total number of frames to capture.
+    };
+
     struct TraceSettings
     {
         std::string            capture_file{ kDefaultCaptureFileName };
         format::EnabledOptions capture_file_options;
         bool                   time_stamp_file{ true };
-        MemoryTrackingMode     memory_tracking_mode{ kPageGuard };
         bool                   force_flush{ false };
+        MemoryTrackingMode     memory_tracking_mode{ kPageGuard };
+        std::vector<TrimRange> trim_ranges;
     };
 
   public:
@@ -88,6 +96,8 @@ class CaptureSettings
                                                               format::CompressionType default_value);
 
     static util::Log::Severity ParseLogLevelString(const std::string& value_string, util::Log::Severity default_value);
+
+    static void ParseTrimRangeString(const std::string& value_string, std::vector<CaptureSettings::TrimRange>* ranges);
 
   private:
     TraceSettings       trace_settings_;
