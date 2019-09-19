@@ -474,29 +474,17 @@ inline void DestroyWrappedHandle<InstanceWrapper>(VkInstance handle)
 
         for (auto physical_device_wrapper : wrapper->child_physical_devices)
         {
-            delete physical_device_wrapper;
-        }
-
-        delete wrapper;
-    }
-}
-
-template <>
-inline void DestroyWrappedHandle<PhysicalDeviceWrapper>(VkPhysicalDevice handle)
-{
-    if (handle != VK_NULL_HANDLE)
-    {
-        // Destroy child wrappers.
-        auto wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(handle);
-
-        for (auto display_wrapper : wrapper->child_displays)
-        {
-            for (auto display_mode_wrapper : display_wrapper->child_display_modes)
+            for (auto display_wrapper : physical_device_wrapper->child_displays)
             {
-                delete display_mode_wrapper;
+                for (auto display_mode_wrapper : display_wrapper->child_display_modes)
+                {
+                    delete display_mode_wrapper;
+                }
+
+                delete display_wrapper;
             }
 
-            delete display_wrapper;
+            delete physical_device_wrapper;
         }
 
         delete wrapper;
@@ -594,6 +582,18 @@ inline void DestroyWrappedHandle<SwapchainKHRWrapper>(VkSwapchainKHR handle)
         }
 
         delete wrapper;
+    }
+}
+
+template <typename Wrapper>
+void DestroyWrappedHandles(const typename Wrapper::HandleType* handles, uint32_t count)
+{
+    if (handles != nullptr)
+    {
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            DestroyWrappedHandle<Wrapper>(handles[i]);
+        }
     }
 }
 

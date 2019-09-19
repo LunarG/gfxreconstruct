@@ -227,10 +227,17 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         body += '\n'
         if returnType and returnType != 'void':
             body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), result, {});\n'.format(name, argList)
-            body += '\n'
-            body += '    return result;\n'
         else:
             body += '    CustomEncoderPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), {});\n'.format(name, argList)
+
+        cleanupExpr = self.makeHandleCleanup(name, values, indent)
+        if cleanupExpr:
+            body += '\n'
+            body += cleanupExpr
+
+        if returnType and returnType != 'void':
+            body += '\n'
+            body += '    return result;\n'
 
         return body
 
@@ -319,7 +326,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 # Instance/device destroy calls are special case where the target handle is the first parameter
                 handle = values[0]
             else:
-                # The destroy target is the second parameter, exceppt for pool based allocations where it is the last parameter.
+                # The destroy target is the second parameter, except for pool based allocations where it is the last parameter.
                 handle = values[1]
                 if ("Pool" in handle.baseType) and name.startswith('vkFree'):
                     handle = values[3]
@@ -416,6 +423,25 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 expr += indent + '{type} {name}_unwrapped = GetWrappedHandle<{type}>({name});\n'.format(type=value.baseType, name=value.name)
             args.append(argName)
         return expr, ', '.join(args), needUnwrapMemory
+
+    def makeHandleCleanup(self, name, values, indent):
+        expr = ''
+        if name.startswith('vkDestroy') or name.startswith('vkFree') or (name == 'vkReleasePerformanceConfigurationINTEL'):
+            handle = None
+            if name in ['vkDestroyInstance', 'vkDestroyDevice']:
+                # Instance/device destroy calls are special case where the target handle is the first parameter
+                handle = values[0]
+            else:
+                # The destroy target is the second parameter, except for pool based allocations where it is the last parameter.
+                handle = values[1]
+                if ("Pool" in handle.baseType) and name.startswith('vkFree'):
+                    handle = values[3]
+
+            if handle.isArray:
+                expr += indent + 'DestroyWrappedHandles<{}Wrapper>({}, {});\n'.format(handle.baseType[2:], handle.name, handle.arrayLength)
+            else:
+                expr += indent + 'DestroyWrappedHandle<{}Wrapper>({});\n'.format(handle.baseType[2:], handle.name)
+        return expr
 
     #
     # Create list of parameters that have handle types or are structs that contain handles.
