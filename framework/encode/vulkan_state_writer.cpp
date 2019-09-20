@@ -125,8 +125,8 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     // Map memory after uploading resource data to buffers and images, which may require mapping resource memory ranges.
     WriteMappedMemoryState(state_table);
 
-    StandardCreateWrite<BufferViewWrapper>(state_table);
-    StandardCreateWrite<ImageViewWrapper>(state_table);
+    WriteBufferViewState(state_table);
+    WriteImageViewState(state_table);
     StandardCreateWrite<SamplerWrapper>(state_table);
     StandardCreateWrite<SamplerYcbcrConversionWrapper>(state_table);
 
@@ -343,6 +343,36 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
     }
 }
 
+void VulkanStateWriter::WriteBufferViewState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const BufferViewWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Omit the current buffer view object if the buffer used to create it no longer exists.
+        auto buffer_wrapper = state_table.GetBufferWrapper(wrapper->buffer_id);
+        if (buffer_wrapper != nullptr)
+        {
+            // Write buffer view creation call.
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        }
+    });
+}
+
+void VulkanStateWriter::WriteImageViewState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const ImageViewWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Omit the current image view object if the image used to create it no longer exists.
+        auto image_wrapper = state_table.GetImageWrapper(wrapper->image_id);
+        if (image_wrapper != nullptr)
+        {
+            // Write image view creation call.
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        }
+    });
+}
+
 void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_table)
 {
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
@@ -360,6 +390,16 @@ void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_tabl
             {
                 is_valid = false;
                 break;
+            }
+            else
+            {
+                // The image view will be omitted from the state snapshot if its image no longer exists.
+                auto image_wrapper = state_table.GetImageWrapper(image_view_wrapper->image_id);
+                if (image_wrapper == nullptr)
+                {
+                    is_valid = false;
+                    break;
+                }
             }
         }
 

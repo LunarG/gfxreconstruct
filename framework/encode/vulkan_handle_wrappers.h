@@ -60,7 +60,6 @@ struct HandleWrapper
 //
 
 // clang-format off
-struct BufferViewWrapper                    : public HandleWrapper<VkBufferView> {};
 struct ShaderModuleWrapper                  : public HandleWrapper<VkShaderModule> {};
 struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
 struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
@@ -175,10 +174,15 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     VkImageLayout         current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 };
 
+struct BufferViewWrapper : public HandleWrapper<VkBufferView>
+{
+    format::HandleId buffer_id{ 0 };
+};
+
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
 {
-    // Store handle to associated image for tracking render pass layout transitions.
-    ImageWrapper* image{ nullptr };
+    format::HandleId image_id{ 0 };
+    ImageWrapper*    image{ nullptr };
 };
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>

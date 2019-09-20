@@ -571,6 +571,27 @@ inline void InitializeGroupObjectState<VkDevice, VkSwapchainKHR, ImageWrapper, v
 }
 
 template <>
+inline void
+InitializeState<VkDevice, BufferViewWrapper, VkBufferViewCreateInfo>(VkDevice                      parent_handle,
+                                                                     BufferViewWrapper*            wrapper,
+                                                                     const VkBufferViewCreateInfo* create_info,
+                                                                     format::ApiCallId             create_call_id,
+                                                                     CreateParameters              create_parameters)
+{
+    assert(wrapper != nullptr);
+    assert(create_info != nullptr);
+    assert(create_parameters != nullptr);
+
+    GFXRECON_UNREFERENCED_PARAMETER(parent_handle);
+
+    wrapper->create_call_id    = create_call_id;
+    wrapper->create_parameters = std::move(create_parameters);
+
+    auto buffer        = reinterpret_cast<BufferWrapper*>(create_info->buffer);
+    wrapper->buffer_id = buffer->handle_id;
+}
+
+template <>
 inline void InitializeState<VkDevice, ImageViewWrapper, VkImageViewCreateInfo>(VkDevice          parent_handle,
                                                                                ImageViewWrapper* wrapper,
                                                                                const VkImageViewCreateInfo* create_info,
@@ -586,7 +607,9 @@ inline void InitializeState<VkDevice, ImageViewWrapper, VkImageViewCreateInfo>(V
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->image = reinterpret_cast<ImageWrapper*>(create_info->image);
+    auto image        = reinterpret_cast<ImageWrapper*>(create_info->image);
+    wrapper->image_id = image->handle_id;
+    wrapper->image    = image;
 }
 
 template <>

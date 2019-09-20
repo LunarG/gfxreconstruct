@@ -100,6 +100,10 @@ class VulkanStateWriter
 
     void WriteSemaphoreState(const VulkanStateTable& state_table);
 
+    void WriteBufferViewState(const VulkanStateTable& state_table);
+
+    void WriteImageViewState(const VulkanStateTable& state_table);
+
     void WriteFramebufferState(const VulkanStateTable& state_table);
 
     void WritePipelineLayoutState(const VulkanStateTable& state_table);
