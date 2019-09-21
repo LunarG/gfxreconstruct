@@ -1301,39 +1301,52 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
             parameter_stream_.Reset();
 
-            // Group images with memory bindings by device for memory snapshot.
-            ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
-            ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
-
             VkMemoryPropertyFlags memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper, state_table);
-            bool                  need_staging_copy = !IsImageReadable(memory_properties, memory_wrapper, wrapper);
 
-            std::vector<VkImageAspectFlagBits> aspects;
-            GetFormatAspects(wrapper->format, &aspects);
+            bool is_transitioned = (wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                                   (wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED);
+            bool is_writable =
+                (wrapper->tiling == VK_IMAGE_TILING_LINEAR) &&
+                ((memory_properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
-            for (auto aspect : aspects)
+            // If an image is not host writable and has not been transitioned from the undefined or preinitialized
+            // layouts, no data could have been loaded into it and its data will be omitted from the state snapshot.
+            if (is_transitioned || is_writable)
             {
-                ImageSnapshotInfo snapshot_info;
 
-                snapshot_info.image_wrapper     = wrapper;
-                snapshot_info.memory_wrapper    = memory_wrapper;
-                snapshot_info.memory_properties = memory_properties;
-                snapshot_info.need_staging_copy = need_staging_copy;
-                snapshot_info.aspect            = aspect;
+                // Group images with memory bindings by device for memory snapshot.
+                ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
+                ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
 
-                GetImageSizes(wrapper, &snapshot_info);
+                bool need_staging_copy = !IsImageReadable(memory_properties, memory_wrapper, wrapper);
 
-                if ((*max_resource_size) < snapshot_info.resource_size)
+                std::vector<VkImageAspectFlagBits> aspects;
+                GetFormatAspects(wrapper->format, &aspects);
+
+                for (auto aspect : aspects)
                 {
-                    (*max_resource_size) = snapshot_info.resource_size;
-                }
+                    ImageSnapshotInfo snapshot_info;
 
-                if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < snapshot_info.resource_size))
-                {
-                    (*max_staging_copy_size) = snapshot_info.resource_size;
-                }
+                    snapshot_info.image_wrapper     = wrapper;
+                    snapshot_info.memory_wrapper    = memory_wrapper;
+                    snapshot_info.memory_properties = memory_properties;
+                    snapshot_info.need_staging_copy = need_staging_copy;
+                    snapshot_info.aspect            = aspect;
 
-                snapshot_entry.images.emplace_back(snapshot_info);
+                    GetImageSizes(wrapper, &snapshot_info);
+
+                    if ((*max_resource_size) < snapshot_info.resource_size)
+                    {
+                        (*max_resource_size) = snapshot_info.resource_size;
+                    }
+
+                    if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < snapshot_info.resource_size))
+                    {
+                        (*max_staging_copy_size) = snapshot_info.resource_size;
+                    }
+
+                    snapshot_entry.images.emplace_back(snapshot_info);
+                }
             }
         }
     });
