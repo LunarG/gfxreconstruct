@@ -151,17 +151,17 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
 {
-    DeviceWrapper*       bind_device{ nullptr };
-    DeviceMemoryWrapper* bind_memory{ nullptr };
-    VkDeviceSize         bind_offset{ 0 };
-    uint32_t             queue_family_index{ 0 };
-    VkDeviceSize         created_size{ 0 };
+    DeviceWrapper*   bind_device{ nullptr };
+    format::HandleId bind_memory_id{ 0 };
+    VkDeviceSize     bind_offset{ 0 };
+    uint32_t         queue_family_index{ 0 };
+    VkDeviceSize     created_size{ 0 };
 };
 
 struct ImageWrapper : public HandleWrapper<VkImage>
 {
     DeviceWrapper*        bind_device{ nullptr };
-    DeviceMemoryWrapper*  bind_memory{ nullptr };
+    format::HandleId      bind_memory_id{ 0 };
     VkDeviceSize          bind_offset{ 0 };
     uint32_t              queue_family_index{ 0 };
     VkImageType           image_type{ VK_IMAGE_TYPE_2D };

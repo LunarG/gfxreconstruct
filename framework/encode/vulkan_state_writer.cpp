@@ -349,8 +349,7 @@ void VulkanStateWriter::WriteBufferViewState(const VulkanStateTable& state_table
         assert(wrapper != nullptr);
 
         // Omit the current buffer view object if the buffer used to create it no longer exists.
-        auto buffer_wrapper = state_table.GetBufferWrapper(wrapper->buffer_id);
-        if (buffer_wrapper != nullptr)
+        if (IsBufferValid(wrapper->buffer_id, state_table))
         {
             // Write buffer view creation call.
             WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
@@ -364,8 +363,7 @@ void VulkanStateWriter::WriteImageViewState(const VulkanStateTable& state_table)
         assert(wrapper != nullptr);
 
         // Omit the current image view object if the image used to create it no longer exists.
-        auto image_wrapper = state_table.GetImageWrapper(wrapper->image_id);
-        if (image_wrapper != nullptr)
+        if (IsImageValid(wrapper->image_id, state_table))
         {
             // Write image view creation call.
             WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
@@ -380,30 +378,7 @@ void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_tabl
     state_table.VisitWrappers([&](const FramebufferWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        bool is_valid = true;
-
-        // Omit the current framebuffer object if an image view used to create it no longer exists.
-        for (auto handle_id : wrapper->image_view_ids)
-        {
-            auto image_view_wrapper = state_table.GetImageViewWrapper(handle_id);
-            if (image_view_wrapper == nullptr)
-            {
-                is_valid = false;
-                break;
-            }
-            else
-            {
-                // The image view will be omitted from the state snapshot if its image no longer exists.
-                auto image_wrapper = state_table.GetImageWrapper(image_view_wrapper->image_id);
-                if (image_wrapper == nullptr)
-                {
-                    is_valid = false;
-                    break;
-                }
-            }
-        }
-
-        if (is_valid)
+        if (IsFramebufferValid(wrapper, state_table))
         {
             auto render_pass_wrapper = state_table.GetRenderPassWrapper(wrapper->render_pass_id);
             if (render_pass_wrapper == nullptr)
@@ -1233,12 +1208,13 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
         assert(wrapper != nullptr);
 
         // Perform memory binding.
-        if (wrapper->bind_memory != nullptr)
+        const DeviceMemoryWrapper* memory_wrapper = state_table.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
+
+        if (memory_wrapper != nullptr)
         {
             assert(wrapper->bind_device != nullptr);
 
-            const DeviceWrapper*       device_wrapper = wrapper->bind_device;
-            const DeviceMemoryWrapper* memory_wrapper = wrapper->bind_memory;
+            const DeviceWrapper* device_wrapper = wrapper->bind_device;
 
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
@@ -1285,12 +1261,13 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
         assert(wrapper != nullptr);
 
         // Perform memory binding.
-        if (wrapper->bind_memory != nullptr)
+        const DeviceMemoryWrapper* memory_wrapper = state_table.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
+
+        if (memory_wrapper != nullptr)
         {
             assert(wrapper->bind_device != nullptr);
 
-            const DeviceWrapper*       device_wrapper = wrapper->bind_device;
-            const DeviceMemoryWrapper* memory_wrapper = wrapper->bind_memory;
+            const DeviceWrapper* device_wrapper = wrapper->bind_device;
 
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
@@ -2966,7 +2943,7 @@ bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
     switch (handle_type)
     {
         case CommandHandleType::BufferHandle:
-            return (state_table.GetBufferWrapper(handle_id) != nullptr);
+            return IsBufferValid(handle_id, state_table);
         case CommandHandleType::CommandBufferHandle:
             return (state_table.GetCommandBufferWrapper(handle_id) != nullptr);
         case CommandHandleType::DescriptorSetHandle:
@@ -2974,11 +2951,11 @@ bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
         case CommandHandleType::EventHandle:
             return (state_table.GetEventWrapper(handle_id) != nullptr);
         case CommandHandleType::FramebufferHandle:
-            return (state_table.GetFramebufferWrapper(handle_id) != nullptr);
+            return IsFramebufferValid(handle_id, state_table);
         case CommandHandleType::ImageHandle:
-            return (state_table.GetImageWrapper(handle_id) != nullptr);
+            return IsImageValid(handle_id, state_table);
         case CommandHandleType::ImageViewHandle:
-            return (state_table.GetImageViewWrapper(handle_id) != nullptr);
+            return IsImageViewValid(handle_id, state_table);
         case CommandHandleType::PipelineHandle:
             return (state_table.GetPipelineWrapper(handle_id) != nullptr);
         case CommandHandleType::PipelineLayoutHandle:
@@ -3023,7 +3000,7 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
                 // TODO: Sampler handle does not need to be valid if descriptor set was allocated from a layout
                 // with immutable samplers.
                 if ((state_table.GetSamplerWrapper(descriptor->sampler_ids[index]) != nullptr) &&
-                    (state_table.GetImageViewWrapper(descriptor->handle_ids[index]) != nullptr))
+                    IsImageViewValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;
                 }
@@ -3031,7 +3008,7 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
             case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                if (state_table.GetImageViewWrapper(descriptor->handle_ids[index]) != nullptr)
+                if (IsImageViewValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;
                 }
@@ -3040,14 +3017,14 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                if (state_table.GetBufferWrapper(descriptor->handle_ids[index]) != nullptr)
+                if (IsBufferValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;
                 }
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                if (state_table.GetBufferViewWrapper(descriptor->handle_ids[index]) != nullptr)
+                if (IsBufferViewValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;
                 }
@@ -3063,6 +3040,98 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
             default:
                 GFXRECON_LOG_WARNING("Attempting to check descriptor write status for unrecognized descriptor type");
                 break;
+        }
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsBufferValid(format::HandleId buffer_id, const VulkanStateTable& state_table)
+{
+    bool valid          = false;
+    auto buffer_wrapper = state_table.GetBufferWrapper(buffer_id);
+
+    if (buffer_wrapper != nullptr)
+    {
+        format::HandleId memory_id = buffer_wrapper->bind_memory_id;
+
+        if ((memory_id == 0) || (state_table.GetDeviceMemoryWrapper(memory_id) != nullptr))
+        {
+            valid = true;
+        }
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsBufferViewValid(format::HandleId view_id, const VulkanStateTable& state_table)
+{
+    bool valid               = false;
+    auto buffer_view_wrapper = state_table.GetBufferViewWrapper(view_id);
+
+    if (buffer_view_wrapper != nullptr)
+    {
+        valid = IsBufferValid(buffer_view_wrapper->buffer_id, state_table);
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsImageValid(format::HandleId image_id, const VulkanStateTable& state_table)
+{
+    bool valid         = false;
+    auto image_wrapper = state_table.GetImageWrapper(image_id);
+
+    if (image_wrapper != nullptr)
+    {
+        format::HandleId memory_id = image_wrapper->bind_memory_id;
+
+        if ((memory_id == 0) || (state_table.GetDeviceMemoryWrapper(memory_id) != nullptr))
+        {
+            valid = true;
+        }
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsImageViewValid(format::HandleId view_id, const VulkanStateTable& state_table)
+{
+    bool valid              = false;
+    auto image_view_wrapper = state_table.GetImageViewWrapper(view_id);
+
+    if (image_view_wrapper != nullptr)
+    {
+        valid = IsImageValid(image_view_wrapper->image_id, state_table);
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsFramebufferValid(format::HandleId framebuffer_id, const VulkanStateTable& state_table)
+{
+    bool valid               = false;
+    auto framebuffer_wrapper = state_table.GetFramebufferWrapper(framebuffer_id);
+
+    if (framebuffer_wrapper != nullptr)
+    {
+        valid = IsFramebufferValid(framebuffer_wrapper, state_table);
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsFramebufferValid(const FramebufferWrapper* framebuffer_wrapper,
+                                           const VulkanStateTable&   state_table)
+{
+    bool valid = true;
+
+    for (auto view_id : framebuffer_wrapper->image_view_ids)
+    {
+        if (!IsImageViewValid(view_id, state_table))
+        {
+            valid = false;
+            break;
         }
     }
 
