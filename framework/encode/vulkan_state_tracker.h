@@ -306,6 +306,8 @@ class VulkanStateTracker
 
     void TrackQueryReset(VkQueryPool query_pool, uint32_t first_query, uint32_t query_count);
 
+    void TrackSemaphoreSignalState(VkSemaphore signal);
+
     void TrackSemaphoreSignalState(uint32_t           wait_count,
                                    const VkSemaphore* waits,
                                    uint32_t           signal_count,
