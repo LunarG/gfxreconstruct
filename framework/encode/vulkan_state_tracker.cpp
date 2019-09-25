@@ -850,6 +850,18 @@ void VulkanStateTracker::TrackQueryReset(VkQueryPool query_pool, uint32_t first_
     }
 }
 
+void VulkanStateTracker::TrackSemaphoreSignalState(VkSemaphore signal)
+{
+    if (signal != VK_NULL_HANDLE)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+
+        auto wrapper = reinterpret_cast<SemaphoreWrapper*>(signal);
+        assert(wrapper != nullptr);
+        wrapper->signaled = true;
+    }
+}
+
 void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count,
                                                    const VkSemaphore* waits,
                                                    uint32_t           signal_count,
