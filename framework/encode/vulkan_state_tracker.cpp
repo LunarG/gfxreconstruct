@@ -220,10 +220,10 @@ void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
 
     std::unique_lock<std::mutex> lock(mutex_);
 
-    auto wrapper         = reinterpret_cast<BufferWrapper*>(buffer);
-    wrapper->bind_device = reinterpret_cast<DeviceWrapper*>(device);
-    wrapper->bind_memory = reinterpret_cast<DeviceMemoryWrapper*>(memory);
-    wrapper->bind_offset = memoryOffset;
+    auto wrapper            = reinterpret_cast<BufferWrapper*>(buffer);
+    wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);
+    wrapper->bind_memory_id = GetWrappedId(memory);
+    wrapper->bind_offset    = memoryOffset;
 }
 
 void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
@@ -235,10 +235,10 @@ void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
 
     std::unique_lock<std::mutex> lock(mutex_);
 
-    auto wrapper         = reinterpret_cast<ImageWrapper*>(image);
-    wrapper->bind_device = reinterpret_cast<DeviceWrapper*>(device);
-    wrapper->bind_memory = reinterpret_cast<DeviceMemoryWrapper*>(memory);
-    wrapper->bind_offset = memoryOffset;
+    auto wrapper            = reinterpret_cast<ImageWrapper*>(image);
+    wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);
+    wrapper->bind_memory_id = GetWrappedId(memory);
+    wrapper->bind_offset    = memoryOffset;
 }
 
 void VulkanStateTracker::TrackMappedMemory(VkDevice         device,

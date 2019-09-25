@@ -302,6 +302,18 @@ class VulkanStateWriter
 
     bool CheckDescriptorStatus(const DescriptorInfo* descriptor, uint32_t index, const VulkanStateTable& state_table);
 
+    bool IsBufferValid(format::HandleId buffer_id, const VulkanStateTable& state_table);
+
+    bool IsBufferViewValid(format::HandleId view_id, const VulkanStateTable& state_table);
+
+    bool IsImageValid(format::HandleId image_id, const VulkanStateTable& state_table);
+
+    bool IsImageViewValid(format::HandleId view_id, const VulkanStateTable& state_table);
+
+    bool IsFramebufferValid(format::HandleId framebuffer_id, const VulkanStateTable& state_table);
+
+    bool IsFramebufferValid(const FramebufferWrapper* framebuffer_wrapper, const VulkanStateTable& state_table);
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;
