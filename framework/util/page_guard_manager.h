@@ -53,6 +53,8 @@ class PageGuardManager
 
     static PageGuardManager* Get() { return instance_; }
 
+    bool GetMemory(uint64_t memory_id, void** memory);
+
     void* AddMemory(uint64_t memory_id, void* mapped_memory, size_t size);
 
     void RemoveMemory(uint64_t memory_id);
