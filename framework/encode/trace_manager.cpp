@@ -1083,6 +1083,21 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
             // on the first map call.
             GFXRECON_LOG_WARNING("VkDeviceMemory object with handle = %" PRIx64 " has been mapped more than once",
                                  memory);
+
+            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+            {
+                assert((wrapper->mapped_offset == offset) && (wrapper->mapped_size == size));
+
+                // Return the shadow memory that was allocated for the previous map operation.
+                util::PageGuardManager* manager = util::PageGuardManager::Get();
+                assert(manager != nullptr);
+
+                if (!manager->GetMemory(wrapper->handle_id, ppData))
+                {
+                    GFXRECON_LOG_ERROR("Modifications to the VkDeviceMemory object that has been mapped more than once "
+                                       "are not being track by PageGuardManager");
+                }
+            }
         }
     }
 }

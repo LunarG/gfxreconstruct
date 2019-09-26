@@ -559,6 +559,30 @@ void PageGuardManager::ProcessActiveRange(uint64_t           memory_id,
     }
 }
 
+bool PageGuardManager::GetMemory(uint64_t memory_id, void** memory)
+{
+    assert(memory != nullptr);
+
+    std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    auto entry = memory_info_.find(memory_id);
+    if (entry != memory_info_.end())
+    {
+        if (entry->second.shadow_memory != nullptr)
+        {
+            (*memory) = entry->second.shadow_memory;
+        }
+        else
+        {
+            (*memory) = entry->second.mapped_memory;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_t size)
 {
     void*  aligned_address   = nullptr;
