@@ -33,9 +33,9 @@ GFXRECON_BEGIN_NAMESPACE(util)
 #endif
 #include <windows.h>
 
-static uint32_t kGuardReadWriteProtect = PAGE_READWRITE | PAGE_GUARD;
-static uint32_t kGuardReadOnlyProtect  = PAGE_READONLY;
-static uint32_t kGuardNoProtect        = PAGE_READWRITE;
+const uint32_t kGuardReadWriteProtect = PAGE_READWRITE | PAGE_GUARD;
+const uint32_t kGuardReadOnlyProtect  = PAGE_READONLY;
+const uint32_t kGuardNoProtect        = PAGE_READWRITE;
 
 static LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS exception_pointers)
 {
@@ -87,9 +87,9 @@ static LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS exception_point
 #include <sys/mman.h>
 #include <unistd.h>
 
-static uint32_t kGuardReadWriteProtect = PROT_NONE;
-static uint32_t kGuardReadOnlyProtect  = PROT_READ;
-static uint32_t kGuardNoProtect        = PROT_READ | PROT_WRITE;
+const uint32_t kGuardReadWriteProtect = PROT_NONE;
+const uint32_t kGuardReadOnlyProtect  = PROT_READ;
+const uint32_t kGuardNoProtect        = PROT_READ | PROT_WRITE;
 
 static struct sigaction s_old_sigaction = {};
 
@@ -100,13 +100,48 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
     if ((id == SIGSEGV) && (info->si_addr != nullptr) && (manager != nullptr))
     {
         bool is_write = true;
-#if defined(PAGE_GUARD_ENABLE_X86_64_UCONTEXT) && (defined(__x86_64__) || defined(__i386__))
+#if defined(PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION)
         if (data != nullptr)
         {
             // This is a machine-specific method for detecting read vs. write access, and is not portable.
-            // So far, it does appear to work with both 32-bit and 64-bit builds running on x86-64 Linux systems.
-            ucontext_t* ucontext = reinterpret_cast<ucontext_t*>(data);
-            is_write             = (ucontext->uc_mcontext.gregs[REG_ERR] & 0x2) ? true : false;
+            auto ucontext = reinterpret_cast<const ucontext_t*>(data);
+#if (defined(__x86_64__) || defined(__i386__))
+            if ((ucontext->uc_mcontext.gregs[REG_ERR] & 0x2) == 0)
+            {
+                is_write = false;
+            }
+#elif defined(__arm__)
+            // Check WnR bit of the ESR register, which indicates write when 1 and read when 0.
+            static const unsigned long kEsrWnRBit = 1ul << 11;
+            if ((ucontext->uc_mcontext.error_code & kEsrWnRBit) == 0)
+            {
+                is_write = false;
+            }
+#elif defined(__aarch64__)
+            // Check WnR bit of the ESR_EL1 register, which indicates write when 1 and read when 0.
+            static const uint32_t kEsrElxWnRBit = 1u << 6;
+
+            const uint8_t* reserved = ucontext->uc_mcontext.__reserved;
+            auto           ctx      = reinterpret_cast<const _aarch64_ctx*>(reserved);
+
+            while (ctx->magic != 0)
+            {
+                if (ctx->magic == ESR_MAGIC)
+                {
+                    auto esr_ctx = reinterpret_cast<const esr_context*>(ctx);
+                    if ((esr_ctx->esr & kEsrElxWnRBit) == 0)
+                    {
+                        is_write = false;
+                    }
+                    break;
+                }
+                else
+                {
+                    reserved += ctx->size;
+                    ctx = reinterpret_cast<const _aarch64_ctx*>(reserved);
+                }
+            }
+#endif
         }
 #endif
         handled = manager->HandleGuardPageViolation(info->si_addr, is_write, true);
@@ -705,7 +740,7 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
             SetMemoryProtection(page_address, segment_size, kGuardNoProtect);
         }
 
-        // For POSIX systems, excluding Linux when compiled with PAGE_GUARD_ENABLE_X86_64_UCONTEXT, is_write is always
+        // For POSIX systems, when compiled without PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION, is_write is always
         // true because we are not notified if the exception was raised by a read or write operation.
         if (is_write)
         {
