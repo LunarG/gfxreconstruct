@@ -151,19 +151,17 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
     {
         // This was not a SIGSEGV signal for an address that was protected with mprotect().
         // Raise the original signal handler for this case.
-        if ((s_old_sigaction.sa_flags & SA_SIGINFO) == SA_SIGINFO)
+        if (((s_old_sigaction.sa_flags & SA_SIGINFO) == SA_SIGINFO) && (s_old_sigaction.sa_sigaction != nullptr))
         {
-            if (s_old_sigaction.sa_sigaction != nullptr)
-            {
-                s_old_sigaction.sa_sigaction(id, info, data);
-            }
+            s_old_sigaction.sa_sigaction(id, info, data);
+        }
+        else if (((s_old_sigaction.sa_flags & SA_SIGINFO) != SA_SIGINFO) && (s_old_sigaction.sa_handler != nullptr))
+        {
+            s_old_sigaction.sa_handler(id);
         }
         else
         {
-            if (s_old_sigaction.sa_handler != nullptr)
-            {
-                s_old_sigaction.sa_handler(id);
-            }
+            abort();
         }
     }
 }
