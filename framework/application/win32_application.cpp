@@ -41,13 +41,11 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
 {
     switch (msg)
     {
-        case WM_KEYUP:
-        {
+        case WM_KEYUP: {
             switch (wp)
             {
                 case VK_SPACE:
-                case 'P':
-                {
+                case 'P': {
                     auto app = reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
                     app->SetPaused(!app->GetPaused());
                     break;
@@ -60,14 +58,12 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
             }
             break;
         }
-        case WM_KEYDOWN:
-        {
+        case WM_KEYDOWN: {
             switch (wp)
             {
                 // Using WM_KEYDOWN for repeat when key is held down.
                 case VK_RIGHT:
-                case 'N':
-                {
+                case 'N': {
                     auto app = reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
                     if (app->GetPaused())
                     {

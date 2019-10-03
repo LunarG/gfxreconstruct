@@ -153,28 +153,25 @@ def cmake_generate_options(args):
         generate_options.append('-DRUN_TESTS=OFF')
         generate_options.append('-DGENERATE_TEST_ARCHIVE=OFF')
     else:
-        if args.skip_apply_code_style:
-            generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
-        else:
-            generate_options.append('-DAPPLY_CPP_CODE_STYLE=ON')
-        if args.skip_check_code_style:
-            generate_options.append('-DCHECK_CPP_CODE_STYLE=OFF')
-        else:
-            generate_options.append('-DCHECK_CPP_CODE_STYLE=ON')
-        if args.skip_tests:
-            generate_options.append('-DRUN_TESTS=OFF')
-        else:
-            generate_options.append('-DRUN_TESTS=ON')
-        if args.test_archive:
-            generate_options.append('-DGENERATE_TEST_ARCHIVE=ON')
-        else:
-            generate_options.append('-DGENERATE_TEST_ARCHIVE=OFF')
+        generate_options.append(
+            '-DAPPLY_CPP_CODE_STYLE={}'.format(
+                'ON' if not args.skip_apply_code_style else 'OFF'))
+        generate_options.append(
+            '-DCHECK_CPP_CODE_STYLE={}'.format(
+                'ON' if not args.skip_check_code_style else 'OFF'))
+        generate_options.append(
+            '-DRUN_TESTS={}'.format('OFF' if args.skip_tests else 'ON'))
+        generate_options.append(
+            '-DGENERATE_TEST_ARCHIVE={}'.format(
+                'ON' if args.test_archive else 'OFF'))
+
         if not is_windows():
-            if args.static_analysis:
-                generate_options.append('-DRUN_STATIC_ANALYSIS=ON')
-                generate_options.append('-DCMAKE_EXPORT_COMPILE_COMMANDS=ON')
-            else:
-                generate_options.append('-DRUN_STATIC_ANALYSIS=OFF')
+            generate_options.append(
+            '-DRUN_STATIC_ANALYSIS={}'.format(
+                'ON' if args.static_analysis else 'OFF'))
+            generate_options.append(
+            '-DCMAKE_EXPORT_COMPILE_COMMANDS={}'.format(
+                'ON' if args.static_analysis else 'OFF'))
     return generate_options
 
 

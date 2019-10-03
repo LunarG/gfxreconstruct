@@ -54,26 +54,36 @@ constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
 enum BlockType : uint32_t
 {
     kUnknownBlock                = 0,
-    kFrameBlock                  = 1,
-    kStateBlock                  = 2, // A group of metadata and apicall blocks representing the initial state for a trimmed file.
+    kFrameMarkerBlock            = 1, // Marker to denote frame status, such as the start or end of a frame.
+    kStateMarkerBlock            = 2, // Marker to denote state snapshot status, such as the start or end of a state snapshot.
     kMetaDataBlock               = 3,
     kFunctionCallBlock           = 4,
     kCompressedMetaDataBlock     = MakeCompressedBlockType(kMetaDataBlock),
     kCompressedFunctionCallBlock = MakeCompressedBlockType(kFunctionCallBlock)
 };
 
+enum MarkerType : uint32_t
+{
+    kUnknownMarker = 0,
+    kBeginMarker   = 1,
+    kEndMarker     = 2
+};
+
 enum MetaDataType : uint32_t
 {
-    kUnknownMetaDataType      = 0,
+    kUnknownMetaDataType = 0,
 
     // Platform independent metadata commands.
-    kDisplayMessageCommand    = 1,
-    kFillMemoryCommand        = 2,
-    kResizeWindowCommand      = 3,
+    kDisplayMessageCommand = 1,
+    kFillMemoryCommand     = 2,
+    kResizeWindowCommand   = 3,
 
-    // Vulkan specific metadata.
-    kVulkanPhysicalDeviceInfo = 4,
-    kVulkanMemoryInfo         = 5
+    // Commands for trimmed frame state setup.
+    kSetSwapchainImageStateCommand = 4,
+    kBeginResourceInitCommand      = 5,
+    kEndResourceInitCommand        = 6,
+    kInitBufferCommand             = 7,
+    kInitImageCommand              = 8
 };
 
 enum CompressionType : uint32_t
@@ -137,6 +147,13 @@ struct BlockHeader
     BlockType type;
 };
 
+struct Marker
+{
+    BlockHeader header;
+    MarkerType  marker_type;
+    uint64_t    frame_number;
+};
+
 struct FunctionCallHeader
 {
     BlockHeader      block_header;
@@ -196,6 +213,65 @@ struct ResizeWindowCommand
     HandleId         surface_id;
     uint32_t         width;
     uint32_t         height;
+};
+
+struct SetSwapchainImageStateCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId swapchain_id;
+    uint32_t         last_presented_image;
+    uint32_t         image_info_count;
+};
+
+struct SwapchainImageStateInfo
+{
+    format::HandleId image_id;
+    uint32_t         image_index;
+    uint32_t         image_layout;
+    uint32_t         acquired;
+    uint32_t         acquire_device_mask;
+    format::HandleId acquire_semaphore_id;
+    format::HandleId acquire_fence_id;
+    format::HandleId last_presented_queue_id;
+};
+
+struct BeginResourceInitCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    uint64_t         max_resource_size; // Size of largest resource in upload data set.
+    uint64_t         max_copy_size;     // Size of largest resource requiring a staging copy at capture.
+};
+
+struct EndResourceInitCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+};
+
+struct InitBufferCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId buffer_id;
+    uint64_t         data_size;
+};
+
+struct InitImageCommandHeader
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId device_id;
+    format::HandleId image_id;
+    uint64_t         data_size;
+    uint32_t         aspect;
+    uint32_t         layout;
+    uint32_t         level_count;
 };
 
 #pragma pack(pop)

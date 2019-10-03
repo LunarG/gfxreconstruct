@@ -89,7 +89,7 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for cmd in self.featureCmdParams:
+        for cmd in self.getFilteredCmdNames():
             cmddef = '' if first else '\n'
             cmddef += '    size_t Decode_{}(const uint8_t* parameter_buffer, size_t buffer_size);'.format(cmd)
             write(cmddef, file=self.outFile)

@@ -5772,6 +5772,30 @@ size_t VulkanDecoder::Decode_vkGetShaderInfoAMD(const uint8_t* parameter_buffer,
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCreateStreamDescriptorSurfaceGGP(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId instance;
+    StructPointerDecoder<Decoded_VkStreamDescriptorSurfaceCreateInfoGGP> pCreateInfo;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkSurfaceKHR> pSurface;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSurface.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreateStreamDescriptorSurfaceGGP(return_value, instance, pCreateInfo, pAllocator, pSurface);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -7410,6 +7434,26 @@ size_t VulkanDecoder::Decode_vkGetQueueCheckpointDataNV(const uint8_t* parameter
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkSetLocalDimmingAMD(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId swapChain;
+    VkBool32 localDimmingEnable;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapChain);
+    bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &localDimmingEnable);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkSetLocalDimmingAMD(device, swapChain, localDimmingEnable);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCreateImagePipeSurfaceFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -7495,6 +7539,160 @@ size_t VulkanDecoder::Decode_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(co
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(return_value, physicalDevice, pPropertyCount, pProperties);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId physicalDevice;
+    PointerDecoder<uint32_t> pCombinationCount;
+    StructPointerDecoder<Decoded_VkFramebufferMixedSamplesCombinationNV> pCombinations;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
+    bytes_read += pCombinationCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCombinations.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(return_value, physicalDevice, pCombinationCount, pCombinations);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetPhysicalDeviceSurfacePresentModes2EXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId physicalDevice;
+    StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR> pSurfaceInfo;
+    PointerDecoder<uint32_t> pPresentModeCount;
+    PointerDecoder<VkPresentModeKHR> pPresentModes;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
+    bytes_read += pSurfaceInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPresentModeCount.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPresentModes.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(return_value, physicalDevice, pSurfaceInfo, pPresentModeCount, pPresentModes);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkAcquireFullScreenExclusiveModeEXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId swapchain;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkAcquireFullScreenExclusiveModeEXT(return_value, device, swapchain);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkReleaseFullScreenExclusiveModeEXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId swapchain;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkReleaseFullScreenExclusiveModeEXT(return_value, device, swapchain);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDeviceGroupSurfacePresentModes2EXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkPhysicalDeviceSurfaceInfo2KHR> pSurfaceInfo;
+    PointerDecoder<VkDeviceGroupPresentModeFlagsKHR> pModes;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pSurfaceInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pModes.DecodeFlags((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeviceGroupSurfacePresentModes2EXT(return_value, device, pSurfaceInfo, pModes);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCreateHeadlessSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId instance;
+    StructPointerDecoder<Decoded_VkHeadlessSurfaceCreateInfoEXT> pCreateInfo;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkSurfaceKHR> pSurface;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSurface.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreateHeadlessSurfaceEXT(return_value, instance, pCreateInfo, pAllocator, pSurface);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkResetQueryPoolEXT(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId queryPool;
+    uint32_t firstQuery;
+    uint32_t queryCount;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queryPool);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstQuery);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queryCount);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkResetQueryPoolEXT(device, queryPool, firstQuery, queryCount);
     }
 
     return bytes_read;
@@ -8281,6 +8479,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkGetShaderInfoAMD:
         Decode_vkGetShaderInfoAMD(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkCreateStreamDescriptorSurfaceGGP:
+        Decode_vkCreateStreamDescriptorSurfaceGGP(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkGetPhysicalDeviceExternalImageFormatPropertiesNV:
         Decode_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(parameter_buffer, buffer_size);
         break;
@@ -8500,6 +8701,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkGetQueueCheckpointDataNV:
         Decode_vkGetQueueCheckpointDataNV(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkSetLocalDimmingAMD:
+        Decode_vkSetLocalDimmingAMD(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkCreateImagePipeSurfaceFUCHSIA:
         Decode_vkCreateImagePipeSurfaceFUCHSIA(parameter_buffer, buffer_size);
         break;
@@ -8511,6 +8715,27 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV:
         Decode_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV:
+        Decode_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfacePresentModes2EXT:
+        Decode_vkGetPhysicalDeviceSurfacePresentModes2EXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkAcquireFullScreenExclusiveModeEXT:
+        Decode_vkAcquireFullScreenExclusiveModeEXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkReleaseFullScreenExclusiveModeEXT:
+        Decode_vkReleaseFullScreenExclusiveModeEXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeviceGroupSurfacePresentModes2EXT:
+        Decode_vkGetDeviceGroupSurfacePresentModes2EXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCreateHeadlessSurfaceEXT:
+        Decode_vkCreateHeadlessSurfaceEXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkResetQueryPoolEXT:
+        Decode_vkResetQueryPoolEXT(parameter_buffer, buffer_size);
         break;
     }
 }

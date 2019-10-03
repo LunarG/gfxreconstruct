@@ -104,6 +104,8 @@ class FileProcessor
 
     bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type);
 
+    bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
+
     bool IsFrameDelimiter(format::ApiCallId call_id) const;
 
     bool IsFileHeaderValid() const { return (file_header_.fourcc == GFXRECON_FOURCC); }

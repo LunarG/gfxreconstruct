@@ -19,11 +19,15 @@
 #define GFXRECON_ENCODE_TRACE_MANAGER_H
 
 #include "encode/capture_settings.h"
-#include "encode/memory_tracker.h"
+#include "encode/descriptor_update_template_info.h"
 #include "encode/parameter_encoder.h"
+#include "encode/vulkan_handle_wrapper_util.h"
+#include "encode/vulkan_handle_wrappers.h"
+#include "encode/vulkan_state_tracker.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
+#include "generated/generated_vulkan_command_buffer_util.h"
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_output_stream.h"
@@ -31,8 +35,11 @@
 
 #include "vulkan/vulkan.h"
 
+#include <atomic>
+#include <cassert>
 #include <memory>
 #include <mutex>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -42,26 +49,6 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 class TraceManager
 {
-  public:
-    struct UpdateTemplateEntryInfo
-    {
-        UpdateTemplateEntryInfo(uint32_t c, size_t o, size_t s) : count(c), offset(o), stride(s) {}
-        uint32_t count;
-        size_t   offset;
-        size_t   stride;
-    };
-
-    struct UpdateTemplateInfo
-    {
-        // The counts are the sum of the total descriptorCount for each update template entry type.
-        size_t                               image_info_count{ 0 };
-        size_t                               buffer_info_count{ 0 };
-        size_t                               texel_buffer_view_count{ 0 };
-        std::vector<UpdateTemplateEntryInfo> image_info;
-        std::vector<UpdateTemplateEntryInfo> buffer_info;
-        std::vector<UpdateTemplateEntryInfo> texel_buffer_view;
-    };
-
   public:
     // Register special layer provided functions, which perform layer specific initialization.
     // These must be set before the application calls vkCreateInstance.
@@ -78,30 +65,304 @@ class TraceManager
     // the appropriate resource cleanup.
     static void CheckCreateInstanceStatus(VkResult result);
 
-    // Dectement the instance reference count, releasing reources when the count reaches zero.  Ignored if the count is
+    // Dectement the instance reference count, releasing resources when the count reaches zero.  Ignored if the count is
     // already zero.
     static void DestroyInstance();
 
     static TraceManager* Get() { return instance_; }
 
+    static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
+
     static const LayerTable* GetLayerTable() { return &layer_table_; }
 
-    void AddInstanceTable(VkInstance instance, PFN_vkGetInstanceProcAddr gpa);
+    void InitInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa);
 
-    void AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
+    void InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa);
 
-    const InstanceTable* GetInstanceTable(const void* handle) const;
+    HandleUnwrapMemory* GetHandleUnwrapMemory()
+    {
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+        thread_data->handle_unwrap_memory_.Reset();
+        return &thread_data->handle_unwrap_memory_;
+    }
 
-    const DeviceTable* GetDeviceTable(const void* handle) const;
+    ParameterEncoder* BeginTrackedApiCallTrace(format::ApiCallId call_id)
+    {
+        if (capture_mode_ != kModeDisabled)
+        {
+            return InitApiCallTrace(call_id);
+        }
 
-    ParameterEncoder* BeginApiCallTrace(format::ApiCallId call_id);
+        return nullptr;
+    }
+
+    ParameterEncoder* BeginApiCallTrace(format::ApiCallId call_id)
+    {
+        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        {
+            return InitApiCallTrace(call_id);
+        }
+
+        return nullptr;
+    }
+
+    // Single object creation.
+    template <typename ParentHandle, typename Wrapper, typename CreateInfo>
+    void EndCreateApiCallTrace(VkResult                      result,
+                               ParentHandle                  parent_handle,
+                               typename Wrapper::HandleType* handle,
+                               const CreateInfo*             create_info,
+                               ParameterEncoder*             encoder)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && result == VK_SUCCESS)
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->AddEntry<ParentHandle, Wrapper, CreateInfo>(
+                parent_handle, handle, create_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    // Pool allocation.
+    template <typename ParentHandle, typename Wrapper, typename AllocateInfo>
+    void EndPoolCreateApiCallTrace(VkResult                      result,
+                                   ParentHandle                  parent_handle,
+                                   uint32_t                      count,
+                                   typename Wrapper::HandleType* handles,
+                                   const AllocateInfo*           alloc_info,
+                                   ParameterEncoder*             encoder)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (handles != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->AddPoolEntry<ParentHandle, Wrapper, AllocateInfo>(
+                parent_handle, count, handles, alloc_info, thread_data->call_id_, thread_data->parameter_buffer_.get());
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    // Multiple object creation.
+    template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
+    void EndGroupCreateApiCallTrace(VkResult                      result,
+                                    ParentHandle                  parent_handle,
+                                    SecondaryHandle               secondary_handle,
+                                    uint32_t                      count,
+                                    typename Wrapper::HandleType* handles,
+                                    const CreateInfo*             create_infos,
+                                    ParameterEncoder*             encoder)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (handles != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->AddGroupEntry<ParentHandle, SecondaryHandle, Wrapper, CreateInfo>(
+                parent_handle,
+                secondary_handle,
+                count,
+                handles,
+                create_infos,
+                thread_data->call_id_,
+                thread_data->parameter_buffer_.get());
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    // Single object destruction.
+    template <typename Wrapper>
+    void EndDestroyApiCallTrace(typename Wrapper::HandleType handle, ParameterEncoder* encoder)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->RemoveEntry<Wrapper>(handle);
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    // Multiple object destruction.
+    template <typename Wrapper>
+    void EndDestroyApiCallTrace(uint32_t count, const typename Wrapper::HandleType* handles, ParameterEncoder* encoder)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (handles != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                state_tracker_->RemoveEntry<Wrapper>(handles[i]);
+            }
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    void EndCommandApiCallTrace(VkCommandBuffer command_buffer, ParameterEncoder* encoder)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->TrackCommand(command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get());
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    template <typename GetHandlesFunc, typename... GetHandlesArgs>
+    void EndCommandApiCallTrace(VkCommandBuffer   command_buffer,
+                                ParameterEncoder* encoder,
+                                GetHandlesFunc    func,
+                                GetHandlesArgs... args)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->TrackCommand(
+                command_buffer, thread_data->call_id_, thread_data->parameter_buffer_.get(), func, args...);
+        }
+
+        EndApiCallTrace(encoder);
+    }
 
     void EndApiCallTrace(ParameterEncoder* encoder);
+
+    void EndFrame();
 
     void WriteDisplayMessageCmd(const char* message);
 
     bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
                                          const UpdateTemplateInfo** info) const;
+
+    void PostProcess_vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice                  physicalDevice,
+                                                         VkPhysicalDeviceMemoryProperties* pMemoryProperties)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceMemoryProperties(physicalDevice, pMemoryProperties);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceMemoryProperties2(VkPhysicalDevice                   physicalDevice,
+                                                          VkPhysicalDeviceMemoryProperties2* pMemoryProperties)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceMemoryProperties2(physicalDevice, pMemoryProperties);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice         physicalDevice,
+                                                              uint32_t*                pQueueFamilyPropertyCount,
+                                                              VkQueueFamilyProperties* pQueueFamilyProperties)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (pQueueFamilyPropertyCount != nullptr) &&
+            (pQueueFamilyProperties != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceQueueFamilyProperties(
+                physicalDevice, *pQueueFamilyPropertyCount, pQueueFamilyProperties);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceQueueFamilyProperties2(format::ApiCallId         call_id,
+                                                               VkPhysicalDevice          physicalDevice,
+                                                               uint32_t*                 pQueueFamilyPropertyCount,
+                                                               VkQueueFamilyProperties2* pQueueFamilyProperties)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (pQueueFamilyPropertyCount != nullptr) &&
+            (pQueueFamilyProperties != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceQueueFamilyProperties2(
+                call_id, physicalDevice, *pQueueFamilyPropertyCount, pQueueFamilyProperties);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceSurfaceSupportKHR(VkResult         result,
+                                                          VkPhysicalDevice physicalDevice,
+                                                          uint32_t         queueFamilyIndex,
+                                                          VkSurfaceKHR     surface,
+                                                          VkBool32*        pSupported)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (pSupported != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceSurfaceSupport(physicalDevice, queueFamilyIndex, surface, *pSupported);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VkResult                  result,
+                                                               VkPhysicalDevice          physicalDevice,
+                                                               VkSurfaceKHR              surface,
+                                                               VkSurfaceCapabilitiesKHR* pSurfaceCapabilities)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (pSurfaceCapabilities != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceSurfaceCapabilities(physicalDevice, surface, *pSurfaceCapabilities);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceSurfaceFormatsKHR(VkResult            result,
+                                                          VkPhysicalDevice    physicalDevice,
+                                                          VkSurfaceKHR        surface,
+                                                          uint32_t*           pSurfaceFormatCount,
+                                                          VkSurfaceFormatKHR* pSurfaceFormats)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) &&
+            (pSurfaceFormatCount != nullptr) && (pSurfaceFormats != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackPhysicalDeviceSurfaceFormats(
+                physicalDevice, surface, *pSurfaceFormatCount, pSurfaceFormats);
+        }
+    }
+
+    void PostProcess_vkGetPhysicalDeviceSurfacePresentModesKHR(VkResult          result,
+                                                               VkPhysicalDevice  physicalDevice,
+                                                               VkSurfaceKHR      surface,
+                                                               uint32_t*         pPresentModeCount,
+                                                               VkPresentModeKHR* pPresentModes)
+    {
+        if ((pPresentModeCount != nullptr) && (pPresentModes != nullptr))
+        {
+            if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+            {
+                assert(state_tracker_ != nullptr);
+                state_tracker_->TrackPhysicalDeviceSurfacePresentModes(
+                    physicalDevice, surface, *pPresentModeCount, pPresentModes);
+            }
+
+#if defined(__ANDROID__)
+            OverrideGetPhysicalDeviceSurfacePresentModesKHR(pPresentModeCount, pPresentModes);
+#endif
+        }
+    }
 
     void PreProcess_vkCreateSwapchain(VkDevice                        device,
                                       const VkSwapchainCreateInfoKHR* pCreateInfo,
@@ -113,6 +374,338 @@ class TraceManager
                                       const VkMemoryAllocateInfo*  pAllocateInfo,
                                       const VkAllocationCallbacks* pAllocator,
                                       VkDeviceMemory*              pMemory);
+
+    void PostProcess_vkAcquireNextImageKHR(VkResult result,
+                                           VkDevice,
+                                           VkSwapchainKHR swapchain,
+                                           uint64_t,
+                                           VkSemaphore semaphore,
+                                           VkFence     fence,
+                                           uint32_t*   index)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
+        {
+            assert((state_tracker_ != nullptr) && (index != nullptr));
+            state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &semaphore);
+            state_tracker_->TrackAcquireImage(*index, swapchain, semaphore, fence, 0);
+        }
+    }
+
+    void PostProcess_vkAcquireNextImage2KHR(VkResult result,
+                                            VkDevice,
+                                            const VkAcquireNextImageInfoKHR* pAcquireInfo,
+                                            uint32_t*                        index)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
+        {
+            assert((state_tracker_ != nullptr) && (pAcquireInfo != nullptr) && (index != nullptr));
+            state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &pAcquireInfo->semaphore);
+            state_tracker_->TrackAcquireImage(*index,
+                                              pAcquireInfo->swapchain,
+                                              pAcquireInfo->semaphore,
+                                              pAcquireInfo->fence,
+                                              pAcquireInfo->deviceMask);
+        }
+    }
+
+    void PostProcess_vkQueuePresentKHR(VkResult result, VkQueue queue, const VkPresentInfoKHR* pPresentInfo)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
+        {
+            assert((state_tracker_ != nullptr) && (pPresentInfo != nullptr));
+            state_tracker_->TrackSemaphoreSignalState(
+                pPresentInfo->waitSemaphoreCount, pPresentInfo->pWaitSemaphores, 0, nullptr);
+            state_tracker_->TrackPresentedImages(
+                pPresentInfo->swapchainCount, pPresentInfo->pSwapchains, pPresentInfo->pImageIndices, queue);
+        }
+
+        EndFrame();
+    }
+
+    void PostProcess_vkQueueBindSparse(
+        VkResult result, VkQueue, uint32_t bindInfoCount, const VkBindSparseInfo* pBindInfo, VkFence)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert((state_tracker_ != nullptr) && ((bindInfoCount == 0) || (pBindInfo != nullptr)));
+            for (uint32_t i = 0; i < bindInfoCount; ++i)
+            {
+                state_tracker_->TrackSemaphoreSignalState(pBindInfo[i].waitSemaphoreCount,
+                                                          pBindInfo[i].pWaitSemaphores,
+                                                          pBindInfo[i].signalSemaphoreCount,
+                                                          pBindInfo[i].pSignalSemaphores);
+            }
+        }
+    }
+
+    void PostProcess_vkBindBufferMemory(
+        VkResult result, VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackBufferMemoryBinding(device, buffer, memory, memoryOffset);
+        }
+    }
+
+    void PostProcess_vkBindImageMemory(
+        VkResult result, VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackImageMemoryBinding(device, image, memory, memoryOffset);
+        }
+    }
+
+    void PostProcess_vkCmdBeginRenderPass(VkCommandBuffer              commandBuffer,
+                                          const VkRenderPassBeginInfo* pRenderPassBegin,
+                                          VkSubpassContents)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
+        }
+    }
+
+    void PostProcess_vkCmdBeginRenderPass2KHR(VkCommandBuffer              commandBuffer,
+                                              const VkRenderPassBeginInfo* pRenderPassBegin,
+                                              const VkSubpassBeginInfoKHR*)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackBeginRenderPass(commandBuffer, pRenderPassBegin);
+        }
+    }
+
+    void PostProcess_vkCmdEndRenderPass(VkCommandBuffer commandBuffer)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackEndRenderPass(commandBuffer);
+        }
+    }
+
+    void PostProcess_vkCmdEndRenderPass2KHR(VkCommandBuffer commandBuffer, const VkSubpassEndInfoKHR*)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackEndRenderPass(commandBuffer);
+        }
+    }
+
+    void PostProcess_vkCmdPipelineBarrier(VkCommandBuffer commandBuffer,
+                                          VkPipelineStageFlags,
+                                          VkPipelineStageFlags,
+                                          VkDependencyFlags,
+                                          uint32_t,
+                                          const VkMemoryBarrier*,
+                                          uint32_t,
+                                          const VkBufferMemoryBarrier*,
+                                          uint32_t                    imageMemoryBarrierCount,
+                                          const VkImageMemoryBarrier* pImageMemoryBarriers)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackImageBarriers(commandBuffer, imageMemoryBarrierCount, pImageMemoryBarriers);
+        }
+    }
+
+    void PostProcess_vkCmdExecuteCommands(VkCommandBuffer        commandBuffer,
+                                          uint32_t               commandBufferCount,
+                                          const VkCommandBuffer* pCommandBuffers)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackExecuteCommands(commandBuffer, commandBufferCount, pCommandBuffers);
+        }
+    }
+
+    void PostProcess_vkResetCommandPool(VkResult result, VkDevice, VkCommandPool commandPool, VkCommandPoolResetFlags)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackResetCommandPool(commandPool);
+        }
+    }
+
+    void
+    PostProcess_vkQueueSubmit(VkResult result, VkQueue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS))
+        {
+            assert((state_tracker_ != nullptr) && ((submitCount == 0) || (pSubmits != nullptr)));
+
+            state_tracker_->TrackCommandBufferSubmissions(submitCount, pSubmits);
+
+            for (uint32_t i = 0; i < submitCount; ++i)
+            {
+                state_tracker_->TrackSemaphoreSignalState(pSubmits[i].waitSemaphoreCount,
+                                                          pSubmits[i].pWaitSemaphores,
+                                                          pSubmits[i].signalSemaphoreCount,
+                                                          pSubmits[i].pSignalSemaphores);
+            }
+        }
+    }
+
+    void PostProcess_vkUpdateDescriptorSets(VkDevice,
+                                            uint32_t                    descriptorWriteCount,
+                                            const VkWriteDescriptorSet* pDescriptorWrites,
+                                            uint32_t                    descriptorCopyCount,
+                                            const VkCopyDescriptorSet*  pDescriptorCopies)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackUpdateDescriptorSets(
+                descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+        }
+    }
+
+    void PostProcess_vkUpdateDescriptorSetWithTemplate(VkDevice,
+                                                       VkDescriptorSet            descriptorSet,
+                                                       VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                       const void*                pData)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            TrackUpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
+        }
+    }
+
+    void PostProcess_vkUpdateDescriptorSetWithTemplateKHR(VkDevice,
+                                                          VkDescriptorSet            descriptorSet,
+                                                          VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                          const void*                pData)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            TrackUpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
+        }
+    }
+
+    void PostProcess_vkCmdPushDescriptorSetKHR(VkCommandBuffer,
+                                               VkPipelineBindPoint,
+                                               VkPipelineLayout            layout,
+                                               uint32_t                    set,
+                                               uint32_t                    descriptorWriteCount,
+                                               const VkWriteDescriptorSet* pDescriptorWrites)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(layout);
+        GFXRECON_UNREFERENCED_PARAMETER(set);
+        GFXRECON_UNREFERENCED_PARAMETER(descriptorWriteCount);
+        GFXRECON_UNREFERENCED_PARAMETER(pDescriptorWrites);
+        // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
+    }
+
+    void PostProcess_vkCmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer,
+                                                           VkDescriptorUpdateTemplate descriptorUpdateTemplate,
+                                                           VkPipelineLayout           layout,
+                                                           uint32_t                   set,
+                                                           const void*                pData)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
+        GFXRECON_UNREFERENCED_PARAMETER(layout);
+        GFXRECON_UNREFERENCED_PARAMETER(set);
+        GFXRECON_UNREFERENCED_PARAMETER(pData);
+        // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
+    }
+
+    void PostProcess_vkResetDescriptorPool(VkResult result,
+                                           VkDevice,
+                                           VkDescriptorPool descriptorPool,
+                                           VkDescriptorPoolResetFlags)
+    {
+        if (result == VK_SUCCESS)
+        {
+            if ((capture_mode_ & kModeTrack) == kModeTrack)
+            {
+                assert(state_tracker_ != nullptr);
+                state_tracker_->TrackResetDescriptorPool(descriptorPool);
+            }
+
+            ResetDescriptorPoolWrapper(descriptorPool);
+        }
+    }
+
+    void PostProcess_vkCmdBeginQuery(VkCommandBuffer     commandBuffer,
+                                     VkQueryPool         queryPool,
+                                     uint32_t            query,
+                                     VkQueryControlFlags flags)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryActivation(commandBuffer, queryPool, query, flags, QueryInfo::kInvalidIndex);
+        }
+    }
+
+    void PostProcess_vkCmdBeginQueryIndexedEXT(
+        VkCommandBuffer commandBuffer, VkQueryPool queryPool, uint32_t query, VkQueryControlFlags flags, uint32_t index)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryActivation(commandBuffer, queryPool, query, flags, index);
+        }
+    }
+
+    void PostProcess_vkCmdWriteTimestamp(VkCommandBuffer         commandBuffer,
+                                         VkPipelineStageFlagBits pipelineStage,
+                                         VkQueryPool             queryPool,
+                                         uint32_t                query)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryActivation(commandBuffer, queryPool, query, 0, QueryInfo::kInvalidIndex);
+        }
+    }
+
+    void
+    PostProcess_vkCmdWriteAccelerationStructuresPropertiesNV(VkCommandBuffer commandBuffer,
+                                                             uint32_t        accelerationStructureCount,
+                                                             const VkAccelerationStructureNV* pAccelerationStructures,
+                                                             VkQueryType                      queryType,
+                                                             VkQueryPool                      queryPool,
+                                                             uint32_t                         firstQuery)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
+        GFXRECON_UNREFERENCED_PARAMETER(accelerationStructureCount);
+        GFXRECON_UNREFERENCED_PARAMETER(pAccelerationStructures);
+        GFXRECON_UNREFERENCED_PARAMETER(queryType);
+        GFXRECON_UNREFERENCED_PARAMETER(queryPool);
+        GFXRECON_UNREFERENCED_PARAMETER(firstQuery);
+        // TODO
+    }
+
+    void PostProcess_vkCmdResetQueryPool(VkCommandBuffer commandBuffer,
+                                         VkQueryPool     queryPool,
+                                         uint32_t        firstQuery,
+                                         uint32_t        queryCount)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryReset(commandBuffer, queryPool, firstQuery, queryCount);
+        }
+    }
+
+    void PostProcess_vkResetQueryPoolEXT(VkDevice, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount)
+    {
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackQueryReset(queryPool, firstQuery, queryCount);
+        }
+    }
 
     void PostProcess_vkMapMemory(VkResult         result,
                                  VkDevice         device,
@@ -144,33 +737,28 @@ class TraceManager
                                                         const VkAllocationCallbacks*                pAllocator,
                                                         VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
-    void PreProcess_vkDestroyDescriptorUpdateTemplate(VkDevice                     device,
-                                                      VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
-                                                      const VkAllocationCallbacks* pAllocator);
-
-    void PreProcess_vkDestroyDescriptorUpdateTemplateKHR(VkDevice                     device,
-                                                         VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
-                                                         const VkAllocationCallbacks* pAllocator);
-
 #if defined(__ANDROID__)
-    void PreProcess_GetPhysicalDeviceSurfacePresentModesKHR(VkResult          result,
-                                                            VkPhysicalDevice  physicalDevice,
-                                                            VkSurfaceKHR      surface,
-                                                            uint32_t*         pPresentModeCount,
-                                                            VkPresentModeKHR* pPresentModes);
+    void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
 
   protected:
-    TraceManager() :
-        force_file_flush_(false), bytes_written_(0),
-        memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kUnassisted)
-    {}
+    TraceManager();
 
-    ~TraceManager() {}
+    ~TraceManager();
 
-    bool Initialize(std::string filename, const CaptureSettings::TraceSettings& trace_settings);
+    bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
 
   private:
+    enum CaptureModeFlags : uint32_t
+    {
+        kModeDisabled      = 0x0,
+        kModeWrite         = 0x01,
+        kModeTrack         = 0x02,
+        kModeWriteAndTrack = (kModeWrite | kModeTrack)
+    };
+
+    typedef uint32_t CaptureMode;
+
     class ThreadData
     {
       public:
@@ -184,6 +772,7 @@ class TraceManager
         std::unique_ptr<util::MemoryOutputStream> parameter_buffer_;
         std::unique_ptr<ParameterEncoder>         parameter_encoder_;
         std::vector<uint8_t>                      compressed_buffer_;
+        HandleUnwrapMemory                        handle_unwrap_memory_;
 
       private:
         static format::ThreadId GetThreadId();
@@ -193,8 +782,6 @@ class TraceManager
         static format::ThreadId                               thread_count_;
         static std::unordered_map<uint64_t, format::ThreadId> id_map_;
     };
-
-    typedef std::unordered_map<VkDescriptorUpdateTemplate, UpdateTemplateInfo> UpdateTemplateMap;
 
   private:
     ThreadData* GetThreadData()
@@ -206,16 +793,25 @@ class TraceManager
         return thread_data_.get();
     }
 
+    std::string CreateTrimFilename(const std::string& base_filename, const CaptureSettings::TrimRange& trim_range);
+    bool        CreateCaptureFile(const std::string& base_filename);
+    void        ActivateTrimming();
+
     void WriteFileHeader();
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
                          std::vector<format::FileOptionPair>* option_list);
 
-    void WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height);
-    void WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data);
+    ParameterEncoder* InitApiCallTrace(format::ApiCallId call_id);
 
-    void AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate                  update_template,
-                                     const VkDescriptorUpdateTemplateCreateInfo* create_info);
-    void RemoveDescriptorUpdateTemplate(VkDescriptorUpdateTemplate update_template);
+    void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
+    void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
+
+    void SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
+                                         const VkDescriptorUpdateTemplateCreateInfo* create_info);
+
+    void TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet            set,
+                                              VkDescriptorUpdateTemplate update_templat,
+                                              const void*                data);
 
   private:
     static TraceManager*                            instance_;
@@ -223,20 +819,24 @@ class TraceManager
     static std::mutex                               instance_lock_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static LayerTable                               layer_table_;
-    std::unordered_map<DispatchKey, InstanceTable>  instance_tables_;
-    std::unordered_map<DispatchKey, DeviceTable>    device_tables_;
+    static std::atomic<format::HandleId>            unique_id_counter_;
     format::EnabledOptions                          file_options_;
     std::unique_ptr<util::FileOutputStream>         file_stream_;
-    std::string                                     filename_;
+    std::string                                     base_filename_;
     std::mutex                                      file_lock_;
+    bool                                            timestamp_filename_;
     bool                                            force_file_flush_;
     uint64_t                                        bytes_written_;
     std::unique_ptr<util::Compressor>               compressor_;
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
-    MemoryTracker                                   memory_tracker_;
-    mutable std::mutex                              memory_tracker_lock_;
-    UpdateTemplateMap                               update_template_map_;
-    mutable std::mutex                              update_template_map_lock_;
+    std::mutex                                      mapped_memory_lock_;
+    std::set<DeviceMemoryWrapper*>                  mapped_memory_; // Track mapped memory for unassisted tracking mode.
+    bool                                            trim_enabled_;
+    std::vector<CaptureSettings::TrimRange>         trim_ranges_;
+    size_t                                          trim_current_range_;
+    uint32_t                                        current_frame_;
+    std::unique_ptr<VulkanStateTracker>             state_tracker_;
+    CaptureMode                                     capture_mode_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

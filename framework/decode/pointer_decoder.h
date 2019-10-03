@@ -94,44 +94,69 @@ class PointerDecoder : public PointerDecoderBase
                (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray));
         assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) != format::PointerAttributes::kIsStruct);
 
-        if (!IsNull() && HasData())
+        if (!IsNull())
         {
-            size_t len = GetLength();
-
             if (!is_memory_external_)
             {
-                assert(data_ == nullptr);
-
-                data_     = new T[len];
-                capacity_ = len;
-                bytes_read +=
-                    ValueDecoder::DecodeArrayFrom<SrcT>((buffer + bytes_read), (buffer_size - bytes_read), data_, len);
+                bytes_read += DecodeInternal<SrcT>((buffer + bytes_read), (buffer_size - bytes_read));
             }
             else
             {
-                assert(data_ != nullptr);
-
-                if (len <= capacity_)
-                {
-                    ValueDecoder::DecodeArrayFrom<SrcT>((buffer + bytes_read), (buffer_size - bytes_read), data_, len);
-                }
-                else
-                {
-                    // The external memory cacpacity is not large enough to contain the full decoded array.
-                    ValueDecoder::DecodeArrayFrom<SrcT>(
-                        (buffer + bytes_read), (buffer_size - bytes_read), data_, capacity_);
-
-                    GFXRECON_LOG_WARNING("Pointer decoder's external memory capacity (%" PRIuPTR
-                                         ") is smaller than the decoded array size (%" PRIuPTR
-                                         "); data will be truncated",
-                                         capacity_,
-                                         len);
-                }
-
-                // We always need to advance the position within the buffer by the amount of data that was expected to
-                // be decoded, not the actual amount of data decoded if capacity is too small to hold all of the data.
-                bytes_read += sizeof(SrcT) * len;
+                bytes_read += DecodeExternal<SrcT>((buffer + bytes_read), (buffer_size - bytes_read));
             }
+        }
+
+        return bytes_read;
+    }
+
+    template <typename SrcT>
+    size_t DecodeInternal(const uint8_t* buffer, size_t buffer_size)
+    {
+        assert(data_ == nullptr);
+
+        size_t bytes_read = 0;
+        size_t len        = GetLength();
+
+        data_     = new T[len];
+        capacity_ = len;
+
+        if (HasData())
+        {
+            bytes_read = ValueDecoder::DecodeArrayFrom<SrcT>(buffer, buffer_size, data_, len);
+        }
+
+        return bytes_read;
+    }
+
+    template <typename SrcT>
+    size_t DecodeExternal(const uint8_t* buffer, size_t buffer_size)
+    {
+        assert(data_ != nullptr);
+
+        size_t bytes_read = 0;
+
+        if (HasData())
+        {
+            size_t len = GetLength();
+
+            if (len <= capacity_)
+            {
+                ValueDecoder::DecodeArrayFrom<SrcT>(buffer, buffer_size, data_, len);
+            }
+            else
+            {
+                // The external memory cacpacity is not large enough to contain the full decoded array.
+                ValueDecoder::DecodeArrayFrom<SrcT>(buffer, buffer_size, data_, capacity_);
+
+                GFXRECON_LOG_WARNING("Pointer decoder's external memory capacity (%" PRIuPTR
+                                     ") is smaller than the decoded array size (%" PRIuPTR "); data will be truncated",
+                                     capacity_,
+                                     len);
+            }
+
+            // We always need to advance the position within the buffer by the amount of data that was expected to
+            // be decoded, not the actual amount of data decoded if capacity is too small to hold all of the data.
+            bytes_read = sizeof(SrcT) * len;
         }
 
         return bytes_read;

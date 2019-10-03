@@ -29,13 +29,13 @@ GFXRECON_BEGIN_NAMESPACE(format)
 template <typename T>
 typename std::enable_if<std::is_pointer<T>::value, HandleId>::type ToHandleId(const T& handle)
 {
-    return reinterpret_cast<uint64_t>(handle);
+    return reinterpret_cast<HandleId>(handle);
 }
 
 template <typename T>
 typename std::enable_if<!std::is_pointer<T>::value, HandleId>::type ToHandleId(const T& handle)
 {
-    return static_cast<uint64_t>(handle);
+    return static_cast<HandleId>(handle);
 }
 
 template <typename T>

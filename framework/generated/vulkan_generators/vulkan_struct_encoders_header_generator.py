@@ -80,5 +80,5 @@ class VulkanStructEncodersHeaderGenerator(BaseGenerator):
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        for struct in self.featureStructMembers:
+        for struct in self.getFilteredStructNames():
             write('void EncodeStruct(ParameterEncoder* encoder, const {}& value);'.format(struct), file=self.outFile)

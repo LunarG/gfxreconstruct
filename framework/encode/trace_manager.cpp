@@ -17,6 +17,8 @@
 
 #include "encode/trace_manager.h"
 
+#include "encode/vulkan_handle_wrapper_util.h"
+#include "encode/vulkan_state_writer.h"
 #include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/file_path.h"
@@ -32,6 +34,9 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 // Default log level to use prior to loading settings.
 const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
 
+// One based frame count.
+const uint32_t kFirstFrame = 1;
+
 std::mutex                                     TraceManager::ThreadData::count_lock_;
 format::ThreadId                               TraceManager::ThreadData::thread_count_ = 0;
 std::unordered_map<uint64_t, format::ThreadId> TraceManager::ThreadData::id_map_;
@@ -41,6 +46,7 @@ uint32_t                                               TraceManager::instance_co
 std::mutex                                             TraceManager::instance_lock_;
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 LayerTable                                             TraceManager::layer_table_;
+std::atomic<format::ThreadId>                          TraceManager::unique_id_counter_{ 0 };
 
 TraceManager::ThreadData::ThreadData() : thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
 {
@@ -67,6 +73,20 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
     }
 
     return id;
+}
+
+TraceManager::TraceManager() :
+    force_file_flush_(false), bytes_written_(0), timestamp_filename_(true),
+    memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), trim_enabled_(false),
+    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite)
+{}
+
+TraceManager::~TraceManager()
+{
+    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+    {
+        util::PageGuardManager::Destroy();
+    }
 }
 
 void TraceManager::SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device)
@@ -97,18 +117,13 @@ bool TraceManager::CreateInstance()
         util::Log::Init(log_settings);
 
         CaptureSettings::TraceSettings trace_settings = settings.GetTraceSettings();
-        std::string                    filename       = trace_settings.capture_file;
-        if (trace_settings.time_stamp_file)
-        {
-            filename = util::filepath::GenerateTimestampedFilename(filename);
-        }
+        std::string                    base_filename  = trace_settings.capture_file;
 
         instance_ = new TraceManager();
-        success   = instance_->Initialize(filename, trace_settings);
+        success   = instance_->Initialize(base_filename, trace_settings);
         if (success)
         {
-            GFXRECON_LOG_INFO("Recording graphics API capture to %s", filename.c_str());
-            ++instance_count_;
+            instance_count_ = 1;
         }
         else
         {
@@ -146,11 +161,6 @@ void TraceManager::DestroyInstance()
 
         if (instance_count_ == 0)
         {
-            if (instance_->memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
-            {
-                util::PageGuardManager::Destroy();
-            }
-
             delete instance_;
             instance_ = nullptr;
 
@@ -161,48 +171,65 @@ void TraceManager::DestroyInstance()
     }
 }
 
-void TraceManager::AddInstanceTable(VkInstance instance, PFN_vkGetInstanceProcAddr gpa)
+void TraceManager::InitInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa)
 {
-    InstanceTable& table = instance_tables_[GetDispatchKey(instance)];
-    LoadInstanceTable(gpa, instance, &table);
+    assert(instance != nullptr);
+
+    CreateWrappedHandle<NoParentWrapper, NoParentWrapper, InstanceWrapper>(
+        NoParentWrapper::kHandleValue, NoParentWrapper::kHandleValue, instance, GetUniqueId);
+
+    auto wrapper = reinterpret_cast<InstanceWrapper*>(*instance);
+    LoadInstanceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
-void TraceManager::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
+void TraceManager::InitDevice(VkDevice* device, PFN_vkGetDeviceProcAddr gpa)
 {
-    DeviceTable& table = device_tables_[GetDispatchKey(device)];
-    LoadDeviceTable(gpa, device, &table);
+    assert((device != nullptr) && ((*device) != VK_NULL_HANDLE));
+
+    CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DeviceWrapper>(
+        VK_NULL_HANDLE, NoParentWrapper::kHandleValue, device, GetUniqueId);
+
+    auto wrapper = reinterpret_cast<DeviceWrapper*>(*device);
+    LoadDeviceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
-const encode::InstanceTable* TraceManager::GetInstanceTable(const void* handle) const
+bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings)
 {
-    auto table = instance_tables_.find(GetDispatchKey(handle));
-    assert(table != instance_tables_.end());
-    return (table != instance_tables_.end()) ? &table->second : nullptr;
-}
+    bool success = true;
 
-const encode::DeviceTable* TraceManager::GetDeviceTable(const void* handle) const
-{
-    auto table = device_tables_.find(GetDispatchKey(handle));
-    assert(table != device_tables_.end());
-    return (table != device_tables_.end()) ? &table->second : nullptr;
-}
-
-bool TraceManager::Initialize(std::string filename, const CaptureSettings::TraceSettings& trace_settings)
-{
-    bool success = false;
-
-    filename_             = filename;
+    base_filename_        = base_filename;
     file_options_         = trace_settings.capture_file_options;
+    timestamp_filename_   = trace_settings.time_stamp_file;
     memory_tracking_mode_ = trace_settings.memory_tracking_mode;
     force_file_flush_     = trace_settings.force_flush;
 
-    file_stream_ = std::make_unique<util::FileOutputStream>(filename_);
-
-    if (file_stream_->IsValid())
+    if (trace_settings.trim_ranges.empty())
     {
-        success        = true;
-        bytes_written_ = 0;
-        WriteFileHeader();
+        // Use default kModeWrite capture mode.
+        success = CreateCaptureFile(base_filename_);
+    }
+    else
+    {
+        // Override default kModeWrite capture mode.
+        trim_enabled_ = true;
+        trim_ranges_  = trace_settings.trim_ranges;
+
+        // Determine if trim starts at the first frame.
+        if (trim_ranges_[0].first == current_frame_)
+        {
+            // When capturing from the first frame, state tracking only needs to be enabled if there is more than one
+            // capture range.
+            if (trim_ranges_.size() > 1)
+            {
+                capture_mode_ = kModeWriteAndTrack;
+            }
+
+            success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_ranges_[0]));
+        }
+        else
+        {
+            capture_mode_ = kModeTrack;
+        }
     }
 
     if (success)
@@ -214,15 +241,27 @@ bool TraceManager::Initialize(std::string filename, const CaptureSettings::Trace
         }
     }
 
-    if (success && (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard))
+    if (success)
     {
-        util::PageGuardManager::Create(true, false, true, true, true, true);
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        {
+            util::PageGuardManager::Create(true, false, true, true, true, true);
+        }
+
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            state_tracker_ = std::make_unique<VulkanStateTracker>();
+        }
+    }
+    else
+    {
+        capture_mode_ = kModeDisabled;
     }
 
     return success;
 }
 
-ParameterEncoder* TraceManager::BeginApiCallTrace(format::ApiCallId call_id)
+ParameterEncoder* TraceManager::InitApiCallTrace(format::ApiCallId call_id)
 {
     auto thread_data      = GetThreadData();
     thread_data->call_id_ = call_id;
@@ -231,81 +270,207 @@ ParameterEncoder* TraceManager::BeginApiCallTrace(format::ApiCallId call_id)
 
 void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 {
-    auto thread_data = GetThreadData();
-    assert(thread_data != nullptr);
-
-    auto parameter_buffer  = thread_data->parameter_buffer_.get();
-    auto parameter_encoder = thread_data->parameter_encoder_.get();
-    assert((parameter_buffer != nullptr) && (parameter_encoder != nullptr));
-
-    bool                                 not_compressed      = true;
-    format::CompressedFunctionCallHeader compressed_header   = {};
-    format::FunctionCallHeader           uncompressed_header = {};
-    size_t                               uncompressed_size   = parameter_buffer->GetDataSize();
-    size_t                               header_size         = 0;
-    const void*                          header_pointer      = nullptr;
-    size_t                               data_size           = 0;
-    const void*                          data_pointer        = nullptr;
-
-    if (nullptr != compressor_)
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        size_t packet_size = 0;
-        size_t compressed_size =
-            compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &thread_data->compressed_buffer_);
+        assert(encoder != nullptr);
 
-        if ((0 < compressed_size) && (compressed_size < uncompressed_size))
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        auto parameter_buffer = thread_data->parameter_buffer_.get();
+        assert((parameter_buffer != nullptr) && (thread_data->parameter_encoder_ != nullptr) &&
+               (thread_data->parameter_encoder_.get() == encoder));
+
+        bool                                 not_compressed      = true;
+        format::CompressedFunctionCallHeader compressed_header   = {};
+        format::FunctionCallHeader           uncompressed_header = {};
+        size_t                               uncompressed_size   = parameter_buffer->GetDataSize();
+        size_t                               header_size         = 0;
+        const void*                          header_pointer      = nullptr;
+        size_t                               data_size           = 0;
+        const void*                          data_pointer        = nullptr;
+
+        if (nullptr != compressor_)
         {
-            data_pointer   = reinterpret_cast<const void*>(thread_data->compressed_buffer_.data());
-            data_size      = compressed_size;
-            header_pointer = reinterpret_cast<const void*>(&compressed_header);
-            header_size    = sizeof(format::CompressedFunctionCallHeader);
+            size_t packet_size = 0;
+            size_t compressed_size =
+                compressor_->Compress(uncompressed_size, parameter_buffer->GetData(), &thread_data->compressed_buffer_);
 
-            compressed_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
-            compressed_header.api_call_id       = thread_data->call_id_;
-            compressed_header.thread_id         = thread_data->thread_id_;
-            compressed_header.uncompressed_size = uncompressed_size;
+            if ((0 < compressed_size) && (compressed_size < uncompressed_size))
+            {
+                data_pointer   = reinterpret_cast<const void*>(thread_data->compressed_buffer_.data());
+                data_size      = compressed_size;
+                header_pointer = reinterpret_cast<const void*>(&compressed_header);
+                header_size    = sizeof(format::CompressedFunctionCallHeader);
 
-            packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) +
-                           sizeof(thread_data->thread_id_) + compressed_size;
+                compressed_header.block_header.type = format::BlockType::kCompressedFunctionCallBlock;
+                compressed_header.api_call_id       = thread_data->call_id_;
+                compressed_header.thread_id         = thread_data->thread_id_;
+                compressed_header.uncompressed_size = uncompressed_size;
 
-            compressed_header.block_header.size = packet_size;
-            not_compressed                      = false;
+                packet_size += sizeof(compressed_header.api_call_id) + sizeof(compressed_header.uncompressed_size) +
+                               sizeof(compressed_header.thread_id) + compressed_size;
+
+                compressed_header.block_header.size = packet_size;
+                not_compressed                      = false;
+            }
+        }
+
+        if (not_compressed)
+        {
+            size_t packet_size = 0;
+            data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
+            data_size          = uncompressed_size;
+            header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
+            header_size        = sizeof(format::FunctionCallHeader);
+
+            uncompressed_header.block_header.type = format::BlockType::kFunctionCallBlock;
+            uncompressed_header.api_call_id       = thread_data->call_id_;
+            uncompressed_header.thread_id         = thread_data->thread_id_;
+
+            packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + data_size;
+
+            uncompressed_header.block_header.size = packet_size;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            // Write appropriate function call block header.
+            bytes_written_ += file_stream_->Write(header_pointer, header_size);
+
+            // Write parameter data.
+            bytes_written_ += file_stream_->Write(data_pointer, data_size);
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+
+        encoder->Reset();
+    }
+    else if (encoder != nullptr)
+    {
+        encoder->Reset();
+    }
+}
+
+void TraceManager::EndFrame()
+{
+    if (trim_enabled_)
+    {
+        ++current_frame_;
+
+        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        {
+            // Currently capturing a frame range. Check for end of range.
+            --trim_ranges_[trim_current_range_].total;
+            if (trim_ranges_[trim_current_range_].total == 0)
+            {
+                // Stop recording and close file.
+                capture_mode_ &= ~kModeWrite;
+                file_stream_ = nullptr;
+                GFXRECON_LOG_INFO("Finished recording graphics API capture");
+
+                // Advance to next range
+                ++trim_current_range_;
+                if (trim_current_range_ >= trim_ranges_.size())
+                {
+                    // No more frames to capture. Capture can be disabled and resources can be released.
+                    trim_enabled_  = false;
+                    capture_mode_  = kModeDisabled;
+                    state_tracker_ = nullptr;
+                    compressor_    = nullptr;
+                }
+                else if (trim_ranges_[trim_current_range_].first == current_frame_)
+                {
+                    // Trimming was configured to capture two consecutive frames, so we need to start a new capture file
+                    // for the current frame.
+                    ActivateTrimming();
+                }
+            }
+        }
+        else if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            // Capture is not active. Check for start of capture frame range.
+            if (trim_ranges_[trim_current_range_].first == current_frame_)
+            {
+                ActivateTrimming();
+            }
         }
     }
+}
 
-    if (not_compressed)
+std::string TraceManager::CreateTrimFilename(const std::string&                base_filename,
+                                             const CaptureSettings::TrimRange& trim_range)
+{
+    assert(trim_range.total > 0);
+
+    std::string range_string = "_";
+
+    if (trim_range.total == 1)
     {
-        size_t packet_size = 0;
-        data_pointer       = reinterpret_cast<const void*>(parameter_buffer->GetData());
-        data_size          = uncompressed_size;
-        header_pointer     = reinterpret_cast<const void*>(&uncompressed_header);
-        header_size        = sizeof(format::FunctionCallHeader);
-
-        uncompressed_header.block_header.type = format::BlockType::kFunctionCallBlock;
-        uncompressed_header.api_call_id       = thread_data->call_id_;
-        uncompressed_header.thread_id         = thread_data->thread_id_;
-
-        packet_size += sizeof(uncompressed_header.api_call_id) + sizeof(uncompressed_header.thread_id) + data_size;
-
-        uncompressed_header.block_header.size = packet_size;
+        range_string += "frame_";
+        range_string += std::to_string(trim_range.first);
+    }
+    else
+    {
+        range_string += "frames_";
+        range_string += std::to_string(trim_range.first);
+        range_string += "_through_";
+        range_string += std::to_string((trim_range.first + trim_range.total) - 1);
     }
 
+    return util::filepath::InsertFilenamePostfix(base_filename, range_string);
+}
+
+bool TraceManager::CreateCaptureFile(const std::string& base_filename)
+{
+    bool        success          = true;
+    std::string capture_filename = base_filename;
+
+    if (timestamp_filename_)
     {
-        std::lock_guard<std::mutex> lock(file_lock_);
-
-        // Write appropriate function call block header.
-        bytes_written_ += file_stream_->Write(header_pointer, header_size);
-
-        // Write parameter data.
-        bytes_written_ += file_stream_->Write(data_pointer, data_size);
-
-        if (force_file_flush_)
-        {
-            file_stream_->Flush();
-        }
+        capture_filename = util::filepath::GenerateTimestampedFilename(capture_filename);
     }
 
-    parameter_encoder->Reset();
+    file_stream_ = std::make_unique<util::FileOutputStream>(capture_filename);
+
+    if (file_stream_->IsValid())
+    {
+        GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
+        WriteFileHeader();
+    }
+    else
+    {
+        file_stream_ = nullptr;
+        success      = false;
+    }
+
+    return success;
+}
+
+void TraceManager::ActivateTrimming()
+{
+    const CaptureSettings::TrimRange& trim_range = trim_ranges_[trim_current_range_];
+    bool                              success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
+    if (success)
+    {
+        capture_mode_ |= kModeWrite;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        VulkanStateWriter state_writer(file_stream_.get(), compressor_.get(), thread_data->thread_id_);
+        state_tracker_->WriteState(&state_writer, trim_range.first);
+    }
+    else
+    {
+        GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
+        trim_enabled_ = false;
+        capture_mode_ = kModeDisabled;
+    }
 }
 
 void TraceManager::WriteFileHeader()
@@ -339,118 +504,132 @@ void TraceManager::BuildOptionList(const format::EnabledOptions&        enabled_
 
 void TraceManager::WriteDisplayMessageCmd(const char* message)
 {
-    size_t                              message_length = util::platform::StringLength(message);
-    format::DisplayMessageCommandHeader message_cmd;
-
-    message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    message_cmd.meta_header.block_header.size =
-        sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.thread_id) + message_length;
-    message_cmd.meta_header.meta_data_type = format::MetaDataType::kDisplayMessageCommand;
-    message_cmd.thread_id                  = GetThreadData()->thread_id_;
-
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        std::lock_guard<std::mutex> lock(file_lock_);
+        size_t                              message_length = util::platform::StringLength(message);
+        format::DisplayMessageCommandHeader message_cmd;
 
-        bytes_written_ += file_stream_->Write(&message_cmd, sizeof(message_cmd));
-        bytes_written_ += file_stream_->Write(message, message_length);
+        message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        message_cmd.meta_header.block_header.size =
+            sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.thread_id) + message_length;
+        message_cmd.meta_header.meta_data_type = format::MetaDataType::kDisplayMessageCommand;
+        message_cmd.thread_id                  = GetThreadData()->thread_id_;
 
-        if (force_file_flush_)
         {
-            file_stream_->Flush();
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&message_cmd, sizeof(message_cmd));
+            bytes_written_ += file_stream_->Write(message, message_length);
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
         }
     }
 }
 
-void TraceManager::WriteResizeWindowCmd(VkSurfaceKHR surface, uint32_t width, uint32_t height)
+void TraceManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height)
 {
-    format::ResizeWindowCommand resize_cmd;
-    resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
-                                               sizeof(resize_cmd.thread_id) + sizeof(resize_cmd.surface_id) +
-                                               sizeof(resize_cmd.width) + sizeof(resize_cmd.height);
-    resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
-    resize_cmd.thread_id                  = GetThreadData()->thread_id_;
-
-    resize_cmd.surface_id = format::ToHandleId(surface);
-    resize_cmd.width      = width;
-    resize_cmd.height     = height;
-
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        std::lock_guard<std::mutex> lock(file_lock_);
-        bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+        format::ResizeWindowCommand resize_cmd;
+        resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
+                                                   sizeof(resize_cmd.thread_id) + sizeof(resize_cmd.surface_id) +
+                                                   sizeof(resize_cmd.width) + sizeof(resize_cmd.height);
+        resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
+        resize_cmd.thread_id                  = GetThreadData()->thread_id_;
 
-        if (force_file_flush_)
+        resize_cmd.surface_id = surface_id;
+        resize_cmd.width      = width;
+        resize_cmd.height     = height;
+
         {
-            file_stream_->Flush();
+            std::lock_guard<std::mutex> lock(file_lock_);
+            bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
         }
     }
 }
 
-void TraceManager::WriteFillMemoryCmd(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const void* data)
+void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
+                                      VkDeviceSize     offset,
+                                      VkDeviceSize     size,
+                                      const void*      data)
 {
-    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-
-    format::FillMemoryCommandHeader fill_cmd;
-    const uint8_t*                  write_address = (static_cast<const uint8_t*>(data) + offset);
-    size_t                          write_size    = static_cast<size_t>(size);
-
-    fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
-    fill_cmd.thread_id                     = GetThreadData()->thread_id_;
-    fill_cmd.memory_id                     = format::ToHandleId(memory);
-    fill_cmd.memory_offset                 = offset;
-    fill_cmd.memory_size                   = size;
-
-    if (compressor_ != nullptr)
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        auto thread_data = GetThreadData();
-        assert(thread_data != nullptr);
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
-        size_t compressed_size = compressor_->Compress(write_size, write_address, &thread_data->compressed_buffer_);
+        format::FillMemoryCommandHeader fill_cmd;
+        const uint8_t*                  write_address = (static_cast<const uint8_t*>(data) + offset);
+        size_t                          write_size    = static_cast<size_t>(size);
 
-        if ((compressed_size > 0) && (compressed_size < write_size))
+        fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
+        fill_cmd.thread_id                     = GetThreadData()->thread_id_;
+        fill_cmd.memory_id                     = memory_id;
+        fill_cmd.memory_offset                 = offset;
+        fill_cmd.memory_size                   = size;
+
+        if (compressor_ != nullptr)
         {
-            // We don't have a special header for compressed fill commands because the header always includes
-            // the uncompressed size, so we just change the type to indicate the data is compressed.
-            fill_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
 
-            write_address = thread_data->compressed_buffer_.data();
-            write_size    = compressed_size;
+            size_t compressed_size = compressor_->Compress(write_size, write_address, &thread_data->compressed_buffer_);
+
+            if ((compressed_size > 0) && (compressed_size < write_size))
+            {
+                // We don't have a special header for compressed fill commands because the header always includes
+                // the uncompressed size, so we just change the type to indicate the data is compressed.
+                fill_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                write_address = thread_data->compressed_buffer_.data();
+                write_size    = compressed_size;
+            }
         }
-    }
 
-    // Calculate size of packet with compressed or uncompressed data size.
-    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.thread_id) +
-                                             sizeof(fill_cmd.memory_id) + sizeof(fill_cmd.memory_offset) +
-                                             sizeof(fill_cmd.memory_size) + write_size;
+        // Calculate size of packet with compressed or uncompressed data size.
+        fill_cmd.meta_header.block_header.size =
+            sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.thread_id) + sizeof(fill_cmd.memory_id) +
+            sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + write_size;
 
-    {
-        std::lock_guard<std::mutex> lock(file_lock_);
-
-        bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
-        bytes_written_ += file_stream_->Write(write_address, write_size);
-
-        if (force_file_flush_)
         {
-            file_stream_->Flush();
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
+            bytes_written_ += file_stream_->Write(write_address, write_size);
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
         }
     }
 }
 
-void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate                  update_template,
-                                               const VkDescriptorUpdateTemplateCreateInfo* create_info)
+void TraceManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
+                                                   const VkDescriptorUpdateTemplateCreateInfo* create_info)
 {
     // A NULL check should have been performed by the caller.
     assert((create_info != nullptr));
 
     if (create_info->descriptorUpdateEntryCount > 0)
     {
-        UpdateTemplateInfo info;
+        DescriptorUpdateTemplateWrapper* wrapper = reinterpret_cast<DescriptorUpdateTemplateWrapper*>(update_template);
+        UpdateTemplateInfo*              info    = &wrapper->info;
 
         for (size_t i = 0; i < create_info->descriptorUpdateEntryCount; ++i)
         {
-            const VkDescriptorUpdateTemplateEntry* entry = &create_info->pDescriptorUpdateEntries[i];
-            VkDescriptorType                       type  = entry->descriptorType;
+            const VkDescriptorUpdateTemplateEntry* entry      = &create_info->pDescriptorUpdateEntries[i];
+            VkDescriptorType                       type       = entry->descriptorType;
+            size_t                                 entry_size = 0;
 
             // Sort the descriptor update template info by type, so it can be written to the capture file
             // as tightly packed arrays of structures.  One array will be written for each descriptor info
@@ -459,39 +638,68 @@ void TraceManager::AddDescriptorUpdateTemplate(VkDescriptorUpdateTemplate       
                 (type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
                 (type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
             {
-                info.image_info_count += entry->descriptorCount;
-                info.image_info.emplace_back(entry->descriptorCount, entry->offset, entry->stride);
+                UpdateTemplateEntryInfo image_info;
+                image_info.binding       = entry->dstBinding;
+                image_info.array_element = entry->dstArrayElement;
+                image_info.count         = entry->descriptorCount;
+                image_info.offset        = entry->offset;
+                image_info.stride        = entry->stride;
+                image_info.type          = type;
+
+                info->image_info_count += entry->descriptorCount;
+                info->image_info.emplace_back(image_info);
+
+                entry_size = sizeof(VkDescriptorImageInfo);
             }
             else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
                      (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
                      (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
             {
-                info.buffer_info_count += entry->descriptorCount;
-                info.buffer_info.emplace_back(entry->descriptorCount, entry->offset, entry->stride);
+                UpdateTemplateEntryInfo buffer_info;
+                buffer_info.binding       = entry->dstBinding;
+                buffer_info.array_element = entry->dstArrayElement;
+                buffer_info.count         = entry->descriptorCount;
+                buffer_info.offset        = entry->offset;
+                buffer_info.stride        = entry->stride;
+                buffer_info.type          = type;
+
+                info->buffer_info_count += entry->descriptorCount;
+                info->buffer_info.emplace_back(buffer_info);
+
+                entry_size = sizeof(VkDescriptorBufferInfo);
             }
             else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) ||
                      (type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
             {
-                info.texel_buffer_view_count += entry->descriptorCount;
-                info.texel_buffer_view.emplace_back(entry->descriptorCount, entry->offset, entry->stride);
+                UpdateTemplateEntryInfo texel_buffer_view_info;
+                texel_buffer_view_info.binding       = entry->dstBinding;
+                texel_buffer_view_info.array_element = entry->dstArrayElement;
+                texel_buffer_view_info.count         = entry->descriptorCount;
+                texel_buffer_view_info.offset        = entry->offset;
+                texel_buffer_view_info.stride        = entry->stride;
+                texel_buffer_view_info.type          = type;
+
+                info->texel_buffer_view_count += entry->descriptorCount;
+                info->texel_buffer_view.emplace_back(texel_buffer_view_info);
+
+                entry_size = sizeof(VkBufferView);
             }
             else
             {
+                GFXRECON_LOG_ERROR("Unrecognized/unsupported descriptor type in descriptor update template.");
                 assert(false);
             }
-        }
 
-        {
-            std::lock_guard<std::mutex> lock(update_template_map_lock_);
-            update_template_map_.emplace(std::make_pair(update_template, info));
+            if (entry->descriptorCount > 0)
+            {
+                size_t max_size = ((entry->descriptorCount - 1) * entry->stride) + entry->offset + entry_size;
+                if (max_size > info->max_size)
+                {
+                    info->max_size = max_size;
+                }
+            }
         }
     }
-}
-
-void TraceManager::RemoveDescriptorUpdateTemplate(VkDescriptorUpdateTemplate update_template)
-{
-    std::lock_guard<std::mutex> lock(update_template_map_lock_);
-    update_template_map_.erase(update_template);
 }
 
 bool TraceManager::GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
@@ -501,16 +709,27 @@ bool TraceManager::GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate up
 
     bool found = false;
 
-    // We assume that the application will not destroy an update template while it is in use, and that we only need
-    // to lock on find for protection from data strcuture changes due to adds and removes of other update templates.
-    auto entry = update_template_map_.find(update_template);
-    if (entry != update_template_map_.end())
+    if (update_template != VK_NULL_HANDLE)
     {
+        DescriptorUpdateTemplateWrapper* wrapper = reinterpret_cast<DescriptorUpdateTemplateWrapper*>(update_template);
+
+        (*info) = &wrapper->info;
         found   = true;
-        (*info) = &(entry->second);
     }
 
     return found;
+}
+
+void TraceManager::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet            set,
+                                                        VkDescriptorUpdateTemplate update_template,
+                                                        const void*                data)
+{
+    const UpdateTemplateInfo* info = nullptr;
+    if (GetDescriptorUpdateTemplateInfo(update_template, &info))
+    {
+        assert(state_tracker_ != nullptr);
+        state_tracker_->TrackUpdateDescriptorSetWithTemplate(set, info, data);
+    }
 }
 
 void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
@@ -526,7 +745,8 @@ void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        
 
     if (pCreateInfo)
     {
-        WriteResizeWindowCmd(pCreateInfo->surface, pCreateInfo->imageExtent.width, pCreateInfo->imageExtent.height);
+        WriteResizeWindowCmd(
+            GetWrappedId(pCreateInfo->surface), pCreateInfo->imageExtent.width, pCreateInfo->imageExtent.height);
     }
 }
 
@@ -538,13 +758,13 @@ void TraceManager::PostProcess_vkAllocateMemory(VkResult                     res
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    if ((result == VK_SUCCESS) && (pAllocateInfo != nullptr) && (pMemory != nullptr))
+    if (((capture_mode_ & kModeTrack) != kModeTrack) && (result == VK_SUCCESS) && (pAllocateInfo != nullptr) &&
+        (pMemory != nullptr) && (*pMemory != VK_NULL_HANDLE))
     {
-        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-        // TODO: Get property flags for type index (for pageguard).
-        // TODO: Key memory tracker by VkDevice + VkDeviceMemory for multi-device support.
-        memory_tracker_.AddEntry((*pMemory), 0, pAllocateInfo->allocationSize);
+        // The state tracker will set this value when it is enabled. When state tracking is disabled it is set here to
+        // ensure it is available for mapped memory tracking.
+        auto wrapper             = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
+        wrapper->allocation_size = pAllocateInfo->allocationSize;
     }
 }
 
@@ -556,41 +776,60 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
                                            VkMemoryMapFlags flags,
                                            void**           ppData)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-
     if ((result == VK_SUCCESS) && (ppData != nullptr))
     {
-        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-        MemoryTracker::EntryInfo*   info      = nullptr;
-        bool                        first_map = memory_tracker_.MapEntry(memory, offset, size, (*ppData), &info);
+        auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+        assert(wrapper != nullptr);
 
-        if ((info != nullptr) && (info->mapped_size > 0) &&
-            (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard))
+        if (wrapper->mapped_data == nullptr)
         {
-            if (first_map)
+            if ((capture_mode_ & kModeTrack) == kModeTrack)
             {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, info->mapped_size);
-
-                util::PageGuardManager* manager = util::PageGuardManager::Get();
-
-                assert(manager != nullptr);
-
-                info->tracked_memory = manager->AddMemory(
-                    format::ToHandleId(memory), (*ppData), static_cast<size_t>(info->mapped_size), false);
+                assert(state_tracker_ != nullptr);
+                state_tracker_->TrackMappedMemory(device, memory, (*ppData), offset, size, flags);
             }
             else
             {
-                // The application has mapped the same VkDeviceMemory object more than once and the pageguard manager is
-                // already tracking it, so we will return the pointer obtained from the pageguard manager on the first
-                // map call.
-                GFXRECON_LOG_WARNING("VkDeviceMemory object with handle = %" PRIx64 " has been mapped more than once",
-                                     memory);
+                // Perform subset of the state tracking performed by VulkanStateTracker::TrackMappedMemory, only storing
+                // values needed for non-tracking capture.
+                wrapper->mapped_data   = (*ppData);
+                wrapper->mapped_offset = offset;
+                wrapper->mapped_size   = size;
             }
 
-            // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory, not the
-            // mapped memory.
-            (*ppData) = info->tracked_memory;
+            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+            {
+                if (size == VK_WHOLE_SIZE)
+                {
+                    size = wrapper->allocation_size;
+                }
+
+                if (size > 0)
+                {
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+
+                    util::PageGuardManager* manager = util::PageGuardManager::Get();
+                    assert(manager != nullptr);
+
+                    // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
+                    // not the mapped memory.
+                    (*ppData) = manager->AddMemory(wrapper->handle_id, (*ppData), static_cast<size_t>(size), false);
+                }
+            }
+            else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+            {
+                // Need to keep track of mapped memory objects so memory content can be written at queue submit.
+                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                mapped_memory_.insert(wrapper);
+            }
+        }
+        else
+        {
+            // The application has mapped the same VkDeviceMemory object more than once and the pageguard
+            // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
+            // on the first map call.
+            GFXRECON_LOG_WARNING("VkDeviceMemory object with handle = %" PRIx64 " has been mapped more than once",
+                                 memory);
         }
     }
 }
@@ -605,63 +844,59 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
     {
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
-            // TODO: Determine if this can be deferred to vkQueueSubmit for memory types with the HOST_COHERENT
-            // property.
-            VkDeviceMemory          current_memory = VK_NULL_HANDLE;
-            util::PageGuardManager* manager        = util::PageGuardManager::Get();
+            const DeviceMemoryWrapper* current_memory_wrapper = nullptr;
+            util::PageGuardManager*    manager                = util::PageGuardManager::Get();
             assert(manager != nullptr);
-
-            std::lock_guard<std::mutex> lock(memory_tracker_lock_);
 
             for (uint32_t i = 0; i < memoryRangeCount; ++i)
             {
-                if (current_memory != pMemoryRanges[i].memory)
-                {
-                    current_memory = pMemoryRanges[i].memory;
-                    auto info      = memory_tracker_.GetEntryInfo(current_memory);
+                auto next_memory_wrapper = reinterpret_cast<const DeviceMemoryWrapper*>(pMemoryRanges[i].memory);
 
-                    if ((info != nullptr) && (info->mapped_memory != nullptr))
+                // Currently processing all dirty pages for the mapped memory, so filter multiple ranges from the same
+                // object.
+                if (next_memory_wrapper != current_memory_wrapper)
+                {
+                    current_memory_wrapper = next_memory_wrapper;
+
+                    if ((current_memory_wrapper != nullptr) && (current_memory_wrapper->mapped_data != nullptr))
                     {
                         manager->ProcessMemoryEntry(
-                            format::ToHandleId(current_memory),
+                            current_memory_wrapper->handle_id,
                             [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                                WriteFillMemoryCmd(
-                                    format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
+                                WriteFillMemoryCmd(memory_id, offset, size, start_address);
                             });
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING("vkFlushMappedMemoryRanges called for memory that is not mapped");
                     }
                 }
             }
         }
         else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kAssisted)
         {
-            VkDeviceMemory                  current_memory = VK_NULL_HANDLE;
-            const MemoryTracker::EntryInfo* info           = nullptr;
-
-            std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+            const DeviceMemoryWrapper* current_memory_wrapper = nullptr;
 
             for (uint32_t i = 0; i < memoryRangeCount; ++i)
             {
-                if (current_memory != pMemoryRanges[i].memory)
-                {
-                    current_memory = pMemoryRanges[i].memory;
-                    info           = memory_tracker_.GetEntryInfo(current_memory);
-                }
+                current_memory_wrapper = reinterpret_cast<const DeviceMemoryWrapper*>(pMemoryRanges[i].memory);
 
-                if ((info != nullptr) && (info->mapped_memory != nullptr))
+                if ((current_memory_wrapper != nullptr) && (current_memory_wrapper->mapped_data != nullptr))
                 {
-                    assert(pMemoryRanges[i].offset >= info->mapped_offset);
+                    assert(pMemoryRanges[i].offset >= current_memory_wrapper->mapped_offset);
 
                     // The mapped pointer already includes the mapped offset.  Because the memory range
                     // offset is realtive to the start of the memory object, we need to adjust it to be
                     // realitve to the start of the mapped pointer.
-                    VkDeviceSize relative_offset = pMemoryRanges[i].offset - info->mapped_offset;
+                    VkDeviceSize relative_offset = pMemoryRanges[i].offset - current_memory_wrapper->mapped_offset;
                     VkDeviceSize size            = pMemoryRanges[i].size;
                     if (size == VK_WHOLE_SIZE)
                     {
-                        size = info->allocation_size - pMemoryRanges[i].offset;
+                        size = current_memory_wrapper->allocation_size - pMemoryRanges[i].offset;
                     }
 
-                    WriteFillMemoryCmd(pMemoryRanges[i].memory, relative_offset, size, info->mapped_memory);
+                    WriteFillMemoryCmd(
+                        current_memory_wrapper->handle_id, relative_offset, size, current_memory_wrapper->mapped_data);
                 }
             }
         }
@@ -670,40 +905,60 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
 
 void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memory)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(device);
+    auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+    assert(wrapper != nullptr);
 
-    std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-
-    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+    if (wrapper->mapped_data != nullptr)
     {
-        util::PageGuardManager* manager = util::PageGuardManager::Get();
-        assert(manager != nullptr);
-
-        auto info = memory_tracker_.GetEntryInfo(memory);
-
-        if ((info != nullptr) && (info->mapped_memory != nullptr))
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
-            manager->ProcessMemoryEntry(
-                format::ToHandleId(memory),
-                [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                    WriteFillMemoryCmd(format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
-                });
-
-            manager->RemoveMemory(format::ToHandleId(memory));
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0);
         }
-    }
-    else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
-    {
-        // Write the entire mapped region.
-        auto info = memory_tracker_.GetEntryInfo(memory);
-        if ((info != nullptr) && (info->mapped_memory != nullptr))
+        else
         {
+            // Perform subset of the state tracking performed by VulkanStateTracker::TrackMappedMemory, only storing
+            // values needed for non-tracking capture.
+            wrapper->mapped_data   = nullptr;
+            wrapper->mapped_offset = 0;
+            wrapper->mapped_size   = 0;
+        }
+
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            manager->ProcessMemoryEntry(wrapper->handle_id,
+                                        [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                                            WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                        });
+
+            manager->RemoveMemory(wrapper->handle_id);
+        }
+        else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+        {
+            // Write the entire mapped region.
             // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-            WriteFillMemoryCmd(memory, 0, info->mapped_size, info->mapped_memory);
+            VkDeviceSize size = wrapper->mapped_size;
+            if (size == VK_WHOLE_SIZE)
+            {
+                size = wrapper->allocation_size;
+            }
+
+            WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
+
+            {
+                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                mapped_memory_.erase(wrapper);
+            }
         }
     }
-
-    memory_tracker_.UnmapEntry(memory);
+    else
+    {
+        GFXRECON_LOG_WARNING(
+            "Attempting to unmap VkDeviceMemory object with handle = %" PRIx64 " that has not been mapped", memory);
+    }
 }
 
 void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
@@ -713,17 +968,15 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
-    std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+    auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+    assert(wrapper != nullptr);
 
-    bool is_mapped = false;
-    memory_tracker_.RemoveEntry(memory, &is_mapped);
-
-    if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) && is_mapped)
+    if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) && (wrapper->mapped_data != nullptr))
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
 
-        manager->RemoveMemory(format::ToHandleId(memory));
+        manager->RemoveMemory(wrapper->handle_id);
     }
 }
 
@@ -739,27 +992,23 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
 
     if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
-        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
-
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
 
         manager->ProcessMemoryEntries([this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-            WriteFillMemoryCmd(format::FromHandleId<VkDeviceMemory>(memory_id), offset, size, start_address);
+            WriteFillMemoryCmd(memory_id, offset, size, start_address);
         });
     }
     else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
     {
-        std::lock_guard<std::mutex> lock(memory_tracker_lock_);
+        std::lock_guard<std::mutex> lock(mapped_memory_lock_);
 
-        memory_tracker_.VisitEntries([this](VkDeviceMemory memory, const MemoryTracker::EntryInfo& entry) {
+        for (auto wrapper : mapped_memory_)
+        {
             // If the memory is mapped, write the entire mapped region.
-            if (entry.mapped_memory != nullptr)
-            {
-                // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-                WriteFillMemoryCmd(memory, 0, entry.mapped_size, entry.mapped_memory);
-            }
-        });
+            // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
+            WriteFillMemoryCmd(wrapper->handle_id, 0, wrapper->mapped_size, wrapper->mapped_data);
+        }
     }
 }
 
@@ -774,7 +1023,7 @@ void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplate(VkResult         
 
     if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pDescriptorUpdateTemplate != nullptr))
     {
-        AddDescriptorUpdateTemplate((*pDescriptorUpdateTemplate), pCreateInfo);
+        SetDescriptorUpdateTemplateInfo((*pDescriptorUpdateTemplate), pCreateInfo);
     }
 }
 
@@ -790,47 +1039,19 @@ void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
 
     if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pDescriptorUpdateTemplate != nullptr))
     {
-        AddDescriptorUpdateTemplate((*pDescriptorUpdateTemplate), pCreateInfo);
+        SetDescriptorUpdateTemplateInfo((*pDescriptorUpdateTemplate), pCreateInfo);
     }
 }
 
-void TraceManager::PreProcess_vkDestroyDescriptorUpdateTemplate(VkDevice                     device,
-                                                                VkDescriptorUpdateTemplate   descriptorUpdateTemplate,
-                                                                const VkAllocationCallbacks* pAllocator)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    RemoveDescriptorUpdateTemplate(descriptorUpdateTemplate);
-}
-
-void TraceManager::PreProcess_vkDestroyDescriptorUpdateTemplateKHR(VkDevice                   device,
-                                                                   VkDescriptorUpdateTemplate descriptorUpdateTemplate,
-                                                                   const VkAllocationCallbacks* pAllocator)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-
-    RemoveDescriptorUpdateTemplate(descriptorUpdateTemplate);
-}
-
 #if defined(__ANDROID__)
-void TraceManager::PreProcess_GetPhysicalDeviceSurfacePresentModesKHR(VkResult          result,
-                                                                      VkPhysicalDevice  physicalDevice,
-                                                                      VkSurfaceKHR      surface,
-                                                                      uint32_t*         pPresentModeCount,
-                                                                      VkPresentModeKHR* pPresentModes)
+void TraceManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*         pPresentModeCount,
+                                                                   VkPresentModeKHR* pPresentModes)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(physicalDevice);
-    GFXRECON_UNREFERENCED_PARAMETER(surface);
+    assert((pPresentModeCount != nullptr) && (pPresentModes != nullptr));
 
-    if ((result == VK_SUCCESS) && (pPresentModeCount != nullptr) && ((*pPresentModeCount) > 0) &&
-        (pPresentModes != nullptr))
+    for (uint32_t i = 0; i < (*pPresentModeCount); ++i)
     {
-        for (uint32_t i = 0; i < (*pPresentModeCount); ++i)
-        {
-            pPresentModes[i] = VK_PRESENT_MODE_FIFO_KHR;
-        }
+        pPresentModes[i] = VK_PRESENT_MODE_FIFO_KHR;
     }
 }
 #endif

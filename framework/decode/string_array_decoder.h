@@ -57,7 +57,7 @@ class BasicStringArrayDecoder : public PointerDecoderBase
         if (!IsNull() && HasData())
         {
             size_t len         = GetLength();
-            strings_           = std::make_unique<char* []>(len);
+            strings_           = std::make_unique<char*[]>(len);
             string_attributes_ = std::make_unique<uint32_t[]>(len);
             string_addresses_  = std::make_unique<uint64_t[]>(len);
             string_lengths_    = std::make_unique<size_t[]>(len);
@@ -127,7 +127,7 @@ class BasicStringArrayDecoder : public PointerDecoderBase
     }
 
   private:
-    std::unique_ptr<CharT* []>  strings_;
+    std::unique_ptr<CharT*[]>   strings_;
     std::unique_ptr<uint32_t[]> string_attributes_;
     std::unique_ptr<uint64_t[]> string_addresses_;
     std::unique_ptr<size_t[]>   string_lengths_;

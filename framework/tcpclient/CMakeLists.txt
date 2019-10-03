@@ -21,4 +21,4 @@ target_sources(gfxrecon_tcp_client_test PRIVATE
         test/main.cpp)
 
 common_build_directives(gfxrecon_tcp_client_test)
-target_test_directives(gfxrecon_tcp_client_test)
+common_test_directives(gfxrecon_tcp_client_test)

@@ -20,6 +20,7 @@
 
 #include "format/format.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
 
@@ -64,7 +65,6 @@ class VulkanObjectMapper
     void AddVkSwapchainKHR(format::HandleId id, VkSwapchainKHR handle)                               { AddObject<VkSwapchainKHR>(id, handle, &swapchain_khr_map_); }
     void AddVkDisplayKHR(format::HandleId id, VkDisplayKHR handle)                                   { AddObject<VkDisplayKHR>(id, handle, &display_khr_map_); }
     void AddVkDisplayModeKHR(format::HandleId id, VkDisplayModeKHR handle)                           { AddObject<VkDisplayModeKHR>(id, handle, &display_mode_khr_map_); }
-    void AddVkDescriptorUpdateTemplateKHR(format::HandleId id, VkDescriptorUpdateTemplateKHR handle) { AddObject<VkDescriptorUpdateTemplateKHR>(id, handle, &descriptor_update_template_khr_map_); }
     void AddVkSamplerYcbcrConversionKHR(format::HandleId id, VkSamplerYcbcrConversionKHR handle)     { AddObject<VkSamplerYcbcrConversionKHR>(id, handle, &sampler_ycbcr_conversion_khr_map_); }
     void AddVkDebugReportCallbackEXT(format::HandleId id, VkDebugReportCallbackEXT handle)           { AddObject<VkDebugReportCallbackEXT>(id, handle, &debug_report_callback_ext_map_); }
     void AddVkObjectTableNVX(format::HandleId id, VkObjectTableNVX handle)                           { AddObject<VkObjectTableNVX>(id, handle, &object_table_nvx_map_); }
@@ -104,7 +104,6 @@ class VulkanObjectMapper
     VkSwapchainKHR                MapVkSwapchainKHR(format::HandleId id) const                { return MapObject<VkSwapchainKHR>(id, &swapchain_khr_map_); }
     VkDisplayKHR                  MapVkDisplayKHR(format::HandleId id) const                  { return MapObject<VkDisplayKHR>(id, &display_khr_map_); }
     VkDisplayModeKHR              MapVkDisplayModeKHR(format::HandleId id) const              { return MapObject<VkDisplayModeKHR>(id, &display_mode_khr_map_); }
-    VkDescriptorUpdateTemplateKHR MapVkDescriptorUpdateTemplateKHR(format::HandleId id) const { return MapObject<VkDescriptorUpdateTemplateKHR>(id, &descriptor_update_template_khr_map_); }
     VkSamplerYcbcrConversionKHR   MapVkSamplerYcbcrConversionKHR(format::HandleId id) const   { return MapObject<VkSamplerYcbcrConversionKHR>(id, &sampler_ycbcr_conversion_khr_map_); }
     VkDebugReportCallbackEXT      MapVkDebugReportCallbackEXT(format::HandleId id) const      { return MapObject<VkDebugReportCallbackEXT>(id, &debug_report_callback_ext_map_); }
     VkObjectTableNVX              MapVkObjectTableNVX(format::HandleId id) const              { return MapObject<VkObjectTableNVX>(id, &object_table_nvx_map_); }
@@ -113,6 +112,30 @@ class VulkanObjectMapper
     VkValidationCacheEXT          MapVkValidationCacheEXT(format::HandleId id) const          { return MapObject<VkValidationCacheEXT>(id, &validation_cache_ext_map_); }
     VkAccelerationStructureNV     MapVkAccelerationStructureNV(format::HandleId id) const     { return MapObject<VkAccelerationStructureNV>(id, &acceleration_structure_nv_map_); }
     // clang-format on
+
+    void ReplaceSemaphore(VkSemaphore target, VkSemaphore replacement)
+    {
+        for (auto& entry : semaphore_map_)
+        {
+            if (entry.second == target)
+            {
+                entry.second = replacement;
+                break;
+            }
+        }
+    }
+
+    void ReplaceFence(VkFence target, VkFence replacement)
+    {
+        for (auto& entry : fence_map_)
+        {
+            if (entry.second == target)
+            {
+                entry.second = replacement;
+                break;
+            }
+        }
+    }
 
   private:
     template <typename T>
@@ -143,7 +166,7 @@ class VulkanObjectMapper
             }
             else
             {
-                GFXRECON_LOG_DEBUG("Failed to map handle for object id %" PRIx64, id);
+                GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIx64, id);
             }
         }
 
@@ -151,45 +174,44 @@ class VulkanObjectMapper
     }
 
   private:
-    std::unordered_map<format::HandleId, VkInstance>                    instance_map_;
-    std::unordered_map<format::HandleId, VkPhysicalDevice>              physical_device_map_;
-    std::unordered_map<format::HandleId, VkDevice>                      device_map_;
-    std::unordered_map<format::HandleId, VkQueue>                       queue_map_;
-    std::unordered_map<format::HandleId, VkSemaphore>                   semaphore_map_;
-    std::unordered_map<format::HandleId, VkCommandBuffer>               command_buffer_map_;
-    std::unordered_map<format::HandleId, VkFence>                       fence_map_;
-    std::unordered_map<format::HandleId, VkDeviceMemory>                device_memory_map_;
-    std::unordered_map<format::HandleId, VkBuffer>                      buffer_map_;
-    std::unordered_map<format::HandleId, VkImage>                       image_map_;
-    std::unordered_map<format::HandleId, VkEvent>                       event_map_;
-    std::unordered_map<format::HandleId, VkQueryPool>                   query_pool_map_;
-    std::unordered_map<format::HandleId, VkBufferView>                  buffer_view_map_;
-    std::unordered_map<format::HandleId, VkImageView>                   image_view_map_;
-    std::unordered_map<format::HandleId, VkShaderModule>                shader_module_map_;
-    std::unordered_map<format::HandleId, VkPipelineCache>               pipeline_cache_map_;
-    std::unordered_map<format::HandleId, VkPipelineLayout>              pipeline_layout_map_;
-    std::unordered_map<format::HandleId, VkRenderPass>                  render_pass_map_;
-    std::unordered_map<format::HandleId, VkPipeline>                    pipeline_map_;
-    std::unordered_map<format::HandleId, VkDescriptorSetLayout>         descriptor_set_layout_map_;
-    std::unordered_map<format::HandleId, VkSampler>                     sampler_map_;
-    std::unordered_map<format::HandleId, VkDescriptorPool>              descriptor_pool_map_;
-    std::unordered_map<format::HandleId, VkDescriptorSet>               descriptor_set_map_;
-    std::unordered_map<format::HandleId, VkFramebuffer>                 framebuffer_map_;
-    std::unordered_map<format::HandleId, VkCommandPool>                 command_pool_map_;
-    std::unordered_map<format::HandleId, VkSamplerYcbcrConversion>      sampler_ycbcr_conversion_map_;
-    std::unordered_map<format::HandleId, VkDescriptorUpdateTemplate>    descriptor_update_template_map_;
-    std::unordered_map<format::HandleId, VkSurfaceKHR>                  surface_khr_map_;
-    std::unordered_map<format::HandleId, VkSwapchainKHR>                swapchain_khr_map_;
-    std::unordered_map<format::HandleId, VkDisplayKHR>                  display_khr_map_;
-    std::unordered_map<format::HandleId, VkDisplayModeKHR>              display_mode_khr_map_;
-    std::unordered_map<format::HandleId, VkDescriptorUpdateTemplateKHR> descriptor_update_template_khr_map_;
-    std::unordered_map<format::HandleId, VkSamplerYcbcrConversionKHR>   sampler_ycbcr_conversion_khr_map_;
-    std::unordered_map<format::HandleId, VkDebugReportCallbackEXT>      debug_report_callback_ext_map_;
-    std::unordered_map<format::HandleId, VkObjectTableNVX>              object_table_nvx_map_;
-    std::unordered_map<format::HandleId, VkIndirectCommandsLayoutNVX>   indirect_commands_layout_nvx_map_;
-    std::unordered_map<format::HandleId, VkDebugUtilsMessengerEXT>      debug_utils_messenger_ext_map_;
-    std::unordered_map<format::HandleId, VkValidationCacheEXT>          validation_cache_ext_map_;
-    std::unordered_map<format::HandleId, VkAccelerationStructureNV>     acceleration_structure_nv_map_;
+    std::unordered_map<format::HandleId, VkInstance>                  instance_map_;
+    std::unordered_map<format::HandleId, VkPhysicalDevice>            physical_device_map_;
+    std::unordered_map<format::HandleId, VkDevice>                    device_map_;
+    std::unordered_map<format::HandleId, VkQueue>                     queue_map_;
+    std::unordered_map<format::HandleId, VkSemaphore>                 semaphore_map_;
+    std::unordered_map<format::HandleId, VkCommandBuffer>             command_buffer_map_;
+    std::unordered_map<format::HandleId, VkFence>                     fence_map_;
+    std::unordered_map<format::HandleId, VkDeviceMemory>              device_memory_map_;
+    std::unordered_map<format::HandleId, VkBuffer>                    buffer_map_;
+    std::unordered_map<format::HandleId, VkImage>                     image_map_;
+    std::unordered_map<format::HandleId, VkEvent>                     event_map_;
+    std::unordered_map<format::HandleId, VkQueryPool>                 query_pool_map_;
+    std::unordered_map<format::HandleId, VkBufferView>                buffer_view_map_;
+    std::unordered_map<format::HandleId, VkImageView>                 image_view_map_;
+    std::unordered_map<format::HandleId, VkShaderModule>              shader_module_map_;
+    std::unordered_map<format::HandleId, VkPipelineCache>             pipeline_cache_map_;
+    std::unordered_map<format::HandleId, VkPipelineLayout>            pipeline_layout_map_;
+    std::unordered_map<format::HandleId, VkRenderPass>                render_pass_map_;
+    std::unordered_map<format::HandleId, VkPipeline>                  pipeline_map_;
+    std::unordered_map<format::HandleId, VkDescriptorSetLayout>       descriptor_set_layout_map_;
+    std::unordered_map<format::HandleId, VkSampler>                   sampler_map_;
+    std::unordered_map<format::HandleId, VkDescriptorPool>            descriptor_pool_map_;
+    std::unordered_map<format::HandleId, VkDescriptorSet>             descriptor_set_map_;
+    std::unordered_map<format::HandleId, VkFramebuffer>               framebuffer_map_;
+    std::unordered_map<format::HandleId, VkCommandPool>               command_pool_map_;
+    std::unordered_map<format::HandleId, VkSamplerYcbcrConversion>    sampler_ycbcr_conversion_map_;
+    std::unordered_map<format::HandleId, VkDescriptorUpdateTemplate>  descriptor_update_template_map_;
+    std::unordered_map<format::HandleId, VkSurfaceKHR>                surface_khr_map_;
+    std::unordered_map<format::HandleId, VkSwapchainKHR>              swapchain_khr_map_;
+    std::unordered_map<format::HandleId, VkDisplayKHR>                display_khr_map_;
+    std::unordered_map<format::HandleId, VkDisplayModeKHR>            display_mode_khr_map_;
+    std::unordered_map<format::HandleId, VkSamplerYcbcrConversionKHR> sampler_ycbcr_conversion_khr_map_;
+    std::unordered_map<format::HandleId, VkDebugReportCallbackEXT>    debug_report_callback_ext_map_;
+    std::unordered_map<format::HandleId, VkObjectTableNVX>            object_table_nvx_map_;
+    std::unordered_map<format::HandleId, VkIndirectCommandsLayoutNVX> indirect_commands_layout_nvx_map_;
+    std::unordered_map<format::HandleId, VkDebugUtilsMessengerEXT>    debug_utils_messenger_ext_map_;
+    std::unordered_map<format::HandleId, VkValidationCacheEXT>        validation_cache_ext_map_;
+    std::unordered_map<format::HandleId, VkAccelerationStructureNV>   acceleration_structure_nv_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

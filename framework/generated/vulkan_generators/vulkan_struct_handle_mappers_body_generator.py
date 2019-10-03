@@ -55,8 +55,10 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
 
-        write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_handle_mappers.h"', file=self.outFile)
+        self.newline()
+        write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
@@ -114,7 +116,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
     def genStruct(self, typeinfo, typename, alias):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if (typename not in self.STRUCT_BLACKLIST) and not alias:
+        if not alias:
             if self.checkStructMemberHandles(typename, self.structsWithHandles):
                 # Track this struct if it can be present in a pNext chain, for generating the MapPNextStructHandles code.
                 parentStructs = typeinfo.elem.get('structextends')
@@ -133,7 +135,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        for struct in self.featureStructMembers:
+        for struct in self.getFilteredStructNames():
             if struct in self.structsWithHandles:
                 members = self.structsWithHandles[struct]
 
@@ -178,11 +180,11 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
             elif self.isStruct(member.baseType):
                 # This is a struct that includes handles.
                 if member.isArray:
-                    body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{name}.GetMetaStructPointer(), wrapper->{name}.GetLength(), object_mapper);\n'.format(member.baseType, name=member.name)
+                    body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength(), object_mapper);\n'.format(member.baseType, name=member.name)
                 elif member.isPointer:
-                    body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{}.GetMetaStructPointer(), 1, object_mapper);\n'.format(member.baseType, member.name)
+                    body += '        MapStructArrayHandles<Decoded_{}>(wrapper->{}->GetMetaStructPointer(), 1, object_mapper);\n'.format(member.baseType, member.name)
                 else:
-                    body += '        MapStructHandles(&wrapper->{}, object_mapper);\n'.format(member.name)
+                    body += '        MapStructHandles(wrapper->{}.get(), object_mapper);\n'.format(member.name)
             else:
                 # If it is an array or pointer, map with the utility function.
                 if (member.isArray or member.isPointer):

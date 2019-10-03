@@ -50,6 +50,8 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
 
         write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         self.newline()
+        write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
+        self.newline()
         write('#include <cassert>', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -77,7 +79,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for struct in self.featureStructMembers:
+        for struct in self.getFilteredStructNames():
             body = '' if first else '\n'
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(struct)
             body += '{\n'
@@ -86,7 +88,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
             body += '    size_t bytes_read = 0;\n'
             body += '    {}* value = wrapper->value;\n'.format(struct)
             body += '\n'
-            body += self.makeStructBody(struct, self.featureStructMembers[struct])
+            body += self.makeDecodeStructBody(struct, self.featureStructMembers[struct])
             body += '\n'
             body += '    return bytes_read;\n'
             body += '}'
@@ -96,7 +98,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
 
     #
     # Generate C++ code for the decoder method body.
-    def makeStructBody(self, name, values):
+    def makeDecodeStructBody(self, name, values):
         body = ''
 
         for value in values:
@@ -129,7 +131,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
             isString = True
         elif typeName == 'FunctionPtr':
             isFuncp = True
-        elif typeName == 'HandleId':
+        elif typeName == 'Handle':
             isHandle = True
 
         # isPointer will be False for static arrays.
@@ -140,13 +142,18 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
                 body += '    value->{} = nullptr;\n'.format(value.name)
             else:
                 isStaticArray = True if (value.isArray and not value.isDynamic) else False
+                accessOp = '.'
+
+                if isStruct:
+                    body += '    wrapper->{} = std::make_unique<{}>();\n'.format(value.name, self.makeDecodedParamType(value))
+                    accessOp = '->'
 
                 if isStaticArray:
                     # The pointer decoder will write directly to the struct member's memory.
-                    body += '    wrapper->{name}.SetExternalMemory(value->{name}, {arraylen});\n'.format(name=value.name, arraylen=value.arrayCapacity)
+                    body += '    wrapper->{name}{}SetExternalMemory(value->{name}, {arraylen});\n'.format(accessOp, name=value.name, arraylen=value.arrayCapacity)
 
                 if isStruct or isString or isHandle:
-                    body += '    bytes_read += wrapper->{}.Decode({});\n'.format(value.name, bufferArgs)
+                    body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(value.name, accessOp, bufferArgs)
                 else:
                     body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(value.name, typeName, bufferArgs)
 
@@ -156,11 +163,12 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
                         body += '    value->{name} = wrapper->{name}.GetHandlePointer();\n'.format(name=value.name)
                     else:
                         # Point the real struct's member pointer to the pointer decoder's memory.
-                        body += '    value->{name} = wrapper->{name}.GetPointer();\n'.format(name=value.name)
+                        body += '    value->{name} = wrapper->{name}{}GetPointer();\n'.format(accessOp, name=value.name)
         else:
             if isStruct:
-                body += '    wrapper->{name}.value = &(value->{name});\n'.format(name=value.name)
-                body += '    bytes_read += DecodeStruct({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
+                body += '    wrapper->{} = std::make_unique<{}>();\n'.format(value.name, self.makeDecodedParamType(value))
+                body += '    wrapper->{name}->value = &(value->{name});\n'.format(name=value.name)
+                body += '    bytes_read += DecodeStruct({}, wrapper->{}.get());\n'.format(bufferArgs, value.name)
             elif isFuncp:
                 body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
                 body += '    value->{} = nullptr;\n'.format(value.name)

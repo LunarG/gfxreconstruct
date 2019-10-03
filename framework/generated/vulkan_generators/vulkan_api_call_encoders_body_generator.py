@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2019 Valve Corporation
+# Copyright (c) 2018-2019 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,8 +41,13 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
         BaseGenerator.__init__(self,
-                               processCmds=True, processStructs=False, featureBreak=True,
+                               processCmds=True, processStructs=True, featureBreak=True,
                                errFile=errFile, warnFile=warnFile, diagFile=diagFile)
+
+        # Map of Vulkan structs containing handles to a list values for handle members or struct members
+        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
+        # member that contains handles).
+        self.structsWithHandles = dict()
 
     # Method override
     def beginFile(self, genOpts):
@@ -54,7 +59,11 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "encode/trace_manager.h"', file=self.outFile)
+        write('#include "encode/vulkan_handle_wrapper_util.h"', file=self.outFile)
+        write('#include "encode/vulkan_handle_wrappers.h"', file=self.outFile)
         write('#include "format/api_call_id.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_command_buffer_util.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_struct_handle_wrappers.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         write('#include "vulkan/vulkan.h"', file=self.outFile)
@@ -72,6 +81,14 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         BaseGenerator.endFile(self)
 
     #
+    # Method override
+    def genStruct(self, typeinfo, typename, alias):
+        BaseGenerator.genStruct(self, typeinfo, typename, alias)
+
+        if not alias:
+            self.checkStructMemberHandles(typename, self.structsWithHandles)
+
+    #
     # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
         if self.featureCmdParams:
@@ -82,7 +99,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for cmd in self.featureCmdParams:
+        for cmd in self.getFilteredCmdNames():
             info = self.featureCmdParams[cmd]
             returnType = info[0]
             proto = info[1]
@@ -134,35 +151,78 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             # CreateDevice requires special processing for VkLayerDeviceCreateInfo.
             return 'TraceManager::GetLayerTable()->CreateDevice({})'.format(argList)
 
-        dispatchfunc = 'TraceManager::Get()->GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'TraceManager::Get()->GetDeviceTable'
+        dispatchfunc = 'GetInstanceTable' if self.useInstanceTable(values[0].baseType) else 'GetDeviceTable'
         return '{}({})->{}({})'.format(dispatchfunc, values[0].name, name[2:], argList)
 
     #
     # Command definition
     def makeCmdBody(self, returnType, name, values):
-        encodeAfter = self.hasOutputs(returnType, values)
         indent = ' ' * self.INDENT_SIZE
-
+        encodeAfter = False
+        omitOutputParam = None
+        hasOutputs = self.hasOutputs(returnType, values)
         argList = self.makeArgList(values)
 
         body = ''
 
+        if hasOutputs or (returnType and returnType != 'void'):
+            encodeAfter = True
+
+        if hasOutputs and (returnType and returnType != 'void'):
+            omitOutputParam = 'omit_output_data'
+            body += indent + 'bool omit_output_data = false;\n'
+            body += '\n'
+
         body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(TraceManager::Get(), {});\n'.format(name, argList)
 
         if not encodeAfter:
-            body += self.makeParameterEncoding(name, values, returnType, indent)
+            body += self.makeParameterEncoding(name, values, returnType, indent, omitOutputParam)
 
         body += '\n'
 
+        # Check for handles that need unwrapping.
+        unwrapExpr, unwrappedArgList, needUnwrapMemory = self.makeHandleUnwrapping(values, indent)
+        if unwrapExpr:
+            if needUnwrapMemory:
+                body += indent + 'auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();\n'
+            body += unwrapExpr
+            body += '\n'
+
         # Construct the function call to dispatch to the next layer.
-        callExpr = self.makeLayerDispatchCall(name, values, argList)
+        callExpr = self.makeLayerDispatchCall(name, values, unwrappedArgList)
         if returnType and returnType != 'void':
             body += indent + '{} result = {};\n'.format(returnType, callExpr)
         else:
             body += indent + '{};\n'.format(callExpr)
 
+        # Wrap newly created handles. Instance and device creation is a special case that does not wrap here.
+        # VkCreateInstance and VkCreateDevice have enough special cases that they may need to move to a non-generated custom implementation.
+        wrapExpr = None
+        if name not in ['vkCreateInstance', 'vkCreateDevice']:
+            wrapExpr = self.makeHandleWrapping(values, indent)
+
+        if wrapExpr:
+            body += '\n'
+            if returnType and returnType != 'void':
+                body += indent + 'if (result >= 0)\n'
+                body += indent + '{\n'
+                body += '    ' + wrapExpr
+                body += indent + '}\n'
+                if hasOutputs:
+                    body += indent + 'else\n'
+                    body += indent + '{\n'
+                    body += indent + '    omit_output_data = true;\n'
+                    body += indent + '}\n'
+            else:
+                body += wrapExpr
+        elif hasOutputs and (returnType and returnType != 'void'):
+            body += indent + 'if (result < 0)\n'
+            body += indent + '{\n'
+            body += indent + '    omit_output_data = true;\n'
+            body += indent + '}\n'
+
         if encodeAfter:
-            body += self.makeParameterEncoding(name, values, returnType, indent)
+            body += self.makeParameterEncoding(name, values, returnType, indent, omitOutputParam)
 
         body += '\n'
         if returnType and returnType != 'void':
@@ -174,37 +234,223 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         return body
 
-    def makeParameterEncoding(self, name, values, returnType, indent):
+    def makeParameterEncoding(self, name, values, returnType, indent, omitOutputParam):
         body = '\n'
-        body += indent + 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
+        body += indent + self.makeBeginApiCall(name, values)
         body += indent + 'if (encoder)\n'
         body += indent + '{\n'
         indent += ' ' * self.INDENT_SIZE
 
         for value in values:
-            methodCall = self.makeEncoderMethodCall(value, values, '')
+            methodCall = self.makeEncoderMethodCall(value, values, '', omitOutputParam)
             body += indent + '{};\n'.format(methodCall)
 
         if returnType and returnType != 'void':
             methodCall = self.makeEncoderMethodCall(ValueInfo('result', returnType, returnType), [], '')
             body += indent + '{};\n'.format(methodCall)
 
-        body += indent + 'TraceManager::Get()->EndApiCallTrace(encoder);\n'
+        # Determine the appropriate end call: Create handle call, destroy handle call, or general call.
+        body += indent + self.makeEndApiCall(name, values, returnType)
         indent = indent[0:-self.INDENT_SIZE]
         body += indent + '}\n'
         return body
 
-    def isOutputParameter(self, value, values):
-        # Check for an output pointer/array or an in-out pointer.
-        if (value.isPointer or value.isArray) and not self.isInputPointer(value):
-            return True
+    def makeBeginApiCall(self, name, values):
+        if name.startswith('vkCreate') or name.startswith('vkAllocate') or name.startswith('vkDestroy') or name.startswith('vkFree') or self.retrievesHandles(values) or (values[0].baseType == 'VkCommandBuffer'):
+            return 'auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
+        else:
+            return 'auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_{});\n'.format(name)
+
+    def makeEndApiCall(self, name, values, returnType):
+        decl = 'TraceManager::Get()->'
+
+        if name.startswith('vkCreate') or name.startswith('vkAllocate') or self.retrievesHandles(values):
+            # The handle is the last parameter.
+            handle = values[-1]
+            parentHandle = values[0] if self.isHandle(values[0].baseType) else None
+
+            #  Search for the create info struct
+            infoBaseType = 'void'
+            infoName = 'nullptr'
+            for value in values:
+                if ('CreateInfo' in value.baseType) or ('AllocateInfo' in value.baseType):
+                    infoBaseType = value.baseType
+                    infoName = value.name
+                    # Confirm array counts match
+                    if value.isArray and (handle.arrayLength != value.arrayLength):
+                        print('WARNING: {} has separate array counts for create info structures ({}) and handles ({})'.format(name, value.arrayLength, count))
+
+            returnValue = 'VK_SUCCESS'
+            if returnType == 'VkResult':
+                returnValue = 'result'
+
+            if handle.isArray:
+                lengthName = handle.arrayLength
+                for value in values:
+                    if (value.name == lengthName) and value.isPointer:
+                        lengthName = '({name} != nullptr) ? (*{name}) : 0'.format(name=lengthName)
+                        break
+
+                if '->' in lengthName:
+                    # This is a pool allocation call, which receives one allocate info structure that is shared by all object being allocated.
+                    decl += 'EndPoolCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
+                else:
+                    # This is a multi-object creation call (e.g. pipeline creation, or swapchain image retrieval), which receives
+                    # separate create info structures for each object being created. Many multi-object creation calls receive a
+                    # handle as their second parameter, which is of interest to the state tracker (e.g. the VkPipelineCache handle
+                    # from vkCreateGraphicsPipelines or the vkSwapchain handle from vkGetSwapchainImagesKHR). For api calls that do
+                    # not receive a handle as the second parameter (e.g. vkEnumeratePhysicalDevices), the handle type is set to 'void*'.
+                    if self.isHandle(values[1].baseType):
+                        secondHandle = values[1]
+                        decl += 'EndGroupCreateApiCallTrace<{}, {}, {}Wrapper, {}>({}, {}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, secondHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, secondHandle.name, lengthName, handle.name, infoName)
+                    else:
+                        decl += 'EndGroupCreateApiCallTrace<{}, void*, {}Wrapper, {}>({}, {}, nullptr, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
+
+            else:
+                if parentHandle:
+                    decl += 'EndCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, handle.name, infoName)
+                else:
+                    # Instance creation does not have a parent handle; set the parent handle type to 'void*'.
+                    decl += 'EndCreateApiCallTrace<const void*, {}Wrapper, {}>({}, nullptr, {}, {}, encoder)'.format(handle.baseType[2:], infoBaseType, returnValue, handle.name, infoName)
+
+        elif name.startswith('vkDestroy') or name.startswith('vkFree'):
+            handle = None
+            if name in ['vkDestroyInstance', 'vkDestroyDevice']:
+                # Instance/device destroy calls are special case where the target handle is the first parameter
+                handle = values[0]
+            else:
+                # The destroy target is the second parameter, exceppt for pool based allocations where it is the last parameter.
+                handle = values[1]
+                if ("Pool" in handle.baseType) and name.startswith('vkFree'):
+                    handle = values[3]
+
+            if handle.isArray:
+                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, {}, encoder)'.format(handle.baseType[2:], handle.arrayLength, handle.name)
+            else:
+                decl += 'EndDestroyApiCallTrace<{}Wrapper>({}, encoder)'.format(handle.baseType[2:], handle.name)
+
+        elif values[0].baseType == 'VkCommandBuffer':
+            getHandlesExpr = self.makeGetCommandHandlesExpr(name, values[1:])
+            if getHandlesExpr:
+                decl += 'EndCommandApiCallTrace({}, encoder, {})'.format(values[0].name, getHandlesExpr)
+            else:
+                decl += 'EndCommandApiCallTrace({}, encoder)'.format(values[0].name)
+        else:
+            if name in ['vkGetPhysicalDeviceDisplayPropertiesKHR']:
+                # TODO: Handle vkEnumeratePhysicalDevices and vkGetPhysicalDeviceDisplayProprtiesKHR
+                print('WARNING: Skipping special case "create" tracking for', name)
+
+            decl += 'EndApiCallTrace(encoder)'
+
+        decl += ';\n'
+        return decl
+
+    def makeHandleWrapping(self, values, indent):
+        expr = ''
+        for value in values:
+            if self.isOutputParameter(value) and (self.isHandle(value.baseType) or (self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles))):
+                # The VkInstance handle does not have parent, so the 'unused'
+                # values will be provided to the wrapper creation function.
+                parentType = 'NoParentWrapper'
+                parentValue = 'NoParentWrapper::kHandleValue'
+                if self.isHandle(values[0].baseType):
+                    parentType = values[0].baseType[2:] + 'Wrapper'
+                    parentValue = values[0].name
+
+                # Some handles have two parent handles, such as swapchain images and display modes,
+                # or command buffers and descriptor sets allocated from pools.
+                coParentType = 'NoParentWrapper'
+                coParentValue = 'NoParentWrapper::kHandleValue'
+                if self.isHandle(values[1].baseType):
+                    coParentType = values[1].baseType[2:] + 'Wrapper'
+                    coParentValue = values[1].name
+                elif values[1].baseType.endswith('AllocateInfo') and value.isArray and ('->' in value.arrayLength):
+                    # An array of handles with length specified by an AllocateInfo structure (there is a -> in the length name) is a pool allocation.
+                    # Extract the pool handle from the AllocateInfo structure, which is currently the first and only handle member.
+                    members = self.structsWithHandles[values[1].baseType]
+                    for member in members:
+                        if self.isHandle(member.baseType):
+                            coParentType = member.baseType[2:] + 'Wrapper'
+                            coParentValue = values[1].name + '->' + member.name
+                            break
+
+                if value.isArray:
+                    lengthName = value.arrayLength
+                    for len in values:
+                        if (len.name == lengthName) and len.isPointer:
+                            lengthName = '({name} != nullptr) ? (*{name}) : 0'.format(name=lengthName)
+                            break
+                    if self.isHandle(value.baseType):
+                        expr += indent + 'CreateWrappedHandles<{}, {}, {}Wrapper>({}, {}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, coParentType, value.baseType[2:], parentValue, coParentValue, value.name, lengthName)
+                    elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
+                        expr += indent + 'CreateWrappedStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, coParentType, value.baseType, parentValue, coParentValue, value.name, lengthName)
+                else:
+                    if self.isHandle(value.baseType):
+                        expr += indent + 'CreateWrappedHandle<{}, {}, {}Wrapper>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, coParentType, value.baseType[2:], parentValue, coParentValue, value.name)
+                    elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
+                        expr += indent + 'CreateWrappedStructHandles<{}, {}>({}, {}, {}, TraceManager::GetUniqueId);\n'.format(parentType, coParentType, parentValue, coParentValue, value.name)
+        return expr
+
+    def makeHandleUnwrapping(self, values, indent):
+        args = []
+        expr = ''
+        needUnwrapMemory = False
+        for value in values:
+            argName = value.name
+            if value.isPointer or value.isArray:
+                if self.isInputPointer(value):
+                    if self.isHandle(value.baseType):
+                        needUnwrapMemory = True
+                        argName += '_unwrapped'
+                        arrayLength = value.arrayLength if value.isArray else 1  # At this time, all pointer unwrap cases are arrays
+                        expr += indent + '{} {name}_unwrapped = UnwrapHandles<{}>({name}, {}, handle_unwrap_memory);\n'.format(value.fullType, value.baseType, arrayLength, name=value.name)
+                    elif value.baseType in self.structsWithHandles:
+                        needUnwrapMemory = True
+                        argName += '_unwrapped'
+                        if value.isArray:
+                            expr += indent + '{} {name}_unwrapped = UnwrapStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(value.fullType, value.arrayLength, name=value.name)
+                        else:
+                            expr += indent + '{} {name}_unwrapped = UnwrapStructPtrHandles({name}, handle_unwrap_memory);\n'.format(value.fullType, name=value.name)
+            elif self.isHandle(value.baseType):
+                argName += '_unwrapped'
+                expr += indent + '{type} {name}_unwrapped = GetWrappedHandle<{type}>({name});\n'.format(type=value.baseType, name=value.name)
+            args.append(argName)
+        return expr, ', '.join(args), needUnwrapMemory
+
+    #
+    # Create list of parameters that have handle types or are structs that contain handles.
+    def getParamListHandles(self, values):
+        handles = []
+        for value in values:
+            if self.isHandle(value.baseType):
+                handles.append(value)
+            elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
+                handles.append(value)
+        return handles
+
+    #
+    # Generate an expression for a get command buffer handles utility function.
+    def makeGetCommandHandlesExpr(self, cmd, values):
+        handleParams = self.getParamListHandles(values)
+        if handleParams:
+            args = []
+            for value in handleParams:
+                if value.arrayLength:
+                    args.append(value.arrayLength)
+                args.append(value.name)
+            return 'Track{}Handles, {}'.format(cmd[2:], ', '.join(args))
+        else:
+            return None
+
+    # Determine if an API call indirectly creates handles by retrieving them (e.g. vkEnumeratePhysicalDevices, vkGetRandROutputDisplayEXT)
+    def retrievesHandles(self, values):
+        for value in values:
+            if self.isOutputParameter(value) and self.isHandle(value.baseType):
+                return True
         return False
 
     def hasOutputs(self, returnValue, parameterValues):
-        if returnValue != 'void':
-            return True
-        else:
-            for value in parameterValues:
-                if self.isOutputParameter(value, parameterValues):
-                    return True
+        for value in parameterValues:
+            if self.isOutputParameter(value):
+                return True
         return False

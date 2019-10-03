@@ -87,8 +87,8 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
             assert(struct_memory_ == nullptr);
 
             size_t len         = GetLength();
-            decoded_structs_   = std::make_unique<Decoded_VkObjectTableEntryNVX* []>(len);
-            struct_memory_     = std::make_unique<VkObjectTableEntryNVX* []>(len);
+            decoded_structs_   = std::make_unique<Decoded_VkObjectTableEntryNVX*[]>(len);
+            struct_memory_     = std::make_unique<VkObjectTableEntryNVX*[]>(len);
             struct_attributes_ = std::make_unique<uint32_t[]>(len);
             struct_addresses_  = std::make_unique<uint64_t[]>(len);
 
@@ -191,10 +191,10 @@ class StructPointerDecoder<Decoded_VkObjectTableEntryNVX> : public PointerDecode
     }
 
   private:
-    std::unique_ptr<Decoded_VkObjectTableEntryNVX* []> decoded_structs_;
-    std::unique_ptr<VkObjectTableEntryNVX* []>         struct_memory_;
-    std::unique_ptr<uint32_t[]>                        struct_attributes_;
-    std::unique_ptr<uint64_t[]>                        struct_addresses_;
+    std::unique_ptr<Decoded_VkObjectTableEntryNVX*[]> decoded_structs_;
+    std::unique_ptr<VkObjectTableEntryNVX*[]>         struct_memory_;
+    std::unique_ptr<uint32_t[]>                       struct_attributes_;
+    std::unique_ptr<uint64_t[]>                       struct_addresses_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

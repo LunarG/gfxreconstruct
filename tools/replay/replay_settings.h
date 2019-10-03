@@ -14,9 +14,13 @@
 ** limitations under the License.
 */
 
+#include "project_version.h"
+
 #include "decode/vulkan_replay_options.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
+
+#include "vulkan/vulkan_core.h"
 
 #include <string>
 
@@ -26,6 +30,8 @@
 const char kApplicationName[] = "GFXReconstruct Replay";
 const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 
+const char kVersionOption[]                    = "--version";
+const char kOverrideGpuArgument[]              = "--gpu";
 const char kPausedOption[]                     = "--paused";
 const char kPauseFrameArgument[]               = "--pause-frame";
 const char kSkipFailedAllocationShortOption[]  = "--sfa";
@@ -34,8 +40,8 @@ const char kOmitPipelineCacheDataShortOption[] = "--opcd";
 const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
 
 // TODO: Make this a vector of strings.
-const char kOptions[]   = "--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
-const char kArguments[] = "--pause-frame";
+const char kOptions[]   = "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
+const char kArguments[] = "--gpu,--pause-frame";
 
 static void CheckActiveLayers(const char* env_var)
 {
@@ -70,6 +76,12 @@ static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 static gfxrecon::decode::ReplayOptions GetReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     gfxrecon::decode::ReplayOptions replay_options;
+    std::string                     override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
+
+    if (!override_gpu.empty())
+    {
+        replay_options.override_gpu_index = std::stoi(override_gpu);
+    }
 
     if (arg_parser.IsOptionSet(kSkipFailedAllocationLongOption) ||
         arg_parser.IsOptionSet(kSkipFailedAllocationShortOption))
@@ -86,6 +98,28 @@ static gfxrecon::decode::ReplayOptions GetReplayOptions(const gfxrecon::util::Ar
     return replay_options;
 }
 
+static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kVersionOption))
+    {
+        std::string app_name     = exe_name;
+        size_t      dir_location = app_name.find_last_of("/\\");
+
+        if (dir_location >= 0)
+        {
+            app_name.replace(0, dir_location + 1, "");
+        }
+
+        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
+        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
+        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version 1.1.%u", VK_HEADER_VERSION);
+
+        return true;
+    }
+
+    return false;
+}
+
 static void PrintUsage(const char* exe_name)
 {
     std::string app_name     = exe_name;
@@ -98,12 +132,18 @@ static void PrintUsage(const char* exe_name)
 
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to replay GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s\t[--pause-frame <N>] [--paused] [--sfa | --skip-failed-allocations]",
-                           app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("  %s\t[--version] [--gpu <index>] [--pause-frame <N>]", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--paused] [--sfa | --skip-failed-allocations]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] <file>\n");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
+    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit");
+    GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for replay, where index");
+    GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical devices");
+    GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices; replay may fail");
+    GFXRECON_WRITE_CONSOLE("          \t\tif the specified device is not compatible with the");
+    GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices)");
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1)");

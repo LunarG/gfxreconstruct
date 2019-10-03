@@ -6,6 +6,8 @@ target_sources(gfxrecon-replay
                    desktop_main.cpp
               )
 
+target_include_directories(gfxrecon-replay PUBLIC ${CMAKE_BINARY_DIR})
+
 target_link_libraries(gfxrecon-replay gfxrecon_application gfxrecon_decode gfxrecon_format gfxrecon_util platform_specific)
 
 common_build_directives(gfxrecon-replay)
