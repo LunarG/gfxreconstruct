@@ -39,9 +39,20 @@ const char kSkipFailedAllocationLongOption[]   = "--skip-failed-allocations";
 const char kOmitPipelineCacheDataShortOption[] = "--opcd";
 const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
 
+#ifdef TUNING_MODULE_SUPPORT
+const char kIPAddArgument[]     = "--ip-address";
+const char kPortArgument[]      = "--port";
+const char kWinWidthArgument[]  = "--win-width";
+const char kWinHeightArgument[] = "--win-height";
+#endif
+
 // TODO: Make this a vector of strings.
-const char kOptions[]   = "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
-const char kArguments[] = "--gpu,--pause-frame";
+const char kOptions[] = "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
+#if TUNING_MODULE_SUPPORT
+const char kArguments[] = "--pause-frame,--ip-address,--port,--win-width,--win-height";
+#else
+const char kArguments[] = "--pause-frame";
+#endif
 
 static void CheckActiveLayers(const char* env_var)
 {
@@ -55,6 +66,60 @@ static void CheckActiveLayers(const char* env_var)
         }
     }
 }
+
+#ifdef TUNING_MODULE_SUPPORT
+static char* GetIpAddress(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    std::string value = arg_parser.GetArgumentValue(kIPAddArgument);
+
+    if (!value.empty())
+    {
+        std::vector<char> cvalue(value.c_str(), value.c_str() + value.size() + 1);
+        return reinterpret_cast<char*>(cvalue.data());
+    }
+
+    return nullptr;
+}
+
+static uint32_t GetTcpPort(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t    tcp_port = 0;
+    std::string value    = arg_parser.GetArgumentValue(kPortArgument);
+
+    if (!value.empty())
+    {
+        tcp_port = std::stoi(value);
+    }
+
+    return tcp_port;
+}
+
+static uint32_t GetWindowWidth(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t    win_width = 0;
+    std::string value     = arg_parser.GetArgumentValue(kWinWidthArgument);
+
+    if (!value.empty())
+    {
+        win_width = std::stoi(value);
+    }
+
+    return win_width;
+}
+
+static uint32_t GetWindowHeight(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t    win_height = 0;
+    std::string value      = arg_parser.GetArgumentValue(kWinHeightArgument);
+
+    if (!value.empty())
+    {
+        win_height = std::stoi(value);
+    }
+
+    return win_height;
+}
+#endif
 
 static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
