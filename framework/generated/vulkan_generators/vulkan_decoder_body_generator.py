@@ -93,7 +93,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for cmd in self.featureCmdParams:
+        for cmd in self.getFilteredCmdNames():
             self.cmdNames.append(cmd)
 
             info = self.featureCmdParams[cmd]
@@ -170,7 +170,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
             isString = True
         elif typeName == 'FunctionPtr':
             isFuncp = True
-        elif typeName == 'HandleId':
+        elif typeName == 'Handle':
             isHandle = True
 
         # isPointer will be False for static arrays.
@@ -192,6 +192,8 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
                 body += '    bytes_read += DecodeStruct({}, &{});\n'.format(bufferArgs, value.name)
             elif isFuncp:
                 body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(bufferArgs, value.name)
+            elif isHandle:
+                body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(bufferArgs, value.name)
             else:
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(typeName, bufferArgs, value.name)
 

@@ -35,16 +35,8 @@ class ArgumentParser
     // can be defined using two different string values (such as "-b" and "--binary")
     // they are further delimited by the pipe "|" symbol.
 
-    ArgumentParser(int32_t            argc,
-                   const char** const argv,
-                   const std::string& options,
-                   const std::string& arguments,
-                   const uint32_t     min_positional_args);
-    ArgumentParser(bool               first_is_exe_name,
-                   const char*        args,
-                   const std::string& options,
-                   const std::string& arguments,
-                   const uint32_t     min_positional_args);
+    ArgumentParser(int32_t argc, const char** const argv, const std::string& options, const std::string& arguments);
+    ArgumentParser(bool first_is_exe_name, const char* args, const std::string& options, const std::string& arguments);
     ~ArgumentParser() {}
 
     bool                            IsInvalid() const { return is_invalid_; }
@@ -55,10 +47,7 @@ class ArgumentParser
     const std::vector<std::string>& GetPositionalArguments() const { return positional_arguments_present_; }
 
   private:
-    void Init(std::vector<std::string> command_line_args,
-              const std::string&       options,
-              const std::string&       arguments,
-              const uint32_t           min_positional_args);
+    void Init(std::vector<std::string> command_line_args, const std::string& options, const std::string& arguments);
 
     bool                     is_invalid_;
     std::vector<std::string> invalid_values_present_;

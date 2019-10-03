@@ -77,7 +77,7 @@ class StructPointerDecoder : public PointerDecoderBase
         // We should only be decoding structs.
         assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) == format::PointerAttributes::kIsStruct);
 
-        if (!IsNull() && HasData())
+        if (!IsNull())
         {
             size_t len = GetLength();
 
@@ -109,14 +109,17 @@ class StructPointerDecoder : public PointerDecoderBase
 
             decoded_structs_ = new T[len];
 
-            for (size_t i = 0; i < len; ++i)
+            if (HasData())
             {
-                decoded_structs_[i].value = &struct_memory_[i];
+                for (size_t i = 0; i < len; ++i)
+                {
+                    decoded_structs_[i].value = &struct_memory_[i];
 
-                // Note: We only expect this class to be used with structs that have a decode_struct function.
-                //       If an error is encoutered here due to a new struct type, the struct decoders need to be
-                //       updated to support the new type.
-                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &decoded_structs_[i]);
+                    // Note: We only expect this class to be used with structs that have a decode_struct function.
+                    //       If an error is encoutered here due to a new struct type, the struct decoders need to be
+                    //       updated to support the new type.
+                    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), &decoded_structs_[i]);
+                }
             }
         }
 

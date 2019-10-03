@@ -558,6 +558,8 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetShaderInfoAMD(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCreateStreamDescriptorSurfaceGGP(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetMemoryWin32HandleNV(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -704,6 +706,8 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetQueueCheckpointDataNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkSetLocalDimmingAMD(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCreateImagePipeSurfaceFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateMetalSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -711,6 +715,20 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkGetBufferDeviceAddressEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceSurfacePresentModes2EXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkAcquireFullScreenExclusiveModeEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkReleaseFullScreenExclusiveModeEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDeviceGroupSurfacePresentModes2EXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreateHeadlessSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkResetQueryPoolEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 };
 
 GFXRECON_END_NAMESPACE(decode)

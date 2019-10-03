@@ -40,4 +40,5 @@ target_sources(gfxrecon_application_test PRIVATE
         test/main.cpp)
 
 common_build_directives(gfxrecon_application_test)
-target_test_directives(gfxrecon_application_test)
+common_test_directives(gfxrecon_application_test)
+

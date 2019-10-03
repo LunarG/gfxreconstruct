@@ -92,7 +92,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
     def genStruct(self, typeinfo, typename, alias):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if (typename not in self.STRUCT_BLACKLIST) and not alias:
+        if not alias:
             self.checkStructMemberHandles(typename, self.structsWithHandles)
 
     #
@@ -105,7 +105,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
     #
     # Performs C++ code generation for the feature.
     def generateFeature(self):
-        for struct in self.featureStructMembers:
+        for struct in self.getFilteredStructNames():
             if struct in self.structsWithHandles:
                 body = '\n'
                 body += 'void MapStructHandles(Decoded_{}* wrapper, const VulkanObjectMapper& object_mapper);'.format(struct)

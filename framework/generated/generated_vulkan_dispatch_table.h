@@ -117,6 +117,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(VkPhysical
 static VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(VkInstance, const VkDebugReportCallbackCreateInfoEXT*, const VkAllocationCallbacks*, VkDebugReportCallbackEXT*) { return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(VkInstance, VkDebugReportCallbackEXT, const VkAllocationCallbacks*) {}
 static VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(VkInstance, VkDebugReportFlagsEXT, VkDebugReportObjectTypeEXT, uint64_t, size_t, int32_t, const char*, const char*) {}
+static VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(VkInstance, const VkStreamDescriptorSurfaceCreateInfoGGP*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(VkPhysicalDevice, VkFormat, VkImageType, VkImageTiling, VkImageUsageFlags, VkImageCreateFlags, VkExternalMemoryHandleTypeFlagsNV, VkExternalImageFormatPropertiesNV*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(VkInstance, const VkViSurfaceCreateInfoNN*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceGeneratedCommandsPropertiesNVX(VkPhysicalDevice, VkDeviceGeneratedCommandsFeaturesNVX*, VkDeviceGeneratedCommandsLimitsNVX*) {}
@@ -134,6 +135,9 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsE
 static VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(VkInstance, const VkImagePipeSurfaceCreateInfoFUCHSIA*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(VkInstance, const VkMetalSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(VkPhysicalDevice, uint32_t*, VkCooperativeMatrixPropertiesNV*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(VkPhysicalDevice, uint32_t*, VkFramebufferMixedSamplesCombinationNV*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, uint32_t*, VkPresentModeKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(VkInstance, const VkHeadlessSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice, const char*) { return nullptr; }
 static VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice, const VkAllocationCallbacks*) {}
 static VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice, uint32_t, uint32_t, VkQueue*) {}
@@ -391,7 +395,12 @@ static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(VkCommandBuffe
 static VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorNV(VkCommandBuffer, uint32_t, uint32_t, const VkRect2D*) {}
 static VKAPI_ATTR void VKAPI_CALL CmdSetCheckpointNV(VkCommandBuffer, const void*) {}
 static VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(VkQueue, uint32_t*, VkCheckpointDataNV*) {}
+static VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(VkDevice, VkSwapchainKHR, VkBool32) {}
 static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(VkDevice, const VkBufferDeviceAddressInfoEXT*) { return 0; }
+static VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(VkDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkDeviceGroupPresentModeFlagsKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(VkDevice, VkQueryPool, uint32_t, uint32_t) {}
 // clang-format on
 GFXRECON_END_NAMESPACE(noop)
 
@@ -468,6 +477,7 @@ struct InstanceTable
     PFN_vkCreateDebugReportCallbackEXT CreateDebugReportCallbackEXT{ noop::CreateDebugReportCallbackEXT };
     PFN_vkDestroyDebugReportCallbackEXT DestroyDebugReportCallbackEXT{ noop::DestroyDebugReportCallbackEXT };
     PFN_vkDebugReportMessageEXT DebugReportMessageEXT{ noop::DebugReportMessageEXT };
+    PFN_vkCreateStreamDescriptorSurfaceGGP CreateStreamDescriptorSurfaceGGP{ noop::CreateStreamDescriptorSurfaceGGP };
     PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV GetPhysicalDeviceExternalImageFormatPropertiesNV{ noop::GetPhysicalDeviceExternalImageFormatPropertiesNV };
     PFN_vkCreateViSurfaceNN CreateViSurfaceNN{ noop::CreateViSurfaceNN };
     PFN_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX GetPhysicalDeviceGeneratedCommandsPropertiesNVX{ noop::GetPhysicalDeviceGeneratedCommandsPropertiesNVX };
@@ -485,6 +495,9 @@ struct InstanceTable
     PFN_vkCreateImagePipeSurfaceFUCHSIA CreateImagePipeSurfaceFUCHSIA{ noop::CreateImagePipeSurfaceFUCHSIA };
     PFN_vkCreateMetalSurfaceEXT CreateMetalSurfaceEXT{ noop::CreateMetalSurfaceEXT };
     PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV GetPhysicalDeviceCooperativeMatrixPropertiesNV{ noop::GetPhysicalDeviceCooperativeMatrixPropertiesNV };
+    PFN_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV{ noop::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV };
+    PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT GetPhysicalDeviceSurfacePresentModes2EXT{ noop::GetPhysicalDeviceSurfacePresentModes2EXT };
+    PFN_vkCreateHeadlessSurfaceEXT CreateHeadlessSurfaceEXT{ noop::CreateHeadlessSurfaceEXT };
 };
 
 struct DeviceTable
@@ -746,7 +759,12 @@ struct DeviceTable
     PFN_vkCmdSetExclusiveScissorNV CmdSetExclusiveScissorNV{ noop::CmdSetExclusiveScissorNV };
     PFN_vkCmdSetCheckpointNV CmdSetCheckpointNV{ noop::CmdSetCheckpointNV };
     PFN_vkGetQueueCheckpointDataNV GetQueueCheckpointDataNV{ noop::GetQueueCheckpointDataNV };
+    PFN_vkSetLocalDimmingAMD SetLocalDimmingAMD{ noop::SetLocalDimmingAMD };
     PFN_vkGetBufferDeviceAddressEXT GetBufferDeviceAddressEXT{ noop::GetBufferDeviceAddressEXT };
+    PFN_vkAcquireFullScreenExclusiveModeEXT AcquireFullScreenExclusiveModeEXT{ noop::AcquireFullScreenExclusiveModeEXT };
+    PFN_vkReleaseFullScreenExclusiveModeEXT ReleaseFullScreenExclusiveModeEXT{ noop::ReleaseFullScreenExclusiveModeEXT };
+    PFN_vkGetDeviceGroupSurfacePresentModes2EXT GetDeviceGroupSurfacePresentModes2EXT{ noop::GetDeviceGroupSurfacePresentModes2EXT };
+    PFN_vkResetQueryPoolEXT ResetQueryPoolEXT{ noop::ResetQueryPoolEXT };
 };
 
 template <typename GetProcAddr, typename Handle, typename FuncP>
@@ -828,6 +846,7 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkCreateDebugReportCallbackEXT", &table->CreateDebugReportCallbackEXT);
     LoadFunction(gpa, instance, "vkDestroyDebugReportCallbackEXT", &table->DestroyDebugReportCallbackEXT);
     LoadFunction(gpa, instance, "vkDebugReportMessageEXT", &table->DebugReportMessageEXT);
+    LoadFunction(gpa, instance, "vkCreateStreamDescriptorSurfaceGGP", &table->CreateStreamDescriptorSurfaceGGP);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceExternalImageFormatPropertiesNV", &table->GetPhysicalDeviceExternalImageFormatPropertiesNV);
     LoadFunction(gpa, instance, "vkCreateViSurfaceNN", &table->CreateViSurfaceNN);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX", &table->GetPhysicalDeviceGeneratedCommandsPropertiesNVX);
@@ -845,6 +864,9 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkCreateImagePipeSurfaceFUCHSIA", &table->CreateImagePipeSurfaceFUCHSIA);
     LoadFunction(gpa, instance, "vkCreateMetalSurfaceEXT", &table->CreateMetalSurfaceEXT);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceCooperativeMatrixPropertiesNV", &table->GetPhysicalDeviceCooperativeMatrixPropertiesNV);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV", &table->GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceSurfacePresentModes2EXT", &table->GetPhysicalDeviceSurfacePresentModes2EXT);
+    LoadFunction(gpa, instance, "vkCreateHeadlessSurfaceEXT", &table->CreateHeadlessSurfaceEXT);
 }
 
 static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)
@@ -1108,7 +1130,12 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdSetExclusiveScissorNV", &table->CmdSetExclusiveScissorNV);
     LoadFunction(gpa, device, "vkCmdSetCheckpointNV", &table->CmdSetCheckpointNV);
     LoadFunction(gpa, device, "vkGetQueueCheckpointDataNV", &table->GetQueueCheckpointDataNV);
+    LoadFunction(gpa, device, "vkSetLocalDimmingAMD", &table->SetLocalDimmingAMD);
     LoadFunction(gpa, device, "vkGetBufferDeviceAddressEXT", &table->GetBufferDeviceAddressEXT);
+    LoadFunction(gpa, device, "vkAcquireFullScreenExclusiveModeEXT", &table->AcquireFullScreenExclusiveModeEXT);
+    LoadFunction(gpa, device, "vkReleaseFullScreenExclusiveModeEXT", &table->ReleaseFullScreenExclusiveModeEXT);
+    LoadFunction(gpa, device, "vkGetDeviceGroupSurfacePresentModes2EXT", &table->GetDeviceGroupSurfacePresentModes2EXT);
+    LoadFunction(gpa, device, "vkResetQueryPoolEXT", &table->ResetQueryPoolEXT);
 }
 
 GFXRECON_END_NAMESPACE(encode)

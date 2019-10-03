@@ -20,7 +20,8 @@
 # and related Python files found in the KhronosGroup/Vulkan-Headers GitHub repository.
 
 import os,re,sys,json
-from generator import *
+from generator import (GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write)
+from vkconventions import VulkanConventions
 
 # Turn a list of strings into a regexp string matching exactly those strings.
 # From Khronos genvk.py
@@ -123,6 +124,7 @@ class BaseGeneratorOptions(GeneratorOptions):
                  prefixText = '',
                  protectFile = False,
                  protectFeature = True,
+                 conventions = VulkanConventions(),
                  apicall = 'VKAPI_ATTR ',
                  apientry = 'VKAPI_CALL ',
                  apientryp = 'VKAPI_PTR *',
@@ -137,7 +139,7 @@ class BaseGeneratorOptions(GeneratorOptions):
                  addExtensions = _addExtensionsPat,
                  removeExtensions = _removeExtensionsPat,
                  emitExtensions = _emitExtensionsPat):
-        GeneratorOptions.__init__(self, filename, directory, apiname, profile,
+        GeneratorOptions.__init__(self, conventions, filename, directory, apiname, profile,
                                   versions, emitversions, defaultExtensions,
                                   addExtensions, removeExtensions,
                                   emitExtensions, sortProcedure)
@@ -173,6 +175,9 @@ class BaseGenerator(OutputGenerator):
 
     # These types represent pointers to non-Vulkan objects that were written as 64-bit address IDs.
     EXTERNAL_OBJECT_TYPES = ['void', 'Void']
+
+    # Dispatchable handle types.
+    DISPATCHABLE_HANDLE_TYPES = ['VkInstance', 'VkPhysicalDevice', 'VkDevice', 'VkQueue', 'VkCommandBuffer']
 
     # Default C++ code indentation size.
     INDENT_SIZE = 4
@@ -313,7 +318,7 @@ class BaseGenerator(OutputGenerator):
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
-        if self.processStructs and (typename not in self.STRUCT_BLACKLIST):
+        if self.processStructs:
             if not alias:
                 self.featureStructMembers[typename] = self.makeValueInfo(typeinfo.elem.findall('.//member'))
             else:
@@ -336,7 +341,7 @@ class BaseGenerator(OutputGenerator):
     # Command generation
     def genCmd(self, cmdinfo, name, alias):
         OutputGenerator.genCmd(self, cmdinfo, name, alias)
-        if self.processCmds and (name not in self.APICALL_BLACKLIST):
+        if self.processCmds:
             # Create the declaration for the function prototype
             proto = cmdinfo.elem.find('proto')
             protoDecl = self.genOpts.apicall + noneStr(proto.text)
@@ -416,6 +421,13 @@ class BaseGenerator(OutputGenerator):
         return False
 
     #
+    # Check for dispatchable handle type
+    def isDispatchableHandle(self, baseType):
+        if baseType in self.DISPATCHABLE_HANDLE_TYPES:
+            return True
+        return False
+
+    #
     # Check for enum type
     def isEnum(self, baseType):
         if baseType in self.enumNames:
@@ -458,6 +470,14 @@ class BaseGenerator(OutputGenerator):
         elif value.platformBaseType and value.baseType == 'void' and value.pointerCount == 1:
             # For some extensions, platform specific handles are mapped to the 'void*' type without a const qualifier,
             # but need to be treated as an input (eg. if HANDLE is mapped to void*, it should not be treated as an output).
+            return True
+        return False
+
+    #
+    # Determine if a parameter is an output parameter
+    def isOutputParameter(self, value):
+        # Check for an output pointer/array or an in-out pointer.
+        if (value.isPointer or value.isArray) and not self.isInputPointer(value):
             return True
         return False
 
@@ -512,6 +532,47 @@ class BaseGenerator(OutputGenerator):
         return capacity
 
     #
+    # Determines if a struct with the specified typename is blacklisted.
+    def isStructBlackListed(self, typename):
+        if typename in self.STRUCT_BLACKLIST:
+            return True
+        return False
+
+    #
+    # Determines if a struct with the specified typename is blacklisted.
+    def isCmdBlackListed(self, name):
+        if name in self.APICALL_BLACKLIST:
+            return True
+        return False
+
+    #
+    # Retrieves a filtered list of keys from self.featureStructMemebers with blacklisted items removed.
+    def getFilteredStructNames(self):
+        return [key for key in self.featureStructMembers if not self.isStructBlackListed(key)]
+
+    #
+    # Retrieves a filtered list of keys from self.featureCmdParams with blacklisted items removed.
+    def getFilteredCmdNames(self):
+        return [key for key in self.featureCmdParams if not self.isCmdBlackListed(key)]
+
+    #
+    # Determines if the specified struct type can reference pNext extension structs that contain handles.
+    def checkStructPNextHandles(self, typename):
+        validExtensionStructs = self.registry.validextensionstructs.get(typename)
+        if validExtensionStructs:
+            # Need to search the XML tree for pNext structures that have not been processed yet.
+            for structName in validExtensionStructs:
+                typeInfo = self.registry.lookupElementInfo(structName, self.registry.typedict)
+                if typeInfo:
+                    memberTypes = [member.text for member in typeInfo.elem.findall('.//member/type')]
+                    if memberTypes:
+                        for memberType in memberTypes:
+                            found = self.registry.tree.find("types/type/[name='" + memberType + "'][@category='handle']")
+                            if found:
+                                return True
+        return False
+
+    #
     # Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
     # Structs with member handles are added to a dictionary, where the key is teh structure type and the value is a list of the handle members.
     def checkStructMemberHandles(self, typename, structsWithHandles):
@@ -525,23 +586,12 @@ class BaseGenerator(OutputGenerator):
                 handles.append(value)
             elif 'pNext' in value.name:
                 # The pNext chain may include a struct with handles.
-                validExtensionStructs = self.registry.validextensionstructs.get(typename)
-                if validExtensionStructs:
-                    # Need to search the XML tree for pNext structures that have not been processed yet.
-                    for structName in validExtensionStructs:
-                        typeInfo = self.registry.lookupElementInfo(structName, self.registry.typedict)
-                        if typeInfo:
-                            memberTypes = [member.text for member in typeInfo.elem.findall('.//member/type')]
-                            if memberTypes:
-                                for memberType in memberTypes:
-                                    found = self.registry.tree.find("types/type/[name='" + memberType + "'][@category='handle']")
-                                    if found:
-                                        handles.append(value)
+                if self.checkStructPNextHandles(typename):
+                    handles.append(value)
         if handles:
             structsWithHandles[typename] = handles
             return True
         return False
-
 
     #
     # Extract length value from latexmath expression.  Currently an inflexible solution that looks for specific
@@ -595,7 +645,7 @@ class BaseGenerator(OutputGenerator):
         if self.isStruct(baseType):
             return baseType
         elif self.isHandle(baseType):
-            return 'HandleId'
+            return 'Handle'
         elif self.isFlags(baseType):
             return 'Flags'
         elif self.isEnum(baseType):
@@ -724,7 +774,7 @@ class BaseGenerator(OutputGenerator):
 
     #
     # Generate a parameter encoder method call invocation.
-    def makeEncoderMethodCall(self, value, values, prefix):
+    def makeEncoderMethodCall(self, value, values, prefix, omitOutputParam=None):
         args = [prefix + value.name]
 
         isStruct = False
@@ -781,6 +831,9 @@ class BaseGenerator(OutputGenerator):
             else:
                 methodCall += 'Value'
 
+        if self.isOutputParameter(value) and omitOutputParam:
+            args.append(omitOutputParam)
+
         return '{}({})'.format(methodCall, ', '.join(args))
 
     #
@@ -800,6 +853,7 @@ class BaseGenerator(OutputGenerator):
             'xcb' : 'VK_USE_PLATFORM_XCB_KHR',
             'xlib' : 'VK_USE_PLATFORM_XLIB_KHR',
             'xlib_xrandr' : 'VK_USE_PLATFORM_XLIB_XRANDR_EXT',
+            'ggp' : 'VK_USE_PLATFORM_GGP'
         }
 
         platform = interface.get('platform')

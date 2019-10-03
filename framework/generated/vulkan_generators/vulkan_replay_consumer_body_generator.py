@@ -67,8 +67,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         if genOpts.replayOverrides:
             self.__loadReplayOverrides(genOpts.replayOverrides)
 
-        write('#include "generated/generated_vulkan_dispatch_table.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_replay_consumer.h"', file=self.outFile)
+        self.newline()
+        write('#include "decode/custom_vulkan_struct_handle_mappers.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_dispatch_table.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_handle_mappers.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
@@ -89,7 +91,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
     def genStruct(self, typeinfo, typename, alias):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if (typename not in self.STRUCT_BLACKLIST) and not alias:
+        if not alias:
             self.checkStructMemberHandles(typename, self.structsWithHandles)
 
             sType = self.makeStructureTypeEnum(typeinfo, typename)
@@ -107,7 +109,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for cmd in self.featureCmdParams:
+        for cmd in self.getFilteredCmdNames():
             info = self.featureCmdParams[cmd]
             returnType = info[0]
             values = info[2]
@@ -132,8 +134,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
     # Return VulkanReplayConsumer class member function definition.
     def makeConsumerFuncBody(self, returnType, name, values):
         body = ''
+        isOverride = name in self.REPLAY_OVERRIDES
 
-        args, preexpr, postexpr = self.makeBodyExpressions(name, values)
+        args, preexpr, postexpr = self.makeBodyExpressions(name, values, isOverride)
         arglist = ', '.join(args)
 
         dispatchfunc = ''
@@ -142,7 +145,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
             dispatchfunc += '({})->{}'.format(args[0], name[2:])
 
         callExpr = ''
-        if name in self.REPLAY_OVERRIDES:
+        if isOverride:
             if name in ['vkCreateInstance', 'vkCreateDevice']:
                 callExpr = '{}(returnValue, {})'.format(self.REPLAY_OVERRIDES[name], arglist)
             elif returnType == 'VkResult':
@@ -152,7 +155,6 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                 callExpr = '{}({}, {})'.format(self.REPLAY_OVERRIDES[name], dispatchfunc, arglist)
         else:
             callExpr = '{}({})'.format(dispatchfunc, arglist)
-
 
         if preexpr:
             body += '\n'.join(['    ' + val if val else val for val in preexpr])
@@ -172,7 +174,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
 
     #
     # Generating expressions for mapping decoded parameters to arguments used in the API call
-    def makeBodyExpressions(self, name, values):
+    def makeBodyExpressions(self, name, values, isOverride):
         # For array lengths that are stored in pointers, this will map the original parameter name
         # to the temporary parameter name that was created to store the value to be provided to the Vulkan API call.
         arrayLengths = dict()
@@ -191,7 +193,14 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     fullType += '*'
 
                 # Generate temporary variable to reference a pointer value that is encapsulated within a PointerDecoder object.
-                argName = 'in_' + value.name if isInput else 'out_' + value.name
+                if isInput:
+                    argName = 'in_' + value.name
+                else:
+                    argName = 'out_' + value.name
+                    if isOverride:
+                        # The original value read from the file is provided to replay override functions.
+                        args.append(value.name)
+
                 args.append(argName)
 
                 # Assign PointerDecoder pointer to temporary variable.
@@ -245,7 +254,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 expr = 'MapStructHandles({}.GetMetaStructPointer(), GetObjectMapper());'.format(value.name)
                 else:
                     # Initialize output pointer.
-                    # Note on output structures with handles: These strucutres are used in queries such as
+                    # Note on output structures with handles: These structures are used in queries such as
                     # VkGetPhysicalDeviceGroupProperties and VkGetPhyusicalDeviceDisplayPropertiesKHR and do not
                     # require handle mapping for replay.
                     if value.isArray:
@@ -258,6 +267,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                             postexpr.append('AddHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
                         elif self.isStruct(value.baseType) and (value.baseType in self.sTypeValues):
                             # TODO: recreate pNext value read from the capture file.
+                            # TODO: mapping for VkDisplayKHR handles retrieved as struct members.
                             expr += '{}.IsNull() ? nullptr : AllocateArray<{basetype}>({}, {basetype}{{ {}, nullptr }});'.format(value.name, lengthName, self.sTypeValues[value.baseType], basetype=value.baseType)
                             postexpr.append('FreeArray<{}>(&{});'.format(value.baseType, argName))
                         else:

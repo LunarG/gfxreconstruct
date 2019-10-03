@@ -52,16 +52,24 @@ void android_main(struct android_app* app)
     gfxrecon::util::Log::Init();
 
     std::string                    args = GetIntentExtra(app, kArgsExtentKey);
-    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, kArguments, 0);
+    gfxrecon::util::ArgumentParser arg_parser(false, args.c_str(), kOptions, kArguments);
 
     app->onAppCmd     = ProcessAppCmd;
     app->onInputEvent = ProcessInputEvent;
 
-    if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() > 1))
+    bool run = true;
+
+    if (PrintVersion(kApplicationName, arg_parser))
+    {
+        run = false;
+    }
+    else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() > 1))
     {
         PrintUsage(kApplicationName);
+        run = false;
     }
-    else
+
+    if (run)
     {
         std::string filename = kDefaultCaptureFile;
 

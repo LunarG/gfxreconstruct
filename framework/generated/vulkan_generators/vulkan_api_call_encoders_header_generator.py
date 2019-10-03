@@ -76,7 +76,7 @@ class VulkanApiCallEncodersHeaderGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         first = True
-        for cmd in self.featureCmdParams:
+        for cmd in self.getFilteredCmdNames():
             info = self.featureCmdParams[cmd]
             returnType = info[0]
             proto = info[1]

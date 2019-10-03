@@ -32,7 +32,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearCo
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper);
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
+struct Decoded_VkDescriptorImageInfo;
+struct Decoded_VkWriteDescriptorSet;
 struct Decoded_VkObjectTableEntryNVX;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWriteDescriptorSet* wrapper);
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
 struct Decoded_ACL;

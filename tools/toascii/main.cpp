@@ -15,12 +15,40 @@
 ** limitations under the License.
 */
 
+#include "project_version.h"
+
 #include "decode/file_processor.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_ascii_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
+
+#include "vulkan/vulkan_core.h"
+
+const char kVersionOption[] = "--version";
+
+static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kVersionOption))
+    {
+        std::string app_name     = exe_name;
+        size_t      dir_location = app_name.find_last_of("/\\");
+
+        if (dir_location >= 0)
+        {
+            app_name.replace(0, dir_location + 1, "");
+        }
+
+        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
+        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
+        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version 1.1.%u", VK_HEADER_VERSION);
+
+        return true;
+    }
+
+    return false;
+}
 
 void PrintUsage(const char* exe_name)
 {
@@ -30,25 +58,29 @@ void PrintUsage(const char* exe_name)
     {
         app_name.replace(0, dir_location + 1, "");
     }
-    GFXRECON_WRITE_CONSOLE("\n\n%s\tis a replay tool designed to output the API commands", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("\t\tfound inside of a GFXReconstruct capture file.\n");
+    GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert GFXReconstruct capture files to text.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("\t%s <file>\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("\t<file>\t\tThe filename (including path if necessary) of the capture");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\tfile whose API command contents should be outputted.");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\tThe results will be output to a file of the same name but");
-    GFXRECON_WRITE_CONSOLE("\t\t\t\twith \'" GFXRECON_FILE_EXTENSION "\' suffix replaced with \'.txt\'.");
+    GFXRECON_WRITE_CONSOLE("  %s [--version] <file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("Required arguments:");
+    GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the GFXReconstruct capture file to be converted");
+    GFXRECON_WRITE_CONSOLE("        \t\tto text.");
+    GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
+    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit");
 }
 
 int main(int argc, const char** argv)
 {
     std::string                     input_filename;
     gfxrecon::decode::FileProcessor file_processor;
-    gfxrecon::util::ArgumentParser  arg_parser(argc, argv, "", "", 1);
+    gfxrecon::util::ArgumentParser  arg_parser(argc, argv, kVersionOption, "");
 
     gfxrecon::util::Log::Init();
 
-    if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
+    if (PrintVersion(argv[0], arg_parser))
+    {
+        exit(0);
+    }
+    else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
         gfxrecon::util::Log::Release();

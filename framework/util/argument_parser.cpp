@@ -29,8 +29,7 @@ GFXRECON_BEGIN_NAMESPACE(util)
 ArgumentParser::ArgumentParser(int32_t            argc,
                                const char** const argv,
                                const std::string& options,
-                               const std::string& arguments,
-                               const uint32_t     min_positional_args) :
+                               const std::string& arguments) :
     is_invalid_(false)
 {
     if (argc > 1 && nullptr != argv)
@@ -42,19 +41,14 @@ ArgumentParser::ArgumentParser(int32_t            argc,
             command_line_args[cur_arg - 1] = argv[cur_arg];
         }
 
-        Init(command_line_args, options, arguments, min_positional_args);
-    }
-    else if (min_positional_args > 0)
-    {
-        is_invalid_ = true;
+        Init(command_line_args, options, arguments);
     }
 }
 
 ArgumentParser::ArgumentParser(bool               first_is_exe_name,
                                const char*        args,
                                const std::string& options,
-                               const std::string& arguments,
-                               const uint32_t     min_positional_args) :
+                               const std::string& arguments) :
     is_invalid_(false)
 {
     std::vector<std::string> command_line_args;
@@ -115,18 +109,13 @@ ArgumentParser::ArgumentParser(bool               first_is_exe_name,
 
     if (!command_line_args.empty())
     {
-        Init(command_line_args, options, arguments, min_positional_args);
-    }
-    else if (min_positional_args > 0)
-    {
-        is_invalid_ = true;
+        Init(command_line_args, options, arguments);
     }
 }
 
 void ArgumentParser::Init(std::vector<std::string> command_line_args,
                           const std::string&       options,
-                          const std::string&       arguments,
-                          const uint32_t           min_positional_args)
+                          const std::string&       arguments)
 {
     std::vector<std::string> valid_options;
     std::string              sub_string;
@@ -265,15 +254,6 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
         {
             positional_arguments_present_.push_back(current_argument);
         }
-    }
-
-    if (min_positional_args > positional_arguments_present_.size())
-    {
-        // Expected some number of arguments and didn't get any
-        is_invalid_ = true;
-        GFXRECON_LOG_FATAL("Error: Expected a minimum of %d positional arguments, but received %" PRIdPTR,
-                           min_positional_args,
-                           positional_arguments_present_.size());
     }
 }
 
