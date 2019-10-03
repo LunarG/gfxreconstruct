@@ -1236,20 +1236,23 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
 
-    auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
-    assert(wrapper != nullptr);
-
-    if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) && (wrapper->mapped_data != nullptr))
+    if (memory != VK_NULL_HANDLE)
     {
-        util::PageGuardManager* manager = util::PageGuardManager::Get();
-        assert(manager != nullptr);
+        auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
 
-        manager->RemoveMemory(wrapper->handle_id);
-
-        if (page_guard_external_memory_)
+        if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            (wrapper->mapped_data != nullptr))
         {
-            size_t external_memory_size = manager->GetAlignedSize(static_cast<size_t>(wrapper->allocation_size));
-            manager->FreeMemory(wrapper->external_allocation, external_memory_size);
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            manager->RemoveMemory(wrapper->handle_id);
+
+            if (page_guard_external_memory_)
+            {
+                size_t external_memory_size = manager->GetAlignedSize(static_cast<size_t>(wrapper->allocation_size));
+                manager->FreeMemory(wrapper->external_allocation, external_memory_size);
+            }
         }
     }
 }
