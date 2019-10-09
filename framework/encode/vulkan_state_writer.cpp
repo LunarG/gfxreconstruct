@@ -754,7 +754,7 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
     state_table.VisitWrappers([&](const SwapchainKHRWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        WriteResizeWindowCmd(GetWrappedId(wrapper->surface), wrapper->extent.width, wrapper->extent.height);
+        WriteResizeWindowCmd(wrapper->surface->handle_id, wrapper->extent.width, wrapper->extent.height);
 
         // Write swapchain creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
