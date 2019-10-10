@@ -3,6 +3,7 @@ add_library(gfxrecon_decode STATIC "")
 target_sources(gfxrecon_decode
                PRIVATE
                    api_decoder.h
+                   copy_shaders.h
                    custom_vulkan_struct_decoders.h
                    custom_vulkan_struct_decoders.cpp
                    custom_vulkan_struct_decoders_forward.h
@@ -35,6 +36,8 @@ target_sources(gfxrecon_decode
                    vulkan_replay_consumer_base.h
                    vulkan_replay_consumer_base.cpp
                    vulkan_replay_options.h
+                   vulkan_resource_initializer.h
+                   vulkan_resource_initializer.cpp
                    window.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp
