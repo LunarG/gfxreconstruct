@@ -80,6 +80,7 @@ class VulkanResourceInitializer
 
     VkResult CreateDrawObjects(VkFormat              format,
                                const VkExtent3D&     extent,
+                               VkImageAspectFlagBits aspect,
                                VkSampleCountFlagBits sample_count,
                                VkImageLayout         initial_layout,
                                VkImageLayout         final_layout,
@@ -134,7 +135,7 @@ class VulkanResourceInitializer
                                uint32_t                 level_count,
                                const VkBufferImageCopy* level_copies);
 
-    VkResult ColorImageShaderCopy(uint32_t                 queue_family_index,
+    VkResult PixelShaderImageCopy(uint32_t                 queue_family_index,
                                   VkBuffer                 source,
                                   VkImage                  destination,
                                   VkImageType              type,
