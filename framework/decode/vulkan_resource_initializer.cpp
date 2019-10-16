@@ -146,12 +146,22 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
 
         if (result == VK_SUCCESS)
         {
-            if ((((usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) != VK_IMAGE_USAGE_TRANSFER_DST_BIT) ||
-                 (sample_count != VK_SAMPLE_COUNT_1_BIT)) &&
+            bool use_transfer = ((usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) == VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
+                                (sample_count == VK_SAMPLE_COUNT_1_BIT);
+            bool use_color_write =
                 ((usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) == VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) &&
-                (type == VK_IMAGE_TYPE_2D) && (aspect == VK_IMAGE_ASPECT_COLOR_BIT))
+                (aspect == VK_IMAGE_ASPECT_COLOR_BIT);
+            bool use_depth_write = ((usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
+                                    VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
+                                   (aspect == VK_IMAGE_ASPECT_DEPTH_BIT);
+            bool use_stencil_write = ((usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
+                                      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
+                                     (aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+
+            if (!use_transfer && (use_color_write || use_depth_write || use_stencil_write) &&
+                (type == VK_IMAGE_TYPE_2D))
             {
-                result = ColorImageShaderCopy(queue_family_index,
+                result = PixelShaderImageCopy(queue_family_index,
                                               staging_buffer,
                                               image,
                                               type,
@@ -416,6 +426,7 @@ VkResult VulkanResourceInitializer::GetDrawDescriptorObjects(VkSampler*         
 
 VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              format,
                                                       const VkExtent3D&     extent,
+                                                      VkImageAspectFlagBits aspect,
                                                       VkSampleCountFlagBits sample_count,
                                                       VkImageLayout         initial_layout,
                                                       VkImageLayout         final_layout,
@@ -431,16 +442,27 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
     VkPipelineLayout draw_pipeline_layout = VK_NULL_HANDLE;
     VkPipeline       draw_pipeline        = VK_NULL_HANDLE;
 
-    // TODO: Depth-stencil support
     VkAttachmentDescription attachment;
-    attachment.flags          = 0;
-    attachment.format         = format;
-    attachment.samples        = sample_count;
-    attachment.loadOp         = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    attachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
-    attachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    attachment.initialLayout  = initial_layout;
+    attachment.flags   = 0;
+    attachment.format  = format;
+    attachment.samples = sample_count;
+
+    if (aspect != VK_IMAGE_ASPECT_STENCIL_BIT)
+    {
+        attachment.loadOp         = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        attachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+        attachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_LOAD;
+        attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+    }
+    else
+    {
+        attachment.loadOp         = VK_ATTACHMENT_LOAD_OP_LOAD;
+        attachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+        attachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
+    }
+
+    attachment.initialLayout = initial_layout;
 
     if ((final_layout != VK_IMAGE_LAYOUT_UNDEFINED) && (final_layout != VK_IMAGE_LAYOUT_PREINITIALIZED))
     {
@@ -448,20 +470,34 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
     }
     else
     {
-        attachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        attachment.finalLayout = (aspect == VK_IMAGE_ASPECT_COLOR_BIT)
+                                     ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+                                     : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     }
 
     VkAttachmentReference reference = { 0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
 
     VkSubpassDescription subpass;
-    subpass.flags                   = 0;
-    subpass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.inputAttachmentCount    = 0;
-    subpass.pInputAttachments       = nullptr;
-    subpass.colorAttachmentCount    = 1;
-    subpass.pColorAttachments       = &reference;
+    subpass.flags                = 0;
+    subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.inputAttachmentCount = 0;
+    subpass.pInputAttachments    = nullptr;
+
+    if (aspect == VK_IMAGE_ASPECT_COLOR_BIT)
+    {
+        subpass.colorAttachmentCount    = 1;
+        subpass.pColorAttachments       = &reference;
+        subpass.pDepthStencilAttachment = nullptr;
+    }
+    else
+    {
+        reference.layout                = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        subpass.colorAttachmentCount    = 0;
+        subpass.pColorAttachments       = nullptr;
+        subpass.pDepthStencilAttachment = &reference;
+    }
+
     subpass.pResolveAttachments     = nullptr;
-    subpass.pDepthStencilAttachment = nullptr;
     subpass.preserveAttachmentCount = 0;
     subpass.pPreserveAttachments    = nullptr;
 
@@ -481,6 +517,7 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
     {
         VkShaderModule vs_module = VK_NULL_HANDLE;
         VkShaderModule ps_module = VK_NULL_HANDLE;
+        std::string    ps_name;
 
         size_t code_size = sizeof(g_VSMain);
         assert((code_size % 4) == 0);
@@ -495,15 +532,35 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
 
         if (result == VK_SUCCESS)
         {
-            // TODO: Depth-stencil support
-            code_size = sizeof(g_PSMainColor);
+            const uint32_t* ps_code = nullptr;
+
+            if (aspect == VK_IMAGE_ASPECT_COLOR_BIT)
+            {
+                ps_name   = "PSMainColor";
+                code_size = sizeof(g_PSMainColor);
+                ps_code   = reinterpret_cast<const uint32_t*>(g_PSMainColor);
+            }
+            else if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
+            {
+                ps_name   = "PSMainDepth";
+                code_size = sizeof(g_PSMainDepth);
+                ps_code   = reinterpret_cast<const uint32_t*>(g_PSMainDepth);
+            }
+            else
+            {
+                assert(aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+                ps_name   = "PSMainStencil";
+                code_size = sizeof(g_PSMainStencil);
+                ps_code   = reinterpret_cast<const uint32_t*>(g_PSMainStencil);
+            }
+
             assert((code_size % 4) == 0);
 
             VkShaderModuleCreateInfo ps_info = { VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO };
             ps_info.pNext                    = VK_NULL_HANDLE;
             ps_info.flags                    = 0;
             ps_info.codeSize                 = code_size;
-            ps_info.pCode                    = reinterpret_cast<const uint32_t*>(g_PSMainColor);
+            ps_info.pCode                    = ps_code;
 
             result = device_table_->CreateShaderModule(device_, &ps_info, nullptr, &ps_module);
         }
@@ -537,7 +594,7 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
             stage_infos[1].flags               = 0;
             stage_infos[1].stage               = VK_SHADER_STAGE_FRAGMENT_BIT;
             stage_infos[1].module              = ps_module;
-            stage_infos[1].pName               = "PSMainColor";
+            stage_infos[1].pName               = ps_name.c_str();
             stage_infos[1].pSpecializationInfo = nullptr;
 
             VkPipelineVertexInputStateCreateInfo vertex_state_info = {
@@ -596,6 +653,39 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
             ms_info.alphaToCoverageEnable                = VK_FALSE;
             ms_info.alphaToOneEnable                     = VK_FALSE;
 
+            VkPipelineDepthStencilStateCreateInfo ds_info = {
+                VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO
+            };
+            ds_info.pNext                 = nullptr;
+            ds_info.flags                 = 0;
+            ds_info.depthCompareOp        = VK_COMPARE_OP_ALWAYS;
+            ds_info.depthBoundsTestEnable = VK_FALSE;
+            ds_info.minDepthBounds        = 0.0f;
+            ds_info.maxDepthBounds        = 0.0f;
+
+            if (aspect != VK_IMAGE_ASPECT_STENCIL_BIT)
+            {
+                ds_info.depthTestEnable   = VK_TRUE;
+                ds_info.depthWriteEnable  = VK_TRUE;
+                ds_info.stencilTestEnable = VK_FALSE;
+            }
+            else
+            {
+                ds_info.depthTestEnable   = VK_FALSE;
+                ds_info.depthWriteEnable  = VK_FALSE;
+                ds_info.stencilTestEnable = VK_TRUE;
+
+                ds_info.front.failOp      = VK_STENCIL_OP_REPLACE;
+                ds_info.front.passOp      = VK_STENCIL_OP_REPLACE;
+                ds_info.front.depthFailOp = VK_STENCIL_OP_REPLACE;
+                ds_info.front.compareOp   = VK_COMPARE_OP_ALWAYS;
+                ds_info.front.compareMask = 0xffffffff;
+                ds_info.front.writeMask   = 0xffffffff;
+                ds_info.front.reference   = 1;
+
+                ds_info.back = ds_info.front;
+            }
+
             VkPipelineColorBlendAttachmentState bs_attachment = {};
             bs_attachment.blendEnable                         = VK_FALSE;
             bs_attachment.colorWriteMask                      = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
@@ -631,17 +721,14 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
             pipeline_info.pViewportState               = &viewport_info;
             pipeline_info.pRasterizationState          = &rs_info;
             pipeline_info.pMultisampleState            = &ms_info;
-
-            // TODO: Depth-stencil support
-            pipeline_info.pDepthStencilState = nullptr;
-
-            pipeline_info.pColorBlendState   = &bs_info;
-            pipeline_info.pDynamicState      = &dyn_info;
-            pipeline_info.layout             = draw_pipeline_layout;
-            pipeline_info.renderPass         = draw_pass;
-            pipeline_info.subpass            = 0;
-            pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
-            pipeline_info.basePipelineIndex  = -1;
+            pipeline_info.pDepthStencilState           = &ds_info;
+            pipeline_info.pColorBlendState             = &bs_info;
+            pipeline_info.pDynamicState                = &dyn_info;
+            pipeline_info.layout                       = draw_pipeline_layout;
+            pipeline_info.renderPass                   = draw_pass;
+            pipeline_info.subpass                      = 0;
+            pipeline_info.basePipelineHandle           = VK_NULL_HANDLE;
+            pipeline_info.basePipelineIndex            = -1;
 
             result = device_table_->CreateGraphicsPipelines(
                 device_, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &draw_pipeline);
@@ -1056,7 +1143,7 @@ VkResult VulkanResourceInitializer::BufferToImageCopy(uint32_t                 q
     return result;
 }
 
-VkResult VulkanResourceInitializer::ColorImageShaderCopy(uint32_t                 queue_family_index,
+VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t                 queue_family_index,
                                                          VkBuffer                 source,
                                                          VkImage                  destination,
                                                          VkImageType              type,
@@ -1091,6 +1178,7 @@ VkResult VulkanResourceInitializer::ColorImageShaderCopy(uint32_t               
 
         result = CreateDrawObjects(format,
                                    extent,
+                                   aspect,
                                    sample_count,
                                    initial_layout,
                                    final_layout,
