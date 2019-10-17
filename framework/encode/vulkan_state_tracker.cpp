@@ -449,52 +449,78 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                 switch (write->descriptorType)
                 {
                     case VK_DESCRIPTOR_TYPE_SAMPLER:
-                        for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
-                             ++i, ++j)
+                    {
+                        format::HandleId*            dst_sampler_ids = &binding.sampler_ids[current_dst_array_element];
+                        VkDescriptorImageInfo*       dst_info        = &binding.images[current_dst_array_element];
+                        const VkDescriptorImageInfo* src_info        = &write->pImageInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            binding.sampler_ids[i] = GetWrappedId(write->pImageInfo[j].sampler);
-                            memcpy(&binding.images[i], &write->pImageInfo[j], sizeof(binding.images[i]));
+                            dst_sampler_ids[i] = GetWrappedId(src_info[i].sampler);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
+                    }
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                        for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
-                             ++i, ++j)
+                    {
+                        format::HandleId*            dst_sampler_ids = &binding.sampler_ids[current_dst_array_element];
+                        format::HandleId*            dst_image_ids   = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorImageInfo*       dst_info        = &binding.images[current_dst_array_element];
+                        const VkDescriptorImageInfo* src_info        = &write->pImageInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            binding.sampler_ids[i] = GetWrappedId(write->pImageInfo[j].sampler);
-                            binding.handle_ids[i]  = GetWrappedId(write->pImageInfo[j].imageView);
-                            memcpy(&binding.images[i], &write->pImageInfo[j], sizeof(binding.images[i]));
+                            dst_sampler_ids[i] = GetWrappedId(src_info[i].sampler);
+                            dst_image_ids[i]   = GetWrappedId(src_info[i].imageView);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
+                    }
                     case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                     case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                     case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                        for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
-                             ++i, ++j)
+                    {
+                        format::HandleId*            dst_image_ids = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorImageInfo*       dst_info      = &binding.images[current_dst_array_element];
+                        const VkDescriptorImageInfo* src_info      = &write->pImageInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            binding.handle_ids[i] = GetWrappedId(write->pImageInfo[j].imageView);
-                            memcpy(&binding.images[i], &write->pImageInfo[j], sizeof(binding.images[i]));
+                            dst_image_ids[i] = GetWrappedId(src_info[i].imageView);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
+                    }
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                        for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
-                             ++i, ++j)
+                    {
+                        format::HandleId*             dst_buffer_ids = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorBufferInfo*       dst_info       = &binding.buffers[current_dst_array_element];
+                        const VkDescriptorBufferInfo* src_info       = &write->pBufferInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            binding.handle_ids[i] = GetWrappedId(write->pBufferInfo[j].buffer);
-                            memcpy(&binding.buffers[i], &write->pBufferInfo[j], sizeof(binding.buffers[i]));
+                            dst_buffer_ids[i] = GetWrappedId(src_info[i].buffer);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
+                    }
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                        for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
-                             ++i, ++j)
+                    {
+                        format::HandleId*   dst_view_ids = &binding.handle_ids[current_dst_array_element];
+                        VkBufferView*       dst_info     = &binding.texel_buffer_views[current_dst_array_element];
+                        const VkBufferView* src_info     = &write->pTexelBufferView[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            binding.handle_ids[i]         = GetWrappedId(write->pTexelBufferView[j]);
-                            binding.texel_buffer_views[i] = write->pTexelBufferView[j];
+                            dst_view_ids[i] = GetWrappedId(src_info[i]);
+                            dst_info[i]     = src_info[i];
                         }
                         break;
+                    }
                     case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
                         // TODO
                         break;
@@ -655,22 +681,26 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 bool* written_start = &binding.written[current_array_element];
                 std::fill(written_start, written_start + current_writes, true);
 
-                const uint8_t* src_address = bytes + current_offset;
-                for (uint32_t i = current_array_element; i < current_writes; ++i)
+                format::HandleId*      dst_sampler_ids = &binding.sampler_ids[current_array_element];
+                format::HandleId*      dst_image_ids   = &binding.handle_ids[current_array_element];
+                VkDescriptorImageInfo* dst_info        = &binding.images[current_array_element];
+                const uint8_t*         src_address     = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
                 {
                     auto image_info = reinterpret_cast<const VkDescriptorImageInfo*>(src_address);
                     if ((binding.type == VK_DESCRIPTOR_TYPE_SAMPLER) ||
                         (binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
                     {
-                        binding.sampler_ids[i] = GetWrappedId(image_info->sampler);
+                        dst_sampler_ids[i] = GetWrappedId(image_info->sampler);
                     }
 
                     if (binding.type != VK_DESCRIPTOR_TYPE_SAMPLER)
                     {
-                        binding.handle_ids[i] = GetWrappedId(image_info->imageView);
+                        dst_image_ids[i] = GetWrappedId(image_info->imageView);
                     }
 
-                    memcpy(&binding.images[i], image_info, sizeof(binding.images[i]));
+                    memcpy(&dst_info[i], image_info, sizeof(dst_info[i]));
 
                     src_address += entry.stride;
                 }
@@ -711,12 +741,15 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 bool* written_start = &binding.written[current_array_element];
                 std::fill(written_start, written_start + current_writes, true);
 
-                const uint8_t* src_address = bytes + current_offset;
-                for (uint32_t i = current_array_element; i < current_writes; ++i)
+                format::HandleId*       dst_buffer_ids = &binding.handle_ids[current_array_element];
+                VkDescriptorBufferInfo* dst_info       = &binding.buffers[current_array_element];
+                const uint8_t*          src_address    = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
                 {
-                    auto buffer_info      = reinterpret_cast<const VkDescriptorBufferInfo*>(src_address);
-                    binding.handle_ids[i] = GetWrappedId(buffer_info->buffer);
-                    memcpy(&binding.buffers[i], buffer_info, sizeof(binding.buffers[i]));
+                    auto buffer_info  = reinterpret_cast<const VkDescriptorBufferInfo*>(src_address);
+                    dst_buffer_ids[i] = GetWrappedId(buffer_info->buffer);
+                    memcpy(&dst_info[i], buffer_info, sizeof(dst_info[i]));
 
                     src_address += entry.stride;
                 }
@@ -757,12 +790,15 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 bool* written_start = &binding.written[current_array_element];
                 std::fill(written_start, written_start + current_writes, true);
 
-                const uint8_t* src_address = bytes + current_offset;
-                for (uint32_t i = current_array_element; i < current_writes; ++i)
+                format::HandleId* dst_view_ids = &binding.handle_ids[current_array_element];
+                VkBufferView*     dst_info     = &binding.texel_buffer_views[current_array_element];
+                const uint8_t*    src_address  = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
                 {
-                    auto buffer_view              = reinterpret_cast<const VkBufferView*>(src_address);
-                    binding.handle_ids[i]         = GetWrappedId(*buffer_view);
-                    binding.texel_buffer_views[i] = *buffer_view;
+                    auto buffer_view = reinterpret_cast<const VkBufferView*>(src_address);
+                    dst_view_ids[i]  = GetWrappedId(*buffer_view);
+                    dst_info[i]      = *buffer_view;
 
                     src_address += entry.stride;
                 }
