@@ -503,6 +503,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void OverridePhysicalDevice(VkPhysicalDevice* physical_device);
 
+    bool CheckTrimDeviceExtensions(VkPhysicalDevice physical_device, std::vector<std::string>** extensions);
+
     VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
 
     void MapDescriptorUpdateTemplateHandles(VkDescriptorUpdateTemplate             update_template,
@@ -578,6 +580,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_map<VkDeviceMemory, VkMemoryPropertyFlags>                MemoryPropertyMap;
     typedef std::unordered_map<VkBuffer, BufferInfo>                                 BufferInfoMap;
     typedef std::unordered_map<VkImage, ImageInfo>                                   ImageInfoMap;
+    typedef std::unordered_map<VkPhysicalDevice, std::vector<std::string>>           AvailableTrimDeviceExtensionMap;
 
   private:
     util::platform::LibraryHandle                                    loader_handle_;
@@ -593,6 +596,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     WindowMap                                                        window_map_;
     MappedMemoryMap                                                  memory_map_;
     ReplayOptions                                                    options_;
+    bool                                                             loading_trim_state_;
     InstanceDeviceMap                                                instance_devices_;
     PhysicalDevicePropertiesMap                                      device_properties_;
     DescriptorUpdateTemplateImageTypes                               descriptor_update_template_image_types_;
@@ -604,6 +608,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     MemoryPropertyMap                                                memory_properties_;
     BufferInfoMap                                                    buffer_info_;
     ImageInfoMap                                                     image_info_;
+    AvailableTrimDeviceExtensionMap                                  trim_device_extensions_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

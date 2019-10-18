@@ -34,6 +34,7 @@ class VulkanResourceInitializer
     VulkanResourceInitializer(VkDevice                                device,
                               VkDeviceSize                            max_copy_size,
                               const VkPhysicalDeviceMemoryProperties& memory_properties,
+                              bool                                    have_shader_stencil_write,
                               const encode::DeviceTable*              device_table);
 
     ~VulkanResourceInitializer();
@@ -171,6 +172,7 @@ class VulkanResourceInitializer
     VkDescriptorSet                  draw_set_;
     VkDeviceSize                     max_copy_size_;
     VkPhysicalDeviceMemoryProperties memory_properties_;
+    bool                             have_shader_stencil_write_;
     const encode::DeviceTable*       device_table_;
 };
 
