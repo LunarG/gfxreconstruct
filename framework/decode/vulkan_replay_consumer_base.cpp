@@ -50,6 +50,9 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_WIN32_SURFACE_EXTENSION_NAME,   VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 };
 
+// Device extensions to enable for trimming state setup, when available.
+const std::unordered_set<std::string> kTrimStateSetupDeviceExtensions = { VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME };
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
                                                           VkDebugReportObjectTypeEXT objectType,
                                                           uint64_t                   object,
@@ -96,7 +99,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeve
 
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options) :
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
-    window_factory_(window_factory), options_(options)
+    window_factory_(window_factory), options_(options), loading_trim_state_(false)
 {
     assert(window_factory != nullptr);
 }
@@ -117,12 +120,14 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
 
 void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
 {
-    GFXRECON_LOG_INFO("Loading state for captured frame %" PRId64, frame_number)
+    GFXRECON_LOG_INFO("Loading state for captured frame %" PRId64, frame_number);
+    loading_trim_state_ = true;
 }
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
 {
-    GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, frame_number)
+    GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, frame_number);
+    loading_trim_state_ = false;
 }
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
@@ -769,8 +774,19 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
 
         instance_table->GetPhysicalDeviceMemoryProperties(physical_device, &properties);
 
-        resource_initializers_.emplace(
-            device, std::make_unique<VulkanResourceInitializer>(device, max_copy_size, properties, table));
+        const auto& available_extensions      = trim_device_extensions_[physical_device];
+        bool        have_shader_stencil_write = false;
+
+        if (std::find(available_extensions.begin(),
+                      available_extensions.end(),
+                      VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME) != available_extensions.end())
+        {
+            have_shader_stencil_write = true;
+        }
+
+        resource_initializers_.emplace(device,
+                                       std::make_unique<VulkanResourceInitializer>(
+                                           device, max_copy_size, properties, have_shader_stencil_write, table));
     }
 }
 
@@ -1284,6 +1300,50 @@ void VulkanReplayConsumerBase::OverridePhysicalDevice(VkPhysicalDevice* physical
     }
 }
 
+bool VulkanReplayConsumerBase::CheckTrimDeviceExtensions(VkPhysicalDevice           physical_device,
+                                                         std::vector<std::string>** extensions)
+{
+    bool have_extensions = false;
+    auto table           = GetInstanceTable(physical_device);
+    assert(table != nullptr);
+
+    uint32_t count  = 0;
+    VkResult result = table->EnumerateDeviceExtensionProperties(physical_device, nullptr, &count, nullptr);
+
+    if ((result == VK_SUCCESS) && (count > 0))
+    {
+        std::vector<VkExtensionProperties> properties;
+        properties.resize(count);
+
+        result = table->EnumerateDeviceExtensionProperties(physical_device, nullptr, &count, properties.data());
+
+        if (result == VK_SUCCESS)
+        {
+            assert(count == properties.size());
+
+            auto& entry = trim_device_extensions_[physical_device];
+
+            for (const auto& property : properties)
+            {
+                if (kTrimStateSetupDeviceExtensions.find(property.extensionName) !=
+                    kTrimStateSetupDeviceExtensions.end())
+                {
+                    entry.push_back(property.extensionName);
+                }
+            }
+
+            have_extensions = !entry.empty();
+
+            if (extensions != nullptr)
+            {
+                (*extensions) = &entry;
+            }
+        }
+    }
+
+    return have_extensions;
+}
+
 VkResult VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface)
 {
     // Create a window for our surface.
@@ -1407,7 +1467,46 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                
             OverridePhysicalDevice(&physicalDevice);
         }
 
-        result = create_device_proc(physicalDevice, pCreateInfo, pAllocator, pDevice);
+        std::vector<std::string>* extensions = nullptr;
+        if (loading_trim_state_ && CheckTrimDeviceExtensions(physicalDevice, &extensions))
+        {
+            std::vector<const char*> modified_extensions;
+            VkDeviceCreateInfo       modified_create_info{};
+
+            if (pCreateInfo != nullptr)
+            {
+                if (pCreateInfo->ppEnabledExtensionNames)
+                {
+                    modified_extensions.insert(
+                        modified_extensions.begin(),
+                        pCreateInfo->ppEnabledExtensionNames,
+                        (pCreateInfo->ppEnabledExtensionNames + pCreateInfo->enabledExtensionCount));
+                }
+
+                for (const auto& extension : *extensions)
+                {
+                    if (std::find(modified_extensions.begin(), modified_extensions.end(), extension) ==
+                        modified_extensions.end())
+                    {
+                        modified_extensions.push_back(extension.c_str());
+                    }
+                }
+
+                modified_create_info                         = (*pCreateInfo);
+                modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
+                modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("The vkCreateDevice parameter pCreateInfo is NULL.");
+            }
+
+            result = create_device_proc(physicalDevice, &modified_create_info, pAllocator, pDevice);
+        }
+        else
+        {
+            result = create_device_proc(physicalDevice, pCreateInfo, pAllocator, pDevice);
+        }
 
         if ((pDevice != nullptr) && (result == VK_SUCCESS))
         {

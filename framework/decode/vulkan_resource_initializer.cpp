@@ -29,11 +29,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 VulkanResourceInitializer::VulkanResourceInitializer(VkDevice                                device,
                                                      VkDeviceSize                            max_copy_size,
                                                      const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                                     bool                                    have_shader_stencil_write,
                                                      const encode::DeviceTable*              device_table) :
     device_(device),
     staging_memory_(VK_NULL_HANDLE), staging_buffer_(VK_NULL_HANDLE), draw_sampler_(VK_NULL_HANDLE),
     draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE), draw_set_(VK_NULL_HANDLE),
-    max_copy_size_(max_copy_size), device_table_(device_table)
+    max_copy_size_(max_copy_size), have_shader_stencil_write_(have_shader_stencil_write), device_table_(device_table)
 {
     assert((device != VK_NULL_HANDLE) && (memory_properties.memoryTypeCount > 0) &&
            (memory_properties.memoryHeapCount > 0) && (device_table != nullptr));
@@ -156,7 +157,7 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
                                    (aspect == VK_IMAGE_ASPECT_DEPTH_BIT);
             bool use_stencil_write = ((usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) ==
                                       VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) &&
-                                     (aspect == VK_IMAGE_ASPECT_STENCIL_BIT);
+                                     (aspect == VK_IMAGE_ASPECT_STENCIL_BIT) && have_shader_stencil_write_;
 
             if (!use_transfer && (use_color_write || use_depth_write || use_stencil_write) &&
                 (type == VK_IMAGE_TYPE_2D))
