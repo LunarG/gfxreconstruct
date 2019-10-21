@@ -200,13 +200,12 @@ class TraceManager
             auto thread_data = GetThreadData();
             assert(thread_data != nullptr);
 
-            state_tracker_->AddStructGroupEntry<ParentHandle, Wrapper, HandleStruct>(
-                parent_handle,
-                count,
-                handle_structs,
-                unwrap_struct_handle,
-                thread_data->call_id_,
-                thread_data->parameter_buffer_.get());
+            state_tracker_->AddStructGroupEntry(parent_handle,
+                                                count,
+                                                handle_structs,
+                                                unwrap_struct_handle,
+                                                thread_data->call_id_,
+                                                thread_data->parameter_buffer_.get());
         }
 
         EndApiCallTrace(encoder);

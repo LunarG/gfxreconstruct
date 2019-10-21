@@ -130,7 +130,6 @@ class VulkanStateTracker
                        format::ApiCallId               create_call_id,
                        const util::MemoryOutputStream* create_parameter_buffer)
     {
-        assert(new_handles != nullptr);
         assert(create_parameter_buffer != nullptr);
 
         CreateParameters create_parameters = std::make_shared<util::MemoryOutputStream>(
@@ -139,35 +138,8 @@ class VulkanStateTracker
         {
             std::unique_lock<std::mutex> lock(mutex_);
 
-            for (uint32_t i = 0; i < count; ++i)
-            {
-                if (new_handles[i] != VK_NULL_HANDLE)
-                {
-                    auto wrapper = reinterpret_cast<Wrapper*>(new_handles[i]);
-
-                    // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
-                    if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
-                    {
-                        const CreateInfo* create_info = nullptr;
-
-                        // Not all handle creation operations will have a create info structure (e.g. VkPhysicalDevice
-                        // handles retrieved with vkEnumeratePhysicalDevices).
-                        if (create_infos != nullptr)
-                        {
-                            create_info = vulkan_state_tracker::GetCreateInfoEntry(i, create_infos);
-                        }
-
-                        vulkan_state_tracker::
-                            InitializeGroupObjectState<ParentHandle, SecondaryHandle, Wrapper, CreateInfo>(
-                                parent_handle,
-                                secondary_handle,
-                                wrapper,
-                                create_info,
-                                create_call_id,
-                                create_parameters);
-                    }
-                }
-            }
+            AddGroupHandles<ParentHandle, SecondaryHandle, Wrapper, CreateInfo>(
+                parent_handle, secondary_handle, count, new_handles, create_infos, create_call_id, create_parameters);
         }
     }
 
@@ -180,6 +152,7 @@ class VulkanStateTracker
                              const util::MemoryOutputStream*        create_parameter_buffer)
     {
         assert(handle_structs != nullptr);
+        assert(unwrap_struct_handle != nullptr);
         assert(create_parameter_buffer != nullptr);
 
         CreateParameters create_parameters = std::make_shared<util::MemoryOutputStream>(
@@ -223,13 +196,13 @@ class VulkanStateTracker
 
             for (uint32_t i = 0; i < count; ++i)
             {
-                AddGroupEntry<VkInstance, void*, PhysicalDeviceWrapper, void>(parent_handle,
-                                                                              nullptr,
-                                                                              handle_structs[i].physicalDeviceCount,
-                                                                              handle_structs[i].physicalDevices,
-                                                                              nullptr,
-                                                                              create_call_id,
-                                                                              create_parameter_buffer);
+                AddGroupHandles<VkInstance, void*, PhysicalDeviceWrapper, void>(parent_handle,
+                                                                                nullptr,
+                                                                                handle_structs[i].physicalDeviceCount,
+                                                                                handle_structs[i].physicalDevices,
+                                                                                nullptr,
+                                                                                create_call_id,
+                                                                                create_parameters);
             }
         }
     }
@@ -386,6 +359,44 @@ class VulkanStateTracker
                               VkQueue               queue);
 
   private:
+    template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
+    void AddGroupHandles(ParentHandle                  parent_handle,
+                         SecondaryHandle               secondary_handle,
+                         uint32_t                      count,
+                         typename Wrapper::HandleType* new_handles,
+                         const CreateInfo*             create_infos,
+                         format::ApiCallId             create_call_id,
+                         CreateParameters              create_parameters)
+    {
+        assert(new_handles != nullptr);
+        assert(create_parameters != nullptr);
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            if (new_handles[i] != VK_NULL_HANDLE)
+            {
+                auto wrapper = reinterpret_cast<Wrapper*>(new_handles[i]);
+
+                // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
+                if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
+                {
+                    const CreateInfo* create_info = nullptr;
+
+                    // Not all handle creation operations will have a create info structure (e.g.
+                    // VkPhysicalDevice handles retrieved with vkEnumeratePhysicalDevices).
+                    if (create_infos != nullptr)
+                    {
+                        create_info = vulkan_state_tracker::GetCreateInfoEntry(i, create_infos);
+                    }
+
+                    vulkan_state_tracker::
+                        InitializeGroupObjectState<ParentHandle, SecondaryHandle, Wrapper, CreateInfo>(
+                            parent_handle, secondary_handle, wrapper, create_info, create_call_id, create_parameters);
+                }
+            }
+        }
+    }
+
     void TrackCommandExecution(CommandBufferWrapper*           wrapper,
                                format::ApiCallId               call_id,
                                const util::MemoryOutputStream* parameter_buffer);
