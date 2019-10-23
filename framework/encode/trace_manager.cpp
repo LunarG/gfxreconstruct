@@ -203,7 +203,13 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {
+#if defined(WIN32)
         page_guard_external_memory_ = trace_settings.page_guard_external_memory;
+#else
+        GFXRECON_LOG_WARNING(
+            "Ignoring page guard external memory option on unsupported platform (Only Windows is currently supported)")
+        page_guard_external_memory_ = false;
+#endif
     }
     else
     {

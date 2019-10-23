@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <unordered_map>
 
@@ -34,10 +35,10 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class PageGuardManager
 {
   public:
-    static const bool kDefaultEnableShadowMemory         = true;
-    static const bool kDefaultEnableCopyOnMap            = true;
-    static const bool kDefaultEnableLazyCopy             = false;
-    static const bool kDefaultEnableReadWriteSamePage    = true;
+    static const bool kDefaultEnableShadowMemory      = true;
+    static const bool kDefaultEnableCopyOnMap         = true;
+    static const bool kDefaultEnableLazyCopy          = false;
+    static const bool kDefaultEnableReadWriteSamePage = true;
 
   public:
     // Callback for processing modified memory.  The function parameters are the ID of the modified memory object,
@@ -59,7 +60,7 @@ class PageGuardManager
 
     void RemoveMemory(uint64_t memory_id);
 
-    bool ProcessMemoryEntry(uint64_t memory_id, ModifiedMemoryFunc handle_modified);
+    void ProcessMemoryEntry(uint64_t memory_id, ModifiedMemoryFunc handle_modified);
 
     void ProcessMemoryEntries(ModifiedMemoryFunc handle_modified);
 
@@ -98,7 +99,14 @@ class PageGuardManager
             mapped_memory(mm), mapped_range(mr), shadow_memory(sm), shadow_range(sr), aligned_address(aa),
             aligned_offset(ao), total_pages(tp), last_segment_size(lss), start_address(sa), end_address(ea),
             is_modified(false)
-        {}
+        {
+#if defined(WIN32)
+            if (shadow_memory == nullptr)
+            {
+                modified_addresses = std::make_unique<void* []>(total_pages);
+            }
+#endif
+        }
 
         PageStatusTracker status_tracker;
 
@@ -115,6 +123,11 @@ class PageGuardManager
         const void* start_address;     // Start address for the protected memory region.
         const void* end_address;       // Address immediately after the end of the protected memory region.
         bool        is_modified;
+
+#if defined(WIN32)
+        // Memory for retrieving modified pages with GetWriteWatch.
+        std::unique_ptr<void* []> modified_addresses;
+#endif
     };
 
     typedef std::unordered_map<uint64_t, MemoryInfo> MemoryInfoMap;
@@ -130,6 +143,7 @@ class PageGuardManager
     void   MemoryCopy(void* destination, const void* source, size_t size);
     bool   FindMemory(void* address, MemoryInfo** watched_memory_info);
     bool   SetMemoryProtection(void* protect_address, size_t protect_size, uint32_t protect_mask);
+    void   LoadActiveWriteStates(MemoryInfo* memory_info);
     void   ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info, ModifiedMemoryFunc handle_modified);
     void   ProcessActiveRange(uint64_t           memory_id,
                               MemoryInfo*        memory_info,
