@@ -22,6 +22,9 @@
 #include <algorithm>
 #include <cassert>
 
+#include "framework/tcpclient/tcp_client.h"
+std::unique_ptr<TcpClient> tcp_client;
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
@@ -64,6 +67,29 @@ void Application::Run()
     }
 }
 
+void Application::Run(char* file_name, uint32_t port, char* ip_address)
+{
+    running_ = true;
+
+    bool tcp_send_data = ((0 != port) && (nullptr != ip_address) && (0 != strlen(ip_address)));
+
+    if (tcp_send_data)
+    {
+        tcp_client = TcpClient::Create(ip_address, port, nullptr, file_name, tcp_send_data);
+    }
+
+    while (running_)
+    {
+        ProcessEvents(paused_);
+
+        // Only process the next frame if a quit event was not processed or not paused.
+        if (running_ && !paused_)
+        {
+            PlaySingleFrame(file_name, tcp_send_data);
+        }
+    }
+}
+
 void Application::SetPaused(bool paused)
 {
 
@@ -86,6 +112,38 @@ bool Application::PlaySingleFrame()
     if (file_processor_)
     {
         success = file_processor_->ProcessNextFrame();
+
+        if (success)
+        {
+            if (file_processor_->GetCurrentFrameNumber() == pause_frame_)
+            {
+                paused_ = true;
+            }
+
+            // Check paused state separately from previous check to print messages for two different cases: replay has
+            // paused on the user specified pause frame (tested above), or the user has pressed a key to advance forward
+            // by one frame while paused.
+            if (paused_)
+            {
+                GFXRECON_LOG_INFO("Paused at frame %u", file_processor_->GetCurrentFrameNumber());
+            }
+        }
+        else
+        {
+            running_ = false;
+        }
+    }
+
+    return success;
+}
+
+bool Application::PlaySingleFrame(char* file_name, bool tcp_send_data)
+{
+    bool success = false;
+
+    if (file_processor_)
+    {
+        success = file_processor_->ProcessNextFrame(std::move(tcp_client), tcp_send_data, file_name);
 
         if (success)
         {

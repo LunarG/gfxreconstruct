@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+#include "tcpclient/tcp_client.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -68,6 +70,8 @@ class FileProcessor
     // occurred.  Use GetErrorState() to determine error condition.
     bool ProcessNextFrame();
 
+    bool ProcessNextFrame(std::unique_ptr<TcpClient> tcp_client, bool tcp_send_data, char* file_name);
+
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
@@ -81,10 +85,14 @@ class FileProcessor
 
     Error GetErrorState() const { return error_state_; }
 
+    FILE* GetFilePointer() { return file_descriptor_; }
+
   private:
     bool ProcessFileHeader();
 
     bool ProcessBlocks();
+
+    bool ProcessBlocks(bool tcp_send_data, std::unique_ptr<TcpClient> tcpClient);
 
     bool ReadBlockHeader(format::BlockHeader* block_header);
 

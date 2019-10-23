@@ -9,16 +9,33 @@
 #ifndef TCPCLIENT_H_
 #define TCPCLIENT_H_
 
-#include <iostream>
-#include <string>
-#include <fstream>
-
-#include <winsock2.h>
-#include <mutex>
+#ifdef _WIN32
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#endif
 
 #include "util/logging.h"
 
+#include <cstdint>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <mutex>
+
+#ifndef _WIN32
+typedef void     addrinfo;
+typedef int      SOCKET;
+#endif
+
 using namespace std;
+
+namespace
+{
+static constexpr uint32_t kStrLen     = 4096;
+static constexpr uint32_t kPortStrLen = 128;
+static constexpr char*    kDriverName = "amdvlk64.dll";
+} // namespace
 
 // Used for sending messages over TCP
 // (currently only implemented for Windows)
@@ -39,6 +56,7 @@ class TcpClient
     template <typename... Args>
     bool SendDataOverSocket(const char* data, Args... args)
     {
+#ifdef _WIN32
         char  str[kStrLen];
         char* va_str = str;
 
@@ -60,6 +78,10 @@ class TcpClient
         }
 
         return true;
+#else
+        GFXRECON_LOG_ERROR("TcpClient SendDataOverSocket only supported in Windows.\n");
+        return false;
+#endif
     }
 
     // Create and connect to the socket
@@ -68,6 +90,7 @@ class TcpClient
     template <typename... Args>
     void TransmitData(const char* fmt, Args... args)
     {
+#ifdef _WIN32
         std::lock_guard<std::mutex> lock(mutex_);
 
         InitSocket();
@@ -89,16 +112,26 @@ class TcpClient
         }
 
         data_sent_ = SendDataOverSocket(fmt, args...);
+#else
+        GFXRECON_LOG_ERROR("TcpClient TransmitData only supported in Windows.\n");
+        return;
+#endif
     }
 
     // Send the trace file pointer position over TCP
-    void TcpSendFilePos(FILE* file_pointer, char* file_name);
+    void TcpSendFilePos(double file_len, double bytes_sent, char* file_name);
 
     // Send loaded driver info over TCP
     void TcpSendDriverLoadInfo();
 
+    // Get File Size that sent over TCP
+    std::ifstream::pos_type GetFileSize(const char* filename);
+
     // Get address info for send data
     void GetAddressInfo();
+
+    // Initiate use of window socket DLL
+    void InitSocket();
 
     // Create a socket
     void CreateSocket();
@@ -122,6 +155,7 @@ class TcpClient
     SOCKET     socket_;       // socket
     addrinfo*  address_info_; // TCP address info
     uint32_t   port_;         // TCP port number
+    int64_t    file_position; // current file position read through TCP
     bool       data_sent_;    // data sent success flag
     bool       tcp_valid_;    // TCP active flag
     char*      file_name_;    // trace file name

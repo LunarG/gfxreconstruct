@@ -43,6 +43,8 @@ class Application
 
     void Run();
 
+    void Run(char* file_name, uint32_t port, char* ip_address);
+
     bool GetPaused() const { return paused_; }
 
     void SetPaused(bool paused);
@@ -50,6 +52,8 @@ class Application
     void SetPauseFrame(uint32_t pause_frame) { pause_frame_ = pause_frame; }
 
     bool PlaySingleFrame();
+
+    bool PlaySingleFrame(char* file_name, bool tcp_send_data);
 
     bool RegisterWindow(decode::Window* window);
 

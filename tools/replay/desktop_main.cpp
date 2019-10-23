@@ -55,16 +55,18 @@ int main(int argc, const char** argv)
 {
     int         return_code = 0;
     std::string filename;
+    uint32_t    port       = -1;
+    char*       ip_address = nullptr;
 
     gfxrecon::util::Log::Init();
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, Arguments::kOptions, Arguments::kArguments);
 
     if (PrintVersion(argv[0], arg_parser))
     {
         exit(0);
     }
-    else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
+    else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() < 1))
     {
         PrintUsage(argv[0]);
         gfxrecon::util::Log::Release();
@@ -74,6 +76,10 @@ int main(int argc, const char** argv)
     {
         const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
         filename                                             = positional_arguments[0];
+        ip_address                                           = GetIpAddress(arg_parser);
+        port                                                 = GetTcpPort(arg_parser);
+        kWindowWidth                                         = GetWindowWidth(arg_parser);
+        kWindowHeight                                        = GetWindowHeight(arg_parser);
     }
 
     try
@@ -92,19 +98,19 @@ int main(int argc, const char** argv)
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
             gfxrecon::application::Win32Application* win32_application =
-                new gfxrecon::application::Win32Application(kApplicationName);
+                new gfxrecon::application::Win32Application(Arguments::kApplicationName);
             application    = std::unique_ptr<gfxrecon::application::Application>(win32_application);
             window_factory = std::make_unique<gfxrecon::application::Win32WindowFactory>(win32_application);
 #endif
 #else
 #if defined(VK_USE_PLATFORM_XCB_KHR)
             gfxrecon::application::XcbApplication* xcb_application =
-                new gfxrecon::application::XcbApplication(kApplicationName);
+                new gfxrecon::application::XcbApplication(Arguments::kApplicationName);
             application    = std::unique_ptr<gfxrecon::application::Application>(xcb_application);
             window_factory = std::make_unique<gfxrecon::application::XcbWindowFactory>(xcb_application);
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
             gfxrecon::application::WaylandApplication* wayland_application =
-                new gfxrecon::application::WaylandApplication(kApplicationName);
+                new gfxrecon::application::WaylandApplication(Arguments::kApplicationName);
             application    = std::unique_ptr<gfxrecon::application::Application>(wayland_application);
             window_factory = std::make_unique<gfxrecon::application::WaylandWindowFactory>(wayland_application);
 #endif
@@ -136,7 +142,16 @@ int main(int argc, const char** argv)
                 uint32_t start_frame = 1;
                 int64_t  start_time  = gfxrecon::util::datetime::GetTimestamp();
 
-                application->Run();
+                // TODO(xooi@amd.com) change if condition check to a command line argument
+                if (port != -1)
+                {
+                    std::vector<char> cfilename(filename.c_str(), filename.c_str() + filename.size() + 1);
+                    application->Run(reinterpret_cast<char*>(cfilename.data()), port, ip_address);
+                }
+                else
+                {
+                    application->Run();
+                }
 
                 if ((file_processor.GetCurrentFrameNumber() > 0) &&
                     (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))

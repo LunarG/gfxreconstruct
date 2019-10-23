@@ -8,35 +8,9 @@
 
 #include "tcp_client.h"
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-
-#include <WinSock2.h>
-#include <ws2tcpip.h>
 #include <stdio.h>
-#include <io.h>
 
 using namespace std;
-
-namespace
-{
-static constexpr uint32_t kStrLen     = 4096;
-static constexpr uint32_t kPortStrLen = 128;
-static constexpr char*    kDriverName = "amdvlk64.dll";
-
-void InitSocket()
-{
-    WSADATA wsa_data;
-    int     result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
-    if (result != 0)
-    {
-        GFXRECON_LOG_ERROR("WSAStartup failed\n");
-        return;
-    }
-}
-} // namespace
 
 std::unique_ptr<TcpClient>
 TcpClient::Create(char* addr, uint32_t port, addrinfo* addr_info, char* file_name, bool data_send)
@@ -48,7 +22,7 @@ TcpClient::Create(char* addr, uint32_t port, addrinfo* addr_info, char* file_nam
 }
 
 TcpClient::TcpClient(uint32_t port, addrinfo* addr_info, char* file_name, bool data_send) :
-    port_(port), address_info_(addr_info), file_name_(file_name), data_sent_(data_send)
+    port_(port), address_info_(addr_info), file_name_(file_name), data_sent_(data_send), file_position(0)
 {
     socket_    = NULL;
     tcp_valid_ = false;
@@ -57,6 +31,7 @@ TcpClient::TcpClient(uint32_t port, addrinfo* addr_info, char* file_name, bool d
 
 void TcpClient::GetAddressInfo()
 {
+#ifdef _WIN32
     addrinfo hints;
 
     ZeroMemory(&hints, sizeof(hints));
@@ -72,14 +47,35 @@ void TcpClient::GetAddressInfo()
     int result = getaddrinfo(ip_str_, port_str, &hints, &address_info_);
     if (result != 0)
     {
-        GFXRECON_LOG_ERROR("Failed to call getaddrinfo function");
+        GFXRECON_LOG_ERROR("Failed to call getaddrinfo function.\n");
         WSACleanup();
         return;
     }
+#else
+    GFXRECON_LOG_ERROR("TcpClient GetAddressInfo() is supported in Windows only.\n");
+    return;
+#endif
+}
+
+void TcpClient::InitSocket()
+{
+#ifdef _WIN32
+    WSADATA wsa_data;
+    int     result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+    if (result != 0)
+    {
+        GFXRECON_LOG_ERROR("WSAStartup failed\n");
+        return;
+    }
+#else
+    GFXRECON_LOG_ERROR("TcpClient InitSocket() is supported in Windows only.\n");
+    return;
+#endif
 }
 
 void TcpClient::CreateSocket()
 {
+#ifdef _WIN32
     socket_ = socket(address_info_->ai_family, address_info_->ai_socktype, address_info_->ai_protocol);
 
     if (socket_ == INVALID_SOCKET)
@@ -89,10 +85,15 @@ void TcpClient::CreateSocket()
         WSACleanup();
         return;
     }
+#else
+    GFXRECON_LOG_ERROR("TcpClient CreateSocket() is supported in Windows only.\n");
+    return;
+#endif
 }
 
 void TcpClient::ConnectSocket()
 {
+#ifdef _WIN32
     int result = connect(socket_, address_info_->ai_addr, (int)address_info_->ai_addrlen);
 
     if (result == SOCKET_ERROR)
@@ -101,54 +102,31 @@ void TcpClient::ConnectSocket()
         socket_ = INVALID_SOCKET;
         return;
     }
+#else
+    GFXRECON_LOG_ERROR("TcpClient ConnectSocket() is supported in Windows only.\n");
+    return;
+#endif
 }
 
-uint64_t GetFileLength(FILE* fp)
+std::ifstream::pos_type TcpClient::GetFileSize(const char* filename)
 {
-    uint64_t byte_length = 0;
-
-    // Get file length
-    int64_t length = 0;
-    if (_fseeki64(fp, 0, SEEK_END) != 0)
-    {
-        GFXRECON_LOG_ERROR("Failed to fseek to the end of tracefile for replaying\n");
-        return 0;
-    }
-    else
-    {
-        length = _ftelli64(fp);
-        if (length == -1L)
-        {
-            GFXRECON_LOG_ERROR("Failed to get the length of tracefile for replaying.");
-            length = 0;
-        }
-    }
-
-    // WARNING: Reset file position to the beginning of the file
-    // Because this function is only called from vktrace_FileLike_create_file,
-    // the file position should always be the beginning of the file before getting file length.
-    rewind(fp);
-
-    byte_length = length;
-    return byte_length;
+    std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
+    return in.tellg();
 }
 
 // Send current file position info to GPS Shim UI and get next packet
-void TcpClient::TcpSendFilePos(FILE* file_pointer, char* file_name)
+void TcpClient::TcpSendFilePos(double file_len, double bytes_sent, char* file_name)
 {
-    static INT64 last_position_sent = 0;
-
+#ifdef _WIN32
+    static int64_t last_position_sent = 0;
+    file_position += bytes_sent;
     if (NULL != file_name)
     {
-        HANDLE file_handle = reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(file_pointer)));
-        INT64  file_len    = GetFileLength(file_pointer);
-        LONG   file_pos_hi = 0;
-        DWORD  file_pos_lo = SetFilePointer(file_handle, 0, &file_pos_hi, FILE_CURRENT);
-        if (INVALID_SET_FILE_POINTER != file_pos_lo)
+        int64_t file_length = file_len;
+        if (file_length > 0)
         {
-            INT64  file_pos   = reinterpret_cast<INT64&>(file_pos_lo) | ((reinterpret_cast<INT64&>(file_pos_hi)) << 32);
-            double file_len_f = reinterpret_cast<double&>(file_len);
-            double position_cur                 = reinterpret_cast<double&>(file_pos);
+            double file_len_f                   = reinterpret_cast<double&>(file_length);
+            double position_cur                 = reinterpret_cast<double&>(file_position);
             double position_last_sent           = reinterpret_cast<double&>(last_position_sent);
             double diff_from_last_position_sent = (position_cur - position_last_sent);
             double diff_min                     = (file_len_f * 0.001f);
@@ -158,19 +136,24 @@ void TcpClient::TcpSendFilePos(FILE* file_pointer, char* file_name)
                 std::stringstream str_stream;
                 std::string       file_str;
 
-                str_stream << file_name << ',' << file_pos << ',' << file_len;
+                str_stream << file_name << ',' << file_position << ',' << file_len;
                 file_str = str_stream.str();
 
                 TransmitData("GFXRECFILE:%s", file_str);
-                last_position_sent = file_pos;
+                last_position_sent = file_position;
             }
         }
     }
+#else
+    GFXRECON_LOG_ERROR("TcpClient TcpSendFilePos() is supported in Windows only.\n");
+    return;
+#endif
 }
 
 // Send driver load info to GPS Shim UI
 void TcpClient::TcpSendDriverLoadInfo()
 {
+#ifdef _WIN32
     bool sent_driver_info = false;
     if (false == sent_driver_info)
     {
@@ -196,6 +179,10 @@ void TcpClient::TcpSendDriverLoadInfo()
             }
         }
     }
+#else
+    GFXRECON_LOG_ERROR("TcpClient TcpSendDriverLoadInfo() is supported in Windows only.\n");
+    return;
+#endif
 }
 
 uint32_t TcpClient::GetPortNum()
