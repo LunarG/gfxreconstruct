@@ -206,9 +206,12 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
 #if defined(WIN32)
         page_guard_external_memory_ = trace_settings.page_guard_external_memory;
 #else
-        GFXRECON_LOG_WARNING(
-            "Ignoring page guard external memory option on unsupported platform (Only Windows is currently supported)")
         page_guard_external_memory_ = false;
+        if (trace_settings.page_guard_external_memory)
+        {
+            GFXRECON_LOG_WARNING("Ignoring page guard external memory option on unsupported platform (Only Windows is "
+                                 "currently supported)")
+        }
 #endif
     }
     else
@@ -261,6 +264,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
             util::PageGuardManager::Create(!page_guard_external_memory_,
                                            trace_settings.page_guard_copy_on_map,
                                            trace_settings.page_guard_lazy_copy,
+                                           trace_settings.page_guard_separate_read,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage);
         }
 
