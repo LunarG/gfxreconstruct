@@ -3563,6 +3563,48 @@ void VulkanReplayConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     GetDeviceTable(in_commandBuffer)->CmdDrawIndexedIndirectCountKHR(in_commandBuffer, in_buffer, offset, in_countBuffer, countBufferOffset, maxDrawCount, stride);
 }
 
+void VulkanReplayConsumer::Process_vkGetSemaphoreCounterValueKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            semaphore,
+    const PointerDecoder<uint64_t>&             pValue)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    VkSemaphore in_semaphore = GetObjectMapper().MapVkSemaphore(semaphore);
+    uint64_t out_pValue_value = static_cast<uint64_t>(0);
+    uint64_t* out_pValue = &out_pValue_value;
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetSemaphoreCounterValueKHR(in_device, in_semaphore, out_pValue);
+    CheckResult("vkGetSemaphoreCounterValueKHR", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkWaitSemaphoresKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkSemaphoreWaitInfoKHR>& pWaitInfo,
+    uint64_t                                    timeout)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    const VkSemaphoreWaitInfoKHR* in_pWaitInfo = pWaitInfo.GetPointer();
+    MapStructHandles(pWaitInfo.GetMetaStructPointer(), GetObjectMapper());
+
+    VkResult replay_result = GetDeviceTable(in_device)->WaitSemaphoresKHR(in_device, in_pWaitInfo, timeout);
+    CheckResult("vkWaitSemaphoresKHR", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkSignalSemaphoreKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkSemaphoreSignalInfoKHR>& pSignalInfo)
+{
+    VkDevice in_device = GetObjectMapper().MapVkDevice(device);
+    const VkSemaphoreSignalInfoKHR* in_pSignalInfo = pSignalInfo.GetPointer();
+    MapStructHandles(pSignalInfo.GetMetaStructPointer(), GetObjectMapper());
+
+    VkResult replay_result = GetDeviceTable(in_device)->SignalSemaphoreKHR(in_device, in_pSignalInfo);
+    CheckResult("vkSignalSemaphoreKHR", returnValue, replay_result);
+}
+
 void VulkanReplayConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,

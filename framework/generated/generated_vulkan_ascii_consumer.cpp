@@ -2209,6 +2209,32 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     fprintf(GetFile(), "%s\n", "vkCmdDrawIndexedIndirectCountKHR");
 }
 
+void VulkanAsciiConsumer::Process_vkGetSemaphoreCounterValueKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            semaphore,
+    const PointerDecoder<uint64_t>&             pValue)
+{
+    fprintf(GetFile(), "%s\n", "vkGetSemaphoreCounterValueKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkWaitSemaphoresKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkSemaphoreWaitInfoKHR>& pWaitInfo,
+    uint64_t                                    timeout)
+{
+    fprintf(GetFile(), "%s\n", "vkWaitSemaphoresKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkSignalSemaphoreKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkSemaphoreSignalInfoKHR>& pSignalInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkSignalSemaphoreKHR");
+}
+
 void VulkanAsciiConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,

@@ -806,6 +806,26 @@ void MapStructHandles(Decoded_VkDisplayPlaneInfo2KHR* wrapper, const VulkanObjec
     }
 }
 
+void MapStructHandles(Decoded_VkSemaphoreWaitInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkSemaphoreWaitInfoKHR* value = wrapper->decoded_value;
+
+        MapHandleArray<VkSemaphore>(wrapper->pSemaphores.GetPointer(), wrapper->pSemaphores.GetHandlePointer(), wrapper->pSemaphores.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+    }
+}
+
+void MapStructHandles(Decoded_VkSemaphoreSignalInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkSemaphoreSignalInfoKHR* value = wrapper->decoded_value;
+
+        value->semaphore = object_mapper.MapVkSemaphore(wrapper->semaphore);
+    }
+}
+
 void MapStructHandles(Decoded_VkPipelineInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))

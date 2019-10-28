@@ -5354,6 +5354,70 @@ size_t VulkanDecoder::Decode_vkCmdDrawIndexedIndirectCountKHR(const uint8_t* par
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetSemaphoreCounterValueKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId semaphore;
+    PointerDecoder<uint64_t> pValue;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &semaphore);
+    bytes_read += pValue.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetSemaphoreCounterValueKHR(return_value, device, semaphore, pValue);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkWaitSemaphoresKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkSemaphoreWaitInfoKHR> pWaitInfo;
+    uint64_t timeout;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pWaitInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &timeout);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkWaitSemaphoresKHR(return_value, device, pWaitInfo, timeout);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkSignalSemaphoreKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkSemaphoreSignalInfoKHR> pSignalInfo;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pSignalInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkSignalSemaphoreKHR(return_value, device, pSignalInfo);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkGetPipelineExecutablePropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -8696,6 +8760,15 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCountKHR:
         Decode_vkCmdDrawIndexedIndirectCountKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetSemaphoreCounterValueKHR:
+        Decode_vkGetSemaphoreCounterValueKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkWaitSemaphoresKHR:
+        Decode_vkWaitSemaphoresKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkSignalSemaphoreKHR:
+        Decode_vkSignalSemaphoreKHR(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR:
         Decode_vkGetPipelineExecutablePropertiesKHR(parameter_buffer, buffer_size);

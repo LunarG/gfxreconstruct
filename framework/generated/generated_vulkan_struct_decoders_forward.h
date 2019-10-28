@@ -576,6 +576,10 @@ struct Decoded_VkPhysicalDeviceShaderAtomicInt64FeaturesKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderAtomicInt64FeaturesKHR* wrapper);
 
+struct Decoded_VkPhysicalDeviceShaderClockFeaturesKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderClockFeaturesKHR* wrapper);
+
 struct Decoded_VkConformanceVersionKHR;
 struct Decoded_VkPhysicalDeviceDriverPropertiesKHR;
 
@@ -591,6 +595,20 @@ struct Decoded_VkPhysicalDeviceDepthStencilResolvePropertiesKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassDescriptionDepthStencilResolveKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDepthStencilResolvePropertiesKHR* wrapper);
+
+struct Decoded_VkPhysicalDeviceTimelineSemaphoreFeaturesKHR;
+struct Decoded_VkPhysicalDeviceTimelineSemaphorePropertiesKHR;
+struct Decoded_VkSemaphoreTypeCreateInfoKHR;
+struct Decoded_VkTimelineSemaphoreSubmitInfoKHR;
+struct Decoded_VkSemaphoreWaitInfoKHR;
+struct Decoded_VkSemaphoreSignalInfoKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceTimelineSemaphoreFeaturesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceTimelineSemaphorePropertiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreTypeCreateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkTimelineSemaphoreSubmitInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreWaitInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreSignalInfoKHR* wrapper);
 
 struct Decoded_VkPhysicalDeviceVulkanMemoryModelFeaturesKHR;
 

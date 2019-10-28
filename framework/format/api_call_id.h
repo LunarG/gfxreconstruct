@@ -417,6 +417,9 @@ enum ApiCallId : uint32_t
     ApiCall_vkQueueSetPerformanceConfigurationINTEL                                               = MakeApiCallId(ApiFamily_Vulkan, 0x116e),
     ApiCall_vkGetPerformanceParameterINTEL                                                        = MakeApiCallId(ApiFamily_Vulkan, 0x116f),
     ApiCall_vkCmdSetLineStippleEXT                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x1170),
+    ApiCall_vkGetSemaphoreCounterValueKHR                                                         = MakeApiCallId(ApiFamily_Vulkan, 0x1171),
+    ApiCall_vkWaitSemaphoresKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x1172),
+    ApiCall_vkSignalSemaphoreKHR                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1173),
 
     ApiCall_VulkanLast
     // clang-format on

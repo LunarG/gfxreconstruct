@@ -2375,6 +2375,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicI
     encoder->EncodeVkBool32Value(value.shaderSharedInt64Atomics);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderClockFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderSubgroupClock);
+    encoder->EncodeVkBool32Value(value.shaderDeviceClock);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkConformanceVersionKHR& value)
 {
     encoder->EncodeUInt8Value(value.major);
@@ -2433,6 +2441,56 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthStencilR
     encoder->EncodeFlagsValue(value.supportedStencilResolveModes);
     encoder->EncodeVkBool32Value(value.independentResolveNone);
     encoder->EncodeVkBool32Value(value.independentResolve);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTimelineSemaphoreFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.timelineSemaphore);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTimelineSemaphorePropertiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.maxTimelineSemaphoreValueDifference);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreTypeCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.semaphoreType);
+    encoder->EncodeUInt64Value(value.initialValue);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkTimelineSemaphoreSubmitInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.waitSemaphoreValueCount);
+    encoder->EncodeUInt64Array(value.pWaitSemaphoreValues, value.waitSemaphoreValueCount);
+    encoder->EncodeUInt32Value(value.signalSemaphoreValueCount);
+    encoder->EncodeUInt64Array(value.pSignalSemaphoreValues, value.signalSemaphoreValueCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreWaitInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt32Value(value.semaphoreCount);
+    encoder->EncodeHandleArray(value.pSemaphores, value.semaphoreCount);
+    encoder->EncodeUInt64Array(value.pValues, value.semaphoreCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreSignalInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.semaphore);
+    encoder->EncodeUInt64Value(value.value);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVulkanMemoryModelFeaturesKHR& value)
