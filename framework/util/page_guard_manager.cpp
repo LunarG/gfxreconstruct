@@ -52,8 +52,13 @@ static LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS exception_point
             {
                 // ExceptionInformation[0] indicates a read operation if 0 and write if 1.
                 // ExceptionInformation[1] is the address of the inaccessible data.
-                bool  is_write = (record->ExceptionInformation[0] == 0) ? false : true;
                 void* address  = reinterpret_cast<void*>(record->ExceptionInformation[1]);
+                bool  is_write = true;
+
+                if (manager->UseSeparateRead() && (record->ExceptionInformation[0] == 0))
+                {
+                    is_write = false;
+                }
 
                 // The PAGE_GUARD settings was automatically removed when the exception was raised, and does not need to
                 // be removed by the handler.
@@ -66,8 +71,13 @@ static LONG WINAPI PageGuardExceptionHandler(PEXCEPTION_POINTERS exception_point
             {
                 // ExceptionInformation[0] indicates a read operation if 0 and write if 1.
                 // ExceptionInformation[1] is the address of the inaccessible data.
-                bool  is_write = (record->ExceptionInformation[0] == 0) ? false : true;
                 void* address  = reinterpret_cast<void*>(record->ExceptionInformation[1]);
+                bool  is_write = true;
+
+                if (manager->UseSeparateRead() && (record->ExceptionInformation[0] == 0))
+                {
+                    is_write = false;
+                }
 
                 // The read-only memory protection was not automatically removed when the exception was raised, and must
                 // be removed by the handler.
@@ -101,7 +111,7 @@ static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
     {
         bool is_write = true;
 #if defined(PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION)
-        if (data != nullptr)
+        if (manager->UseSeparateRead() && (data != nullptr))
         {
             // This is a machine-specific method for detecting read vs. write access, and is not portable.
             auto ucontext = reinterpret_cast<const ucontext_t*>(data);
@@ -172,17 +182,19 @@ PageGuardManager* PageGuardManager::instance_ = nullptr;
 PageGuardManager::PageGuardManager() :
     exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
     enable_shadow_memory_(kDefaultEnableShadowMemory), enable_copy_on_map_(kDefaultEnableCopyOnMap),
-    enable_lazy_copy_(kDefaultEnableLazyCopy), enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
+    enable_lazy_copy_(kDefaultEnableLazyCopy), enable_separate_read_(kDefaultEnableSeparateRead),
+    enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
 {}
 
 PageGuardManager::PageGuardManager(bool enable_shadow_memory,
                                    bool enable_copy_on_map,
                                    bool enable_lazy_copy,
+                                   bool enable_separate_read,
                                    bool expect_read_write_same_page) :
     exception_handler_(nullptr),
     exception_handler_count_(0), system_page_size_(GetSystemPageSize()), enable_shadow_memory_(enable_shadow_memory),
     enable_copy_on_map_(enable_copy_on_map), enable_lazy_copy_(enable_lazy_copy),
-    enable_read_write_same_page_(expect_read_write_same_page)
+    enable_separate_read_(enable_separate_read), enable_read_write_same_page_(expect_read_write_same_page)
 {}
 
 PageGuardManager::~PageGuardManager()
@@ -205,12 +217,16 @@ PageGuardManager::~PageGuardManager()
 void PageGuardManager::Create(bool enable_shadow_memory,
                               bool enable_copy_on_map,
                               bool enable_lazy_copy,
+                              bool enable_separate_read,
                               bool expect_read_write_same_page)
 {
     if (instance_ == nullptr)
     {
-        instance_ = new PageGuardManager(
-            enable_shadow_memory, enable_copy_on_map, enable_lazy_copy, expect_read_write_same_page);
+        instance_ = new PageGuardManager(enable_shadow_memory,
+                                         enable_copy_on_map,
+                                         enable_lazy_copy,
+                                         enable_separate_read,
+                                         expect_read_write_same_page);
     }
     else
     {
