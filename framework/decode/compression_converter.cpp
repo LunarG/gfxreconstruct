@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -161,6 +161,28 @@ void CompressionConverter::DecodeFunctionCall(format::ApiCallId  call_id,
     }
 }
 
+void CompressionConverter::DispatchStateBeginMarker(uint64_t frame_number)
+{
+    format::Marker marker;
+    marker.header.size  = sizeof(marker.marker_type) + sizeof(marker.frame_number);
+    marker.header.type  = format::kStateMarkerBlock;
+    marker.marker_type  = format::kBeginMarker;
+    marker.frame_number = frame_number;
+
+    bytes_written_ += file_stream_->Write(&marker, sizeof(marker));
+}
+
+void CompressionConverter::DispatchStateEndMarker(uint64_t frame_number)
+{
+    format::Marker marker;
+    marker.header.size  = sizeof(marker.marker_type) + sizeof(marker.frame_number);
+    marker.header.type  = format::kStateMarkerBlock;
+    marker.marker_type  = format::kEndMarker;
+    marker.frame_number = frame_number;
+
+    bytes_written_ += file_stream_->Write(&marker, sizeof(marker));
+}
+
 void CompressionConverter::DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message)
 {
     size_t                              message_length = message.size();
@@ -233,6 +255,178 @@ void CompressionConverter::DispatchResizeWindowCommand(format::ThreadId thread_i
     resize_cmd.height                     = height;
 
     bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+}
+
+void CompressionConverter::DispatchSetSwapchainImageStateCommand(
+    format::ThreadId                                    thread_id,
+    format::HandleId                                    device_id,
+    format::HandleId                                    swapchain_id,
+    uint32_t                                            last_presented_image,
+    const std::vector<format::SwapchainImageStateInfo>& image_state)
+{
+    format::SetSwapchainImageStateCommandHeader header;
+    size_t                                      image_count      = image_state.size();
+    size_t                                      image_state_size = 0;
+
+    // Initialize standard block header.
+    header.meta_header.block_header.size = sizeof(header.meta_header.meta_data_type) + sizeof(header.thread_id) +
+                                           sizeof(header.device_id) + sizeof(header.swapchain_id) +
+                                           sizeof(header.last_presented_image) + sizeof(header.image_info_count);
+    header.meta_header.block_header.type = format::kMetaDataBlock;
+
+    if (image_count > 0)
+    {
+        image_state_size = image_count * sizeof(image_state[0]);
+        header.meta_header.block_header.size += image_state_size;
+    }
+
+    // Initialize block data for set-swapchain-image-state meta-data command.
+    header.meta_header.meta_data_type = format::kSetSwapchainImageStateCommand;
+    header.thread_id                  = thread_id;
+    header.device_id                  = device_id;
+    header.swapchain_id               = swapchain_id;
+    header.last_presented_image       = last_presented_image;
+    header.image_info_count           = static_cast<uint32_t>(image_count);
+
+    bytes_written_ += file_stream_->Write(&header, sizeof(header));
+    bytes_written_ += file_stream_->Write(image_state.data(), image_state_size);
+}
+
+void CompressionConverter::DispatchBeginResourceInitCommand(format::ThreadId thread_id,
+                                                            format::HandleId device_id,
+                                                            uint64_t         max_resource_size,
+                                                            uint64_t         max_copy_size)
+{
+    format::BeginResourceInitCommand begin_cmd;
+    begin_cmd.meta_header.block_header.size = sizeof(begin_cmd) - sizeof(begin_cmd.meta_header.block_header);
+    begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+    begin_cmd.meta_header.meta_data_type    = format::kBeginResourceInitCommand;
+    begin_cmd.thread_id                     = thread_id;
+    begin_cmd.device_id                     = device_id;
+    begin_cmd.max_resource_size             = max_resource_size;
+    begin_cmd.max_copy_size                 = max_copy_size;
+
+    bytes_written_ += file_stream_->Write(&begin_cmd, sizeof(begin_cmd));
+}
+
+void CompressionConverter::DispatchEndResourceInitCommand(format::ThreadId thread_id, format::HandleId device_id)
+{
+    format::EndResourceInitCommand end_cmd;
+    end_cmd.meta_header.block_header.size = sizeof(end_cmd) - sizeof(end_cmd.meta_header.block_header);
+    end_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+    end_cmd.meta_header.meta_data_type    = format::kEndResourceInitCommand;
+    end_cmd.thread_id                     = thread_id;
+    end_cmd.device_id                     = device_id;
+
+    bytes_written_ += file_stream_->Write(&end_cmd, sizeof(end_cmd));
+}
+
+void CompressionConverter::DispatchInitBufferCommand(format::ThreadId thread_id,
+                                                     format::HandleId device_id,
+                                                     format::HandleId buffer_id,
+                                                     uint64_t         data_size,
+                                                     const uint8_t*   data)
+{
+    const uint8_t* write_address = data;
+
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_size);
+    size_t write_size = static_cast<size_t>(data_size);
+
+    format::InitBufferCommandHeader init_cmd;
+
+    init_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+    init_cmd.meta_header.meta_data_type    = format::kInitBufferCommand;
+    init_cmd.thread_id                     = thread_id;
+    init_cmd.device_id                     = device_id;
+    init_cmd.buffer_id                     = buffer_id;
+    init_cmd.data_size                     = write_size; // Uncompressed data size.
+
+    if (compressor_ != nullptr)
+    {
+        size_t compressed_size = compressor_->Compress(write_size, write_address, &compressed_buffer_);
+
+        if ((compressed_size > 0) && (compressed_size < write_size))
+        {
+            init_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+            write_address = compressed_buffer_.data();
+            write_size    = compressed_size;
+        }
+    }
+
+    // Calculate size of packet with compressed or uncompressed data size.
+    init_cmd.meta_header.block_header.size =
+        (sizeof(init_cmd) - sizeof(init_cmd.meta_header.block_header)) + write_size;
+
+    bytes_written_ += file_stream_->Write(&init_cmd, sizeof(init_cmd));
+    bytes_written_ += file_stream_->Write(write_address, write_size);
+}
+
+void CompressionConverter::DispatchInitImageCommand(format::ThreadId             thread_id,
+                                                    format::HandleId             device_id,
+                                                    format::HandleId             image_id,
+                                                    uint64_t                     data_size,
+                                                    uint32_t                     aspect,
+                                                    uint32_t                     layout,
+                                                    const std::vector<uint64_t>& level_sizes,
+                                                    const uint8_t*               data)
+{
+    format::InitImageCommandHeader init_cmd;
+
+    // Packet size without the resource data.
+    init_cmd.meta_header.block_header.size = sizeof(init_cmd) - sizeof(init_cmd.meta_header.block_header);
+    init_cmd.meta_header.block_header.type = format::kMetaDataBlock;
+    init_cmd.meta_header.meta_data_type    = format::kInitImageCommand;
+    init_cmd.thread_id                     = thread_id;
+    init_cmd.device_id                     = device_id;
+    init_cmd.image_id                      = image_id;
+    init_cmd.aspect                        = aspect;
+    init_cmd.layout                        = layout;
+
+    if (data_size > 0)
+    {
+        assert(!level_sizes.empty());
+
+        const uint8_t* write_address = data;
+
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_size);
+        size_t write_size = static_cast<size_t>(data_size);
+
+        // Store uncompressed data size in packet.
+        init_cmd.data_size   = write_size;
+        init_cmd.level_count = static_cast<uint32_t>(level_sizes.size());
+
+        if (compressor_ != nullptr)
+        {
+            size_t compressed_size = compressor_->Compress(write_size, write_address, &compressed_buffer_);
+
+            if ((compressed_size > 0) && (compressed_size < write_size))
+            {
+                init_cmd.meta_header.block_header.type = format::BlockType::kCompressedMetaDataBlock;
+
+                write_address = compressed_buffer_.data();
+                write_size    = compressed_size;
+            }
+        }
+
+        // Calculate size of packet with compressed or uncompressed data size.
+        size_t levels_size = level_sizes.size() * sizeof(level_sizes[0]);
+
+        init_cmd.meta_header.block_header.size += levels_size + write_size;
+
+        bytes_written_ += file_stream_->Write(&init_cmd, sizeof(init_cmd));
+        bytes_written_ += file_stream_->Write(level_sizes.data(), levels_size);
+        bytes_written_ += file_stream_->Write(write_address, write_size);
+    }
+    else
+    {
+        // Write a packet without resource data; replay must still perform a layout transition at image
+        // initialization.
+        init_cmd.data_size   = 0;
+        init_cmd.level_count = 0;
+
+        bytes_written_ += file_stream_->Write(&init_cmd, sizeof(init_cmd));
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -54,6 +54,10 @@ class CompressionConverter : public ApiDecoder
                                     const uint8_t*     buffer,
                                     size_t             buffer_size) override;
 
+    virtual void DispatchStateBeginMarker(uint64_t frame_number) override;
+
+    virtual void DispatchStateEndMarker(uint64_t frame_number) override;
+
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override;
 
     virtual void DispatchFillMemoryCommand(
@@ -63,6 +67,35 @@ class CompressionConverter : public ApiDecoder
                                              format::HandleId surface_id,
                                              uint32_t         width,
                                              uint32_t         height) override;
+
+    virtual void
+    DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,
+                                          format::HandleId                                    device_id,
+                                          format::HandleId                                    swapchain_id,
+                                          uint32_t                                            last_presented_image,
+                                          const std::vector<format::SwapchainImageStateInfo>& image_state) override;
+
+    virtual void DispatchBeginResourceInitCommand(format::ThreadId thread_id,
+                                                  format::HandleId device_id,
+                                                  uint64_t         max_resource_size,
+                                                  uint64_t         max_copy_size) override;
+
+    virtual void DispatchEndResourceInitCommand(format::ThreadId thread_id, format::HandleId device_id) override;
+
+    virtual void DispatchInitBufferCommand(format::ThreadId thread_id,
+                                           format::HandleId device_id,
+                                           format::HandleId buffer_id,
+                                           uint64_t         data_size,
+                                           const uint8_t*   data) override;
+
+    virtual void DispatchInitImageCommand(format::ThreadId             thread_id,
+                                          format::HandleId             device_id,
+                                          format::HandleId             image_id,
+                                          uint64_t                     data_size,
+                                          uint32_t                     aspect,
+                                          uint32_t                     layout,
+                                          const std::vector<uint64_t>& level_sizes,
+                                          const uint8_t*               data) override;
 
     uint64_t NumBytesWritten() { return bytes_written_; }
 
