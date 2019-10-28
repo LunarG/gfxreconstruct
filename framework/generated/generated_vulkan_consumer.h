@@ -1501,6 +1501,23 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) = 0;
 
+    virtual void Process_vkGetSemaphoreCounterValueKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            semaphore,
+        const PointerDecoder<uint64_t>&             pValue) = 0;
+
+    virtual void Process_vkWaitSemaphoresKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkSemaphoreWaitInfoKHR>& pWaitInfo,
+        uint64_t                                    timeout) = 0;
+
+    virtual void Process_vkSignalSemaphoreKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkSemaphoreSignalInfoKHR>& pSignalInfo) = 0;
+
     virtual void Process_vkGetPipelineExecutablePropertiesKHR(
         VkResult                                    returnValue,
         format::HandleId                            device,

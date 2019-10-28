@@ -168,6 +168,10 @@ void MapStructHandles(Decoded_VkDisplayModeProperties2KHR* wrapper, const Vulkan
 
 void MapStructHandles(Decoded_VkDisplayPlaneInfo2KHR* wrapper, const VulkanObjectMapper& object_mapper);
 
+void MapStructHandles(Decoded_VkSemaphoreWaitInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkSemaphoreSignalInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
+
 void MapStructHandles(Decoded_VkPipelineInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkPipelineExecutableInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);

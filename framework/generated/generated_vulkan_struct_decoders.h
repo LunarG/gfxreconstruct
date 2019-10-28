@@ -2537,6 +2537,15 @@ struct Decoded_VkPhysicalDeviceShaderAtomicInt64FeaturesKHR
     std::unique_ptr<PNextNode> pNext;
 };
 
+struct Decoded_VkPhysicalDeviceShaderClockFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceShaderClockFeaturesKHR;
+
+    VkPhysicalDeviceShaderClockFeaturesKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 struct Decoded_VkConformanceVersionKHR
 {
     using struct_type = VkConformanceVersionKHR;
@@ -2582,6 +2591,65 @@ struct Decoded_VkPhysicalDeviceDepthStencilResolvePropertiesKHR
     VkPhysicalDeviceDepthStencilResolvePropertiesKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDeviceTimelineSemaphoreFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceTimelineSemaphoreFeaturesKHR;
+
+    VkPhysicalDeviceTimelineSemaphoreFeaturesKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDeviceTimelineSemaphorePropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceTimelineSemaphorePropertiesKHR;
+
+    VkPhysicalDeviceTimelineSemaphorePropertiesKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkSemaphoreTypeCreateInfoKHR
+{
+    using struct_type = VkSemaphoreTypeCreateInfoKHR;
+
+    VkSemaphoreTypeCreateInfoKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkTimelineSemaphoreSubmitInfoKHR
+{
+    using struct_type = VkTimelineSemaphoreSubmitInfoKHR;
+
+    VkTimelineSemaphoreSubmitInfoKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    PointerDecoder<uint64_t> pWaitSemaphoreValues;
+    PointerDecoder<uint64_t> pSignalSemaphoreValues;
+};
+
+struct Decoded_VkSemaphoreWaitInfoKHR
+{
+    using struct_type = VkSemaphoreWaitInfoKHR;
+
+    VkSemaphoreWaitInfoKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    HandlePointerDecoder<VkSemaphore> pSemaphores;
+    PointerDecoder<uint64_t> pValues;
+};
+
+struct Decoded_VkSemaphoreSignalInfoKHR
+{
+    using struct_type = VkSemaphoreSignalInfoKHR;
+
+    VkSemaphoreSignalInfoKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    format::HandleId semaphore{ 0 };
 };
 
 struct Decoded_VkPhysicalDeviceVulkanMemoryModelFeaturesKHR

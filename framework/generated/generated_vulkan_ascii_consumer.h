@@ -1501,6 +1501,23 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) override;
 
+    virtual void Process_vkGetSemaphoreCounterValueKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            semaphore,
+        const PointerDecoder<uint64_t>&             pValue) override;
+
+    virtual void Process_vkWaitSemaphoresKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkSemaphoreWaitInfoKHR>& pWaitInfo,
+        uint64_t                                    timeout) override;
+
+    virtual void Process_vkSignalSemaphoreKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkSemaphoreSignalInfoKHR>& pSignalInfo) override;
+
     virtual void Process_vkGetPipelineExecutablePropertiesKHR(
         VkResult                                    returnValue,
         format::HandleId                            device,

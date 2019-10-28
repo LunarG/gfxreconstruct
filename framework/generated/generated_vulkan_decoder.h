@@ -522,6 +522,12 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdDrawIndexedIndirectCountKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetSemaphoreCounterValueKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkWaitSemaphoresKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkSignalSemaphoreKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetPipelineExecutablePropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPipelineExecutableStatisticsKHR(const uint8_t* parameter_buffer, size_t buffer_size);

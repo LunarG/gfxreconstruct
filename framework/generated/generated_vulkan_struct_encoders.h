@@ -308,6 +308,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevice8BitStorageFe
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicInt64FeaturesKHR& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderClockFeaturesKHR& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkConformanceVersionKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDriverPropertiesKHR& value);
 
@@ -315,6 +317,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFloatControls
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDescriptionDepthStencilResolveKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthStencilResolvePropertiesKHR& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTimelineSemaphoreFeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTimelineSemaphorePropertiesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreTypeCreateInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkTimelineSemaphoreSubmitInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreWaitInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreSignalInfoKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVulkanMemoryModelFeaturesKHR& value);
 
