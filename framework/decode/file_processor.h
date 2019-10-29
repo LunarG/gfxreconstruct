@@ -70,7 +70,7 @@ class FileProcessor
     // occurred.  Use GetErrorState() to determine error condition.
     bool ProcessNextFrame();
 
-    bool ProcessNextFrame(std::unique_ptr<TcpClient> tcp_client, bool tcp_send_data, char* file_name);
+    bool ProcessNextFrame(std::shared_ptr<TcpClient> tcp_client, bool tcp_send_data, char* file_name);
 
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
@@ -92,7 +92,7 @@ class FileProcessor
 
     bool ProcessBlocks();
 
-    bool ProcessBlocks(bool tcp_send_data, std::unique_ptr<TcpClient> tcpClient);
+    bool ProcessBlocks(bool tcp_send_data, std::shared_ptr<TcpClient> tcpClient);
 
     bool ReadBlockHeader(format::BlockHeader* block_header);
 

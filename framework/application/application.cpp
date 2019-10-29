@@ -23,7 +23,6 @@
 #include <cassert>
 
 #include "framework/tcpclient/tcp_client.h"
-std::unique_ptr<TcpClient> tcp_client;
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -143,7 +142,7 @@ bool Application::PlaySingleFrame(char* file_name, bool tcp_send_data)
 
     if (file_processor_)
     {
-        success = file_processor_->ProcessNextFrame(std::move(tcp_client), tcp_send_data, file_name);
+        success = file_processor_->ProcessNextFrame(tcp_client, tcp_send_data, file_name);
 
         if (success)
         {

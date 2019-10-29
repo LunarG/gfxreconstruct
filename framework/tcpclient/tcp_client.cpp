@@ -29,7 +29,7 @@ TcpClient::TcpClient(uint32_t port, addrinfo* addr_info, char* file_name, bool d
     memset(ip_str_, 0, sizeof(ip_str_));
 }
 
-void TcpClient::GetAddressInfo()
+bool TcpClient::GetAddressInfo()
 {
 #ifdef _WIN32
     addrinfo hints;
@@ -49,15 +49,15 @@ void TcpClient::GetAddressInfo()
     {
         GFXRECON_LOG_ERROR("Failed to call getaddrinfo function.\n");
         WSACleanup();
-        return;
+        return false;
     }
 #else
     GFXRECON_LOG_ERROR("TcpClient GetAddressInfo() is supported in Windows only.\n");
-    return;
+    return false;
 #endif
 }
 
-void TcpClient::InitSocket()
+bool TcpClient::InitSocket()
 {
 #ifdef _WIN32
     WSADATA wsa_data;
@@ -65,15 +65,15 @@ void TcpClient::InitSocket()
     if (result != 0)
     {
         GFXRECON_LOG_ERROR("WSAStartup failed\n");
-        return;
+        return false;
     }
 #else
     GFXRECON_LOG_ERROR("TcpClient InitSocket() is supported in Windows only.\n");
-    return;
+    return false;
 #endif
 }
 
-void TcpClient::CreateSocket()
+bool TcpClient::CreateSocket()
 {
 #ifdef _WIN32
     socket_ = socket(address_info_->ai_family, address_info_->ai_socktype, address_info_->ai_protocol);
@@ -83,15 +83,15 @@ void TcpClient::CreateSocket()
         GFXRECON_LOG_ERROR("Error at creating socket\n");
         freeaddrinfo(address_info_);
         WSACleanup();
-        return;
+        return false;
     }
 #else
     GFXRECON_LOG_ERROR("TcpClient CreateSocket() is supported in Windows only.\n");
-    return;
+    return false;
 #endif
 }
 
-void TcpClient::ConnectSocket()
+bool TcpClient::ConnectSocket()
 {
 #ifdef _WIN32
     int result = connect(socket_, address_info_->ai_addr, (int)address_info_->ai_addrlen);
@@ -100,11 +100,11 @@ void TcpClient::ConnectSocket()
     {
         closesocket(socket_);
         socket_ = INVALID_SOCKET;
-        return;
+        return false;
     }
 #else
     GFXRECON_LOG_ERROR("TcpClient ConnectSocket() is supported in Windows only.\n");
-    return;
+    return false;
 #endif
 }
 
@@ -118,16 +118,16 @@ std::ifstream::pos_type TcpClient::GetFileSize(const char* filename)
 void TcpClient::TcpSendFilePos(double file_len, double bytes_sent, char* file_name)
 {
 #ifdef _WIN32
-    static int64_t last_position_sent = 0;
+    static int64_t last_position_sent = file_position;
     file_position += bytes_sent;
     if (NULL != file_name)
     {
         int64_t file_length = file_len;
         if (file_length > 0)
         {
-            double file_len_f                   = reinterpret_cast<double&>(file_length);
-            double position_cur                 = reinterpret_cast<double&>(file_position);
-            double position_last_sent           = reinterpret_cast<double&>(last_position_sent);
+            double file_len_f                   = file_length;
+            double position_cur                 = file_position;
+            double position_last_sent           = last_position_sent;
             double diff_from_last_position_sent = (position_cur - position_last_sent);
             double diff_min                     = (file_len_f * 0.001f);
 

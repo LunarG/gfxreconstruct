@@ -24,8 +24,9 @@
 #include <mutex>
 
 #ifndef _WIN32
-typedef void     addrinfo;
-typedef int      SOCKET;
+// TODO(xooi@amd.com) replace these with platform agnostic wrappers
+typedef void addrinfo;
+typedef int  SOCKET;
 #endif
 
 using namespace std;
@@ -93,14 +94,31 @@ class TcpClient
 #ifdef _WIN32
         std::lock_guard<std::mutex> lock(mutex_);
 
-        InitSocket();
+        if (InitSocket() == false)
+        {
+            GFXRECON_LOG_ERROR("Init WinSock DLL process failed.\n");
+            return;
+        }
+
         socket_ = socket(AF_INET, SOCK_STREAM, 0);
 
-        GetAddressInfo();
+        if (GetAddressInfo() == false)
+        {
+            GFXRECON_LOG_WARNING("Get address information failed.\n");
+            return;
+        }
 
-        CreateSocket();
+        if (CreateSocket() == false)
+        {
+            GFXRECON_LOG_ERROR("Create socket failed.\n");
+            return;
+        }
 
-        ConnectSocket();
+        if (ConnectSocket() == false)
+        {
+            GFXRECON_LOG_ERROR("Connect to socket failed.\n");
+            return;
+        }
 
         freeaddrinfo(address_info_);
 
@@ -128,16 +146,16 @@ class TcpClient
     std::ifstream::pos_type GetFileSize(const char* filename);
 
     // Get address info for send data
-    void GetAddressInfo();
+    bool GetAddressInfo();
 
     // Initiate use of window socket DLL
-    void InitSocket();
+    bool InitSocket();
 
     // Create a socket
-    void CreateSocket();
+    bool CreateSocket();
 
     // Connect to socket
-    void ConnectSocket();
+    bool ConnectSocket();
 
     // Get TCP port number
     uint32_t GetPortNum();

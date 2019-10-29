@@ -101,19 +101,19 @@ bool FileProcessor::ProcessNextFrame()
     return success;
 }
 
-bool FileProcessor::ProcessNextFrame(std::unique_ptr<TcpClient> tcp_client, bool tcp_send_data, char* file_name)
+bool FileProcessor::ProcessNextFrame(std::shared_ptr<TcpClient> tcp_client, bool tcp_send_data, char* file_name)
 {
     bool success = IsFileValid();
 
     if (success)
     {
+        success = ProcessBlocks(tcp_send_data, tcp_client);
         if (tcp_send_data)
         {
             uint64_t file_len = tcp_client->GetFileSize(file_name);
             tcp_client->TransmitData("FRAME:%u", GetCurrentFrameNumber());
             tcp_client->TcpSendFilePos(file_len, bytes_read_, file_name);
         }
-        success = ProcessBlocks(tcp_send_data, std::move(tcp_client));
     }
     else
     {
@@ -290,7 +290,7 @@ bool FileProcessor::ProcessBlocks()
     return success;
 }
 
-bool FileProcessor::ProcessBlocks(bool tcp_send_data, std::unique_ptr<TcpClient> tcp_client)
+bool FileProcessor::ProcessBlocks(bool tcp_send_data, std::shared_ptr<TcpClient> tcp_client)
 {
     format::BlockHeader block_header;
     bool                success = true;

@@ -78,6 +78,7 @@ class Application
                                                     ///< system events.
     std::string                  name_;             ///< Application name to display in window title bar.
     uint32_t                     pause_frame_;      ///< The number for a frame that replay should pause after.
+    std::shared_ptr<TcpClient>   tcp_client;        ///< Tcp client used to send messages for tuning.
     // clang-format on
 };
 
