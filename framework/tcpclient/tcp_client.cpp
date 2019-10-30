@@ -51,6 +51,8 @@ bool TcpClient::GetAddressInfo()
         WSACleanup();
         return false;
     }
+
+    return true;
 #else
     GFXRECON_LOG_ERROR("TcpClient GetAddressInfo() is supported in Windows only.\n");
     return false;
@@ -67,6 +69,8 @@ bool TcpClient::InitSocket()
         GFXRECON_LOG_ERROR("WSAStartup failed\n");
         return false;
     }
+
+    return true;
 #else
     GFXRECON_LOG_ERROR("TcpClient InitSocket() is supported in Windows only.\n");
     return false;
@@ -85,6 +89,8 @@ bool TcpClient::CreateSocket()
         WSACleanup();
         return false;
     }
+
+    return true;
 #else
     GFXRECON_LOG_ERROR("TcpClient CreateSocket() is supported in Windows only.\n");
     return false;
@@ -102,6 +108,8 @@ bool TcpClient::ConnectSocket()
         socket_ = INVALID_SOCKET;
         return false;
     }
+
+    return true;
 #else
     GFXRECON_LOG_ERROR("TcpClient ConnectSocket() is supported in Windows only.\n");
     return false;

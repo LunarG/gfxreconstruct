@@ -41,6 +41,15 @@ class Application
 
     bool IsRunning() const { return running_; }
 
+    /// Send Asic Information function
+    //
+    /// This function retrieve and send the Asic information over TCP.
+    /// The Asic information sent includes chip family, chip ID,
+    /// revision ID, gpu counter frequency, core clock frequency,
+    /// memory clock frequency, video memory size, number of shader engines,
+    /// number of shader arrays per SE, total CU and number of SIMD per CU
+    void SendAsicInfo();
+
     void Run();
 
     void Run(char* file_name, uint32_t port, char* ip_address);

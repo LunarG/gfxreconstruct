@@ -16,13 +16,12 @@
 */
 
 #include "application/application.h"
-
 #include "util/logging.h"
+#include "util/asic_info_amdext_loader.h"
+#include "framework/tcpclient/tcp_client.h"
 
 #include <algorithm>
 #include <cassert>
-
-#include "framework/tcpclient/tcp_client.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -50,6 +49,52 @@ void Application::SetFileProcessor(decode::FileProcessor* file_processor)
     file_processor_ = file_processor;
 }
 
+void Application::SendAsicInfo()
+{
+#ifdef _WIN32
+    static bool asic_info_sent = false;
+    if (true == asic_info_sent)
+    {
+        return;
+    }
+    asic_info_sent = true;
+
+    AmdDxASICInfo asic_info;
+    if (true == AsicInfoAmdExtLoader::GetAsicInfo(&asic_info))
+    {
+        if (asic_info.gpuCount > 0)
+        {
+            AmdDxASICInfoHWInfo* hw_info = &(asic_info.hwInfo[0]);
+            tcp_client->TransmitData("ASICINFO:"
+                                     "chipFamily=%d|"
+                                     "chipID=%d|"
+                                     "revisionID=%d|"
+                                     "gpuCounterFrequency=%llu|"
+                                     "coreClockInHz=%llu|"
+                                     "memClockInHz=%llu|"
+                                     "videoMemSize=%llu|"
+                                     "numShaderEngines=%d|"
+                                     "numShaderArraysPerSE=%d|"
+                                     "totalCU=%d|"
+                                     "numSimdsPerCU=%d|",
+                                     hw_info->chipFamily,
+                                     hw_info->chipID,
+                                     hw_info->revisionID,
+                                     hw_info->gpuCounterFrequency,
+                                     hw_info->coreClockInHz,
+                                     hw_info->memClockInHz,
+                                     hw_info->videoMemSize,
+                                     hw_info->numShaderEngines,
+                                     hw_info->numShaderArraysPerSE,
+                                     hw_info->totalCU,
+                                     hw_info->numSimdsPerCU);
+        }
+    }
+#else
+    GFXRECON_LOG_ERROR("Application SendAsicInfo is supported in Windows only.");
+#endif
+}
+
 void Application::Run()
 {
     running_ = true;
@@ -75,6 +120,7 @@ void Application::Run(char* file_name, uint32_t port, char* ip_address)
     if (tcp_send_data)
     {
         tcp_client = TcpClient::Create(ip_address, port, nullptr, file_name, tcp_send_data);
+        SendAsicInfo();
     }
 
     while (running_)
