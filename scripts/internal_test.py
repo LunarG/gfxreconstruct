@@ -17,6 +17,7 @@
 
 import argparse
 import time
+import datetime
 import unittest
 import distutils.version
 import os
@@ -30,7 +31,8 @@ import zipfile
 
 VERSION = distutils.version.StrictVersion('0.0.0')
 TEST_RESULT_FOLDER = "TestResult"
-LOCAL_TEST_APP_PATH = "TestApp"
+LOCAL_TEST_DST_PATH = "TestApp"
+TEST_SRC_PATH = "TestSrc"
 APPS_SCREENSHOT_FRAMES = "100,150,200,250,300"
 RECAP_SCREENSHOT_FRAMES = "4000,4050,4100,4150,4200"
 SCREENSHOT_COUNT = 5
@@ -50,7 +52,8 @@ def parse_args():
         '--version', dest='version',
         action='version', version=str(VERSION))
 
-    default_bin_path = os.path.join(os.getcwd(), "build", platform.system().lower(), "x64", "bin")
+    default_bin_path = os.path.join(
+        os.getcwd(), "build", platform.system().lower(), "x64", "bin")
     arg_parser.add_argument(
         '--binary-path', dest='binary_path', type=str, default=default_bin_path,
         help='Folder path containing the GFXReconstruct binary')
@@ -58,8 +61,11 @@ def parse_args():
         '--layer-path', dest='layer_path', type=str, default=default_bin_path,
         help='Folder path containing the GFXReconstruct layers')
     arg_parser.add_argument(
-        '--testapp-path', dest='test_app_path', type=str, default=LOCAL_TEST_APP_PATH,
-        help='Folder path containing the test app executables and/or golden trace files')
+        '--src-path', nargs='+', dest='src_path_list', default=["\\bender\xcaptan_depot\GoldenTraces\gfxrec\Samples_Win"],
+        help='Folder path(s) containing the test app executables and/or golden trace files to be downloaded to the user specified dst-path or \"TestApp\" folder by default')
+    arg_parser.add_argument(
+        '--dst-path', dest='dst_path', type=str, default=LOCAL_TEST_DST_PATH,
+        help='Local folder path(s) containing the test app executables and/or golden trace files to be downloaded from src path')
     arg_parser.add_argument(
         '--skip-test-app', dest='skip_test_app',
         action='store_true', default=False,
@@ -72,9 +78,6 @@ def parse_args():
         '--skip-sync-trace', dest='skip_sync_trace',
         action='store_true', default=False,
         help='Skip sync down golden traces or app from server path (i.e. test path)')
-    arg_parser.add_argument(
-        '--usernamepw', dest='user_name_pw', type=str,
-        help='\"<username>,<password>\" to access the test app path if it is a server path that need authentication')
     return arg_parser.parse_args()
 
 
@@ -155,6 +158,30 @@ def remove_screenshots(foldername):
             os.remove(os.path.join(foldername, file))
 
 
+def is_local_newer(localpath, remotepath):
+    '''
+    compare the modified date of the remote file with the created date of
+    the local file. Return True if the local file is newer.
+    '''
+    if(zipfile.is_zipfile(remotepath)):
+        zfile = zipfile.ZipFile(remotepath)
+        filename =""
+        for info in zfile.infolist():
+            filename = info.filename
+            remotedate = datetime.datetime(*info.date_time).timestamp()
+        if filename!="":
+            localpath = os.path.join(localpath, filename)
+        localdate = os.path.getctime(localpath)
+    else:
+        remotedate = os.path.getmtime(remotepath)
+        localdate = os.path.getctime(localpath)
+
+    print("Remote modified:", time.ctime(remotedate))
+    print("Local created:", time.ctime(localdate))
+    print("")
+    return remotedate < localdate
+
+
 class GFXTestSuite(unittest.TestCase):
     def test_capture(self):
         '''
@@ -164,7 +191,7 @@ class GFXTestSuite(unittest.TestCase):
             # start app for test
             command = ''
             if platform.system().lower() == "windows":
-                app = '{0}\\{1}.exe'.format(args.test_app_path, exe)
+                app = '{0}\\{1}.exe'.format(local_dst_path, exe)
                 command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
                     set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
                     set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
@@ -173,23 +200,25 @@ class GFXTestSuite(unittest.TestCase):
                     set GFXRECON_LOG_LEVEL=warning&&\
                     start {4}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe, app)
             elif platform.system().lower() == "linux":
-                app = '{0}/{1}'.format(args.test_app_path, exe)
-                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; {4} & (sleep 3 && sudo killall -9 {4})'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe, app)
+                app = '{0}/{1}'.format(local_dst_path, exe)
+                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; {4} & (sleep 3 && sudo killall -9 {4})'.format(
+                    args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe, app)
 
             print(command)
             ret = os.system(command)
             if platform.system().lower() == "windows":
                 if not ret:
-                    #checking for sufficient # screenshot ppm files exist before quit apps
+                    # checking for sufficient # screenshot ppm files exist before quit apps
                     ppmfiles = []
                     start = time.time()
                     while (len(ppmfiles) < SCREENSHOT_COUNT):
                         ppmfiles = []
                         ppmfiles += [each for each in os.listdir(
                             os.getcwd()) if each.endswith('.ppm')]
-                        if(time.time()-start > 120  and len(ppmfiles) < 1):
+                        if(time.time()-start > 120 and len(ppmfiles) < 1):
                             if platform.system().lower() == "windows":
-                                result = os.system('taskkill /IM ' + exe + '.exe /f')
+                                result = os.system(
+                                    'taskkill /IM ' + exe + '.exe /f')
                             elif platform.system().lower() == "linux":
                                 result = os.system('sudo killall -9 ' + app)
                             raise Exception(
@@ -212,7 +241,7 @@ class GFXTestSuite(unittest.TestCase):
         try:
             # start golden trace playaback for recapture test
             command = ''
-            tracefile = get_latest_gfxrfile(args.test_app_path, exe)
+            tracefile = get_latest_gfxrfile(local_dst_path, exe)
             if platform.system().lower() == "windows":
                 command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
                     set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
@@ -222,7 +251,8 @@ class GFXTestSuite(unittest.TestCase):
                     set GFXRECON_LOG_LEVEL=warning&&\
                     {4}\\gfxrecon-replay.exe {5}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recap", args.binary_path, tracefile)
             elif platform.system().lower() == "linux":
-                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; {4}/gfxrecon-replay {5}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recap", args.binary_path, tracefile)
+                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; {4}/gfxrecon-replay {5}'.format(
+                    args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recap", args.binary_path, tracefile)
             print(command)
             ret = os.system(command)
         except Exception as error:
@@ -236,7 +266,7 @@ class GFXTestSuite(unittest.TestCase):
         try:
             # start golden trace playaback for recapture trim test
             command = ''
-            tracefile = get_latest_gfxrfile(args.test_app_path, exe)
+            tracefile = get_latest_gfxrfile(local_dst_path, exe)
             if platform.system().lower() == "windows":
                 command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
                     set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
@@ -271,7 +301,8 @@ class GFXTestSuite(unittest.TestCase):
                     {2}\\gfxrecon-replay.exe {3}'.format(args.layer_path, screenshot_frames, args.binary_path, gfxrfile)
                 print(command)
             elif platform.system().lower() == "linux":
-                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; {2}/gfxrecon-replay {3}'.format(args.layer_path, screenshot_frames, args.binary_path, gfxrfile)
+                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; {2}/gfxrecon-replay {3}'.format(
+                    args.layer_path, screenshot_frames, args.binary_path, gfxrfile)
 
             output = os.popen(command).read()
             print("-----playback output-----")
@@ -323,8 +354,8 @@ if '__main__' == __name__:
         if not os.path.exists(args.layer_path):
             raise Exception("Layer path not found.")
         if args.skip_sync_trace:
-            if not os.path.exists(args.test_app_path):
-                raise Exception("Test apps path not found.")
+            if not os.path.exists(args.dst_path):
+                raise Exception("Local test apps/traces dest path not found.")
 
         # detect system GPU (now only for Windows)
         if platform.system().lower() == "windows":
@@ -337,44 +368,89 @@ if '__main__' == __name__:
 
         # sync down golden trace files and app from test path (server path)
         if not args.skip_sync_trace:
-            username = "None"
-            pw = "None"
-            if args.user_name_pw == None:
-                print(
-                    "WARNING: No authentication detected to access the sync server path.")
-            else:
-                username = args.user_name_pw.split(',')[0]
-                pw = args.user_name_pw.split(',')[1]
             if (platform.system().lower() == "windows"):
                 try:
-                    if os.path.exists(LOCAL_TEST_APP_PATH):
-                        shutil.rmtree(LOCAL_TEST_APP_PATH)
                     print(
-                        "Start syncing down apps from network to local. Please wait...")
-                    command = 'robocopy {0} {1} /E'.format(args.test_app_path, LOCAL_TEST_APP_PATH)
-                    output = os.popen(command).read()
-                    print('Done syncing down apps from network to local test folder.')
+                        "Start syncing down apps/traces from network to local. Please wait...")
+                    # create local sync directories to sync down apps or golden traces
+                    for srcdir in args.src_path_list:
+                        foldername = os.path.basename(srcdir)
+                        dstfoldername = os.path.join(args.dst_path, foldername)
+                        if not os.path.exists(args.dst_path):
+                            os.mkdir(args.dst_path)
+                        if not os.path.exists(dstfoldername):
+                            os.mkdir(dstfoldername)
+                        # for each file in the src path, check if is newer then only sync down to local
+                        for filename in os.listdir(srcdir):
+                            command = ""
+                            if(zipfile.is_zipfile(os.path.join(srcdir, filename))):
+                                if not is_local_newer(dstfoldername, os.path.join(srcdir, filename)):
+                                    command = 'robocopy {0} {1} {2}'.format(
+                                            srcdir, dstfoldername, filename)
+                                    runcommand = subprocess.run(
+                                        command, stdout=subprocess.PIPE, shell=True)
+                                    output = runcommand.stdout.decode('utf-8')
+                                    print(output)
+                            elif os.path.exists(os.path.join(dstfoldername, filename)):
+                                if not is_local_newer(os.path.join(dstfoldername, filename), os.path.join(srcdir, filename)):
+                                    if os.path.isdir(os.path.join(srcdir, filename)):
+                                        command = 'robocopy /S /E {0} {1}'.format(
+                                            os.path.join(srcdir, filename), os.path.join(dstfoldername, filename))
+                                    else:
+                                        command = 'robocopy {0} {1} {2}'.format(
+                                            srcdir, dstfoldername, filename)
+                                    runcommand = subprocess.run(
+                                        command, stdout=subprocess.PIPE, shell=True)
+                                    output = runcommand.stdout.decode('utf-8')
+                                    print(output)
+                            else:
+                                if os.path.isdir(os.path.join(srcdir, filename)):
+                                    command = 'robocopy /S /E {0} {1}'.format(
+                                        os.path.join(srcdir, filename), os.path.join(dstfoldername, filename))
+                                else:
+                                    command = 'robocopy {0} {1} {2}'.format(
+                                        srcdir, dstfoldername, filename)
+                                runcommand = subprocess.run(
+                                    command, stdout=subprocess.PIPE, shell=True)
+                                output = runcommand.stdout.decode('utf-8')
+                                print(output)
+                        print('Done syncing down apps from network to local test folder.')
                 except Exception as e:
                     print(e)
                     sys.exit(1)
             elif (platform.system().lower() == "linux"):
-                # mount trace samples from network to local if local not exists
-                if not os.path.ismount(LOCAL_TEST_APP_PATH):
-                    if not os.path.exists(LOCAL_TEST_APP_PATH):
-                        os.mkdir(LOCAL_TEST_APP_PATH)
-                    linuxcmd = 'sudo mount.cifs ' + args.test_app_path+' ' + \
-                        LOCAL_TEST_APP_PATH+' -o user=' + username + ',password='+pw
-                    print(linuxcmd)
-                    mountoutput = subprocess.Popen(linuxcmd, shell=True)
-                    print("mount output: " + str(mountoutput))
-            for traceappfile in os.listdir(LOCAL_TEST_APP_PATH):
-                if zipfile.is_zipfile(os.path.join(LOCAL_TEST_APP_PATH, traceappfile)):
-                    print("Unzipping test folders. Please wait...")
-                    with zipfile.ZipFile(os.path.join(LOCAL_TEST_APP_PATH, traceappfile), 'r') as zip_ref:
-                        zip_ref.extractall(LOCAL_TEST_APP_PATH)
-                    print("Done unzipping test folders.")
-                    os.remove(os.path.join(LOCAL_TEST_APP_PATH, traceappfile))
-            args.test_app_path = LOCAL_TEST_APP_PATH
+                # create local sync directories to sync down apps or golden traces
+                for srcdir in args.src_path_list:
+                    foldername = os.path.basename(srcdir)
+                    dstfoldername = args.path.join(args.dst_path, foldername)
+                    if not os.path.exists(dstfoldername):
+                        os.mkdir(dstfoldername)
+                    # for each file in the src path, check if is newer then only sync down to local
+                    for filename in os.listdir(srcdir):
+                        if os.path.exists(os.path.join(dstfoldername, filename)):
+                            if not is_local_newer(os.path.join(dstfoldername, filename), os.path.join(srcdir, filename)):
+                                command = 'scp {0} {1}'.format(os.path.join(
+                                    srcdir, filename), os.path.join(dstfoldername, filename))
+                                runcommand = subprocess.run(
+                                    command, stdout=subprocess.PIPE, shell=True)
+                                output = runcommand.stdout.decode('utf-8')
+                                print(output)
+                        else:
+                            command = 'scp {0} {1}'.format(os.path.join(
+                                srcdir, filename), os.path.join(dstfoldername, filename))
+                            runcommand = subprocess.run(
+                                command, stdout=subprocess.PIPE, shell=True)
+                            output = runcommand.stdout.decode('utf-8')
+                            print(output)
+                    print('Done syncing down apps from network to local test folder.')
+            for traceappfolder in os.listdir(args.dst_path):
+                for traceappfile in os.listdir(os.path.join(args.dst_path, traceappfolder)):
+                    if zipfile.is_zipfile(os.path.join(args.dst_path, traceappfolder, traceappfile)):
+                        print("Unzipping test folder: " + str(traceappfile) + ". Please wait...")
+                        with zipfile.ZipFile(os.path.join(args.dst_path, traceappfolder, traceappfile), 'r') as zip_ref:
+                            zip_ref.extractall(os.path.join(args.dst_path, traceappfolder))
+                        print("Done unzipping test folder.")
+                        os.remove(os.path.join(args.dst_path, traceappfolder, traceappfile))
 
         # if test folder does not exists, create a TestResult directory
         if not os.path.exists(TEST_RESULT_FOLDER):
@@ -382,100 +458,110 @@ if '__main__' == __name__:
         # detect if it is sashasample, if yes then override the test app path
         # this is because sashasample has asset data folder relative to app
         # executable
-        if os.path.exists(os.path.join(LOCAL_TEST_APP_PATH, "sashasample.dat")):
-            args.test_app_path = os.path.join(args.test_app_path,"bin")
-        # running the test suite for each Vulkan test apps
-        for file in os.listdir(args.test_app_path):
-            app_file_path = os.path.join(args.test_app_path, file)
-            # running tests (capture, playback and snapshots compare) on executable app files
-            is_exe = True
+        for folder in os.listdir(args.dst_path):
+            if os.path.exists(os.path.join(args.dst_path, folder, "sashasample.dat")):
+                local_dst_path = os.path.join(args.dst_path, folder, "bin")
+                if not os.path.exists(os.path.join("TestApp","data")):
+                    os.mkdir(os.path.join("TestApp","data"))
+                    shutil.move(os.path.join(args.dst_path, folder,"data"),os.path.join("TestApp","data"))
+            else:
+                local_dst_path = os.path.join(args.dst_path, folder)
+            # running the test suite for each Vulkan test apps
+            for file in os.listdir(local_dst_path):
+                test_file_path = os.path.join(local_dst_path, file)
+                # running tests (capture, playback and snapshots compare) on executable app files
+                is_exe = True
 
-            # os.access does not works well with window, thus add .exe check
-            if platform.system().lower() == "windows":
-                is_exe = file.endswith(".exe")
-
-            if not args.skip_test_app and is_exe == True and not os.path.isdir(app_file_path):
-                time.sleep(1)
-                exe = file.split('.')[0]
-                screenshot_frames = APPS_SCREENSHOT_FRAMES
-                print("\n")
-                print(''.join(['=========================== ', 'TEST ',
-                      exe, ' ===========================']))
-                suite = get_test(exe+"Capture", "test_capture")
-                test_result = xmlrunner.XMLTestRunner(
-                    verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                backup_ppm_folder = os.path.join(
-                    os.path.abspath(TEST_RESULT_FOLDER), "LastCapture")
-                backup_screenshot_for_compare(backup_ppm_folder)
-                gfxrfile = get_latest_gfxrfile(TEST_RESULT_FOLDER, exe)
-                suite = get_test(exe+"Playback", "test_playback")
-                test_result = xmlrunner.XMLTestRunner(
-                    verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                # os.access does not works well with window, thus add .exe check
                 if platform.system().lower() == "windows":
+                    is_exe = file.endswith(".exe")
+
+                if not args.skip_test_app and is_exe == True and not os.path.isdir(test_file_path):
+                    time.sleep(1)
+                    exe = file.split('.')[0]
+                    screenshot_frames = APPS_SCREENSHOT_FRAMES
+                    print("\n")
+                    print(''.join(['=========================== ', 'TEST ',
+                                exe, ' ===========================']))
+                    suite = get_test(exe+"Capture", "test_capture")
+                    test_result = xmlrunner.XMLTestRunner(
+                        verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                    backup_ppm_folder = os.path.join(
+                        os.path.abspath(TEST_RESULT_FOLDER), "LastCapture")
+                    backup_screenshot_for_compare(backup_ppm_folder)
+                    gfxrfile = get_latest_gfxrfile(TEST_RESULT_FOLDER, exe)
+                    suite = get_test(exe+"Playback", "test_playback")
+                    test_result = xmlrunner.XMLTestRunner(
+                        verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                    if platform.system().lower() == "windows":
+                        suite = get_test(exe+"ImgCompare",
+                                        "test_compare_screenshots")
+                        test_result = xmlrunner.XMLTestRunner(
+                            verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                    remove_screenshots(os.getcwd())
+                    remove_screenshots(backup_ppm_folder)
+
+                # running tests
+                # (playback gold, recapture, playback_recap, recap_trim, playback_recap_trim, snaoshot_compare)
+                # on golden GFXRec trace files
+                if not args.skip_test_game and test_file_path.endswith('.gfxr'):
+                    if not gpu in test_file_path:
+                        print(''.join(["WARNING: Skipping test on ", file,
+                                    ". Golden Trace file path name should contain GPU name \"", gpu, "\"."]))
+                        continue
+                    if gpu == "UNKNOWN":
+                        raise Exception("Failed to get system GPU name.")
+                    exe = file.split('.')[0]
+                    screenshot_frames = RECAP_SCREENSHOT_FRAMES
+                    print("\n")
+                    print(''.join(['=========================== ', 'TEST ',
+                                exe, ' ===========================']))
+                    gfxrfile = get_latest_gfxrfile(local_dst_path, exe)
+                    suite = get_test(exe+"PlaybackGold", "test_playback")
+                    test_result = xmlrunner.XMLTestRunner(
+                        verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                    remove_screenshots(os.getcwd())
+                    suite = get_test(exe+"Recapture", "test_recapture")
+                    test_result = xmlrunner.XMLTestRunner(
+                        verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                    backup_ppm_folder = os.path.join(
+                        os.path.abspath(TEST_RESULT_FOLDER), "LastCapture")
+                    backup_screenshot_for_compare(backup_ppm_folder)
+                    exe = exe+"_recap"
+                    gfxrfile = get_latest_gfxrfile(TEST_RESULT_FOLDER, exe)
+                    suite = get_test(exe+"PlaybackRecap", "test_playback")
+                    test_result = xmlrunner.XMLTestRunner(
+                        verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                    exe = file.split('.')[0]
                     suite = get_test(exe+"ImgCompare", "test_compare_screenshots")
                     test_result = xmlrunner.XMLTestRunner(
                         verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                remove_screenshots(os.getcwd())
-                remove_screenshots(backup_ppm_folder)
-
-            # running tests
-            # (playback gold, recapture, playback_recap, recap_trim, playback_recap_trim, snaoshot_compare)
-            # on golden GFXRec trace files
-            if not args.skip_test_game and app_file_path.endswith('.gfxr'):
-                if not gpu in app_file_path:
-                    print(''.join(["WARNING: Skipping test on ", file,
-                          ". Golden Trace file path name should contain GPU name \"", gpu, "\"."]))
-                    continue
-                if gpu == "UNKNOWN":
-                    raise Exception("Failed to get system GPU name.")
-                exe = file.split('.')[0]
-                screenshot_frames = RECAP_SCREENSHOT_FRAMES
-                print("\n")
-                print(''.join(['=========================== ', 'TEST ',
-                      exe, ' ===========================']))
-                gfxrfile = get_latest_gfxrfile(args.test_app_path, exe)
-                suite = get_test(exe+"PlaybackGold", "test_playback")
-                test_result = xmlrunner.XMLTestRunner(
-                    verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                remove_screenshots(os.getcwd())
-                suite = get_test(exe+"Recapture", "test_recapture")
-                test_result = xmlrunner.XMLTestRunner(
-                    verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                backup_ppm_folder = os.path.join(
-                    os.path.abspath(TEST_RESULT_FOLDER), "LastCapture")
-                backup_screenshot_for_compare(backup_ppm_folder)
-                exe = exe+"_recap"
-                gfxrfile = get_latest_gfxrfile(TEST_RESULT_FOLDER, exe)
-                suite = get_test(exe+"PlaybackRecap", "test_playback")
-                test_result = xmlrunner.XMLTestRunner(
-                    verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                exe = file.split('.')[0]
-                suite = get_test(exe+"ImgCompare", "test_compare_screenshots")
-                test_result = xmlrunner.XMLTestRunner(
-                    verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                remove_screenshots(os.getcwd())
-                remove_screenshots(backup_ppm_folder)
-                suite = get_test(exe+"RecaptureTrim", "test_recapture_trim")
-                test_result = xmlrunner.XMLTestRunner(verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                backup_ppm_folder = os.path.join(os.path.abspath(TEST_RESULT_FOLDER), "LastCapture")
-                backup_screenshot_for_compare(backup_ppm_folder)
-                exe = exe+"_recaptrim"
-                screenshot_frames = TRIM_PLAYBACK_SCREENSHOT
-                gfxrfile = get_latest_gfxrfile(TEST_RESULT_FOLDER, exe)
-                suite = get_test(exe+"PlaybackRecapTrim", "test_playback")
-                test_result = xmlrunner.XMLTestRunner(verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                #TODO: image comparison for trim is disabled for now, due to the test limitation
-                #rename the playback screenschot ppm files accordingly for image comparison
-                #trim_recap_files = RECAP_SCREENSHOT_FRAMES.split(',')
-                #trim_playback_files = TRIM_PLAYBACK_SCREENSHOT.split(',')
-                #for  i in range(len(trim_playback_files)):
-                #    if os.path.exists(trim_playback_files[i]+".ppm"):
-                #        os.rename(trim_playback_files[i]+".ppm", trim_recap_files[i]+".ppm")
-                #exe = file.split('.')[0]
-                #suite = get_test(exe+"ImgCompare", "test_compare_screenshots")
-                #test_result = xmlrunner.XMLTestRunner(verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
-                remove_screenshots(os.getcwd())
-                remove_screenshots(backup_ppm_folder)
+                    remove_screenshots(os.getcwd())
+                    remove_screenshots(backup_ppm_folder)
+                    suite = get_test(exe+"RecaptureTrim", "test_recapture_trim")
+                    test_result = xmlrunner.XMLTestRunner(
+                        verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                    backup_ppm_folder = os.path.join(
+                        os.path.abspath(TEST_RESULT_FOLDER), "LastCapture")
+                    backup_screenshot_for_compare(backup_ppm_folder)
+                    exe = exe+"_recaptrim"
+                    screenshot_frames = TRIM_PLAYBACK_SCREENSHOT
+                    gfxrfile = get_latest_gfxrfile(TEST_RESULT_FOLDER, exe)
+                    suite = get_test(exe+"PlaybackRecapTrim", "test_playback")
+                    test_result = xmlrunner.XMLTestRunner(
+                        verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                    # TODO: image comparison for trim is disabled for now, due to the test limitation
+                    # rename the playback screenschot ppm files accordingly for image comparison
+                    #trim_recap_files = RECAP_SCREENSHOT_FRAMES.split(',')
+                    #trim_playback_files = TRIM_PLAYBACK_SCREENSHOT.split(',')
+                    # for  i in range(len(trim_playback_files)):
+                    #    if os.path.exists(trim_playback_files[i]+".ppm"):
+                    #        os.rename(trim_playback_files[i]+".ppm", trim_recap_files[i]+".ppm")
+                    #exe = file.split('.')[0]
+                    #suite = get_test(exe+"ImgCompare", "test_compare_screenshots")
+                    #test_result = xmlrunner.XMLTestRunner(verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
+                    remove_screenshots(os.getcwd())
+                    remove_screenshots(backup_ppm_folder)
 
     except Exception as error:
         print('Error', *(error.args))

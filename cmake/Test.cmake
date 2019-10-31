@@ -93,7 +93,7 @@ function(generate_test_package TEST_ARCHIVE)
         if(CMAKE_HOST_WIN32)
             set(TEST_ARCHIVE_DIR build/packages/windows/${ARCHITECTURE})
             file(MAKE_DIRECTORY ${TEST_ARCHIVE_DIR})
-            add_custom_target(GenerateTestPackage ALL
+            add_custom_target(${TEST_ARCHIVE} ALL
                 COMMAND ${CMAKE_COMMAND} -E tar "vcf" ${TEST_ARCHIVE_DIR}/${TEST_ARCHIVE}.zip --format=zip --
                     ${TEST_ARCHIVE_FILES}
                 DEPENDS ${TEST_ARCHIVE_FILES}
@@ -102,7 +102,7 @@ function(generate_test_package TEST_ARCHIVE)
         elseif(CMAKE_HOST_UNIX)
             set(TEST_ARCHIVE_DIR build/packages/linux/${ARCHITECTURE})
             file(MAKE_DIRECTORY ${TEST_ARCHIVE_DIR})
-            add_custom_target(GenerateTestPackage ALL
+            add_custom_target(${TEST_ARCHIVE} ALL
                 COMMAND ${CMAKE_COMMAND} -E tar "cf" ${TEST_ARCHIVE_DIR}/${TEST_ARCHIVE}.tar --format=gnutar --
                     ${TEST_ARCHIVE_FILES}
                 DEPENDS ${TEST_ARCHIVE_FILES}

@@ -27,21 +27,32 @@
 #ifndef GFXRECON_REPLAY_SETTINGS_H
 #define GFXRECON_REPLAY_SETTINGS_H
 
-const char kApplicationName[] = "GFXReconstruct Replay";
-const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
+struct Arguments
+{
+    static const char kApplicationName[];
+    static const char kCaptureLayer[];
 
-const char kVersionOption[]                    = "--version";
-const char kOverrideGpuArgument[]              = "--gpu";
-const char kPausedOption[]                     = "--paused";
-const char kPauseFrameArgument[]               = "--pause-frame";
-const char kSkipFailedAllocationShortOption[]  = "--sfa";
-const char kSkipFailedAllocationLongOption[]   = "--skip-failed-allocations";
-const char kOmitPipelineCacheDataShortOption[] = "--opcd";
-const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
+    static const char kVersionOption[];
+    static const char kOverrideGpuArgument[];
+    static const char kPausedOption[];
+    static const char kPauseFrameArgument[];
+    static const char kSkipFailedAllocationShortOption[];
+    static const char kSkipFailedAllocationLongOption[];
+    static const char kOmitPipelineCacheDataShortOption[];
+    static const char kOmitPipelineCacheDataLongOption[];
 
-// TODO: Make this a vector of strings.
-const char kOptions[]   = "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
-const char kArguments[] = "--gpu,--pause-frame";
+    static const char kIPAddArgument[];
+    static const char kPortArgument[];
+    static const char kWinWidthArgument[];
+    static const char kWinHeightArgument[];
+
+    // TODO: Make this a vector of strings.
+    static const char kOptions[];
+    static const char kArguments[];
+};
+
+static uint32_t kWindowWidth  = 320;
+static uint32_t kWindowHeight = 240;
 
 static void CheckActiveLayers(const char* env_var)
 {
@@ -49,19 +60,71 @@ static void CheckActiveLayers(const char* env_var)
 
     if (!result.empty())
     {
-        if (result.find(kCaptureLayer) != std::string::npos)
+        if (result.find(Arguments::kCaptureLayer) != std::string::npos)
         {
             GFXRECON_LOG_WARNING("Replay tool has detected that the capture layer is enabled");
         }
     }
 }
 
+static char* GetIpAddress(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    std::string value = arg_parser.GetArgumentValue(Arguments::kIPAddArgument);
+
+    if (!value.empty())
+    {
+        std::vector<char> cvalue(value.c_str(), value.c_str() + value.size() + 1);
+        return reinterpret_cast<char*>(cvalue.data());
+    }
+
+    return nullptr;
+}
+
+static uint32_t GetTcpPort(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t    tcp_port = 0;
+    std::string value    = arg_parser.GetArgumentValue(Arguments::kPortArgument);
+
+    if (!value.empty())
+    {
+        tcp_port = std::stoi(value);
+    }
+
+    return tcp_port;
+}
+
+static uint32_t GetWindowWidth(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t    win_width = 0;
+    std::string value     = arg_parser.GetArgumentValue(Arguments::kWinWidthArgument);
+
+    if (!value.empty())
+    {
+        win_width = std::stoi(value);
+    }
+
+    return win_width;
+}
+
+static uint32_t GetWindowHeight(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    uint32_t    win_height = 0;
+    std::string value      = arg_parser.GetArgumentValue(Arguments::kWinHeightArgument);
+
+    if (!value.empty())
+    {
+        win_height = std::stoi(value);
+    }
+
+    return win_height;
+}
+
 static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     uint32_t    pause_frame = 0;
-    std::string value       = arg_parser.GetArgumentValue(kPauseFrameArgument);
+    std::string value       = arg_parser.GetArgumentValue(Arguments::kPauseFrameArgument);
 
-    if (arg_parser.IsOptionSet(kPausedOption))
+    if (arg_parser.IsOptionSet(Arguments::kPausedOption))
     {
         pause_frame = 1;
     }
@@ -76,21 +139,21 @@ static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 static gfxrecon::decode::ReplayOptions GetReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     gfxrecon::decode::ReplayOptions replay_options;
-    std::string                     override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
+    std::string                     override_gpu = arg_parser.GetArgumentValue(Arguments::kOverrideGpuArgument);
 
     if (!override_gpu.empty())
     {
         replay_options.override_gpu_index = std::stoi(override_gpu);
     }
 
-    if (arg_parser.IsOptionSet(kSkipFailedAllocationLongOption) ||
-        arg_parser.IsOptionSet(kSkipFailedAllocationShortOption))
+    if (arg_parser.IsOptionSet(Arguments::kSkipFailedAllocationLongOption) ||
+        arg_parser.IsOptionSet(Arguments::kSkipFailedAllocationShortOption))
     {
         replay_options.skip_failed_allocations = true;
     }
 
-    if (arg_parser.IsOptionSet(kOmitPipelineCacheDataLongOption) ||
-        arg_parser.IsOptionSet(kOmitPipelineCacheDataShortOption))
+    if (arg_parser.IsOptionSet(Arguments::kOmitPipelineCacheDataLongOption) ||
+        arg_parser.IsOptionSet(Arguments::kOmitPipelineCacheDataShortOption))
     {
         replay_options.omit_pipeline_cache_data = true;
     }
@@ -100,7 +163,7 @@ static gfxrecon::decode::ReplayOptions GetReplayOptions(const gfxrecon::util::Ar
 
 static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    if (arg_parser.IsOptionSet(kVersionOption))
+    if (arg_parser.IsOptionSet(Arguments::kVersionOption))
     {
         std::string app_name     = exe_name;
         size_t      dir_location = app_name.find_last_of("/\\");

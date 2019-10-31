@@ -101,6 +101,36 @@ bool FileProcessor::ProcessNextFrame()
     return success;
 }
 
+bool FileProcessor::ProcessNextFrame(std::shared_ptr<TcpClient> tcp_client, bool tcp_send_data, char* file_name)
+{
+    bool success = IsFileValid();
+
+    if (success)
+    {
+        success = ProcessBlocks(tcp_send_data, tcp_client);
+        if (tcp_send_data)
+        {
+            uint64_t file_len = tcp_client->GetFileSize(file_name);
+            tcp_client->TransmitData("FRAME:%u", GetCurrentFrameNumber());
+            tcp_client->TcpSendFilePos(file_len, bytes_read_, file_name);
+        }
+    }
+    else
+    {
+        // If not EOF, determine reason for invalid state.
+        if (file_descriptor_ == nullptr)
+        {
+            error_state_ = kErrorInvalidFileDescriptor;
+        }
+        else if (ferror(file_descriptor_))
+        {
+            error_state_ = kErrorReadingFile;
+        }
+    }
+
+    return success;
+}
+
 bool FileProcessor::ProcessAllFrames()
 {
     bool success = true;
@@ -236,6 +266,83 @@ bool FileProcessor::ProcessBlocks()
                 else
                 {
                     GFXRECON_LOG_ERROR("Failed to read state marker header");
+                    error_state_ = kErrorReadingBlockHeader;
+                }
+            }
+            else
+            {
+                // Unrecognized block type.
+                GFXRECON_LOG_WARNING("Skipping unrecognized file block with type %u", block_header.type);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
+                success = SkipBytes(static_cast<size_t>(block_header.size));
+            }
+        }
+        else
+        {
+            if (!feof(file_descriptor_))
+            {
+                GFXRECON_LOG_ERROR("Failed to read block header");
+                error_state_ = kErrorReadingBlockHeader;
+            }
+        }
+    }
+
+    return success;
+}
+
+bool FileProcessor::ProcessBlocks(bool tcp_send_data, std::shared_ptr<TcpClient> tcp_client)
+{
+    format::BlockHeader block_header;
+    bool                success = true;
+
+    while (success)
+    {
+        success = ReadBlockHeader(&block_header);
+
+        if (success)
+        {
+            if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kFunctionCallBlock)
+            {
+                format::ApiCallId api_call_id = format::ApiCallId::ApiCall_Unknown;
+
+                success = ReadBytes(&api_call_id, sizeof(api_call_id));
+
+                if (success)
+                {
+                    success = ProcessFunctionCall(block_header, api_call_id);
+
+                    if (tcp_send_data && format::ApiCallId::ApiCall_vkCreateInstance == api_call_id)
+                    {
+                        tcp_client->TcpSendDriverLoadInfo();
+                    }
+
+                    // Break from loop on frame delimiter.
+                    if (IsFrameDelimiter(api_call_id))
+                    {
+                        // Make sure to increment the frame number on the way out.
+                        ++current_frame_number_;
+                        break;
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to read function call block header");
+                    error_state_ = kErrorReadingBlockHeader;
+                }
+            }
+            else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
+            {
+                format::MetaDataType meta_type = format::MetaDataType::kUnknownMetaDataType;
+
+                success = ReadBytes(&meta_type, sizeof(meta_type));
+
+                if (success)
+                {
+                    success = ProcessMetaData(block_header, meta_type);
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to read meta-data block header");
                     error_state_ = kErrorReadingBlockHeader;
                 }
             }

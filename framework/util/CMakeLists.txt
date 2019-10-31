@@ -49,13 +49,15 @@ target_sources(gfxrecon_util
                    platform.h
                    settings_loader.h
                    settings_loader.cpp
+                   asic_info_amdext_loader.h
+                   asic_info_amdext_loader.cpp
               )
 
 target_include_directories(gfxrecon_util
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS})
+target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS} $<$<BOOL:${WIN32}>:AMDEXT> $<$<BOOL:${WIN32}>:d3d11>)
 
 if (UNIX AND NOT APPLE)
     # Check for clock_gettime in libc

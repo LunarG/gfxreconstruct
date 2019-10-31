@@ -41,7 +41,18 @@ class Application
 
     bool IsRunning() const { return running_; }
 
+    /// Send Asic Information function
+    //
+    /// This function retrieve and send the Asic information over TCP.
+    /// The Asic information sent includes chip family, chip ID,
+    /// revision ID, gpu counter frequency, core clock frequency,
+    /// memory clock frequency, video memory size, number of shader engines,
+    /// number of shader arrays per SE, total CU and number of SIMD per CU
+    void SendAsicInfo();
+
     void Run();
+
+    void Run(char* file_name, uint32_t port, char* ip_address);
 
     bool GetPaused() const { return paused_; }
 
@@ -50,6 +61,8 @@ class Application
     void SetPauseFrame(uint32_t pause_frame) { pause_frame_ = pause_frame; }
 
     bool PlaySingleFrame();
+
+    bool PlaySingleFrame(char* file_name, bool tcp_send_data);
 
     bool RegisterWindow(decode::Window* window);
 
@@ -74,6 +87,7 @@ class Application
                                                     ///< system events.
     std::string                  name_;             ///< Application name to display in window title bar.
     uint32_t                     pause_frame_;      ///< The number for a frame that replay should pause after.
+    std::shared_ptr<TcpClient>   tcp_client;        ///< Tcp client used to send messages for tuning.
     // clang-format on
 };
 

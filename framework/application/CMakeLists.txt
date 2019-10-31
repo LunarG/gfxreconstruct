@@ -30,6 +30,8 @@ target_link_libraries(gfxrecon_application
                       platform_specific
                       $<$<BOOL:${XCB_FOUND}>:${XCB_LIBRARY}>
                       $<$<BOOL:${WAYLAND_FOUND}>:${WAYLAND_LIBRARY}>
+                      $<$<BOOL:${WIN32}>:AMDEXT>
+                      $<$<BOOL:${WIN32}>:d3d11>
                      )
 
 common_build_directives(gfxrecon_application)

@@ -115,12 +115,14 @@ target_include_directories(catch2 INTERFACE external)
 add_subdirectory(framework)
 add_subdirectory(layer)
 add_subdirectory(tools)
+if(WIN32)
+add_subdirectory(external)
+endif()
 
-#TODO: the line below is needed in the test package to include the json file,
-# but it cause error in the first time build, subsequent build is fine,
-# thus it is commented out for now and need fix
-#add_test_package_file(${CMAKE_CURRENT_BINARY_DIR}/bin/VK_LAYER_LUNARG_gfxreconstruct.json)
-add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/internal_test.py)
-add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/test.py)
-add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/build.py)
-generate_test_package(gfx_reconstruct_test)
+if (${GENERATE_TEST_ARCHIVE})
+    add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/internal_test.py)
+    add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/test.py)
+    add_test_package_file(${CMAKE_CURRENT_LIST_DIR}/scripts/build.py)
+    generate_test_package(gfx_reconstruct_test_archive)
+    add_dependencies(gfx_reconstruct_test_archive VkLayer_gfxreconstruct_json)
+endif()
