@@ -141,11 +141,9 @@ void TcpClient::TcpSendFilePos(double file_len, double bytes_sent, char* file_na
 
             if (diff_from_last_position_sent >= diff_min)
             {
-                std::stringstream str_stream;
-                std::string       file_str;
-
-                str_stream << file_name << ',' << file_position << ',' << file_len;
-                file_str = str_stream.str();
+                char file_str[kStrLen];
+                memset(file_str, 0, kStrLen);
+                sprintf_s(file_str, kStrLen, "%s,%f,%f", file_name, bytes_sent, file_len);
 
                 TransmitData("GFXRECFILE:%s", file_str);
                 last_position_sent = file_position;
