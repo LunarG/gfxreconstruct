@@ -31,12 +31,15 @@ target_sources(gfxrecon_decode
                    vulkan_consumer_base.h
                    vulkan_decoder_base.h
                    vulkan_decoder_base.cpp
+                   vulkan_default_allocator.h
+                   vulkan_default_allocator.cpp
                    vulkan_enum_util.h
                    vulkan_object_info.h
                    vulkan_object_info_table.h
                    vulkan_replay_consumer_base.h
                    vulkan_replay_consumer_base.cpp
                    vulkan_replay_options.h
+                   vulkan_resource_allocator.h
                    vulkan_resource_initializer.h
                    vulkan_resource_initializer.cpp
                    window.h
