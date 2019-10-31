@@ -3678,7 +3678,7 @@ void VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(
     VkDebugReportCallbackEXT out_pCallback_value = static_cast<VkDebugReportCallbackEXT>(0);
     VkDebugReportCallbackEXT* out_pCallback = &out_pCallback_value;
 
-    VkResult replay_result = GetInstanceTable(in_instance)->CreateDebugReportCallbackEXT(in_instance, in_pCreateInfo, in_pAllocator, out_pCallback);
+    VkResult replay_result = OverrideCreateDebugReportCallbackEXT(GetInstanceTable(in_instance)->CreateDebugReportCallbackEXT, returnValue, in_instance, in_pCreateInfo, in_pAllocator, pCallback, out_pCallback);
     CheckResult("vkCreateDebugReportCallbackEXT", returnValue, replay_result);
 
     AddHandles<VkDebugReportCallbackEXT>(pCallback.GetPointer(), 1, out_pCallback, 1, &VulkanObjectMapper::AddVkDebugReportCallbackEXT);
@@ -4458,7 +4458,7 @@ void VulkanReplayConsumer::Process_vkCreateDebugUtilsMessengerEXT(
     VkDebugUtilsMessengerEXT out_pMessenger_value = static_cast<VkDebugUtilsMessengerEXT>(0);
     VkDebugUtilsMessengerEXT* out_pMessenger = &out_pMessenger_value;
 
-    VkResult replay_result = GetInstanceTable(in_instance)->CreateDebugUtilsMessengerEXT(in_instance, in_pCreateInfo, in_pAllocator, out_pMessenger);
+    VkResult replay_result = OverrideCreateDebugUtilsMessengerEXT(GetInstanceTable(in_instance)->CreateDebugUtilsMessengerEXT, returnValue, in_instance, in_pCreateInfo, in_pAllocator, pMessenger, out_pMessenger);
     CheckResult("vkCreateDebugUtilsMessengerEXT", returnValue, replay_result);
 
     AddHandles<VkDebugUtilsMessengerEXT>(pMessenger.GetPointer(), 1, out_pMessenger, 1, &VulkanObjectMapper::AddVkDebugUtilsMessengerEXT);

@@ -369,6 +369,24 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          const HandlePointerDecoder<VkPipelineCache>& original_pipeline_cache,
                                          VkPipelineCache*                             pPipelineCache);
 
+    VkResult
+    OverrideCreateDebugReportCallbackEXT(PFN_vkCreateDebugReportCallbackEXT                    func,
+                                         VkResult                                              original_result,
+                                         VkInstance                                            instance,
+                                         const VkDebugReportCallbackCreateInfoEXT*             pCreateInfo,
+                                         const VkAllocationCallbacks*                          pAllocator,
+                                         const HandlePointerDecoder<VkDebugReportCallbackEXT>& original_callback,
+                                         VkDebugReportCallbackEXT*                             pCallback);
+
+    VkResult
+    OverrideCreateDebugUtilsMessengerEXT(PFN_vkCreateDebugUtilsMessengerEXT                    func,
+                                         VkResult                                              original_result,
+                                         VkInstance                                            instance,
+                                         const VkDebugUtilsMessengerCreateInfoEXT*             pCreateInfo,
+                                         const VkAllocationCallbacks*                          pAllocator,
+                                         const HandlePointerDecoder<VkDebugUtilsMessengerEXT>& original_messenger,
+                                         VkDebugUtilsMessengerEXT*                             pMessenger);
+
     VkResult OverrideCreateSwapchainKHR(PFN_vkCreateSwapchainKHR                    func,
                                         VkResult                                    original_result,
                                         VkDevice                                    device,
