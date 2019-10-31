@@ -50,6 +50,50 @@ const std::unordered_set<std::string> kSurfaceExtensions = {
     VK_KHR_WIN32_SURFACE_EXTENSION_NAME,   VK_KHR_XCB_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME
 };
 
+static VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(VkDebugReportFlagsEXT      flags,
+                                                          VkDebugReportObjectTypeEXT objectType,
+                                                          uint64_t                   object,
+                                                          size_t                     location,
+                                                          int32_t                    messageCode,
+                                                          const char*                pLayerPrefix,
+                                                          const char*                pMessage,
+                                                          void*                      pUserData)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(objectType);
+    GFXRECON_UNREFERENCED_PARAMETER(object);
+    GFXRECON_UNREFERENCED_PARAMETER(location);
+    GFXRECON_UNREFERENCED_PARAMETER(messageCode);
+    GFXRECON_UNREFERENCED_PARAMETER(pUserData);
+
+    if ((pLayerPrefix != nullptr) && (pMessage != nullptr) &&
+        ((flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) == VK_DEBUG_REPORT_ERROR_BIT_EXT))
+    {
+        GFXRECON_WRITE_CONSOLE("DEBUG REPORT: %s: %s", pLayerPrefix, pMessage);
+    }
+
+    return VK_FALSE;
+}
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL DebugUtilsCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
+                                                         VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
+                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                                         void*                                       pUserData)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pUserData);
+
+    if ((pCallbackData != nullptr) && (pCallbackData->pMessageIdName != nullptr) &&
+        (pCallbackData->pMessage != nullptr) &&
+        ((messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) ==
+         VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) &&
+        ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) ==
+         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT))
+    {
+        GFXRECON_WRITE_CONSOLE("DEBUG MESSENGER: %s: %s", pCallbackData->pMessageIdName, pCallbackData->pMessage);
+    }
+
+    return VK_FALSE;
+}
+
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options) :
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
     window_factory_(window_factory), options_(options)
@@ -2354,6 +2398,58 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
     {
         return func(device, pCreateInfo, pAllocator, pPipelineCache);
     }
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
+    PFN_vkCreateDebugReportCallbackEXT                    func,
+    VkResult                                              original_result,
+    VkInstance                                            instance,
+    const VkDebugReportCallbackCreateInfoEXT*             pCreateInfo,
+    const VkAllocationCallbacks*                          pAllocator,
+    const HandlePointerDecoder<VkDebugReportCallbackEXT>& original_callback,
+    VkDebugReportCallbackEXT*                             pCallback)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(original_callback);
+
+    VkDebugReportCallbackCreateInfoEXT modified_create_info{};
+    if (pCreateInfo != nullptr)
+    {
+        modified_create_info             = (*pCreateInfo);
+        modified_create_info.pfnCallback = DebugReportCallback;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("The vkCreateDebugReportCallbackEXT parameter pCreateInfo is NULL.");
+    }
+
+    return func(instance, pCreateInfo, pAllocator, pCallback);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
+    PFN_vkCreateDebugUtilsMessengerEXT                    func,
+    VkResult                                              original_result,
+    VkInstance                                            instance,
+    const VkDebugUtilsMessengerCreateInfoEXT*             pCreateInfo,
+    const VkAllocationCallbacks*                          pAllocator,
+    const HandlePointerDecoder<VkDebugUtilsMessengerEXT>& original_messenger,
+    VkDebugUtilsMessengerEXT*                             pMessenger)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_UNREFERENCED_PARAMETER(original_messenger);
+
+    VkDebugUtilsMessengerCreateInfoEXT modified_create_info{};
+    if (pCreateInfo != nullptr)
+    {
+        modified_create_info                 = (*pCreateInfo);
+        modified_create_info.pfnUserCallback = DebugUtilsCallback;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("The vkCreateDebugUtilsMessengerEXT parameter pCreateInfo is NULL.");
+    }
+
+    return func(instance, &modified_create_info, pAllocator, pMessenger);
 }
 
 VkResult
