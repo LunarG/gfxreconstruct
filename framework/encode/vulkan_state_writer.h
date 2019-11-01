@@ -208,6 +208,9 @@ class VulkanStateWriter
                                       const DescriptorInfo* binding,
                                       VkWriteDescriptorSet* write);
 
+    void WriteQueryPoolReset(format::HandleId                            device_id,
+                             const std::vector<const QueryPoolWrapper*>& query_pool_wrappers);
+
     void WriteQueryActivation(format::HandleId           device_id,
                               uint32_t                   queue_family_index,
                               const QueryActivationList& active_queries);

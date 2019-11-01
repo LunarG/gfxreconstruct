@@ -29,6 +29,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+const uint32_t kDefaultQueueFamilyIndex = 0;
+
 // Temporary resource IDs for state processing.
 const format::HandleId kTempQueueId         = std::numeric_limits<format::HandleId>::max() - 1;
 const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
@@ -672,13 +674,17 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
 
 void VulkanStateWriter::WriteQueryPoolState(const VulkanStateTable& state_table)
 {
-    std::unordered_map<const DeviceWrapper*, QueryActivationQueueFamilyTable> device_queries;
+    std::unordered_map<const DeviceWrapper*, std::vector<const QueryPoolWrapper*>> device_query_pools;
+    std::unordered_map<const DeviceWrapper*, QueryActivationQueueFamilyTable>      device_queries;
 
     state_table.VisitWrappers([&](const QueryPoolWrapper* wrapper) {
         assert(wrapper != nullptr);
 
         // Write query pool creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+
+        // Group query pools that need to be reset by device.
+        device_query_pools[wrapper->device].push_back(wrapper);
 
         // Sort pending queries by device and queue family index.
         for (uint32_t i = 0; i < wrapper->pending_queries.size(); ++i)
@@ -699,6 +705,12 @@ void VulkanStateWriter::WriteQueryPoolState(const VulkanStateTable& state_table)
             }
         }
     });
+
+    // Write query pool reset to state snapshot.
+    for (const auto& device_entry : device_query_pools)
+    {
+        WriteQueryPoolReset(device_entry.first->handle_id, device_entry.second);
+    }
 
     // Write query activation to state snapshot.  This will simply begin/end each query so that future calls to
     // vkGetQueryPoolResults will succeed, but will not produce valid query results.
@@ -1881,6 +1893,32 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkUpdateDescriptorSets, &parameter_stream_);
     parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteQueryPoolReset(format::HandleId                            device_id,
+                                            const std::vector<const QueryPoolWrapper*>& query_pool_wrappers)
+{
+    // Retrieve a queue and create a command buffer for query pool reset.
+    WriteCommandProcessingCreateCommands(
+        device_id, kDefaultQueueFamilyIndex, kTempQueueId, kTempCommandPoolId, kTempCommandBufferId);
+
+    WriteCommandBegin(kTempCommandBufferId);
+
+    for (auto wrapper : query_pool_wrappers)
+    {
+        encoder_.EncodeHandleIdValue(kTempCommandBufferId);
+        encoder_.EncodeHandleIdValue(wrapper->handle_id);
+        encoder_.EncodeUInt32Value(0);
+        encoder_.EncodeUInt32Value(wrapper->query_count);
+
+        WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdResetQueryPool, &parameter_stream_);
+        parameter_stream_.Reset();
+    }
+
+    WriteCommandEnd(kTempCommandBufferId);
+    WriteCommandExecution(kTempQueueId, kTempCommandBufferId);
+
+    WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkDestroyCommandPool, device_id, kTempCommandPoolId, nullptr);
 }
 
 void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_id,
