@@ -212,6 +212,7 @@ struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>
 {
     DeviceWrapper*         device{ nullptr };
     VkQueryType            query_type{};
+    uint32_t               query_count{ 0 };
     std::vector<QueryInfo> pending_queries;
 };
 

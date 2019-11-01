@@ -173,8 +173,9 @@ inline void InitializeState<VkDevice, QueryPoolWrapper, VkQueryPoolCreateInfo>(V
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device     = reinterpret_cast<DeviceWrapper*>(parent_handle);
-    wrapper->query_type = create_info->queryType;
+    wrapper->device      = reinterpret_cast<DeviceWrapper*>(parent_handle);
+    wrapper->query_type  = create_info->queryType;
+    wrapper->query_count = create_info->queryCount;
     wrapper->pending_queries.resize(create_info->queryCount);
 }
 
