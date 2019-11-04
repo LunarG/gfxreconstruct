@@ -230,7 +230,7 @@ void ArgumentParser::Init(std::vector<std::string> command_line_args,
                             {
                                 argument_value.erase(0, 1);
                             }
-                            if (current_argument[argument_value.size() - 1] == '\"')
+                            if (argument_value[argument_value.size() - 1] == '\"')
                             {
                                 argument_value.erase(argument_value.size() - 1);
                             }
