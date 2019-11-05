@@ -22,6 +22,7 @@
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/vulkan_object_info.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 
@@ -29,17 +30,37 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 template <typename T>
+static typename T::HandleType MapHandle(format::HandleId          id,
+                                        const VulkanObjectMapper& object_mapper,
+                                        const T* (VulkanObjectMapper::*MapFunc)(format::HandleId) const)
+{
+    typename T::HandleType handle = VK_NULL_HANDLE;
+    const T*               info   = (object_mapper.*MapFunc)(id);
+
+    if (info != nullptr)
+    {
+        handle = info->handle;
+    }
+
+    return handle;
+}
+
+template <typename T>
 static void MapHandleArray(const format::HandleId*   ids,
-                           T*                        handles,
+                           typename T::HandleType*   handles,
                            size_t                    len,
                            const VulkanObjectMapper& object_mapper,
-                           T (VulkanObjectMapper::*MapFunc)(format::HandleId) const)
+                           const T* (VulkanObjectMapper::*MapFunc)(format::HandleId) const)
 {
     if ((ids != nullptr) && (handles != nullptr))
     {
         for (size_t i = 0; i < len; ++i)
         {
-            handles[i] = (object_mapper.*MapFunc)(ids[i]);
+            const T* info = (object_mapper.*MapFunc)(ids[i]);
+            if (info != nullptr)
+            {
+                handles[i] = info->handle;
+            }
         }
     }
 }
@@ -55,12 +76,13 @@ void MapStructHandles(VkDescriptorType               type,
         if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
         {
             // TODO: This should be ignored if the descriptor set layout was created with an immutable sampler.
-            value->sampler = object_mapper.MapVkSampler(wrapper->sampler);
+            value->sampler = MapHandle<SamplerInfo>(wrapper->sampler, object_mapper, &VulkanObjectMapper::MapVkSampler);
         }
 
         if (type != VK_DESCRIPTOR_TYPE_SAMPLER)
         {
-            value->imageView = object_mapper.MapVkImageView(wrapper->imageView);
+            value->imageView =
+                MapHandle<ImageViewInfo>(wrapper->imageView, object_mapper, &VulkanObjectMapper::MapVkImageView);
         }
     }
 }
@@ -76,7 +98,8 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectM
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
         }
 
-        value->dstSet = object_mapper.MapVkDescriptorSet(wrapper->dstSet);
+        value->dstSet =
+            MapHandle<DescriptorSetInfo>(wrapper->dstSet, object_mapper, &VulkanObjectMapper::MapVkDescriptorSet);
 
         switch (value->descriptorType)
         {
@@ -104,11 +127,11 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectM
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                MapHandleArray<VkBufferView>(wrapper->pTexelBufferView.GetPointer(),
-                                             wrapper->pTexelBufferView.GetHandlePointer(),
-                                             wrapper->pTexelBufferView.GetLength(),
-                                             object_mapper,
-                                             &VulkanObjectMapper::MapVkBufferView);
+                MapHandleArray<BufferViewInfo>(wrapper->pTexelBufferView.GetPointer(),
+                                               wrapper->pTexelBufferView.GetHandlePointer(),
+                                               wrapper->pTexelBufferView.GetLength(),
+                                               object_mapper,
+                                               &VulkanObjectMapper::MapVkBufferView);
                 break;
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
                 // TODO

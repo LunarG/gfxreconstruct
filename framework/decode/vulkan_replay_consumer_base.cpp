@@ -141,11 +141,13 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
                                                         const uint8_t* data)
 {
     // We need to find the device memory associated with this ID, and then lookup its mapped pointer.
-    VkDeviceMemory memory = object_mapper_.MapVkDeviceMemory(memory_id);
+    const DeviceMemoryInfo* memory_info = object_mapper_.MapVkDeviceMemory(memory_id);
 
-    if (memory != VK_NULL_HANDLE)
+    if (memory_info != nullptr)
     {
-        auto entry = memory_map_.find(memory);
+        assert(memory_info->handle != VK_NULL_HANDLE);
+
+        auto entry = memory_map_.find(memory_info->handle);
 
         if ((entry != memory_map_.end()) && (entry->second != nullptr))
         {
@@ -154,24 +156,27 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
         }
         else
         {
-            GFXRECON_LOG_WARNING("Skipping memory fill for VkDeviceMemory object that is not mapped (%" PRIx64 ")",
+            GFXRECON_LOG_WARNING("Skipping memory fill for VkDeviceMemory object (ID = %" PRIu64 ") that is not mapped",
                                  memory_id);
         }
     }
     else
     {
-        GFXRECON_LOG_WARNING("Skipping memory fill for unrecognized VkDeviceMemory object (%" PRIx64 ")", memory_id);
+        GFXRECON_LOG_WARNING("Skipping memory fill for unrecognized VkDeviceMemory object (ID = %" PRIu64 ")",
+                             memory_id);
     }
 }
 
 void VulkanReplayConsumerBase::ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
 {
     // We need to find the surface associated with this ID, and then lookup its window.
-    VkSurfaceKHR surface = object_mapper_.MapVkSurfaceKHR(surface_id);
+    const SurfaceKHRInfo* surface_info = object_mapper_.MapVkSurfaceKHR(surface_id);
 
-    if (surface != VK_NULL_HANDLE)
+    if (surface_info != nullptr)
     {
-        auto entry = window_map_.find(surface);
+        assert(surface_info->handle != VK_NULL_HANDLE);
+
+        auto entry = window_map_.find(surface_info->handle);
 
         if ((entry != window_map_.end()) && (entry->second != nullptr))
         {
@@ -180,13 +185,14 @@ void VulkanReplayConsumerBase::ProcessResizeWindowCommand(format::HandleId surfa
         }
         else
         {
-            GFXRECON_LOG_WARNING(
-                "Skipping window resize for VkSurface object (%" PRIx64 ") without an associated window", surface_id);
+            GFXRECON_LOG_WARNING("Skipping window resize for VkSurface object (ID = %" PRIu64
+                                 ") without an associated window",
+                                 surface_id);
         }
     }
     else
     {
-        GFXRECON_LOG_WARNING("Skipping window resize for unrecognized VkSurface object (%" PRIx64 ")", surface_id);
+        GFXRECON_LOG_WARNING("Skipping window resize for unrecognized VkSurface object (ID = %" PRIu64 ")", surface_id);
     }
 }
 
@@ -196,11 +202,16 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
     uint32_t                                            last_presented_image,
     const std::vector<format::SwapchainImageStateInfo>& image_info)
 {
-    VkDevice       device    = object_mapper_.MapVkDevice(device_id);
-    VkSwapchainKHR swapchain = object_mapper_.MapVkSwapchainKHR(swapchain_id);
+    const DeviceInfo*       device_info    = object_mapper_.MapVkDevice(device_id);
+    const SwapchainKHRInfo* swapchain_info = object_mapper_.MapVkSwapchainKHR(swapchain_id);
 
-    if ((device != VK_NULL_HANDLE) && (swapchain != VK_NULL_HANDLE))
+    if ((device_info != nullptr) && (swapchain_info != nullptr))
     {
+        assert((device_info->handle != VK_NULL_HANDLE) && (swapchain_info->handle != VK_NULL_HANDLE));
+
+        VkDevice       device    = device_info->handle;
+        VkSwapchainKHR swapchain = swapchain_info->handle;
+
         VkPhysicalDevice physical_device = device_parents_[device];
         VkSurfaceKHR     surface         = swapchain_surfaces_[swapchain];
         assert((physical_device != VK_NULL_HANDLE) && (surface != VK_NULL_HANDLE));
@@ -242,19 +253,19 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
         else
         {
             GFXRECON_LOG_WARNING("Failed image initialization for VkSwapchainKHR object (ID = %" PRIu64
-                                 ", handle = %" PRIx64 ")",
+                                 ", handle = 0x%" PRIx64 ")",
                                  swapchain_id,
                                  swapchain);
         }
     }
     else
     {
-        if (device != VK_NULL_HANDLE)
+        if (device_info != nullptr)
         {
             GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkSwapchainKHR object (ID = %" PRIu64 ")",
                                  swapchain_id);
         }
-        else if (swapchain != VK_NULL_HANDLE)
+        else if (swapchain_info != nullptr)
         {
             GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkDevice object (ID = %" PRIu64 ")",
                                  device_id);
@@ -329,11 +340,14 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStatePreAcquire(
 
         for (size_t i = 0; i < image_info.size(); ++i)
         {
-            VkImage image = object_mapper_.MapVkImage(image_info[i].image_id);
+            const ImageInfo* image_entry = object_mapper_.MapVkImage(image_info[i].image_id);
 
             // Pre-acquire and transition swapchain images while processing trimming state snapshot.
-            if (image != VK_NULL_HANDLE)
+            if (image_entry != nullptr)
             {
+                assert(image_entry->handle != VK_NULL_HANDLE);
+
+                VkImage  image       = image_entry->handle;
                 uint32_t image_index = 0;
 
                 VkFence     acquire_fence     = VK_NULL_HANDLE;
@@ -541,10 +555,13 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
         // Acquire, transition to the present source layout, and present each image.
         for (size_t i = 0; i < image_info.size(); ++i)
         {
-            VkImage image = object_mapper_.MapVkImage(image_info[i].image_id);
+            const ImageInfo* image_entry = object_mapper_.MapVkImage(image_info[i].image_id);
 
-            if (image != VK_NULL_HANDLE)
+            if (image_entry != nullptr)
             {
+                assert(image_entry->handle != VK_NULL_HANDLE);
+
+                VkImage  image       = image_entry->handle;
                 uint32_t image_index = 0;
 
                 result = table->ResetFences(device, 1, &wait_fence);
@@ -632,10 +649,13 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
         // acquired on replay is the same image acquired by the first captured frame.
         for (size_t i = 0; i < image_info.size(); ++i)
         {
-            VkImage image = object_mapper_.MapVkImage(image_info[i].image_id);
+            const ImageInfo* image_entry = object_mapper_.MapVkImage(image_info[i].image_id);
 
-            if ((image != VK_NULL_HANDLE) && ((image_info[i].acquired) || (i <= last_presented_image)))
+            if ((image_entry != nullptr) && ((image_info[i].acquired) || (i <= last_presented_image)))
             {
+                assert(image_entry->handle != VK_NULL_HANDLE);
+
+                VkImage  image       = image_entry->handle;
                 uint32_t image_index = 0;
 
                 result = table->ResetFences(device, 1, &wait_fence);
@@ -723,7 +743,7 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
                                          image_info[i].image_id);
                 }
             }
-            else if (image == VK_NULL_HANDLE)
+            else if (image_entry == nullptr)
             {
                 GFXRECON_LOG_WARNING("Skipping image acquire for unrecognized VkImage object (ID = %" PRIu64 ")",
                                      image_info[i].image_id);
@@ -754,11 +774,14 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
 {
     GFXRECON_UNREFERENCED_PARAMETER(max_resource_size);
 
-    VkDevice device = object_mapper_.MapVkDevice(device_id);
+    const DeviceInfo* device_info = object_mapper_.MapVkDevice(device_id);
 
-    if (device != VK_NULL_HANDLE)
+    if (device_info != nullptr)
     {
+        assert(device_info->handle != VK_NULL_HANDLE);
+
         VkResult       result = VK_SUCCESS;
+        VkDevice       device = device_info->handle;
         VkBuffer       buffer = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;
 
@@ -792,11 +815,11 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
 
 void VulkanReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)
 {
-    VkDevice device = object_mapper_.MapVkDevice(device_id);
+    const DeviceInfo* device_info = object_mapper_.MapVkDevice(device_id);
 
-    if (device != VK_NULL_HANDLE)
+    if (device_info != nullptr)
     {
-        resource_initializers_.erase(device);
+        resource_initializers_.erase(device_info->handle);
     }
 }
 
@@ -805,14 +828,18 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
                                                         uint64_t         data_size,
                                                         const uint8_t*   data)
 {
-    VkDevice device = object_mapper_.MapVkDevice(device_id);
-    VkBuffer buffer = object_mapper_.MapVkBuffer(buffer_id);
+    const DeviceInfo* device_info = object_mapper_.MapVkDevice(device_id);
+    const BufferInfo* buffer_info = object_mapper_.MapVkBuffer(buffer_id);
 
-    if ((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE))
+    if ((device_info != nullptr) && (buffer_info != nullptr))
     {
-        VkResult result = VK_SUCCESS;
+        assert((device_info->handle != VK_NULL_HANDLE) && (buffer_info->handle != VK_NULL_HANDLE));
 
-        const BufferInfo& info = buffer_info_[buffer];
+        VkResult result = VK_SUCCESS;
+        VkDevice device = device_info->handle;
+        VkBuffer buffer = buffer_info->handle;
+
+        const BufferProperties& info = buffer_info_[buffer];
 
         VulkanResourceInitializer* initializer = nullptr;
 
@@ -861,12 +888,12 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
     }
     else
     {
-        if (device != VK_NULL_HANDLE)
+        if (device_info != nullptr)
         {
             GFXRECON_LOG_WARNING(
                 "Skipping state snapshot buffer upload for unrecognized VkBuffer object (ID = %" PRIu64 ")", buffer_id);
         }
-        else if (buffer != VK_NULL_HANDLE)
+        else if (buffer_info != nullptr)
         {
             GFXRECON_LOG_WARNING(
                 "Skipping state snapshot buffer upload for unrecognized VkDevice object (ID = %" PRIu64 ")", device_id);
@@ -889,13 +916,18 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                                                        const std::vector<uint64_t>& level_sizes,
                                                        const uint8_t*               data)
 {
-    VkDevice device = object_mapper_.MapVkDevice(device_id);
-    VkImage  image  = object_mapper_.MapVkImage(image_id);
+    const DeviceInfo* device_info = object_mapper_.MapVkDevice(device_id);
+    const ImageInfo*  image_info  = object_mapper_.MapVkImage(image_id);
 
-    if ((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE))
+    if ((device_info != nullptr) && (image_info != nullptr))
     {
+        VkDevice device = device_info->handle;
+        VkImage  image  = image_info->handle;
+
+        assert((device != VK_NULL_HANDLE) && (image != VK_NULL_HANDLE));
+
         VkResult                   result      = VK_SUCCESS;
-        const ImageInfo&           info        = image_info_[image];
+        const ImageProperties&     info        = image_info_[image];
         VulkanResourceInitializer* initializer = nullptr;
 
         auto initializer_iter = resource_initializers_.find(device);
@@ -922,7 +954,7 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                     {
                         GFXRECON_LOG_WARNING(
                             "State snapshot mapped memory copy failed for VkImage object (ID = %" PRIu64
-                            ", handle = %" PRIx64 ")",
+                            ", handle = 0x%" PRIx64 ")",
                             image_id,
                             image);
                     }
@@ -991,7 +1023,7 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
             {
                 GFXRECON_LOG_WARNING(
                     "State snapshot image upload/layout transition failed for VkImage object (ID = %" PRIu64
-                    ", handle = %" PRIx64 ")",
+                    ", handle = 0x%" PRIx64 ")",
                     image_id,
                     image);
             }
@@ -999,12 +1031,12 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
     }
     else
     {
-        if (device != VK_NULL_HANDLE)
+        if (device_info != nullptr)
         {
             GFXRECON_LOG_WARNING(
                 "Skipping state snapshot image upload for unrecognized VkImage object (ID = %" PRIu64 ")", image_id);
         }
-        else if (image != VK_NULL_HANDLE)
+        else if (image_info != nullptr)
         {
             GFXRECON_LOG_WARNING(
                 "Skipping state snapshot image upload for unrecognized VkDevice object (ID = %" PRIu64 ")", device_id);
@@ -1012,7 +1044,7 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
         else
         {
             GFXRECON_LOG_WARNING("Skipping state snapshot image upload for unrecognized VkDevice (ID = %" PRIu64
-                                 ") and VkBuffer (ID = %" PRIu64 ") objects",
+                                 ") and VkImage (ID = %" PRIu64 ") objects",
                                  device_id,
                                  image_id);
         }
@@ -1816,7 +1848,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
 
     if (result == VK_SUCCESS)
     {
-        BufferInfo& info           = buffer_info_[buffer];
+        BufferProperties& info     = buffer_info_[buffer];
         info.memory                = memory;
         info.memory_property_flags = memory_properties_[memory];
         info.bind_offset           = memoryOffset;
@@ -1841,7 +1873,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(PFN_vkBindBufferMem
         {
             const VkBindBufferMemoryInfo* bind_info = &pBindInfos[i];
 
-            BufferInfo& info           = buffer_info_[bind_info->buffer];
+            BufferProperties& info     = buffer_info_[bind_info->buffer];
             info.memory                = bind_info->memory;
             info.memory_property_flags = memory_properties_[bind_info->memory];
             info.bind_offset           = bind_info->memoryOffset;
@@ -1864,7 +1896,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
 
     if (result == VK_SUCCESS)
     {
-        ImageInfo& info            = image_info_[image];
+        ImageProperties& info      = image_info_[image];
         info.memory                = memory;
         info.memory_property_flags = memory_properties_[memory];
         info.bind_offset           = memoryOffset;
@@ -1889,7 +1921,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(PFN_vkBindImageMemor
         {
             const VkBindImageMemoryInfo* bind_info = &pBindInfos[i];
 
-            ImageInfo& info            = image_info_[bind_info->image];
+            ImageProperties& info      = image_info_[bind_info->image];
             info.memory                = bind_info->memory;
             info.memory_property_flags = memory_properties_[bind_info->memory];
             info.bind_offset           = bind_info->memoryOffset;
@@ -1914,8 +1946,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer      
 
     if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pBuffer != nullptr))
     {
-        BufferInfo& info = buffer_info_[*pBuffer];
-        info.usage       = pCreateInfo->usage;
+        BufferProperties& info = buffer_info_[*pBuffer];
+        info.usage             = pCreateInfo->usage;
 
         if ((pCreateInfo->sharingMode == VK_SHARING_MODE_CONCURRENT) && (pCreateInfo->queueFamilyIndexCount > 0) &&
             (pCreateInfo->pQueueFamilyIndices != nullptr))
@@ -1946,16 +1978,16 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage        
 
     if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pImage != nullptr))
     {
-        ImageInfo& info     = image_info_[*pImage];
-        info.usage          = pCreateInfo->usage;
-        info.type           = pCreateInfo->imageType;
-        info.format         = pCreateInfo->format;
-        info.extent         = pCreateInfo->extent;
-        info.tiling         = pCreateInfo->tiling;
-        info.sample_count   = pCreateInfo->samples;
-        info.initial_layout = pCreateInfo->initialLayout;
-        info.layer_count    = pCreateInfo->arrayLayers;
-        info.level_count    = pCreateInfo->mipLevels;
+        ImageProperties& info = image_info_[*pImage];
+        info.usage            = pCreateInfo->usage;
+        info.type             = pCreateInfo->imageType;
+        info.format           = pCreateInfo->format;
+        info.extent           = pCreateInfo->extent;
+        info.tiling           = pCreateInfo->tiling;
+        info.sample_count     = pCreateInfo->samples;
+        info.initial_layout   = pCreateInfo->initialLayout;
+        info.layer_count      = pCreateInfo->arrayLayers;
+        info.level_count      = pCreateInfo->mipLevels;
 
         if ((pCreateInfo->sharingMode == VK_SHARING_MODE_CONCURRENT) && (pCreateInfo->queueFamilyIndexCount > 0) &&
             (pCreateInfo->pQueueFamilyIndices != nullptr))
@@ -2499,11 +2531,11 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(VkDescriptorUp
 
     if (texel_buffer_view_count > 0)
     {
-        MapHandles<VkBufferView>(decoder.GetTexelBufferViewHandleIdsPointer(),
-                                 texel_buffer_view_count,
-                                 decoder.GetTexelBufferViewPointer(),
-                                 texel_buffer_view_count,
-                                 &VulkanObjectMapper::MapVkBufferView);
+        MapHandles<BufferViewInfo>(decoder.GetTexelBufferViewHandleIdsPointer(),
+                                   texel_buffer_view_count,
+                                   decoder.GetTexelBufferViewPointer(),
+                                   texel_buffer_view_count,
+                                   &VulkanObjectMapper::MapVkBufferView);
     }
 }
 
@@ -2512,10 +2544,11 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format:
                                                                          format::HandleId descriptorUpdateTemplate,
                                                                          const DescriptorUpdateTemplateDecoder& pData)
 {
-    VkDevice                   in_device        = object_mapper_.MapVkDevice(device);
-    VkDescriptorSet            in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
-    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate =
-        object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
+    VkDevice        in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    VkDescriptorSet in_descriptorSet =
+        MapHandle<DescriptorSetInfo>(descriptorSet, &VulkanObjectMapper::MapVkDescriptorSet);
+    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = MapHandle<DescriptorUpdateTemplateInfo>(
+        descriptorUpdateTemplate, &VulkanObjectMapper::MapVkDescriptorUpdateTemplate);
 
     MapDescriptorUpdateTemplateHandles(in_descriptorUpdateTemplate, pData);
 
@@ -2530,10 +2563,11 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     uint32_t                               set,
     const DescriptorUpdateTemplateDecoder& pData)
 {
-    VkCommandBuffer            in_commandBuffer = object_mapper_.MapVkCommandBuffer(commandBuffer);
-    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate =
-        object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
-    VkPipelineLayout in_layout = object_mapper_.MapVkPipelineLayout(layout);
+    VkCommandBuffer in_commandBuffer =
+        MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectMapper::MapVkCommandBuffer);
+    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = MapHandle<DescriptorUpdateTemplateInfo>(
+        descriptorUpdateTemplate, &VulkanObjectMapper::MapVkDescriptorUpdateTemplate);
+    VkPipelineLayout in_layout = MapHandle<PipelineLayoutInfo>(layout, &VulkanObjectMapper::MapVkPipelineLayout);
 
     MapDescriptorUpdateTemplateHandles(in_descriptorUpdateTemplate, pData);
 
@@ -2548,10 +2582,11 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
     format::HandleId                       descriptorUpdateTemplate,
     const DescriptorUpdateTemplateDecoder& pData)
 {
-    VkDevice                   in_device        = object_mapper_.MapVkDevice(device);
-    VkDescriptorSet            in_descriptorSet = object_mapper_.MapVkDescriptorSet(descriptorSet);
-    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate =
-        object_mapper_.MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
+    VkDevice        in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    VkDescriptorSet in_descriptorSet =
+        MapHandle<DescriptorSetInfo>(descriptorSet, &VulkanObjectMapper::MapVkDescriptorSet);
+    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = MapHandle<DescriptorUpdateTemplateInfo>(
+        descriptorUpdateTemplate, &VulkanObjectMapper::MapVkDescriptorUpdateTemplate);
 
     MapDescriptorUpdateTemplateHandles(in_descriptorUpdateTemplate, pData);
 
@@ -2567,9 +2602,10 @@ void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
     const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
     const PointerDecoder<uint32_t>&                            pObjectIndices)
 {
-    VkDevice         in_device         = object_mapper_.MapVkDevice(device);
-    VkObjectTableNVX in_objectTable    = object_mapper_.MapVkObjectTableNVX(objectTable);
-    const uint32_t*  in_pObjectIndices = reinterpret_cast<const uint32_t*>(pObjectIndices.GetPointer());
+    VkDevice         in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    VkObjectTableNVX in_objectTable =
+        MapHandle<ObjectTableNVXInfo>(objectTable, &VulkanObjectMapper::MapVkObjectTableNVX);
+    const uint32_t* in_pObjectIndices = reinterpret_cast<const uint32_t*>(pObjectIndices.GetPointer());
 
     assert(objectCount == ppObjectTableEntries.GetLength());
 

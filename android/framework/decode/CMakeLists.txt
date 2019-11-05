@@ -32,6 +32,7 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_enum_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_mapper.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.cpp
