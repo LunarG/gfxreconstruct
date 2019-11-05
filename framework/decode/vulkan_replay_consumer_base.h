@@ -164,11 +164,26 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     template <typename T>
+    typename T::HandleType MapHandle(format::HandleId id,
+                                     const T* (VulkanObjectMapper::*MapFunc)(format::HandleId) const) const
+    {
+        typename T::HandleType handle = VK_NULL_HANDLE;
+        const T*               info   = (object_mapper_.*MapFunc)(id);
+
+        if (info != nullptr)
+        {
+            handle = info->handle;
+        }
+
+        return handle;
+    }
+
+    template <typename T>
     void MapHandles(const format::HandleId* ids,
                     size_t                  ids_len,
-                    T*                      handles,
+                    typename T::HandleType* handles,
                     size_t                  handles_len,
-                    T (VulkanObjectMapper::*MapFunc)(format::HandleId) const) const
+                    const T* (VulkanObjectMapper::*MapFunc)(format::HandleId) const) const
     {
         if ((ids != nullptr) && (handles != nullptr))
         {
@@ -176,7 +191,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
             assert(ids_len == handles_len);
             for (size_t i = 0; i < handles_len; ++i)
             {
-                handles[i] = (object_mapper_.*MapFunc)(ids[i]);
+                const T* info = (object_mapper_.*MapFunc)(ids[i]);
+
+                if (info != nullptr)
+                {
+                    handles[i] = info->handle;
+                }
+                else
+                {
+                    handles[i] = VK_NULL_HANDLE;
+                }
             }
         }
     }
@@ -546,7 +570,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::vector<VkDescriptorType>                                        DescriptorImageTypes;
     typedef std::unordered_map<VkDescriptorUpdateTemplate, DescriptorImageTypes> DescriptorUpdateTemplateImageTypes;
 
-    struct BufferInfo
+    struct BufferProperties
     {
         VkDeviceMemory        memory;
         VkMemoryPropertyFlags memory_property_flags;
@@ -555,7 +579,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         uint32_t              queue_family_index;
     };
 
-    struct ImageInfo
+    struct ImageProperties
     {
         VkDeviceMemory        memory;
         VkMemoryPropertyFlags memory_property_flags;
@@ -578,8 +602,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_map<VkSwapchainKHR, uint32_t>                             SwapchainQueueFamilyIndexMap;
     typedef std::unordered_map<VkSwapchainKHR, VkSurfaceKHR>                         SwapchainSurfaceMap;
     typedef std::unordered_map<VkDeviceMemory, VkMemoryPropertyFlags>                MemoryPropertyMap;
-    typedef std::unordered_map<VkBuffer, BufferInfo>                                 BufferInfoMap;
-    typedef std::unordered_map<VkImage, ImageInfo>                                   ImageInfoMap;
+    typedef std::unordered_map<VkBuffer, BufferProperties>                           BufferInfoMap;
+    typedef std::unordered_map<VkImage, ImageProperties>                             ImageInfoMap;
     typedef std::unordered_map<VkPhysicalDevice, std::vector<std::string>>           AvailableTrimDeviceExtensionMap;
 
   private:

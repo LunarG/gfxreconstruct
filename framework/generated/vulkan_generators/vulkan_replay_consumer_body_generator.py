@@ -243,7 +243,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         # We now need to allocate memory to hold handles, which we map from the IDs.
                         expr = expr.replace('const', '').lstrip() + '{}.GetHandlePointer();'.format(value.name)
                         preexpr.append(expr)
-                        expr = 'MapHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Map{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType)
+                        expr = 'MapHandles<{}Info>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Map{});'.format(value.baseType[2:], argName, lengthName, value.baseType, paramname=value.name)
                     else:
                         expr += '{}.GetPointer();'.format(value.name)
                         if value.baseType in self.structsWithHandles:
@@ -324,7 +324,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                 argName = 'in_' + value.name
                 args.append(argName)
                 expr = '{} {} = '.format(value.fullType, argName)
-                expr += 'GetObjectMapper().Map{}({});'.format(value.baseType, value.name)
+                expr += 'MapHandle<{}Info>({}, &VulkanObjectMapper::Map{});'.format(value.baseType[2:], value.name, value.baseType)
                 preexpr.append(expr)
             elif self.isFunctionPtr(value.baseType):
                 # Function pointers are encoded as a 64-bit address value.
