@@ -67,20 +67,40 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
 
+        # Implement a utility function to be used for mapping a single handle.
+        self.newline()
+        write('template <typename T>', file=self.outFile)
+        write('static typename T::HandleType MapHandle(format::HandleId          id,', file=self.outFile)
+        write('                                        const VulkanObjectMapper& object_mapper,', file=self.outFile)
+        write('                                        const T* (VulkanObjectMapper::*MapFunc)(format::HandleId) const)', file=self.outFile)
+        write('{', file=self.outFile)
+        write('    typename T::HandleType handle = VK_NULL_HANDLE;', file=self.outFile)
+        write('    const T*               info   = (object_mapper.*MapFunc)(id);', file=self.outFile)
+        write('    if (info != nullptr)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('        handle = info->handle;', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('    return handle;', file=self.outFile)
+        write('}', file=self.outFile)
+
         # Implement a utility function to be used for mapping arrays of handles.
         self.newline()
         write('template <typename T>', file=self.outFile)
         write('static void MapHandleArray(const format::HandleId*   ids,', file=self.outFile)
-        write('                           T*                        handles,', file=self.outFile)
+        write('                           typename T::HandleType*   handles,', file=self.outFile)
         write('                           size_t                    len,', file=self.outFile)
         write('                           const VulkanObjectMapper& object_mapper,', file=self.outFile)
-        write('                           T (VulkanObjectMapper::*MapFunc)(format::HandleId) const)', file=self.outFile)
+        write('                           const T* (VulkanObjectMapper::*MapFunc)(format::HandleId) const)', file=self.outFile)
         write('{', file=self.outFile)
         write('    if ((ids != nullptr) && (handles != nullptr))', file=self.outFile)
         write('    {', file=self.outFile)
         write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
         write('        {', file=self.outFile)
-        write('            handles[i] = (object_mapper.*MapFunc)(ids[i]);', file=self.outFile)
+        write('            const T* info = (object_mapper.*MapFunc)(ids[i]);', file=self.outFile)
+        write('            if (info != nullptr)', file=self.outFile)
+        write('            {', file=self.outFile)
+        write('                handles[i] = info->handle;', file=self.outFile)
+        write('            }', file=self.outFile)
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
@@ -233,11 +253,11 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                 # If it is an array or pointer, map with the utility function.
                 if (member.isArray or member.isPointer):
                     if member.isArray:
-                        body += '        MapHandleArray<{type}>(wrapper->{name}.GetPointer(), wrapper->{name}.GetHandlePointer(), wrapper->{name}.GetLength(), object_mapper, &VulkanObjectMapper::Map{type});\n'.format(type=member.baseType, name=member.name)
+                        body += '        MapHandleArray<{}Info>(wrapper->{name}.GetPointer(), wrapper->{name}.GetHandlePointer(), wrapper->{name}.GetLength(), object_mapper, &VulkanObjectMapper::Map{});\n'.format(member.baseType[2:], member.baseType, name=member.name)
                     else:
-                        body += '        MapHandleArray<{type}>(wrapper->{name}.GetPointer(), wrapper->{name}.GetHandlePointer(), 1, object_mapper, &VulkanObjectMapper::Map{type});\n'.format(type=member.baseType, name=member.name)
+                        body += '        MapHandleArray<{}Info>(wrapper->{name}.GetPointer(), wrapper->{name}.GetHandlePointer(), 1, object_mapper, &VulkanObjectMapper::Map{});\n'.format(member.baseType[2:], member.baseType, name=member.name)
                 else:
-                    body += '        value->{name} = object_mapper.Map{}(wrapper->{name});\n'.format(member.baseType, name=member.name)
+                    body += '        value->{name} = MapHandle<{}Info>(wrapper->{name}, object_mapper, &VulkanObjectMapper::Map{});\n'.format(member.baseType[2:], member.baseType, name=member.name)
 
         return body
 

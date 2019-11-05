@@ -360,8 +360,8 @@ struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStruc
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.
-typedef VkSamplerYcbcrConversionKHR   SamplerYcbcrConversionKHRWrapper;
-typedef VkDescriptorUpdateTemplateKHR DescriptorUpdateTemplateKHRWrapper;
+typedef SamplerYcbcrConversionWrapper   SamplerYcbcrConversionKHRWrapper;
+typedef DescriptorUpdateTemplateWrapper DescriptorUpdateTemplateKHRWrapper;
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
