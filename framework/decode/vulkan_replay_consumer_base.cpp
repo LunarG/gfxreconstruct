@@ -2151,7 +2151,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
         GFXRECON_LOG_WARNING("The vkCreateDebugReportCallbackEXT parameter pCreateInfo is NULL.");
     }
 
-    return func(instance, pCreateInfo, pAllocator, pCallback);
+    return func(instance, &modified_create_info, pAllocator, pCallback);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
