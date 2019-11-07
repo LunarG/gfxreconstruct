@@ -292,6 +292,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 postexpr.append('PostProcessExternalObject({}, static_cast<void*>({}), format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, outName, name=name))
                             else:
                                 postexpr.append('PostProcessExternalObject({}, {}, format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, outName, name=name))
+                        elif self.isHandle(value.baseType):
+                            # Add mapping for the newly created handle
+                            expr += '{}.GetHandlePointer();'.format(value.name)
+                            postexpr.append('AddHandles<{basetype}>({}.GetPointer(), 1, {}, 1, &VulkanObjectMapper::Add{basetype});'.format(value.name, argName, basetype=value.baseType))
                         else:
                             outName = 'out_{}_value'.format(value.name)
                             if self.isArrayLen(value.name, values):
@@ -313,10 +317,6 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 preexpr.append('{basetype} {} = static_cast<{basetype}>(0);'.format(outName, basetype=value.baseType))
 
                             expr += '&{};'.format(outName)
-
-                            if self.isHandle(value.baseType):
-                                # Add mapping for the newly created handle
-                                postexpr.append('AddHandles<{basetype}>({}.GetPointer(), 1, {}, 1, &VulkanObjectMapper::Add{basetype});'.format(value.name, argName, basetype=value.baseType))
                 if expr:
                     preexpr.append(expr)
             elif self.isHandle(value.baseType):
