@@ -1155,11 +1155,13 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
     return object;
 }
 
-void VulkanReplayConsumerBase::PostProcessExternalObject(const PointerDecoder<uint64_t>& object_id,
-                                                         void*                           object,
-                                                         format::ApiCallId               call_id,
-                                                         const char*                     call_name)
+void VulkanReplayConsumerBase::PostProcessExternalObject(
+    VkResult replay_result, uint64_t object_id, void* object, format::ApiCallId call_id, const char* call_name)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(replay_result);
+    GFXRECON_UNREFERENCED_PARAMETER(object_id);
+    GFXRECON_UNREFERENCED_PARAMETER(object);
+
     if (call_id == format::ApiCallId::ApiCall_vkMapMemory)
     {
         // Mapped memory tracking is handled by mapping the VkDeviceMemory handle to the mapped pointer, rather than
@@ -1403,14 +1405,16 @@ VkResult VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags fl
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateInstance(VkResult                                original_result,
-                                                          const VkInstanceCreateInfo*             pCreateInfo,
-                                                          const VkAllocationCallbacks*            pAllocator,
-                                                          const HandlePointerDecoder<VkInstance>& original_instance,
-                                                          VkInstance*                             pInstance)
+VkResult VulkanReplayConsumerBase::OverrideCreateInstance(VkResult                          original_result,
+                                                          const VkInstanceCreateInfo*       pCreateInfo,
+                                                          const VkAllocationCallbacks*      pAllocator,
+                                                          HandlePointerDecoder<VkInstance>* pInstance)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(original_instance);
+
+    assert((pInstance != nullptr) && (pInstance->GetHandlePointer() != nullptr));
+
+    VkInstance* replay_instance = pInstance->GetHandlePointer();
 
     if (loader_handle_ == nullptr)
     {
@@ -1464,29 +1468,30 @@ VkResult VulkanReplayConsumerBase::OverrideCreateInstance(VkResult              
         modified_create_info.ppEnabledLayerNames = nullptr;
     }
 
-    VkResult result = create_instance_proc_(&modified_create_info, pAllocator, pInstance);
+    VkResult result = create_instance_proc_(&modified_create_info, pAllocator, replay_instance);
 
-    if ((pInstance != nullptr) && (result == VK_SUCCESS))
+    if ((replay_instance != nullptr) && (result == VK_SUCCESS))
     {
-        AddInstanceTable(*pInstance);
+        AddInstanceTable(*replay_instance);
     }
 
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                              original_result,
-                                                        VkPhysicalDevice                      physicalDevice,
-                                                        const VkDeviceCreateInfo*             pCreateInfo,
-                                                        const VkAllocationCallbacks*          pAllocator,
-                                                        const HandlePointerDecoder<VkDevice>& original_device,
-                                                        VkDevice*                             pDevice)
+VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                        original_result,
+                                                        VkPhysicalDevice                physicalDevice,
+                                                        const VkDeviceCreateInfo*       pCreateInfo,
+                                                        const VkAllocationCallbacks*    pAllocator,
+                                                        HandlePointerDecoder<VkDevice>* pDevice)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(original_device);
+
+    assert((pDevice != nullptr) && (pDevice->GetHandlePointer() != nullptr));
 
     VkResult                result               = VK_ERROR_INITIALIZATION_FAILED;
     PFN_vkGetDeviceProcAddr get_device_proc_addr = GetDeviceAddrProc(physicalDevice);
     PFN_vkCreateDevice      create_device_proc   = GetCreateDeviceProc(physicalDevice);
+    VkDevice*               replay_device        = pDevice->GetHandlePointer();
 
     if ((get_device_proc_addr != nullptr) && (create_device_proc != nullptr))
     {
@@ -1529,54 +1534,54 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                
                 GFXRECON_LOG_WARNING("The vkCreateDevice parameter pCreateInfo is NULL.");
             }
 
-            result = create_device_proc(physicalDevice, &modified_create_info, pAllocator, pDevice);
+            result = create_device_proc(physicalDevice, &modified_create_info, pAllocator, replay_device);
         }
         else
         {
-            result = create_device_proc(physicalDevice, pCreateInfo, pAllocator, pDevice);
+            result = create_device_proc(physicalDevice, pCreateInfo, pAllocator, replay_device);
         }
 
-        if ((pDevice != nullptr) && (result == VK_SUCCESS))
+        if ((replay_device != nullptr) && (result == VK_SUCCESS))
         {
-            AddDeviceTable(*pDevice, get_device_proc_addr);
-            device_parents_[*pDevice] = physicalDevice;
+            AddDeviceTable(*replay_device, get_device_proc_addr);
+            device_parents_[*replay_device] = physicalDevice;
         }
     }
 
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(
-    PFN_vkEnumeratePhysicalDevices                func,
-    VkResult                                      returnValue,
-    VkInstance                                    instance,
-    const PointerDecoder<uint32_t>&               original_device_count,
-    uint32_t*                                     pPhysicalDeviceCount,
-    const HandlePointerDecoder<VkPhysicalDevice>& original_devices,
-    VkPhysicalDevice*                             pPhysicalDevices)
+VkResult
+VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysicalDevices          func,
+                                                           VkResult                                returnValue,
+                                                           VkInstance                              instance,
+                                                           PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
+                                                           HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices)
 {
     GFXRECON_UNREFERENCED_PARAMETER(returnValue);
 
-    VkResult result = func(instance, pPhysicalDeviceCount, pPhysicalDevices);
+    assert((pPhysicalDeviceCount != nullptr) && (pPhysicalDeviceCount->GetPointer() != nullptr) &&
+           (pPhysicalDevices != nullptr));
 
-    if ((result >= 0) && (pPhysicalDevices != nullptr) && (instance_devices_.find(instance) == instance_devices_.end()))
+    uint32_t          replay_device_count = (*pPhysicalDeviceCount->GetPointer());
+    VkPhysicalDevice* replay_devices      = pPhysicalDevices->GetHandlePointer();
+
+    VkResult result = func(instance, &replay_device_count, replay_devices);
+
+    if ((result >= 0) && (replay_devices != nullptr) && (instance_devices_.find(instance) == instance_devices_.end()))
     {
-        assert(!original_devices.IsNull() && !original_device_count.IsNull() && (pPhysicalDeviceCount != nullptr));
+        InstanceDevices         devices;
+        uint32_t                capture_device_count = (*pPhysicalDeviceCount->GetPointer());
+        const format::HandleId* capture_devices      = pPhysicalDevices->GetPointer();
 
-        InstanceDevices   devices;
-        format::HandleId* capture_devices = original_devices.GetPointer();
-        uint32_t          count           = (*original_device_count.GetPointer());
-
-        for (uint32_t i = 0; i < count; ++i)
+        for (uint32_t i = 0; i < capture_device_count; ++i)
         {
             devices.capture_devices.push_back(capture_devices[i]);
         }
 
-        count = (*pPhysicalDeviceCount);
-
-        for (uint32_t i = 0; i < count; ++i)
+        for (uint32_t i = 0; i < replay_device_count; ++i)
         {
-            devices.replay_devices.push_back(pPhysicalDevices[i]);
+            devices.replay_devices.push_back(replay_devices[i]);
         }
 
         instance_devices_.emplace(instance, devices);
@@ -1586,39 +1591,47 @@ VkResult VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(
 }
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties(
-    PFN_vkGetPhysicalDeviceProperties                               func,
-    VkPhysicalDevice                                                physicalDevice,
-    const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>& original_properties,
-    VkPhysicalDeviceProperties*                                     pProperties)
+    PFN_vkGetPhysicalDeviceProperties                         func,
+    VkPhysicalDevice                                          physicalDevice,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties)
 {
-    func(physicalDevice, pProperties);
-    ProcessPhysicalDeviceProperties(physicalDevice, original_properties.GetPointer(), pProperties);
+    assert((pProperties != nullptr) && (pProperties->GetPointer() != nullptr) &&
+           (pProperties->GetOutputPointer() != nullptr));
+
+    auto replay_properties = pProperties->GetOutputPointer();
+    func(physicalDevice, replay_properties);
+
+    ProcessPhysicalDeviceProperties(physicalDevice, pProperties->GetPointer(), replay_properties);
 }
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2(
-    PFN_vkGetPhysicalDeviceProperties2                               func,
-    VkPhysicalDevice                                                 physicalDevice,
-    const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>& original_properties,
-    VkPhysicalDeviceProperties2*                                     pProperties)
+    PFN_vkGetPhysicalDeviceProperties2                         func,
+    VkPhysicalDevice                                           physicalDevice,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
 {
-    func(physicalDevice, pProperties);
+    assert((pProperties != nullptr) && (pProperties->GetPointer() != nullptr) &&
+           (pProperties->GetOutputPointer() != nullptr));
 
-    auto properties = original_properties.GetPointer();
-    assert((properties != nullptr) && (pProperties != nullptr));
-    ProcessPhysicalDeviceProperties(physicalDevice, &properties->properties, &pProperties->properties);
+    auto replay_properties = pProperties->GetOutputPointer();
+    func(physicalDevice, replay_properties);
+
+    auto capture_properties = pProperties->GetPointer();
+    ProcessPhysicalDeviceProperties(physicalDevice, &capture_properties->properties, &replay_properties->properties);
 }
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2KHR(
-    PFN_vkGetPhysicalDeviceProperties2KHR                               func,
-    VkPhysicalDevice                                                    physicalDevice,
-    const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2KHR>& original_properties,
-    VkPhysicalDeviceProperties2KHR*                                     pProperties)
+    PFN_vkGetPhysicalDeviceProperties2KHR                         func,
+    VkPhysicalDevice                                              physicalDevice,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2KHR>* pProperties)
 {
-    func(physicalDevice, pProperties);
+    assert((pProperties != nullptr) && (pProperties->GetPointer() != nullptr) &&
+           (pProperties->GetOutputPointer() != nullptr));
 
-    auto properties = original_properties.GetPointer();
-    assert((properties != nullptr) && (pProperties != nullptr));
-    ProcessPhysicalDeviceProperties(physicalDevice, &properties->properties, &pProperties->properties);
+    auto replay_properties = pProperties->GetOutputPointer();
+    func(physicalDevice, replay_properties);
+
+    auto capture_properties = pProperties->GetPointer();
+    ProcessPhysicalDeviceProperties(physicalDevice, &capture_properties->properties, &replay_properties->properties);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences func,
@@ -1680,45 +1693,43 @@ VkResult VulkanReplayConsumerBase::OverrideGetEventStatus(PFN_vkGetEventStatus f
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults      func,
-                                                               VkResult                       original_result,
-                                                               VkDevice                       device,
-                                                               VkQueryPool                    queryPool,
-                                                               uint32_t                       firstQuery,
-                                                               uint32_t                       queryCount,
-                                                               size_t                         dataSize,
-                                                               const PointerDecoder<uint8_t>& original_data,
-                                                               void*                          pData,
-                                                               VkDeviceSize                   stride,
-                                                               VkQueryResultFlags             flags)
+VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults func,
+                                                               VkResult                  original_result,
+                                                               VkDevice                  device,
+                                                               VkQueryPool               queryPool,
+                                                               uint32_t                  firstQuery,
+                                                               uint32_t                  queryCount,
+                                                               size_t                    dataSize,
+                                                               PointerDecoder<uint8_t>*  pData,
+                                                               VkDeviceSize              stride,
+                                                               VkQueryResultFlags        flags)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_data);
+    assert((pData != nullptr) && (pData->GetOutputPointer() != nullptr));
 
     VkResult result;
 
     do
     {
-        result = func(device, queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+        result = func(device, queryPool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
     } while ((original_result == VK_SUCCESS) && (result == VK_NOT_READY));
 
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
-    PFN_vkAllocateCommandBuffers                 func,
-    VkResult                                     original_result,
-    VkDevice                                     device,
-    const VkCommandBufferAllocateInfo*           pAllocateInfo,
-    const HandlePointerDecoder<VkCommandBuffer>& original_command_buffers,
-    VkCommandBuffer*                             pCommandBuffers)
+VkResult
+VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers           func,
+                                                         VkResult                               original_result,
+                                                         VkDevice                               device,
+                                                         const VkCommandBufferAllocateInfo*     pAllocateInfo,
+                                                         HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_command_buffers);
+    assert((pCommandBuffers != nullptr) && (pCommandBuffers->GetHandlePointer() != nullptr));
 
     VkResult result = original_result;
 
     if ((original_result >= 0) || !options_.skip_failed_allocations)
     {
-        result = func(device, pAllocateInfo, pCommandBuffers);
+        result = func(device, pAllocateInfo, pCommandBuffers->GetHandlePointer());
     }
     else
     {
@@ -1729,21 +1740,20 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
-    PFN_vkAllocateDescriptorSets                 func,
-    VkResult                                     original_result,
-    VkDevice                                     device,
-    const VkDescriptorSetAllocateInfo*           pAllocateInfo,
-    const HandlePointerDecoder<VkDescriptorSet>& original_descriptor_sets,
-    VkDescriptorSet*                             pDescriptorSets)
+VkResult
+VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(PFN_vkAllocateDescriptorSets           func,
+                                                         VkResult                               original_result,
+                                                         VkDevice                               device,
+                                                         const VkDescriptorSetAllocateInfo*     pAllocateInfo,
+                                                         HandlePointerDecoder<VkDescriptorSet>* pDescriptorSets)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_descriptor_sets);
+    assert((pDescriptorSets != nullptr) && (pDescriptorSets->GetHandlePointer() != nullptr));
 
     VkResult result = original_result;
 
     if ((original_result >= 0) || !options_.skip_failed_allocations)
     {
-        result = func(device, pAllocateInfo, pDescriptorSets);
+        result = func(device, pAllocateInfo, pDescriptorSets->GetHandlePointer());
     }
     else
     {
@@ -1754,23 +1764,24 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(PFN_vkAllocateMemory                        func,
-                                                          VkResult                                    original_result,
-                                                          VkDevice                                    device,
-                                                          const VkMemoryAllocateInfo*                 pAllocateInfo,
-                                                          const VkAllocationCallbacks*                pAllocator,
-                                                          const HandlePointerDecoder<VkDeviceMemory>& original_memory,
-                                                          VkDeviceMemory*                             pMemory)
+VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(PFN_vkAllocateMemory                  func,
+                                                          VkResult                              original_result,
+                                                          VkDevice                              device,
+                                                          const VkMemoryAllocateInfo*           pAllocateInfo,
+                                                          const VkAllocationCallbacks*          pAllocator,
+                                                          HandlePointerDecoder<VkDeviceMemory>* pMemory)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_memory);
+    assert((pMemory != nullptr) && (pMemory->GetHandlePointer() != nullptr));
 
     VkResult result = original_result;
 
     if ((original_result >= 0) || !options_.skip_failed_allocations)
     {
-        result = func(device, pAllocateInfo, pAllocator, pMemory);
+        auto replay_memory = pMemory->GetHandlePointer();
 
-        if ((result == VK_SUCCESS) && (pAllocateInfo != nullptr) && (pMemory != nullptr))
+        result = func(device, pAllocateInfo, pAllocator, replay_memory);
+
+        if ((result == VK_SUCCESS) && (pAllocateInfo != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
         {
             VkPhysicalDevice physical_device = device_parents_[device];
             assert(physical_device != VK_NULL_HANDLE);
@@ -1783,7 +1794,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(PFN_vkAllocateMemory  
             table->GetPhysicalDeviceMemoryProperties(physical_device, &properties);
 
             assert(pAllocateInfo->memoryTypeIndex < properties.memoryTypeCount);
-            memory_properties_[*pMemory] = properties.memoryTypes[pAllocateInfo->memoryTypeIndex].propertyFlags;
+            memory_properties_[*replay_memory] = properties.memoryTypes[pAllocateInfo->memoryTypeIndex].propertyFlags;
         }
     }
     else
@@ -1795,24 +1806,26 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(PFN_vkAllocateMemory  
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory                 func,
-                                                     VkResult                        original_result,
-                                                     VkDevice                        device,
-                                                     VkDeviceMemory                  memory,
-                                                     VkDeviceSize                    offset,
-                                                     VkDeviceSize                    size,
-                                                     VkMemoryMapFlags                flags,
-                                                     const PointerDecoder<uint64_t>& original_data,
-                                                     void**                          ppData)
+VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory                  func,
+                                                     VkResult                         original_result,
+                                                     VkDevice                         device,
+                                                     VkDeviceMemory                   memory,
+                                                     VkDeviceSize                     offset,
+                                                     VkDeviceSize                     size,
+                                                     VkMemoryMapFlags                 flags,
+                                                     PointerDecoder<uint64_t, void*>* ppData)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(original_data);
 
-    VkResult result = func(device, memory, offset, size, flags, ppData);
+    assert((ppData != nullptr) && (ppData->GetOutputPointer() != nullptr));
 
-    if ((result == VK_SUCCESS) && (ppData != nullptr) && (*ppData != nullptr))
+    void* replay_data = ppData->GetOutputPointer();
+
+    VkResult result = func(device, memory, offset, size, flags, &replay_data);
+
+    if ((result == VK_SUCCESS) && (replay_data != nullptr))
     {
-        memory_map_.insert(std::make_pair(memory, (*ppData)));
+        memory_map_.insert(std::make_pair(memory, replay_data));
     }
 
     return result;
@@ -1931,22 +1944,24 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(PFN_vkBindImageMemor
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer                    func,
-                                                        VkResult                              original_result,
-                                                        VkDevice                              device,
-                                                        const VkBufferCreateInfo*             pCreateInfo,
-                                                        const VkAllocationCallbacks*          pAllocator,
-                                                        const HandlePointerDecoder<VkBuffer>& original_buffer,
-                                                        VkBuffer*                             pBuffer)
+VkResult VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer              func,
+                                                        VkResult                        original_result,
+                                                        VkDevice                        device,
+                                                        const VkBufferCreateInfo*       pCreateInfo,
+                                                        const VkAllocationCallbacks*    pAllocator,
+                                                        HandlePointerDecoder<VkBuffer>* pBuffer)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(original_buffer);
 
-    VkResult result = func(device, pCreateInfo, pAllocator, pBuffer);
+    assert((pBuffer != nullptr) && (pBuffer->GetHandlePointer() != nullptr));
 
-    if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pBuffer != nullptr))
+    auto replay_buffer = pBuffer->GetHandlePointer();
+
+    VkResult result = func(device, pCreateInfo, pAllocator, replay_buffer);
+
+    if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
     {
-        BufferProperties& info = buffer_info_[*pBuffer];
+        BufferProperties& info = buffer_info_[*replay_buffer];
         info.usage             = pCreateInfo->usage;
 
         if ((pCreateInfo->sharingMode == VK_SHARING_MODE_CONCURRENT) && (pCreateInfo->queueFamilyIndexCount > 0) &&
@@ -1963,22 +1978,24 @@ VkResult VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer      
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                    func,
-                                                       VkResult                             original_result,
-                                                       VkDevice                             device,
-                                                       const VkImageCreateInfo*             pCreateInfo,
-                                                       const VkAllocationCallbacks*         pAllocator,
-                                                       const HandlePointerDecoder<VkImage>& original_image,
-                                                       VkImage*                             pImage)
+VkResult VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage              func,
+                                                       VkResult                       original_result,
+                                                       VkDevice                       device,
+                                                       const VkImageCreateInfo*       pCreateInfo,
+                                                       const VkAllocationCallbacks*   pAllocator,
+                                                       HandlePointerDecoder<VkImage>* pImage)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(original_image);
 
-    VkResult result = func(device, pCreateInfo, pAllocator, pImage);
+    assert((pImage != nullptr) && (pImage->GetHandlePointer() != nullptr));
 
-    if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && (pImage != nullptr))
+    auto replay_image = pImage->GetHandlePointer();
+
+    VkResult result = func(device, pCreateInfo, pAllocator, replay_image);
+
+    if ((result == VK_SUCCESS) && (pCreateInfo != nullptr) && ((*replay_image) != VK_NULL_HANDLE))
     {
-        ImageProperties& info = image_info_[*pImage];
+        ImageProperties& info = image_info_[*replay_image];
         info.usage            = pCreateInfo->usage;
         info.type             = pCreateInfo->imageType;
         info.format           = pCreateInfo->format;
@@ -2004,16 +2021,16 @@ VkResult VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage        
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
-    PFN_vkCreateDescriptorUpdateTemplate                    func,
-    VkResult                                                original_result,
-    VkDevice                                                device,
-    const VkDescriptorUpdateTemplateCreateInfo*             pCreateInfo,
-    const VkAllocationCallbacks*                            pAllocator,
-    const HandlePointerDecoder<VkDescriptorUpdateTemplate>& original_update_template,
-    VkDescriptorUpdateTemplate*                             pDescriptorUpdateTemplate)
+    PFN_vkCreateDescriptorUpdateTemplate              func,
+    VkResult                                          original_result,
+    VkDevice                                          device,
+    const VkDescriptorUpdateTemplateCreateInfo*       pCreateInfo,
+    const VkAllocationCallbacks*                      pAllocator,
+    HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(original_update_template);
+
+    assert((pDescriptorUpdateTemplate != nullptr) && (pDescriptorUpdateTemplate->GetHandlePointer() != nullptr));
 
     if (pCreateInfo != nullptr)
     {
@@ -2103,19 +2120,20 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
 
         override_create_info.pDescriptorUpdateEntries = entries.data();
 
-        VkResult result = func(device, &override_create_info, pAllocator, pDescriptorUpdateTemplate);
+        auto replay_template = pDescriptorUpdateTemplate->GetHandlePointer();
 
-        if ((result == VK_SUCCESS) && (pDescriptorUpdateTemplate != nullptr) &&
-            (*pDescriptorUpdateTemplate != VK_NULL_HANDLE))
+        VkResult result = func(device, &override_create_info, pAllocator, replay_template);
+
+        if ((result == VK_SUCCESS) && ((*replay_template) != VK_NULL_HANDLE))
         {
-            descriptor_update_template_image_types_.emplace(*pDescriptorUpdateTemplate, image_types);
+            descriptor_update_template_image_types_.emplace(*replay_template, image_types);
         }
 
         return result;
     }
     else
     {
-        return func(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+        return func(device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate->GetHandlePointer());
     }
 }
 
@@ -2129,17 +2147,16 @@ void VulkanReplayConsumerBase::OverrideDestroyDescriptorUpdateTemplate(
     func(device, descriptorUpdateTemplate, pAllocator);
 }
 
-VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
-    PFN_vkCreatePipelineCache                    func,
-    VkResult                                     original_result,
-    VkDevice                                     device,
-    const VkPipelineCacheCreateInfo*             pCreateInfo,
-    const VkAllocationCallbacks*                 pAllocator,
-    const HandlePointerDecoder<VkPipelineCache>& original_pipeline_cache,
-    VkPipelineCache*                             pPipelineCache)
+VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(PFN_vkCreatePipelineCache              func,
+                                                               VkResult                               original_result,
+                                                               VkDevice                               device,
+                                                               const VkPipelineCacheCreateInfo*       pCreateInfo,
+                                                               const VkAllocationCallbacks*           pAllocator,
+                                                               HandlePointerDecoder<VkPipelineCache>* pPipelineCache)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(original_pipeline_cache);
+
+    assert((pPipelineCache != nullptr) && (pPipelineCache->GetHandlePointer() != nullptr));
 
     if (options_.omit_pipeline_cache_data && (pCreateInfo != nullptr))
     {
@@ -2148,25 +2165,25 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
         override_create_info.initialDataSize           = 0;
         override_create_info.pInitialData              = nullptr;
 
-        return func(device, &override_create_info, pAllocator, pPipelineCache);
+        return func(device, &override_create_info, pAllocator, pPipelineCache->GetHandlePointer());
     }
     else
     {
-        return func(device, pCreateInfo, pAllocator, pPipelineCache);
+        return func(device, pCreateInfo, pAllocator, pPipelineCache->GetHandlePointer());
     }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
-    PFN_vkCreateDebugReportCallbackEXT                    func,
-    VkResult                                              original_result,
-    VkInstance                                            instance,
-    const VkDebugReportCallbackCreateInfoEXT*             pCreateInfo,
-    const VkAllocationCallbacks*                          pAllocator,
-    const HandlePointerDecoder<VkDebugReportCallbackEXT>& original_callback,
-    VkDebugReportCallbackEXT*                             pCallback)
+    PFN_vkCreateDebugReportCallbackEXT              func,
+    VkResult                                        original_result,
+    VkInstance                                      instance,
+    const VkDebugReportCallbackCreateInfoEXT*       pCreateInfo,
+    const VkAllocationCallbacks*                    pAllocator,
+    HandlePointerDecoder<VkDebugReportCallbackEXT>* pCallback)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(original_callback);
+
+    assert((pCallback != nullptr) && (pCallback->GetHandlePointer() != nullptr));
 
     VkDebugReportCallbackCreateInfoEXT modified_create_info{};
     if (pCreateInfo != nullptr)
@@ -2179,20 +2196,20 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugReportCallbackEXT(
         GFXRECON_LOG_WARNING("The vkCreateDebugReportCallbackEXT parameter pCreateInfo is NULL.");
     }
 
-    return func(instance, &modified_create_info, pAllocator, pCallback);
+    return func(instance, &modified_create_info, pAllocator, pCallback->GetHandlePointer());
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
-    PFN_vkCreateDebugUtilsMessengerEXT                    func,
-    VkResult                                              original_result,
-    VkInstance                                            instance,
-    const VkDebugUtilsMessengerCreateInfoEXT*             pCreateInfo,
-    const VkAllocationCallbacks*                          pAllocator,
-    const HandlePointerDecoder<VkDebugUtilsMessengerEXT>& original_messenger,
-    VkDebugUtilsMessengerEXT*                             pMessenger)
+    PFN_vkCreateDebugUtilsMessengerEXT              func,
+    VkResult                                        original_result,
+    VkInstance                                      instance,
+    const VkDebugUtilsMessengerCreateInfoEXT*       pCreateInfo,
+    const VkAllocationCallbacks*                    pAllocator,
+    HandlePointerDecoder<VkDebugUtilsMessengerEXT>* pMessenger)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(original_messenger);
+
+    assert((pMessenger != nullptr) && (pMessenger->GetHandlePointer() != nullptr));
 
     VkDebugUtilsMessengerCreateInfoEXT modified_create_info{};
     if (pCreateInfo != nullptr)
@@ -2205,56 +2222,57 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDebugUtilsMessengerEXT(
         GFXRECON_LOG_WARNING("The vkCreateDebugUtilsMessengerEXT parameter pCreateInfo is NULL.");
     }
 
-    return func(instance, &modified_create_info, pAllocator, pMessenger);
+    return func(instance, &modified_create_info, pAllocator, pMessenger->GetHandlePointer());
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(PFN_vkCreateSwapchainKHR                    func,
-                                                     VkResult                                    original_result,
-                                                     VkDevice                                    device,
-                                                     const VkSwapchainCreateInfoKHR*             pCreateInfo,
-                                                     const VkAllocationCallbacks*                pAllocator,
-                                                     const HandlePointerDecoder<VkSwapchainKHR>& original_swapchain,
-                                                     VkSwapchainKHR*                             pSwapchain)
+VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(PFN_vkCreateSwapchainKHR              func,
+                                                              VkResult                              original_result,
+                                                              VkDevice                              device,
+                                                              const VkSwapchainCreateInfoKHR*       pCreateInfo,
+                                                              const VkAllocationCallbacks*          pAllocator,
+                                                              HandlePointerDecoder<VkSwapchainKHR>* pSwapchain)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    GFXRECON_UNREFERENCED_PARAMETER(original_swapchain);
 
-    VkResult result = func(device, pCreateInfo, pAllocator, pSwapchain);
+    assert((pSwapchain != nullptr) && (pSwapchain->GetHandlePointer() != nullptr));
 
-    if ((result == VK_SUCCESS) && (pCreateInfo) && (pSwapchain != nullptr))
+    auto replay_swapchain = pSwapchain->GetHandlePointer();
+
+    VkResult result = func(device, pCreateInfo, pAllocator, replay_swapchain);
+
+    if ((result == VK_SUCCESS) && (pCreateInfo) && ((*replay_swapchain) != VK_NULL_HANDLE))
     {
         if ((pCreateInfo->imageSharingMode == VK_SHARING_MODE_CONCURRENT) && (pCreateInfo->queueFamilyIndexCount > 0) &&
             (pCreateInfo->pQueueFamilyIndices != nullptr))
         {
-            swapchain_queue_families_[*pSwapchain] = pCreateInfo->pQueueFamilyIndices[0];
+            swapchain_queue_families_[*replay_swapchain] = pCreateInfo->pQueueFamilyIndices[0];
         }
         else
         {
-            swapchain_queue_families_[*pSwapchain] = 0;
+            swapchain_queue_families_[*replay_swapchain] = 0;
         }
 
-        swapchain_surfaces_[*pSwapchain] = pCreateInfo->surface;
+        swapchain_surfaces_[*replay_swapchain] = pCreateInfo->surface;
     }
 
     return result;
 }
 
-VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR       func,
-                                                               VkResult                        original_result,
-                                                               VkDevice                        device,
-                                                               VkSwapchainKHR                  swapchain,
-                                                               uint64_t                        timeout,
-                                                               VkSemaphore                     semaphore,
-                                                               VkFence                         fence,
-                                                               const PointerDecoder<uint32_t>& original_index,
-                                                               uint32_t*                       pImageIndex)
+VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
+                                                               VkResult                  original_result,
+                                                               VkDevice                  device,
+                                                               VkSwapchainKHR            swapchain,
+                                                               uint64_t                  timeout,
+                                                               VkSemaphore               semaphore,
+                                                               VkFence                   fence,
+                                                               PointerDecoder<uint32_t>* pImageIndex)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    assert(original_index.GetPointer() != nullptr);
+
+    assert((pImageIndex != nullptr) && (pImageIndex->GetPointer() != nullptr));
 
     VkResult    result               = VK_SUCCESS;
-    uint32_t    captured_index       = *original_index.GetPointer();
+    uint32_t    captured_index       = (*pImageIndex->GetPointer());
     VkSemaphore preacquire_semaphore = VK_NULL_HANDLE;
     VkFence     preacquire_fence     = VK_NULL_HANDLE;
 
@@ -2288,7 +2306,9 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
     }
     else
     {
-        result = func(device, swapchain, timeout, semaphore, fence, pImageIndex);
+        assert(pImageIndex->GetOutputPointer() != nullptr);
+
+        result = func(device, swapchain, timeout, semaphore, fence, pImageIndex->GetOutputPointer());
     }
 
     return result;
@@ -2298,15 +2318,14 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(PFN_vkAcquireNex
                                                                 VkResult                         original_result,
                                                                 VkDevice                         device,
                                                                 const VkAcquireNextImageInfoKHR* pAcquireInfo,
-                                                                const PointerDecoder<uint32_t>&  original_index,
-                                                                uint32_t*                        pImageIndex)
+                                                                PointerDecoder<uint32_t>*        pImageIndex)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    assert(pAcquireInfo != nullptr);
-    assert(original_index.GetPointer() != nullptr);
+
+    assert((pAcquireInfo != nullptr) && (pImageIndex != nullptr) && (pImageIndex->GetPointer() != nullptr));
 
     VkResult    result               = VK_SUCCESS;
-    uint32_t    captured_index       = *original_index.GetPointer();
+    uint32_t    captured_index       = (*pImageIndex->GetPointer());
     VkSemaphore preacquire_semaphore = VK_NULL_HANDLE;
     VkFence     preacquire_fence     = VK_NULL_HANDLE;
 
@@ -2340,42 +2359,44 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(PFN_vkAcquireNex
     }
     else
     {
-        result = func(device, pAcquireInfo, pImageIndex);
+        assert(pImageIndex->GetOutputPointer() != nullptr);
+
+        result = func(device, pAcquireInfo, pImageIndex->GetOutputPointer());
     }
 
     return result;
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR             func,
-                                                          VkResult                                  original_result,
-                                                          VkInstance                                instance,
-                                                          const VkAndroidSurfaceCreateInfoKHR*      pCreateInfo,
-                                                          const VkAllocationCallbacks*              pAllocator,
-                                                          const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
-                                                          VkSurfaceKHR*                             pSurface)
+VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR        func,
+                                                                   VkResult                             original_result,
+                                                                   VkInstance                           instance,
+                                                                   const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
+                                                                   const VkAllocationCallbacks*         pAllocator,
+                                                                   HandlePointerDecoder<VkSurfaceKHR>*  pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-    GFXRECON_UNREFERENCED_PARAMETER(original_surface);
-    return CreateSurface(instance, pCreateInfo->flags, pSurface);
+
+    assert((pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
+
+    return CreateSurface(instance, pCreateInfo->flags, pSurface->GetHandlePointer());
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR               func,
-                                                        VkResult                                  original_result,
-                                                        VkInstance                                instance,
-                                                        const VkWin32SurfaceCreateInfoKHR*        pCreateInfo,
-                                                        const VkAllocationCallbacks*              pAllocator,
-                                                        const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
-                                                        VkSurfaceKHR*                             pSurface)
+VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR         func,
+                                                                 VkResult                            original_result,
+                                                                 VkInstance                          instance,
+                                                                 const VkWin32SurfaceCreateInfoKHR*  pCreateInfo,
+                                                                 const VkAllocationCallbacks*        pAllocator,
+                                                                 HandlePointerDecoder<VkSurfaceKHR>* pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-    GFXRECON_UNREFERENCED_PARAMETER(original_surface);
-    return CreateSurface(instance, pCreateInfo->flags, pSurface);
+
+    assert((pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
+
+    return CreateSurface(instance, pCreateInfo->flags, pSurface->GetHandlePointer());
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSupportKHR(
@@ -2386,20 +2407,20 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSup
         GetInstanceTable(physicalDevice), physicalDevice, queueFamilyIndex);
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR                 func,
-                                                      VkResult                                  original_result,
-                                                      VkInstance                                instance,
-                                                      const VkXcbSurfaceCreateInfoKHR*          pCreateInfo,
-                                                      const VkAllocationCallbacks*              pAllocator,
-                                                      const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
-                                                      VkSurfaceKHR*                             pSurface)
+VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR           func,
+                                                               VkResult                            original_result,
+                                                               VkInstance                          instance,
+                                                               const VkXcbSurfaceCreateInfoKHR*    pCreateInfo,
+                                                               const VkAllocationCallbacks*        pAllocator,
+                                                               HandlePointerDecoder<VkSurfaceKHR>* pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-    GFXRECON_UNREFERENCED_PARAMETER(original_surface);
-    return CreateSurface(instance, pCreateInfo->flags, pSurface);
+
+    assert((pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
+
+    return CreateSurface(instance, pCreateInfo->flags, pSurface->GetHandlePointer());
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSupportKHR(
@@ -2416,20 +2437,20 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSuppo
         GetInstanceTable(physicalDevice), physicalDevice, queueFamilyIndex);
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR                func,
-                                                       VkResult                                  original_result,
-                                                       VkInstance                                instance,
-                                                       const VkXlibSurfaceCreateInfoKHR*         pCreateInfo,
-                                                       const VkAllocationCallbacks*              pAllocator,
-                                                       const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
-                                                       VkSurfaceKHR*                             pSurface)
+VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR          func,
+                                                                VkResult                            original_result,
+                                                                VkInstance                          instance,
+                                                                const VkXlibSurfaceCreateInfoKHR*   pCreateInfo,
+                                                                const VkAllocationCallbacks*        pAllocator,
+                                                                HandlePointerDecoder<VkSurfaceKHR>* pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-    GFXRECON_UNREFERENCED_PARAMETER(original_surface);
-    return CreateSurface(instance, pCreateInfo->flags, pSurface);
+
+    assert((pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
+
+    return CreateSurface(instance, pCreateInfo->flags, pSurface->GetHandlePointer());
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupportKHR(
@@ -2446,20 +2467,20 @@ VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupp
         GetInstanceTable(physicalDevice), physicalDevice, queueFamilyIndex);
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR             func,
-                                                          VkResult                                  original_result,
-                                                          VkInstance                                instance,
-                                                          const VkWaylandSurfaceCreateInfoKHR*      pCreateInfo,
-                                                          const VkAllocationCallbacks*              pAllocator,
-                                                          const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
-                                                          VkSurfaceKHR*                             pSurface)
+VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR        func,
+                                                                   VkResult                             original_result,
+                                                                   VkInstance                           instance,
+                                                                   const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
+                                                                   const VkAllocationCallbacks*         pAllocator,
+                                                                   HandlePointerDecoder<VkSurfaceKHR>*  pSurface)
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
-    GFXRECON_UNREFERENCED_PARAMETER(original_surface);
-    return CreateSurface(instance, pCreateInfo->flags, pSurface);
+
+    assert((pSurface != nullptr) && (pSurface->GetHandlePointer() != nullptr));
+
+    return CreateSurface(instance, pCreateInfo->flags, pSurface->GetHandlePointer());
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(
