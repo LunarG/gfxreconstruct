@@ -703,7 +703,8 @@ class BaseGenerator(OutputGenerator):
                     typeName = 'PointerDecoder<uint8_t>'
                 elif count > 1:
                     # If this was a pointer to a pointer to an unknown object (void**), it was encoded as a pointer to a 64-bit address value.
-                    typeName = 'PointerDecoder<uint64_t>'
+                    # So, we specify uint64_t as the decode type and void* as the type to be used for Vulkan API call output parameters.
+                    typeName = 'PointerDecoder<uint64_t, void*>'
                 else:
                     # If this was a pointer to an unknown object (void*), it was encoded as a 64-bit address value.
                     typeName = 'uint64_t'
@@ -736,9 +737,12 @@ class BaseGenerator(OutputGenerator):
         for value in values:
             paramType = self.makeDecodedParamType(value)
 
-            # Pass pointer and struct wrappers by const reference
+            # Pass pointer decoder classes by const reference when input and pointer when output.
             if 'Decoder' in paramType or 'Decoded_' in paramType:
-                paramType = 'const {}&'.format(paramType)
+                if (self.isOutputParameter(value)):
+                    paramType = '{}*'.format(paramType)
+                else:
+                    paramType = 'const {}&'.format(paramType)
 
             paramDecl = self.makeAlignedParamDecl(paramType, value.name, self.INDENT_SIZE, self.genOpts.alignFuncParam)
             paramDecls.append(paramDecl)

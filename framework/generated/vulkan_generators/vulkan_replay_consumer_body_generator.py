@@ -197,11 +197,11 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     argName = 'in_' + value.name
                 else:
                     argName = 'out_' + value.name
-                    if isOverride:
-                        # The original value read from the file is provided to replay override functions.
-                        args.append(value.name)
 
-                args.append(argName)
+                if not isInput and isOverride:
+                    args.append(value.name)
+                else:
+                    args.append(argName)
 
                 # Assign PointerDecoder pointer to temporary variable.
                 expr = '{} {} = '.format(fullType, argName)
@@ -259,64 +259,54 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     # require handle mapping for replay.
                     if value.isArray:
                         if value.baseType in self.EXTERNAL_OBJECT_TYPES:
-                            expr = 'uint8_t* {} = {}.IsNull() ? nullptr : AllocateArray<uint8_t>({});'.format(argName, value.name, lengthName)
-                            postexpr.append('FreeArray<uint8_t>(&{});'.format(argName))
+                            expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({});'.format(lengthName, name=value.name)
                         elif self.isHandle(value.baseType):
                             # Add mappings for the newly created handles
-                            expr += '{}.GetHandlePointer();'.format(value.name)
-                            postexpr.append('AddHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
+                            expr += '{}->GetHandlePointer();'.format(value.name)
+                            postexpr.append('AddHandles<{basetype}>({paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
                         elif self.isStruct(value.baseType):
                             # If this is a struct with sType and pNext fields, we need to initialize them.
                             if value.baseType in self.sTypeValues:
                                 # TODO: recreate pNext value read from the capture file.
-                                expr += '{}.IsNull() ? nullptr : AllocateArray<{basetype}>({}, {basetype}{{ {}, nullptr }});'.format(value.name, lengthName, self.sTypeValues[value.baseType], basetype=value.baseType)
+                                expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({}, {}{{ {}, nullptr }});'.format(lengthName, value.baseType, self.sTypeValues[value.baseType], name=value.name)
                             else:
-                                expr += '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(value.name, value.baseType, lengthName)
+                                expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({});'.format(lengthName, name=value.name)
                             # If this is a struct with handles, we need to add replay mappings for the embedded handles
                             if value.baseType in self.structsWithHandles:
-                                postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({name}.GetMetaStructPointer(), {name}.GetLength(), {}, {}, GetObjectMapper());'.format(argName, lengthName, name=value.name, basetype=value.baseType))
-                            postexpr.append('FreeArray<{}>(&{});'.format(value.baseType, argName))
+                                postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {name}->GetLength(), {}, {}, GetObjectMapper());'.format(argName, lengthName, name=value.name, basetype=value.baseType))
                         else:
-                            expr += '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(value.name, value.baseType, lengthName)
-                            postexpr.append('FreeArray<{}>(&{});'.format(value.baseType, argName))
+                            expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({});'.format(lengthName, name=value.name)
                     else:
                         if value.baseType in self.EXTERNAL_OBJECT_TYPES:
-                            outName = 'out_{}_value'.format(value.name)
-                            outType = 'void' if not value.platformBaseType else value.platformBaseType
-                            outCount = value.pointerCount if not value.platformFullType else self.getPointerCount(value.platformFullType)
-                            preexpr.append('{}{} {} = nullptr;'.format(outType, '*' * (outCount - 1), outName))
-                            expr += '&{};'.format(outName)
-
                             # Map the object ID to the new object
                             if value.platformFullType:
-                                postexpr.append('PostProcessExternalObject({}, static_cast<void*>({}), format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, outName, name=name))
+                                expr += 'reinterpret_cast<{}>({}->AllocateOutputData(1));'.format(fullType, value.name)
+                                postexpr.append('PostProcessExternalObject(replay_result, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, argName, name=name))
                             else:
-                                postexpr.append('PostProcessExternalObject({}, {}, format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, outName, name=name))
+                                expr += '{}->AllocateOutputData(1);'.format(value.name)
+                                postexpr.append('PostProcessExternalObject(replay_result, (*{}->GetPointer()), *{}, format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, argName, name=name))
                         elif self.isHandle(value.baseType):
                             # Add mapping for the newly created handle
-                            expr += '{}.GetHandlePointer();'.format(value.name)
-                            postexpr.append('AddHandles<{basetype}>({}.GetPointer(), 1, {}, 1, &VulkanObjectMapper::Add{basetype});'.format(value.name, argName, basetype=value.baseType))
+                            expr += '{}->GetHandlePointer();'.format(value.name)
+                            postexpr.append('AddHandles<{basetype}>({}->GetPointer(), 1, {}, 1, &VulkanObjectMapper::Add{basetype});'.format(value.name, argName, basetype=value.baseType))
                         else:
-                            outName = 'out_{}_value'.format(value.name)
                             if self.isArrayLen(value.name, values):
                                 # If this is an array length, it is an in/out parameter and we need to assign the input value.
-                                preexpr.append('{basetype} {} = {paramname}.IsNull() ? static_cast<{basetype}>(0) : *({paramname}.GetPointer());'.format(outName, basetype = value.baseType, paramname = value.name))
+                                expr += '{}->AllocateOutputData(1, {paramname}->IsNull() ? static_cast<{}>(0) : (*{paramname}->GetPointer()));'.format(value.name, value.baseType, paramname = value.name)
                                 # Need to store the name of the intermediate value for use with allocating the array associated with this length.
-                                arrayLengths[value.name] = outName
+                                arrayLengths[value.name] = '*{}'.format(argName)
                             elif self.isStruct(value.baseType):
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
                                 if value.baseType in self.sTypeValues:
                                     # TODO: recreate pNext value read from the capture file.
-                                    preexpr.append('{basetype} {} = {{ {}, nullptr }};'.format(outName, self.sTypeValues[value.baseType], basetype=value.baseType))
+                                    expr += '{}->AllocateOutputData(1, {{ {}, nullptr }});'.format(value.name, self.sTypeValues[value.baseType])
                                 else:
-                                    preexpr.append('{basetype} {} = {{}};'.format(outName, basetype=value.baseType))
+                                    expr += '{}->AllocateOutputData(1);'.format(value.name)
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles
                                 if value.baseType in self.structsWithHandles:
-                                    postexpr.append('AddStructHandles<Decoded_{basetype}>({name}.GetMetaStructPointer(), {}, GetObjectMapper());'.format(argName, name=value.name, basetype=value.baseType))
+                                    postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {}, GetObjectMapper());'.format(argName, name=value.name, basetype=value.baseType))
                             else:
-                                preexpr.append('{basetype} {} = static_cast<{basetype}>(0);'.format(outName, basetype=value.baseType))
-
-                            expr += '&{};'.format(outName)
+                                expr += '{}->AllocateOutputData(1, static_cast<{}>(0));'.format(value.name, value.baseType)
                 if expr:
                     preexpr.append(expr)
             elif self.isHandle(value.baseType):

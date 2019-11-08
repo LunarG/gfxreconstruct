@@ -37,7 +37,9 @@ class PNextNode
 
     virtual uint64_t GetAddress() const = 0;
 
-    virtual void* GetPointer() const = 0;
+    virtual void* GetPointer() = 0;
+
+    const virtual void* GetPointer() const = 0;
 
     virtual void* GetMetaStructPointer() const = 0;
 
