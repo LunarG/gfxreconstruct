@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2019 Valve Corporation
+** Copyright (c) 2018-2019 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -25,11 +25,12 @@
 #include "util/logging.h"
 
 #include <cassert>
+#include <memory>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-template <typename T>
+template <typename T, typename OutputT = T>
 class PointerDecoder : public PointerDecoderBase
 {
   public:
@@ -38,10 +39,40 @@ class PointerDecoder : public PointerDecoderBase
     virtual ~PointerDecoder() override
     {
         if ((data_ != nullptr) && !is_memory_external_)
+        {
             delete[] data_;
+        }
     }
 
-    T* GetPointer() const { return data_; }
+    T* GetPointer() { return data_; }
+
+    const T* GetPointer() const { return data_; }
+
+    size_t GetOutputLength() const { return output_len_; }
+
+    OutputT* GetOutputPointer() { return output_data_.get(); }
+
+    const OutputT* GetOutputPointer() const { return output_data_.get(); }
+
+    OutputT* AllocateOutputData(size_t len)
+    {
+        output_len_  = len;
+        output_data_ = std::make_unique<OutputT[]>(len);
+        return output_data_.get();
+    }
+
+    OutputT* AllocateOutputData(size_t len, const OutputT& init)
+    {
+        output_len_  = len;
+        output_data_ = std::make_unique<OutputT[]>(len);
+
+        for (size_t i = 0; i < len; ++i)
+        {
+            output_data_[i] = init;
+        }
+
+        return output_data_.get();
+    }
 
     void SetExternalMemory(T* data, size_t capacity)
     {
@@ -117,8 +148,7 @@ class PointerDecoder : public PointerDecoderBase
         size_t bytes_read = 0;
         size_t len        = GetLength();
 
-        data_     = new T[len];
-        capacity_ = len;
+        data_ = new T[len];
 
         if (HasData())
         {
@@ -163,9 +193,17 @@ class PointerDecoder : public PointerDecoderBase
     }
 
   private:
+    /// Memory to hold decoded data. Points to an internal allocation when #is_memory_external_ is false and
+    /// to an externally provided allocation when #is_memory_external_ is true.
     T*     data_;
-    size_t capacity_;
-    bool   is_memory_external_;
+    size_t capacity_; ///< Size of external memory allocation referenced by #data_ when #is_memory_external_ is true.
+    bool   is_memory_external_; ///< Indicates that the memory referenced by #data_ is an external allocation.
+
+    /// Optional memory allocated for output pramaters when retrieving data from a function call. Allows both the data
+    /// read from the file and the data retrieved from an API call to exist simultaneously, allowing the values to be
+    /// compared.
+    std::unique_ptr<OutputT[]> output_data_;
+    size_t                     output_len_; ///< Size of #output_data_.
 };
 
 GFXRECON_END_NAMESPACE(decode)

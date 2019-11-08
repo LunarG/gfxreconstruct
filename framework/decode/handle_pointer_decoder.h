@@ -49,7 +49,9 @@ class HandlePointerDecoder
 
     size_t GetLength() const { return decoder_.GetLength(); }
 
-    format::HandleId* GetPointer() const { return decoder_.GetPointer(); }
+    format::HandleId* GetPointer() { return decoder_.GetPointer(); }
+
+    const format::HandleId* GetPointer() const { return decoder_.GetPointer(); }
 
     void SetExternalMemory(T* data, size_t capacity)
     {

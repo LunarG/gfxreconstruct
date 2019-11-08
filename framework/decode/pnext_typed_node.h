@@ -40,7 +40,9 @@ class PNextTypedNode : public PNextNode
 
     virtual uint64_t GetAddress() const override { return struct_pointer_.GetAddress(); }
 
-    virtual void* GetPointer() const override { return struct_pointer_.GetPointer(); }
+    virtual void* GetPointer() override { return struct_pointer_.GetPointer(); }
+
+    const virtual void* GetPointer() const override { return struct_pointer_.GetPointer(); }
 
     virtual void* GetMetaStructPointer() const override { return struct_pointer_.GetMetaStructPointer(); }
 

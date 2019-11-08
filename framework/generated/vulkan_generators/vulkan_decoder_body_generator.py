@@ -117,11 +117,17 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
     # Generate C++ code for the decoder method body.
     def makeCmdBody(self, returnType, name, values):
         body = ''
+        argNames = []
 
         # Declarations for decoded types.
         for value in values:
             decodeType = self.makeDecodedParamType(value)
             body += '    {} {};\n'.format(decodeType, value.name)
+            if self.isOutputParameter(value):
+                argNames.append('&{}'.format(value.name))
+            else:
+                argNames.append(value.name)
+
         if returnType and returnType != 'void':
             body += '    {} return_value;\n'.format(returnType)
 
@@ -140,7 +146,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
             body += '\n'
 
         # Make the argument list for the API call
-        arglist = self.makeArgList(values)
+        arglist = ', '.join([argName for argName in argNames])
         if returnType and returnType != 'void':
             arglist = ', '.join(['return_value', arglist])
 
