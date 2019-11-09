@@ -187,24 +187,24 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
             if value.isPointer or value.isArray:
                 fullType = value.fullType if not value.platformFullType else value.platformFullType
                 isInput = self.isInputPointer(value)
+                isExtenalObject = False
+                needTempValue = True
+                expr = ''
+
+                if (value.baseType in self.EXTERNAL_OBJECT_TYPES) and not value.isArray:
+                    # Currently, all arrays of external object types are 'void*' values that represent arrays of bytes, so we only have a
+                    # pointer to an external object when the value is not an array.
+                    isExtenalObject = True
 
                 if (value.isArray and not value.isDynamic):
                     # Use dynamic pointer syntax for static arrays.
                     fullType += '*'
 
-                # Generate temporary variable to reference a pointer value that is encapsulated within a PointerDecoder object.
-                if isInput:
-                    argName = 'in_' + value.name
-                else:
-                    argName = 'out_' + value.name
-
-                if not isInput and isOverride:
-                    args.append(value.name)
-                else:
-                    args.append(argName)
-
-                # Assign PointerDecoder pointer to temporary variable.
-                expr = '{} {} = '.format(fullType, argName)
+                if isOverride and not isExtenalObject:
+                    # Overrides receive the PointerDecoder object instead of the actual Vulkan pointer, so the temporary value used to hold the pointer returned by
+                    # PointerDecoder::GetPointer() is not needed for most cases.  Pointers to external (non-Vulkan) objects are subject to separate pre/post
+                    # processing, so continue to use a temporary value that is passed to the override function instead of the PointerDecoder object.
+                    needTempValue = False
 
                 # Determine name of variable specifying the length of an array.  An override may be required to
                 # replace the original length value with a temporary pointer variable.
@@ -222,11 +222,28 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         # created to store the pointer encapsulated by the object.  This case also requires using the intermediate
                         # value to access the array length.  Prepending 'in_' to the 'arraylen' value is currently sufficient to
                         # handle this case.
-                        lengthName = 'in_' + lengthName
+                        if needTempValue:
+                            lengthName = 'in_' + lengthName
+                        else:
+                            lengthName = lengthName.replace('->', '.GetPointer()->')
+
+                if not needTempValue:
+                    args.append(value.name)
+                else:
+                    # Generate temporary variable to reference a pointer value that is encapsulated within a PointerDecoder object.
+                    if isInput:
+                        argName = 'in_' + value.name
+                    else:
+                        argName = 'out_' + value.name
+
+                    args.append(argName)
+
+                    # Assign PointerDecoder pointer to temporary variable.
+                    expr = '{} {} = '.format(fullType, argName)
 
                 if isInput:
                     # Assign avalue to the temporary variable based on type.  Some array variables require temporary allocations.
-                    if (value.baseType in self.EXTERNAL_OBJECT_TYPES) and not value.isArray:
+                    if isExtenalObject:
                         # If this was an array with the 'void*' type, it was encoded as an array of bytes.
                         # If not (this case), it is a pointer to an unknown object type that was encoded as a uint64_t ID value.
                         # If possible, we will map the ID to an object previously created during replay.  Otherwise, we will
@@ -236,16 +253,21 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         else:
                             expr += 'PreProcessExternalObject({}, format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, name=name)
                     elif value.baseType == 'VkAllocationCallbacks':
-                        # The replay consumer needs to override the allocation callbacks used by the captured application.
-                        expr += 'GetAllocationCallbacks({});'.format(value.name)
+                        if needTempValue:
+                            # The replay consumer needs to override the allocation callbacks used by the captured application.
+                            expr += 'GetAllocationCallbacks({});'.format(value.name)
                     elif self.isHandle(value.baseType):
                         # We received an array of 64-bit integer IDs from the decoder.
-                        # We now need to allocate memory to hold handles, which we map from the IDs.
-                        expr = expr.replace('const', '').lstrip() + '{}.GetHandlePointer();'.format(value.name)
-                        preexpr.append(expr)
-                        expr = 'MapHandles<{}Info>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Map{});'.format(value.baseType[2:], argName, lengthName, value.baseType, paramname=value.name)
+                        if needTempValue:
+                            expr = expr.replace('const', '').lstrip() + '{}.GetHandlePointer();'.format(value.name)
+                            preexpr.append(expr)
+                            expr = 'MapHandles<{}Info>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Map{});'.format(value.baseType[2:], argName, lengthName, value.baseType, paramname=value.name)
+                        else:
+                            expr = 'MapHandles<{}Info>({paramname}.GetPointer(), {paramname}.GetLength(), {paramname}.GetHandlePointer(), {}, &VulkanObjectMapper::Map{});'.format(value.baseType[2:], lengthName, value.baseType, paramname=value.name)
                     else:
-                        expr += '{}.GetPointer();'.format(value.name)
+                        if needTempValue:
+                            expr += '{}.GetPointer();'.format(value.name)
+
                         if value.baseType in self.structsWithHandles:
                             preexpr.append(expr)
                             if value.isArray:
@@ -254,57 +276,85 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 expr = 'MapStructHandles({}.GetMetaStructPointer(), GetObjectMapper());'.format(value.name)
                 else:
                     # Initialize output pointer.
-                    # Note on output structures with handles: These structures are used in queries such as
-                    # VkGetPhysicalDeviceGroupProperties and VkGetPhyusicalDeviceDisplayPropertiesKHR and do not
-                    # require handle mapping for replay.
                     if value.isArray:
                         if value.baseType in self.EXTERNAL_OBJECT_TYPES:
-                            expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({});'.format(lengthName, name=value.name)
+                            # This is effectively an array with type void*, which was encoded as an array of bytes.
+                            if needTempValue:
+                                expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({});'.format(lengthName, name=value.name)
+                            else:
+                                expr = 'if (!{name}->IsNull()) {{ {name}->AllocateOutputData({}); }}'.format(lengthName, name=value.name)
                         elif self.isHandle(value.baseType):
                             # Add mappings for the newly created handles
-                            expr += '{}->GetHandlePointer();'.format(value.name)
-                            postexpr.append('AddHandles<{basetype}>({paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
-                        elif self.isStruct(value.baseType):
-                            # If this is a struct with sType and pNext fields, we need to initialize them.
-                            if value.baseType in self.sTypeValues:
-                                # TODO: recreate pNext value read from the capture file.
-                                expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({}, {}{{ {}, nullptr }});'.format(lengthName, value.baseType, self.sTypeValues[value.baseType], name=value.name)
+                            if needTempValue:
+                                expr += '{}->GetHandlePointer();'.format(value.name)
+                                postexpr.append('AddHandles<{basetype}>({paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
                             else:
-                                expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({});'.format(lengthName, name=value.name)
-                            # If this is a struct with handles, we need to add replay mappings for the embedded handles
-                            if value.baseType in self.structsWithHandles:
-                                postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {name}->GetLength(), {}, {}, GetObjectMapper());'.format(argName, lengthName, name=value.name, basetype=value.baseType))
+                                postexpr.append('AddHandles<{basetype}>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, &VulkanObjectMapper::Add{basetype});'.format(lengthName, paramname=value.name, basetype=value.baseType))
+                        elif self.isStruct(value.baseType):
+                            if needTempValue:
+                                # If this is a struct with sType and pNext fields, we need to initialize them.
+                                if value.baseType in self.sTypeValues:
+                                    # TODO: recreate pNext value read from the capture file.
+                                    expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({}, {}{{ {}, nullptr }});'.format(lengthName, value.baseType, self.sTypeValues[value.baseType], paramname=value.name)
+                                else:
+                                    expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({});'.format(lengthName, paramname=value.name)
+                                # If this is a struct with handles, we need to add replay mappings for the embedded handles
+                                if value.baseType in self.structsWithHandles:
+                                    postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {}, {}, GetObjectMapper());'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
+                            else:
+                                # If this is a struct with sType and pNext fields, we need to initialize them.
+                                if value.baseType in self.sTypeValues:
+                                    # TODO: recreate pNext value read from the capture file.
+                                    expr += 'if (!{paramname}->IsNull()) {{ {paramname}->AllocateOutputData({}, {}{{ {}, nullptr }}); }}'.format(lengthName, value.baseType, self.sTypeValues[value.baseType], paramname=value.name)
+                                else:
+                                    expr += 'if (!{paramname}->IsNull()) {{ {paramname}->AllocateOutputData({}); }}'.format(lengthName, paramname=value.name)
+                                # If this is a struct with handles, we need to add replay mappings for the embedded handles
+                                if value.baseType in self.structsWithHandles:
+                                    postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {paramname}->GetOutputPointer(), {}, GetObjectMapper());'.format(lengthName, paramname=value.name, basetype=value.baseType))
                         else:
-                            expr += '{name}->IsNull() ? nullptr : {name}->AllocateOutputData({});'.format(lengthName, name=value.name)
+                            if needTempValue:
+                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({});'.format(lengthName, paramname=value.name)
+                            else:
+                                expr += 'if ({paramname}->IsNull()) {{ {paramname}->AllocateOutputData({}); }}'.format(lengthName, paramname=value.name)
                     else:
-                        if value.baseType in self.EXTERNAL_OBJECT_TYPES:
+                        if isExtenalObject:
                             # Map the object ID to the new object
                             if value.platformFullType:
                                 expr += 'reinterpret_cast<{}>({}->AllocateOutputData(1));'.format(fullType, value.name)
                                 postexpr.append('PostProcessExternalObject(replay_result, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, argName, name=name))
                             else:
                                 expr += '{}->AllocateOutputData(1);'.format(value.name)
-                                postexpr.append('PostProcessExternalObject(replay_result, (*{}->GetPointer()), *{}, format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, argName, name=name))
+                                postexpr.append('PostProcessExternalObject(replay_result, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'.format(paramname=value.name, name=name))
                         elif self.isHandle(value.baseType):
                             # Add mapping for the newly created handle
-                            expr += '{}->GetHandlePointer();'.format(value.name)
-                            postexpr.append('AddHandles<{basetype}>({}->GetPointer(), 1, {}, 1, &VulkanObjectMapper::Add{basetype});'.format(value.name, argName, basetype=value.baseType))
+                            if needTempValue:
+                                expr += '{}->GetHandlePointer();'.format(value.name)
+                                postexpr.append('AddHandles<{basetype}>({}->GetPointer(), 1, {}, 1, &VulkanObjectMapper::Add{basetype});'.format(value.name, argName, basetype=value.baseType))
+                            else:
+                                postexpr.append('AddHandles<{basetype}>({paramname}->GetPointer(), 1, {paramname}->GetHandlePointer(), 1, &VulkanObjectMapper::Add{basetype});'.format(paramname=value.name, basetype=value.baseType))
                         else:
                             if self.isArrayLen(value.name, values):
                                 # If this is an array length, it is an in/out parameter and we need to assign the input value.
                                 expr += '{}->AllocateOutputData(1, {paramname}->IsNull() ? static_cast<{}>(0) : (*{paramname}->GetPointer()));'.format(value.name, value.baseType, paramname = value.name)
                                 # Need to store the name of the intermediate value for use with allocating the array associated with this length.
-                                arrayLengths[value.name] = '*{}'.format(argName)
+                                if needTempValue:
+                                    arrayLengths[value.name] = '*{}'.format(argName)
+                                else:
+                                    arrayLengths[value.name] = '*{}->GetOutputPointer()'.format(value.name)
                             elif self.isStruct(value.baseType):
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
                                 if value.baseType in self.sTypeValues:
-                                    # TODO: recreate pNext value read from the capture file.
+                                    # TODO: recreate pNext value read from the capture file; pNext is currently null.
                                     expr += '{}->AllocateOutputData(1, {{ {}, nullptr }});'.format(value.name, self.sTypeValues[value.baseType])
                                 else:
                                     expr += '{}->AllocateOutputData(1);'.format(value.name)
+
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles
                                 if value.baseType in self.structsWithHandles:
-                                    postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {}, GetObjectMapper());'.format(argName, name=value.name, basetype=value.baseType))
+                                    if needTempValue:
+                                        postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {}, GetObjectMapper());'.format(argName, name=value.name, basetype=value.baseType))
+                                    else:
+                                        postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {name}->GetOutputPointer(), GetObjectMapper());'.format(name=value.name, basetype=value.baseType))
                             else:
                                 expr += '{}->AllocateOutputData(1, static_cast<{}>(0));'.format(value.name, value.baseType)
                 if expr:
