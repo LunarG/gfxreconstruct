@@ -25,5 +25,6 @@ const char Arguments::kWinWidthArgument[]  = "--win-width";
 const char Arguments::kWinHeightArgument[] = "--win-height";
 
 // TODO: Make this a vector of strings.
-const char Arguments::kOptions[]   = "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
+const char Arguments::kOptions[] =
+    "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
 const char Arguments::kArguments[] = "--pause-frame,--ip-address,--port,--win-width,--win-height";

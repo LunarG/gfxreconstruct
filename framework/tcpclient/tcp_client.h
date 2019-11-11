@@ -137,7 +137,7 @@ class TcpClient
     }
 
     // Send the trace file pointer position over TCP
-    void TcpSendFilePos(double file_len, double bytes_sent, char* file_name);
+    void TcpSendFilePos(int64_t file_len, int64_t bytes_sent, char* file_name);
 
     // Send loaded driver info over TCP
     void TcpSendDriverLoadInfo();

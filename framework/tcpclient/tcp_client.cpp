@@ -123,17 +123,16 @@ std::ifstream::pos_type TcpClient::GetFileSize(const char* filename)
 }
 
 // Send current file position info to GPS Shim UI and get next packet
-void TcpClient::TcpSendFilePos(double file_len, double bytes_sent, char* file_name)
+void TcpClient::TcpSendFilePos(int64_t file_len, int64_t bytes_sent, char* file_name)
 {
 #ifdef _WIN32
     static int64_t last_position_sent = file_position;
     file_position += bytes_sent;
     if (NULL != file_name)
     {
-        int64_t file_length = file_len;
-        if (file_length > 0)
+        if (file_len > 0)
         {
-            double file_len_f                   = file_length;
+            double file_len_f                   = file_len;
             double position_cur                 = file_position;
             double position_last_sent           = last_position_sent;
             double diff_from_last_position_sent = (position_cur - position_last_sent);
@@ -143,7 +142,7 @@ void TcpClient::TcpSendFilePos(double file_len, double bytes_sent, char* file_na
             {
                 char file_str[kStrLen];
                 memset(file_str, 0, kStrLen);
-                sprintf_s(file_str, kStrLen, "%s,%f,%f", file_name, bytes_sent, file_len);
+                sprintf_s(file_str, kStrLen, "%s,%llu,%llu", file_name, bytes_sent, file_len);
 
                 TransmitData("GFXRECFILE:%s", file_str);
                 last_position_sent = file_position;
