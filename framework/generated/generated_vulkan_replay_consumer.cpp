@@ -58,10 +58,10 @@ void VulkanReplayConsumer::Process_vkEnumeratePhysicalDevices(
     PointerDecoder<uint32_t>*                   pPhysicalDeviceCount,
     HandlePointerDecoder<VkPhysicalDevice>*     pPhysicalDevices)
 {
-    VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectMapper::MapVkInstance);
+    auto in_instance = GetObjectMapper().MapVkInstance(instance);
     pPhysicalDeviceCount->AllocateOutputData(1, pPhysicalDeviceCount->IsNull() ? static_cast<uint32_t>(0) : (*pPhysicalDeviceCount->GetPointer()));
 
-    VkResult replay_result = OverrideEnumeratePhysicalDevices(GetInstanceTable(in_instance)->EnumeratePhysicalDevices, returnValue, in_instance, pPhysicalDeviceCount, pPhysicalDevices);
+    VkResult replay_result = OverrideEnumeratePhysicalDevices(GetInstanceTable(in_instance->handle)->EnumeratePhysicalDevices, returnValue, in_instance, pPhysicalDeviceCount, pPhysicalDevices);
     CheckResult("vkEnumeratePhysicalDevices", returnValue, replay_result);
 
     AddHandles<VkPhysicalDevice>(pPhysicalDevices->GetPointer(), pPhysicalDevices->GetLength(), pPhysicalDevices->GetHandlePointer(), *pPhysicalDeviceCount->GetOutputPointer(), &VulkanObjectMapper::AddVkPhysicalDevice);
@@ -109,10 +109,10 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceProperties(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectMapper::MapVkPhysicalDevice);
+    auto in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     pProperties->AllocateOutputData(1);
 
-    OverrideGetPhysicalDeviceProperties(GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceProperties, in_physicalDevice, pProperties);
+    OverrideGetPhysicalDeviceProperties(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceProperties, in_physicalDevice, pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties(
@@ -144,7 +144,7 @@ void VulkanReplayConsumer::Process_vkCreateDevice(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkDevice>*             pDevice)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectMapper::MapVkPhysicalDevice);
+    auto in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
 
     MapStructHandles(pCreateInfo.GetMetaStructPointer(), GetObjectMapper());
 
@@ -221,11 +221,11 @@ void VulkanReplayConsumer::Process_vkAllocateMemory(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkDeviceMemory>*       pMemory)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructHandles(pAllocateInfo.GetMetaStructPointer(), GetObjectMapper());
 
-    VkResult replay_result = OverrideAllocateMemory(GetDeviceTable(in_device)->AllocateMemory, returnValue, in_device, pAllocateInfo, pAllocator, pMemory);
+    VkResult replay_result = OverrideAllocateMemory(GetDeviceTable(in_device->handle)->AllocateMemory, returnValue, in_device, pAllocateInfo, pAllocator, pMemory);
     CheckResult("vkAllocateMemory", returnValue, replay_result);
 
     AddHandles<VkDeviceMemory>(pMemory->GetPointer(), 1, pMemory->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkDeviceMemory);
@@ -236,10 +236,10 @@ void VulkanReplayConsumer::Process_vkFreeMemory(
     format::HandleId                            memory,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkDeviceMemory in_memory = MapHandle<DeviceMemoryInfo>(memory, &VulkanObjectMapper::MapVkDeviceMemory);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_memory = GetObjectMapper().MapVkDeviceMemory(memory);
 
-    OverrideFreeMemory(GetDeviceTable(in_device)->FreeMemory, in_device, in_memory, pAllocator);
+    OverrideFreeMemory(GetDeviceTable(in_device->handle)->FreeMemory, in_device, in_memory, pAllocator);
 }
 
 void VulkanReplayConsumer::Process_vkMapMemory(
@@ -251,11 +251,11 @@ void VulkanReplayConsumer::Process_vkMapMemory(
     VkMemoryMapFlags                            flags,
     PointerDecoder<uint64_t, void*>*            ppData)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkDeviceMemory in_memory = MapHandle<DeviceMemoryInfo>(memory, &VulkanObjectMapper::MapVkDeviceMemory);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_memory = GetObjectMapper().MapVkDeviceMemory(memory);
     void** out_ppData = ppData->AllocateOutputData(1);
 
-    VkResult replay_result = OverrideMapMemory(GetDeviceTable(in_device)->MapMemory, returnValue, in_device, in_memory, offset, size, flags, out_ppData);
+    VkResult replay_result = OverrideMapMemory(GetDeviceTable(in_device->handle)->MapMemory, returnValue, in_device, in_memory, offset, size, flags, out_ppData);
     CheckResult("vkMapMemory", returnValue, replay_result);
 
     PostProcessExternalObject(replay_result, (*ppData->GetPointer()), *ppData->GetOutputPointer(), format::ApiCallId::ApiCall_vkMapMemory, "vkMapMemory");
@@ -265,10 +265,10 @@ void VulkanReplayConsumer::Process_vkUnmapMemory(
     format::HandleId                            device,
     format::HandleId                            memory)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkDeviceMemory in_memory = MapHandle<DeviceMemoryInfo>(memory, &VulkanObjectMapper::MapVkDeviceMemory);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_memory = GetObjectMapper().MapVkDeviceMemory(memory);
 
-    OverrideUnmapMemory(GetDeviceTable(in_device)->UnmapMemory, in_device, in_memory);
+    OverrideUnmapMemory(GetDeviceTable(in_device->handle)->UnmapMemory, in_device, in_memory);
 }
 
 void VulkanReplayConsumer::Process_vkFlushMappedMemoryRanges(
@@ -318,11 +318,11 @@ void VulkanReplayConsumer::Process_vkBindBufferMemory(
     format::HandleId                            memory,
     VkDeviceSize                                memoryOffset)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkBuffer in_buffer = MapHandle<BufferInfo>(buffer, &VulkanObjectMapper::MapVkBuffer);
-    VkDeviceMemory in_memory = MapHandle<DeviceMemoryInfo>(memory, &VulkanObjectMapper::MapVkDeviceMemory);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_buffer = GetObjectMapper().MapVkBuffer(buffer);
+    auto in_memory = GetObjectMapper().MapVkDeviceMemory(memory);
 
-    VkResult replay_result = OverrideBindBufferMemory(GetDeviceTable(in_device)->BindBufferMemory, returnValue, in_device, in_buffer, in_memory, memoryOffset);
+    VkResult replay_result = OverrideBindBufferMemory(GetDeviceTable(in_device->handle)->BindBufferMemory, returnValue, in_device, in_buffer, in_memory, memoryOffset);
     CheckResult("vkBindBufferMemory", returnValue, replay_result);
 }
 
@@ -333,11 +333,11 @@ void VulkanReplayConsumer::Process_vkBindImageMemory(
     format::HandleId                            memory,
     VkDeviceSize                                memoryOffset)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkImage in_image = MapHandle<ImageInfo>(image, &VulkanObjectMapper::MapVkImage);
-    VkDeviceMemory in_memory = MapHandle<DeviceMemoryInfo>(memory, &VulkanObjectMapper::MapVkDeviceMemory);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_image = GetObjectMapper().MapVkImage(image);
+    auto in_memory = GetObjectMapper().MapVkDeviceMemory(memory);
 
-    VkResult replay_result = OverrideBindImageMemory(GetDeviceTable(in_device)->BindImageMemory, returnValue, in_device, in_image, in_memory, memoryOffset);
+    VkResult replay_result = OverrideBindImageMemory(GetDeviceTable(in_device->handle)->BindImageMemory, returnValue, in_device, in_image, in_memory, memoryOffset);
     CheckResult("vkBindImageMemory", returnValue, replay_result);
 }
 
@@ -461,10 +461,10 @@ void VulkanReplayConsumer::Process_vkGetFenceStatus(
     format::HandleId                            device,
     format::HandleId                            fence)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkFence in_fence = MapHandle<FenceInfo>(fence, &VulkanObjectMapper::MapVkFence);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_fence = GetObjectMapper().MapVkFence(fence);
 
-    VkResult replay_result = OverrideGetFenceStatus(GetDeviceTable(in_device)->GetFenceStatus, returnValue, in_device, in_fence);
+    VkResult replay_result = OverrideGetFenceStatus(GetDeviceTable(in_device->handle)->GetFenceStatus, returnValue, in_device, in_fence);
     CheckResult("vkGetFenceStatus", returnValue, replay_result);
 }
 
@@ -476,10 +476,10 @@ void VulkanReplayConsumer::Process_vkWaitForFences(
     VkBool32                                    waitAll,
     uint64_t                                    timeout)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
     MapHandles<FenceInfo>(pFences.GetPointer(), pFences.GetLength(), pFences.GetHandlePointer(), fenceCount, &VulkanObjectMapper::MapVkFence);
 
-    VkResult replay_result = OverrideWaitForFences(GetDeviceTable(in_device)->WaitForFences, returnValue, in_device, fenceCount, pFences, waitAll, timeout);
+    VkResult replay_result = OverrideWaitForFences(GetDeviceTable(in_device->handle)->WaitForFences, returnValue, in_device, fenceCount, pFences, waitAll, timeout);
     CheckResult("vkWaitForFences", returnValue, replay_result);
 }
 
@@ -548,10 +548,10 @@ void VulkanReplayConsumer::Process_vkGetEventStatus(
     format::HandleId                            device,
     format::HandleId                            event)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkEvent in_event = MapHandle<EventInfo>(event, &VulkanObjectMapper::MapVkEvent);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_event = GetObjectMapper().MapVkEvent(event);
 
-    VkResult replay_result = OverrideGetEventStatus(GetDeviceTable(in_device)->GetEventStatus, returnValue, in_device, in_event);
+    VkResult replay_result = OverrideGetEventStatus(GetDeviceTable(in_device->handle)->GetEventStatus, returnValue, in_device, in_event);
     CheckResult("vkGetEventStatus", returnValue, replay_result);
 }
 
@@ -620,11 +620,11 @@ void VulkanReplayConsumer::Process_vkGetQueryPoolResults(
     VkDeviceSize                                stride,
     VkQueryResultFlags                          flags)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkQueryPool in_queryPool = MapHandle<QueryPoolInfo>(queryPool, &VulkanObjectMapper::MapVkQueryPool);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_queryPool = GetObjectMapper().MapVkQueryPool(queryPool);
     if (!pData->IsNull()) { pData->AllocateOutputData(dataSize); }
 
-    VkResult replay_result = OverrideGetQueryPoolResults(GetDeviceTable(in_device)->GetQueryPoolResults, returnValue, in_device, in_queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
+    VkResult replay_result = OverrideGetQueryPoolResults(GetDeviceTable(in_device->handle)->GetQueryPoolResults, returnValue, in_device, in_queryPool, firstQuery, queryCount, dataSize, pData, stride, flags);
     CheckResult("vkGetQueryPoolResults", returnValue, replay_result);
 }
 
@@ -635,9 +635,9 @@ void VulkanReplayConsumer::Process_vkCreateBuffer(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkBuffer>*             pBuffer)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
-    VkResult replay_result = OverrideCreateBuffer(GetDeviceTable(in_device)->CreateBuffer, returnValue, in_device, pCreateInfo, pAllocator, pBuffer);
+    VkResult replay_result = OverrideCreateBuffer(GetDeviceTable(in_device->handle)->CreateBuffer, returnValue, in_device, pCreateInfo, pAllocator, pBuffer);
     CheckResult("vkCreateBuffer", returnValue, replay_result);
 
     AddHandles<VkBuffer>(pBuffer->GetPointer(), 1, pBuffer->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkBuffer);
@@ -693,11 +693,11 @@ void VulkanReplayConsumer::Process_vkCreateImage(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkImage>*              pImage)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructHandles(pCreateInfo.GetMetaStructPointer(), GetObjectMapper());
 
-    VkResult replay_result = OverrideCreateImage(GetDeviceTable(in_device)->CreateImage, returnValue, in_device, pCreateInfo, pAllocator, pImage);
+    VkResult replay_result = OverrideCreateImage(GetDeviceTable(in_device->handle)->CreateImage, returnValue, in_device, pCreateInfo, pAllocator, pImage);
     CheckResult("vkCreateImage", returnValue, replay_result);
 
     AddHandles<VkImage>(pImage->GetPointer(), 1, pImage->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkImage);
@@ -798,9 +798,9 @@ void VulkanReplayConsumer::Process_vkCreatePipelineCache(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkPipelineCache>*      pPipelineCache)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
-    VkResult replay_result = OverrideCreatePipelineCache(GetDeviceTable(in_device)->CreatePipelineCache, returnValue, in_device, pCreateInfo, pAllocator, pPipelineCache);
+    VkResult replay_result = OverrideCreatePipelineCache(GetDeviceTable(in_device->handle)->CreatePipelineCache, returnValue, in_device, pCreateInfo, pAllocator, pPipelineCache);
     CheckResult("vkCreatePipelineCache", returnValue, replay_result);
 
     AddHandles<VkPipelineCache>(pPipelineCache->GetPointer(), 1, pPipelineCache->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkPipelineCache);
@@ -1048,11 +1048,11 @@ void VulkanReplayConsumer::Process_vkAllocateDescriptorSets(
     const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>& pAllocateInfo,
     HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructHandles(pAllocateInfo.GetMetaStructPointer(), GetObjectMapper());
 
-    VkResult replay_result = OverrideAllocateDescriptorSets(GetDeviceTable(in_device)->AllocateDescriptorSets, returnValue, in_device, pAllocateInfo, pDescriptorSets);
+    VkResult replay_result = OverrideAllocateDescriptorSets(GetDeviceTable(in_device->handle)->AllocateDescriptorSets, returnValue, in_device, pAllocateInfo, pDescriptorSets);
     CheckResult("vkAllocateDescriptorSets", returnValue, replay_result);
 
     AddHandles<VkDescriptorSet>(pDescriptorSets->GetPointer(), pDescriptorSets->GetLength(), pDescriptorSets->GetHandlePointer(), pAllocateInfo.GetPointer()->descriptorSetCount, &VulkanObjectMapper::AddVkDescriptorSet);
@@ -1212,11 +1212,11 @@ void VulkanReplayConsumer::Process_vkAllocateCommandBuffers(
     const StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>& pAllocateInfo,
     HandlePointerDecoder<VkCommandBuffer>*      pCommandBuffers)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructHandles(pAllocateInfo.GetMetaStructPointer(), GetObjectMapper());
 
-    VkResult replay_result = OverrideAllocateCommandBuffers(GetDeviceTable(in_device)->AllocateCommandBuffers, returnValue, in_device, pAllocateInfo, pCommandBuffers);
+    VkResult replay_result = OverrideAllocateCommandBuffers(GetDeviceTable(in_device->handle)->AllocateCommandBuffers, returnValue, in_device, pAllocateInfo, pCommandBuffers);
     CheckResult("vkAllocateCommandBuffers", returnValue, replay_result);
 
     AddHandles<VkCommandBuffer>(pCommandBuffers->GetPointer(), pCommandBuffers->GetLength(), pCommandBuffers->GetHandlePointer(), pAllocateInfo.GetPointer()->commandBufferCount, &VulkanObjectMapper::AddVkCommandBuffer);
@@ -1861,11 +1861,11 @@ void VulkanReplayConsumer::Process_vkBindBufferMemory2(
     uint32_t                                    bindInfoCount,
     const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>& pBindInfos)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructArrayHandles(pBindInfos.GetMetaStructPointer(), pBindInfos.GetLength(), GetObjectMapper());
 
-    VkResult replay_result = OverrideBindBufferMemory2(GetDeviceTable(in_device)->BindBufferMemory2, returnValue, in_device, bindInfoCount, pBindInfos);
+    VkResult replay_result = OverrideBindBufferMemory2(GetDeviceTable(in_device->handle)->BindBufferMemory2, returnValue, in_device, bindInfoCount, pBindInfos);
     CheckResult("vkBindBufferMemory2", returnValue, replay_result);
 }
 
@@ -1875,11 +1875,11 @@ void VulkanReplayConsumer::Process_vkBindImageMemory2(
     uint32_t                                    bindInfoCount,
     const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>& pBindInfos)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructArrayHandles(pBindInfos.GetMetaStructPointer(), pBindInfos.GetLength(), GetObjectMapper());
 
-    VkResult replay_result = OverrideBindImageMemory2(GetDeviceTable(in_device)->BindImageMemory2, returnValue, in_device, bindInfoCount, pBindInfos);
+    VkResult replay_result = OverrideBindImageMemory2(GetDeviceTable(in_device->handle)->BindImageMemory2, returnValue, in_device, bindInfoCount, pBindInfos);
     CheckResult("vkBindImageMemory2", returnValue, replay_result);
 }
 
@@ -1990,10 +1990,10 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceProperties2(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectMapper::MapVkPhysicalDevice);
+    auto in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     pProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, nullptr });
 
-    OverrideGetPhysicalDeviceProperties2(GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceProperties2, in_physicalDevice, pProperties);
+    OverrideGetPhysicalDeviceProperties2(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceProperties2, in_physicalDevice, pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceFormatProperties2(
@@ -2119,11 +2119,11 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplate(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructHandles(pCreateInfo.GetMetaStructPointer(), GetObjectMapper());
 
-    VkResult replay_result = OverrideCreateDescriptorUpdateTemplate(GetDeviceTable(in_device)->CreateDescriptorUpdateTemplate, returnValue, in_device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    VkResult replay_result = OverrideCreateDescriptorUpdateTemplate(GetDeviceTable(in_device->handle)->CreateDescriptorUpdateTemplate, returnValue, in_device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
     CheckResult("vkCreateDescriptorUpdateTemplate", returnValue, replay_result);
 
     AddHandles<VkDescriptorUpdateTemplate>(pDescriptorUpdateTemplate->GetPointer(), 1, pDescriptorUpdateTemplate->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkDescriptorUpdateTemplate);
@@ -2134,10 +2134,10 @@ void VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplate(
     format::HandleId                            descriptorUpdateTemplate,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = MapHandle<DescriptorUpdateTemplateInfo>(descriptorUpdateTemplate, &VulkanObjectMapper::MapVkDescriptorUpdateTemplate);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_descriptorUpdateTemplate = GetObjectMapper().MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
 
-    OverrideDestroyDescriptorUpdateTemplate(GetDeviceTable(in_device)->DestroyDescriptorUpdateTemplate, in_device, in_descriptorUpdateTemplate, pAllocator);
+    OverrideDestroyDescriptorUpdateTemplate(GetDeviceTable(in_device->handle)->DestroyDescriptorUpdateTemplate, in_device, in_descriptorUpdateTemplate, pAllocator);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
@@ -2194,10 +2194,10 @@ void VulkanReplayConsumer::Process_vkDestroySurfaceKHR(
     format::HandleId                            surface,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
 {
-    VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectMapper::MapVkInstance);
-    VkSurfaceKHR in_surface = MapHandle<SurfaceKHRInfo>(surface, &VulkanObjectMapper::MapVkSurfaceKHR);
+    auto in_instance = GetObjectMapper().MapVkInstance(instance);
+    auto in_surface = GetObjectMapper().MapVkSurfaceKHR(surface);
 
-    OverrideDestroySurfaceKHR(GetInstanceTable(in_instance)->DestroySurfaceKHR, in_instance, in_surface, pAllocator);
+    OverrideDestroySurfaceKHR(GetInstanceTable(in_instance->handle)->DestroySurfaceKHR, in_instance, in_surface, pAllocator);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceSurfaceSupportKHR(
@@ -2268,11 +2268,11 @@ void VulkanReplayConsumer::Process_vkCreateSwapchainKHR(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkSwapchainKHR>*       pSwapchain)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructHandles(pCreateInfo.GetMetaStructPointer(), GetObjectMapper());
 
-    VkResult replay_result = OverrideCreateSwapchainKHR(GetDeviceTable(in_device)->CreateSwapchainKHR, returnValue, in_device, pCreateInfo, pAllocator, pSwapchain);
+    VkResult replay_result = OverrideCreateSwapchainKHR(GetDeviceTable(in_device->handle)->CreateSwapchainKHR, returnValue, in_device, pCreateInfo, pAllocator, pSwapchain);
     CheckResult("vkCreateSwapchainKHR", returnValue, replay_result);
 
     AddHandles<VkSwapchainKHR>(pSwapchain->GetPointer(), 1, pSwapchain->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkSwapchainKHR);
@@ -2317,13 +2317,13 @@ void VulkanReplayConsumer::Process_vkAcquireNextImageKHR(
     format::HandleId                            fence,
     PointerDecoder<uint32_t>*                   pImageIndex)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkSwapchainKHR in_swapchain = MapHandle<SwapchainKHRInfo>(swapchain, &VulkanObjectMapper::MapVkSwapchainKHR);
-    VkSemaphore in_semaphore = MapHandle<SemaphoreInfo>(semaphore, &VulkanObjectMapper::MapVkSemaphore);
-    VkFence in_fence = MapHandle<FenceInfo>(fence, &VulkanObjectMapper::MapVkFence);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_swapchain = GetObjectMapper().MapVkSwapchainKHR(swapchain);
+    auto in_semaphore = GetObjectMapper().MapVkSemaphore(semaphore);
+    auto in_fence = GetObjectMapper().MapVkFence(fence);
     pImageIndex->AllocateOutputData(1, static_cast<uint32_t>(0));
 
-    VkResult replay_result = OverrideAcquireNextImageKHR(GetDeviceTable(in_device)->AcquireNextImageKHR, returnValue, in_device, in_swapchain, timeout, in_semaphore, in_fence, pImageIndex);
+    VkResult replay_result = OverrideAcquireNextImageKHR(GetDeviceTable(in_device->handle)->AcquireNextImageKHR, returnValue, in_device, in_swapchain, timeout, in_semaphore, in_fence, pImageIndex);
     CheckResult("vkAcquireNextImageKHR", returnValue, replay_result);
 }
 
@@ -2388,12 +2388,12 @@ void VulkanReplayConsumer::Process_vkAcquireNextImage2KHR(
     const StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>& pAcquireInfo,
     PointerDecoder<uint32_t>*                   pImageIndex)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructHandles(pAcquireInfo.GetMetaStructPointer(), GetObjectMapper());
     pImageIndex->AllocateOutputData(1, static_cast<uint32_t>(0));
 
-    VkResult replay_result = OverrideAcquireNextImage2KHR(GetDeviceTable(in_device)->AcquireNextImage2KHR, returnValue, in_device, pAcquireInfo, pImageIndex);
+    VkResult replay_result = OverrideAcquireNextImage2KHR(GetDeviceTable(in_device->handle)->AcquireNextImage2KHR, returnValue, in_device, pAcquireInfo, pImageIndex);
     CheckResult("vkAcquireNextImage2KHR", returnValue, replay_result);
 }
 
@@ -2545,9 +2545,9 @@ void VulkanReplayConsumer::Process_vkCreateXlibSurfaceKHR(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectMapper::MapVkInstance);
+    auto in_instance = GetObjectMapper().MapVkInstance(instance);
 
-    VkResult replay_result = OverrideCreateXlibSurfaceKHR(GetInstanceTable(in_instance)->CreateXlibSurfaceKHR, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
+    VkResult replay_result = OverrideCreateXlibSurfaceKHR(GetInstanceTable(in_instance->handle)->CreateXlibSurfaceKHR, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
     CheckResult("vkCreateXlibSurfaceKHR", returnValue, replay_result);
 
     AddHandles<VkSurfaceKHR>(pSurface->GetPointer(), 1, pSurface->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkSurfaceKHR);
@@ -2560,10 +2560,10 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXlibPresentationSupportKHR
     uint64_t                                    dpy,
     size_t                                      visualID)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectMapper::MapVkPhysicalDevice);
+    auto in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     Display* in_dpy = static_cast<Display*>(PreProcessExternalObject(dpy, format::ApiCallId::ApiCall_vkGetPhysicalDeviceXlibPresentationSupportKHR, "vkGetPhysicalDeviceXlibPresentationSupportKHR"));
 
-    OverrideGetPhysicalDeviceXlibPresentationSupportKHR(GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceXlibPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_dpy, visualID);
+    OverrideGetPhysicalDeviceXlibPresentationSupportKHR(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceXlibPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_dpy, visualID);
 }
 
 void VulkanReplayConsumer::Process_vkCreateXcbSurfaceKHR(
@@ -2573,9 +2573,9 @@ void VulkanReplayConsumer::Process_vkCreateXcbSurfaceKHR(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectMapper::MapVkInstance);
+    auto in_instance = GetObjectMapper().MapVkInstance(instance);
 
-    VkResult replay_result = OverrideCreateXcbSurfaceKHR(GetInstanceTable(in_instance)->CreateXcbSurfaceKHR, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
+    VkResult replay_result = OverrideCreateXcbSurfaceKHR(GetInstanceTable(in_instance->handle)->CreateXcbSurfaceKHR, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
     CheckResult("vkCreateXcbSurfaceKHR", returnValue, replay_result);
 
     AddHandles<VkSurfaceKHR>(pSurface->GetPointer(), 1, pSurface->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkSurfaceKHR);
@@ -2588,10 +2588,10 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceXcbPresentationSupportKHR(
     uint64_t                                    connection,
     uint32_t                                    visual_id)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectMapper::MapVkPhysicalDevice);
+    auto in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     xcb_connection_t* in_connection = static_cast<xcb_connection_t*>(PreProcessExternalObject(connection, format::ApiCallId::ApiCall_vkGetPhysicalDeviceXcbPresentationSupportKHR, "vkGetPhysicalDeviceXcbPresentationSupportKHR"));
 
-    OverrideGetPhysicalDeviceXcbPresentationSupportKHR(GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceXcbPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_connection, visual_id);
+    OverrideGetPhysicalDeviceXcbPresentationSupportKHR(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceXcbPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_connection, visual_id);
 }
 
 void VulkanReplayConsumer::Process_vkCreateWaylandSurfaceKHR(
@@ -2601,9 +2601,9 @@ void VulkanReplayConsumer::Process_vkCreateWaylandSurfaceKHR(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectMapper::MapVkInstance);
+    auto in_instance = GetObjectMapper().MapVkInstance(instance);
 
-    VkResult replay_result = OverrideCreateWaylandSurfaceKHR(GetInstanceTable(in_instance)->CreateWaylandSurfaceKHR, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
+    VkResult replay_result = OverrideCreateWaylandSurfaceKHR(GetInstanceTable(in_instance->handle)->CreateWaylandSurfaceKHR, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
     CheckResult("vkCreateWaylandSurfaceKHR", returnValue, replay_result);
 
     AddHandles<VkSurfaceKHR>(pSurface->GetPointer(), 1, pSurface->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkSurfaceKHR);
@@ -2615,10 +2615,10 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWaylandPresentationSupport
     uint32_t                                    queueFamilyIndex,
     uint64_t                                    display)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectMapper::MapVkPhysicalDevice);
+    auto in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     struct wl_display* in_display = static_cast<struct wl_display*>(PreProcessExternalObject(display, format::ApiCallId::ApiCall_vkGetPhysicalDeviceWaylandPresentationSupportKHR, "vkGetPhysicalDeviceWaylandPresentationSupportKHR"));
 
-    OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceWaylandPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_display);
+    OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceWaylandPresentationSupportKHR, in_physicalDevice, queueFamilyIndex, in_display);
 }
 
 void VulkanReplayConsumer::Process_vkCreateAndroidSurfaceKHR(
@@ -2628,9 +2628,9 @@ void VulkanReplayConsumer::Process_vkCreateAndroidSurfaceKHR(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectMapper::MapVkInstance);
+    auto in_instance = GetObjectMapper().MapVkInstance(instance);
 
-    VkResult replay_result = OverrideCreateAndroidSurfaceKHR(GetInstanceTable(in_instance)->CreateAndroidSurfaceKHR, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
+    VkResult replay_result = OverrideCreateAndroidSurfaceKHR(GetInstanceTable(in_instance->handle)->CreateAndroidSurfaceKHR, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
     CheckResult("vkCreateAndroidSurfaceKHR", returnValue, replay_result);
 
     AddHandles<VkSurfaceKHR>(pSurface->GetPointer(), 1, pSurface->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkSurfaceKHR);
@@ -2643,9 +2643,9 @@ void VulkanReplayConsumer::Process_vkCreateWin32SurfaceKHR(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
 {
-    VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectMapper::MapVkInstance);
+    auto in_instance = GetObjectMapper().MapVkInstance(instance);
 
-    VkResult replay_result = OverrideCreateWin32SurfaceKHR(GetInstanceTable(in_instance)->CreateWin32SurfaceKHR, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
+    VkResult replay_result = OverrideCreateWin32SurfaceKHR(GetInstanceTable(in_instance->handle)->CreateWin32SurfaceKHR, returnValue, in_instance, pCreateInfo, pAllocator, pSurface);
     CheckResult("vkCreateWin32SurfaceKHR", returnValue, replay_result);
 
     AddHandles<VkSurfaceKHR>(pSurface->GetPointer(), 1, pSurface->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkSurfaceKHR);
@@ -2656,9 +2656,9 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceWin32PresentationSupportKH
     format::HandleId                            physicalDevice,
     uint32_t                                    queueFamilyIndex)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectMapper::MapVkPhysicalDevice);
+    auto in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
 
-    OverrideGetPhysicalDeviceWin32PresentationSupportKHR(GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceWin32PresentationSupportKHR, in_physicalDevice, queueFamilyIndex);
+    OverrideGetPhysicalDeviceWin32PresentationSupportKHR(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceWin32PresentationSupportKHR, in_physicalDevice, queueFamilyIndex);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceFeatures2KHR(
@@ -2675,10 +2675,10 @@ void VulkanReplayConsumer::Process_vkGetPhysicalDeviceProperties2KHR(
     format::HandleId                            physicalDevice,
     StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties)
 {
-    VkPhysicalDevice in_physicalDevice = MapHandle<PhysicalDeviceInfo>(physicalDevice, &VulkanObjectMapper::MapVkPhysicalDevice);
+    auto in_physicalDevice = GetObjectMapper().MapVkPhysicalDevice(physicalDevice);
     pProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, nullptr });
 
-    OverrideGetPhysicalDeviceProperties2KHR(GetInstanceTable(in_physicalDevice)->GetPhysicalDeviceProperties2KHR, in_physicalDevice, pProperties);
+    OverrideGetPhysicalDeviceProperties2KHR(GetInstanceTable(in_physicalDevice->handle)->GetPhysicalDeviceProperties2KHR, in_physicalDevice, pProperties);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceFormatProperties2KHR(
@@ -2971,11 +2971,11 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorUpdateTemplateKHR(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkDescriptorUpdateTemplate>* pDescriptorUpdateTemplate)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructHandles(pCreateInfo.GetMetaStructPointer(), GetObjectMapper());
 
-    VkResult replay_result = OverrideCreateDescriptorUpdateTemplate(GetDeviceTable(in_device)->CreateDescriptorUpdateTemplateKHR, returnValue, in_device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
+    VkResult replay_result = OverrideCreateDescriptorUpdateTemplate(GetDeviceTable(in_device->handle)->CreateDescriptorUpdateTemplateKHR, returnValue, in_device, pCreateInfo, pAllocator, pDescriptorUpdateTemplate);
     CheckResult("vkCreateDescriptorUpdateTemplateKHR", returnValue, replay_result);
 
     AddHandles<VkDescriptorUpdateTemplate>(pDescriptorUpdateTemplate->GetPointer(), 1, pDescriptorUpdateTemplate->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkDescriptorUpdateTemplate);
@@ -2986,10 +2986,10 @@ void VulkanReplayConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
     format::HandleId                            descriptorUpdateTemplate,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
-    VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = MapHandle<DescriptorUpdateTemplateInfo>(descriptorUpdateTemplate, &VulkanObjectMapper::MapVkDescriptorUpdateTemplate);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
+    auto in_descriptorUpdateTemplate = GetObjectMapper().MapVkDescriptorUpdateTemplate(descriptorUpdateTemplate);
 
-    OverrideDestroyDescriptorUpdateTemplate(GetDeviceTable(in_device)->DestroyDescriptorUpdateTemplateKHR, in_device, in_descriptorUpdateTemplate, pAllocator);
+    OverrideDestroyDescriptorUpdateTemplate(GetDeviceTable(in_device->handle)->DestroyDescriptorUpdateTemplateKHR, in_device, in_descriptorUpdateTemplate, pAllocator);
 }
 
 void VulkanReplayConsumer::Process_vkCreateRenderPass2KHR(
@@ -3301,11 +3301,11 @@ void VulkanReplayConsumer::Process_vkBindBufferMemory2KHR(
     uint32_t                                    bindInfoCount,
     const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>& pBindInfos)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructArrayHandles(pBindInfos.GetMetaStructPointer(), pBindInfos.GetLength(), GetObjectMapper());
 
-    VkResult replay_result = OverrideBindBufferMemory2(GetDeviceTable(in_device)->BindBufferMemory2KHR, returnValue, in_device, bindInfoCount, pBindInfos);
+    VkResult replay_result = OverrideBindBufferMemory2(GetDeviceTable(in_device->handle)->BindBufferMemory2KHR, returnValue, in_device, bindInfoCount, pBindInfos);
     CheckResult("vkBindBufferMemory2KHR", returnValue, replay_result);
 }
 
@@ -3315,11 +3315,11 @@ void VulkanReplayConsumer::Process_vkBindImageMemory2KHR(
     uint32_t                                    bindInfoCount,
     const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>& pBindInfos)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    auto in_device = GetObjectMapper().MapVkDevice(device);
 
     MapStructArrayHandles(pBindInfos.GetMetaStructPointer(), pBindInfos.GetLength(), GetObjectMapper());
 
-    VkResult replay_result = OverrideBindImageMemory2(GetDeviceTable(in_device)->BindImageMemory2KHR, returnValue, in_device, bindInfoCount, pBindInfos);
+    VkResult replay_result = OverrideBindImageMemory2(GetDeviceTable(in_device->handle)->BindImageMemory2KHR, returnValue, in_device, bindInfoCount, pBindInfos);
     CheckResult("vkBindImageMemory2KHR", returnValue, replay_result);
 }
 
@@ -3467,9 +3467,9 @@ void VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkDebugReportCallbackEXT>* pCallback)
 {
-    VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectMapper::MapVkInstance);
+    auto in_instance = GetObjectMapper().MapVkInstance(instance);
 
-    VkResult replay_result = OverrideCreateDebugReportCallbackEXT(GetInstanceTable(in_instance)->CreateDebugReportCallbackEXT, returnValue, in_instance, pCreateInfo, pAllocator, pCallback);
+    VkResult replay_result = OverrideCreateDebugReportCallbackEXT(GetInstanceTable(in_instance->handle)->CreateDebugReportCallbackEXT, returnValue, in_instance, pCreateInfo, pAllocator, pCallback);
     CheckResult("vkCreateDebugReportCallbackEXT", returnValue, replay_result);
 
     AddHandles<VkDebugReportCallbackEXT>(pCallback->GetPointer(), 1, pCallback->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkDebugReportCallbackEXT);
@@ -4221,9 +4221,9 @@ void VulkanReplayConsumer::Process_vkCreateDebugUtilsMessengerEXT(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkDebugUtilsMessengerEXT>* pMessenger)
 {
-    VkInstance in_instance = MapHandle<InstanceInfo>(instance, &VulkanObjectMapper::MapVkInstance);
+    auto in_instance = GetObjectMapper().MapVkInstance(instance);
 
-    VkResult replay_result = OverrideCreateDebugUtilsMessengerEXT(GetInstanceTable(in_instance)->CreateDebugUtilsMessengerEXT, returnValue, in_instance, pCreateInfo, pAllocator, pMessenger);
+    VkResult replay_result = OverrideCreateDebugUtilsMessengerEXT(GetInstanceTable(in_instance->handle)->CreateDebugUtilsMessengerEXT, returnValue, in_instance, pCreateInfo, pAllocator, pMessenger);
     CheckResult("vkCreateDebugUtilsMessengerEXT", returnValue, replay_result);
 
     AddHandles<VkDebugUtilsMessengerEXT>(pMessenger->GetPointer(), 1, pMessenger->GetHandlePointer(), 1, &VulkanObjectMapper::AddVkDebugUtilsMessengerEXT);
