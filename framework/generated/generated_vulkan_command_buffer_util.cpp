@@ -34,7 +34,11 @@ void TrackBeginCommandBufferHandles(CommandBufferWrapper* wrapper, const VkComma
 
     if (pBeginInfo != nullptr)
     {
-        // TODO: Process handles from parameter "pInheritanceInfo" with type "const VkCommandBufferInheritanceInfo*"
+        if (pBeginInfo->pInheritanceInfo != nullptr)
+        {
+            wrapper->command_handles[CommandHandleType::RenderPassHandle].insert(GetWrappedId(pBeginInfo->pInheritanceInfo->renderPass));
+            wrapper->command_handles[CommandHandleType::FramebufferHandle].insert(GetWrappedId(pBeginInfo->pInheritanceInfo->framebuffer));
+        }
     }
 }
 
@@ -290,9 +294,28 @@ void TrackCmdBeginRenderPassHandles(CommandBufferWrapper* wrapper, const VkRende
 
     if (pRenderPassBegin != nullptr)
     {
-        // TODO: Process handles from parameter "pNext" with type "const void*"
-        wrapper->command_handles[CommandHandleType::RenderPassHandle].insert(GetWrappedId((*pRenderPassBegin).renderPass));
-        wrapper->command_handles[CommandHandleType::FramebufferHandle].insert(GetWrappedId((*pRenderPassBegin).framebuffer));
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfoKHR*>(pnext_header);
+                    if (pnext_value->pAttachments != nullptr)
+                    {
+                        for (uint32_t i = 0; i < pnext_value->attachmentCount; ++i)
+                        {
+                            wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pnext_value->pAttachments[i]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        wrapper->command_handles[CommandHandleType::RenderPassHandle].insert(GetWrappedId(pRenderPassBegin->renderPass));
+        wrapper->command_handles[CommandHandleType::FramebufferHandle].insert(GetWrappedId(pRenderPassBegin->framebuffer));
     }
 }
 
@@ -319,11 +342,52 @@ void TrackCmdPushDescriptorSetKHRHandles(CommandBufferWrapper* wrapper, VkPipeli
     {
         for (uint32_t i = 0; i < descriptorWriteCount; ++i)
         {
-            // TODO: Process handles from parameter "pNext" with type "const void*"
+            auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDescriptorWrites->pNext);
+            while (pnext_header)
+            {
+                switch (pnext_header->sType)
+                {
+                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
+                    {
+                        auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
+                        if (pnext_value->pAccelerationStructures != nullptr)
+                        {
+                            for (uint32_t i = 0; i < pnext_value->accelerationStructureCount; ++i)
+                            {
+                                wrapper->command_handles[CommandHandleType::AccelerationStructureNVHandle].insert(GetWrappedId(pnext_value->pAccelerationStructures[i]));
+                            }
+                        }
+                        break;
+                    }
+                }
+                pnext_header = pnext_header->pNext;
+            }
             wrapper->command_handles[CommandHandleType::DescriptorSetHandle].insert(GetWrappedId(pDescriptorWrites[i].dstSet));
-            // TODO: Process handles from parameter "pImageInfo" with type "const VkDescriptorImageInfo*"
-            // TODO: Process handles from parameter "pBufferInfo" with type "const VkDescriptorBufferInfo*"
-            // TODO: Process handles from parameter "pTexelBufferView" with type "const VkBufferView*"
+
+            if (pDescriptorWrites[i].pImageInfo != nullptr)
+            {
+                for (uint32_t i = 0; i < pDescriptorWrites[i].descriptorCount; ++i)
+                {
+                    wrapper->command_handles[CommandHandleType::SamplerHandle].insert(GetWrappedId(pDescriptorWrites[i].pImageInfo[i].sampler));
+                    wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pDescriptorWrites[i].pImageInfo[i].imageView));
+                }
+            }
+
+            if (pDescriptorWrites[i].pBufferInfo != nullptr)
+            {
+                for (uint32_t i = 0; i < pDescriptorWrites[i].descriptorCount; ++i)
+                {
+                    wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pDescriptorWrites[i].pBufferInfo[i].buffer));
+                }
+            }
+
+            if (pDescriptorWrites[i].pTexelBufferView != nullptr)
+            {
+                for (uint32_t i = 0; i < pDescriptorWrites[i].descriptorCount; ++i)
+                {
+                    wrapper->command_handles[CommandHandleType::BufferViewHandle].insert(GetWrappedId(pDescriptorWrites[i].pTexelBufferView[i]));
+                }
+            }
         }
     }
 }
@@ -334,9 +398,28 @@ void TrackCmdBeginRenderPass2KHRHandles(CommandBufferWrapper* wrapper, const VkR
 
     if (pRenderPassBegin != nullptr)
     {
-        // TODO: Process handles from parameter "pNext" with type "const void*"
-        wrapper->command_handles[CommandHandleType::RenderPassHandle].insert(GetWrappedId((*pRenderPassBegin).renderPass));
-        wrapper->command_handles[CommandHandleType::FramebufferHandle].insert(GetWrappedId((*pRenderPassBegin).framebuffer));
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfoKHR*>(pnext_header);
+                    if (pnext_value->pAttachments != nullptr)
+                    {
+                        for (uint32_t i = 0; i < pnext_value->attachmentCount; ++i)
+                        {
+                            wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pnext_value->pAttachments[i]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        wrapper->command_handles[CommandHandleType::RenderPassHandle].insert(GetWrappedId(pRenderPassBegin->renderPass));
+        wrapper->command_handles[CommandHandleType::FramebufferHandle].insert(GetWrappedId(pRenderPassBegin->framebuffer));
     }
 }
 
@@ -438,7 +521,7 @@ void TrackCmdBeginConditionalRenderingEXTHandles(CommandBufferWrapper* wrapper, 
 
     if (pConditionalRenderingBegin != nullptr)
     {
-        wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId((*pConditionalRenderingBegin).buffer));
+        wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pConditionalRenderingBegin->buffer));
     }
 }
 
@@ -448,12 +531,19 @@ void TrackCmdProcessCommandsNVXHandles(CommandBufferWrapper* wrapper, const VkCm
 
     if (pProcessCommandsInfo != nullptr)
     {
-        wrapper->command_handles[CommandHandleType::ObjectTableNVXHandle].insert(GetWrappedId((*pProcessCommandsInfo).objectTable));
-        wrapper->command_handles[CommandHandleType::IndirectCommandsLayoutNVXHandle].insert(GetWrappedId((*pProcessCommandsInfo).indirectCommandsLayout));
-        // TODO: Process handles from parameter "pIndirectCommandsTokens" with type "const VkIndirectCommandsTokenNVX*"
-        wrapper->command_handles[CommandHandleType::CommandBufferHandle].insert(GetWrappedId((*pProcessCommandsInfo).targetCommandBuffer));
-        wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId((*pProcessCommandsInfo).sequencesCountBuffer));
-        wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId((*pProcessCommandsInfo).sequencesIndexBuffer));
+        wrapper->command_handles[CommandHandleType::ObjectTableNVXHandle].insert(GetWrappedId(pProcessCommandsInfo->objectTable));
+        wrapper->command_handles[CommandHandleType::IndirectCommandsLayoutNVXHandle].insert(GetWrappedId(pProcessCommandsInfo->indirectCommandsLayout));
+
+        if (pProcessCommandsInfo->pIndirectCommandsTokens != nullptr)
+        {
+            for (uint32_t i = 0; i < pProcessCommandsInfo->indirectCommandsTokenCount; ++i)
+            {
+                wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pProcessCommandsInfo->pIndirectCommandsTokens[i].buffer));
+            }
+        }
+        wrapper->command_handles[CommandHandleType::CommandBufferHandle].insert(GetWrappedId(pProcessCommandsInfo->targetCommandBuffer));
+        wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pProcessCommandsInfo->sequencesCountBuffer));
+        wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pProcessCommandsInfo->sequencesIndexBuffer));
     }
 }
 
@@ -463,8 +553,8 @@ void TrackCmdReserveSpaceForCommandsNVXHandles(CommandBufferWrapper* wrapper, co
 
     if (pReserveSpaceInfo != nullptr)
     {
-        wrapper->command_handles[CommandHandleType::ObjectTableNVXHandle].insert(GetWrappedId((*pReserveSpaceInfo).objectTable));
-        wrapper->command_handles[CommandHandleType::IndirectCommandsLayoutNVXHandle].insert(GetWrappedId((*pReserveSpaceInfo).indirectCommandsLayout));
+        wrapper->command_handles[CommandHandleType::ObjectTableNVXHandle].insert(GetWrappedId(pReserveSpaceInfo->objectTable));
+        wrapper->command_handles[CommandHandleType::IndirectCommandsLayoutNVXHandle].insert(GetWrappedId(pReserveSpaceInfo->indirectCommandsLayout));
     }
 }
 
@@ -481,7 +571,16 @@ void TrackCmdBuildAccelerationStructureNVHandles(CommandBufferWrapper* wrapper, 
 
     if (pInfo != nullptr)
     {
-        // TODO: Process handles from parameter "pGeometries" with type "const VkGeometryNV*"
+        if (pInfo->pGeometries != nullptr)
+        {
+            for (uint32_t i = 0; i < pInfo->geometryCount; ++i)
+            {
+                wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pInfo->pGeometries[i].geometry.triangles.vertexData));
+                wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pInfo->pGeometries[i].geometry.triangles.indexData));
+                wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pInfo->pGeometries[i].geometry.triangles.transformData));
+                wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pInfo->pGeometries[i].geometry.aabbs.aabbData));
+            }
+        }
     }
     wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(instanceData));
     wrapper->command_handles[CommandHandleType::AccelerationStructureNVHandle].insert(GetWrappedId(dst));

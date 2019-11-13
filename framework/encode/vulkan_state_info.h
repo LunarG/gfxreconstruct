@@ -94,6 +94,7 @@ struct ImageAcquiredInfo
 enum CommandHandleType : uint32_t
 {
     BufferHandle = 0,
+    BufferViewHandle,
     CommandBufferHandle,
     DescriptorSetHandle,
     EventHandle,
@@ -104,6 +105,7 @@ enum CommandHandleType : uint32_t
     PipelineLayoutHandle,
     QueryPoolHandle,
     RenderPassHandle,
+    SamplerHandle,
     AccelerationStructureNVHandle,
     IndirectCommandsLayoutNVXHandle,
     ObjectTableNVXHandle,
