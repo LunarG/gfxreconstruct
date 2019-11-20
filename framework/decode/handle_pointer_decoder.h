@@ -20,6 +20,9 @@
 
 #include "decode/pointer_decoder.h"
 
+#include <cassert>
+#include <memory>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -86,11 +89,41 @@ class HandlePointerDecoder
         return result;
     }
 
+    // The value returned is only guaranteed to be valid if the current consumer has called SetConsumerData.
+    void* GetConsumerData(size_t index) const
+    {
+        size_t len           = GetLength();
+        void*  consumer_data = nullptr;
+
+        if ((consumer_data_ != nullptr) && (index < len))
+        {
+            consumer_data = consumer_data_[index];
+        }
+
+        return consumer_data;
+    }
+
+    void SetConsumerData(size_t index, void* consumer_data)
+    {
+        size_t len = GetLength();
+
+        if (index < len)
+        {
+            if (consumer_data_ == nullptr)
+            {
+                consumer_data_ = std::make_unique<void* []>(len);
+            }
+
+            consumer_data_[index] = consumer_data;
+        }
+    }
+
   private:
     PointerDecoder<format::HandleId> decoder_;
     T*                               handle_data_;
     size_t                           capacity_;
     bool                             is_memory_external_;
+    std::unique_ptr<void* []>        consumer_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

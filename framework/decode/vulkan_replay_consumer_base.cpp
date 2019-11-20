@@ -141,7 +141,7 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
                                                         const uint8_t* data)
 {
     // We need to find the device memory associated with this ID, and then lookup its mapped pointer.
-    const DeviceMemoryInfo* memory_info = object_mapper_.MapVkDeviceMemory(memory_id);
+    const DeviceMemoryInfo* memory_info = object_info_table_.GetDeviceMemoryInfo(memory_id);
 
     if (memory_info != nullptr)
     {
@@ -170,7 +170,7 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 void VulkanReplayConsumerBase::ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
 {
     // We need to find the surface associated with this ID, and then lookup its window.
-    const SurfaceKHRInfo* surface_info = object_mapper_.MapVkSurfaceKHR(surface_id);
+    const SurfaceKHRInfo* surface_info = object_info_table_.GetSurfaceKHRInfo(surface_id);
 
     if (surface_info != nullptr)
     {
@@ -202,8 +202,8 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
     uint32_t                                            last_presented_image,
     const std::vector<format::SwapchainImageStateInfo>& image_info)
 {
-    const DeviceInfo*       device_info    = object_mapper_.MapVkDevice(device_id);
-    const SwapchainKHRInfo* swapchain_info = object_mapper_.MapVkSwapchainKHR(swapchain_id);
+    const DeviceInfo*       device_info    = object_info_table_.GetDeviceInfo(device_id);
+    const SwapchainKHRInfo* swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_id);
 
     if ((device_info != nullptr) && (swapchain_info != nullptr))
     {
@@ -340,7 +340,7 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStatePreAcquire(
 
         for (size_t i = 0; i < image_info.size(); ++i)
         {
-            const ImageInfo* image_entry = object_mapper_.MapVkImage(image_info[i].image_id);
+            const ImageInfo* image_entry = object_info_table_.GetImageInfo(image_info[i].image_id);
 
             // Pre-acquire and transition swapchain images while processing trimming state snapshot.
             if (image_entry != nullptr)
@@ -555,7 +555,7 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
         // Acquire, transition to the present source layout, and present each image.
         for (size_t i = 0; i < image_info.size(); ++i)
         {
-            const ImageInfo* image_entry = object_mapper_.MapVkImage(image_info[i].image_id);
+            const ImageInfo* image_entry = object_info_table_.GetImageInfo(image_info[i].image_id);
 
             if (image_entry != nullptr)
             {
@@ -649,7 +649,7 @@ void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateQueueSubmit(
         // acquired on replay is the same image acquired by the first captured frame.
         for (size_t i = 0; i < image_info.size(); ++i)
         {
-            const ImageInfo* image_entry = object_mapper_.MapVkImage(image_info[i].image_id);
+            const ImageInfo* image_entry = object_info_table_.GetImageInfo(image_info[i].image_id);
 
             if ((image_entry != nullptr) && ((image_info[i].acquired) || (i <= last_presented_image)))
             {
@@ -774,7 +774,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
 {
     GFXRECON_UNREFERENCED_PARAMETER(max_resource_size);
 
-    const DeviceInfo* device_info = object_mapper_.MapVkDevice(device_id);
+    const DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
 
     if (device_info != nullptr)
     {
@@ -815,7 +815,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
 
 void VulkanReplayConsumerBase::ProcessEndResourceInitCommand(format::HandleId device_id)
 {
-    const DeviceInfo* device_info = object_mapper_.MapVkDevice(device_id);
+    const DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
 
     if (device_info != nullptr)
     {
@@ -828,8 +828,8 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
                                                         uint64_t         data_size,
                                                         const uint8_t*   data)
 {
-    const DeviceInfo* device_info = object_mapper_.MapVkDevice(device_id);
-    const BufferInfo* buffer_info = object_mapper_.MapVkBuffer(buffer_id);
+    const DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
+    const BufferInfo* buffer_info = object_info_table_.GetBufferInfo(buffer_id);
 
     if ((device_info != nullptr) && (buffer_info != nullptr))
     {
@@ -916,8 +916,8 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                                                        const std::vector<uint64_t>& level_sizes,
                                                        const uint8_t*               data)
 {
-    const DeviceInfo* device_info = object_mapper_.MapVkDevice(device_id);
-    const ImageInfo*  image_info  = object_mapper_.MapVkImage(image_id);
+    const DeviceInfo* device_info = object_info_table_.GetDeviceInfo(device_id);
+    const ImageInfo*  image_info  = object_info_table_.GetImageInfo(image_id);
 
     if ((device_info != nullptr) && (image_info != nullptr))
     {
@@ -2406,7 +2406,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
             // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
             // swap can be performed with the original handle ID and the semaphore can be guaranteed not to be used
             // after destroy.
-            object_mapper_.ReplaceSemaphore(semaphore, preacquire_semaphore);
+            object_info_table_.ReplaceSemaphore(semaphore, preacquire_semaphore);
             preacquire_semaphore = semaphore;
         }
 
@@ -2415,7 +2415,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNext
             // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
             // swap can be performed with the original handle ID and the fence can be guaranteed not to be used
             // after destroy.
-            object_mapper_.ReplaceFence(fence, preacquire_fence);
+            object_info_table_.ReplaceFence(fence, preacquire_fence);
             preacquire_fence = fence;
         }
 
@@ -2463,7 +2463,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
             // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
             // swap can be performed with the original handle ID and the semaphore can be guaranteed not to be used
             // after destroy.
-            object_mapper_.ReplaceSemaphore(replay_acquire_info->semaphore, preacquire_semaphore);
+            object_info_table_.ReplaceSemaphore(replay_acquire_info->semaphore, preacquire_semaphore);
             preacquire_semaphore = replay_acquire_info->semaphore;
         }
 
@@ -2472,7 +2472,7 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
             // TODO: This should be processed at a higher level where the original handle IDs are available, so that the
             // swap can be performed with the original handle ID and the fence can be guaranteed not to be used
             // after destroy.
-            object_mapper_.ReplaceFence(replay_acquire_info->fence, preacquire_fence);
+            object_info_table_.ReplaceFence(replay_acquire_info->fence, preacquire_fence);
             preacquire_fence = replay_acquire_info->fence;
         }
 
@@ -2709,7 +2709,7 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(VkDescriptorUp
             Decoded_VkDescriptorImageInfo* structs = decoder.GetImageInfoMetaStructPointer();
             for (size_t i = 0; i < image_info_count; ++i)
             {
-                MapStructHandles(image_types_iter->second[i], &structs[i], object_mapper_);
+                MapStructHandles(image_types_iter->second[i], &structs[i], object_info_table_);
             }
         }
         else
@@ -2720,14 +2720,14 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(VkDescriptorUp
             Decoded_VkDescriptorImageInfo* structs = decoder.GetImageInfoMetaStructPointer();
             for (size_t i = 0; i < image_info_count; ++i)
             {
-                MapStructHandles(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &structs[i], object_mapper_);
+                MapStructHandles(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &structs[i], object_info_table_);
             }
         }
     }
 
     if (buffer_info_count > 0)
     {
-        MapStructArrayHandles(decoder.GetBufferInfoMetaStructPointer(), buffer_info_count, object_mapper_);
+        MapStructArrayHandles(decoder.GetBufferInfoMetaStructPointer(), buffer_info_count, object_info_table_);
     }
 
     if (texel_buffer_view_count > 0)
@@ -2736,7 +2736,7 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(VkDescriptorUp
                                    texel_buffer_view_count,
                                    decoder.GetTexelBufferViewPointer(),
                                    texel_buffer_view_count,
-                                   &VulkanObjectMapper::MapVkBufferView);
+                                   &VulkanObjectInfoTable::GetBufferViewInfo);
     }
 }
 
@@ -2745,11 +2745,11 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format:
                                                                          format::HandleId descriptorUpdateTemplate,
                                                                          const DescriptorUpdateTemplateDecoder& pData)
 {
-    VkDevice        in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    VkDevice        in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
     VkDescriptorSet in_descriptorSet =
-        MapHandle<DescriptorSetInfo>(descriptorSet, &VulkanObjectMapper::MapVkDescriptorSet);
+        MapHandle<DescriptorSetInfo>(descriptorSet, &VulkanObjectInfoTable::GetDescriptorSetInfo);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = MapHandle<DescriptorUpdateTemplateInfo>(
-        descriptorUpdateTemplate, &VulkanObjectMapper::MapVkDescriptorUpdateTemplate);
+        descriptorUpdateTemplate, &VulkanObjectInfoTable::GetDescriptorUpdateTemplateInfo);
 
     MapDescriptorUpdateTemplateHandles(in_descriptorUpdateTemplate, pData);
 
@@ -2765,10 +2765,10 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
     const DescriptorUpdateTemplateDecoder& pData)
 {
     VkCommandBuffer in_commandBuffer =
-        MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectMapper::MapVkCommandBuffer);
+        MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = MapHandle<DescriptorUpdateTemplateInfo>(
-        descriptorUpdateTemplate, &VulkanObjectMapper::MapVkDescriptorUpdateTemplate);
-    VkPipelineLayout in_layout = MapHandle<PipelineLayoutInfo>(layout, &VulkanObjectMapper::MapVkPipelineLayout);
+        descriptorUpdateTemplate, &VulkanObjectInfoTable::GetDescriptorUpdateTemplateInfo);
+    VkPipelineLayout in_layout = MapHandle<PipelineLayoutInfo>(layout, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
 
     MapDescriptorUpdateTemplateHandles(in_descriptorUpdateTemplate, pData);
 
@@ -2783,11 +2783,11 @@ void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
     format::HandleId                       descriptorUpdateTemplate,
     const DescriptorUpdateTemplateDecoder& pData)
 {
-    VkDevice        in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    VkDevice        in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
     VkDescriptorSet in_descriptorSet =
-        MapHandle<DescriptorSetInfo>(descriptorSet, &VulkanObjectMapper::MapVkDescriptorSet);
+        MapHandle<DescriptorSetInfo>(descriptorSet, &VulkanObjectInfoTable::GetDescriptorSetInfo);
     VkDescriptorUpdateTemplate in_descriptorUpdateTemplate = MapHandle<DescriptorUpdateTemplateInfo>(
-        descriptorUpdateTemplate, &VulkanObjectMapper::MapVkDescriptorUpdateTemplate);
+        descriptorUpdateTemplate, &VulkanObjectInfoTable::GetDescriptorUpdateTemplateInfo);
 
     MapDescriptorUpdateTemplateHandles(in_descriptorUpdateTemplate, pData);
 
@@ -2803,9 +2803,9 @@ void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
     const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
     const PointerDecoder<uint32_t>&                            pObjectIndices)
 {
-    VkDevice         in_device = MapHandle<DeviceInfo>(device, &VulkanObjectMapper::MapVkDevice);
+    VkDevice         in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
     VkObjectTableNVX in_objectTable =
-        MapHandle<ObjectTableNVXInfo>(objectTable, &VulkanObjectMapper::MapVkObjectTableNVX);
+        MapHandle<ObjectTableNVXInfo>(objectTable, &VulkanObjectInfoTable::GetObjectTableNVXInfo);
     const uint32_t* in_pObjectIndices = reinterpret_cast<const uint32_t*>(pObjectIndices.GetPointer());
 
     assert(objectCount == ppObjectTableEntries.GetLength());
@@ -2826,31 +2826,31 @@ void VulkanReplayConsumerBase::Process_vkRegisterObjectsNVX(
                 {
                     MapStructHandles(reinterpret_cast<Decoded_VkObjectTableDescriptorSetEntryNVX*>(
                                          in_ppObjectTableEntries_wrapper[i]),
-                                     object_mapper_);
+                                     object_info_table_);
                 }
                 else if (type == VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX)
                 {
                     MapStructHandles(
                         reinterpret_cast<Decoded_VkObjectTablePipelineEntryNVX*>(in_ppObjectTableEntries_wrapper[i]),
-                        object_mapper_);
+                        object_info_table_);
                 }
                 else if (type == VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX)
                 {
                     MapStructHandles(
                         reinterpret_cast<Decoded_VkObjectTableIndexBufferEntryNVX*>(in_ppObjectTableEntries_wrapper[i]),
-                        object_mapper_);
+                        object_info_table_);
                 }
                 else if (type == VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX)
                 {
                     MapStructHandles(reinterpret_cast<Decoded_VkObjectTableVertexBufferEntryNVX*>(
                                          in_ppObjectTableEntries_wrapper[i]),
-                                     object_mapper_);
+                                     object_info_table_);
                 }
                 else if (type == VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX)
                 {
                     MapStructHandles(reinterpret_cast<Decoded_VkObjectTablePushConstantEntryNVX*>(
                                          in_ppObjectTableEntries_wrapper[i]),
-                                     object_mapper_);
+                                     object_info_table_);
                 }
                 else
                 {

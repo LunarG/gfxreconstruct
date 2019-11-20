@@ -31,12 +31,12 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 template <typename T>
-static typename T::HandleType MapHandle(format::HandleId          id,
-                                        const VulkanObjectMapper& object_mapper,
-                                        const T* (VulkanObjectMapper::*MapFunc)(format::HandleId) const)
+static typename T::HandleType MapHandle(format::HandleId             id,
+                                        const VulkanObjectInfoTable& object_info_table,
+                                        const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const)
 {
     typename T::HandleType handle = VK_NULL_HANDLE;
-    const T*               info   = (object_mapper.*MapFunc)(id);
+    const T*               info   = (object_info_table.*MapFunc)(id);
     if (info != nullptr)
     {
         handle = info->handle;
@@ -45,17 +45,17 @@ static typename T::HandleType MapHandle(format::HandleId          id,
 }
 
 template <typename T>
-static void MapHandleArray(const format::HandleId*   ids,
-                           typename T::HandleType*   handles,
-                           size_t                    len,
-                           const VulkanObjectMapper& object_mapper,
-                           const T* (VulkanObjectMapper::*MapFunc)(format::HandleId) const)
+static void MapHandleArray(const format::HandleId*      ids,
+                           typename T::HandleType*      handles,
+                           size_t                       len,
+                           const VulkanObjectInfoTable& object_info_table,
+                           const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const)
 {
     if ((ids != nullptr) && (handles != nullptr))
     {
         for (size_t i = 0; i < len; ++i)
         {
-            const T* info = (object_mapper.*MapFunc)(ids[i]);
+            const T* info = (object_info_table.*MapFunc)(ids[i]);
             if (info != nullptr)
             {
                 handles[i] = info->handle;
@@ -65,12 +65,24 @@ static void MapHandleArray(const format::HandleId*   ids,
 }
 
 template <typename T>
-static void AddHandleArray(const format::HandleId*   ids,
-                           size_t                    ids_len,
-                           const T*                  handles,
-                           size_t                    handles_len,
-                           VulkanObjectMapper&       object_mapper,
-                           void (VulkanObjectMapper::*AddFunc)(format::HandleId, T))
+static void AddHandle(format::HandleId       id,
+                      typename T::HandleType handle,
+                      VulkanObjectInfoTable& object_info_table,
+                      void (VulkanObjectInfoTable::*AddFunc)(T&&))
+{
+    T info;
+    info.handle = handle;
+    info.capture_id = id;
+    (object_info_table.*AddFunc)(std::move(info));
+}
+
+template <typename T>
+static void AddHandleArray(const format::HandleId*       ids,
+                           size_t                        ids_len,
+                           const typename T::HandleType* handles,
+                           size_t                        handles_len,
+                           VulkanObjectInfoTable&        object_info_table,
+                           void (VulkanObjectInfoTable::*AddFunc)(T&&))
 {
     if ((ids != nullptr) && (handles != nullptr))
     {
@@ -78,23 +90,26 @@ static void AddHandleArray(const format::HandleId*   ids,
         size_t len = std::min(ids_len, handles_len);
         for (size_t i = 0; i < len; ++i)
         {
-            (object_mapper.*AddFunc)(ids[i], handles[i]);
+            T info;
+            info.handle = handles[i];
+            info.capture_id = ids[i];
+            (object_info_table.*AddFunc)(std::move(info));
         }
     }
 }
 
-void MapStructHandles(Decoded_VkDeviceCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDeviceCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
     }
 }
 
-void MapStructHandles(Decoded_VkSubmitInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSubmitInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -102,134 +117,134 @@ void MapStructHandles(Decoded_VkSubmitInfo* wrapper, const VulkanObjectMapper& o
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pWaitSemaphores.GetPointer(), wrapper->pWaitSemaphores.GetHandlePointer(), wrapper->pWaitSemaphores.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        MapHandleArray<SemaphoreInfo>(wrapper->pWaitSemaphores.GetPointer(), wrapper->pWaitSemaphores.GetHandlePointer(), wrapper->pWaitSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
 
-        MapHandleArray<CommandBufferInfo>(wrapper->pCommandBuffers.GetPointer(), wrapper->pCommandBuffers.GetHandlePointer(), wrapper->pCommandBuffers.GetLength(), object_mapper, &VulkanObjectMapper::MapVkCommandBuffer);
+        MapHandleArray<CommandBufferInfo>(wrapper->pCommandBuffers.GetPointer(), wrapper->pCommandBuffers.GetHandlePointer(), wrapper->pCommandBuffers.GetLength(), object_info_table, &VulkanObjectInfoTable::GetCommandBufferInfo);
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pSignalSemaphores.GetPointer(), wrapper->pSignalSemaphores.GetHandlePointer(), wrapper->pSignalSemaphores.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        MapHandleArray<SemaphoreInfo>(wrapper->pSignalSemaphores.GetPointer(), wrapper->pSignalSemaphores.GetHandlePointer(), wrapper->pSignalSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkMemoryAllocateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkMemoryAllocateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
     }
 }
 
-void MapStructHandles(Decoded_VkMappedMemoryRange* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkMappedMemoryRange* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkMappedMemoryRange* value = wrapper->decoded_value;
 
-        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkSparseMemoryBind* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSparseMemoryBind* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSparseMemoryBind* value = wrapper->decoded_value;
 
-        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkSparseBufferMemoryBindInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSparseBufferMemoryBindInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSparseBufferMemoryBindInfo* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
 
-        MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkSparseImageOpaqueMemoryBindInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSparseImageOpaqueMemoryBindInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSparseImageOpaqueMemoryBindInfo* value = wrapper->decoded_value;
 
-        value->image = MapHandle<ImageInfo>(wrapper->image, object_mapper, &VulkanObjectMapper::MapVkImage);
+        value->image = MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
 
-        MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkSparseImageMemoryBind* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSparseImageMemoryBind* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSparseImageMemoryBind* value = wrapper->decoded_value;
 
-        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkSparseImageMemoryBindInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSparseImageMemoryBindInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSparseImageMemoryBindInfo* value = wrapper->decoded_value;
 
-        value->image = MapHandle<ImageInfo>(wrapper->image, object_mapper, &VulkanObjectMapper::MapVkImage);
+        value->image = MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
 
-        MapStructArrayHandles<Decoded_VkSparseImageMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseImageMemoryBind>(wrapper->pBinds->GetMetaStructPointer(), wrapper->pBinds->GetLength(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkBindSparseInfo* value = wrapper->decoded_value;
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pWaitSemaphores.GetPointer(), wrapper->pWaitSemaphores.GetHandlePointer(), wrapper->pWaitSemaphores.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        MapHandleArray<SemaphoreInfo>(wrapper->pWaitSemaphores.GetPointer(), wrapper->pWaitSemaphores.GetHandlePointer(), wrapper->pWaitSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
 
-        MapStructArrayHandles<Decoded_VkSparseBufferMemoryBindInfo>(wrapper->pBufferBinds->GetMetaStructPointer(), wrapper->pBufferBinds->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseBufferMemoryBindInfo>(wrapper->pBufferBinds->GetMetaStructPointer(), wrapper->pBufferBinds->GetLength(), object_info_table);
 
-        MapStructArrayHandles<Decoded_VkSparseImageOpaqueMemoryBindInfo>(wrapper->pImageOpaqueBinds->GetMetaStructPointer(), wrapper->pImageOpaqueBinds->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseImageOpaqueMemoryBindInfo>(wrapper->pImageOpaqueBinds->GetMetaStructPointer(), wrapper->pImageOpaqueBinds->GetLength(), object_info_table);
 
-        MapStructArrayHandles<Decoded_VkSparseImageMemoryBindInfo>(wrapper->pImageBinds->GetMetaStructPointer(), wrapper->pImageBinds->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkSparseImageMemoryBindInfo>(wrapper->pImageBinds->GetMetaStructPointer(), wrapper->pImageBinds->GetLength(), object_info_table);
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pSignalSemaphores.GetPointer(), wrapper->pSignalSemaphores.GetHandlePointer(), wrapper->pSignalSemaphores.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        MapHandleArray<SemaphoreInfo>(wrapper->pSignalSemaphores.GetPointer(), wrapper->pSignalSemaphores.GetHandlePointer(), wrapper->pSignalSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkBufferViewCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkBufferViewCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkBufferViewCreateInfo* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkImageCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImageCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
     }
 }
 
-void MapStructHandles(Decoded_VkImageViewCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImageViewCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -237,200 +252,200 @@ void MapStructHandles(Decoded_VkImageViewCreateInfo* wrapper, const VulkanObject
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->image = MapHandle<ImageInfo>(wrapper->image, object_mapper, &VulkanObjectMapper::MapVkImage);
+        value->image = MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkShaderModuleCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkShaderModuleCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
     }
 }
 
-void MapStructHandles(Decoded_VkPipelineShaderStageCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkPipelineShaderStageCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkPipelineShaderStageCreateInfo* value = wrapper->decoded_value;
 
-        value->module = MapHandle<ShaderModuleInfo>(wrapper->module, object_mapper, &VulkanObjectMapper::MapVkShaderModule);
+        value->module = MapHandle<ShaderModuleInfo>(wrapper->module, object_info_table, &VulkanObjectInfoTable::GetShaderModuleInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkGraphicsPipelineCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkGraphicsPipelineCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkGraphicsPipelineCreateInfo* value = wrapper->decoded_value;
 
-        MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_info_table);
 
-        value->layout = MapHandle<PipelineLayoutInfo>(wrapper->layout, object_mapper, &VulkanObjectMapper::MapVkPipelineLayout);
+        value->layout = MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
 
-        value->renderPass = MapHandle<RenderPassInfo>(wrapper->renderPass, object_mapper, &VulkanObjectMapper::MapVkRenderPass);
+        value->renderPass = MapHandle<RenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetRenderPassInfo);
 
-        value->basePipelineHandle = MapHandle<PipelineInfo>(wrapper->basePipelineHandle, object_mapper, &VulkanObjectMapper::MapVkPipeline);
+        value->basePipelineHandle = MapHandle<PipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkComputePipelineCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkComputePipelineCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkComputePipelineCreateInfo* value = wrapper->decoded_value;
 
-        MapStructHandles(wrapper->stage.get(), object_mapper);
+        MapStructHandles(wrapper->stage.get(), object_info_table);
 
-        value->layout = MapHandle<PipelineLayoutInfo>(wrapper->layout, object_mapper, &VulkanObjectMapper::MapVkPipelineLayout);
+        value->layout = MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
 
-        value->basePipelineHandle = MapHandle<PipelineInfo>(wrapper->basePipelineHandle, object_mapper, &VulkanObjectMapper::MapVkPipeline);
+        value->basePipelineHandle = MapHandle<PipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkPipelineLayoutCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkPipelineLayoutCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkPipelineLayoutCreateInfo* value = wrapper->decoded_value;
 
-        MapHandleArray<DescriptorSetLayoutInfo>(wrapper->pSetLayouts.GetPointer(), wrapper->pSetLayouts.GetHandlePointer(), wrapper->pSetLayouts.GetLength(), object_mapper, &VulkanObjectMapper::MapVkDescriptorSetLayout);
+        MapHandleArray<DescriptorSetLayoutInfo>(wrapper->pSetLayouts.GetPointer(), wrapper->pSetLayouts.GetHandlePointer(), wrapper->pSetLayouts.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkSamplerCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSamplerCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
     }
 }
 
-void MapStructHandles(Decoded_VkDescriptorSetLayoutBinding* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDescriptorSetLayoutBinding* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDescriptorSetLayoutBinding* value = wrapper->decoded_value;
 
-        MapHandleArray<SamplerInfo>(wrapper->pImmutableSamplers.GetPointer(), wrapper->pImmutableSamplers.GetHandlePointer(), wrapper->pImmutableSamplers.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSampler);
+        MapHandleArray<SamplerInfo>(wrapper->pImmutableSamplers.GetPointer(), wrapper->pImmutableSamplers.GetHandlePointer(), wrapper->pImmutableSamplers.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSamplerInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkDescriptorSetLayoutCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDescriptorSetLayoutCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
-        MapStructArrayHandles<Decoded_VkDescriptorSetLayoutBinding>(wrapper->pBindings->GetMetaStructPointer(), wrapper->pBindings->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkDescriptorSetLayoutBinding>(wrapper->pBindings->GetMetaStructPointer(), wrapper->pBindings->GetLength(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkDescriptorSetAllocateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDescriptorSetAllocateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDescriptorSetAllocateInfo* value = wrapper->decoded_value;
 
-        value->descriptorPool = MapHandle<DescriptorPoolInfo>(wrapper->descriptorPool, object_mapper, &VulkanObjectMapper::MapVkDescriptorPool);
+        value->descriptorPool = MapHandle<DescriptorPoolInfo>(wrapper->descriptorPool, object_info_table, &VulkanObjectInfoTable::GetDescriptorPoolInfo);
 
-        MapHandleArray<DescriptorSetLayoutInfo>(wrapper->pSetLayouts.GetPointer(), wrapper->pSetLayouts.GetHandlePointer(), wrapper->pSetLayouts.GetLength(), object_mapper, &VulkanObjectMapper::MapVkDescriptorSetLayout);
+        MapHandleArray<DescriptorSetLayoutInfo>(wrapper->pSetLayouts.GetPointer(), wrapper->pSetLayouts.GetHandlePointer(), wrapper->pSetLayouts.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkDescriptorBufferInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDescriptorBufferInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDescriptorBufferInfo* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkCopyDescriptorSet* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkCopyDescriptorSet* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkCopyDescriptorSet* value = wrapper->decoded_value;
 
-        value->srcSet = MapHandle<DescriptorSetInfo>(wrapper->srcSet, object_mapper, &VulkanObjectMapper::MapVkDescriptorSet);
+        value->srcSet = MapHandle<DescriptorSetInfo>(wrapper->srcSet, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetInfo);
 
-        value->dstSet = MapHandle<DescriptorSetInfo>(wrapper->dstSet, object_mapper, &VulkanObjectMapper::MapVkDescriptorSet);
+        value->dstSet = MapHandle<DescriptorSetInfo>(wrapper->dstSet, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkFramebufferCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkFramebufferCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkFramebufferCreateInfo* value = wrapper->decoded_value;
 
-        value->renderPass = MapHandle<RenderPassInfo>(wrapper->renderPass, object_mapper, &VulkanObjectMapper::MapVkRenderPass);
+        value->renderPass = MapHandle<RenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetRenderPassInfo);
 
-        MapHandleArray<ImageViewInfo>(wrapper->pAttachments.GetPointer(), wrapper->pAttachments.GetHandlePointer(), wrapper->pAttachments.GetLength(), object_mapper, &VulkanObjectMapper::MapVkImageView);
+        MapHandleArray<ImageViewInfo>(wrapper->pAttachments.GetPointer(), wrapper->pAttachments.GetHandlePointer(), wrapper->pAttachments.GetLength(), object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkCommandBufferAllocateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkCommandBufferAllocateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkCommandBufferAllocateInfo* value = wrapper->decoded_value;
 
-        value->commandPool = MapHandle<CommandPoolInfo>(wrapper->commandPool, object_mapper, &VulkanObjectMapper::MapVkCommandPool);
+        value->commandPool = MapHandle<CommandPoolInfo>(wrapper->commandPool, object_info_table, &VulkanObjectInfoTable::GetCommandPoolInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkCommandBufferInheritanceInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkCommandBufferInheritanceInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkCommandBufferInheritanceInfo* value = wrapper->decoded_value;
 
-        value->renderPass = MapHandle<RenderPassInfo>(wrapper->renderPass, object_mapper, &VulkanObjectMapper::MapVkRenderPass);
+        value->renderPass = MapHandle<RenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetRenderPassInfo);
 
-        value->framebuffer = MapHandle<FramebufferInfo>(wrapper->framebuffer, object_mapper, &VulkanObjectMapper::MapVkFramebuffer);
+        value->framebuffer = MapHandle<FramebufferInfo>(wrapper->framebuffer, object_info_table, &VulkanObjectInfoTable::GetFramebufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkCommandBufferBeginInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkCommandBufferBeginInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
-        MapStructArrayHandles<Decoded_VkCommandBufferInheritanceInfo>(wrapper->pInheritanceInfo->GetMetaStructPointer(), 1, object_mapper);
+        MapStructArrayHandles<Decoded_VkCommandBufferInheritanceInfo>(wrapper->pInheritanceInfo->GetMetaStructPointer(), 1, object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkBufferMemoryBarrier* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkBufferMemoryBarrier* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkBufferMemoryBarrier* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkImageMemoryBarrier* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImageMemoryBarrier* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkImageMemoryBarrier* value = wrapper->decoded_value;
 
-        value->image = MapHandle<ImageInfo>(wrapper->image, object_mapper, &VulkanObjectMapper::MapVkImage);
+        value->image = MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkRenderPassBeginInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkRenderPassBeginInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -438,28 +453,28 @@ void MapStructHandles(Decoded_VkRenderPassBeginInfo* wrapper, const VulkanObject
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->renderPass = MapHandle<RenderPassInfo>(wrapper->renderPass, object_mapper, &VulkanObjectMapper::MapVkRenderPass);
+        value->renderPass = MapHandle<RenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetRenderPassInfo);
 
-        value->framebuffer = MapHandle<FramebufferInfo>(wrapper->framebuffer, object_mapper, &VulkanObjectMapper::MapVkFramebuffer);
+        value->framebuffer = MapHandle<FramebufferInfo>(wrapper->framebuffer, object_info_table, &VulkanObjectInfoTable::GetFramebufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkBindBufferMemoryInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkBindBufferMemoryInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkBindBufferMemoryInfo* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
 
-        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkBindImageMemoryInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkBindImageMemoryInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -467,678 +482,678 @@ void MapStructHandles(Decoded_VkBindImageMemoryInfo* wrapper, const VulkanObject
 
         if (wrapper->pNext)
         {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        value->image = MapHandle<ImageInfo>(wrapper->image, object_mapper, &VulkanObjectMapper::MapVkImage);
+        value->image = MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
 
-        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkMemoryDedicatedAllocateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkMemoryDedicatedAllocateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkMemoryDedicatedAllocateInfo* value = wrapper->decoded_value;
 
-        value->image = MapHandle<ImageInfo>(wrapper->image, object_mapper, &VulkanObjectMapper::MapVkImage);
+        value->image = MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkPhysicalDeviceGroupProperties* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkPhysicalDeviceGroupProperties* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkPhysicalDeviceGroupProperties* value = wrapper->decoded_value;
 
-        MapHandleArray<PhysicalDeviceInfo>(wrapper->physicalDevices.GetPointer(), wrapper->physicalDevices.GetHandlePointer(), wrapper->physicalDevices.GetLength(), object_mapper, &VulkanObjectMapper::MapVkPhysicalDevice);
+        MapHandleArray<PhysicalDeviceInfo>(wrapper->physicalDevices.GetPointer(), wrapper->physicalDevices.GetHandlePointer(), wrapper->physicalDevices.GetLength(), object_info_table, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkDeviceGroupDeviceCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDeviceGroupDeviceCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDeviceGroupDeviceCreateInfo* value = wrapper->decoded_value;
 
-        MapHandleArray<PhysicalDeviceInfo>(wrapper->pPhysicalDevices.GetPointer(), wrapper->pPhysicalDevices.GetHandlePointer(), wrapper->pPhysicalDevices.GetLength(), object_mapper, &VulkanObjectMapper::MapVkPhysicalDevice);
+        MapHandleArray<PhysicalDeviceInfo>(wrapper->pPhysicalDevices.GetPointer(), wrapper->pPhysicalDevices.GetHandlePointer(), wrapper->pPhysicalDevices.GetLength(), object_info_table, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkBufferMemoryRequirementsInfo2* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkBufferMemoryRequirementsInfo2* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkBufferMemoryRequirementsInfo2* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkImageMemoryRequirementsInfo2* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImageMemoryRequirementsInfo2* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkImageMemoryRequirementsInfo2* value = wrapper->decoded_value;
 
-        value->image = MapHandle<ImageInfo>(wrapper->image, object_mapper, &VulkanObjectMapper::MapVkImage);
+        value->image = MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkImageSparseMemoryRequirementsInfo2* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImageSparseMemoryRequirementsInfo2* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkImageSparseMemoryRequirementsInfo2* value = wrapper->decoded_value;
 
-        value->image = MapHandle<ImageInfo>(wrapper->image, object_mapper, &VulkanObjectMapper::MapVkImage);
+        value->image = MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkSamplerYcbcrConversionInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSamplerYcbcrConversionInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSamplerYcbcrConversionInfo* value = wrapper->decoded_value;
 
-        value->conversion = MapHandle<SamplerYcbcrConversionInfo>(wrapper->conversion, object_mapper, &VulkanObjectMapper::MapVkSamplerYcbcrConversion);
+        value->conversion = MapHandle<SamplerYcbcrConversionInfo>(wrapper->conversion, object_info_table, &VulkanObjectInfoTable::GetSamplerYcbcrConversionInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkDescriptorUpdateTemplateCreateInfo* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDescriptorUpdateTemplateCreateInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDescriptorUpdateTemplateCreateInfo* value = wrapper->decoded_value;
 
-        value->descriptorSetLayout = MapHandle<DescriptorSetLayoutInfo>(wrapper->descriptorSetLayout, object_mapper, &VulkanObjectMapper::MapVkDescriptorSetLayout);
+        value->descriptorSetLayout = MapHandle<DescriptorSetLayoutInfo>(wrapper->descriptorSetLayout, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
 
-        value->pipelineLayout = MapHandle<PipelineLayoutInfo>(wrapper->pipelineLayout, object_mapper, &VulkanObjectMapper::MapVkPipelineLayout);
+        value->pipelineLayout = MapHandle<PipelineLayoutInfo>(wrapper->pipelineLayout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkSwapchainCreateInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSwapchainCreateInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSwapchainCreateInfoKHR* value = wrapper->decoded_value;
 
-        value->surface = MapHandle<SurfaceKHRInfo>(wrapper->surface, object_mapper, &VulkanObjectMapper::MapVkSurfaceKHR);
+        value->surface = MapHandle<SurfaceKHRInfo>(wrapper->surface, object_info_table, &VulkanObjectInfoTable::GetSurfaceKHRInfo);
 
-        value->oldSwapchain = MapHandle<SwapchainKHRInfo>(wrapper->oldSwapchain, object_mapper, &VulkanObjectMapper::MapVkSwapchainKHR);
+        value->oldSwapchain = MapHandle<SwapchainKHRInfo>(wrapper->oldSwapchain, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkPresentInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkPresentInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkPresentInfoKHR* value = wrapper->decoded_value;
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pWaitSemaphores.GetPointer(), wrapper->pWaitSemaphores.GetHandlePointer(), wrapper->pWaitSemaphores.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        MapHandleArray<SemaphoreInfo>(wrapper->pWaitSemaphores.GetPointer(), wrapper->pWaitSemaphores.GetHandlePointer(), wrapper->pWaitSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
 
-        MapHandleArray<SwapchainKHRInfo>(wrapper->pSwapchains.GetPointer(), wrapper->pSwapchains.GetHandlePointer(), wrapper->pSwapchains.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSwapchainKHR);
+        MapHandleArray<SwapchainKHRInfo>(wrapper->pSwapchains.GetPointer(), wrapper->pSwapchains.GetHandlePointer(), wrapper->pSwapchains.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkImageSwapchainCreateInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImageSwapchainCreateInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkImageSwapchainCreateInfoKHR* value = wrapper->decoded_value;
 
-        value->swapchain = MapHandle<SwapchainKHRInfo>(wrapper->swapchain, object_mapper, &VulkanObjectMapper::MapVkSwapchainKHR);
+        value->swapchain = MapHandle<SwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkBindImageMemorySwapchainInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkBindImageMemorySwapchainInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkBindImageMemorySwapchainInfoKHR* value = wrapper->decoded_value;
 
-        value->swapchain = MapHandle<SwapchainKHRInfo>(wrapper->swapchain, object_mapper, &VulkanObjectMapper::MapVkSwapchainKHR);
+        value->swapchain = MapHandle<SwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkAcquireNextImageInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkAcquireNextImageInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkAcquireNextImageInfoKHR* value = wrapper->decoded_value;
 
-        value->swapchain = MapHandle<SwapchainKHRInfo>(wrapper->swapchain, object_mapper, &VulkanObjectMapper::MapVkSwapchainKHR);
+        value->swapchain = MapHandle<SwapchainKHRInfo>(wrapper->swapchain, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
 
-        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
 
-        value->fence = MapHandle<FenceInfo>(wrapper->fence, object_mapper, &VulkanObjectMapper::MapVkFence);
+        value->fence = MapHandle<FenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkDisplayPropertiesKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDisplayPropertiesKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDisplayPropertiesKHR* value = wrapper->decoded_value;
 
-        value->display = MapHandle<DisplayKHRInfo>(wrapper->display, object_mapper, &VulkanObjectMapper::MapVkDisplayKHR);
+        value->display = MapHandle<DisplayKHRInfo>(wrapper->display, object_info_table, &VulkanObjectInfoTable::GetDisplayKHRInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkDisplayModePropertiesKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDisplayModePropertiesKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDisplayModePropertiesKHR* value = wrapper->decoded_value;
 
-        value->displayMode = MapHandle<DisplayModeKHRInfo>(wrapper->displayMode, object_mapper, &VulkanObjectMapper::MapVkDisplayModeKHR);
+        value->displayMode = MapHandle<DisplayModeKHRInfo>(wrapper->displayMode, object_info_table, &VulkanObjectInfoTable::GetDisplayModeKHRInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkDisplayPlanePropertiesKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDisplayPlanePropertiesKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDisplayPlanePropertiesKHR* value = wrapper->decoded_value;
 
-        value->currentDisplay = MapHandle<DisplayKHRInfo>(wrapper->currentDisplay, object_mapper, &VulkanObjectMapper::MapVkDisplayKHR);
+        value->currentDisplay = MapHandle<DisplayKHRInfo>(wrapper->currentDisplay, object_info_table, &VulkanObjectInfoTable::GetDisplayKHRInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkDisplaySurfaceCreateInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDisplaySurfaceCreateInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDisplaySurfaceCreateInfoKHR* value = wrapper->decoded_value;
 
-        value->displayMode = MapHandle<DisplayModeKHRInfo>(wrapper->displayMode, object_mapper, &VulkanObjectMapper::MapVkDisplayModeKHR);
+        value->displayMode = MapHandle<DisplayModeKHRInfo>(wrapper->displayMode, object_info_table, &VulkanObjectInfoTable::GetDisplayModeKHRInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkMemoryGetWin32HandleInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkMemoryGetWin32HandleInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkMemoryGetWin32HandleInfoKHR* value = wrapper->decoded_value;
 
-        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkMemoryGetFdInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkMemoryGetFdInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkMemoryGetFdInfoKHR* value = wrapper->decoded_value;
 
-        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkWin32KeyedMutexAcquireReleaseInfoKHR* value = wrapper->decoded_value;
 
-        MapHandleArray<DeviceMemoryInfo>(wrapper->pAcquireSyncs.GetPointer(), wrapper->pAcquireSyncs.GetHandlePointer(), wrapper->pAcquireSyncs.GetLength(), object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        MapHandleArray<DeviceMemoryInfo>(wrapper->pAcquireSyncs.GetPointer(), wrapper->pAcquireSyncs.GetHandlePointer(), wrapper->pAcquireSyncs.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
 
-        MapHandleArray<DeviceMemoryInfo>(wrapper->pReleaseSyncs.GetPointer(), wrapper->pReleaseSyncs.GetHandlePointer(), wrapper->pReleaseSyncs.GetLength(), object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        MapHandleArray<DeviceMemoryInfo>(wrapper->pReleaseSyncs.GetPointer(), wrapper->pReleaseSyncs.GetHandlePointer(), wrapper->pReleaseSyncs.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkImportSemaphoreWin32HandleInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImportSemaphoreWin32HandleInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkImportSemaphoreWin32HandleInfoKHR* value = wrapper->decoded_value;
 
-        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkSemaphoreGetWin32HandleInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSemaphoreGetWin32HandleInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSemaphoreGetWin32HandleInfoKHR* value = wrapper->decoded_value;
 
-        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkImportSemaphoreFdInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImportSemaphoreFdInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkImportSemaphoreFdInfoKHR* value = wrapper->decoded_value;
 
-        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkSemaphoreGetFdInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSemaphoreGetFdInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSemaphoreGetFdInfoKHR* value = wrapper->decoded_value;
 
-        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkRenderPassAttachmentBeginInfoKHR* value = wrapper->decoded_value;
 
-        MapHandleArray<ImageViewInfo>(wrapper->pAttachments.GetPointer(), wrapper->pAttachments.GetHandlePointer(), wrapper->pAttachments.GetLength(), object_mapper, &VulkanObjectMapper::MapVkImageView);
+        MapHandleArray<ImageViewInfo>(wrapper->pAttachments.GetPointer(), wrapper->pAttachments.GetHandlePointer(), wrapper->pAttachments.GetLength(), object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkImportFenceWin32HandleInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImportFenceWin32HandleInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkImportFenceWin32HandleInfoKHR* value = wrapper->decoded_value;
 
-        value->fence = MapHandle<FenceInfo>(wrapper->fence, object_mapper, &VulkanObjectMapper::MapVkFence);
+        value->fence = MapHandle<FenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkFenceGetWin32HandleInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkFenceGetWin32HandleInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkFenceGetWin32HandleInfoKHR* value = wrapper->decoded_value;
 
-        value->fence = MapHandle<FenceInfo>(wrapper->fence, object_mapper, &VulkanObjectMapper::MapVkFence);
+        value->fence = MapHandle<FenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkImportFenceFdInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImportFenceFdInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkImportFenceFdInfoKHR* value = wrapper->decoded_value;
 
-        value->fence = MapHandle<FenceInfo>(wrapper->fence, object_mapper, &VulkanObjectMapper::MapVkFence);
+        value->fence = MapHandle<FenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkFenceGetFdInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkFenceGetFdInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkFenceGetFdInfoKHR* value = wrapper->decoded_value;
 
-        value->fence = MapHandle<FenceInfo>(wrapper->fence, object_mapper, &VulkanObjectMapper::MapVkFence);
+        value->fence = MapHandle<FenceInfo>(wrapper->fence, object_info_table, &VulkanObjectInfoTable::GetFenceInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkPhysicalDeviceSurfaceInfo2KHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkPhysicalDeviceSurfaceInfo2KHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkPhysicalDeviceSurfaceInfo2KHR* value = wrapper->decoded_value;
 
-        value->surface = MapHandle<SurfaceKHRInfo>(wrapper->surface, object_mapper, &VulkanObjectMapper::MapVkSurfaceKHR);
+        value->surface = MapHandle<SurfaceKHRInfo>(wrapper->surface, object_info_table, &VulkanObjectInfoTable::GetSurfaceKHRInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkDisplayProperties2KHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDisplayProperties2KHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(wrapper->displayProperties.get(), object_mapper);
+        MapStructHandles(wrapper->displayProperties.get(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkDisplayPlaneProperties2KHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDisplayPlaneProperties2KHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(wrapper->displayPlaneProperties.get(), object_mapper);
+        MapStructHandles(wrapper->displayPlaneProperties.get(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkDisplayModeProperties2KHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDisplayModeProperties2KHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(wrapper->displayModeProperties.get(), object_mapper);
+        MapStructHandles(wrapper->displayModeProperties.get(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkDisplayPlaneInfo2KHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDisplayPlaneInfo2KHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDisplayPlaneInfo2KHR* value = wrapper->decoded_value;
 
-        value->mode = MapHandle<DisplayModeKHRInfo>(wrapper->mode, object_mapper, &VulkanObjectMapper::MapVkDisplayModeKHR);
+        value->mode = MapHandle<DisplayModeKHRInfo>(wrapper->mode, object_info_table, &VulkanObjectInfoTable::GetDisplayModeKHRInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkSemaphoreWaitInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSemaphoreWaitInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSemaphoreWaitInfoKHR* value = wrapper->decoded_value;
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pSemaphores.GetPointer(), wrapper->pSemaphores.GetHandlePointer(), wrapper->pSemaphores.GetLength(), object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        MapHandleArray<SemaphoreInfo>(wrapper->pSemaphores.GetPointer(), wrapper->pSemaphores.GetHandlePointer(), wrapper->pSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkSemaphoreSignalInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkSemaphoreSignalInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkSemaphoreSignalInfoKHR* value = wrapper->decoded_value;
 
-        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_mapper, &VulkanObjectMapper::MapVkSemaphore);
+        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkPipelineInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkPipelineInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkPipelineInfoKHR* value = wrapper->decoded_value;
 
-        value->pipeline = MapHandle<PipelineInfo>(wrapper->pipeline, object_mapper, &VulkanObjectMapper::MapVkPipeline);
+        value->pipeline = MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkPipelineExecutableInfoKHR* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkPipelineExecutableInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkPipelineExecutableInfoKHR* value = wrapper->decoded_value;
 
-        value->pipeline = MapHandle<PipelineInfo>(wrapper->pipeline, object_mapper, &VulkanObjectMapper::MapVkPipeline);
+        value->pipeline = MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkDedicatedAllocationMemoryAllocateInfoNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkDedicatedAllocationMemoryAllocateInfoNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkDedicatedAllocationMemoryAllocateInfoNV* value = wrapper->decoded_value;
 
-        value->image = MapHandle<ImageInfo>(wrapper->image, object_mapper, &VulkanObjectMapper::MapVkImage);
+        value->image = MapHandle<ImageInfo>(wrapper->image, object_info_table, &VulkanObjectInfoTable::GetImageInfo);
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkImageViewHandleInfoNVX* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkImageViewHandleInfoNVX* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkImageViewHandleInfoNVX* value = wrapper->decoded_value;
 
-        value->imageView = MapHandle<ImageViewInfo>(wrapper->imageView, object_mapper, &VulkanObjectMapper::MapVkImageView);
+        value->imageView = MapHandle<ImageViewInfo>(wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
 
-        value->sampler = MapHandle<SamplerInfo>(wrapper->sampler, object_mapper, &VulkanObjectMapper::MapVkSampler);
+        value->sampler = MapHandle<SamplerInfo>(wrapper->sampler, object_info_table, &VulkanObjectInfoTable::GetSamplerInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkWin32KeyedMutexAcquireReleaseInfoNV* value = wrapper->decoded_value;
 
-        MapHandleArray<DeviceMemoryInfo>(wrapper->pAcquireSyncs.GetPointer(), wrapper->pAcquireSyncs.GetHandlePointer(), wrapper->pAcquireSyncs.GetLength(), object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        MapHandleArray<DeviceMemoryInfo>(wrapper->pAcquireSyncs.GetPointer(), wrapper->pAcquireSyncs.GetHandlePointer(), wrapper->pAcquireSyncs.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
 
-        MapHandleArray<DeviceMemoryInfo>(wrapper->pReleaseSyncs.GetPointer(), wrapper->pReleaseSyncs.GetHandlePointer(), wrapper->pReleaseSyncs.GetLength(), object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        MapHandleArray<DeviceMemoryInfo>(wrapper->pReleaseSyncs.GetPointer(), wrapper->pReleaseSyncs.GetHandlePointer(), wrapper->pReleaseSyncs.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkConditionalRenderingBeginInfoEXT* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkConditionalRenderingBeginInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkConditionalRenderingBeginInfoEXT* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkIndirectCommandsTokenNVX* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkIndirectCommandsTokenNVX* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkIndirectCommandsTokenNVX* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkCmdProcessCommandsInfoNVX* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkCmdProcessCommandsInfoNVX* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkCmdProcessCommandsInfoNVX* value = wrapper->decoded_value;
 
-        value->objectTable = MapHandle<ObjectTableNVXInfo>(wrapper->objectTable, object_mapper, &VulkanObjectMapper::MapVkObjectTableNVX);
+        value->objectTable = MapHandle<ObjectTableNVXInfo>(wrapper->objectTable, object_info_table, &VulkanObjectInfoTable::GetObjectTableNVXInfo);
 
-        value->indirectCommandsLayout = MapHandle<IndirectCommandsLayoutNVXInfo>(wrapper->indirectCommandsLayout, object_mapper, &VulkanObjectMapper::MapVkIndirectCommandsLayoutNVX);
+        value->indirectCommandsLayout = MapHandle<IndirectCommandsLayoutNVXInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetIndirectCommandsLayoutNVXInfo);
 
-        MapStructArrayHandles<Decoded_VkIndirectCommandsTokenNVX>(wrapper->pIndirectCommandsTokens->GetMetaStructPointer(), wrapper->pIndirectCommandsTokens->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkIndirectCommandsTokenNVX>(wrapper->pIndirectCommandsTokens->GetMetaStructPointer(), wrapper->pIndirectCommandsTokens->GetLength(), object_info_table);
 
-        value->targetCommandBuffer = MapHandle<CommandBufferInfo>(wrapper->targetCommandBuffer, object_mapper, &VulkanObjectMapper::MapVkCommandBuffer);
+        value->targetCommandBuffer = MapHandle<CommandBufferInfo>(wrapper->targetCommandBuffer, object_info_table, &VulkanObjectInfoTable::GetCommandBufferInfo);
 
-        value->sequencesCountBuffer = MapHandle<BufferInfo>(wrapper->sequencesCountBuffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->sequencesCountBuffer = MapHandle<BufferInfo>(wrapper->sequencesCountBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
 
-        value->sequencesIndexBuffer = MapHandle<BufferInfo>(wrapper->sequencesIndexBuffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->sequencesIndexBuffer = MapHandle<BufferInfo>(wrapper->sequencesIndexBuffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkCmdReserveSpaceForCommandsInfoNVX* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkCmdReserveSpaceForCommandsInfoNVX* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkCmdReserveSpaceForCommandsInfoNVX* value = wrapper->decoded_value;
 
-        value->objectTable = MapHandle<ObjectTableNVXInfo>(wrapper->objectTable, object_mapper, &VulkanObjectMapper::MapVkObjectTableNVX);
+        value->objectTable = MapHandle<ObjectTableNVXInfo>(wrapper->objectTable, object_info_table, &VulkanObjectInfoTable::GetObjectTableNVXInfo);
 
-        value->indirectCommandsLayout = MapHandle<IndirectCommandsLayoutNVXInfo>(wrapper->indirectCommandsLayout, object_mapper, &VulkanObjectMapper::MapVkIndirectCommandsLayoutNVX);
+        value->indirectCommandsLayout = MapHandle<IndirectCommandsLayoutNVXInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetIndirectCommandsLayoutNVXInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkObjectTablePipelineEntryNVX* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkObjectTablePipelineEntryNVX* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkObjectTablePipelineEntryNVX* value = wrapper->decoded_value;
 
-        value->pipeline = MapHandle<PipelineInfo>(wrapper->pipeline, object_mapper, &VulkanObjectMapper::MapVkPipeline);
+        value->pipeline = MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkObjectTableDescriptorSetEntryNVX* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkObjectTableDescriptorSetEntryNVX* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkObjectTableDescriptorSetEntryNVX* value = wrapper->decoded_value;
 
-        value->pipelineLayout = MapHandle<PipelineLayoutInfo>(wrapper->pipelineLayout, object_mapper, &VulkanObjectMapper::MapVkPipelineLayout);
+        value->pipelineLayout = MapHandle<PipelineLayoutInfo>(wrapper->pipelineLayout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
 
-        value->descriptorSet = MapHandle<DescriptorSetInfo>(wrapper->descriptorSet, object_mapper, &VulkanObjectMapper::MapVkDescriptorSet);
+        value->descriptorSet = MapHandle<DescriptorSetInfo>(wrapper->descriptorSet, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkObjectTableVertexBufferEntryNVX* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkObjectTableVertexBufferEntryNVX* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkObjectTableVertexBufferEntryNVX* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkObjectTableIndexBufferEntryNVX* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkObjectTableIndexBufferEntryNVX* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkObjectTableIndexBufferEntryNVX* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkObjectTablePushConstantEntryNVX* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkObjectTablePushConstantEntryNVX* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkObjectTablePushConstantEntryNVX* value = wrapper->decoded_value;
 
-        value->pipelineLayout = MapHandle<PipelineLayoutInfo>(wrapper->pipelineLayout, object_mapper, &VulkanObjectMapper::MapVkPipelineLayout);
+        value->pipelineLayout = MapHandle<PipelineLayoutInfo>(wrapper->pipelineLayout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkMemoryGetAndroidHardwareBufferInfoANDROID* value = wrapper->decoded_value;
 
-        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkShaderModuleValidationCacheCreateInfoEXT* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkShaderModuleValidationCacheCreateInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkShaderModuleValidationCacheCreateInfoEXT* value = wrapper->decoded_value;
 
-        value->validationCache = MapHandle<ValidationCacheEXTInfo>(wrapper->validationCache, object_mapper, &VulkanObjectMapper::MapVkValidationCacheEXT);
+        value->validationCache = MapHandle<ValidationCacheEXTInfo>(wrapper->validationCache, object_info_table, &VulkanObjectInfoTable::GetValidationCacheEXTInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkRayTracingPipelineCreateInfoNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkRayTracingPipelineCreateInfoNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkRayTracingPipelineCreateInfoNV* value = wrapper->decoded_value;
 
-        MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_info_table);
 
-        value->layout = MapHandle<PipelineLayoutInfo>(wrapper->layout, object_mapper, &VulkanObjectMapper::MapVkPipelineLayout);
+        value->layout = MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
 
-        value->basePipelineHandle = MapHandle<PipelineInfo>(wrapper->basePipelineHandle, object_mapper, &VulkanObjectMapper::MapVkPipeline);
+        value->basePipelineHandle = MapHandle<PipelineInfo>(wrapper->basePipelineHandle, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkGeometryTrianglesNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkGeometryTrianglesNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkGeometryTrianglesNV* value = wrapper->decoded_value;
 
-        value->vertexData = MapHandle<BufferInfo>(wrapper->vertexData, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->vertexData = MapHandle<BufferInfo>(wrapper->vertexData, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
 
-        value->indexData = MapHandle<BufferInfo>(wrapper->indexData, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->indexData = MapHandle<BufferInfo>(wrapper->indexData, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
 
-        value->transformData = MapHandle<BufferInfo>(wrapper->transformData, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->transformData = MapHandle<BufferInfo>(wrapper->transformData, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkGeometryAABBNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkGeometryAABBNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkGeometryAABBNV* value = wrapper->decoded_value;
 
-        value->aabbData = MapHandle<BufferInfo>(wrapper->aabbData, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->aabbData = MapHandle<BufferInfo>(wrapper->aabbData, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkGeometryDataNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkGeometryDataNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(wrapper->triangles.get(), object_mapper);
+        MapStructHandles(wrapper->triangles.get(), object_info_table);
 
-        MapStructHandles(wrapper->aabbs.get(), object_mapper);
+        MapStructHandles(wrapper->aabbs.get(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkGeometryNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkGeometryNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(wrapper->geometry.get(), object_mapper);
+        MapStructHandles(wrapper->geometry.get(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkAccelerationStructureInfoNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkAccelerationStructureInfoNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
-        MapStructArrayHandles<Decoded_VkGeometryNV>(wrapper->pGeometries->GetMetaStructPointer(), wrapper->pGeometries->GetLength(), object_mapper);
+        MapStructArrayHandles<Decoded_VkGeometryNV>(wrapper->pGeometries->GetMetaStructPointer(), wrapper->pGeometries->GetLength(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkAccelerationStructureCreateInfoNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkAccelerationStructureCreateInfoNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
-        MapStructHandles(wrapper->info.get(), object_mapper);
+        MapStructHandles(wrapper->info.get(), object_info_table);
     }
 }
 
-void MapStructHandles(Decoded_VkBindAccelerationStructureMemoryInfoNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkBindAccelerationStructureMemoryInfoNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkBindAccelerationStructureMemoryInfoNV* value = wrapper->decoded_value;
 
-        value->accelerationStructure = MapHandle<AccelerationStructureNVInfo>(wrapper->accelerationStructure, object_mapper, &VulkanObjectMapper::MapVkAccelerationStructureNV);
+        value->accelerationStructure = MapHandle<AccelerationStructureNVInfo>(wrapper->accelerationStructure, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureNVInfo);
 
-        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_mapper, &VulkanObjectMapper::MapVkDeviceMemory);
+        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkWriteDescriptorSetAccelerationStructureNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkWriteDescriptorSetAccelerationStructureNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkWriteDescriptorSetAccelerationStructureNV* value = wrapper->decoded_value;
 
-        MapHandleArray<AccelerationStructureNVInfo>(wrapper->pAccelerationStructures.GetPointer(), wrapper->pAccelerationStructures.GetHandlePointer(), wrapper->pAccelerationStructures.GetLength(), object_mapper, &VulkanObjectMapper::MapVkAccelerationStructureNV);
+        MapHandleArray<AccelerationStructureNVInfo>(wrapper->pAccelerationStructures.GetPointer(), wrapper->pAccelerationStructures.GetHandlePointer(), wrapper->pAccelerationStructures.GetLength(), object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureNVInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkAccelerationStructureMemoryRequirementsInfoNV* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkAccelerationStructureMemoryRequirementsInfoNV* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkAccelerationStructureMemoryRequirementsInfoNV* value = wrapper->decoded_value;
 
-        value->accelerationStructure = MapHandle<AccelerationStructureNVInfo>(wrapper->accelerationStructure, object_mapper, &VulkanObjectMapper::MapVkAccelerationStructureNV);
+        value->accelerationStructure = MapHandle<AccelerationStructureNVInfo>(wrapper->accelerationStructure, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureNVInfo);
     }
 }
 
-void MapStructHandles(Decoded_VkBufferDeviceAddressInfoEXT* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkBufferDeviceAddressInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         VkBufferDeviceAddressInfoEXT* value = wrapper->decoded_value;
 
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_mapper, &VulkanObjectMapper::MapVkBuffer);
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
     }
 }
 
-void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectMapper& object_mapper)
+void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((value != nullptr) && (wrapper != nullptr))
     {
@@ -1150,95 +1165,95 @@ void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectM
             // TODO: Report or raise fatal error for unrecongized sType?
             break;
         case VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_VkMemoryDedicatedAllocateInfo*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkMemoryDedicatedAllocateInfo*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_VkDeviceGroupDeviceCreateInfo*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkDeviceGroupDeviceCreateInfo*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
-            MapStructHandles(reinterpret_cast<Decoded_VkSamplerYcbcrConversionInfo*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkSamplerYcbcrConversionInfo*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkImageSwapchainCreateInfoKHR*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkImageSwapchainCreateInfoKHR*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkBindImageMemorySwapchainInfoKHR*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkBindImageMemorySwapchainInfoKHR*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkRenderPassAttachmentBeginInfoKHR*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkRenderPassAttachmentBeginInfoKHR*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
-            MapStructHandles(reinterpret_cast<Decoded_VkDedicatedAllocationMemoryAllocateInfoNV*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkDedicatedAllocationMemoryAllocateInfoNV*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
-            MapStructHandles(reinterpret_cast<Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
-            MapStructHandles(reinterpret_cast<Decoded_VkShaderModuleValidationCacheCreateInfoEXT*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkShaderModuleValidationCacheCreateInfoEXT*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
-            MapStructHandles(reinterpret_cast<Decoded_VkWriteDescriptorSetAccelerationStructureNV*>(wrapper), object_mapper);
+            MapStructHandles(reinterpret_cast<Decoded_VkWriteDescriptorSetAccelerationStructureNV*>(wrapper), object_info_table);
             break;
         }
     }
 }
 
-void AddStructHandles(const Decoded_VkPhysicalDeviceGroupProperties* id_wrapper, const VkPhysicalDeviceGroupProperties* handle_struct, VulkanObjectMapper& object_mapper)
+void AddStructHandles(const Decoded_VkPhysicalDeviceGroupProperties* id_wrapper, const VkPhysicalDeviceGroupProperties* handle_struct, VulkanObjectInfoTable& object_info_table)
 {
     if (id_wrapper != nullptr)
     {
-        AddHandleArray<VkPhysicalDevice>(id_wrapper->physicalDevices.GetPointer(), id_wrapper->physicalDevices.GetLength(), handle_struct->physicalDevices, handle_struct->physicalDeviceCount, object_mapper, &VulkanObjectMapper::AddVkPhysicalDevice);
+        AddHandleArray<PhysicalDeviceInfo>(id_wrapper->physicalDevices.GetPointer(), id_wrapper->physicalDevices.GetLength(), handle_struct->physicalDevices, handle_struct->physicalDeviceCount, object_info_table, &VulkanObjectInfoTable::AddPhysicalDeviceInfo);
     }
 }
 
-void AddStructHandles(const Decoded_VkDisplayPropertiesKHR* id_wrapper, const VkDisplayPropertiesKHR* handle_struct, VulkanObjectMapper& object_mapper)
+void AddStructHandles(const Decoded_VkDisplayPropertiesKHR* id_wrapper, const VkDisplayPropertiesKHR* handle_struct, VulkanObjectInfoTable& object_info_table)
 {
     if (id_wrapper != nullptr)
     {
-        object_mapper.AddVkDisplayKHR(id_wrapper->display, handle_struct->display);
+        AddHandle<DisplayKHRInfo>(id_wrapper->display, handle_struct->display, object_info_table, &VulkanObjectInfoTable::AddDisplayKHRInfo);
     }
 }
 
-void AddStructHandles(const Decoded_VkDisplayPlanePropertiesKHR* id_wrapper, const VkDisplayPlanePropertiesKHR* handle_struct, VulkanObjectMapper& object_mapper)
+void AddStructHandles(const Decoded_VkDisplayPlanePropertiesKHR* id_wrapper, const VkDisplayPlanePropertiesKHR* handle_struct, VulkanObjectInfoTable& object_info_table)
 {
     if (id_wrapper != nullptr)
     {
-        object_mapper.AddVkDisplayKHR(id_wrapper->currentDisplay, handle_struct->currentDisplay);
+        AddHandle<DisplayKHRInfo>(id_wrapper->currentDisplay, handle_struct->currentDisplay, object_info_table, &VulkanObjectInfoTable::AddDisplayKHRInfo);
     }
 }
 
-void AddStructHandles(const Decoded_VkDisplayModePropertiesKHR* id_wrapper, const VkDisplayModePropertiesKHR* handle_struct, VulkanObjectMapper& object_mapper)
+void AddStructHandles(const Decoded_VkDisplayModePropertiesKHR* id_wrapper, const VkDisplayModePropertiesKHR* handle_struct, VulkanObjectInfoTable& object_info_table)
 {
     if (id_wrapper != nullptr)
     {
-        object_mapper.AddVkDisplayModeKHR(id_wrapper->displayMode, handle_struct->displayMode);
+        AddHandle<DisplayModeKHRInfo>(id_wrapper->displayMode, handle_struct->displayMode, object_info_table, &VulkanObjectInfoTable::AddDisplayModeKHRInfo);
     }
 }
 
-void AddStructHandles(const Decoded_VkDisplayProperties2KHR* id_wrapper, const VkDisplayProperties2KHR* handle_struct, VulkanObjectMapper& object_mapper)
+void AddStructHandles(const Decoded_VkDisplayProperties2KHR* id_wrapper, const VkDisplayProperties2KHR* handle_struct, VulkanObjectInfoTable& object_info_table)
 {
     if (id_wrapper != nullptr)
     {
-        AddStructHandles(id_wrapper->displayProperties.get(), &handle_struct->displayProperties, object_mapper);
+        AddStructHandles(id_wrapper->displayProperties.get(), &handle_struct->displayProperties, object_info_table);
     }
 }
 
-void AddStructHandles(const Decoded_VkDisplayPlaneProperties2KHR* id_wrapper, const VkDisplayPlaneProperties2KHR* handle_struct, VulkanObjectMapper& object_mapper)
+void AddStructHandles(const Decoded_VkDisplayPlaneProperties2KHR* id_wrapper, const VkDisplayPlaneProperties2KHR* handle_struct, VulkanObjectInfoTable& object_info_table)
 {
     if (id_wrapper != nullptr)
     {
-        AddStructHandles(id_wrapper->displayPlaneProperties.get(), &handle_struct->displayPlaneProperties, object_mapper);
+        AddStructHandles(id_wrapper->displayPlaneProperties.get(), &handle_struct->displayPlaneProperties, object_info_table);
     }
 }
 
-void AddStructHandles(const Decoded_VkDisplayModeProperties2KHR* id_wrapper, const VkDisplayModeProperties2KHR* handle_struct, VulkanObjectMapper& object_mapper)
+void AddStructHandles(const Decoded_VkDisplayModeProperties2KHR* id_wrapper, const VkDisplayModeProperties2KHR* handle_struct, VulkanObjectInfoTable& object_info_table)
 {
     if (id_wrapper != nullptr)
     {
-        AddStructHandles(id_wrapper->displayModeProperties.get(), &handle_struct->displayModeProperties, object_mapper);
+        AddStructHandles(id_wrapper->displayModeProperties.get(), &handle_struct->displayModeProperties, object_info_table);
     }
 }
 

@@ -40,46 +40,44 @@ struct VulkanObjectInfo
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-// clang-format off
-struct InstanceInfo                      : public VulkanObjectInfo<VkInstance> {};
-struct PhysicalDeviceInfo                : public VulkanObjectInfo<VkPhysicalDevice> {};
-struct DeviceInfo                        : public VulkanObjectInfo<VkDevice> {};
-struct QueueInfo                         : public VulkanObjectInfo<VkQueue> {};
-struct SemaphoreInfo                     : public VulkanObjectInfo<VkSemaphore> {};
-struct CommandBufferInfo                 : public VulkanObjectInfo<VkCommandBuffer> {};
-struct FenceInfo                         : public VulkanObjectInfo<VkFence> {};
-struct DeviceMemoryInfo                  : public VulkanObjectInfo<VkDeviceMemory> {};
-struct BufferInfo                        : public VulkanObjectInfo<VkBuffer> {};
-struct ImageInfo                         : public VulkanObjectInfo<VkImage> {};
-struct EventInfo                         : public VulkanObjectInfo<VkEvent> {};
-struct QueryPoolInfo                     : public VulkanObjectInfo<VkQueryPool> {};
-struct BufferViewInfo                    : public VulkanObjectInfo<VkBufferView> {};
-struct ImageViewInfo                     : public VulkanObjectInfo<VkImageView> {};
-struct ShaderModuleInfo                  : public VulkanObjectInfo<VkShaderModule> {};
-struct PipelineCacheInfo                 : public VulkanObjectInfo<VkPipelineCache> {};
-struct PipelineLayoutInfo                : public VulkanObjectInfo<VkPipelineLayout> {};
-struct RenderPassInfo                    : public VulkanObjectInfo<VkRenderPass> {};
-struct PipelineInfo                      : public VulkanObjectInfo<VkPipeline> {};
-struct DescriptorSetLayoutInfo           : public VulkanObjectInfo<VkDescriptorSetLayout> {};
-struct SamplerInfo                       : public VulkanObjectInfo<VkSampler> {};
-struct DescriptorPoolInfo                : public VulkanObjectInfo<VkDescriptorPool> {};
-struct DescriptorSetInfo                 : public VulkanObjectInfo<VkDescriptorSet> {};
-struct FramebufferInfo                   : public VulkanObjectInfo<VkFramebuffer> {};
-struct CommandPoolInfo                   : public VulkanObjectInfo<VkCommandPool> {};
-struct SamplerYcbcrConversionInfo        : public VulkanObjectInfo<VkSamplerYcbcrConversion> {};
-struct DescriptorUpdateTemplateInfo      : public VulkanObjectInfo<VkDescriptorUpdateTemplate> {};
-struct SurfaceKHRInfo                    : public VulkanObjectInfo<VkSurfaceKHR> {};
-struct SwapchainKHRInfo                  : public VulkanObjectInfo<VkSwapchainKHR> {};
-struct DisplayKHRInfo                    : public VulkanObjectInfo<VkDisplayKHR> {};
-struct DisplayModeKHRInfo                : public VulkanObjectInfo<VkDisplayModeKHR> {};
-struct DebugReportCallbackEXTInfo        : public VulkanObjectInfo<VkDebugReportCallbackEXT> {};
-struct ObjectTableNVXInfo                : public VulkanObjectInfo<VkObjectTableNVX> {};
-struct IndirectCommandsLayoutNVXInfo     : public VulkanObjectInfo<VkIndirectCommandsLayoutNVX> {};
-struct DebugUtilsMessengerEXTInfo        : public VulkanObjectInfo<VkDebugUtilsMessengerEXT> {};
-struct ValidationCacheEXTInfo            : public VulkanObjectInfo<VkValidationCacheEXT> {};
-struct AccelerationStructureNVInfo       : public VulkanObjectInfo<VkAccelerationStructureNV> {};
-struct PerformanceConfigurationINTELInfo : public VulkanObjectInfo<VkPerformanceConfigurationINTEL> {};
-// clang-format on
+typedef VulkanObjectInfo<VkInstance>                      InstanceInfo;
+typedef VulkanObjectInfo<VkPhysicalDevice>                PhysicalDeviceInfo;
+typedef VulkanObjectInfo<VkDevice>                        DeviceInfo;
+typedef VulkanObjectInfo<VkQueue>                         QueueInfo;
+typedef VulkanObjectInfo<VkSemaphore>                     SemaphoreInfo;
+typedef VulkanObjectInfo<VkCommandBuffer>                 CommandBufferInfo;
+typedef VulkanObjectInfo<VkFence>                         FenceInfo;
+typedef VulkanObjectInfo<VkDeviceMemory>                  DeviceMemoryInfo;
+typedef VulkanObjectInfo<VkBuffer>                        BufferInfo;
+typedef VulkanObjectInfo<VkImage>                         ImageInfo;
+typedef VulkanObjectInfo<VkEvent>                         EventInfo;
+typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
+typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
+typedef VulkanObjectInfo<VkImageView>                     ImageViewInfo;
+typedef VulkanObjectInfo<VkShaderModule>                  ShaderModuleInfo;
+typedef VulkanObjectInfo<VkPipelineCache>                 PipelineCacheInfo;
+typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
+typedef VulkanObjectInfo<VkRenderPass>                    RenderPassInfo;
+typedef VulkanObjectInfo<VkPipeline>                      PipelineInfo;
+typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
+typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
+typedef VulkanObjectInfo<VkDescriptorPool>                DescriptorPoolInfo;
+typedef VulkanObjectInfo<VkDescriptorSet>                 DescriptorSetInfo;
+typedef VulkanObjectInfo<VkFramebuffer>                   FramebufferInfo;
+typedef VulkanObjectInfo<VkCommandPool>                   CommandPoolInfo;
+typedef VulkanObjectInfo<VkSamplerYcbcrConversion>        SamplerYcbcrConversionInfo;
+typedef VulkanObjectInfo<VkDescriptorUpdateTemplate>      DescriptorUpdateTemplateInfo;
+typedef VulkanObjectInfo<VkSurfaceKHR>                    SurfaceKHRInfo;
+typedef VulkanObjectInfo<VkSwapchainKHR>                  SwapchainKHRInfo;
+typedef VulkanObjectInfo<VkDisplayKHR>                    DisplayKHRInfo;
+typedef VulkanObjectInfo<VkDisplayModeKHR>                DisplayModeKHRInfo;
+typedef VulkanObjectInfo<VkDebugReportCallbackEXT>        DebugReportCallbackEXTInfo;
+typedef VulkanObjectInfo<VkObjectTableNVX>                ObjectTableNVXInfo;
+typedef VulkanObjectInfo<VkIndirectCommandsLayoutNVX>     IndirectCommandsLayoutNVXInfo;
+typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>        DebugUtilsMessengerEXTInfo;
+typedef VulkanObjectInfo<VkValidationCacheEXT>            ValidationCacheEXTInfo;
+typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureNVInfo;
+typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.
