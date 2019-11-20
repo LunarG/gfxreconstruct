@@ -22,7 +22,7 @@
 #include "decode/pointer_decoder.h"
 #include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_object_info.h"
-#include "decode/vulkan_object_mapper.h"
+#include "decode/vulkan_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_resource_initializer.h"
 #include "decode/window.h"
@@ -115,9 +115,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                  const PointerDecoder<uint32_t>&                            pObjectIndices) override;
 
   protected:
-    const VulkanObjectMapper& GetObjectMapper() const { return object_mapper_; }
+    const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
-    VulkanObjectMapper& GetObjectMapper() { return object_mapper_; }
+    VulkanObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
 
     const encode::InstanceTable* GetInstanceTable(const void* handle) const;
 
@@ -135,10 +135,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     template <typename T>
     typename T::HandleType MapHandle(format::HandleId id,
-                                     const T* (VulkanObjectMapper::*MapFunc)(format::HandleId) const) const
+                                     const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
         typename T::HandleType handle = VK_NULL_HANDLE;
-        const T*               info   = (object_mapper_.*MapFunc)(id);
+        const T*               info   = (object_info_table_.*MapFunc)(id);
 
         if (info != nullptr)
         {
@@ -153,7 +153,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     size_t                  ids_len,
                     typename T::HandleType* handles,
                     size_t                  handles_len,
-                    const T* (VulkanObjectMapper::*MapFunc)(format::HandleId) const) const
+                    const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
         if ((ids != nullptr) && (handles != nullptr))
         {
@@ -161,7 +161,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
             assert(ids_len == handles_len);
             for (size_t i = 0; i < handles_len; ++i)
             {
-                const T* info = (object_mapper_.*MapFunc)(ids[i]);
+                const T* info = (object_info_table_.*MapFunc)(ids[i]);
 
                 if (info != nullptr)
                 {
@@ -176,19 +176,73 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     template <typename T>
-    void AddHandles(const format::HandleId* ids,
-                    size_t                  ids_len,
-                    const T*                handles,
-                    size_t                  handles_len,
-                    void (VulkanObjectMapper::*AddFunc)(format::HandleId, T))
+    void AddHandle(const format::HandleId*       id,
+                   const typename T::HandleType* handle,
+                   T&&                           initial_info,
+                   void (VulkanObjectInfoTable::*AddFunc)(T&&))
+    {
+        if ((id != nullptr) && (handle != nullptr))
+        {
+            initial_info.handle     = *handle;
+            initial_info.capture_id = *id;
+            (object_info_table_.*AddFunc)(std::forward<T>(initial_info));
+        }
+    }
+
+    template <typename T>
+    void AddHandle(const format::HandleId*       id,
+                   const typename T::HandleType* handle,
+                   void (VulkanObjectInfoTable::*AddFunc)(T&&))
+    {
+        if ((id != nullptr) && (handle != nullptr))
+        {
+            T info;
+            info.handle     = (*handle);
+            info.capture_id = (*id);
+            (object_info_table_.*AddFunc)(std::move(info));
+        }
+    }
+
+    template <typename T>
+    void AddHandles(const format::HandleId*       ids,
+                    size_t                        ids_len,
+                    const typename T::HandleType* handles,
+                    size_t                        handles_len,
+                    std::vector<T>&&              initial_infos,
+                    void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         if ((ids != nullptr) && (handles != nullptr))
         {
-            // TODO: Improved handling of array size mismatch.
+            size_t len = std::min(ids_len, handles_len);
+
+            assert(len <= initial_infos.size());
+
+            for (size_t i = 0; i < len; ++i)
+            {
+                auto info_iter        = std::next(initial_infos.begin(), i);
+                info_iter->handle     = handles[i];
+                info_iter->capture_id = ids[i];
+                (object_info_table_.*AddFunc)(std::move(*info_iter));
+            }
+        }
+    }
+
+    template <typename T>
+    void AddHandles(const format::HandleId*       ids,
+                    size_t                        ids_len,
+                    const typename T::HandleType* handles,
+                    size_t                        handles_len,
+                    void (VulkanObjectInfoTable::*AddFunc)(T&&))
+    {
+        if ((ids != nullptr) && (handles != nullptr))
+        {
             size_t len = std::min(ids_len, handles_len);
             for (size_t i = 0; i < len; ++i)
             {
-                (object_mapper_.*AddFunc)(ids[i], handles[i]);
+                T info;
+                info.handle     = handles[i];
+                info.capture_id = ids[i];
+                (object_info_table_.*AddFunc)(std::move(info));
             }
         }
     }
@@ -567,7 +621,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<encode::DispatchKey, encode::DeviceTable>     device_tables_;
     std::function<void(const char*)>                                 fatal_error_handler_;
     WindowFactory*                                                   window_factory_;
-    VulkanObjectMapper                                               object_mapper_;
+    VulkanObjectInfoTable                                            object_info_table_;
     WindowMap                                                        window_map_;
     MappedMemoryMap                                                  memory_map_;
     ReplayOptions                                                    options_;
