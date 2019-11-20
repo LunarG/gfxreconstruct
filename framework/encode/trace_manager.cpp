@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2019 Valve Corporation
 ** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -28,6 +29,12 @@
 #include "util/platform.h"
 
 #include <cassert>
+
+#if defined(__linux__) && !defined(__ANDROID__)
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+#include <xcb/xcb_keysyms.h>
+#endif
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -219,7 +226,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
         page_guard_external_memory_ = false;
     }
 
-    if (trace_settings.trim_ranges.empty())
+    if (trace_settings.trim_ranges.empty() && trace_settings.trim_key == "")
     {
         // Use default kModeWrite capture mode.
         success = CreateCaptureFile(base_filename_);
@@ -230,17 +237,42 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
         trim_enabled_ = true;
         trim_ranges_  = trace_settings.trim_ranges;
 
-        // Determine if trim starts at the first frame.
-        if (trim_ranges_[0].first == current_frame_)
+        // Determine if trim starts at the first frame
+        if (!trace_settings.trim_ranges.empty())
         {
-            // When capturing from the first frame, state tracking only needs to be enabled if there is more than one
-            // capture range.
-            if (trim_ranges_.size() > 1)
+            trim_ranges_ = trace_settings.trim_ranges;
+            if (trim_ranges_[0].first == current_frame_)
+            {
+                // When capturing from the first frame, state tracking only needs to be enabled if there is more than
+                // one capture range.
+                if (trim_ranges_.size() > 1)
+                {
+                    capture_mode_ = kModeWriteAndTrack;
+                }
+
+                success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_ranges_[0]));
+            }
+            else
+            {
+                capture_mode_ = kModeTrack;
+            }
+        }
+        // Check if trim is enabled by hot-key trigger at the first frame
+        else if (!trace_settings.trim_key.empty())
+        {
+            trim_key_ = trace_settings.trim_key;
+
+            // Enable state tracking when hotkey pressed
+            if (IsTrimHotkeyPressed())
             {
                 capture_mode_ = kModeWriteAndTrack;
-            }
 
-            success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_ranges_[0]));
+                success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
+            }
+            else
+            {
+                capture_mode_ = kModeTrack;
+            }
         }
         else
         {
@@ -376,6 +408,211 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
     }
 }
 
+#if defined(__linux__) && !defined(__ANDROID__)
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+static xcb_connection_t* keyboard_connection = nullptr;
+
+// On Linux platform, xcb calls need Connection which is connected to target
+// server, because hotkey process is supposed to insert into target application,
+// so we need to capture the connection that target app use. the function is
+// used to insert into Vulkan call to capture and save the connection.
+// TODO(issue #272) insert this function into Vulkan vkCreateXcbSurfaceKHR call.
+static void SetKeyboardConnection(xcb_connection_t* connection)
+{
+    keyboard_connection = connection;
+}
+
+// Get connection which is used by target application.
+static xcb_connection_t* GetKeyboardConnection()
+{
+    return keyboard_connection;
+}
+
+// Get specified key's real time state: it's released (0) or pressed (1) now.
+// the function is platform specific.
+static int GetAsyncKeyState(int key_code)
+{
+    int                key_state      = 0;
+    xcb_connection_t*  connection     = GetKeyboardConnection();
+    xcb_key_symbols_t* hot_key_symbol = xcb_key_symbols_alloc(connection);
+    if (hot_key_symbol != nullptr)
+    {
+        xcb_keycode_t* xcb_key_code = xcb_key_symbols_get_keycode(hot_key_symbol, key_code);
+        if (xcb_key_code != nullptr)
+        {
+            xcb_query_keymap_cookie_t cookie       = xcb_query_keymap(connection);
+            xcb_query_keymap_reply_t* keys_bit_map = xcb_query_keymap_reply(connection, cookie, NULL);
+            if ((keys_bit_map->keys[(*xcb_key_code / 8)] & (1 << (*xcb_key_code % 8))) != 0)
+            {
+                key_state = 1;
+            }
+            free(keys_bit_map);
+            free(xcb_key_code);
+        }
+        xcb_key_symbols_free(hot_key_symbol);
+    }
+
+    return key_state;
+}
+#else
+// TODO(issue #272) GetAsyncKeyState for other Linux window systems
+static int GetAsyncKeyState(int key_code)
+{
+    GFXRECON_LOG_ERROR("Hotkey trigger is not supported for the current WSI platform.");
+    return 0;
+}
+#endif
+#elif defined(__ANDROID__)
+// TODO(issue #272) implement GetAsyncKeyState for Android
+// return 0 if hotkey not pressed
+// return 1 if hotkey pressed
+static int GetAsyncKeyState(int key_code)
+{
+    GFXRECON_LOG_ERROR("Hotkey trigger is not supported in Android yet.");
+    return 0;
+}
+#endif
+
+// Return true if specific key has been pressed, else false.
+// This function is "semi"cross-platform: the interface is cross-platform, the
+// implementation is platform specific.
+bool TraceManager::IsTrimHotkeyPressed()
+{
+#ifdef _WIN32
+    static std::unordered_map<std::string, int> key_code_map = {
+        { "F1", VK_F1 },   { "F2", VK_F2 },   { "F3", VK_F3 },   { "F4", VK_F4 },          { "F5", VK_F5 },
+        { "F6", VK_F6 },   { "F7", VK_F7 },   { "F8", VK_F8 },   { "F9", VK_F9 },          { "F10", VK_F10 },
+        { "F11", VK_F11 }, { "F12", VK_F12 }, { "TAB", VK_TAB }, { "CONTROL", VK_CONTROL }
+    };
+#elif defined(__linux__) && !defined(__ANDROID__)
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+    static std::unordered_map<std::string, int> key_code_map = { { "F1", XK_F1 },
+                                                                 { "F2", XK_F2 },
+                                                                 { "F3", XK_F3 },
+                                                                 { "F4", XK_F4 },
+                                                                 { "F5", XK_F5 },
+                                                                 { "F6", XK_F6 },
+                                                                 { "F7", XK_F7 },
+                                                                 { "F8", XK_F8 },
+                                                                 { "F9", XK_F9 },
+                                                                 { "F10", XK_F10 },
+                                                                 { "F11", XK_F11 },
+                                                                 { "F12", XK_F12 },
+                                                                 { "Tab", XK_Tab },
+                                                                 { "ControlLeft", XK_Control_L },
+                                                                 { "ControlRight", XK_Control_R } };
+#else
+    // TODO(issue #272) implement key_code_map for other Linux window systems
+    static std::unordered_map<std::string, int> key_code_map = {};
+#endif
+#elif defined(__ANDROID__)
+    // TODO(issue #272) implement key_code_map for Android
+    static std::unordered_map<std::string, int> key_code_map = {};
+#endif
+
+    bool                                           hotkey_triggered  = false;
+    std::unordered_map<std::string, int>::iterator iterator_key_code = key_code_map.find(trim_key_);
+    if (iterator_key_code != key_code_map.end())
+    {
+        int key_code = iterator_key_code->second;
+        if (GetAsyncKeyState(key_code) != 0)
+        {
+            // the key is down or was down
+            // after the previous call to
+            // GetAsyncKeyState
+            hotkey_triggered = true;
+        }
+    }
+
+    return hotkey_triggered;
+}
+
+void TraceManager::CheckContinueCaptureForWriteMode()
+{
+    if (!trim_ranges_.empty())
+    {
+        --trim_ranges_[trim_current_range_].total;
+        if (trim_ranges_[trim_current_range_].total == 0)
+        {
+            // Stop recording and close file.
+            capture_mode_ &= ~kModeWrite;
+            file_stream_ = nullptr;
+            GFXRECON_LOG_INFO("Finished recording graphics API capture");
+
+            // Advance to next range
+            ++trim_current_range_;
+            if (trim_current_range_ >= trim_ranges_.size())
+            {
+                // No more frames to capture. Capture can be disabled and resources can be released.
+                trim_enabled_  = false;
+                capture_mode_  = kModeDisabled;
+                state_tracker_ = nullptr;
+                compressor_    = nullptr;
+            }
+            else if (trim_ranges_[trim_current_range_].first == current_frame_)
+            {
+                // Trimming was configured to capture two consecutive frames, so we need to start a new capture
+                // file for the current frame.
+                const CaptureSettings::TrimRange& trim_range = trim_ranges_[trim_current_range_];
+                bool success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
+                if (success)
+                {
+                    ActivateTrimming();
+                }
+                else
+                {
+                    GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
+                    trim_enabled_ = false;
+                    capture_mode_ = kModeDisabled;
+                }
+            }
+        }
+    }
+    else if (IsTrimHotkeyPressed())
+    {
+        // Stop recording and close file.
+        capture_mode_ &= ~kModeWrite;
+        file_stream_ = nullptr;
+        GFXRECON_LOG_INFO("Finished recording graphics API capture");
+    }
+}
+
+void TraceManager::CheckStartCaptureForTrackMode()
+{
+    if (!trim_ranges_.empty())
+    {
+        if (trim_ranges_[trim_current_range_].first == current_frame_)
+        {
+            const CaptureSettings::TrimRange& trim_range = trim_ranges_[trim_current_range_];
+            bool success = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
+            if (success)
+            {
+                ActivateTrimming();
+            }
+            else
+            {
+                GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
+                trim_enabled_ = false;
+                capture_mode_ = kModeDisabled;
+            }
+        }
+    }
+    else if (IsTrimHotkeyPressed())
+    {
+        bool success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
+        if (success)
+        {
+            ActivateTrimming();
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Failed to initialize capture for hotkey trim trigger; capture has been disabled");
+            trim_enabled_ = false;
+            capture_mode_ = kModeDisabled;
+        }
+    }
+}
+
 void TraceManager::EndFrame()
 {
     if (trim_enabled_)
@@ -384,40 +621,15 @@ void TraceManager::EndFrame()
 
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
-            // Currently capturing a frame range. Check for end of range.
-            --trim_ranges_[trim_current_range_].total;
-            if (trim_ranges_[trim_current_range_].total == 0)
-            {
-                // Stop recording and close file.
-                capture_mode_ &= ~kModeWrite;
-                file_stream_ = nullptr;
-                GFXRECON_LOG_INFO("Finished recording graphics API capture");
-
-                // Advance to next range
-                ++trim_current_range_;
-                if (trim_current_range_ >= trim_ranges_.size())
-                {
-                    // No more frames to capture. Capture can be disabled and resources can be released.
-                    trim_enabled_  = false;
-                    capture_mode_  = kModeDisabled;
-                    state_tracker_ = nullptr;
-                    compressor_    = nullptr;
-                }
-                else if (trim_ranges_[trim_current_range_].first == current_frame_)
-                {
-                    // Trimming was configured to capture two consecutive frames, so we need to start a new capture file
-                    // for the current frame.
-                    ActivateTrimming();
-                }
-            }
+            // Currently capturing a frame range.
+            // Check for end of range or hotkey trigger to stop capture.
+            CheckContinueCaptureForWriteMode();
         }
         else if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
-            // Capture is not active. Check for start of capture frame range.
-            if (trim_ranges_[trim_current_range_].first == current_frame_)
-            {
-                ActivateTrimming();
-            }
+            // Capture is not active.
+            // Check for start of capture frame range or hotkey trigger to start capture
+            CheckStartCaptureForTrackMode();
         }
     }
 }
@@ -473,24 +685,14 @@ bool TraceManager::CreateCaptureFile(const std::string& base_filename)
 
 void TraceManager::ActivateTrimming()
 {
-    const CaptureSettings::TrimRange& trim_range = trim_ranges_[trim_current_range_];
-    bool                              success    = CreateCaptureFile(CreateTrimFilename(base_filename_, trim_range));
-    if (success)
-    {
-        capture_mode_ |= kModeWrite;
 
-        auto thread_data = GetThreadData();
-        assert(thread_data != nullptr);
+    capture_mode_ |= kModeWrite;
 
-        VulkanStateWriter state_writer(file_stream_.get(), compressor_.get(), thread_data->thread_id_);
-        state_tracker_->WriteState(&state_writer, trim_range.first);
-    }
-    else
-    {
-        GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
-        trim_enabled_ = false;
-        capture_mode_ = kModeDisabled;
-    }
+    auto thread_data = GetThreadData();
+    assert(thread_data != nullptr);
+
+    VulkanStateWriter state_writer(file_stream_.get(), compressor_.get(), thread_data->thread_id_);
+    state_tracker_->WriteState(&state_writer, current_frame_);
 }
 
 void TraceManager::WriteFileHeader()

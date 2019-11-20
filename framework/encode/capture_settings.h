@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2019 Valve Corporation
 ** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -62,6 +63,7 @@ class CaptureSettings
         bool                   force_flush{ false };
         MemoryTrackingMode     memory_tracking_mode{ kPageGuard };
         std::vector<TrimRange> trim_ranges;
+        std::string            trim_key{ "" };
         bool                   page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
         bool                   page_guard_lazy_copy{ util::PageGuardManager::kDefaultEnableLazyCopy };
         bool                   page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
@@ -110,6 +112,8 @@ class CaptureSettings
     static util::Log::Severity ParseLogLevelString(const std::string& value_string, util::Log::Severity default_value);
 
     static void ParseTrimRangeString(const std::string& value_string, std::vector<CaptureSettings::TrimRange>* ranges);
+
+    static std::string ParseTrimKeyString(const std::string& value_string);
 
   private:
     TraceSettings       trace_settings_;
