@@ -33,7 +33,7 @@ target_sources(gfxrecon_decode
                    vulkan_decoder_base.cpp
                    vulkan_enum_util.h
                    vulkan_object_info.h
-                   vulkan_object_mapper.h
+                   vulkan_object_info_table.h
                    vulkan_replay_consumer_base.h
                    vulkan_replay_consumer_base.cpp
                    vulkan_replay_options.h
