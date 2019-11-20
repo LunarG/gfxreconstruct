@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2019 Valve Corporation
 ** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -279,6 +280,12 @@ class TraceManager
     void EndApiCallTrace(ParameterEncoder* encoder);
 
     void EndFrame();
+
+    void CheckContinueCaptureForWriteMode();
+
+    void CheckStartCaptureForTrackMode();
+
+    bool IsTrimHotkeyPressed();
 
     void WriteDisplayMessageCmd(const char* message);
 
@@ -872,6 +879,7 @@ class TraceManager
     std::set<DeviceMemoryWrapper*>                  mapped_memory_; // Track mapped memory for unassisted tracking mode.
     bool                                            trim_enabled_;
     std::vector<CaptureSettings::TrimRange>         trim_ranges_;
+    std::string                                     trim_key_;
     size_t                                          trim_current_range_;
     uint32_t                                        current_frame_;
     std::unique_ptr<VulkanStateTracker>             state_tracker_;

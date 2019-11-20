@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018-2019 Valve Corporation
 ** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -75,6 +76,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define PAGE_GUARD_SEPARATE_READ_UPPER      "PAGE_GUARD_SEPARATE_READ"
 #define PAGE_GUARD_EXTERNAL_MEMORY_LOWER    "page_guard_external_memory"
 #define PAGE_GUARD_EXTERNAL_MEMORY_UPPER    "PAGE_GUARD_EXTERNAL_MEMORY"
+#define TRIM_TRIGGER_LOWER                  "trim_trigger"
+#define TRIM_TRIGGER_UPPER                  "TRIM_TRIGGER"
 // clang-format on
 
 #if defined(__ANDROID__)
@@ -103,6 +106,7 @@ const char kPageGuardCopyOnMapEnvVar[]       = GFXRECON_ENV_VAR_PREFIX PAGE_GUAR
 const char kPageGuardLazyCopyEnvVar[]        = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_LAZY_COPY_LOWER;
 const char kPageGuardSeparateReadEnvVar[]    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_LOWER;
 const char kPageGuardExternalMemoryEnvVar[]  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
+const char kTrimTriggerEnvVar[]              = GFXRECON_ENV_VAR_PREFIX TRIM_TRIGGER_LOWER;
 
 #else
 const char CaptureSettings::kDefaultCaptureFileName[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
@@ -130,6 +134,7 @@ const char kPageGuardCopyOnMapEnvVar[]                = GFXRECON_ENV_VAR_PREFIX 
 const char kPageGuardLazyCopyEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_LAZY_COPY_UPPER;
 const char kPageGuardSeparateReadEnvVar[]             = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_UPPER;
 const char kPageGuardExternalMemoryEnvVar[]           = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
+const char kTrimTriggerEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX TRIM_TRIGGER_UPPER;
 #endif
 
 // Capture options for settings file.
@@ -157,6 +162,7 @@ const std::string kOptionKeyPageGuardCopyOnMap       = std::string(kSettingsFilt
 const std::string kOptionKeyPageGuardLazyCopy        = std::string(kSettingsFilter) + std::string(PAGE_GUARD_LAZY_COPY_LOWER);
 const std::string kOptionKeyPageGuardSeparateRead    = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SEPARATE_READ_LOWER);
 const std::string kOptionKeyPageGuardExternalMemory  = std::string(kSettingsFilter) + std::string(PAGE_GUARD_EXTERNAL_MEMORY_LOWER);
+const std::string kOptionKeyTrimTrigger              = std::string(kSettingsFilter) + std::string(TRIM_TRIGGER_LOWER);
 // clang-format on
 
 #if defined(ENABLE_LZ4_COMPRESSION)
@@ -235,6 +241,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     // Trimming environment variables
     LoadSingleOptionEnvVar(options, kCaptureFramesEnvVar, kOptionKeyCaptureFrames);
+    LoadSingleOptionEnvVar(options, kTrimTriggerEnvVar, kOptionKeyTrimTrigger);
 
     // Page guard environment variables
     LoadSingleOptionEnvVar(options, kPageGuardCopyOnMapEnvVar, kOptionKeyPageGuardCopyOnMap);
@@ -284,8 +291,23 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.memory_tracking_mode = ParseMemoryTrackingModeString(
         FindOption(options, kOptionKeyMemoryTrackingMode), settings->trace_settings_.memory_tracking_mode);
 
-    // Trimming options
+    // Trimming options:
+    // trim ranges and trim hotkey are exclusive
+    // with trim key will be parsed only
+    // if trim ranges is empty, else it will be ignored
     ParseTrimRangeString(FindOption(options, kOptionKeyCaptureFrames), &settings->trace_settings_.trim_ranges);
+    std::string trim_key_option = FindOption(options, kOptionKeyTrimTrigger);
+    if (!trim_key_option.empty())
+    {
+        if (settings->trace_settings_.trim_ranges.empty())
+        {
+            settings->trace_settings_.trim_key = ParseTrimKeyString(trim_key_option);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Settings Loader: Ignore trim key setting as trim ranges has been specified.");
+        }
+    }
 
     // Page guard environment variables
     settings->trace_settings_.page_guard_copy_on_map = ParseBoolString(
@@ -587,6 +609,22 @@ void CaptureSettings::ParseTrimRangeString(const std::string&                   
             }
         }
     }
+}
+
+std::string CaptureSettings::ParseTrimKeyString(const std::string& value_string)
+{
+    std::string trim_key = "";
+    if (!value_string.empty())
+    {
+        trim_key = value_string;
+        // Remove whitespace.
+        trim_key.erase(std::remove_if(trim_key.begin(), trim_key.end(), ::isspace), trim_key.end());
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid trim trigger key \"%s\"", trim_key.c_str());
+    }
+    return trim_key;
 }
 
 GFXRECON_END_NAMESPACE(encode)
