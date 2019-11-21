@@ -251,6 +251,12 @@ class TraceManager
 
     void EndFrame();
 
+    void CheckContinueCaptureForWriteMode();
+
+    void CheckStartCaptureForTrackMode();
+
+    bool IsTrimHotkeyPressed();
+
     void WriteDisplayMessageCmd(const char* message);
 
     bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
@@ -833,6 +839,7 @@ class TraceManager
     std::set<DeviceMemoryWrapper*>                  mapped_memory_; // Track mapped memory for unassisted tracking mode.
     bool                                            trim_enabled_;
     std::vector<CaptureSettings::TrimRange>         trim_ranges_;
+    std::string                                     trim_key_;
     size_t                                          trim_current_range_;
     uint32_t                                        current_frame_;
     std::unique_ptr<VulkanStateTracker>             state_tracker_;

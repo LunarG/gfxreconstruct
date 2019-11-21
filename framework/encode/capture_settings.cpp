@@ -67,6 +67,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define MEMORY_TRACKING_MODE_UPPER          "MEMORY_TRACKING_MODE"
 #define CAPTURE_FRAMES_LOWER                "capture_frames"
 #define CAPTURE_FRAMES_UPPER                "CAPTURE_FRAMES"
+#define TRIM_TRIGGER_LOWER                  "trim_trigger"
+#define TRIM_TRIGGER_UPPER                  "TRIM_TRIGGER"
 // clang-format on
 
 #if defined(__ANDROID__)
@@ -91,6 +93,7 @@ const char kLogOutputToConsoleEnvVar[]       = GFXRECON_ENV_VAR_PREFIX LOG_OUTPU
 const char kLogOutputToOsDebugStringEnvVar[] = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER;
 const char kMemoryTrackingModeEnvVar[]       = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_LOWER;
 const char kCaptureFramesEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
+const char kTrimTriggerEnvVar[]              = GFXRECON_ENV_VAR_PREFIX TRIM_TRIGGER_LOWER;
 
 #else
 const char CaptureSettings::kDefaultCaptureFileName[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
@@ -114,6 +117,7 @@ const char kLogOutputToConsoleEnvVar[]       = GFXRECON_ENV_VAR_PREFIX LOG_OUTPU
 const char kLogOutputToOsDebugStringEnvVar[] = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER;
 const char kMemoryTrackingModeEnvVar[]       = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_UPPER;
 const char kCaptureFramesEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_UPPER;
+const char kTrimTriggerEnvVar[]              = GFXRECON_ENV_VAR_PREFIX TRIM_TRIGGER_UPPER;
 #endif
 
 // Capture options for settings file.
@@ -136,12 +140,13 @@ const std::string kOptionKeyLogOutputToConsole       = std::string(kSettingsFilt
 const std::string kOptionKeyLogOutputToOsDebugString = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER);
 const std::string kOptionKeyMemoryTrackingMode       = std::string(kSettingsFilter) + std::string(MEMORY_TRACKING_MODE_LOWER);
 const std::string kOptionKeyCaptureFrames            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
+const std::string kOptionKeyTrimTrigger              = std::string(kSettingsFilter) + std::string(TRIM_TRIGGER_LOWER);
 // clang-format on
 
 #if defined(ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
 #else
-const format::CompressionType                               kDefaultCompressionType = format::CompressionType::kNone;
+const format::CompressionType                             kDefaultCompressionType = format::CompressionType::kNone;
 #endif
 
 CaptureSettings::CaptureSettings() {}
@@ -214,6 +219,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     // Trimming environment variables
     LoadSingleOptionEnvVar(options, kCaptureFramesEnvVar, kOptionKeyCaptureFrames);
+    LoadSingleOptionEnvVar(options, kTrimTriggerEnvVar, kOptionKeyTrimTrigger);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -257,8 +263,23 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.memory_tracking_mode = ParseMemoryTrackingModeString(
         FindOption(options, kOptionKeyMemoryTrackingMode), settings->trace_settings_.memory_tracking_mode);
 
-    // Trimming options
+    // Trimming options:
+    // trim ranges and trim hotkey are exclusive
+    // with trim key will be parsed only
+    // if trim ranges is empty, else it will be ignored
     ParseTrimRangeString(FindOption(options, kOptionKeyCaptureFrames), &settings->trace_settings_.trim_ranges);
+    std::string trim_key_option = FindOption(options, kOptionKeyTrimTrigger);
+    if (!trim_key_option.empty())
+    {
+        if (settings->trace_settings_.trim_ranges.empty())
+        {
+            settings->trace_settings_.trim_key = ParseTrimKeyString(trim_key_option);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Settings Loader: Ignore trim key setting as trim ranges has been specified.");
+        }
+    }
 
     // Log options
     settings->log_settings_.use_indent =
@@ -550,6 +571,22 @@ void CaptureSettings::ParseTrimRangeString(const std::string&                   
             }
         }
     }
+}
+
+std::string CaptureSettings::ParseTrimKeyString(const std::string& value_string)
+{
+    std::string trim_key = "";
+    if (!value_string.empty())
+    {
+        trim_key = value_string;
+        // Remove whitespace.
+        trim_key.erase(std::remove_if(trim_key.begin(), trim_key.end(), ::isspace), trim_key.end());
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Settings Loader: Ignoring invalid trim trigger key \"%s\"", trim_key.c_str());
+    }
+    return trim_key;
 }
 
 GFXRECON_END_NAMESPACE(encode)

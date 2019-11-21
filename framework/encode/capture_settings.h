@@ -59,6 +59,7 @@ class CaptureSettings
         bool                   force_flush{ false };
         MemoryTrackingMode     memory_tracking_mode{ kPageGuard };
         std::vector<TrimRange> trim_ranges;
+        std::string            trim_key{ "" };
     };
 
   public:
@@ -98,6 +99,8 @@ class CaptureSettings
     static util::Log::Severity ParseLogLevelString(const std::string& value_string, util::Log::Severity default_value);
 
     static void ParseTrimRangeString(const std::string& value_string, std::vector<CaptureSettings::TrimRange>* ranges);
+
+    static std::string ParseTrimKeyString(const std::string& value_string);
 
   private:
     TraceSettings       trace_settings_;
