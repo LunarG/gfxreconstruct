@@ -3,6 +3,7 @@ add_library(gfxrecon_decode STATIC "")
 target_sources(gfxrecon_decode
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/framework/decode/api_decoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/copy_shaders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders_forward.h
@@ -35,6 +36,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_options.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_initializer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_initializer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/window.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp

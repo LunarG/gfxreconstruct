@@ -320,6 +320,12 @@ static VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2KHR(VkDevice, uint32_t, co
 static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupportKHR(VkDevice, const VkDescriptorSetLayoutCreateInfo*, VkDescriptorSetLayoutSupport*) {}
 static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
 static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
+static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(VkDevice, VkSemaphore, uint64_t*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(VkDevice, const VkSemaphoreWaitInfoKHR*, uint64_t) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(VkDevice, const VkSemaphoreSignalInfoKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(VkDevice, const VkPipelineInfoKHR*, uint32_t*, VkPipelineExecutablePropertiesKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableStatisticKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableInternalRepresentationKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(VkDevice, const VkDebugMarkerObjectTagInfoEXT*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(VkDevice, const VkDebugMarkerObjectNameInfoEXT*) { return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(VkCommandBuffer, const VkDebugMarkerMarkerInfoEXT*) {}
@@ -395,11 +401,21 @@ static VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(VkCommandBuffe
 static VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorNV(VkCommandBuffer, uint32_t, uint32_t, const VkRect2D*) {}
 static VKAPI_ATTR void VKAPI_CALL CmdSetCheckpointNV(VkCommandBuffer, const void*) {}
 static VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(VkQueue, uint32_t*, VkCheckpointDataNV*) {}
+static VKAPI_ATTR VkResult VKAPI_CALL InitializePerformanceApiINTEL(VkDevice, const VkInitializePerformanceApiInfoINTEL*) { return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL UninitializePerformanceApiINTEL(VkDevice) {}
+static VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceMarkerINTEL(VkCommandBuffer, const VkPerformanceMarkerInfoINTEL*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceStreamMarkerINTEL(VkCommandBuffer, const VkPerformanceStreamMarkerInfoINTEL*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceOverrideINTEL(VkCommandBuffer, const VkPerformanceOverrideInfoINTEL*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL AcquirePerformanceConfigurationINTEL(VkDevice, const VkPerformanceConfigurationAcquireInfoINTEL*, VkPerformanceConfigurationINTEL*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL ReleasePerformanceConfigurationINTEL(VkDevice, VkPerformanceConfigurationINTEL) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL QueueSetPerformanceConfigurationINTEL(VkQueue, VkPerformanceConfigurationINTEL) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPerformanceParameterINTEL(VkDevice, VkPerformanceParameterTypeINTEL, VkPerformanceValueINTEL*) { return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(VkDevice, VkSwapchainKHR, VkBool32) {}
 static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(VkDevice, const VkBufferDeviceAddressInfoEXT*) { return 0; }
 static VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(VkDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkDeviceGroupPresentModeFlagsKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleEXT(VkCommandBuffer, uint32_t, uint16_t) {}
 static VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(VkDevice, VkQueryPool, uint32_t, uint32_t) {}
 // clang-format on
 GFXRECON_END_NAMESPACE(noop)
@@ -684,6 +700,12 @@ struct DeviceTable
     PFN_vkGetDescriptorSetLayoutSupportKHR GetDescriptorSetLayoutSupportKHR{ noop::GetDescriptorSetLayoutSupportKHR };
     PFN_vkCmdDrawIndirectCountKHR CmdDrawIndirectCountKHR{ noop::CmdDrawIndirectCountKHR };
     PFN_vkCmdDrawIndexedIndirectCountKHR CmdDrawIndexedIndirectCountKHR{ noop::CmdDrawIndexedIndirectCountKHR };
+    PFN_vkGetSemaphoreCounterValueKHR GetSemaphoreCounterValueKHR{ noop::GetSemaphoreCounterValueKHR };
+    PFN_vkWaitSemaphoresKHR WaitSemaphoresKHR{ noop::WaitSemaphoresKHR };
+    PFN_vkSignalSemaphoreKHR SignalSemaphoreKHR{ noop::SignalSemaphoreKHR };
+    PFN_vkGetPipelineExecutablePropertiesKHR GetPipelineExecutablePropertiesKHR{ noop::GetPipelineExecutablePropertiesKHR };
+    PFN_vkGetPipelineExecutableStatisticsKHR GetPipelineExecutableStatisticsKHR{ noop::GetPipelineExecutableStatisticsKHR };
+    PFN_vkGetPipelineExecutableInternalRepresentationsKHR GetPipelineExecutableInternalRepresentationsKHR{ noop::GetPipelineExecutableInternalRepresentationsKHR };
     PFN_vkDebugMarkerSetObjectTagEXT DebugMarkerSetObjectTagEXT{ noop::DebugMarkerSetObjectTagEXT };
     PFN_vkDebugMarkerSetObjectNameEXT DebugMarkerSetObjectNameEXT{ noop::DebugMarkerSetObjectNameEXT };
     PFN_vkCmdDebugMarkerBeginEXT CmdDebugMarkerBeginEXT{ noop::CmdDebugMarkerBeginEXT };
@@ -759,11 +781,21 @@ struct DeviceTable
     PFN_vkCmdSetExclusiveScissorNV CmdSetExclusiveScissorNV{ noop::CmdSetExclusiveScissorNV };
     PFN_vkCmdSetCheckpointNV CmdSetCheckpointNV{ noop::CmdSetCheckpointNV };
     PFN_vkGetQueueCheckpointDataNV GetQueueCheckpointDataNV{ noop::GetQueueCheckpointDataNV };
+    PFN_vkInitializePerformanceApiINTEL InitializePerformanceApiINTEL{ noop::InitializePerformanceApiINTEL };
+    PFN_vkUninitializePerformanceApiINTEL UninitializePerformanceApiINTEL{ noop::UninitializePerformanceApiINTEL };
+    PFN_vkCmdSetPerformanceMarkerINTEL CmdSetPerformanceMarkerINTEL{ noop::CmdSetPerformanceMarkerINTEL };
+    PFN_vkCmdSetPerformanceStreamMarkerINTEL CmdSetPerformanceStreamMarkerINTEL{ noop::CmdSetPerformanceStreamMarkerINTEL };
+    PFN_vkCmdSetPerformanceOverrideINTEL CmdSetPerformanceOverrideINTEL{ noop::CmdSetPerformanceOverrideINTEL };
+    PFN_vkAcquirePerformanceConfigurationINTEL AcquirePerformanceConfigurationINTEL{ noop::AcquirePerformanceConfigurationINTEL };
+    PFN_vkReleasePerformanceConfigurationINTEL ReleasePerformanceConfigurationINTEL{ noop::ReleasePerformanceConfigurationINTEL };
+    PFN_vkQueueSetPerformanceConfigurationINTEL QueueSetPerformanceConfigurationINTEL{ noop::QueueSetPerformanceConfigurationINTEL };
+    PFN_vkGetPerformanceParameterINTEL GetPerformanceParameterINTEL{ noop::GetPerformanceParameterINTEL };
     PFN_vkSetLocalDimmingAMD SetLocalDimmingAMD{ noop::SetLocalDimmingAMD };
     PFN_vkGetBufferDeviceAddressEXT GetBufferDeviceAddressEXT{ noop::GetBufferDeviceAddressEXT };
     PFN_vkAcquireFullScreenExclusiveModeEXT AcquireFullScreenExclusiveModeEXT{ noop::AcquireFullScreenExclusiveModeEXT };
     PFN_vkReleaseFullScreenExclusiveModeEXT ReleaseFullScreenExclusiveModeEXT{ noop::ReleaseFullScreenExclusiveModeEXT };
     PFN_vkGetDeviceGroupSurfacePresentModes2EXT GetDeviceGroupSurfacePresentModes2EXT{ noop::GetDeviceGroupSurfacePresentModes2EXT };
+    PFN_vkCmdSetLineStippleEXT CmdSetLineStippleEXT{ noop::CmdSetLineStippleEXT };
     PFN_vkResetQueryPoolEXT ResetQueryPoolEXT{ noop::ResetQueryPoolEXT };
 };
 
@@ -1055,6 +1087,12 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetDescriptorSetLayoutSupportKHR", &table->GetDescriptorSetLayoutSupportKHR);
     LoadFunction(gpa, device, "vkCmdDrawIndirectCountKHR", &table->CmdDrawIndirectCountKHR);
     LoadFunction(gpa, device, "vkCmdDrawIndexedIndirectCountKHR", &table->CmdDrawIndexedIndirectCountKHR);
+    LoadFunction(gpa, device, "vkGetSemaphoreCounterValueKHR", &table->GetSemaphoreCounterValueKHR);
+    LoadFunction(gpa, device, "vkWaitSemaphoresKHR", &table->WaitSemaphoresKHR);
+    LoadFunction(gpa, device, "vkSignalSemaphoreKHR", &table->SignalSemaphoreKHR);
+    LoadFunction(gpa, device, "vkGetPipelineExecutablePropertiesKHR", &table->GetPipelineExecutablePropertiesKHR);
+    LoadFunction(gpa, device, "vkGetPipelineExecutableStatisticsKHR", &table->GetPipelineExecutableStatisticsKHR);
+    LoadFunction(gpa, device, "vkGetPipelineExecutableInternalRepresentationsKHR", &table->GetPipelineExecutableInternalRepresentationsKHR);
     LoadFunction(gpa, device, "vkDebugMarkerSetObjectTagEXT", &table->DebugMarkerSetObjectTagEXT);
     LoadFunction(gpa, device, "vkDebugMarkerSetObjectNameEXT", &table->DebugMarkerSetObjectNameEXT);
     LoadFunction(gpa, device, "vkCmdDebugMarkerBeginEXT", &table->CmdDebugMarkerBeginEXT);
@@ -1130,11 +1168,21 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkCmdSetExclusiveScissorNV", &table->CmdSetExclusiveScissorNV);
     LoadFunction(gpa, device, "vkCmdSetCheckpointNV", &table->CmdSetCheckpointNV);
     LoadFunction(gpa, device, "vkGetQueueCheckpointDataNV", &table->GetQueueCheckpointDataNV);
+    LoadFunction(gpa, device, "vkInitializePerformanceApiINTEL", &table->InitializePerformanceApiINTEL);
+    LoadFunction(gpa, device, "vkUninitializePerformanceApiINTEL", &table->UninitializePerformanceApiINTEL);
+    LoadFunction(gpa, device, "vkCmdSetPerformanceMarkerINTEL", &table->CmdSetPerformanceMarkerINTEL);
+    LoadFunction(gpa, device, "vkCmdSetPerformanceStreamMarkerINTEL", &table->CmdSetPerformanceStreamMarkerINTEL);
+    LoadFunction(gpa, device, "vkCmdSetPerformanceOverrideINTEL", &table->CmdSetPerformanceOverrideINTEL);
+    LoadFunction(gpa, device, "vkAcquirePerformanceConfigurationINTEL", &table->AcquirePerformanceConfigurationINTEL);
+    LoadFunction(gpa, device, "vkReleasePerformanceConfigurationINTEL", &table->ReleasePerformanceConfigurationINTEL);
+    LoadFunction(gpa, device, "vkQueueSetPerformanceConfigurationINTEL", &table->QueueSetPerformanceConfigurationINTEL);
+    LoadFunction(gpa, device, "vkGetPerformanceParameterINTEL", &table->GetPerformanceParameterINTEL);
     LoadFunction(gpa, device, "vkSetLocalDimmingAMD", &table->SetLocalDimmingAMD);
     LoadFunction(gpa, device, "vkGetBufferDeviceAddressEXT", &table->GetBufferDeviceAddressEXT);
     LoadFunction(gpa, device, "vkAcquireFullScreenExclusiveModeEXT", &table->AcquireFullScreenExclusiveModeEXT);
     LoadFunction(gpa, device, "vkReleaseFullScreenExclusiveModeEXT", &table->ReleaseFullScreenExclusiveModeEXT);
     LoadFunction(gpa, device, "vkGetDeviceGroupSurfacePresentModes2EXT", &table->GetDeviceGroupSurfacePresentModes2EXT);
+    LoadFunction(gpa, device, "vkCmdSetLineStippleEXT", &table->CmdSetLineStippleEXT);
     LoadFunction(gpa, device, "vkResetQueryPoolEXT", &table->ResetQueryPoolEXT);
 }
 

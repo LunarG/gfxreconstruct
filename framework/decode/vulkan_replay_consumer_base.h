@@ -23,6 +23,7 @@
 #include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_object_mapper.h"
 #include "decode/vulkan_replay_options.h"
+#include "decode/vulkan_resource_initializer.h"
 #include "decode/window.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
@@ -35,6 +36,7 @@
 #include <algorithm>
 #include <cassert>
 #include <functional>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -113,6 +115,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
   protected:
     const VulkanObjectMapper& GetObjectMapper() const { return object_mapper_; }
+
+    VulkanObjectMapper& GetObjectMapper() { return object_mapper_; }
 
     const encode::InstanceTable* GetInstanceTable(const void* handle) const;
 
@@ -367,6 +371,24 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          const HandlePointerDecoder<VkPipelineCache>& original_pipeline_cache,
                                          VkPipelineCache*                             pPipelineCache);
 
+    VkResult
+    OverrideCreateDebugReportCallbackEXT(PFN_vkCreateDebugReportCallbackEXT                    func,
+                                         VkResult                                              original_result,
+                                         VkInstance                                            instance,
+                                         const VkDebugReportCallbackCreateInfoEXT*             pCreateInfo,
+                                         const VkAllocationCallbacks*                          pAllocator,
+                                         const HandlePointerDecoder<VkDebugReportCallbackEXT>& original_callback,
+                                         VkDebugReportCallbackEXT*                             pCallback);
+
+    VkResult
+    OverrideCreateDebugUtilsMessengerEXT(PFN_vkCreateDebugUtilsMessengerEXT                    func,
+                                         VkResult                                              original_result,
+                                         VkInstance                                            instance,
+                                         const VkDebugUtilsMessengerCreateInfoEXT*             pCreateInfo,
+                                         const VkAllocationCallbacks*                          pAllocator,
+                                         const HandlePointerDecoder<VkDebugUtilsMessengerEXT>& original_messenger,
+                                         VkDebugUtilsMessengerEXT*                             pMessenger);
+
     VkResult OverrideCreateSwapchainKHR(PFN_vkCreateSwapchainKHR                    func,
                                         VkResult                                    original_result,
                                         VkDevice                                    device,
@@ -481,6 +503,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void OverridePhysicalDevice(VkPhysicalDevice* physical_device);
 
+    bool CheckTrimDeviceExtensions(VkPhysicalDevice physical_device, std::vector<std::string>** extensions);
+
     VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
 
     void MapDescriptorUpdateTemplateHandles(VkDescriptorUpdateTemplate             update_template,
@@ -522,19 +546,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::vector<VkDescriptorType>                                        DescriptorImageTypes;
     typedef std::unordered_map<VkDescriptorUpdateTemplate, DescriptorImageTypes> DescriptorUpdateTemplateImageTypes;
 
-    struct StagingBuffer
-    {
-        VkBuffer       buffer;
-        VkDeviceMemory memory;
-    };
-
-    struct StagingResources
-    {
-        VkQueue         queue;
-        VkCommandPool   command_pool;
-        VkCommandBuffer command_buffer;
-    };
-
     struct BufferInfo
     {
         VkDeviceMemory        memory;
@@ -550,10 +561,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         VkMemoryPropertyFlags memory_property_flags;
         VkDeviceSize          bind_offset;
         VkImageUsageFlags     usage;
+        VkImageType           type;
         VkFormat              format;
-        uint32_t              width;
-        uint32_t              height;
-        uint32_t              depth;
+        VkExtent3D            extent;
         VkImageTiling         tiling;
         VkSampleCountFlagBits sample_count;
         VkImageLayout         initial_layout;
@@ -563,14 +573,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     };
 
     // TODO: Put this info in a struct with the handle, to be stored by the object mapper.
-    typedef std::unordered_map<VkDevice, VkPhysicalDevice>                               DeviceParentMap;
-    typedef std::unordered_map<VkDevice, StagingBuffer>                                  StagingBufferMap;
-    typedef std::unordered_map<VkDevice, std::unordered_map<uint32_t, StagingResources>> StagingResourceMap;
-    typedef std::unordered_map<VkSwapchainKHR, uint32_t>                                 SwapchainQueueFamilyIndexMap;
-    typedef std::unordered_map<VkSwapchainKHR, VkSurfaceKHR>                             SwapchainSurfaceMap;
-    typedef std::unordered_map<VkDeviceMemory, VkMemoryPropertyFlags>                    MemoryPropertyMap;
-    typedef std::unordered_map<VkBuffer, BufferInfo>                                     BufferInfoMap;
-    typedef std::unordered_map<VkImage, ImageInfo>                                       ImageInfoMap;
+    typedef std::unordered_map<VkDevice, VkPhysicalDevice>                           DeviceParentMap;
+    typedef std::unordered_map<VkDevice, std::unique_ptr<VulkanResourceInitializer>> ResourceInitializerMap;
+    typedef std::unordered_map<VkSwapchainKHR, uint32_t>                             SwapchainQueueFamilyIndexMap;
+    typedef std::unordered_map<VkSwapchainKHR, VkSurfaceKHR>                         SwapchainSurfaceMap;
+    typedef std::unordered_map<VkDeviceMemory, VkMemoryPropertyFlags>                MemoryPropertyMap;
+    typedef std::unordered_map<VkBuffer, BufferInfo>                                 BufferInfoMap;
+    typedef std::unordered_map<VkImage, ImageInfo>                                   ImageInfoMap;
+    typedef std::unordered_map<VkPhysicalDevice, std::vector<std::string>>           AvailableTrimDeviceExtensionMap;
 
   private:
     util::platform::LibraryHandle                                    loader_handle_;
@@ -586,18 +596,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     WindowMap                                                        window_map_;
     MappedMemoryMap                                                  memory_map_;
     ReplayOptions                                                    options_;
+    bool                                                             loading_trim_state_;
     InstanceDeviceMap                                                instance_devices_;
     PhysicalDevicePropertiesMap                                      device_properties_;
     DescriptorUpdateTemplateImageTypes                               descriptor_update_template_image_types_;
     SwapchainImageTracker                                            swapchain_image_tracker_;
     DeviceParentMap                                                  device_parents_;
-    StagingBufferMap                                                 staging_buffers_;
-    StagingResourceMap                                               staging_resources_;
+    ResourceInitializerMap                                           resource_initializers_;
     SwapchainQueueFamilyIndexMap                                     swapchain_queue_families_;
     SwapchainSurfaceMap                                              swapchain_surfaces_;
     MemoryPropertyMap                                                memory_properties_;
     BufferInfoMap                                                    buffer_info_;
     ImageInfoMap                                                     image_info_;
+    AvailableTrimDeviceExtensionMap                                  trim_device_extensions_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

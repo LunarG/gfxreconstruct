@@ -162,7 +162,8 @@ class TraceManager
                                     const CreateInfo*             create_infos,
                                     ParameterEncoder*             encoder)
     {
-        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (handles != nullptr))
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
+            (handles != nullptr))
         {
             assert(state_tracker_ != nullptr);
 
@@ -177,6 +178,34 @@ class TraceManager
                 create_infos,
                 thread_data->call_id_,
                 thread_data->parameter_buffer_.get());
+        }
+
+        EndApiCallTrace(encoder);
+    }
+
+    // Multiple implicit object creation inside output struct.
+    template <typename ParentHandle, typename Wrapper, typename HandleStruct>
+    void EndStructGroupCreateApiCallTrace(VkResult                               result,
+                                          ParentHandle                           parent_handle,
+                                          uint32_t                               count,
+                                          HandleStruct*                          handle_structs,
+                                          std::function<Wrapper*(HandleStruct*)> unwrap_struct_handle,
+                                          ParameterEncoder*                      encoder)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_INCOMPLETE)) &&
+            (handle_structs != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            auto thread_data = GetThreadData();
+            assert(thread_data != nullptr);
+
+            state_tracker_->AddStructGroupEntry(parent_handle,
+                                                count,
+                                                handle_structs,
+                                                unwrap_struct_handle,
+                                                thread_data->call_id_,
+                                                thread_data->parameter_buffer_.get());
         }
 
         EndApiCallTrace(encoder);
@@ -261,6 +290,19 @@ class TraceManager
 
     bool GetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate update_template,
                                          const UpdateTemplateInfo** info) const;
+
+    static VkResult OverrideCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
+                                           const VkAllocationCallbacks* pAllocator,
+                                           VkInstance*                  pInstance);
+
+    VkResult OverrideCreateDevice(VkPhysicalDevice             physicalDevice,
+                                  const VkDeviceCreateInfo*    pCreateInfo,
+                                  const VkAllocationCallbacks* pAllocator,
+                                  VkDevice*                    pDevice);
+    VkResult OverrideAllocateMemory(VkDevice                     device,
+                                    const VkMemoryAllocateInfo*  pAllocateInfo,
+                                    const VkAllocationCallbacks* pAllocator,
+                                    VkDeviceMemory*              pMemory);
 
     void PostProcess_vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice                  physicalDevice,
                                                          VkPhysicalDeviceMemoryProperties* pMemoryProperties)
@@ -375,12 +417,6 @@ class TraceManager
                                       const VkAllocationCallbacks*    pAllocator,
                                       VkSwapchainKHR*                 pSwapchain);
 
-    void PostProcess_vkAllocateMemory(VkResult                     result,
-                                      VkDevice                     device,
-                                      const VkMemoryAllocateInfo*  pAllocateInfo,
-                                      const VkAllocationCallbacks* pAllocator,
-                                      VkDeviceMemory*              pMemory);
-
     void PostProcess_vkAcquireNextImageKHR(VkResult result,
                                            VkDevice,
                                            VkSwapchainKHR swapchain,
@@ -392,7 +428,7 @@ class TraceManager
         if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
         {
             assert((state_tracker_ != nullptr) && (index != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &semaphore);
+            state_tracker_->TrackSemaphoreSignalState(semaphore);
             state_tracker_->TrackAcquireImage(*index, swapchain, semaphore, fence, 0);
         }
     }
@@ -405,7 +441,7 @@ class TraceManager
         if (((capture_mode_ & kModeTrack) == kModeTrack) && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
         {
             assert((state_tracker_ != nullptr) && (pAcquireInfo != nullptr) && (index != nullptr));
-            state_tracker_->TrackSemaphoreSignalState(0, nullptr, 1, &pAcquireInfo->semaphore);
+            state_tracker_->TrackSemaphoreSignalState(pAcquireInfo->semaphore);
             state_tracker_->TrackAcquireImage(*index,
                                               pAcquireInfo->swapchain,
                                               pAcquireInfo->semaphore,
@@ -819,6 +855,8 @@ class TraceManager
                                               VkDescriptorUpdateTemplate update_templat,
                                               const void*                data);
 
+    VkMemoryPropertyFlags GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index);
+
   private:
     static TraceManager*                            instance_;
     static uint32_t                                 instance_count_;
@@ -835,6 +873,7 @@ class TraceManager
     uint64_t                                        bytes_written_;
     std::unique_ptr<util::Compressor>               compressor_;
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
+    bool                                            page_guard_external_memory_;
     std::mutex                                      mapped_memory_lock_;
     std::set<DeviceMemoryWrapper*>                  mapped_memory_; // Track mapped memory for unassisted tracking mode.
     bool                                            trim_enabled_;

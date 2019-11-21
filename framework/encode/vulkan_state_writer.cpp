@@ -29,6 +29,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+const uint32_t kDefaultQueueFamilyIndex = 0;
+
 // Temporary resource IDs for state processing.
 const format::HandleId kTempQueueId         = std::numeric_limits<format::HandleId>::max() - 1;
 const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
@@ -125,8 +127,8 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     // Map memory after uploading resource data to buffers and images, which may require mapping resource memory ranges.
     WriteMappedMemoryState(state_table);
 
-    StandardCreateWrite<BufferViewWrapper>(state_table);
-    StandardCreateWrite<ImageViewWrapper>(state_table);
+    WriteBufferViewState(state_table);
+    WriteImageViewState(state_table);
     StandardCreateWrite<SamplerWrapper>(state_table);
     StandardCreateWrite<SamplerYcbcrConversionWrapper>(state_table);
 
@@ -147,6 +149,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     // Query object creation.
     StandardCreateWrite<AccelerationStructureNVWrapper>(state_table);
     WriteQueryPoolState(state_table);
+    StandardCreateWrite<PerformanceConfigurationINTELWrapper>(state_table);
 
     // Command creation.
     StandardCreateWrite<CommandPoolWrapper>(state_table);
@@ -314,7 +317,7 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
     state_table.VisitWrappers([&](const SemaphoreWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        // Write event creation call.
+        // Write semaphore creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
 
         if (wrapper->signaled)
@@ -342,6 +345,34 @@ void VulkanStateWriter::WriteSemaphoreState(const VulkanStateTable& state_table)
     }
 }
 
+void VulkanStateWriter::WriteBufferViewState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const BufferViewWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Omit the current buffer view object if the buffer used to create it no longer exists.
+        if (IsBufferValid(wrapper->buffer_id, state_table))
+        {
+            // Write buffer view creation call.
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        }
+    });
+}
+
+void VulkanStateWriter::WriteImageViewState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const ImageViewWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        // Omit the current image view object if the image used to create it no longer exists.
+        if (IsImageValid(wrapper->image_id, state_table))
+        {
+            // Write image view creation call.
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        }
+    });
+}
+
 void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_table)
 {
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_render_passes;
@@ -349,22 +380,25 @@ void VulkanStateWriter::WriteFramebufferState(const VulkanStateTable& state_tabl
     state_table.VisitWrappers([&](const FramebufferWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        // Write buffer creation call.
-        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
-
-        auto render_pass_wrapper = state_table.GetRenderPassWrapper(wrapper->render_pass_id);
-        if (render_pass_wrapper == nullptr)
+        if (IsFramebufferValid(wrapper, state_table))
         {
-            // The object no longer exists, so a temporary object must be created.
-            auto        create_parameters = wrapper->render_pass_create_parameters.get();
-            const auto& inserted =
-                temp_render_passes.insert(std::make_pair(wrapper->render_pass_id, create_parameters));
-
-            // Create a temporary object on first encounter.
-            if (inserted.second)
+            auto render_pass_wrapper = state_table.GetRenderPassWrapper(wrapper->render_pass_id);
+            if (render_pass_wrapper == nullptr)
             {
-                WriteFunctionCall(wrapper->render_pass_create_call_id, create_parameters);
+                // The object no longer exists, so a temporary object must be created.
+                auto        create_parameters = wrapper->render_pass_create_parameters.get();
+                const auto& inserted =
+                    temp_render_passes.insert(std::make_pair(wrapper->render_pass_id, create_parameters));
+
+                // Create a temporary object on first encounter.
+                if (inserted.second)
+                {
+                    WriteFunctionCall(wrapper->render_pass_create_call_id, create_parameters);
+                }
             }
+
+            // Write framebuffer creation call.
+            WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
         }
     });
 
@@ -640,13 +674,17 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
 
 void VulkanStateWriter::WriteQueryPoolState(const VulkanStateTable& state_table)
 {
-    std::unordered_map<const DeviceWrapper*, QueryActivationQueueFamilyTable> device_queries;
+    std::unordered_map<const DeviceWrapper*, std::vector<const QueryPoolWrapper*>> device_query_pools;
+    std::unordered_map<const DeviceWrapper*, QueryActivationQueueFamilyTable>      device_queries;
 
     state_table.VisitWrappers([&](const QueryPoolWrapper* wrapper) {
         assert(wrapper != nullptr);
 
         // Write query pool creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+
+        // Group query pools that need to be reset by device.
+        device_query_pools[wrapper->device].push_back(wrapper);
 
         // Sort pending queries by device and queue family index.
         for (uint32_t i = 0; i < wrapper->pending_queries.size(); ++i)
@@ -667,6 +705,12 @@ void VulkanStateWriter::WriteQueryPoolState(const VulkanStateTable& state_table)
             }
         }
     });
+
+    // Write query pool reset to state snapshot.
+    for (const auto& device_entry : device_query_pools)
+    {
+        WriteQueryPoolReset(device_entry.first->handle_id, device_entry.second);
+    }
 
     // Write query activation to state snapshot.  This will simply begin/end each query so that future calls to
     // vkGetQueryPoolResults will succeed, but will not produce valid query results.
@@ -722,7 +766,7 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
     state_table.VisitWrappers([&](const SwapchainKHRWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        WriteResizeWindowCmd(GetWrappedId(wrapper->surface), wrapper->extent.width, wrapper->extent.height);
+        WriteResizeWindowCmd(wrapper->surface->handle_id, wrapper->extent.width, wrapper->extent.height);
 
         // Write swapchain creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
@@ -1176,12 +1220,13 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
         assert(wrapper != nullptr);
 
         // Perform memory binding.
-        if (wrapper->bind_memory != nullptr)
+        const DeviceMemoryWrapper* memory_wrapper = state_table.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
+
+        if (memory_wrapper != nullptr)
         {
             assert(wrapper->bind_device != nullptr);
 
-            const DeviceWrapper*       device_wrapper = wrapper->bind_device;
-            const DeviceMemoryWrapper* memory_wrapper = wrapper->bind_memory;
+            const DeviceWrapper* device_wrapper = wrapper->bind_device;
 
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
@@ -1228,12 +1273,13 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
         assert(wrapper != nullptr);
 
         // Perform memory binding.
-        if (wrapper->bind_memory != nullptr)
+        const DeviceMemoryWrapper* memory_wrapper = state_table.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
+
+        if (memory_wrapper != nullptr)
         {
             assert(wrapper->bind_device != nullptr);
 
-            const DeviceWrapper*       device_wrapper = wrapper->bind_device;
-            const DeviceMemoryWrapper* memory_wrapper = wrapper->bind_memory;
+            const DeviceWrapper* device_wrapper = wrapper->bind_device;
 
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
@@ -1244,39 +1290,52 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
             parameter_stream_.Reset();
 
-            // Group images with memory bindings by device for memory snapshot.
-            ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
-            ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
-
             VkMemoryPropertyFlags memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper, state_table);
-            bool                  need_staging_copy = !IsImageReadable(memory_properties, memory_wrapper, wrapper);
 
-            std::vector<VkImageAspectFlagBits> aspects;
-            GetFormatAspects(wrapper->format, &aspects);
+            bool is_transitioned = (wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                                   (wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED);
+            bool is_writable =
+                (wrapper->tiling == VK_IMAGE_TILING_LINEAR) &&
+                ((memory_properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
-            for (auto aspect : aspects)
+            // If an image is not host writable and has not been transitioned from the undefined or preinitialized
+            // layouts, no data could have been loaded into it and its data will be omitted from the state snapshot.
+            if (is_transitioned || is_writable)
             {
-                ImageSnapshotInfo snapshot_info;
 
-                snapshot_info.image_wrapper     = wrapper;
-                snapshot_info.memory_wrapper    = memory_wrapper;
-                snapshot_info.memory_properties = memory_properties;
-                snapshot_info.need_staging_copy = need_staging_copy;
-                snapshot_info.aspect            = aspect;
+                // Group images with memory bindings by device for memory snapshot.
+                ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
+                ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
 
-                GetImageSizes(wrapper, &snapshot_info);
+                bool need_staging_copy = !IsImageReadable(memory_properties, memory_wrapper, wrapper);
 
-                if ((*max_resource_size) < snapshot_info.resource_size)
+                std::vector<VkImageAspectFlagBits> aspects;
+                GetFormatAspects(wrapper->format, &aspects);
+
+                for (auto aspect : aspects)
                 {
-                    (*max_resource_size) = snapshot_info.resource_size;
-                }
+                    ImageSnapshotInfo snapshot_info;
 
-                if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < snapshot_info.resource_size))
-                {
-                    (*max_staging_copy_size) = snapshot_info.resource_size;
-                }
+                    snapshot_info.image_wrapper     = wrapper;
+                    snapshot_info.memory_wrapper    = memory_wrapper;
+                    snapshot_info.memory_properties = memory_properties;
+                    snapshot_info.need_staging_copy = need_staging_copy;
+                    snapshot_info.aspect            = aspect;
 
-                snapshot_entry.images.emplace_back(snapshot_info);
+                    GetImageSizes(wrapper, &snapshot_info);
+
+                    if ((*max_resource_size) < snapshot_info.resource_size)
+                    {
+                        (*max_resource_size) = snapshot_info.resource_size;
+                    }
+
+                    if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < snapshot_info.resource_size))
+                    {
+                        (*max_staging_copy_size) = snapshot_info.resource_size;
+                    }
+
+                    snapshot_entry.images.emplace_back(snapshot_info);
+                }
             }
         }
     });
@@ -1834,6 +1893,32 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId      devic
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkUpdateDescriptorSets, &parameter_stream_);
     parameter_stream_.Reset();
+}
+
+void VulkanStateWriter::WriteQueryPoolReset(format::HandleId                            device_id,
+                                            const std::vector<const QueryPoolWrapper*>& query_pool_wrappers)
+{
+    // Retrieve a queue and create a command buffer for query pool reset.
+    WriteCommandProcessingCreateCommands(
+        device_id, kDefaultQueueFamilyIndex, kTempQueueId, kTempCommandPoolId, kTempCommandBufferId);
+
+    WriteCommandBegin(kTempCommandBufferId);
+
+    for (auto wrapper : query_pool_wrappers)
+    {
+        encoder_.EncodeHandleIdValue(kTempCommandBufferId);
+        encoder_.EncodeHandleIdValue(wrapper->handle_id);
+        encoder_.EncodeUInt32Value(0);
+        encoder_.EncodeUInt32Value(wrapper->query_count);
+
+        WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdResetQueryPool, &parameter_stream_);
+        parameter_stream_.Reset();
+    }
+
+    WriteCommandEnd(kTempCommandBufferId);
+    WriteCommandExecution(kTempQueueId, kTempCommandBufferId);
+
+    WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkDestroyCommandPool, device_id, kTempCommandPoolId, nullptr);
 }
 
 void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_id,
@@ -2896,7 +2981,7 @@ bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
     switch (handle_type)
     {
         case CommandHandleType::BufferHandle:
-            return (state_table.GetBufferWrapper(handle_id) != nullptr);
+            return IsBufferValid(handle_id, state_table);
         case CommandHandleType::CommandBufferHandle:
             return (state_table.GetCommandBufferWrapper(handle_id) != nullptr);
         case CommandHandleType::DescriptorSetHandle:
@@ -2904,11 +2989,11 @@ bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
         case CommandHandleType::EventHandle:
             return (state_table.GetEventWrapper(handle_id) != nullptr);
         case CommandHandleType::FramebufferHandle:
-            return (state_table.GetFramebufferWrapper(handle_id) != nullptr);
+            return IsFramebufferValid(handle_id, state_table);
         case CommandHandleType::ImageHandle:
-            return (state_table.GetImageWrapper(handle_id) != nullptr);
+            return IsImageValid(handle_id, state_table);
         case CommandHandleType::ImageViewHandle:
-            return (state_table.GetImageViewWrapper(handle_id) != nullptr);
+            return IsImageViewValid(handle_id, state_table);
         case CommandHandleType::PipelineHandle:
             return (state_table.GetPipelineWrapper(handle_id) != nullptr);
         case CommandHandleType::PipelineLayoutHandle:
@@ -2953,7 +3038,7 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
                 // TODO: Sampler handle does not need to be valid if descriptor set was allocated from a layout
                 // with immutable samplers.
                 if ((state_table.GetSamplerWrapper(descriptor->sampler_ids[index]) != nullptr) &&
-                    (state_table.GetImageViewWrapper(descriptor->handle_ids[index]) != nullptr))
+                    IsImageViewValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;
                 }
@@ -2961,7 +3046,7 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
             case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                if (state_table.GetImageViewWrapper(descriptor->handle_ids[index]) != nullptr)
+                if (IsImageViewValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;
                 }
@@ -2970,14 +3055,14 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                if (state_table.GetBufferWrapper(descriptor->handle_ids[index]) != nullptr)
+                if (IsBufferValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;
                 }
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                if (state_table.GetBufferViewWrapper(descriptor->handle_ids[index]) != nullptr)
+                if (IsBufferViewValid(descriptor->handle_ids[index], state_table))
                 {
                     valid = true;
                 }
@@ -2993,6 +3078,98 @@ bool VulkanStateWriter::CheckDescriptorStatus(const DescriptorInfo*   descriptor
             default:
                 GFXRECON_LOG_WARNING("Attempting to check descriptor write status for unrecognized descriptor type");
                 break;
+        }
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsBufferValid(format::HandleId buffer_id, const VulkanStateTable& state_table)
+{
+    bool valid          = false;
+    auto buffer_wrapper = state_table.GetBufferWrapper(buffer_id);
+
+    if (buffer_wrapper != nullptr)
+    {
+        format::HandleId memory_id = buffer_wrapper->bind_memory_id;
+
+        if ((memory_id == 0) || (state_table.GetDeviceMemoryWrapper(memory_id) != nullptr))
+        {
+            valid = true;
+        }
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsBufferViewValid(format::HandleId view_id, const VulkanStateTable& state_table)
+{
+    bool valid               = false;
+    auto buffer_view_wrapper = state_table.GetBufferViewWrapper(view_id);
+
+    if (buffer_view_wrapper != nullptr)
+    {
+        valid = IsBufferValid(buffer_view_wrapper->buffer_id, state_table);
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsImageValid(format::HandleId image_id, const VulkanStateTable& state_table)
+{
+    bool valid         = false;
+    auto image_wrapper = state_table.GetImageWrapper(image_id);
+
+    if (image_wrapper != nullptr)
+    {
+        format::HandleId memory_id = image_wrapper->bind_memory_id;
+
+        if ((memory_id == 0) || (state_table.GetDeviceMemoryWrapper(memory_id) != nullptr))
+        {
+            valid = true;
+        }
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsImageViewValid(format::HandleId view_id, const VulkanStateTable& state_table)
+{
+    bool valid              = false;
+    auto image_view_wrapper = state_table.GetImageViewWrapper(view_id);
+
+    if (image_view_wrapper != nullptr)
+    {
+        valid = IsImageValid(image_view_wrapper->image_id, state_table);
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsFramebufferValid(format::HandleId framebuffer_id, const VulkanStateTable& state_table)
+{
+    bool valid               = false;
+    auto framebuffer_wrapper = state_table.GetFramebufferWrapper(framebuffer_id);
+
+    if (framebuffer_wrapper != nullptr)
+    {
+        valid = IsFramebufferValid(framebuffer_wrapper, state_table);
+    }
+
+    return valid;
+}
+
+bool VulkanStateWriter::IsFramebufferValid(const FramebufferWrapper* framebuffer_wrapper,
+                                           const VulkanStateTable&   state_table)
+{
+    bool valid = true;
+
+    for (auto view_id : framebuffer_wrapper->image_view_ids)
+    {
+        if (!IsImageViewValid(view_id, state_table))
+        {
+            valid = false;
+            break;
         }
     }
 

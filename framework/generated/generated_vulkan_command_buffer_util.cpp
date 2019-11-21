@@ -290,6 +290,7 @@ void TrackCmdBeginRenderPassHandles(CommandBufferWrapper* wrapper, const VkRende
 
     if (pRenderPassBegin != nullptr)
     {
+        // TODO: Process handles from parameter "pNext" with type "const void*"
         wrapper->command_handles[CommandHandleType::RenderPassHandle].insert(GetWrappedId((*pRenderPassBegin).renderPass));
         wrapper->command_handles[CommandHandleType::FramebufferHandle].insert(GetWrappedId((*pRenderPassBegin).framebuffer));
     }
@@ -333,6 +334,7 @@ void TrackCmdBeginRenderPass2KHRHandles(CommandBufferWrapper* wrapper, const VkR
 
     if (pRenderPassBegin != nullptr)
     {
+        // TODO: Process handles from parameter "pNext" with type "const void*"
         wrapper->command_handles[CommandHandleType::RenderPassHandle].insert(GetWrappedId((*pRenderPassBegin).renderPass));
         wrapper->command_handles[CommandHandleType::FramebufferHandle].insert(GetWrappedId((*pRenderPassBegin).framebuffer));
     }

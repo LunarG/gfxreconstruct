@@ -25,6 +25,7 @@
 
 #include "decode/pnext_node.h"
 #include "decode/vulkan_object_mapper.h"
+#include "format/platform_types.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "util/defines.h"
 
@@ -147,6 +148,8 @@ void MapStructHandles(Decoded_VkImportSemaphoreFdInfoKHR* wrapper, const VulkanO
 
 void MapStructHandles(Decoded_VkSemaphoreGetFdInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
 
+void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
+
 void MapStructHandles(Decoded_VkImportFenceWin32HandleInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkFenceGetWin32HandleInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
@@ -164,6 +167,14 @@ void MapStructHandles(Decoded_VkDisplayPlaneProperties2KHR* wrapper, const Vulka
 void MapStructHandles(Decoded_VkDisplayModeProperties2KHR* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkDisplayPlaneInfo2KHR* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkSemaphoreWaitInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkSemaphoreSignalInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkPipelineInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
+
+void MapStructHandles(Decoded_VkPipelineExecutableInfoKHR* wrapper, const VulkanObjectMapper& object_mapper);
 
 void MapStructHandles(Decoded_VkDedicatedAllocationMemoryAllocateInfoNV* wrapper, const VulkanObjectMapper& object_mapper);
 
@@ -225,6 +236,34 @@ void MapStructArrayHandles(T* structs, size_t len, const VulkanObjectMapper& obj
         for (size_t i = 0; i < len; ++i)
         {
             MapStructHandles(&structs[i], object_mapper);
+        }
+    }
+}
+
+void AddStructHandles(const Decoded_VkPhysicalDeviceGroupProperties* id_wrapper, const VkPhysicalDeviceGroupProperties* handle_struct, VulkanObjectMapper& object_mapper);
+
+void AddStructHandles(const Decoded_VkDisplayPropertiesKHR* id_wrapper, const VkDisplayPropertiesKHR* handle_struct, VulkanObjectMapper& object_mapper);
+
+void AddStructHandles(const Decoded_VkDisplayPlanePropertiesKHR* id_wrapper, const VkDisplayPlanePropertiesKHR* handle_struct, VulkanObjectMapper& object_mapper);
+
+void AddStructHandles(const Decoded_VkDisplayModePropertiesKHR* id_wrapper, const VkDisplayModePropertiesKHR* handle_struct, VulkanObjectMapper& object_mapper);
+
+void AddStructHandles(const Decoded_VkDisplayProperties2KHR* id_wrapper, const VkDisplayProperties2KHR* handle_struct, VulkanObjectMapper& object_mapper);
+
+void AddStructHandles(const Decoded_VkDisplayPlaneProperties2KHR* id_wrapper, const VkDisplayPlaneProperties2KHR* handle_struct, VulkanObjectMapper& object_mapper);
+
+void AddStructHandles(const Decoded_VkDisplayModeProperties2KHR* id_wrapper, const VkDisplayModeProperties2KHR* handle_struct, VulkanObjectMapper& object_mapper);
+
+template <typename T>
+void AddStructArrayHandles(const T* id_wrappers, size_t id_len, const typename T::struct_type* handle_structs, size_t handle_len, VulkanObjectMapper& object_mapper)
+{
+    if (id_wrappers != nullptr && handle_structs != nullptr)
+    {
+        // TODO: Improved handling of array size mismatch.
+        size_t len = std::min(id_len, handle_len);
+        for (size_t i = 0; i < len; ++i)
+        {
+            AddStructHandles(&id_wrappers[i], &handle_structs[i], object_mapper);
         }
     }
 }

@@ -1501,6 +1501,44 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) override;
 
+    virtual void Process_vkGetSemaphoreCounterValueKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            semaphore,
+        const PointerDecoder<uint64_t>&             pValue) override;
+
+    virtual void Process_vkWaitSemaphoresKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkSemaphoreWaitInfoKHR>& pWaitInfo,
+        uint64_t                                    timeout) override;
+
+    virtual void Process_vkSignalSemaphoreKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkSemaphoreSignalInfoKHR>& pSignalInfo) override;
+
+    virtual void Process_vkGetPipelineExecutablePropertiesKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkPipelineInfoKHR>& pPipelineInfo,
+        const PointerDecoder<uint32_t>&             pExecutableCount,
+        const StructPointerDecoder<Decoded_VkPipelineExecutablePropertiesKHR>& pProperties) override;
+
+    virtual void Process_vkGetPipelineExecutableStatisticsKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkPipelineExecutableInfoKHR>& pExecutableInfo,
+        const PointerDecoder<uint32_t>&             pStatisticCount,
+        const StructPointerDecoder<Decoded_VkPipelineExecutableStatisticKHR>& pStatistics) override;
+
+    virtual void Process_vkGetPipelineExecutableInternalRepresentationsKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkPipelineExecutableInfoKHR>& pExecutableInfo,
+        const PointerDecoder<uint32_t>&             pInternalRepresentationCount,
+        const StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>& pInternalRepresentations) override;
+
     virtual void Process_vkCreateDebugReportCallbackEXT(
         VkResult                                    returnValue,
         format::HandleId                            instance,
@@ -2081,6 +2119,51 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const PointerDecoder<uint32_t>&             pCheckpointDataCount,
         const StructPointerDecoder<Decoded_VkCheckpointDataNV>& pCheckpointData) override;
 
+    virtual void Process_vkInitializePerformanceApiINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkInitializePerformanceApiInfoINTEL>& pInitializeInfo) override;
+
+    virtual void Process_vkUninitializePerformanceApiINTEL(
+        format::HandleId                            device) override;
+
+    virtual void Process_vkCmdSetPerformanceMarkerINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        const StructPointerDecoder<Decoded_VkPerformanceMarkerInfoINTEL>& pMarkerInfo) override;
+
+    virtual void Process_vkCmdSetPerformanceStreamMarkerINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        const StructPointerDecoder<Decoded_VkPerformanceStreamMarkerInfoINTEL>& pMarkerInfo) override;
+
+    virtual void Process_vkCmdSetPerformanceOverrideINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            commandBuffer,
+        const StructPointerDecoder<Decoded_VkPerformanceOverrideInfoINTEL>& pOverrideInfo) override;
+
+    virtual void Process_vkAcquirePerformanceConfigurationINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        const StructPointerDecoder<Decoded_VkPerformanceConfigurationAcquireInfoINTEL>& pAcquireInfo,
+        const HandlePointerDecoder<VkPerformanceConfigurationINTEL>& pConfiguration) override;
+
+    virtual void Process_vkReleasePerformanceConfigurationINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            configuration) override;
+
+    virtual void Process_vkQueueSetPerformanceConfigurationINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            queue,
+        format::HandleId                            configuration) override;
+
+    virtual void Process_vkGetPerformanceParameterINTEL(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        VkPerformanceParameterTypeINTEL             parameter,
+        const StructPointerDecoder<Decoded_VkPerformanceValueINTEL>& pValue) override;
+
     virtual void Process_vkSetLocalDimmingAMD(
         format::HandleId                            device,
         format::HandleId                            swapChain,
@@ -2146,6 +2229,11 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const StructPointerDecoder<Decoded_VkHeadlessSurfaceCreateInfoEXT>& pCreateInfo,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
         const HandlePointerDecoder<VkSurfaceKHR>&   pSurface) override;
+
+    virtual void Process_vkCmdSetLineStippleEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    lineStippleFactor,
+        uint16_t                                    lineStipplePattern) override;
 
     virtual void Process_vkResetQueryPoolEXT(
         format::HandleId                            device,

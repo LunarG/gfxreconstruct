@@ -2209,6 +2209,62 @@ void VulkanAsciiConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     fprintf(GetFile(), "%s\n", "vkCmdDrawIndexedIndirectCountKHR");
 }
 
+void VulkanAsciiConsumer::Process_vkGetSemaphoreCounterValueKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            semaphore,
+    const PointerDecoder<uint64_t>&             pValue)
+{
+    fprintf(GetFile(), "%s\n", "vkGetSemaphoreCounterValueKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkWaitSemaphoresKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkSemaphoreWaitInfoKHR>& pWaitInfo,
+    uint64_t                                    timeout)
+{
+    fprintf(GetFile(), "%s\n", "vkWaitSemaphoresKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkSignalSemaphoreKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkSemaphoreSignalInfoKHR>& pSignalInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkSignalSemaphoreKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkPipelineInfoKHR>& pPipelineInfo,
+    const PointerDecoder<uint32_t>&             pExecutableCount,
+    const StructPointerDecoder<Decoded_VkPipelineExecutablePropertiesKHR>& pProperties)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPipelineExecutablePropertiesKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPipelineExecutableStatisticsKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkPipelineExecutableInfoKHR>& pExecutableInfo,
+    const PointerDecoder<uint32_t>&             pStatisticCount,
+    const StructPointerDecoder<Decoded_VkPipelineExecutableStatisticKHR>& pStatistics)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPipelineExecutableStatisticsKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPipelineExecutableInternalRepresentationsKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkPipelineExecutableInfoKHR>& pExecutableInfo,
+    const PointerDecoder<uint32_t>&             pInternalRepresentationCount,
+    const StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>& pInternalRepresentations)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPipelineExecutableInternalRepresentationsKHR");
+}
+
 void VulkanAsciiConsumer::Process_vkCreateDebugReportCallbackEXT(
     VkResult                                    returnValue,
     format::HandleId                            instance,
@@ -3065,6 +3121,78 @@ void VulkanAsciiConsumer::Process_vkGetQueueCheckpointDataNV(
     fprintf(GetFile(), "%s\n", "vkGetQueueCheckpointDataNV");
 }
 
+void VulkanAsciiConsumer::Process_vkInitializePerformanceApiINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkInitializePerformanceApiInfoINTEL>& pInitializeInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkInitializePerformanceApiINTEL");
+}
+
+void VulkanAsciiConsumer::Process_vkUninitializePerformanceApiINTEL(
+    format::HandleId                            device)
+{
+    fprintf(GetFile(), "%s\n", "vkUninitializePerformanceApiINTEL");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetPerformanceMarkerINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    const StructPointerDecoder<Decoded_VkPerformanceMarkerInfoINTEL>& pMarkerInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetPerformanceMarkerINTEL");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetPerformanceStreamMarkerINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    const StructPointerDecoder<Decoded_VkPerformanceStreamMarkerInfoINTEL>& pMarkerInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetPerformanceStreamMarkerINTEL");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetPerformanceOverrideINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            commandBuffer,
+    const StructPointerDecoder<Decoded_VkPerformanceOverrideInfoINTEL>& pOverrideInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetPerformanceOverrideINTEL");
+}
+
+void VulkanAsciiConsumer::Process_vkAcquirePerformanceConfigurationINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    const StructPointerDecoder<Decoded_VkPerformanceConfigurationAcquireInfoINTEL>& pAcquireInfo,
+    const HandlePointerDecoder<VkPerformanceConfigurationINTEL>& pConfiguration)
+{
+    fprintf(GetFile(), "%s\n", "vkAcquirePerformanceConfigurationINTEL");
+}
+
+void VulkanAsciiConsumer::Process_vkReleasePerformanceConfigurationINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            configuration)
+{
+    fprintf(GetFile(), "%s\n", "vkReleasePerformanceConfigurationINTEL");
+}
+
+void VulkanAsciiConsumer::Process_vkQueueSetPerformanceConfigurationINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            queue,
+    format::HandleId                            configuration)
+{
+    fprintf(GetFile(), "%s\n", "vkQueueSetPerformanceConfigurationINTEL");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPerformanceParameterINTEL(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    VkPerformanceParameterTypeINTEL             parameter,
+    const StructPointerDecoder<Decoded_VkPerformanceValueINTEL>& pValue)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPerformanceParameterINTEL");
+}
+
 void VulkanAsciiConsumer::Process_vkSetLocalDimmingAMD(
     format::HandleId                            device,
     format::HandleId                            swapChain,
@@ -3162,6 +3290,14 @@ void VulkanAsciiConsumer::Process_vkCreateHeadlessSurfaceEXT(
     const HandlePointerDecoder<VkSurfaceKHR>&   pSurface)
 {
     fprintf(GetFile(), "%s\n", "vkCreateHeadlessSurfaceEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetLineStippleEXT(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    lineStippleFactor,
+    uint16_t                                    lineStipplePattern)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetLineStippleEXT");
 }
 
 void VulkanAsciiConsumer::Process_vkResetQueryPoolEXT(

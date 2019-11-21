@@ -71,6 +71,7 @@ def endTimer(timeit, msg):
 defaultBlacklists = 'blacklists.json'
 defaultPlatformTypes = 'platform_types.json'
 defaultReplayOverrides = 'replay_overrides.json'
+defaultCaptureOverrides = 'capture_overrides.json'
 
 # Returns a directory of [ generator function, generator options ] indexed
 # by specified short names. The generator options incorporate the following
@@ -88,6 +89,7 @@ def makeGenOpts(args):
     blacklists = os.path.join(args.configs, defaultBlacklists)
     platformTypes = os.path.join(args.configs, defaultPlatformTypes)
     replayOverrides = os.path.join(args.configs, defaultReplayOverrides)
+    captureOverrides = os.path.join(args.configs, defaultCaptureOverrides)
 
     # Copyright text prefixing all headers (list of strings).
     prefixStrings = [
@@ -308,6 +310,7 @@ def makeGenOpts(args):
             filename          = 'generated_vulkan_api_call_encoders.cpp',
             directory         = directory,
             blacklists        = blacklists,
+            captureOverrides  = captureOverrides,
             platformTypes     = platformTypes,
             prefixText        = prefixStrings + vkPrefixStrings,
             protectFile       = False,
