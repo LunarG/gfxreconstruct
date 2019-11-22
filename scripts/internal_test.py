@@ -171,7 +171,12 @@ def is_local_newer(localpath, remotepath):
             remotedate = datetime.datetime(*info.date_time).timestamp()
         if filename!="":
             localpath = os.path.join(localpath, filename)
-        localdate = os.path.getctime(localpath)
+        if os.path.exists(localpath):
+            localdate = os.path.getctime(localpath)
+        else:
+            #local does not have the golden trace
+            #so return False to enable sync
+            return False
     else:
         remotedate = os.path.getmtime(remotepath)
         localdate = os.path.getctime(localpath)
