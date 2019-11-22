@@ -67,8 +67,7 @@ struct DescriptorInfo
     std::unique_ptr<VkBufferView[]>           texel_buffer_views;
 };
 
-// VkDescriptorSetLayout create info stored with VkPipelineLayout handle.
-struct DescriptorSetLayoutInfo
+struct CreateDependencyInfo
 {
     format::HandleId  handle_id{ 0 };
     format::ApiCallId create_call_id{ format::ApiCallId::ApiCall_Unknown };
@@ -79,15 +78,7 @@ struct DescriptorSetLayoutInfo
 // Referenced with a shared pointer by VkPipelineLayout and VkPipeline handles.
 struct PipelineLayoutDependencies
 {
-    std::vector<DescriptorSetLayoutInfo> layouts;
-};
-
-// VkShaderModule create info stored with VkPipeline handle.
-struct ShaderModuleInfo
-{
-    format::HandleId  handle_id{ 0 };
-    format::ApiCallId create_call_id{ format::ApiCallId::ApiCall_Unknown };
-    CreateParameters  create_parameters;
+    std::vector<CreateDependencyInfo> layouts;
 };
 
 struct ImageAcquiredInfo

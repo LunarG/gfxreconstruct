@@ -522,6 +522,18 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdDrawIndexedIndirectCountKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetSemaphoreCounterValueKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkWaitSemaphoresKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkSignalSemaphoreKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPipelineExecutablePropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPipelineExecutableStatisticsKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPipelineExecutableInternalRepresentationsKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCreateDebugReportCallbackEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkDestroyDebugReportCallbackEXT(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -706,6 +718,24 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetQueueCheckpointDataNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkInitializePerformanceApiINTEL(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkUninitializePerformanceApiINTEL(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetPerformanceMarkerINTEL(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetPerformanceStreamMarkerINTEL(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetPerformanceOverrideINTEL(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkAcquirePerformanceConfigurationINTEL(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkReleasePerformanceConfigurationINTEL(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkQueueSetPerformanceConfigurationINTEL(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPerformanceParameterINTEL(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkSetLocalDimmingAMD(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateImagePipeSurfaceFUCHSIA(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -727,6 +757,8 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkGetDeviceGroupSurfacePresentModes2EXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateHeadlessSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetLineStippleEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkResetQueryPoolEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 };

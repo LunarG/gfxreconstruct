@@ -89,35 +89,32 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_CreateInstance(const VkInstanceCreateInf
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
-    if (encode::TraceManager::CreateInstance())
+    VkLayerInstanceCreateInfo* chain_info =
+        const_cast<VkLayerInstanceCreateInfo*>(get_instance_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
+
+    if (chain_info && chain_info->u.pLayerInfo)
     {
-        VkLayerInstanceCreateInfo* chain_info =
-            const_cast<VkLayerInstanceCreateInfo*>(get_instance_chain_info(pCreateInfo, VK_LAYER_LINK_INFO));
+        PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
 
-        if (chain_info && chain_info->u.pLayerInfo)
+        if (fpGetInstanceProcAddr)
         {
-            PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
+            PFN_vkCreateInstance fpCreateInstance =
+                reinterpret_cast<PFN_vkCreateInstance>(fpGetInstanceProcAddr(VK_NULL_HANDLE, "vkCreateInstance"));
 
-            if (fpGetInstanceProcAddr)
+            if (fpCreateInstance)
             {
-                PFN_vkCreateInstance fpCreateInstance =
-                    reinterpret_cast<PFN_vkCreateInstance>(fpGetInstanceProcAddr(VK_NULL_HANDLE, "vkCreateInstance"));
+                // Advance the link info for the next element on the chain
+                chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
-                if (fpCreateInstance)
+                result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
+
+                if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
                 {
-                    // Advance the link info for the next element on the chain
-                    chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
+                    add_instance_handle(*pInstance);
 
-                    result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
-
-                    if ((result == VK_SUCCESS) && pInstance && (*pInstance != nullptr))
-                    {
-                        add_instance_handle(*pInstance);
-
-                        encode::TraceManager* manager = encode::TraceManager::Get();
-                        assert(manager != nullptr);
-                        manager->InitInstance(pInstance, fpGetInstanceProcAddr);
-                    }
+                    encode::TraceManager* manager = encode::TraceManager::Get();
+                    assert(manager != nullptr);
+                    manager->InitInstance(pInstance, fpGetInstanceProcAddr);
                 }
             }
         }

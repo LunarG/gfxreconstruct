@@ -265,10 +265,16 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                             # Add mappings for the newly created handles
                             expr += '{}.GetHandlePointer();'.format(value.name)
                             postexpr.append('AddHandles<{basetype}>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectMapper::Add{basetype});'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
-                        elif self.isStruct(value.baseType) and (value.baseType in self.sTypeValues):
-                            # TODO: recreate pNext value read from the capture file.
-                            # TODO: mapping for VkDisplayKHR handles retrieved as struct members.
-                            expr += '{}.IsNull() ? nullptr : AllocateArray<{basetype}>({}, {basetype}{{ {}, nullptr }});'.format(value.name, lengthName, self.sTypeValues[value.baseType], basetype=value.baseType)
+                        elif self.isStruct(value.baseType):
+                            # If this is a struct with sType and pNext fields, we need to initialize them.
+                            if value.baseType in self.sTypeValues:
+                                # TODO: recreate pNext value read from the capture file.
+                                expr += '{}.IsNull() ? nullptr : AllocateArray<{basetype}>({}, {basetype}{{ {}, nullptr }});'.format(value.name, lengthName, self.sTypeValues[value.baseType], basetype=value.baseType)
+                            else:
+                                expr += '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(value.name, value.baseType, lengthName)
+                            # If this is a struct with handles, we need to add replay mappings for the embedded handles
+                            if value.baseType in self.structsWithHandles:
+                                postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({name}.GetMetaStructPointer(), {name}.GetLength(), {}, {}, GetObjectMapper());'.format(argName, lengthName, name=value.name, basetype=value.baseType))
                             postexpr.append('FreeArray<{}>(&{});'.format(value.baseType, argName))
                         else:
                             expr += '{}.IsNull() ? nullptr : AllocateArray<{}>({});'.format(value.name, value.baseType, lengthName)
@@ -300,6 +306,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                     preexpr.append('{basetype} {} = {{ {}, nullptr }};'.format(outName, self.sTypeValues[value.baseType], basetype=value.baseType))
                                 else:
                                     preexpr.append('{basetype} {} = {{}};'.format(outName, basetype=value.baseType))
+                                # If this is a struct with handles, we need to add replay mappings for the embedded handles
+                                if value.baseType in self.structsWithHandles:
+                                    postexpr.append('AddStructHandles<Decoded_{basetype}>({name}.GetMetaStructPointer(), {}, GetObjectMapper());'.format(argName, name=value.name, basetype=value.baseType))
                             else:
                                 preexpr.append('{basetype} {} = static_cast<{basetype}>(0);'.format(outName, basetype=value.baseType))
 

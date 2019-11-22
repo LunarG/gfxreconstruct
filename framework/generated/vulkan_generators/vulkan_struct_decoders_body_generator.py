@@ -83,10 +83,10 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
             body = '' if first else '\n'
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(struct)
             body += '{\n'
-            body += '    assert((wrapper != nullptr) && (wrapper->value != nullptr));\n'
+            body += '    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));\n'
             body += '\n'
             body += '    size_t bytes_read = 0;\n'
-            body += '    {}* value = wrapper->value;\n'.format(struct)
+            body += '    {}* value = wrapper->decoded_value;\n'.format(struct)
             body += '\n'
             body += self.makeDecodeStructBody(struct, self.featureStructMembers[struct])
             body += '\n'
@@ -167,7 +167,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
         else:
             if isStruct:
                 body += '    wrapper->{} = std::make_unique<{}>();\n'.format(value.name, self.makeDecodedParamType(value))
-                body += '    wrapper->{name}->value = &(value->{name});\n'.format(name=value.name)
+                body += '    wrapper->{name}->decoded_value = &(value->{name});\n'.format(name=value.name)
                 body += '    bytes_read += DecodeStruct({}, wrapper->{}.get());\n'.format(bufferArgs, value.name)
             elif isFuncp:
                 body += '    bytes_read += ValueDecoder::DecodeAddress({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)

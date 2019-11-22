@@ -1,5 +1,5 @@
 add_library(platform_specific INTERFACE)
-target_compile_definitions(platform_specific INTERFACE _FILE_OFFSET_BITS=64 VK_USE_PLATFORM_ANDROID_KHR)
+target_compile_definitions(platform_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION VK_USE_PLATFORM_ANDROID_KHR)
 
 add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${GFXRECON_SOURCE_DIR}/external/Vulkan-Headers/include)

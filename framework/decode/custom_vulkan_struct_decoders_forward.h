@@ -27,17 +27,22 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // Decoded unions.
 struct Decoded_VkClearColorValue;
 struct Decoded_VkClearValue;
+struct Decoded_VkPipelineExecutableStatisticValueKHR;
+struct Decoded_VkPerformanceValueDataINTEL;
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelineExecutableStatisticValueKHR* wrapper);
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
 struct Decoded_VkDescriptorImageInfo;
 struct Decoded_VkWriteDescriptorSet;
+struct Decoded_VkPerformanceValueINTEL;
 struct Decoded_VkObjectTableEntryNVX;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWriteDescriptorSet* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerformanceValueINTEL* wrapper);
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
 struct Decoded_ACL;

@@ -340,30 +340,35 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayK
     VkDisplayKHR*   handle,
     PFN_GetHandleId get_id)
 {
-    assert(parent != VK_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(parent);
-
-    // Filter duplicate display retrieval.
-    DisplayKHRWrapper* wrapper = nullptr;
-    for (auto entry : parent_wrapper->child_displays)
+    // vkGetDisplayPlaneProperties is allowed to pass back VK_NULL_HANDLE for VkDisplayPlaneProperties::currentDisplay
+    // Do not attempt to wrap the null handle in this case
+    if ((*handle) != VK_NULL_HANDLE)
     {
-        if (entry->handle == (*handle))
+        assert(parent != VK_NULL_HANDLE);
+        auto parent_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(parent);
+
+        // Filter duplicate display retrieval.
+        DisplayKHRWrapper* wrapper = nullptr;
+        for (auto entry : parent_wrapper->child_displays)
         {
-            wrapper = entry;
-            break;
+            if (entry->handle == (*handle))
+            {
+                wrapper = entry;
+                break;
+            }
         }
-    }
 
-    if (wrapper != nullptr)
-    {
-        (*handle) = reinterpret_cast<VkDisplayKHR>(wrapper);
-    }
-    else
-    {
-        CreateWrappedNonDispatchHandle<DisplayKHRWrapper>(handle, get_id);
-        parent_wrapper->child_displays.push_back(reinterpret_cast<DisplayKHRWrapper*>(*handle));
+        if (wrapper != nullptr)
+        {
+            (*handle) = reinterpret_cast<VkDisplayKHR>(wrapper);
+        }
+        else
+        {
+            CreateWrappedNonDispatchHandle<DisplayKHRWrapper>(handle, get_id);
+            parent_wrapper->child_displays.push_back(reinterpret_cast<DisplayKHRWrapper*>(*handle));
+        }
     }
 }
 
@@ -474,29 +479,17 @@ inline void DestroyWrappedHandle<InstanceWrapper>(VkInstance handle)
 
         for (auto physical_device_wrapper : wrapper->child_physical_devices)
         {
-            delete physical_device_wrapper;
-        }
-
-        delete wrapper;
-    }
-}
-
-template <>
-inline void DestroyWrappedHandle<PhysicalDeviceWrapper>(VkPhysicalDevice handle)
-{
-    if (handle != VK_NULL_HANDLE)
-    {
-        // Destroy child wrappers.
-        auto wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(handle);
-
-        for (auto display_wrapper : wrapper->child_displays)
-        {
-            for (auto display_mode_wrapper : display_wrapper->child_display_modes)
+            for (auto display_wrapper : physical_device_wrapper->child_displays)
             {
-                delete display_mode_wrapper;
+                for (auto display_mode_wrapper : display_wrapper->child_display_modes)
+                {
+                    delete display_mode_wrapper;
+                }
+
+                delete display_wrapper;
             }
 
-            delete display_wrapper;
+            delete physical_device_wrapper;
         }
 
         delete wrapper;
@@ -594,6 +587,18 @@ inline void DestroyWrappedHandle<SwapchainKHRWrapper>(VkSwapchainKHR handle)
         }
 
         delete wrapper;
+    }
+}
+
+template <typename Wrapper>
+void DestroyWrappedHandles(const typename Wrapper::HandleType* handles, uint32_t count)
+{
+    if (handles != nullptr)
+    {
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            DestroyWrappedHandle<Wrapper>(handles[i]);
+        }
     }
 }
 

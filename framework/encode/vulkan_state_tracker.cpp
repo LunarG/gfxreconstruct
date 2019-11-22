@@ -220,10 +220,10 @@ void VulkanStateTracker::TrackBufferMemoryBinding(VkDevice       device,
 
     std::unique_lock<std::mutex> lock(mutex_);
 
-    auto wrapper         = reinterpret_cast<BufferWrapper*>(buffer);
-    wrapper->bind_device = reinterpret_cast<DeviceWrapper*>(device);
-    wrapper->bind_memory = reinterpret_cast<DeviceMemoryWrapper*>(memory);
-    wrapper->bind_offset = memoryOffset;
+    auto wrapper            = reinterpret_cast<BufferWrapper*>(buffer);
+    wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);
+    wrapper->bind_memory_id = GetWrappedId(memory);
+    wrapper->bind_offset    = memoryOffset;
 }
 
 void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
@@ -235,10 +235,10 @@ void VulkanStateTracker::TrackImageMemoryBinding(VkDevice       device,
 
     std::unique_lock<std::mutex> lock(mutex_);
 
-    auto wrapper         = reinterpret_cast<ImageWrapper*>(image);
-    wrapper->bind_device = reinterpret_cast<DeviceWrapper*>(device);
-    wrapper->bind_memory = reinterpret_cast<DeviceMemoryWrapper*>(memory);
-    wrapper->bind_offset = memoryOffset;
+    auto wrapper            = reinterpret_cast<ImageWrapper*>(image);
+    wrapper->bind_device    = reinterpret_cast<DeviceWrapper*>(device);
+    wrapper->bind_memory_id = GetWrappedId(memory);
+    wrapper->bind_offset    = memoryOffset;
 }
 
 void VulkanStateTracker::TrackMappedMemory(VkDevice         device,
@@ -449,52 +449,78 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                 switch (write->descriptorType)
                 {
                     case VK_DESCRIPTOR_TYPE_SAMPLER:
-                        for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
-                             ++i, ++j)
+                    {
+                        format::HandleId*            dst_sampler_ids = &binding.sampler_ids[current_dst_array_element];
+                        VkDescriptorImageInfo*       dst_info        = &binding.images[current_dst_array_element];
+                        const VkDescriptorImageInfo* src_info        = &write->pImageInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            binding.sampler_ids[i] = GetWrappedId(write->pImageInfo[j].sampler);
-                            memcpy(&binding.images[i], &write->pImageInfo[j], sizeof(binding.images[i]));
+                            dst_sampler_ids[i] = GetWrappedId(src_info[i].sampler);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
+                    }
                     case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                        for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
-                             ++i, ++j)
+                    {
+                        format::HandleId*            dst_sampler_ids = &binding.sampler_ids[current_dst_array_element];
+                        format::HandleId*            dst_image_ids   = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorImageInfo*       dst_info        = &binding.images[current_dst_array_element];
+                        const VkDescriptorImageInfo* src_info        = &write->pImageInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            binding.sampler_ids[i] = GetWrappedId(write->pImageInfo[j].sampler);
-                            binding.handle_ids[i]  = GetWrappedId(write->pImageInfo[j].imageView);
-                            memcpy(&binding.images[i], &write->pImageInfo[j], sizeof(binding.images[i]));
+                            dst_sampler_ids[i] = GetWrappedId(src_info[i].sampler);
+                            dst_image_ids[i]   = GetWrappedId(src_info[i].imageView);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
+                    }
                     case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
                     case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                     case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                        for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
-                             ++i, ++j)
+                    {
+                        format::HandleId*            dst_image_ids = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorImageInfo*       dst_info      = &binding.images[current_dst_array_element];
+                        const VkDescriptorImageInfo* src_info      = &write->pImageInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            binding.handle_ids[i] = GetWrappedId(write->pImageInfo[j].imageView);
-                            memcpy(&binding.images[i], &write->pImageInfo[j], sizeof(binding.images[i]));
+                            dst_image_ids[i] = GetWrappedId(src_info[i].imageView);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
+                    }
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
                     case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                     case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                        for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
-                             ++i, ++j)
+                    {
+                        format::HandleId*             dst_buffer_ids = &binding.handle_ids[current_dst_array_element];
+                        VkDescriptorBufferInfo*       dst_info       = &binding.buffers[current_dst_array_element];
+                        const VkDescriptorBufferInfo* src_info       = &write->pBufferInfo[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            binding.handle_ids[i] = GetWrappedId(write->pBufferInfo[j].buffer);
-                            memcpy(&binding.buffers[i], &write->pBufferInfo[j], sizeof(binding.buffers[i]));
+                            dst_buffer_ids[i] = GetWrappedId(src_info[i].buffer);
+                            memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
                         }
                         break;
+                    }
                     case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
                     case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                        for (uint32_t i = current_dst_array_element, j = current_src_array_element; i < current_writes;
-                             ++i, ++j)
+                    {
+                        format::HandleId*   dst_view_ids = &binding.handle_ids[current_dst_array_element];
+                        VkBufferView*       dst_info     = &binding.texel_buffer_views[current_dst_array_element];
+                        const VkBufferView* src_info     = &write->pTexelBufferView[current_src_array_element];
+
+                        for (uint32_t i = 0; i < current_writes; ++i)
                         {
-                            binding.handle_ids[i]         = GetWrappedId(write->pTexelBufferView[j]);
-                            binding.texel_buffer_views[i] = write->pTexelBufferView[j];
+                            dst_view_ids[i] = GetWrappedId(src_info[i]);
+                            dst_info[i]     = src_info[i];
                         }
                         break;
+                    }
                     case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
                         // TODO
                         break;
@@ -655,22 +681,26 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 bool* written_start = &binding.written[current_array_element];
                 std::fill(written_start, written_start + current_writes, true);
 
-                const uint8_t* src_address = bytes + current_offset;
-                for (uint32_t i = current_array_element; i < current_writes; ++i)
+                format::HandleId*      dst_sampler_ids = &binding.sampler_ids[current_array_element];
+                format::HandleId*      dst_image_ids   = &binding.handle_ids[current_array_element];
+                VkDescriptorImageInfo* dst_info        = &binding.images[current_array_element];
+                const uint8_t*         src_address     = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
                 {
                     auto image_info = reinterpret_cast<const VkDescriptorImageInfo*>(src_address);
                     if ((binding.type == VK_DESCRIPTOR_TYPE_SAMPLER) ||
                         (binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
                     {
-                        binding.sampler_ids[i] = GetWrappedId(image_info->sampler);
+                        dst_sampler_ids[i] = GetWrappedId(image_info->sampler);
                     }
 
                     if (binding.type != VK_DESCRIPTOR_TYPE_SAMPLER)
                     {
-                        binding.handle_ids[i] = GetWrappedId(image_info->imageView);
+                        dst_image_ids[i] = GetWrappedId(image_info->imageView);
                     }
 
-                    memcpy(&binding.images[i], image_info, sizeof(binding.images[i]));
+                    memcpy(&dst_info[i], image_info, sizeof(dst_info[i]));
 
                     src_address += entry.stride;
                 }
@@ -711,12 +741,15 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 bool* written_start = &binding.written[current_array_element];
                 std::fill(written_start, written_start + current_writes, true);
 
-                const uint8_t* src_address = bytes + current_offset;
-                for (uint32_t i = current_array_element; i < current_writes; ++i)
+                format::HandleId*       dst_buffer_ids = &binding.handle_ids[current_array_element];
+                VkDescriptorBufferInfo* dst_info       = &binding.buffers[current_array_element];
+                const uint8_t*          src_address    = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
                 {
-                    auto buffer_info      = reinterpret_cast<const VkDescriptorBufferInfo*>(src_address);
-                    binding.handle_ids[i] = GetWrappedId(buffer_info->buffer);
-                    memcpy(&binding.buffers[i], buffer_info, sizeof(binding.buffers[i]));
+                    auto buffer_info  = reinterpret_cast<const VkDescriptorBufferInfo*>(src_address);
+                    dst_buffer_ids[i] = GetWrappedId(buffer_info->buffer);
+                    memcpy(&dst_info[i], buffer_info, sizeof(dst_info[i]));
 
                     src_address += entry.stride;
                 }
@@ -757,12 +790,15 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 bool* written_start = &binding.written[current_array_element];
                 std::fill(written_start, written_start + current_writes, true);
 
-                const uint8_t* src_address = bytes + current_offset;
-                for (uint32_t i = current_array_element; i < current_writes; ++i)
+                format::HandleId* dst_view_ids = &binding.handle_ids[current_array_element];
+                VkBufferView*     dst_info     = &binding.texel_buffer_views[current_array_element];
+                const uint8_t*    src_address  = bytes + current_offset;
+
+                for (uint32_t i = 0; i < current_writes; ++i)
                 {
-                    auto buffer_view              = reinterpret_cast<const VkBufferView*>(src_address);
-                    binding.handle_ids[i]         = GetWrappedId(*buffer_view);
-                    binding.texel_buffer_views[i] = *buffer_view;
+                    auto buffer_view = reinterpret_cast<const VkBufferView*>(src_address);
+                    dst_view_ids[i]  = GetWrappedId(*buffer_view);
+                    dst_info[i]      = *buffer_view;
 
                     src_address += entry.stride;
                 }
@@ -850,6 +886,18 @@ void VulkanStateTracker::TrackQueryReset(VkQueryPool query_pool, uint32_t first_
     }
 }
 
+void VulkanStateTracker::TrackSemaphoreSignalState(VkSemaphore signal)
+{
+    if (signal != VK_NULL_HANDLE)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+
+        auto wrapper = reinterpret_cast<SemaphoreWrapper*>(signal);
+        assert(wrapper != nullptr);
+        wrapper->signaled = true;
+    }
+}
+
 void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count,
                                                    const VkSemaphore* waits,
                                                    uint32_t           signal_count,
@@ -917,55 +965,78 @@ void VulkanStateTracker::TrackPresentedImages(uint32_t              count,
     }
 }
 
+void VulkanStateTracker::DestroyState(InstanceWrapper* wrapper)
+{
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    // Physical devices are not explicitly destroyed, so need to be removed from the state tracker when their parent
+    // instance is destroyed.
+    for (const auto physical_device_entry : wrapper->child_physical_devices)
+    {
+        for (const auto display_entry : physical_device_entry->child_displays)
+        {
+            for (const auto display_mode_entry : display_entry->child_display_modes)
+            {
+                state_table_.RemoveWrapper(display_mode_entry);
+            }
+
+            state_table_.RemoveWrapper(display_entry);
+        }
+
+        state_table_.RemoveWrapper(physical_device_entry);
+    }
+}
+
 void VulkanStateTracker::DestroyState(DeviceWrapper* wrapper)
 {
-    if (wrapper != nullptr)
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    // Queues are not explicitly destroyed, so need to be removed from the state tracker when their parent device is
+    // destroyed.
+    for (const auto& entry : wrapper->child_queues)
     {
-        // Queues are not explicitly destroyed, so need to be removed from the state tracker when their parent device is
-        // destroyed.
-        for (const auto& entry : wrapper->child_queues)
-        {
-            state_table_.RemoveWrapper(entry);
-        }
+        state_table_.RemoveWrapper(entry);
     }
 }
 
 void VulkanStateTracker::DestroyState(CommandPoolWrapper* wrapper)
 {
-    if (wrapper != nullptr)
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    // Destroying the pool implicitly destroys objects allocated from the pool, which need to be removed from state
+    // tracking.
+    for (const auto& entry : wrapper->child_buffers)
     {
-        // Destroying the pool implicitly destroys objects allocated from the pool, which need to be removed from state
-        // tracking.
-        for (const auto& entry : wrapper->child_buffers)
-        {
-            state_table_.RemoveWrapper(entry.second);
-        }
+        state_table_.RemoveWrapper(entry.second);
     }
 }
 
 void VulkanStateTracker::DestroyState(DescriptorPoolWrapper* wrapper)
 {
-    if (wrapper != nullptr)
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    // Destroying the pool implicitly destroys objects allocated from the pool, which need to be removed from state
+    // tracking.
+    for (const auto& entry : wrapper->child_sets)
     {
-        // Destroying the pool implicitly destroys objects allocated from the pool, which need to be removed from state
-        // tracking.
-        for (const auto& entry : wrapper->child_sets)
-        {
-            state_table_.RemoveWrapper(entry.second);
-        }
+        state_table_.RemoveWrapper(entry.second);
     }
 }
 
 void VulkanStateTracker::DestroyState(SwapchainKHRWrapper* wrapper)
 {
-    if (wrapper != nullptr)
+    assert(wrapper != nullptr);
+    wrapper->create_parameters = nullptr;
+
+    // Swapchain images are not explicitly destroyed, so need to be removed from state tracking when the parent
+    // swapchain is destroyed.
+    for (auto entry : wrapper->child_images)
     {
-        // Swapchain images are not explicitly destroyed, so need to be removed from state tracking when the parent
-        // swapchain is destroyed.
-        for (auto entry : wrapper->child_images)
-        {
-            state_table_.RemoveWrapper(entry);
-        }
+        state_table_.RemoveWrapper(entry);
     }
 }
 

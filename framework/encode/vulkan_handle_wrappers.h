@@ -60,15 +60,15 @@ struct HandleWrapper
 //
 
 // clang-format off
-struct BufferViewWrapper                : public HandleWrapper<VkBufferView> {};
-struct ShaderModuleWrapper              : public HandleWrapper<VkShaderModule> {};
-struct PipelineCacheWrapper             : public HandleWrapper<VkPipelineCache> {};
-struct SamplerWrapper                   : public HandleWrapper<VkSampler> {};
-struct SamplerYcbcrConversionWrapper    : public HandleWrapper<VkSamplerYcbcrConversion> {};
-struct DebugReportCallbackEXTWrapper    : public HandleWrapper<VkDebugReportCallbackEXT> {};
-struct DebugUtilsMessengerEXTWrapper    : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
-struct ValidationCacheEXTWrapper        : public HandleWrapper<VkValidationCacheEXT> {};
-struct IndirectCommandsLayoutNVXWrapper : public HandleWrapper<VkIndirectCommandsLayoutNVX> {};
+struct ShaderModuleWrapper                  : public HandleWrapper<VkShaderModule> {};
+struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
+struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
+struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
+struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
+struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
+struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
+struct IndirectCommandsLayoutNVXWrapper     : public HandleWrapper<VkIndirectCommandsLayoutNVX> {};
+struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
@@ -146,21 +146,22 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     VkDeviceSize     mapped_offset{ 0 };
     VkDeviceSize     mapped_size{ 0 };
     VkMemoryMapFlags mapped_flags{ 0 };
+    void*            external_allocation{ nullptr };
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
 {
-    DeviceWrapper*       bind_device{ nullptr };
-    DeviceMemoryWrapper* bind_memory{ nullptr };
-    VkDeviceSize         bind_offset{ 0 };
-    uint32_t             queue_family_index{ 0 };
-    VkDeviceSize         created_size{ 0 };
+    DeviceWrapper*   bind_device{ nullptr };
+    format::HandleId bind_memory_id{ 0 };
+    VkDeviceSize     bind_offset{ 0 };
+    uint32_t         queue_family_index{ 0 };
+    VkDeviceSize     created_size{ 0 };
 };
 
 struct ImageWrapper : public HandleWrapper<VkImage>
 {
     DeviceWrapper*        bind_device{ nullptr };
-    DeviceMemoryWrapper*  bind_memory{ nullptr };
+    format::HandleId      bind_memory_id{ 0 };
     VkDeviceSize          bind_offset{ 0 };
     uint32_t              queue_family_index{ 0 };
     VkImageType           image_type{ VK_IMAGE_TYPE_2D };
@@ -173,17 +174,25 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     VkImageLayout         current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 };
 
+struct BufferViewWrapper : public HandleWrapper<VkBufferView>
+{
+    format::HandleId buffer_id{ 0 };
+};
+
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
 {
-    // Store handle to associated image for tracking render pass layout transitions.
-    ImageWrapper* image{ nullptr };
+    format::HandleId image_id{ 0 };
+    ImageWrapper*    image{ nullptr };
 };
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
 {
+    // Creation info for objects used to create the framebuffer, which may have been destroyed after creation.
     format::HandleId  render_pass_id{ 0 };
     format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  render_pass_create_parameters;
+
+    std::vector<format::HandleId> image_view_ids;
 
     // Track handles of image attachments for processing render pass layout transitions.
     std::vector<ImageWrapper*> attachments;
@@ -203,6 +212,7 @@ struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>
 {
     DeviceWrapper*         device{ nullptr };
     VkQueryType            query_type{};
+    uint32_t               query_count{ 0 };
     std::vector<QueryInfo> pending_queries;
 };
 
@@ -254,7 +264,7 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
-    std::vector<ShaderModuleInfo> shader_modules;
+    std::vector<CreateDependencyInfo> shader_modules;
 
     format::HandleId  render_pass_id{ 0 };
     format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };

@@ -30,10 +30,12 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 // Unions.
 void EncodeStruct(ParameterEncoder* encoder, const VkClearColorValue& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkClearValue& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatisticValueKHR& value);
 
 // Vulkan structures that require special processing that the code generator cannot infer from the XML registry.
 void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDescriptorImageInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceValueINTEL& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value);
 
 // Platform defined structures that are external to Vulkan.

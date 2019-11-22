@@ -211,16 +211,6 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>
 };
 
 template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAllocateMemory>
-{
-    template <typename... Args>
-    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
-    {
-        manager->PostProcess_vkAllocateMemory(result, args...);
-    }
-};
-
-template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory>
 {
     template <typename... Args>

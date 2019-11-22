@@ -20,6 +20,7 @@
 
 #include "format/format.h"
 #include "util/logging.h"
+#include "util/page_guard_manager.h"
 
 #include <string>
 #include <unordered_map>
@@ -38,10 +39,12 @@ class CaptureSettings
     {
         // Assume the application does not flush, so write all mapped data on unmap and queue submit.
         kUnassisted = 0,
-        // Assume the application will always flush after writing to mapped memory, so only write on flush.
+        // Assume the application will always flush after writing to mapped memory, so only write mapped memory data on
+        // flush.
         kAssisted = 1,
-        // Use pageguard to determine which regions of memory to wrtie on unmap and queue submit.  This
-        // mode shadows uncached memory.
+        // Use guard pages to determine which regions of memory to write on unmap and queue submit.  This mode replaces
+        // the mapped memory value returned by the driver with a shadow allocation that the capture layer can monitor
+        // to determine which regions of memory have been modified by the application.
         kPageGuard = 2
     };
 
@@ -60,6 +63,15 @@ class CaptureSettings
         MemoryTrackingMode     memory_tracking_mode{ kPageGuard };
         std::vector<TrimRange> trim_ranges;
         std::string            trim_key{ "" };
+        bool                   page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
+        bool                   page_guard_lazy_copy{ util::PageGuardManager::kDefaultEnableLazyCopy };
+        bool                   page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
+
+        // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
+        // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a
+        // memory allocation that the capture layer can monitor to determine which regions of memory have been modified
+        // by the application.
+        bool page_guard_external_memory{ false };
     };
 
   public:
