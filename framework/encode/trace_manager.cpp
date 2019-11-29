@@ -31,9 +31,6 @@
 #include <cassert>
 
 #if defined(__linux__)
-#include <xcb/xcb.h>
-#include <X11/Xlib.h>
-#include <X11/keysym.h>
 #include <xcb/xcb_keysyms.h>
 #endif
 
@@ -56,6 +53,8 @@ std::mutex                                             TraceManager::instance_lo
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 LayerTable                                             TraceManager::layer_table_;
 std::atomic<format::ThreadId>                          TraceManager::unique_id_counter_{ 0 };
+bool                                                   TraceManager::previous_hotkey_trigger = false;
+
 
 TraceManager::ThreadData::ThreadData() : thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
 {
@@ -509,6 +508,18 @@ bool TraceManager::IsTrimHotkeyPressed()
             // after the previous call to
             // GetAsyncKeyState
             hotkey_triggered = true;
+
+            // detect only the transition of the keypress event
+            // in case of oversampling issue
+            if (previous_hotkey_trigger == hotkey_triggered)
+            {
+                hotkey_triggered = false;
+            }
+            previous_hotkey_trigger = true;
+        }
+        else
+        {
+            previous_hotkey_trigger = false;
         }
     }
 
@@ -1206,6 +1217,26 @@ VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wr
     assert(memory_type_index < physical_device_wrapper->memory_types.size());
 
     return flags = physical_device_wrapper->memory_types[memory_type_index].propertyFlags;
+}
+
+void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                       instance,
+                                                    const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
+                                                    const VkAllocationCallbacks*     pAllocator,
+                                                    VkSurfaceKHR*                    pSurface)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pSurface);
+
+#if defined(__linux__)
+    assert(pCreateInfo != nullptr);
+    if (pCreateInfo)
+    {
+        gfxrecon::encode::SetKeyboardConnection(pCreateInfo->connection);
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
+#endif
 }
 
 void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,

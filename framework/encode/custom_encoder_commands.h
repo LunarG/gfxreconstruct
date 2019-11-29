@@ -169,6 +169,17 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfa
     }
 };
 
+// Dispatch custom command to set xcb keyboard connection during create xcb surface
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkCreateXcbSurfaceKHR(args...);
+    }
+};
+
 // Dispatch custom command for window resize command generation.
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>

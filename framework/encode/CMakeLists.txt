@@ -46,6 +46,12 @@ target_include_directories(gfxrecon_encode
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
+# include xcb libs for keypress trigegr in Linux
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    find_package(XCB)
+    target_link_libraries(gfxrecon_encode $<$<BOOL:${XCB_FOUND}>:${_LIBRARY}>)
+endif()
+
 target_link_libraries(gfxrecon_encode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
 common_build_directives(gfxrecon_encode)
