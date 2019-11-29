@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018 Valve Corporation
 ** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -166,6 +167,17 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfa
     static void Dispatch(TraceManager* manager, VkResult result, Args... args)
     {
         manager->PostProcess_vkGetPhysicalDeviceSurfacePresentModesKHR(result, args...);
+    }
+};
+
+// Dispatch custom command to set xcb keyboard connection during create xcb surface
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkCreateXcbSurfaceKHR(args...);
     }
 };
 
