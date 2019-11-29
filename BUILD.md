@@ -174,7 +174,7 @@ The following optional packages are also recommended:
 On Ubuntu, the required packages can be installed with the following
 command:
 ```
-sudo apt-get install git cmake build-essential libx11-xcb-dev libxkbcommon-dev \
+sudo apt-get install git cmake build-essential libx11-xcb-dev libxcb-keysyms1-dev libxkbcommon-dev \
         libwayland-dev libxrandr-dev  liblz4-dev clang-format clang-tidy
 ```
 
@@ -182,7 +182,7 @@ sudo apt-get install git cmake build-essential libx11-xcb-dev libxkbcommon-dev \
 On Fedora Core, the required packages can be installed with the following
 command:
 ```
-sudo dnf install git cmake libxcb-devel libxkbcommon-devel \
+sudo dnf install git cmake libxcb-devel xcb-util-keysyms-devel libxkbcommon-devel \
         libXrandr-devel wayland-devel clang clang-tools-extra
 ```
 

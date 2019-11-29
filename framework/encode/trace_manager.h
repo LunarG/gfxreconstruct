@@ -413,6 +413,11 @@ class TraceManager
         }
     }
 
+    void PreProcess_vkCreateXcbSurfaceKHR(VkInstance                       instance,
+                                          const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
+                                          const VkAllocationCallbacks*     pAllocator,
+                                          VkSurfaceKHR*                    pSurface);
+
     void PreProcess_vkCreateSwapchain(VkDevice                        device,
                                       const VkSwapchainCreateInfoKHR* pCreateInfo,
                                       const VkAllocationCallbacks*    pAllocator,
@@ -865,6 +870,7 @@ class TraceManager
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static LayerTable                               layer_table_;
     static std::atomic<format::HandleId>            unique_id_counter_;
+    static bool                                     previous_hotkey_trigger_;
     format::EnabledOptions                          file_options_;
     std::unique_ptr<util::FileOutputStream>         file_stream_;
     std::string                                     base_filename_;

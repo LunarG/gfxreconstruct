@@ -55,6 +55,7 @@ std::mutex                                             TraceManager::instance_lo
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 LayerTable                                             TraceManager::layer_table_;
 std::atomic<format::ThreadId>                          TraceManager::unique_id_counter_{ 0 };
+bool                                                   TraceManager::previous_hotkey_trigger_ = false;
 
 TraceManager::ThreadData::ThreadData() : thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
 {
@@ -226,7 +227,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
         page_guard_external_memory_ = false;
     }
 
-    if (trace_settings.trim_ranges.empty() && trace_settings.trim_key == "")
+    if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty())
     {
         // Use default kModeWrite capture mode.
         success = CreateCaptureFile(base_filename_);
@@ -415,8 +416,8 @@ static xcb_connection_t* keyboard_connection = nullptr;
 // On Linux platform, xcb calls need Connection which is connected to target
 // server, because hotkey process is supposed to insert into target application,
 // so we need to capture the connection that target app use. the function is
-// used to insert into Vulkan call to capture and save the connection.
-// TODO(issue #272) insert this function into Vulkan vkCreateXcbSurfaceKHR call.
+// used to insert into Vulkan vkCreateXcbSurfaceKHR call to capture and
+// save the connection.
 static void SetKeyboardConnection(xcb_connection_t* connection)
 {
     keyboard_connection = connection;
@@ -510,8 +511,8 @@ bool TraceManager::IsTrimHotkeyPressed()
     static std::unordered_map<std::string, int> key_code_map = {};
 #endif
 
-    bool                                           hotkey_triggered  = false;
-    std::unordered_map<std::string, int>::iterator iterator_key_code = key_code_map.find(trim_key_);
+    bool hotkey_triggered  = false;
+    auto iterator_key_code = key_code_map.find(trim_key_);
     if (iterator_key_code != key_code_map.end())
     {
         int key_code = iterator_key_code->second;
@@ -521,6 +522,18 @@ bool TraceManager::IsTrimHotkeyPressed()
             // after the previous call to
             // GetAsyncKeyState
             hotkey_triggered = true;
+
+            // detect only the transition of the keypress event
+            // in case of oversampling issue
+            if (previous_hotkey_trigger_ == hotkey_triggered)
+            {
+                hotkey_triggered = false;
+            }
+            previous_hotkey_trigger_ = true;
+        }
+        else
+        {
+            previous_hotkey_trigger_ = false;
         }
     }
 
@@ -1213,6 +1226,26 @@ VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wr
     assert(memory_type_index < physical_device_wrapper->memory_types.size());
 
     return flags = physical_device_wrapper->memory_types[memory_type_index].propertyFlags;
+}
+
+void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                       instance,
+                                                    const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
+                                                    const VkAllocationCallbacks*     pAllocator,
+                                                    VkSurfaceKHR*                    pSurface)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pSurface);
+
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+    assert(pCreateInfo != nullptr);
+    if (pCreateInfo)
+    {
+        SetKeyboardConnection(pCreateInfo->connection);
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
+#endif
 }
 
 void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
