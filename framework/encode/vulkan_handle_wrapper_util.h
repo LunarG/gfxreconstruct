@@ -623,12 +623,13 @@ const Handle* UnwrapHandles(const Handle* handles, uint32_t len, HandleUnwrapMem
     {
         assert(unwrap_memory != nullptr);
 
-        const uint8_t* bytes     = reinterpret_cast<const uint8_t*>(handles);
-        size_t         num_bytes = len * sizeof(Handle);
+        size_t num_bytes         = len * sizeof(Handle);
+        auto   unwrapped_handles = reinterpret_cast<Handle*>(unwrap_memory->GetBuffer(num_bytes));
 
-        // Copy and transform handles.
-        auto unwrapped_handles = reinterpret_cast<Handle*>(unwrap_memory->GetFilledBuffer(bytes, num_bytes));
-        std::transform(unwrapped_handles, unwrapped_handles + len, unwrapped_handles, GetWrappedHandle<Handle>);
+        for (uint32_t i = 0; i < len; ++i)
+        {
+            unwrapped_handles[i] = GetWrappedHandle<Handle>(handles[i]);
+        }
 
         return unwrapped_handles;
     }
