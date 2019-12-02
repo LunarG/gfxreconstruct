@@ -3346,7 +3346,7 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(
         encoder->EncodeHandleValue(dstBuffer);
         encoder->EncodeVkDeviceSizeValue(dstOffset);
         encoder->EncodeVkDeviceSizeValue(dataSize);
-        encoder->EncodeVoidArray(pData, dataSize);
+        encoder->EncodeVoidArray(pData, static_cast<size_t>(dataSize));
         TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdUpdateBufferHandles, dstBuffer);
     }
 

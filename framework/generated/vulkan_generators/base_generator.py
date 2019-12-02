@@ -818,7 +818,10 @@ class BaseGenerator(OutputGenerator):
             if lengthValue and lengthValue.isPointer:
                 args.append('({name} != nullptr) ? (*{name}) : 0'.format(name=prefixedName))
             elif lengthName in paramNames:
-                args.append(prefixedName)
+                if lengthValue and (lengthValue.baseType == 'VkDeviceSize'):
+                    args.append('static_cast<size_t>({})'.format(prefixedName))
+                else:
+                    args.append(prefixedName)
             else:
                 args.append(lengthExpr)     # Length is a constant value, not a parameter
         elif isStruct:

@@ -1204,7 +1204,7 @@ void VulkanReplayConsumerBase::ProcessPhysicalDeviceProperties(VkPhysicalDevice 
 
 void VulkanReplayConsumerBase::OverridePhysicalDevice(VkPhysicalDevice* physical_device)
 {
-    assert(physical_device != nullptr);
+    assert((physical_device != nullptr) && (options_.override_gpu_index >= 0));
 
     // Match the current physical device with its parent instance.
     VkInstance instance = VK_NULL_HANDLE;
@@ -1226,7 +1226,11 @@ void VulkanReplayConsumerBase::OverridePhysicalDevice(VkPhysicalDevice* physical
         if (devices_entry != instance_devices_.end())
         {
             const auto& replay_devices = devices_entry->second.replay_devices;
-            if (options_.override_gpu_index < replay_devices.size())
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(int32_t, replay_devices.size());
+            int32_t replay_devices_size = static_cast<int32_t>(replay_devices.size());
+
+            if (options_.override_gpu_index < replay_devices_size)
             {
                 VkPhysicalDevice override_device = replay_devices[options_.override_gpu_index];
 
@@ -1234,7 +1238,7 @@ void VulkanReplayConsumerBase::OverridePhysicalDevice(VkPhysicalDevice* physical
                 {
                     GFXRECON_LOG_INFO("Overriding replay device with GPU%d", options_.override_gpu_index);
                     GFXRECON_LOG_INFO("  Available devices are:");
-                    for (size_t i = 0; i < replay_devices.size(); ++i)
+                    for (int32_t i = 0; i < replay_devices_size; ++i)
                     {
                         GFXRECON_LOG_INFO("    [%d] %p", i, replay_devices[i]);
                     }
@@ -1273,7 +1277,7 @@ void VulkanReplayConsumerBase::OverridePhysicalDevice(VkPhysicalDevice* physical
                         // so provide a generic warning.
                         GFXRECON_LOG_WARNING(
                             "If the type of device selected for replay differs from the type of the original capture "
-                            "device, replay may fail due to device incompatibilities.");
+                            "device, replay may fail due to device incompatibilities");
                     }
 
                     (*physical_device) = override_device;
@@ -1281,10 +1285,13 @@ void VulkanReplayConsumerBase::OverridePhysicalDevice(VkPhysicalDevice* physical
             }
             else
             {
-                GFXRECON_LOG_ERROR("Index specified for replay device override (%d) exceeds the range of "
-                                   "available physical devices (0-%d); the override will not be applied",
-                                   options_.override_gpu_index,
-                                   (replay_devices.size() - 1));
+                GFXRECON_LOG_ERROR(
+                    "The zero-based index specified for replay device override (%d) exceeds the total number of "
+                    "available physical devices (%d). The specified index requires that at least %d devices be "
+                    "available. The override will not be applied.",
+                    options_.override_gpu_index,
+                    replay_devices_size,
+                    (options_.override_gpu_index + 1));
             }
         }
         else
