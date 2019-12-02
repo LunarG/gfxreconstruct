@@ -51,19 +51,21 @@ XcbWindow::~XcbWindow()
 {
     if (window_ != 0)
     {
+        auto&             xcb        = xcb_application_->GetXcbFunctionTable();
         xcb_connection_t* connection = xcb_application_->GetConnection();
-        xcb_destroy_window(connection, window_);
-        xcb_flush(connection);
+        xcb.destroy_window(connection, window_);
+        xcb.flush(connection);
     }
 }
 
 bool XcbWindow::Create(
     const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
 {
+    auto&             xcb        = xcb_application_->GetXcbFunctionTable();
     xcb_connection_t* connection = xcb_application_->GetConnection();
     xcb_screen_t*     screen     = xcb_application_->GetScreen();
 
-    window_ = xcb_generate_id(connection);
+    window_ = xcb.generate_id(connection);
     if (window_ == 0)
     {
         GFXRECON_LOG_ERROR("Failed to generate window ID");
@@ -74,8 +76,8 @@ bool XcbWindow::Create(
 
     // Get screen dimensions.
     xcb_generic_error_t*      error       = nullptr;
-    xcb_get_geometry_cookie_t geom_cookie = xcb_get_geometry(connection, screen->root);
-    xcb_get_geometry_reply_t* geom        = xcb_get_geometry_reply(connection, geom_cookie, &error);
+    xcb_get_geometry_cookie_t geom_cookie = xcb.get_geometry(connection, screen->root);
+    xcb_get_geometry_reply_t* geom        = xcb.get_geometry_reply(connection, geom_cookie, &error);
 
     if (geom != nullptr)
     {
@@ -120,7 +122,7 @@ bool XcbWindow::Create(
                               XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_EXPOSURE |
                                   XCB_EVENT_MASK_STRUCTURE_NOTIFY };
 
-    xcb_void_cookie_t cookie = xcb_create_window_checked(connection,
+    xcb_void_cookie_t cookie = xcb.create_window_checked(connection,
                                                          XCB_COPY_FROM_PARENT,
                                                          window_,
                                                          screen->root,
@@ -134,7 +136,7 @@ bool XcbWindow::Create(
                                                          value_mask,
                                                          value_list);
 
-    error = xcb_request_check(connection, cookie);
+    error = xcb.request_check(connection, cookie);
     if (error != nullptr)
     {
         GFXRECON_LOG_ERROR("Failed to create window with error %u", error->error_code);
@@ -145,10 +147,10 @@ bool XcbWindow::Create(
     InitializeAtoms();
 
     // Request notification when user closes window.
-    xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window_, protocol_atom_, 4, 32, 1, &(delete_window_atom_));
+    xcb.change_property(connection, XCB_PROP_MODE_REPLACE, window_, protocol_atom_, 4, 32, 1, &(delete_window_atom_));
 
     // Set the title.
-    xcb_change_property(connection,
+    xcb.change_property(connection,
                         XCB_PROP_MODE_REPLACE,
                         window_,
                         XCB_ATOM_WM_NAME,
@@ -173,13 +175,14 @@ bool XcbWindow::Destroy()
 {
     if (window_ != 0)
     {
+        auto&             xcb        = xcb_application_->GetXcbFunctionTable();
         xcb_connection_t* connection = xcb_application_->GetConnection();
 
         SetFullscreen(false);
         SetVisibility(false);
 
-        xcb_void_cookie_t cookie = xcb_destroy_window(connection, window_);
-        xcb_flush(connection);
+        xcb_void_cookie_t cookie = xcb.destroy_window(connection, window_);
+        xcb.flush(connection);
 
         if (!WaitForEvent(cookie.sequence, XCB_DESTROY_NOTIFY))
         {
@@ -196,9 +199,10 @@ bool XcbWindow::Destroy()
 
 void XcbWindow::SetTitle(const std::string& title)
 {
+    auto&             xcb        = xcb_application_->GetXcbFunctionTable();
     xcb_connection_t* connection = xcb_application_->GetConnection();
 
-    xcb_change_property(connection,
+    xcb.change_property(connection,
                         XCB_PROP_MODE_REPLACE,
                         window_,
                         XCB_ATOM_WM_NAME,
@@ -206,24 +210,26 @@ void XcbWindow::SetTitle(const std::string& title)
                         8,
                         static_cast<uint32_t>(title.length()),
                         title.c_str());
-    xcb_flush(connection);
+    xcb.flush(connection);
 }
 
 void XcbWindow::SetPosition(const int32_t x, const int32_t y)
 {
+    auto&             xcb        = xcb_application_->GetXcbFunctionTable();
     xcb_connection_t* connection = xcb_application_->GetConnection();
     uint32_t          values[]   = { static_cast<uint32_t>(x), static_cast<uint32_t>(y) };
 
-    xcb_configure_window(connection, window_, kConfigurePositionMask, values);
-    xcb_flush(connection);
+    xcb.configure_window(connection, window_, kConfigurePositionMask, values);
+    xcb.flush(connection);
 }
 
 void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
 {
     if ((width != width_) || (height != height_))
     {
-        xcb_void_cookie_t cookie     = { 0 };
+        auto&             xcb        = xcb_application_->GetXcbFunctionTable();
         xcb_connection_t* connection = xcb_application_->GetConnection();
+        xcb_void_cookie_t cookie     = { 0 };
 
         if ((screen_width_ == width) || (screen_height_ == height))
         {
@@ -245,9 +251,9 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
             SetFullscreen(false);
 
             uint32_t values[] = { width, height };
-            cookie            = xcb_configure_window(connection, window_, kConfigureSizeMask, values);
+            cookie            = xcb.configure_window(connection, window_, kConfigureSizeMask, values);
 
-            xcb_flush(connection);
+            xcb.flush(connection);
 
             // Wait for configure notification.
             if (!WaitForEvent(cookie.sequence, XCB_CONFIGURE_NOTIFY))
@@ -267,6 +273,7 @@ void XcbWindow::SetFullscreen(bool fullscreen)
 {
     if (fullscreen != fullscreen_)
     {
+        auto&             xcb        = xcb_application_->GetXcbFunctionTable();
         xcb_connection_t* connection = xcb_application_->GetConnection();
         xcb_screen_t*     screen     = xcb_application_->GetScreen();
 
@@ -283,13 +290,13 @@ void XcbWindow::SetFullscreen(bool fullscreen)
         event.data.data32[4] = 0;
 
         xcb_void_cookie_t event_cookie =
-            xcb_send_event(connection,
+            xcb.send_event(connection,
                            0,
                            screen->root,
                            XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
                            reinterpret_cast<const char*>(&event));
 
-        xcb_flush(connection);
+        xcb.flush(connection);
 
         // Wait for configure notification.
         if (WaitForEvent(event_cookie.sequence, XCB_CONFIGURE_NOTIFY))
@@ -303,7 +310,7 @@ void XcbWindow::SetFullscreen(bool fullscreen)
                 // issue that leads to a VK_ERROR_OUT_OF_DATE_KHR error with full screen replay.
                 // TODO: This could be an option.
                 int32_t bypass = fullscreen ? 2 : 0;
-                xcb_change_property(connection,
+                xcb.change_property(connection,
                                     XCB_PROP_MODE_REPLACE,
                                     window_,
                                     bypass_compositor_atom_,
@@ -311,7 +318,7 @@ void XcbWindow::SetFullscreen(bool fullscreen)
                                     32,
                                     1,
                                     &bypass);
-                xcb_flush(connection);
+                xcb.flush(connection);
             }
 
             // Sleep to ensure window resize has completed.
@@ -330,19 +337,20 @@ void XcbWindow::SetVisibility(bool show)
 {
     if (show != visible_)
     {
+        auto&             xcb        = xcb_application_->GetXcbFunctionTable();
         xcb_connection_t* connection = xcb_application_->GetConnection();
         xcb_void_cookie_t cookie;
 
         if (show)
         {
-            cookie = xcb_map_window(connection, window_);
+            cookie = xcb.map_window(connection, window_);
         }
         else
         {
-            cookie = xcb_unmap_window(connection, window_);
+            cookie = xcb.unmap_window(connection, window_);
         }
 
-        xcb_flush(connection);
+        xcb.flush(connection);
 
         // Wait for map/unmap notification.
         if (!WaitForEvent(cookie.sequence, XCB_MAP_NOTIFY))
@@ -355,11 +363,12 @@ void XcbWindow::SetVisibility(bool show)
 
 void XcbWindow::SetForeground()
 {
+    auto&             xcb        = xcb_application_->GetXcbFunctionTable();
     xcb_connection_t* connection = xcb_application_->GetConnection();
     uint32_t          values[]   = { XCB_STACK_MODE_ABOVE };
 
-    xcb_configure_window(connection, window_, XCB_CONFIG_WINDOW_STACK_MODE, values);
-    xcb_flush(connection);
+    xcb.configure_window(connection, window_, XCB_CONFIG_WINDOW_STACK_MODE, values);
+    xcb.flush(connection);
 }
 
 bool XcbWindow::GetNativeHandle(HandleType type, void** handle)
@@ -390,11 +399,12 @@ XcbWindow::CreateSurface(const encode::InstanceTable* table, VkInstance instance
 
 xcb_atom_t XcbWindow::GetAtom(const char* name, uint8_t only_if_exists) const
 {
+    auto&                    xcb        = xcb_application_->GetXcbFunctionTable();
+    xcb_connection_t*        connection = xcb_application_->GetConnection();
     xcb_atom_t               atom       = 0;
     xcb_generic_error_t*     error      = nullptr;
-    xcb_connection_t*        connection = xcb_application_->GetConnection();
-    xcb_intern_atom_cookie_t cookie     = xcb_intern_atom(connection, only_if_exists, strlen(name), name);
-    xcb_intern_atom_reply_t* reply      = xcb_intern_atom_reply(connection, cookie, &error);
+    xcb_intern_atom_cookie_t cookie     = xcb.intern_atom(connection, only_if_exists, strlen(name), name);
+    xcb_intern_atom_reply_t* reply      = xcb.intern_atom_reply(connection, cookie, &error);
 
     if (reply != nullptr)
     {
