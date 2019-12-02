@@ -235,9 +235,9 @@ int32_t LoadLayerSettingsFile(const std::string&                            file
             if (sscanf_s(line.c_str(),
                          " %511[^\r\n\t =] = %511[^\r\n \t]",
                          key,
-                         kDefaultTokenSize,
+                         static_cast<uint32_t>(kDefaultTokenSize),
                          value,
-                         kDefaultTokenSize) == 2)
+                         static_cast<uint32_t>(kDefaultTokenSize)) == 2)
 #else
             if (sscanf(line.c_str(), " %511[^\r\n\t =] = %511[^\r\n \t]", key, value) == 2)
 #endif

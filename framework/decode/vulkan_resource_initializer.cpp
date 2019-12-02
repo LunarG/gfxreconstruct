@@ -72,7 +72,9 @@ VulkanResourceInitializer::LoadData(VkDeviceMemory memory, VkDeviceSize offset, 
 
     if (result == VK_SUCCESS)
     {
-        util::platform::MemoryCopy(mapped_memory, size, data, size);
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+        size_t copy_size = static_cast<size_t>(size);
+        util::platform::MemoryCopy(mapped_memory, copy_size, data, copy_size);
         device_table_->UnmapMemory(device_, memory);
     }
 
