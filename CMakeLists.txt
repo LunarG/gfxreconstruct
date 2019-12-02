@@ -60,6 +60,9 @@ include("FindVulkanVersion")
 
 # Apply misc build directives to the given target
 macro(common_build_directives TARGET)
+    if(MSVC)
+        target_compile_options(${TARGET} PRIVATE $<$<CONFIG:Debug>:/MTd> $<$<CONFIG:Release>:/MT>)
+    endif(MSVC)
     target_code_style_build_directives(${TARGET})
     target_static_analysis_build_directives(${TARGET})
     add_target_to_test_package(${TARGET})
