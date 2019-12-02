@@ -92,6 +92,7 @@ endif(UNIX)
 
 add_library(windows_specific INTERFACE)
 target_compile_definitions(windows_specific INTERFACE WIN32_LEAN_AND_MEAN NOMINMAX VK_USE_PLATFORM_WIN32_KHR)
+target_compile_options(windows_specific INTERFACE /WX)
 
 add_library(linux_specific INTERFACE)
 target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
@@ -99,6 +100,7 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
     $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR>
     $<$<BOOL:${WAYLAND_FOUND}>:VK_USE_PLATFORM_WAYLAND_KHR>)
+target_compile_options(linux_specific INTERFACE -Werror)
 
 add_library(platform_specific INTERFACE)
 target_link_libraries(platform_specific INTERFACE
