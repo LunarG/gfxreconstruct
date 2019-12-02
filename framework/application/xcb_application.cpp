@@ -31,27 +31,34 @@ XcbApplication::~XcbApplication()
 {
     if (connection_ != nullptr)
     {
-        xcb_disconnect(connection_);
+        auto& xcb = xcb_loader_.GetFunctionTable();
+        xcb.disconnect(connection_);
     }
 }
 
 bool XcbApplication::Initialize(decode::FileProcessor* file_processor)
 {
-    int screen_count = 0;
-    connection_      = xcb_connect(nullptr, &screen_count);
+    if (!xcb_loader_.Initialize())
+    {
+        return false;
+    }
 
-    if (xcb_connection_has_error(connection_))
+    auto& xcb          = xcb_loader_.GetFunctionTable();
+    int   screen_count = 0;
+    connection_        = xcb.connect(nullptr, &screen_count);
+
+    if (xcb.connection_has_error(connection_))
     {
         GFXRECON_LOG_ERROR("Failed to connect to X server");
         return false;
     }
 
-    const xcb_setup_t*    setup = xcb_get_setup(connection_);
-    xcb_screen_iterator_t iter  = xcb_setup_roots_iterator(setup);
+    const xcb_setup_t*    setup = xcb.get_setup(connection_);
+    xcb_screen_iterator_t iter  = xcb.setup_roots_iterator(setup);
 
     for (int i = 0; i < screen_count; ++i)
     {
-        xcb_screen_next(&iter);
+        xcb.screen_next(&iter);
     }
 
     screen_ = iter.data;
@@ -95,17 +102,18 @@ void XcbApplication::ProcessEvents(bool wait_for_input)
     while (IsRunning())
     {
         xcb_generic_event_t* event = nullptr;
+        const auto&          xcb   = xcb_loader_.GetFunctionTable();
 
         if (wait_for_input)
         {
-            event = xcb_wait_for_event(connection_);
+            event = xcb.wait_for_event(connection_);
 
             // Stop waiting after the first event or this function will never exit.
             wait_for_input = false;
         }
         else
         {
-            event = xcb_poll_for_event(connection_);
+            event = xcb.poll_for_event(connection_);
         }
 
         if (event != nullptr)
