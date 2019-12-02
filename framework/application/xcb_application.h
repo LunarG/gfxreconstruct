@@ -20,8 +20,7 @@
 
 #include "application/application.h"
 #include "util/defines.h"
-
-#include <xcb/xcb.h>
+#include "util/xcb_loader.h"
 
 #include <unordered_map>
 
@@ -36,6 +35,8 @@ class XcbApplication : public Application
     XcbApplication(const std::string& name);
 
     virtual ~XcbApplication() override;
+
+    const util::XcbLoader::FunctionTable& GetXcbFunctionTable() const { return xcb_loader_.GetFunctionTable(); }
 
     xcb_connection_t* GetConnection() const { return connection_; }
 
@@ -68,6 +69,7 @@ class XcbApplication : public Application
     uint32_t          last_error_sequence_;
     uint8_t           last_error_code_;
     XcbWindowMap      xcb_windows_;
+    util::XcbLoader   xcb_loader_;
 };
 
 GFXRECON_END_NAMESPACE(application)

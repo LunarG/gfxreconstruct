@@ -20,8 +20,7 @@
 
 #include "application/application.h"
 #include "util/defines.h"
-
-#include <wayland-client.h>
+#include "util/wayland_loader.h"
 
 #include <unordered_map>
 
@@ -36,6 +35,8 @@ class WaylandApplication : public Application
     WaylandApplication(const std::string& name);
 
     virtual ~WaylandApplication() override;
+
+    const util::WaylandLoader::FunctionTable& GetWaylandFunctionTable() const { return wayland_loader_.GetFunctionTable(); }
 
     struct wl_display* GetDisplay() const { return display_; }
 
@@ -114,6 +115,7 @@ class WaylandApplication : public Application
     struct wl_surface*                 current_keyboard_surface_;
     struct wl_surface*                 current_pointer_surface_;
     WaylandWindowMap                   wayland_windows_;
+    util::WaylandLoader                wayland_loader_;
 };
 
 GFXRECON_END_NAMESPACE(application)

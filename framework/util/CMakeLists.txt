@@ -28,6 +28,10 @@ target_sources(gfxrecon_util
                    platform.h
                    settings_loader.h
                    settings_loader.cpp
+                   $<$<BOOL:${XCB_FOUND}>:xcb_loader.h>
+                   $<$<BOOL:${XCB_FOUND}>:xcb_loader.cpp>
+                   $<$<BOOL:${WAYLAND_FOUND}>:wayland_loader.h>
+                   $<$<BOOL:${WAYLAND_FOUND}>:wayland_loader.cpp>
               )
 
 target_include_directories(gfxrecon_util
