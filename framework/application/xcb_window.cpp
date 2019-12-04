@@ -421,7 +421,7 @@ void XcbWindow::InitializeAtoms()
 
 void XcbWindow::CheckEventStatus(uint32_t sequence, uint32_t type)
 {
-    if ((sequence == pending_event_.sequence) && (type == pending_event_.type))
+    if ((sequence >= pending_event_.sequence) && (type == pending_event_.type))
     {
         pending_event_.complete = true;
     }
