@@ -28,7 +28,7 @@ target_link_libraries(gfxrecon_application
                       gfxrecon_util
                       vulkan_registry
                       platform_specific
-                      $<$<BOOL:${XCB_FOUND}>:${XCB_LIBRARY}>
+                      $<$<BOOL:${XCB_FOUND}>:${XCB_LIBRARIES}>
                       $<$<BOOL:${WAYLAND_FOUND}>:${WAYLAND_LIBRARY}>
                       $<$<BOOL:${WIN32}>:AMDEXT>
                       $<$<BOOL:${WIN32}>:d3d11>
