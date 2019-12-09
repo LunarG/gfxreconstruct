@@ -70,6 +70,7 @@ class BasicStringDecoder : public PointerDecoderBase
         if (!IsNull() && HasData())
         {
             size_t string_len = GetLength();
+            size_t data_size  = string_len * sizeof(CharT);
             size_t alloc_len  = string_len + 1;
 
             if (!is_memory_external_)
@@ -79,7 +80,7 @@ class BasicStringDecoder : public PointerDecoderBase
                 data_     = new CharT[alloc_len];
                 capacity_ = alloc_len;
                 bytes_read +=
-                    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
+                    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), data_, data_size);
                 data_[string_len] = '\0';
             }
             else
@@ -88,13 +89,13 @@ class BasicStringDecoder : public PointerDecoderBase
 
                 if (alloc_len <= capacity_)
                 {
-                    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
+                    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), data_, data_size);
                     data_[string_len] = '\0';
                 }
                 else
                 {
                     ValueDecoder::DecodeVoidArray(
-                        (buffer + bytes_read), (buffer_size - bytes_read), data_, (capacity_ - 1));
+                        (buffer + bytes_read), (buffer_size - bytes_read), data_, (capacity_ - 1) * sizeof(CharT));
                     data_[capacity_] = '\0';
 
                     GFXRECON_LOG_WARNING("String decoder's external memory capacity (%" PRIuPTR
@@ -106,7 +107,7 @@ class BasicStringDecoder : public PointerDecoderBase
 
                 // We always need to advance the position within the buffer by the amount of data that was expected to
                 // be decoded, not the actual amount of data decoded if capacity is too small to hold all of the data.
-                bytes_read += string_len;
+                bytes_read += data_size;
             }
         }
 
