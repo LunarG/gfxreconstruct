@@ -123,6 +123,8 @@ class PointerDecoder : public PointerDecoderBase
         // We should not be decoding string arrays or structs.
         assert((GetAttributeMask() & (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray)) !=
                (format::PointerAttributes::kIsString | format::PointerAttributes::kIsArray));
+        assert((GetAttributeMask() & (format::PointerAttributes::kIsWString | format::PointerAttributes::kIsArray)) !=
+               (format::PointerAttributes::kIsWString | format::PointerAttributes::kIsArray));
         assert((GetAttributeMask() & format::PointerAttributes::kIsStruct) != format::PointerAttributes::kIsStruct);
 
         if (!IsNull())
