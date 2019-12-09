@@ -386,7 +386,7 @@ class ParameterEncoder
 
             if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
             {
-                output_stream_->Write(str, len);
+                output_stream_->Write(str, len * sizeof(CharT));
             }
         }
     }
