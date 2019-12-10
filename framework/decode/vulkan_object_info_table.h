@@ -114,6 +114,46 @@ class VulkanObjectInfoTable
     const ValidationCacheEXTInfo*            GetValidationCacheEXTInfo(format::HandleId id) const             { return GetObjectInfo<ValidationCacheEXTInfo>(id, &validation_cache_ext_map_); }
     const AccelerationStructureNVInfo*       GetAccelerationStructureNVInfo(format::HandleId id) const        { return GetObjectInfo<AccelerationStructureNVInfo>(id, &acceleration_structure_nv_map_); }
     const PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id) const  { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performance_configuration_intel_map_); }
+
+    InstanceInfo*                      GetInstanceInfo(format::HandleId id)                       { return GetObjectInfo<InstanceInfo>(id, &instance_map_); }
+    PhysicalDeviceInfo*                GetPhysicalDeviceInfo(format::HandleId id)                 { return GetObjectInfo<PhysicalDeviceInfo>(id, &physical_device_map_); }
+    DeviceInfo*                        GetDeviceInfo(format::HandleId id)                         { return GetObjectInfo<DeviceInfo>(id, &device_map_); }
+    QueueInfo*                         GetQueueInfo(format::HandleId id)                          { return GetObjectInfo<QueueInfo>(id, &queue_map_); }
+    SemaphoreInfo*                     GetSemaphoreInfo(format::HandleId id)                      { return GetObjectInfo<SemaphoreInfo>(id, &semaphore_map_); }
+    CommandBufferInfo*                 GetCommandBufferInfo(format::HandleId id)                  { return GetObjectInfo<CommandBufferInfo>(id, &command_buffer_map_); }
+    FenceInfo*                         GetFenceInfo(format::HandleId id)                          { return GetObjectInfo<FenceInfo>(id, &fence_map_); }
+    DeviceMemoryInfo*                  GetDeviceMemoryInfo(format::HandleId id)                   { return GetObjectInfo<DeviceMemoryInfo>(id, &device_memory_map_); }
+    BufferInfo*                        GetBufferInfo(format::HandleId id)                         { return GetObjectInfo<BufferInfo>(id, &buffer_map_); }
+    ImageInfo*                         GetImageInfo(format::HandleId id)                          { return GetObjectInfo<ImageInfo>(id, &image_map_); }
+    EventInfo*                         GetEventInfo(format::HandleId id)                          { return GetObjectInfo<EventInfo>(id, &event_map_); }
+    QueryPoolInfo*                     GetQueryPoolInfo(format::HandleId id)                      { return GetObjectInfo<QueryPoolInfo>(id, &query_pool_map_); }
+    BufferViewInfo*                    GetBufferViewInfo(format::HandleId id)                     { return GetObjectInfo<BufferViewInfo>(id, &buffer_view_map_); }
+    ImageViewInfo*                     GetImageViewInfo(format::HandleId id)                      { return GetObjectInfo<ImageViewInfo>(id, &image_view_map_); }
+    ShaderModuleInfo*                  GetShaderModuleInfo(format::HandleId id)                   { return GetObjectInfo<ShaderModuleInfo>(id, &shader_module_map_); }
+    PipelineCacheInfo*                 GetPipelineCacheInfo(format::HandleId id)                  { return GetObjectInfo<PipelineCacheInfo>(id, &pipeline_cache_map_); }
+    PipelineLayoutInfo*                GetPipelineLayoutInfo(format::HandleId id)                 { return GetObjectInfo<PipelineLayoutInfo>(id, &pipeline_layout_map_); }
+    RenderPassInfo*                    GetRenderPassInfo(format::HandleId id)                     { return GetObjectInfo<RenderPassInfo>(id, &render_pass_map_); }
+    PipelineInfo*                      GetPipelineInfo(format::HandleId id)                       { return GetObjectInfo<PipelineInfo>(id, &pipeline_map_); }
+    DescriptorSetLayoutInfo*           GetDescriptorSetLayoutInfo(format::HandleId id)            { return GetObjectInfo<DescriptorSetLayoutInfo>(id, &descriptor_set_layout_map_); }
+    SamplerInfo*                       GetSamplerInfo(format::HandleId id)                        { return GetObjectInfo<SamplerInfo>(id, &sampler_map_); }
+    DescriptorPoolInfo*                GetDescriptorPoolInfo(format::HandleId id)                 { return GetObjectInfo<DescriptorPoolInfo>(id, &descriptor_pool_map_); }
+    DescriptorSetInfo*                 GetDescriptorSetInfo(format::HandleId id)                  { return GetObjectInfo<DescriptorSetInfo>(id, &descriptor_set_map_); }
+    FramebufferInfo*                   GetFramebufferInfo(format::HandleId id)                    { return GetObjectInfo<FramebufferInfo>(id, &framebuffer_map_); }
+    CommandPoolInfo*                   GetCommandPoolInfo(format::HandleId id)                    { return GetObjectInfo<CommandPoolInfo>(id, &command_pool_map_); }
+    SamplerYcbcrConversionInfo*        GetSamplerYcbcrConversionInfo(format::HandleId id)         { return GetObjectInfo<SamplerYcbcrConversionInfo>(id, &sampler_ycbcr_conversion_map_); }
+    DescriptorUpdateTemplateInfo*      GetDescriptorUpdateTemplateInfo(format::HandleId id)       { return GetObjectInfo<DescriptorUpdateTemplateInfo>(id, &descriptor_update_template_map_); }
+    SurfaceKHRInfo*                    GetSurfaceKHRInfo(format::HandleId id)                     { return GetObjectInfo<SurfaceKHRInfo>(id, &surface_khr_map_); }
+    SwapchainKHRInfo*                  GetSwapchainKHRInfo(format::HandleId id)                   { return GetObjectInfo<SwapchainKHRInfo>(id, &swapchain_khr_map_); }
+    DisplayKHRInfo*                    GetDisplayKHRInfo(format::HandleId id)                     { return GetObjectInfo<DisplayKHRInfo>(id, &display_khr_map_); }
+    DisplayModeKHRInfo*                GetDisplayModeKHRInfo(format::HandleId id)                 { return GetObjectInfo<DisplayModeKHRInfo>(id, &display_mode_khr_map_); }
+    SamplerYcbcrConversionKHRInfo*     GetSamplerYcbcrConversionKHRInfo(format::HandleId id)      { return GetObjectInfo<SamplerYcbcrConversionKHRInfo>(id, &sampler_ycbcr_conversion_khr_map_); }
+    DebugReportCallbackEXTInfo*        GetDebugReportCallbackEXTInfo(format::HandleId id)         { return GetObjectInfo<DebugReportCallbackEXTInfo>(id, &debug_report_callback_ext_map_); }
+    ObjectTableNVXInfo*                GetObjectTableNVXInfo(format::HandleId id)                 { return GetObjectInfo<ObjectTableNVXInfo>(id, &object_table_nvx_map_); }
+    IndirectCommandsLayoutNVXInfo*     GetIndirectCommandsLayoutNVXInfo(format::HandleId id)      { return GetObjectInfo<IndirectCommandsLayoutNVXInfo>(id, &indirect_commands_layout_nvx_map_); }
+    DebugUtilsMessengerEXTInfo*        GetDebugUtilsMessengerEXTInfo(format::HandleId id)         { return GetObjectInfo<DebugUtilsMessengerEXTInfo>(id, &debug_utils_messenger_ext_map_); }
+    ValidationCacheEXTInfo*            GetValidationCacheEXTInfo(format::HandleId id)             { return GetObjectInfo<ValidationCacheEXTInfo>(id, &validation_cache_ext_map_); }
+    AccelerationStructureNVInfo*       GetAccelerationStructureNVInfo(format::HandleId id)        { return GetObjectInfo<AccelerationStructureNVInfo>(id, &acceleration_structure_nv_map_); }
+    PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id)  { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performance_configuration_intel_map_); }
     // clang-format on
 
     void ReplaceSemaphore(VkSemaphore target, VkSemaphore replacement)
@@ -179,6 +219,30 @@ class VulkanObjectInfoTable
         if (id != 0)
         {
             const auto entry = map->find(id);
+
+            if (entry != map->end())
+            {
+                object_info = &entry->second;
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, id);
+            }
+        }
+
+        return object_info;
+    }
+
+    template <typename T>
+    T* GetObjectInfo(format::HandleId id, std::unordered_map<format::HandleId, T>* map)
+    {
+        assert(map != nullptr);
+
+        T* object_info = nullptr;
+
+        if (id != 0)
+        {
+            auto entry = map->find(id);
 
             if (entry != map->end())
             {
