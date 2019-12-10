@@ -38,6 +38,7 @@
 #include <cassert>
 #include <functional>
 #include <memory>
+#include <unordered_set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -331,17 +332,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
                                     HandlePointerDecoder<VkDeviceMemory>*                      pMemory);
 
-    VkResult OverrideMapMemory(PFN_vkMapMemory         func,
-                               VkResult                original_result,
-                               const DeviceInfo*       device_info,
-                               const DeviceMemoryInfo* memory_info,
-                               VkDeviceSize            offset,
-                               VkDeviceSize            size,
-                               VkMemoryMapFlags        flags,
-                               void**                  ppData);
+    VkResult OverrideMapMemory(PFN_vkMapMemory   func,
+                               VkResult          original_result,
+                               const DeviceInfo* device_info,
+                               DeviceMemoryInfo* memory_info,
+                               VkDeviceSize      offset,
+                               VkDeviceSize      size,
+                               VkMemoryMapFlags  flags,
+                               void**            ppData);
 
-    void
-    OverrideUnmapMemory(PFN_vkUnmapMemory func, const DeviceInfo* device_info, const DeviceMemoryInfo* memory_info);
+    void OverrideUnmapMemory(PFN_vkUnmapMemory func, const DeviceInfo* device_info, DeviceMemoryInfo* memory_info);
 
     void OverrideFreeMemory(PFN_vkFreeMemory                                           func,
                             const DeviceInfo*                                          device_info,
@@ -351,7 +351,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VkResult OverrideBindBufferMemory(PFN_vkBindBufferMemory  func,
                                       VkResult                original_result,
                                       const DeviceInfo*       device_info,
-                                      const BufferInfo*       buffer_info,
+                                      BufferInfo*             buffer_info,
                                       const DeviceMemoryInfo* memory_info,
                                       VkDeviceSize            memoryOffset);
 
@@ -364,7 +364,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VkResult OverrideBindImageMemory(PFN_vkBindImageMemory   func,
                                      VkResult                original_result,
                                      const DeviceInfo*       device_info,
-                                     const ImageInfo*        image_info,
+                                     ImageInfo*              image_info,
                                      const DeviceMemoryInfo* memory_info,
                                      VkDeviceSize            memoryOffset);
 
@@ -532,17 +532,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void OverridePhysicalDevice(VkPhysicalDevice* physical_device);
 
-    bool CheckTrimDeviceExtensions(VkPhysicalDevice physical_device, std::vector<std::string>** extensions);
+    bool CheckTrimDeviceExtensions(VkPhysicalDevice physical_device, std::vector<std::string>* extensions);
 
-    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
+    VkResult CreateSurface(VkInstance instance, VkFlags flags, HandlePointerDecoder<VkSurfaceKHR>* surface);
 
-    void MapDescriptorUpdateTemplateHandles(VkDescriptorUpdateTemplate             update_template,
+    void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateInfo*    update_template_info,
                                             const DescriptorUpdateTemplateDecoder& decoder);
 
     // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
     // the expected layout and keep them acquired until first use.
     void ProcessSetSwapchainImageStatePreAcquire(VkDevice                                            device,
                                                  VkSwapchainKHR                                      swapchain,
+                                                 uint32_t                                            queue_family_index,
                                                  const std::vector<format::SwapchainImageStateInfo>& image_info);
 
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
@@ -550,6 +551,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // no more than one image is acquired at a time.
     void ProcessSetSwapchainImageStateQueueSubmit(VkDevice       device,
                                                   VkSwapchainKHR swapchain,
+                                                  uint32_t       queue_family_index,
                                                   uint32_t       last_presented_image,
                                                   const std::vector<format::SwapchainImageStateInfo>& image_info);
 
@@ -566,50 +568,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         VkPhysicalDeviceProperties replay_properties;
     };
 
-    typedef std::unordered_map<VkSurfaceKHR, Window*>                      WindowMap;
-    typedef std::unordered_map<VkDeviceMemory, void*>                      MappedMemoryMap;
+    typedef std::unordered_set<Window*>                                    ActiveWindows;
     typedef std::unordered_map<VkInstance, InstanceDevices>                InstanceDeviceMap;
     typedef std::unordered_map<VkPhysicalDevice, PhysicalDeviceProperties> PhysicalDevicePropertiesMap;
-
-    // Map the descriptor update template handle ID read from the capture file to an array of descriptor image types.
-    typedef std::vector<VkDescriptorType>                                        DescriptorImageTypes;
-    typedef std::unordered_map<VkDescriptorUpdateTemplate, DescriptorImageTypes> DescriptorUpdateTemplateImageTypes;
-
-    struct BufferProperties
-    {
-        VkDeviceMemory        memory;
-        VkMemoryPropertyFlags memory_property_flags;
-        VkDeviceSize          bind_offset;
-        VkBufferUsageFlags    usage;
-        uint32_t              queue_family_index;
-    };
-
-    struct ImageProperties
-    {
-        VkDeviceMemory        memory;
-        VkMemoryPropertyFlags memory_property_flags;
-        VkDeviceSize          bind_offset;
-        VkImageUsageFlags     usage;
-        VkImageType           type;
-        VkFormat              format;
-        VkExtent3D            extent;
-        VkImageTiling         tiling;
-        VkSampleCountFlagBits sample_count;
-        VkImageLayout         initial_layout;
-        uint32_t              layer_count;
-        uint32_t              level_count;
-        uint32_t              queue_family_index;
-    };
-
-    // TODO: Put this info in a struct with the handle, to be stored by the object mapper.
-    typedef std::unordered_map<VkDevice, VkPhysicalDevice>                           DeviceParentMap;
-    typedef std::unordered_map<VkDevice, std::unique_ptr<VulkanResourceInitializer>> ResourceInitializerMap;
-    typedef std::unordered_map<VkSwapchainKHR, uint32_t>                             SwapchainQueueFamilyIndexMap;
-    typedef std::unordered_map<VkSwapchainKHR, VkSurfaceKHR>                         SwapchainSurfaceMap;
-    typedef std::unordered_map<VkDeviceMemory, VkMemoryPropertyFlags>                MemoryPropertyMap;
-    typedef std::unordered_map<VkBuffer, BufferProperties>                           BufferInfoMap;
-    typedef std::unordered_map<VkImage, ImageProperties>                             ImageInfoMap;
-    typedef std::unordered_map<VkPhysicalDevice, std::vector<std::string>>           AvailableTrimDeviceExtensionMap;
 
   private:
     util::platform::LibraryHandle                                    loader_handle_;
@@ -622,22 +583,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::function<void(const char*)>                                 fatal_error_handler_;
     WindowFactory*                                                   window_factory_;
     VulkanObjectInfoTable                                            object_info_table_;
-    WindowMap                                                        window_map_;
-    MappedMemoryMap                                                  memory_map_;
+    ActiveWindows                                                    active_windows_;
     ReplayOptions                                                    options_;
     bool                                                             loading_trim_state_;
     InstanceDeviceMap                                                instance_devices_;
     PhysicalDevicePropertiesMap                                      device_properties_;
-    DescriptorUpdateTemplateImageTypes                               descriptor_update_template_image_types_;
     SwapchainImageTracker                                            swapchain_image_tracker_;
-    DeviceParentMap                                                  device_parents_;
-    ResourceInitializerMap                                           resource_initializers_;
-    SwapchainQueueFamilyIndexMap                                     swapchain_queue_families_;
-    SwapchainSurfaceMap                                              swapchain_surfaces_;
-    MemoryPropertyMap                                                memory_properties_;
-    BufferInfoMap                                                    buffer_info_;
-    ImageInfoMap                                                     image_info_;
-    AvailableTrimDeviceExtensionMap                                  trim_device_extensions_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
