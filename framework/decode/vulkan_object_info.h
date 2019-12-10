@@ -17,11 +17,17 @@
 #ifndef GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 #define GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 
+#include "decode/vulkan_resource_initializer.h"
+#include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -42,14 +48,10 @@ struct VulkanObjectInfo
 
 typedef VulkanObjectInfo<VkInstance>                      InstanceInfo;
 typedef VulkanObjectInfo<VkPhysicalDevice>                PhysicalDeviceInfo;
-typedef VulkanObjectInfo<VkDevice>                        DeviceInfo;
 typedef VulkanObjectInfo<VkQueue>                         QueueInfo;
 typedef VulkanObjectInfo<VkSemaphore>                     SemaphoreInfo;
 typedef VulkanObjectInfo<VkCommandBuffer>                 CommandBufferInfo;
 typedef VulkanObjectInfo<VkFence>                         FenceInfo;
-typedef VulkanObjectInfo<VkDeviceMemory>                  DeviceMemoryInfo;
-typedef VulkanObjectInfo<VkBuffer>                        BufferInfo;
-typedef VulkanObjectInfo<VkImage>                         ImageInfo;
 typedef VulkanObjectInfo<VkEvent>                         EventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
 typedef VulkanObjectInfo<VkBufferView>                    BufferViewInfo;
@@ -66,9 +68,6 @@ typedef VulkanObjectInfo<VkDescriptorSet>                 DescriptorSetInfo;
 typedef VulkanObjectInfo<VkFramebuffer>                   FramebufferInfo;
 typedef VulkanObjectInfo<VkCommandPool>                   CommandPoolInfo;
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>        SamplerYcbcrConversionInfo;
-typedef VulkanObjectInfo<VkDescriptorUpdateTemplate>      DescriptorUpdateTemplateInfo;
-typedef VulkanObjectInfo<VkSurfaceKHR>                    SurfaceKHRInfo;
-typedef VulkanObjectInfo<VkSwapchainKHR>                  SwapchainKHRInfo;
 typedef VulkanObjectInfo<VkDisplayKHR>                    DisplayKHRInfo;
 typedef VulkanObjectInfo<VkDisplayModeKHR>                DisplayModeKHRInfo;
 typedef VulkanObjectInfo<VkDebugReportCallbackEXT>        DebugReportCallbackEXTInfo;
@@ -83,7 +82,74 @@ typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurati
 // Declarations for Vulkan objects with additional replay state info.
 //
 
+struct DeviceInfo : public VulkanObjectInfo<VkDevice>
+{
+    VkPhysicalDevice parent{ VK_NULL_HANDLE };
+
+    // The following values are only used when loading the initial state for trimmed files.
+    std::vector<std::string>                   extensions;
+    VkPhysicalDeviceMemoryProperties           memory_properties{};
+    std::unique_ptr<VulkanResourceInitializer> resource_initializer;
+};
+
+struct DeviceMemoryInfo : public VulkanObjectInfo<VkDeviceMemory>
+{
+    void* mapped_memory{ nullptr };
+
+    // The following values are only used when loading the initial state for trimmed files.
+    VkMemoryPropertyFlags property_flags{ 0 };
+};
+
+struct BufferInfo : public VulkanObjectInfo<VkBuffer>
+{
+    // The following values are only used when loading the initial state for trimmed files.
+    VkDeviceMemory        memory{ VK_NULL_HANDLE };
+    VkMemoryPropertyFlags memory_property_flags{ 0 };
+    VkDeviceSize          bind_offset{ 0 };
+    VkBufferUsageFlags    usage{ 0 };
+    uint32_t              queue_family_index{ 0 };
+};
+
+struct ImageInfo : public VulkanObjectInfo<VkImage>
+{
+    // The following values are only used when loading the initial state for trimmed files.
+    VkDeviceMemory        memory{ VK_NULL_HANDLE };
+    VkMemoryPropertyFlags memory_property_flags{ 0 };
+    VkDeviceSize          bind_offset{ 0 };
+    VkImageUsageFlags     usage{ 0 };
+    VkImageType           type{};
+    VkFormat              format{};
+    VkExtent3D            extent{ 0, 0, 0 };
+    VkImageTiling         tiling{};
+    VkSampleCountFlagBits sample_count{};
+    VkImageLayout         initial_layout{};
+    uint32_t              layer_count{ 0 };
+    uint32_t              level_count{ 0 };
+    uint32_t              queue_family_index{ 0 };
+};
+
+struct DescriptorUpdateTemplateInfo : public VulkanObjectInfo<VkDescriptorUpdateTemplate>
+{
+    std::vector<VkDescriptorType> descriptor_image_types;
+};
+
+struct SurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
+{
+    Window* window{ nullptr };
+};
+
+struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
+{
+    VkSurfaceKHR surface{ VK_NULL_HANDLE };
+
+    // The following values are only used when loading the initial state for trimmed files.
+    uint32_t queue_family_index{ 0 };
+};
+
+//
 // Handle alias types for extension handle types that have been promoted to core types.
+//
+
 typedef SamplerYcbcrConversionInfo   SamplerYcbcrConversionKHRInfo;
 typedef DescriptorUpdateTemplateInfo DescriptorUpdateTemplateKHRInfo;
 
