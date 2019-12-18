@@ -56,7 +56,7 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
                     PostQuitMessage(0);
                     break;
                 default:
-                    break;
+                    return DefWindowProc(window, msg, wp, lp);
             }
             break;
         }
@@ -76,7 +76,20 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
                     break;
                 }
                 default:
+                    return DefWindowProc(window, msg, wp, lp);
+            }
+            break;
+        }
+        case WM_SYSKEYUP:
+        {
+            switch (wp)
+            {
+                // Override the default F10 behavior for menu bar activation, which effectively suspends replay until
+                // F10 is pushed a second time or the user interacts with the window.
+                case VK_F10:
                     break;
+                default:
+                    return DefWindowProc(window, msg, wp, lp);
             }
             break;
         }
