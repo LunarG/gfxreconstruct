@@ -698,6 +698,7 @@ bool TraceManager::CreateCaptureFile(const std::string& base_filename)
 
 void TraceManager::ActivateTrimming()
 {
+    std::lock_guard<std::mutex> lock(file_lock_);
 
     capture_mode_ |= kModeWrite;
 
