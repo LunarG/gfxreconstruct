@@ -90,7 +90,7 @@ bool WaylandLoader::Initialize()
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to load libwayland-client.so");
+            GFXRECON_LOG_DEBUG("Failed to load libwayland-client.so");
             success = false;
         }
     }

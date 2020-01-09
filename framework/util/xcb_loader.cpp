@@ -90,7 +90,7 @@ bool XcbLoader::Initialize()
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to load libxcb.so");
+            GFXRECON_LOG_DEBUG("Failed to load libxcb.so");
             success = false;
         }
     }

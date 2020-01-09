@@ -49,7 +49,7 @@ bool XcbApplication::Initialize(decode::FileProcessor* file_processor)
 
     if (xcb.connection_has_error(connection_))
     {
-        GFXRECON_LOG_ERROR("Failed to connect to X server");
+        GFXRECON_LOG_DEBUG("Failed to connect to an X server");
         return false;
     }
 
