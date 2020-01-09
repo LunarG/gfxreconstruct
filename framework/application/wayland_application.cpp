@@ -106,7 +106,7 @@ bool WaylandApplication::Initialize(decode::FileProcessor* file_processor)
         display_ = wl.display_connect(nullptr);
         if (display_ == nullptr)
         {
-            GFXRECON_LOG_ERROR("Failed to connect to the Wayland display server");
+            GFXRECON_LOG_DEBUG("Failed to connect to a Wayland display server");
             success = false;
         }
     }

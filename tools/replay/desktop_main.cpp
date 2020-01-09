@@ -90,26 +90,41 @@ int main(int argc, const char** argv)
             // Setup platform specific application and window factory.
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-            gfxrecon::application::Win32Application* win32_application =
-                new gfxrecon::application::Win32Application(kApplicationName);
-            application    = std::unique_ptr<gfxrecon::application::Application>(win32_application);
-            window_factory = std::make_unique<gfxrecon::application::Win32WindowFactory>(win32_application);
+            auto win32_application = std::make_unique<gfxrecon::application::Win32Application>(kApplicationName);
+            if (win32_application->Initialize(&file_processor))
+            {
+                window_factory = std::make_unique<gfxrecon::application::Win32WindowFactory>(win32_application.get());
+                application    = std::move(win32_application);
+            }
 #endif
 #else
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+            if (!application)
+            {
+                auto wayland_application =
+                    std::make_unique<gfxrecon::application::WaylandApplication>(kApplicationName);
+                if (wayland_application->Initialize(&file_processor))
+                {
+                    window_factory =
+                        std::make_unique<gfxrecon::application::WaylandWindowFactory>(wayland_application.get());
+                    application = std::move(wayland_application);
+                }
+            }
+#endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-            gfxrecon::application::XcbApplication* xcb_application =
-                new gfxrecon::application::XcbApplication(kApplicationName);
-            application    = std::unique_ptr<gfxrecon::application::Application>(xcb_application);
-            window_factory = std::make_unique<gfxrecon::application::XcbWindowFactory>(xcb_application);
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-            gfxrecon::application::WaylandApplication* wayland_application =
-                new gfxrecon::application::WaylandApplication(kApplicationName);
-            application    = std::unique_ptr<gfxrecon::application::Application>(wayland_application);
-            window_factory = std::make_unique<gfxrecon::application::WaylandWindowFactory>(wayland_application);
+            if (!application)
+            {
+                auto xcb_application = std::make_unique<gfxrecon::application::XcbApplication>(kApplicationName);
+                if (xcb_application->Initialize(&file_processor))
+                {
+                    window_factory = std::make_unique<gfxrecon::application::XcbWindowFactory>(xcb_application.get());
+                    application    = std::move(xcb_application);
+                }
+            }
 #endif
 #endif
 
-            if (!window_factory || !application || !application->Initialize(&file_processor))
+            if (!window_factory || !application)
             {
                 GFXRECON_WRITE_CONSOLE(
                     "Failed to initialize platform specific window system management.\nEnsure that the appropriate "
