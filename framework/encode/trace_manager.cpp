@@ -1300,7 +1300,8 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
             {
                 if (size == VK_WHOLE_SIZE)
                 {
-                    size = wrapper->allocation_size;
+                    assert(offset <= wrapper->allocation_size);
+                    size = wrapper->allocation_size - offset;
                 }
 
                 if (size > 0)
@@ -1400,12 +1401,13 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
                     assert(pMemoryRanges[i].offset >= current_memory_wrapper->mapped_offset);
 
                     // The mapped pointer already includes the mapped offset.  Because the memory range
-                    // offset is realtive to the start of the memory object, we need to adjust it to be
-                    // realitve to the start of the mapped pointer.
+                    // offset is relative to the start of the memory object, we need to adjust it to be
+                    // relative to the start of the mapped pointer.
                     VkDeviceSize relative_offset = pMemoryRanges[i].offset - current_memory_wrapper->mapped_offset;
                     VkDeviceSize size            = pMemoryRanges[i].size;
                     if (size == VK_WHOLE_SIZE)
                     {
+                        assert(pMemoryRanges[i].offset <= current_memory_wrapper->allocation_size);
                         size = current_memory_wrapper->allocation_size - pMemoryRanges[i].offset;
                     }
 
@@ -1424,20 +1426,6 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
 
     if (wrapper->mapped_data != nullptr)
     {
-        if ((capture_mode_ & kModeTrack) == kModeTrack)
-        {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0);
-        }
-        else
-        {
-            // Perform subset of the state tracking performed by VulkanStateTracker::TrackMappedMemory, only storing
-            // values needed for non-tracking capture.
-            wrapper->mapped_data   = nullptr;
-            wrapper->mapped_offset = 0;
-            wrapper->mapped_size   = 0;
-        }
-
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -1452,20 +1440,35 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
         }
         else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
         {
-            // Write the entire mapped region.
-            // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
             VkDeviceSize size = wrapper->mapped_size;
             if (size == VK_WHOLE_SIZE)
             {
-                size = wrapper->allocation_size;
+                assert(wrapper->mapped_offset <= wrapper->allocation_size);
+                size = wrapper->allocation_size - wrapper->mapped_offset;
             }
 
+            // Write the entire mapped region.
+            // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
             WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
 
             {
                 std::lock_guard<std::mutex> lock(mapped_memory_lock_);
                 mapped_memory_.erase(wrapper);
             }
+        }
+
+        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        {
+            assert(state_tracker_ != nullptr);
+            state_tracker_->TrackMappedMemory(device, memory, nullptr, 0, 0, 0);
+        }
+        else
+        {
+            // Perform subset of the state tracking performed by VulkanStateTracker::TrackMappedMemory, only storing
+            // values needed for non-tracking capture.
+            wrapper->mapped_data   = nullptr;
+            wrapper->mapped_offset = 0;
+            wrapper->mapped_size   = 0;
         }
     }
     else
@@ -1528,9 +1531,16 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
 
         for (auto wrapper : mapped_memory_)
         {
+            VkDeviceSize size = wrapper->mapped_size;
+            if (size == VK_WHOLE_SIZE)
+            {
+                assert(wrapper->mapped_offset <= wrapper->allocation_size);
+                size = wrapper->allocation_size - wrapper->mapped_offset;
+            }
+
             // If the memory is mapped, write the entire mapped region.
             // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-            WriteFillMemoryCmd(wrapper->handle_id, 0, wrapper->mapped_size, wrapper->mapped_data);
+            WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
         }
     }
 }
