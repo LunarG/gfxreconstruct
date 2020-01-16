@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018,2020 Valve Corporation
+** Copyright (c) 2018,2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -127,15 +127,15 @@ void WaylandWindow::SetVisibility(bool show)
 
 void WaylandWindow::SetForeground() {}
 
-bool WaylandWindow::GetNativeHandle(uint32_t id, void** handle)
+bool WaylandWindow::GetNativeHandle(HandleType type, void** handle)
 {
     assert(handle != nullptr);
-    switch (id)
+    switch (type)
     {
-        case WaylandWindow::kDisplay:
+        case Window::kWaylandDisplay:
             *handle = reinterpret_cast<void*>(wayland_application_->GetDisplay());
             return true;
-        case WaylandWindow::kSurface:
+        case Window::kWaylandSurface:
             *handle = reinterpret_cast<void*>(surface_);
             return true;
         default:

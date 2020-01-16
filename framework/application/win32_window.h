@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018,2020 Valve Corporation
+** Copyright (c) 2018,2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -31,13 +31,6 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class Win32Window : public decode::Window
 {
   public:
-    enum HandleId : uint32_t
-    {
-        kHInstance = 0,
-        kHWnd      = 1
-    };
-
-  public:
     Win32Window(Win32Application* application);
 
     virtual ~Win32Window() override;
@@ -60,7 +53,7 @@ class Win32Window : public decode::Window
 
     virtual void SetForeground() override;
 
-    virtual bool GetNativeHandle(uint32_t id, void** handle) override;
+    virtual bool GetNativeHandle(HandleType type, void** handle) override;
 
     virtual VkResult CreateSurface(const encode::InstanceTable* table,
                                    VkInstance                   instance,
