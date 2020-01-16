@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018,2020 Valve Corporation
+** Copyright (c) 2018,2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -362,15 +362,15 @@ void XcbWindow::SetForeground()
     xcb_flush(connection);
 }
 
-bool XcbWindow::GetNativeHandle(uint32_t id, void** handle)
+bool XcbWindow::GetNativeHandle(HandleType type, void** handle)
 {
     assert(handle != nullptr);
-    switch (id)
+    switch (type)
     {
-        case XcbWindow::kConnection:
+        case Window::kXcbConnection:
             *handle = reinterpret_cast<void*>(xcb_application_->GetConnection());
             return true;
-        case XcbWindow::kWindow:
+        case Window::kXcbWindow:
             *handle = reinterpret_cast<void*>(window_);
             return true;
         default:

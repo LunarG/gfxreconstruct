@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -1377,6 +1377,56 @@ VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags flags, Hand
     return result;
 }
 
+void VulkanReplayConsumerBase::ProcessSwapchainFullScreenExclusiveInfo(Decoded_VkSwapchainCreateInfoKHR* swapchain_info)
+{
+    assert(swapchain_info != nullptr);
+
+    if (swapchain_info->pNext != nullptr)
+    {
+        // 'Out' struct for non-const pNext pointers.
+        auto pnext = reinterpret_cast<VkBaseOutStructure*>(swapchain_info->pNext->GetPointer());
+        while (pnext != nullptr)
+        {
+            if (pnext->sType == VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT)
+            {
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+                // Get the surface info from the Decoded_VkSwapchainCreateInfoKHR handle id.
+                HMONITOR   hmonitor     = nullptr;
+                const auto surface_info = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface);
+
+                if ((surface_info != nullptr) && (surface_info->window != nullptr))
+                {
+                    // Try to retrieve an HWND value from the window.
+                    HWND hwnd = nullptr;
+                    if (surface_info->window->GetNativeHandle(Window::kWin32HWnd, reinterpret_cast<void**>(&hwnd)))
+                    {
+                        hmonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+                    }
+                }
+
+                if (hmonitor != nullptr)
+                {
+                    auto full_screen_info      = reinterpret_cast<VkSurfaceFullScreenExclusiveWin32InfoEXT*>(pnext);
+                    full_screen_info->hmonitor = hmonitor;
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Failed to obtain a valid HMONITOR handle for the VkSurfaceFullScreenExclusiveWin32InfoEXT "
+                        "extension structure provided to vkCreateSwapchainKHR")
+                }
+#else
+                GFXRECON_LOG_WARNING("vkCreateSwapchainKHR called with the VkSurfaceFullScreenExclusiveWin32InfoEXT "
+                                     "extension structure, which is not supported by this platform")
+#endif
+                break;
+            }
+
+            pnext = pnext->pNext;
+        }
+    }
+}
+
 VkResult
 VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                                                  const StructPointerDecoder<Decoded_VkInstanceCreateInfo>&  pCreateInfo,
@@ -2342,6 +2392,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
     auto replay_create_info = pCreateInfo.GetPointer();
     auto replay_swapchain   = pSwapchain->GetHandlePointer();
+
+    ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo.GetMetaStructPointer());
 
     VkResult result =
         func(device_info->handle, replay_create_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
