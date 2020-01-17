@@ -10,7 +10,8 @@ The `gfxrecon-replay` tool for Desktop accepts the following command line argume
 ```
 gfxrecon-replay         [--version] [--gpu <index>] [--pause-frame <N>]
                         [--paused] [--sfa | --skip-failed-allocations]
-                        [--opcd | --omit-pipeline-cache-data]
+                        [--replace-shaders <dir>]
+                        [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [-m <mode> | --memory-translation <mode>] <file>
 
 Required arguments:
@@ -29,8 +30,13 @@ Optional arguments:
   --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
                         capture (same as --skip-failed-allocations).
+  --replace-shaders <dir> Replace the shader code in each CreateShaderModule
+                        with the contents of the file <dir>/sh<hash> if found, where
+                        <hash> is the xor sum of the original shader code.
   --opcd                Omit pipeline cache data from calls to
                         vkCreatePipelineCache (same as --omit-pipeline-cache-data).
+  --wsi <platform>      Force replay to use the specified wsi platform.
+                        Available platforms are: auto,win32,xcb,wayland
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:

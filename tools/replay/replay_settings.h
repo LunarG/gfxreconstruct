@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -42,12 +42,26 @@ const char kSkipFailedAllocationShortOption[]  = "--sfa";
 const char kSkipFailedAllocationLongOption[]   = "--skip-failed-allocations";
 const char kOmitPipelineCacheDataShortOption[] = "--opcd";
 const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
+const char kWsiArgument[]                      = "--wsi";
 const char kMemoryPortabilityShortOption[]     = "-m";
 const char kMemoryPortabilityLongOption[]      = "--memory-translation";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
 
 const char kOptions[]   = "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
-const char kArguments[] = "--gpu,--pause-frame,-m|--memory-translation,--replace-shaders";
+const char kArguments[] = "--gpu,--pause-frame,--wsi,-m|--memory-translation,--replace-shaders";
+
+enum class WsiPlatform
+{
+    kAuto,
+    kWin32,
+    kXcb,
+    kWayland
+};
+
+const char kWsiPlatformAuto[]    = "auto";
+const char kWsiPlatformWin32[]   = "win32";
+const char kWsiPlatformXcb[]     = "xcb";
+const char kWsiPlatformWayland[] = "wayland";
 
 const char kMemoryTranslationNone[]   = "none";
 const char kMemoryTranslationRemap[]  = "remap";
@@ -98,6 +112,68 @@ static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
     }
 
     return pause_frame;
+}
+
+static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    WsiPlatform wsi_platform = WsiPlatform::kAuto;
+    std::string value        = arg_parser.GetArgumentValue(kWsiArgument);
+
+    if (!value.empty())
+    {
+        if (gfxrecon::util::platform::StringCompareNoCase(kWsiPlatformAuto, value.c_str()) == 0)
+        {
+            wsi_platform = WsiPlatform::kAuto;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kWsiPlatformWin32, value.c_str()) == 0)
+        {
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+            wsi_platform = WsiPlatform::kWin32;
+#else
+            GFXRECON_LOG_WARNING("Ignoring wsi option %s, which is not enabled on this system", value.c_str());
+#endif
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kWsiPlatformXcb, value.c_str()) == 0)
+        {
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+            wsi_platform = WsiPlatform::kXcb;
+#else
+            GFXRECON_LOG_WARNING("Ignoring wsi option %s, which is not enabled on this system", value.c_str());
+#endif
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kWsiPlatformWayland, value.c_str()) == 0)
+        {
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+            wsi_platform = WsiPlatform::kWayland;
+#else
+            GFXRECON_LOG_WARNING("Ignoring wsi option %s, which is not enabled on this system", value.c_str());
+#endif
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Ignoring unrecongized wsi option %s", value.c_str());
+        }
+    }
+
+    return wsi_platform;
+}
+
+const std::string GetWsiArgString()
+{
+    std::string wsi_args = kWsiPlatformAuto;
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+    wsi_args += ',';
+    wsi_args += kWsiPlatformWin32;
+#endif
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+    wsi_args += ',';
+    wsi_args += kWsiPlatformXcb;
+#endif
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+    wsi_args += ',';
+    wsi_args += kWsiPlatformWayland;
+#endif
+    return wsi_args;
 }
 
 static gfxrecon::decode::CreateResourceAllocator
@@ -190,7 +266,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  %s\t[--version] [--gpu <index>] [--pause-frame <N>]", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("\t\t\t[--paused] [--sfa | --skip-failed-allocations]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--replace-shaders <dir>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>] <file>\n");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay.");
@@ -208,10 +284,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("       \t\t\tvkAllocateDescriptorSets calls that failed during");
     GFXRECON_WRITE_CONSOLE("       \t\t\tcapture (same as --skip-failed-allocations).");
     GFXRECON_WRITE_CONSOLE("  --replace-shaders <dir> Replace the shader code in each CreateShaderModule");
-    GFXRECON_WRITE_CONSOLE("       \t\t\twith the contents of the file <dir>/sh<hash> if found, where ");
+    GFXRECON_WRITE_CONSOLE("       \t\t\twith the contents of the file <dir>/sh<hash> if found, where");
     GFXRECON_WRITE_CONSOLE("       \t\t\t<hash> is the xor sum of the original shader code.");
     GFXRECON_WRITE_CONSOLE("  --opcd\t\tOmit pipeline cache data from calls to");
     GFXRECON_WRITE_CONSOLE("        \t\tvkCreatePipelineCache (same as --omit-pipeline-cache-data).");
+    GFXRECON_WRITE_CONSOLE("  --wsi <platform>\tForce replay to use the specified wsi platform.");
+    GFXRECON_WRITE_CONSOLE("                  \tAvailable platforms are: %s", GetWsiArgString().c_str());
     GFXRECON_WRITE_CONSOLE("  -m <mode>\t\tEnable memory translation for replay on GPUs with memory");
     GFXRECON_WRITE_CONSOLE("          \t\ttypes that are not compatible with the capture GPU's");
     GFXRECON_WRITE_CONSOLE("          \t\tmemory types.  Available modes are:");

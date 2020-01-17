@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -75,6 +75,8 @@ int main(int argc, const char** argv)
         filename                                             = positional_arguments[0];
     }
 
+    auto wsi_platform = GetWsiPlatform(arg_parser);
+
     try
     {
         gfxrecon::decode::FileProcessor                     file_processor;
@@ -90,16 +92,20 @@ int main(int argc, const char** argv)
             // Setup platform specific application and window factory.
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-            auto win32_application = std::make_unique<gfxrecon::application::Win32Application>(kApplicationName);
-            if (win32_application->Initialize(&file_processor))
+            if (wsi_platform == WsiPlatform::kWin32 || (wsi_platform == WsiPlatform::kAuto && !application))
             {
-                window_factory = std::make_unique<gfxrecon::application::Win32WindowFactory>(win32_application.get());
-                application    = std::move(win32_application);
+                auto win32_application = std::make_unique<gfxrecon::application::Win32Application>(kApplicationName);
+                if (win32_application->Initialize(&file_processor))
+                {
+                    window_factory =
+                        std::make_unique<gfxrecon::application::Win32WindowFactory>(win32_application.get());
+                    application = std::move(win32_application);
+                }
             }
 #endif
 #else
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
-            if (!application)
+            if (wsi_platform == WsiPlatform::kWayland || (wsi_platform == WsiPlatform::kAuto && !application))
             {
                 auto wayland_application =
                     std::make_unique<gfxrecon::application::WaylandApplication>(kApplicationName);
@@ -112,7 +118,7 @@ int main(int argc, const char** argv)
             }
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-            if (!application)
+            if (wsi_platform == WsiPlatform::kXcb || (wsi_platform == WsiPlatform::kAuto && !application))
             {
                 auto xcb_application = std::make_unique<gfxrecon::application::XcbApplication>(kApplicationName);
                 if (xcb_application->Initialize(&file_processor))
