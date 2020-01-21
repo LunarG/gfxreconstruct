@@ -72,8 +72,6 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define CAPTURE_TRIGGER_UPPER               "CAPTURE_TRIGGER"
 #define PAGE_GUARD_COPY_ON_MAP_LOWER        "page_guard_copy_on_map"
 #define PAGE_GUARD_COPY_ON_MAP_UPPER        "PAGE_GUARD_COPY_ON_MAP"
-#define PAGE_GUARD_LAZY_COPY_LOWER          "page_guard_lazy_copy"
-#define PAGE_GUARD_LAZY_COPY_UPPER          "PAGE_GUARD_LAZY_COPY"
 #define PAGE_GUARD_SEPARATE_READ_LOWER      "page_guard_separate_read"
 #define PAGE_GUARD_SEPARATE_READ_UPPER      "PAGE_GUARD_SEPARATE_READ"
 #define PAGE_GUARD_EXTERNAL_MEMORY_LOWER    "page_guard_external_memory"
@@ -104,7 +102,6 @@ const char kMemoryTrackingModeEnvVar[]       = GFXRECON_ENV_VAR_PREFIX MEMORY_TR
 const char kCaptureFramesEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
 const char kCaptureTriggerEnvVar[]           = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_LOWER;
 const char kPageGuardCopyOnMapEnvVar[]       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_LOWER;
-const char kPageGuardLazyCopyEnvVar[]        = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_LAZY_COPY_LOWER;
 const char kPageGuardSeparateReadEnvVar[]    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_LOWER;
 const char kPageGuardExternalMemoryEnvVar[]  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
 
@@ -131,7 +128,6 @@ const char kLogOutputToOsDebugStringEnvVar[]          = GFXRECON_ENV_VAR_PREFIX 
 const char kMemoryTrackingModeEnvVar[]                = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_UPPER;
 const char kCaptureFramesEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_UPPER;
 const char kPageGuardCopyOnMapEnvVar[]                = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_UPPER;
-const char kPageGuardLazyCopyEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_LAZY_COPY_UPPER;
 const char kPageGuardSeparateReadEnvVar[]             = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_UPPER;
 const char kPageGuardExternalMemoryEnvVar[]           = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
 const char kCaptureTriggerEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_UPPER;
@@ -160,7 +156,6 @@ const std::string kOptionKeyMemoryTrackingMode       = std::string(kSettingsFilt
 const std::string kOptionKeyCaptureFrames            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
 const std::string kOptionKeyCaptureTrigger           = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_LOWER);
 const std::string kOptionKeyPageGuardCopyOnMap       = std::string(kSettingsFilter) + std::string(PAGE_GUARD_COPY_ON_MAP_LOWER);
-const std::string kOptionKeyPageGuardLazyCopy        = std::string(kSettingsFilter) + std::string(PAGE_GUARD_LAZY_COPY_LOWER);
 const std::string kOptionKeyPageGuardSeparateRead    = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SEPARATE_READ_LOWER);
 const std::string kOptionKeyPageGuardExternalMemory  = std::string(kSettingsFilter) + std::string(PAGE_GUARD_EXTERNAL_MEMORY_LOWER);
 // clang-format on
@@ -245,7 +240,6 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     // Page guard environment variables
     LoadSingleOptionEnvVar(options, kPageGuardCopyOnMapEnvVar, kOptionKeyPageGuardCopyOnMap);
-    LoadSingleOptionEnvVar(options, kPageGuardLazyCopyEnvVar, kOptionKeyPageGuardLazyCopy);
     LoadSingleOptionEnvVar(options, kPageGuardSeparateReadEnvVar, kOptionKeyPageGuardSeparateRead);
     LoadSingleOptionEnvVar(options, kPageGuardExternalMemoryEnvVar, kOptionKeyPageGuardExternalMemory);
 }
@@ -312,8 +306,6 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // Page guard environment variables
     settings->trace_settings_.page_guard_copy_on_map = ParseBoolString(
         FindOption(options, kOptionKeyPageGuardCopyOnMap), settings->trace_settings_.page_guard_copy_on_map);
-    settings->trace_settings_.page_guard_lazy_copy = ParseBoolString(FindOption(options, kOptionKeyPageGuardLazyCopy),
-                                                                     settings->trace_settings_.page_guard_lazy_copy);
     settings->trace_settings_.page_guard_separate_read = ParseBoolString(
         FindOption(options, kOptionKeyPageGuardSeparateRead), settings->trace_settings_.page_guard_separate_read);
     settings->trace_settings_.page_guard_external_memory = ParseBoolString(

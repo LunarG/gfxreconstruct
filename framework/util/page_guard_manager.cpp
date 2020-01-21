@@ -182,19 +182,17 @@ PageGuardManager* PageGuardManager::instance_ = nullptr;
 PageGuardManager::PageGuardManager() :
     exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
     enable_shadow_memory_(kDefaultEnableShadowMemory), enable_copy_on_map_(kDefaultEnableCopyOnMap),
-    enable_lazy_copy_(kDefaultEnableLazyCopy), enable_separate_read_(kDefaultEnableSeparateRead),
-    enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
+    enable_separate_read_(kDefaultEnableSeparateRead), enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
 {}
 
 PageGuardManager::PageGuardManager(bool enable_shadow_memory,
                                    bool enable_copy_on_map,
-                                   bool enable_lazy_copy,
                                    bool enable_separate_read,
                                    bool expect_read_write_same_page) :
     exception_handler_(nullptr),
     exception_handler_count_(0), system_page_size_(GetSystemPageSize()), enable_shadow_memory_(enable_shadow_memory),
-    enable_copy_on_map_(enable_copy_on_map), enable_lazy_copy_(enable_lazy_copy),
-    enable_separate_read_(enable_separate_read), enable_read_write_same_page_(expect_read_write_same_page)
+    enable_copy_on_map_(enable_copy_on_map), enable_separate_read_(enable_separate_read),
+    enable_read_write_same_page_(expect_read_write_same_page)
 {}
 
 PageGuardManager::~PageGuardManager()
@@ -216,7 +214,6 @@ PageGuardManager::~PageGuardManager()
 
 void PageGuardManager::Create(bool enable_shadow_memory,
                               bool enable_copy_on_map,
-                              bool enable_lazy_copy,
                               bool enable_separate_read,
                               bool expect_read_write_same_page)
 {
@@ -224,7 +221,6 @@ void PageGuardManager::Create(bool enable_shadow_memory,
     {
         instance_ = new PageGuardManager(enable_shadow_memory,
                                          enable_copy_on_map,
-                                         enable_lazy_copy,
                                          enable_separate_read,
                                          expect_read_write_same_page);
     }
@@ -661,7 +657,7 @@ void* PageGuardManager::AddMemory(uint64_t memory_id, void* mapped_memory, size_
         {
             aligned_address = shadow_memory;
 
-            if (enable_copy_on_map_ && !enable_lazy_copy_)
+            if (enable_copy_on_map_)
             {
                 MemoryCopy(shadow_memory, mapped_memory, size);
             }
@@ -817,7 +813,6 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
         size_t start_offset = static_cast<uint8_t*>(address) - static_cast<uint8_t*>(memory_info->aligned_address);
 
         size_t page_index   = start_offset / system_page_size_;
-        size_t page_offset  = GetOffsetFromPageStart(address);
         void*  page_address = AlignToPageStart(address);
         size_t segment_size = GetMemorySegmentSize(memory_info, page_index);
 
@@ -832,28 +827,6 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
         // true because we are not notified if the exception was raised by a read or write operation.
         if (is_write)
         {
-            // When shadow memory is used, the content of the mapped memory needs to be copied to the shadow memory if
-            // the application is expected to read from that memory or if the application is mapping and unmapping
-            // memory to perform small, incremental updates.  As an optimization, the copy can be performed for
-            // individual page blocks at first access instead of being performed for the entire memory range at shadow
-            // memory allocation.  Multiple factors can affect the need to perform the copy:
-            //   If there is no shadow memory, the copy is unnecessary.
-            //   If the optimization is not enabled, the copy is unnecessary.
-            //   If the optimization is enabled, but this is not the first access to the block since it was mapped, the
-            //   copy is unnecessary.
-            if ((memory_info->shadow_memory != nullptr) &&
-                (enable_copy_on_map_ && enable_lazy_copy_ && !memory_info->status_tracker.IsBlockLoaded(page_index)))
-            {
-                // Advance the mapped memory pointer by the offset from the start of the shadow memory to the start of
-                // the modified page.
-                size_t modified_page_start = start_offset - page_offset;
-                assert(modified_page_start == (page_index * system_page_size_));
-                void* source_address = static_cast<uint8_t*>(memory_info->mapped_memory) + modified_page_start;
-
-                MemoryCopy(page_address, source_address, segment_size);
-                memory_info->status_tracker.SetBlockLoaded(page_index, true);
-            }
-
             memory_info->status_tracker.SetActiveWriteBlock(page_index, true);
         }
         else
@@ -861,16 +834,9 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
             // We should only receive a signal/exception for a read when shadow memory is enabled.
             assert(memory_info->shadow_memory != nullptr);
 
-            // This is a read from shadow memory with separate read tracking enabled.
-            if (enable_copy_on_map_ && enable_lazy_copy_)
-            {
-                // Mark the page as loaded for lazy copy on map.
-                memory_info->status_tracker.SetBlockLoaded(page_index, true);
-            }
-
             // Advance the mapped memory pointer by the offset from the start of the shadow memory to the start of
             // the modified page.
-            size_t modified_page_start = start_offset - page_offset;
+            size_t modified_page_start = start_offset - GetOffsetFromPageStart(address);
             assert(modified_page_start == (page_index * system_page_size_));
             void* source_address = reinterpret_cast<uint8_t*>(memory_info->mapped_memory) + modified_page_start;
             MemoryCopy(page_address, source_address, segment_size);

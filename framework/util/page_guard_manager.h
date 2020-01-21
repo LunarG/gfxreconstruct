@@ -37,7 +37,6 @@ class PageGuardManager
   public:
     static const bool kDefaultEnableShadowMemory      = true;
     static const bool kDefaultEnableCopyOnMap         = true;
-    static const bool kDefaultEnableLazyCopy          = false;
     static const bool kDefaultEnableSeparateRead      = true;
     static const bool kDefaultEnableReadWriteSamePage = true;
 
@@ -50,7 +49,6 @@ class PageGuardManager
   public:
     static void Create(bool enable_shadow_memory,
                        bool enable_copy_on_map,
-                       bool enable_lazy_copy,
                        bool enable_separate_read,
                        bool expect_read_write_same_page);
 
@@ -83,7 +81,6 @@ class PageGuardManager
 
     PageGuardManager(bool enable_shadow_memory,
                      bool enable_copy_on_map,
-                     bool enable_lazy_copy,
                      bool enable_separate_read,
                      bool expect_read_write_same_page);
 
@@ -177,7 +174,6 @@ class PageGuardManager
     const size_t             system_page_size_;
     const bool               enable_shadow_memory_;
     const bool               enable_copy_on_map_;
-    const bool               enable_lazy_copy_;
     const bool               enable_separate_read_;
 
     // Only applies to WIN32 builds and Linux/Android builds with PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION defined.

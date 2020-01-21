@@ -31,19 +31,15 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class PageStatusTracker
 {
   public:
-    PageStatusTracker(size_t page_count) :
-        active_writes_(page_count, 0), active_reads_(page_count, 0), page_loaded_(page_count, 0)
-    {}
+    PageStatusTracker(size_t page_count) : active_writes_(page_count, 0), active_reads_(page_count, 0) {}
 
     ~PageStatusTracker() {}
 
     bool IsActiveWriteBlock(size_t index) const { return (active_writes_[index] == 1); }
     bool IsActiveReadBlock(size_t index) const { return (active_reads_[index] == 1); }
-    bool IsBlockLoaded(size_t index) const { return (page_loaded_[index] == 1); }
 
     void SetActiveWriteBlock(size_t index, bool value) { active_writes_[index] = value ? 1 : 0; }
     void SetActiveReadBlock(size_t index, bool value) { active_reads_[index] = value ? 1 : 0; }
-    void SetBlockLoaded(size_t index, bool value) { page_loaded_[index] = value ? 1 : 0; }
 
   private:
     typedef std::vector<uint8_t> PageStatus;
@@ -51,7 +47,6 @@ class PageStatusTracker
   private:
     PageStatus active_writes_; //< Track blocks that have been written.
     PageStatus active_reads_;  //< Track blocks that have been read.
-    PageStatus page_loaded_;   //< Tracks status of pages that have or have not been previously used.
 };
 
 GFXRECON_END_NAMESPACE(util)
