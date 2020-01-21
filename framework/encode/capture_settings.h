@@ -66,6 +66,7 @@ class CaptureSettings
         std::string            trim_key;
         bool                   page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
         bool                   page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
+        bool                   page_guard_persistent_memory{ util::PageGuardManager::kDefaultEnablePersistentMemory };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a
