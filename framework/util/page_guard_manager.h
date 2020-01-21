@@ -28,6 +28,7 @@
 #include <memory>
 #include <mutex>
 #include <unordered_map>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -36,6 +37,7 @@ class PageGuardManager
 {
   public:
     static const bool kDefaultEnableShadowMemory      = true;
+    static const bool kDefaultEnablePersistentMemory  = false;
     static const bool kDefaultEnableCopyOnMap         = true;
     static const bool kDefaultEnableSeparateRead      = true;
     static const bool kDefaultEnableReadWriteSamePage = true;
@@ -48,6 +50,7 @@ class PageGuardManager
 
   public:
     static void Create(bool enable_shadow_memory,
+                       bool enable_persistent_memory,
                        bool enable_copy_on_map,
                        bool enable_separate_read,
                        bool expect_read_write_same_page);
@@ -58,11 +61,14 @@ class PageGuardManager
 
     bool UseSeparateRead() const { return enable_separate_read_; }
 
-    bool GetMemory(uint64_t memory_id, void** memory);
+    bool GetTrackedMemory(uint64_t memory_id, void** memory);
 
-    void* AddMemory(uint64_t memory_id, void* mapped_memory, size_t size);
+    void* AddTrackedMemory(
+        uint64_t memory_id, void* mapped_memory, size_t mapped_offset, size_t mapped_range, size_t allocation_size);
 
-    void RemoveMemory(uint64_t memory_id);
+    void RemoveTrackedMemory(uint64_t memory_id);
+
+    void FreeTrackedMemory(uint64_t memory_id);
 
     void ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemoryFunc& handle_modified);
 
@@ -80,6 +86,7 @@ class PageGuardManager
     PageGuardManager();
 
     PageGuardManager(bool enable_shadow_memory,
+                     bool enable_persistent_memory,
                      bool enable_copy_on_map,
                      bool enable_separate_read,
                      bool expect_read_write_same_page);
@@ -107,7 +114,7 @@ class PageGuardManager
 #if defined(WIN32)
             if (shadow_memory == nullptr)
             {
-                modified_addresses = std::make_unique<void*[]>(total_pages);
+                modified_addresses = std::make_unique<void* []>(total_pages);
             }
 #endif
         }
@@ -130,11 +137,25 @@ class PageGuardManager
 
 #if defined(WIN32)
         // Memory for retrieving modified pages with GetWriteWatch.
-        std::unique_ptr<void*[]> modified_addresses;
+        std::unique_ptr<void* []> modified_addresses;
 #endif
     };
 
-    typedef std::unordered_map<uint64_t, MemoryInfo> MemoryInfoMap;
+    struct ShadowMemoryInfo
+    {
+        ShadowMemoryInfo(void* sm, size_t ss, size_t tp, size_t lss) :
+            memory(sm), size(ss), total_pages(tp), last_segment_size(lss), page_loaded(tp, false)
+        {}
+
+        void*             memory;            // Pointer to the shadow memory.
+        size_t            size;              // Page-aligned size of the shadow memory.
+        size_t            total_pages;       // Total number of pages in the shadow memory.
+        size_t            last_segment_size; // Size of the last segment of the mapped memory.
+        std::vector<bool> page_loaded;       // Tracks which pages have been loaded.
+    };
+
+    typedef std::unordered_map<uint64_t, MemoryInfo>       MemoryInfoMap;
+    typedef std::unordered_map<uint64_t, ShadowMemoryInfo> ShadowMemoryMap;
 
   private:
     size_t GetSystemPageSize() const;
@@ -168,11 +189,14 @@ class PageGuardManager
   private:
     static PageGuardManager* instance_;
     MemoryInfoMap            memory_info_;
+    ShadowMemoryMap          shadow_memory_;
+    std::mutex               shadow_memory_lock_;
     std::mutex               tracked_memory_lock_;
     void*                    exception_handler_;
     uint32_t                 exception_handler_count_;
     const size_t             system_page_size_;
     const bool               enable_shadow_memory_;
+    const bool               enable_persistent_memory_;
     const bool               enable_copy_on_map_;
     const bool               enable_separate_read_;
 

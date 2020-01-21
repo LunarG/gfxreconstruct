@@ -295,6 +295,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager::Create(!page_guard_external_memory_,
+                                           trace_settings.page_guard_persistent_memory,
                                            trace_settings.page_guard_copy_on_map,
                                            trace_settings.page_guard_separate_read,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage);
@@ -1173,8 +1174,8 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
 
         if ((capture_mode_ & kModeTrack) != kModeTrack)
         {
-            // The state tracker will set this value when it is enabled. When state tracking is disabled it is set
-            // here to ensure it is available for mapped memory tracking.
+            // The state tracker will set these values when it is enabled. When state tracking is disabled they are set
+            // here to ensure they are available for mapped memory tracking.
             auto wrapper             = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
             wrapper->allocation_size = pAllocateInfo->allocationSize;
         }
@@ -1305,14 +1306,20 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
 
                 if (size > 0)
                 {
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, offset);
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, wrapper->allocation_size);
 
                     util::PageGuardManager* manager = util::PageGuardManager::Get();
                     assert(manager != nullptr);
 
                     // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
                     // not the mapped memory.
-                    (*ppData) = manager->AddMemory(wrapper->handle_id, (*ppData), static_cast<size_t>(size));
+                    (*ppData) = manager->AddTrackedMemory(wrapper->handle_id,
+                                                          (*ppData),
+                                                          static_cast<size_t>(offset),
+                                                          static_cast<size_t>(size),
+                                                          static_cast<size_t>(wrapper->allocation_size));
                 }
             }
             else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
@@ -1338,7 +1345,7 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
                 util::PageGuardManager* manager = util::PageGuardManager::Get();
                 assert(manager != nullptr);
 
-                if (!manager->GetMemory(wrapper->handle_id, ppData))
+                if (!manager->GetTrackedMemory(wrapper->handle_id, ppData))
                 {
                     GFXRECON_LOG_ERROR("Modifications to the VkDeviceMemory object that has been mapped more than once "
                                        "are not being track by PageGuardManager");
@@ -1435,7 +1442,7 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
                                             WriteFillMemoryCmd(memory_id, offset, size, start_address);
                                         });
 
-            manager->RemoveMemory(wrapper->handle_id);
+            manager->RemoveTrackedMemory(wrapper->handle_id);
         }
         else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
         {
@@ -1488,16 +1495,23 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     {
         auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
 
-        if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
-            (wrapper->mapped_data != nullptr))
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
 
-            manager->RemoveMemory(wrapper->handle_id);
+            if (wrapper->mapped_data != nullptr)
+            {
+                // Remove memory tracking.
+                manager->RemoveTrackedMemory(wrapper->handle_id);
+            }
+
+            // Ensure shadow memory allocations are freed.
+            manager->FreeTrackedMemory(wrapper->handle_id);
 
             if (page_guard_external_memory_)
             {
+                // Free the external memory allocation created by the layer in OverrideAllocateMemory.
                 size_t external_memory_size = manager->GetAlignedSize(static_cast<size_t>(wrapper->allocation_size));
                 manager->FreeMemory(wrapper->external_allocation, external_memory_size);
             }
