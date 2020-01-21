@@ -65,7 +65,6 @@ class CaptureSettings
         std::vector<TrimRange> trim_ranges;
         std::string            trim_key;
         bool                   page_guard_copy_on_map{ util::PageGuardManager::kDefaultEnableCopyOnMap };
-        bool                   page_guard_lazy_copy{ util::PageGuardManager::kDefaultEnableLazyCopy };
         bool                   page_guard_separate_read{ util::PageGuardManager::kDefaultEnableSeparateRead };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
