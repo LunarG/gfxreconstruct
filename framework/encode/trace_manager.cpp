@@ -86,8 +86,9 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
 
 TraceManager::TraceManager() :
     force_file_flush_(false), bytes_written_(0), timestamp_filename_(true),
-    memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_external_memory_(false),
-    trim_enabled_(false), trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite)
+    memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
+    page_guard_external_memory_(false), trim_enabled_(false), trim_current_range_(0), current_frame_(kFirstFrame),
+    capture_mode_(kModeWrite)
 {}
 
 TraceManager::~TraceManager()
@@ -211,6 +212,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {
+        page_guard_align_buffer_sizes_ = trace_settings.page_guard_align_buffer_sizes;
 #if defined(WIN32)
         page_guard_external_memory_ = trace_settings.page_guard_external_memory;
 #else
@@ -224,7 +226,8 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     }
     else
     {
-        page_guard_external_memory_ = false;
+        page_guard_align_buffer_sizes_ = false;
+        page_guard_external_memory_    = false;
     }
 
     if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty())

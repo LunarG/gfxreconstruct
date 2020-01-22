@@ -223,6 +223,36 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetBufferMemoryRequirements(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetBufferMemoryRequirements2(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetBufferMemoryRequirements2(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory>
 {
     template <typename... Args>

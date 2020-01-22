@@ -486,6 +486,51 @@ class TraceManager
         }
     }
 
+    void PostProcess_vkGetBufferMemoryRequirements(VkDevice              device,
+                                                   VkBuffer              buffer,
+                                                   VkMemoryRequirements* pMemoryRequirements)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        GFXRECON_UNREFERENCED_PARAMETER(buffer);
+
+        if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            page_guard_align_buffer_sizes_ && (pMemoryRequirements != nullptr))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->alignment);
+
+            pMemoryRequirements->size = manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->size));
+            pMemoryRequirements->alignment =
+                manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->alignment));
+        }
+    }
+
+    void PostProcess_vkGetBufferMemoryRequirements2(VkDevice                               device,
+                                                    const VkBufferMemoryRequirementsInfo2* pInfo,
+                                                    VkMemoryRequirements2*                 pMemoryRequirements)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(device);
+        GFXRECON_UNREFERENCED_PARAMETER(pInfo);
+
+        if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            page_guard_align_buffer_sizes_ && (pMemoryRequirements != nullptr))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->memoryRequirements.size);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pMemoryRequirements->memoryRequirements.alignment);
+
+            pMemoryRequirements->memoryRequirements.size =
+                manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->memoryRequirements.size));
+            pMemoryRequirements->memoryRequirements.alignment =
+                manager->GetAlignedSize(static_cast<size_t>(pMemoryRequirements->memoryRequirements.alignment));
+        }
+    }
+
     void PostProcess_vkBindBufferMemory(
         VkResult result, VkDevice device, VkBuffer buffer, VkDeviceMemory memory, VkDeviceSize memoryOffset)
     {
@@ -880,6 +925,7 @@ class TraceManager
     uint64_t                                        bytes_written_;
     std::unique_ptr<util::Compressor>               compressor_;
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
+    bool                                            page_guard_align_buffer_sizes_;
     bool                                            page_guard_external_memory_;
     std::mutex                                      mapped_memory_lock_;
     std::set<DeviceMemoryWrapper*>                  mapped_memory_; // Track mapped memory for unassisted tracking mode.
