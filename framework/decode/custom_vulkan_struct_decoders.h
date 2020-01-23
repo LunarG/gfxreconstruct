@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -34,6 +34,19 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+
+// TODO: This is currently used when mapping external object IDs to object handles that are created on replay. This
+// functionality could instead be provided through the replay consumer's PreProcessExternalObject and
+// PostProcessExternalObject methods if they were moved to the VulkanObjectInfo table, which would make them available
+// to the struct decoders.
+struct Decoded_VkBaseOutStructure
+{
+    using struct_type = VkBaseOutStructure;
+
+    VkBaseOutStructure* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
 
 // Decoded union wrappers.
 struct Decoded_VkClearColorValue

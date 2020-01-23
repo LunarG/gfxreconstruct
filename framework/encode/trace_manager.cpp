@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +34,10 @@
 #if defined(VK_USE_PLATFORM_XCB_KHR)
 #include <xcb/xcb_keysyms.h>
 #endif
+#endif
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+#include <android/hardware_buffer.h>
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -87,8 +91,8 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
 TraceManager::TraceManager() :
     force_file_flush_(false), bytes_written_(0), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
-    page_guard_external_memory_(false), trim_enabled_(false), trim_current_range_(0), current_frame_(kFirstFrame),
-    capture_mode_(kModeWrite)
+    page_guard_external_memory_(false), page_guard_track_ahb_memory_(false), trim_enabled_(false),
+    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite)
 {}
 
 TraceManager::~TraceManager()
@@ -213,6 +217,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {
         page_guard_align_buffer_sizes_ = trace_settings.page_guard_align_buffer_sizes;
+        page_guard_track_ahb_memory_   = trace_settings.page_guard_track_ahb_memory;
 #if defined(WIN32)
         page_guard_external_memory_ = trace_settings.page_guard_external_memory;
 #else
@@ -227,6 +232,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     else
     {
         page_guard_align_buffer_sizes_ = false;
+        page_guard_track_ahb_memory_   = false;
         page_guard_external_memory_    = false;
     }
 
@@ -808,18 +814,18 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
         const uint8_t*                  write_address = (static_cast<const uint8_t*>(data) + offset);
         size_t                          write_size    = static_cast<size_t>(size);
 
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
         fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
-        fill_cmd.thread_id                     = GetThreadData()->thread_id_;
+        fill_cmd.thread_id                     = thread_data->thread_id_;
         fill_cmd.memory_id                     = memory_id;
         fill_cmd.memory_offset                 = offset;
         fill_cmd.memory_size                   = size;
 
         if (compressor_ != nullptr)
         {
-            auto thread_data = GetThreadData();
-            assert(thread_data != nullptr);
-
             size_t compressed_size = compressor_->Compress(write_size, write_address, &thread_data->compressed_buffer_);
 
             if ((compressed_size > 0) && (compressed_size < write_size))
@@ -849,6 +855,113 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
                 file_stream_->Flush();
             }
         }
+    }
+}
+
+void TraceManager::WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
+                                                AHardwareBuffer*                                    buffer,
+                                                const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        assert(buffer != nullptr);
+
+        format::CreateHardwareBufferCommandHeader create_buffer_cmd;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        create_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        create_buffer_cmd.meta_header.block_header.size =
+            sizeof(create_buffer_cmd) - sizeof(create_buffer_cmd.meta_header.block_header);
+        create_buffer_cmd.meta_header.meta_data_type = format::MetaDataType::kCreateHardwareBufferCommand;
+        create_buffer_cmd.thread_id                  = thread_data->thread_id_;
+        create_buffer_cmd.memory_id                  = memory_id;
+        create_buffer_cmd.buffer_id                  = reinterpret_cast<uint64_t>(buffer);
+
+        // Get AHB description data.
+        AHardwareBuffer_Desc ahb_desc = {};
+        AHardwareBuffer_describe(buffer, &ahb_desc);
+
+        create_buffer_cmd.format = ahb_desc.format;
+        create_buffer_cmd.width  = ahb_desc.width;
+        create_buffer_cmd.height = ahb_desc.height;
+        create_buffer_cmd.stride = ahb_desc.stride;
+        create_buffer_cmd.usage  = ahb_desc.usage;
+        create_buffer_cmd.layers = ahb_desc.layers;
+
+        size_t planes_size = 0;
+
+        if (plane_info.empty())
+        {
+            create_buffer_cmd.planes = 0;
+        }
+        else
+        {
+            create_buffer_cmd.planes = static_cast<uint32_t>(plane_info.size());
+            // Update size of packet with compressed or uncompressed data size.
+            planes_size = sizeof(plane_info[0]) * plane_info.size();
+            create_buffer_cmd.meta_header.block_header.size += planes_size;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&create_buffer_cmd, sizeof(create_buffer_cmd));
+
+            if (planes_size > 0)
+            {
+                bytes_written_ += file_stream_->Write(plane_info.data(), planes_size);
+            }
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+#else
+        GFXRECON_UNREFERENCED_PARAMETER(memory_id);
+        GFXRECON_UNREFERENCED_PARAMETER(buffer);
+        GFXRECON_UNREFERENCED_PARAMETER(plane_info);
+
+        GFXRECON_LOG_ERROR("Skipping create AHardwareBuffer command write for unsupported platform");
+#endif
+    }
+}
+
+void TraceManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        assert(buffer != nullptr);
+
+        format::DestroyHardwareBufferCommand destroy_buffer_cmd;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        destroy_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        destroy_buffer_cmd.meta_header.block_header.size =
+            sizeof(destroy_buffer_cmd) - sizeof(destroy_buffer_cmd.meta_header.block_header);
+        destroy_buffer_cmd.meta_header.meta_data_type = format::MetaDataType::kDestroyHardwareBufferCommand;
+        destroy_buffer_cmd.thread_id                  = thread_data->thread_id_;
+        destroy_buffer_cmd.buffer_id                  = reinterpret_cast<uint64_t>(buffer);
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&destroy_buffer_cmd, sizeof(destroy_buffer_cmd));
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+#else
+        GFXRECON_LOG_ERROR("Skipping destroy AHardwareBuffer command write for unsupported platform");
+#endif
     }
 }
 
@@ -1118,6 +1231,11 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
     VkMemoryAllocateInfo* pAllocateInfo_unwrapped =
         const_cast<VkMemoryAllocateInfo*>(UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory));
 
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    const VkImportAndroidHardwareBufferInfoANDROID* import_ahb_info =
+        FindAllocateMemoryExtensions(pAllocateInfo_unwrapped);
+#endif
+
     if (page_guard_external_memory_)
     {
         auto                  device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
@@ -1176,11 +1294,17 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
 
         if ((capture_mode_ & kModeTrack) != kModeTrack)
         {
-            // The state tracker will set these values when it is enabled. When state tracking is disabled they are set
-            // here to ensure they are available for mapped memory tracking.
-            auto wrapper             = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
-            wrapper->allocation_size = pAllocateInfo->allocationSize;
+            // The state tracker will set this value when it is enabled. When state tracking is disabled it is set
+            // here to ensure it is available for mapped memory tracking.
+            memory_wrapper->allocation_size = pAllocateInfo->allocationSize;
         }
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        if ((import_ahb_info != nullptr) && (import_ahb_info->buffer != nullptr))
+        {
+            ProcessImportAndroidHardwareBuffer(device, *pMemory, import_ahb_info->buffer);
+        }
+#endif
     }
     else if (external_memory != nullptr)
     {
@@ -1229,6 +1353,165 @@ VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wr
     assert(memory_type_index < physical_device_wrapper->memory_types.size());
 
     return flags = physical_device_wrapper->memory_types[memory_type_index].propertyFlags;
+}
+
+const VkImportAndroidHardwareBufferInfoANDROID*
+TraceManager::FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_info)
+{
+    const VkImportAndroidHardwareBufferInfoANDROID* import_ahb_info = nullptr;
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    assert(allocate_info != nullptr);
+
+    const VkBaseInStructure* pnext = reinterpret_cast<const VkBaseInStructure*>(allocate_info->pNext);
+    while (pnext != nullptr)
+    {
+        if (pnext->sType == VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID)
+        {
+            import_ahb_info = reinterpret_cast<const VkImportAndroidHardwareBufferInfoANDROID*>(pnext);
+            break;
+        }
+
+        pnext = pnext->pNext;
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(allocate_info);
+#endif
+
+    return import_ahb_info;
+}
+
+void TraceManager::ProcessImportAndroidHardwareBuffer(VkDevice         device,
+                                                      VkDeviceMemory   memory,
+                                                      AHardwareBuffer* hardware_buffer)
+{
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    auto memory_wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+    assert((memory_wrapper != nullptr) && (hardware_buffer != nullptr));
+
+    auto entry = hardware_buffers_.find(hardware_buffer);
+    if (entry != hardware_buffers_.end())
+    {
+        ++entry->second.reference_count;
+        memory_wrapper->hardware_buffer = hardware_buffer;
+    }
+    else
+    {
+        // If this is the first device memory object to reference the hardware buffer, write a buffer creation
+        // command to the capture file and setup memory tracking.
+        void* data   = nullptr;
+        int   result = -1;
+
+        std::vector<format::HardwareBufferPlaneInfo> plane_info;
+
+        // The multi-plane functions are declared for API 26, but are only available to link with API 29.  So, this
+        // could be turned into a run-time check dependent on dlsym returning a valid pointer for
+        // AHardwareBuffer_lockPlanes.
+#if __ANDROID_API__ >= 29
+        AHardwareBuffer_Planes ahb_planes;
+        result =
+            AHardwareBuffer_lockPlanes(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &ahb_planes);
+        if (result == 0)
+        {
+            data = ahb_planes.planes[0].data;
+
+            for (uint32_t i = 0; i < ahb_planes.planeCount; ++i)
+            {
+                format::HardwareBufferPlaneInfo ahb_plane_info;
+                ahb_plane_info.offset =
+                    reinterpret_cast<uint8_t*>(ahb_planes.planes[i].data) - reinterpret_cast<uint8_t*>(data);
+                ahb_plane_info.pixel_stride = ahb_planes.planes[i].pixelStride;
+                ahb_plane_info.row_pitch    = ahb_planes.planes[i].rowStride;
+                plane_info.emplace_back(std::move(ahb_plane_info));
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("AHardwareBuffer_lockPlanes failed: AHardwareBuffer_lock will be used instead");
+        }
+#endif
+
+        if (result != 0)
+        {
+            result = AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
+        }
+
+        if (result == 0)
+        {
+            assert(data != nullptr);
+
+            // Only store buffer IDs and reference count if a creation command is written to the capture file.
+            format::HandleId memory_id = GetUniqueId();
+
+            HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
+            ahb_info.memory_id           = memory_id;
+            ahb_info.reference_count     = 1;
+
+            memory_wrapper->hardware_buffer = hardware_buffer;
+
+            WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+            WriteFillMemoryCmd(memory_id, 0, memory_wrapper->allocation_size, data);
+
+            if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+                page_guard_track_ahb_memory_)
+            {
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, memory_wrapper->allocation_size);
+
+                util::PageGuardManager* manager = util::PageGuardManager::Get();
+                assert(manager != nullptr);
+
+                manager->AddTrackedMemory(
+                    memory_id,
+                    data,
+                    0,
+                    static_cast<size_t>(memory_wrapper->allocation_size),
+                    false, // No shadow memory for the imported AHB memory; Track directly with mprotect().
+                    false, // Write watch is not supported for this case.
+                    static_cast<size_t>(memory_wrapper->allocation_size));
+            }
+
+            result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
+            if (result != 0)
+            {
+                GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "AHardwareBuffer_lock failed: hardware buffer data will be omitted from the capture file");
+        }
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(memory);
+    GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
+#endif
+}
+
+void TraceManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer)
+{
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    assert(hardware_buffer != nullptr);
+
+    auto entry = hardware_buffers_.find(hardware_buffer);
+    if ((entry != hardware_buffers_.end()) && (--entry->second.reference_count == 0))
+    {
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            manager->RemoveTrackedMemory(entry->second.memory_id);
+        }
+
+        // There are no more references to the buffer, so we can submit a destroy buffer command.
+        WriteDestroyHardwareBufferCmd(entry->first);
+        hardware_buffers_.erase(entry);
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
+#endif
 }
 
 void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                       instance,
@@ -1298,7 +1581,13 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
                 wrapper->mapped_size   = size;
             }
 
-            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+                // Hardware buffer memory is tracked separately, so VkDeviceMemory mappings should be ignored to avoid
+                // duplicate memory tracking entries.
+                && (wrapper->hardware_buffer == nullptr)
+#endif
+            )
             {
                 if (size == VK_WHOLE_SIZE)
                 {
@@ -1500,27 +1789,52 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
     {
         auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
 
+        if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+            (wrapper->mapped_data != nullptr))
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            // Remove memory tracking.
+            manager->RemoveTrackedMemory(wrapper->handle_id);
+        }
+    }
+}
+
+void TraceManager::PostProcess_vkFreeMemory(VkDevice                     device,
+                                            VkDeviceMemory               memory,
+                                            const VkAllocationCallbacks* pAllocator)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+
+    if (memory != VK_NULL_HANDLE)
+    {
+        // Destroy external resources.
+        auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
 
-            if (wrapper->mapped_data != nullptr)
-            {
-                // Remove memory tracking.
-                manager->RemoveTrackedMemory(wrapper->handle_id);
-            }
-
             // Ensure shadow memory allocations are freed.
             manager->FreeTrackedMemory(wrapper->handle_id);
 
-            if (page_guard_external_memory_)
+            if (page_guard_external_memory_ && (wrapper->external_allocation != nullptr))
             {
-                // Free the external memory allocation created by the layer in OverrideAllocateMemory.
+
                 size_t external_memory_size = manager->GetAlignedSize(static_cast<size_t>(wrapper->allocation_size));
                 manager->FreeMemory(wrapper->external_allocation, external_memory_size);
             }
         }
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        if (wrapper->hardware_buffer != nullptr)
+        {
+            ReleaseAndroidHardwareBuffer(wrapper->hardware_buffer);
+        }
+#endif
     }
 }
 

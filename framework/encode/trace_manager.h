@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@
 #include "encode/vulkan_state_tracker.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
+#include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_command_buffer_util.h"
 #include "util/compressor.h"
@@ -816,6 +817,8 @@ class TraceManager
 
     void PreProcess_vkFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
 
+    void PostProcess_vkFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
+
     void PreProcess_vkQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence);
 
     void PreProcess_vkCreateDescriptorUpdateTemplate(VkResult                                    result,
@@ -876,6 +879,14 @@ class TraceManager
         static std::unordered_map<uint64_t, format::ThreadId> id_map_;
     };
 
+    struct HardwareBufferInfo
+    {
+        format::HandleId      memory_id;
+        std::atomic<uint32_t> reference_count;
+    };
+
+    typedef std::unordered_map<AHardwareBuffer*, HardwareBufferInfo> HardwareBufferMap;
+
   private:
     ThreadData* GetThreadData()
     {
@@ -898,6 +909,10 @@ class TraceManager
 
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
     void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
+    void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
+                                      AHardwareBuffer*                                    buffer,
+                                      const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
+    void WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer);
 
     void SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
                                          const VkDescriptorUpdateTemplateCreateInfo* create_info);
@@ -907,6 +922,12 @@ class TraceManager
                                               const void*                data);
 
     VkMemoryPropertyFlags GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index);
+
+    const VkImportAndroidHardwareBufferInfoANDROID*
+    FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_info);
+
+    void ProcessImportAndroidHardwareBuffer(VkDevice device, VkDeviceMemory memory, AHardwareBuffer* hardware_buffer);
+    void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
 
   private:
     static TraceManager*                            instance_;
@@ -927,6 +948,7 @@ class TraceManager
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
     bool                                            page_guard_align_buffer_sizes_;
     bool                                            page_guard_external_memory_;
+    bool                                            page_guard_track_ahb_memory_;
     std::mutex                                      mapped_memory_lock_;
     std::set<DeviceMemoryWrapper*>                  mapped_memory_; // Track mapped memory for unassisted tracking mode.
     bool                                            trim_enabled_;
@@ -936,6 +958,7 @@ class TraceManager
     uint32_t                                        current_frame_;
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
     CaptureMode                                     capture_mode_;
+    HardwareBufferMap                               hardware_buffers_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
