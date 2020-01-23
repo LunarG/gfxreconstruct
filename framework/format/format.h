@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -71,19 +71,17 @@ enum MarkerType : uint32_t
 
 enum MetaDataType : uint32_t
 {
-    kUnknownMetaDataType = 0,
-
-    // Platform independent metadata commands.
-    kDisplayMessageCommand = 1,
-    kFillMemoryCommand     = 2,
-    kResizeWindowCommand   = 3,
-
-    // Commands for trimmed frame state setup.
+    kUnknownMetaDataType           = 0,
+    kDisplayMessageCommand         = 1,
+    kFillMemoryCommand             = 2,
+    kResizeWindowCommand           = 3,
     kSetSwapchainImageStateCommand = 4,
     kBeginResourceInitCommand      = 5,
     kEndResourceInitCommand        = 6,
     kInitBufferCommand             = 7,
-    kInitImageCommand              = 8
+    kInitImageCommand              = 8,
+    kCreateHardwareBufferCommand   = 9,
+    kDestroyHardwareBufferCommand  = 10
 };
 
 enum CompressionType : uint32_t
@@ -95,9 +93,9 @@ enum CompressionType : uint32_t
 
 enum FileOption : uint32_t
 {
-    kUnknownFileOption     = 0,
-    kCompressionType       = 1, // One of the CompressionType values defining the compression algorithm used with parameter
-                                // encoding. Default = CompressionType::kNone.
+    kUnknownFileOption = 0,
+    kCompressionType   = 1, // One of the CompressionType values defining the compression algorithm used with parameter
+                            // encoding. Default = CompressionType::kNone.
 };
 
 enum PointerAttributes : uint32_t
@@ -213,6 +211,38 @@ struct ResizeWindowCommand
     HandleId         surface_id;
     uint32_t         width;
     uint32_t         height;
+};
+
+struct CreateHardwareBufferCommandHeader
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    HandleId       memory_id; // Globally unique ID assigned to the buffer for tracking memory modifications.
+    uint64_t       buffer_id; // Address of the buffer object.
+    uint32_t       format;
+    uint32_t       width;
+    uint32_t       height;
+    uint32_t       stride; // Size of a row in pixels.
+    uint32_t       usage;
+    uint32_t       layers;
+    uint32_t       planes; // When additional multi-plane data is available, header is followed by 'planes' count
+                           // HardwareBufferLayerInfo records.  When unavailable, 'planes' is zero.
+};
+
+struct HardwareBufferPlaneInfo
+{
+    uint64_t offset;       // Offset from the start of the memory allocation in bytes.
+    uint32_t pixel_stride; // Bytes between pixels.
+    uint32_t row_pitch;    // Size of a row in bytes.
+};
+
+// Not a header because this command does not include a variable length data payload.
+// All of the command data is present in the struct.
+struct DestroyHardwareBufferCommand
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    uint64_t       buffer_id;
 };
 
 struct SetSwapchainImageStateCommandHeader

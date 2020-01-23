@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -539,6 +539,93 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         else
         {
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read display message meta-data block header");
+        }
+    }
+    else if (meta_type == format::MetaDataType::kCreateHardwareBufferCommand)
+    {
+        format::CreateHardwareBufferCommandHeader header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.memory_id, sizeof(header.memory_id));
+        success = success && ReadBytes(&header.buffer_id, sizeof(header.buffer_id));
+        success = success && ReadBytes(&header.format, sizeof(header.format));
+        success = success && ReadBytes(&header.width, sizeof(header.width));
+        success = success && ReadBytes(&header.height, sizeof(header.height));
+        success = success && ReadBytes(&header.stride, sizeof(header.stride));
+        success = success && ReadBytes(&header.usage, sizeof(header.usage));
+        success = success && ReadBytes(&header.layers, sizeof(header.layers));
+        success = success && ReadBytes(&header.planes, sizeof(header.planes));
+
+        if (success)
+        {
+            std::vector<format::HardwareBufferPlaneInfo> entries;
+
+            for (uint64_t i = 0; i < header.planes; ++i)
+            {
+                format::HardwareBufferPlaneInfo entry;
+
+                if (!ReadBytes(&entry, sizeof(entry)))
+                {
+                    success = false;
+                    break;
+                }
+
+                entries.emplace_back(std::move(entry));
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
+                                                                 header.memory_id,
+                                                                 header.buffer_id,
+                                                                 header.format,
+                                                                 header.width,
+                                                                 header.height,
+                                                                 header.stride,
+                                                                 header.usage,
+                                                                 header.layers,
+                                                                 entries);
+                }
+            }
+            else
+            {
+                if (format::IsBlockCompressed(block_header.type))
+                {
+                    HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                         "Failed to read create hardware buffer meta-data block");
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingBlockData,
+                                         "Failed to read create hardware buffer meta-data block");
+                }
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read create hardware buffer meta-data block header");
+        }
+    }
+    else if (meta_type == format::MetaDataType::kDestroyHardwareBufferCommand)
+    {
+        format::DestroyHardwareBufferCommand command;
+
+        success = ReadBytes(&command.thread_id, sizeof(command.thread_id));
+        success = success && ReadBytes(&command.buffer_id, sizeof(command.buffer_id));
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchDestroyHardwareBufferCommand(command.thread_id, command.buffer_id);
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read destroy hardware buffer meta-data block");
         }
     }
     else if (meta_type == format::MetaDataType::kSetSwapchainImageStateCommand)

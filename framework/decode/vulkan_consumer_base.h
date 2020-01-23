@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -47,6 +47,19 @@ class VulkanConsumerBase
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) {}
+
+    virtual void ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
+                                                    uint64_t                                            buffer_id,
+                                                    uint32_t                                            format,
+                                                    uint32_t                                            width,
+                                                    uint32_t                                            height,
+                                                    uint32_t                                            stride,
+                                                    uint32_t                                            usage,
+                                                    uint32_t                                            layers,
+                                                    const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
+    {}
+
+    virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) {}
 
     virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,
                                                       format::HandleId swapchain_id,

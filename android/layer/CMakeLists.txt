@@ -27,4 +27,5 @@ target_link_libraries(VkLayer_gfxreconstruct
                       gfxrecon_util
                       vulkan_registry
                       platform_specific
+                      android
                       log)

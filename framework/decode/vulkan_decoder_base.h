@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -71,6 +71,20 @@ class VulkanDecoderBase : public ApiDecoder
                                              format::HandleId surface_id,
                                              uint32_t         width,
                                              uint32_t         height) override;
+
+    virtual void
+    DispatchCreateHardwareBufferCommand(format::ThreadId                                    thread_id,
+                                        format::HandleId                                    memory_id,
+                                        uint64_t                                            buffer_id,
+                                        uint32_t                                            format,
+                                        uint32_t                                            width,
+                                        uint32_t                                            height,
+                                        uint32_t                                            stride,
+                                        uint32_t                                            usage,
+                                        uint32_t                                            layers,
+                                        const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
+
+    virtual void DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id) override;
 
     virtual void
     DispatchSetSwapchainImageStateCommand(format::ThreadId                                    thread_id,
