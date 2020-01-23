@@ -220,7 +220,7 @@ For build systems that support ccache, enable it with the CMake
  * The latest version of [Android Studio](https://developer.android.com/studio/) with additional items:
    * The [Android Platform tools](https://developer.android.com/studio/releases/platform-tools) for your specific platform
    * The [Android NDK](https://developer.android.com/ndk/guides/)
-   * [Android SDK 24 (7.0 Nougat) or newer](https://guides.codepath.com/android/installing-android-sdk-tools)
+   * [Android SDK 26 (8.0 Oreo) or newer](https://guides.codepath.com/android/installing-android-sdk-tools)
  * Set the following `ANDROID_*` environment variables appropriately in your user environment if building outside of Android Studio:
    * `ANDROID_NDK_HOME`
    * `ANDROID_SDK_HOME`

@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -147,6 +147,7 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     VkDeviceSize     mapped_size{ 0 };
     VkMemoryMapFlags mapped_flags{ 0 };
     void*            external_allocation{ nullptr };
+    AHardwareBuffer* hardware_buffer{ nullptr };
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>

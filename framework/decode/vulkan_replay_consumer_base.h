@@ -43,6 +43,11 @@
 #include <unordered_map>
 #include <vector>
 
+// Types provided by this file are defined by format/platform_types.h when VK_USE_PLATFORM_ANDROID_KHR is not set.
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+#include <android/hardware_buffer.h>
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -65,6 +70,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
+
+    virtual void
+    ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
+                                       uint64_t                                            buffer_id,
+                                       uint32_t                                            format,
+                                       uint32_t                                            width,
+                                       uint32_t                                            height,
+                                       uint32_t                                            stride,
+                                       uint32_t                                            usage,
+                                       uint32_t                                            layers,
+                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
+
+    virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) override;
 
     virtual void
     ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
@@ -557,6 +575,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ProcessSwapchainFullScreenExclusiveInfo(Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 
+    void ProcessImportAndroidHardwareBufferInfo(Decoded_VkMemoryAllocateInfo* allocate_info);
+
   private:
     struct InstanceDevices
     {
@@ -573,6 +593,30 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_set<Window*>                                    ActiveWindows;
     typedef std::unordered_map<VkInstance, InstanceDevices>                InstanceDeviceMap;
     typedef std::unordered_map<VkPhysicalDevice, PhysicalDeviceProperties> PhysicalDevicePropertiesMap;
+
+    struct HardwareBufferInfo
+    {
+        format::HandleId memory_id;
+        AHardwareBuffer* hardware_buffer;
+    };
+
+    struct HardwareBufferPlaneInfo
+    {
+        uint64_t capture_offset;
+        uint64_t replay_offset;
+        uint32_t capture_row_pitch;
+        uint32_t replay_row_pitch;
+    };
+
+    struct HardwareBufferMemoryInfo
+    {
+        AHardwareBuffer*                     hardware_buffer;
+        bool                                 compatible_strides;
+        std::vector<HardwareBufferPlaneInfo> plane_info;
+    };
+
+    typedef std::unordered_map<uint64_t, HardwareBufferInfo>               HardwareBufferMap;
+    typedef std::unordered_map<format::HandleId, HardwareBufferMemoryInfo> HardwareBufferMemoryMap;
 
   private:
     util::platform::LibraryHandle                                    loader_handle_;
@@ -591,6 +635,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     InstanceDeviceMap                                                instance_devices_;
     PhysicalDevicePropertiesMap                                      device_properties_;
     SwapchainImageTracker                                            swapchain_image_tracker_;
+    HardwareBufferMap                                                hardware_buffers_;
+    HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
