@@ -159,6 +159,7 @@ class PageGuardManager
 
   private:
     size_t GetSystemPageSize() const;
+    size_t GetSystemPagePotShift() const;
 
     void AddExceptionHandler();
     void RemoveExceptionHandler();
@@ -178,7 +179,7 @@ class PageGuardManager
 
     size_t GetOffsetFromPageStart(void* address) const
     {
-        return reinterpret_cast<uintptr_t>(address) % system_page_size_;
+        return reinterpret_cast<uintptr_t>(address) & (system_page_size_ - 1);
     }
 
     void* AlignToPageStart(void* address) const
@@ -195,6 +196,7 @@ class PageGuardManager
     void*                    exception_handler_;
     uint32_t                 exception_handler_count_;
     const size_t             system_page_size_;
+    const size_t             system_page_pot_shift_;
     const bool               enable_shadow_memory_;
     const bool               enable_persistent_memory_;
     const bool               enable_copy_on_map_;
