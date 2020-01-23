@@ -181,9 +181,9 @@ PageGuardManager* PageGuardManager::instance_ = nullptr;
 
 PageGuardManager::PageGuardManager() :
     exception_handler_(nullptr), exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
-    enable_shadow_memory_(kDefaultEnableShadowMemory), enable_persistent_memory_(kDefaultEnablePersistentMemory),
-    enable_copy_on_map_(kDefaultEnableCopyOnMap), enable_separate_read_(kDefaultEnableSeparateRead),
-    enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
+    system_page_pot_shift_(GetSystemPagePotShift()), enable_shadow_memory_(kDefaultEnableShadowMemory),
+    enable_persistent_memory_(kDefaultEnablePersistentMemory), enable_copy_on_map_(kDefaultEnableCopyOnMap),
+    enable_separate_read_(kDefaultEnableSeparateRead), enable_read_write_same_page_(kDefaultEnableReadWriteSamePage)
 {}
 
 PageGuardManager::PageGuardManager(bool enable_shadow_memory,
@@ -192,7 +192,8 @@ PageGuardManager::PageGuardManager(bool enable_shadow_memory,
                                    bool enable_separate_read,
                                    bool expect_read_write_same_page) :
     exception_handler_(nullptr),
-    exception_handler_count_(0), system_page_size_(GetSystemPageSize()), enable_shadow_memory_(enable_shadow_memory),
+    exception_handler_count_(0), system_page_size_(GetSystemPageSize()),
+    system_page_pot_shift_(GetSystemPagePotShift()), enable_shadow_memory_(enable_shadow_memory),
     enable_persistent_memory_(enable_persistent_memory), enable_copy_on_map_(enable_copy_on_map),
     enable_separate_read_(enable_separate_read), enable_read_write_same_page_(expect_read_write_same_page)
 {}
@@ -254,9 +255,27 @@ size_t PageGuardManager::GetSystemPageSize() const
 #endif
 }
 
+size_t PageGuardManager::GetSystemPagePotShift() const
+{
+    size_t pot_shift = 0;
+    size_t page_size = GetSystemPageSize();
+
+    if (page_size != 0)
+    {
+        assert((page_size & (page_size - 1)) == 0);
+        while (page_size != 1)
+        {
+            page_size >>= 1;
+            ++pot_shift;
+        }
+    }
+
+    return pot_shift;
+}
+
 size_t PageGuardManager::GetAlignedSize(size_t size) const
 {
-    size_t extra = size % system_page_size_;
+    size_t extra = size & (system_page_size_ - 1); // size % system_page_size_
     if (extra != 0)
     {
         // Adjust the size to be a multiple of the system page size.
@@ -482,7 +501,7 @@ void PageGuardManager::LoadActiveWriteStates(MemoryInfo* memory_info)
                 // page.
                 size_t start_offset =
                     static_cast<uint8_t*>(modified_addresses[i]) - static_cast<uint8_t*>(memory_info->aligned_address);
-                size_t page_index = start_offset / system_page_size_;
+                size_t page_index = start_offset >> system_page_pot_shift_;
 
                 memory_info->status_tracker.SetActiveWriteBlock(page_index, true);
             }
@@ -535,7 +554,8 @@ void PageGuardManager::ProcessEntry(uint64_t                  memory_id,
             {
                 assert(memory_info->shadow_memory != nullptr);
 
-                void*  page_address = static_cast<uint8_t*>(memory_info->aligned_address) + (i * system_page_size_);
+                void* page_address =
+                    static_cast<uint8_t*>(memory_info->aligned_address) + (i << system_page_pot_shift_);
                 size_t segment_size = GetMemorySegmentSize(memory_info, i);
 
                 memory_info->status_tracker.SetActiveReadBlock(i, false);
@@ -569,8 +589,8 @@ void PageGuardManager::ProcessActiveRange(uint64_t                  memory_id,
     assert(end_index > start_index);
 
     size_t page_count  = end_index - start_index;
-    size_t page_offset = start_index * system_page_size_;
-    size_t page_range  = page_count * system_page_size_;
+    size_t page_offset = start_index << system_page_pot_shift_;
+    size_t page_range  = page_count << system_page_pot_shift_;
 
     if (end_index == memory_info->total_pages)
     {
@@ -700,8 +720,9 @@ void* PageGuardManager::AddTrackedMemory(
 
                     if (shadow_memory != nullptr)
                     {
-                        size_t total_shadow_pages       = shadow_size / system_page_size_;
-                        size_t last_shadow_segment_size = allocation_size % system_page_size_;
+                        size_t total_shadow_pages = shadow_size >> system_page_pot_shift_;
+                        size_t last_shadow_segment_size =
+                            allocation_size & (system_page_size_ - 1); // allocation_size % system_page_size_
 
                         auto entry = shadow_memory_.emplace(
                             std::piecewise_construct,
@@ -743,8 +764,8 @@ void* PageGuardManager::AddTrackedMemory(
     if (aligned_address != nullptr)
     {
         size_t guard_range       = mapped_range + aligned_offset;
-        size_t total_pages       = guard_range / system_page_size_;
-        size_t last_segment_size = guard_range % system_page_size_;
+        size_t total_pages       = guard_range >> system_page_pot_shift_;
+        size_t last_segment_size = guard_range & (system_page_size_ - 1); // guard_range % system_page_size_
 
         if (last_segment_size != 0)
         {
@@ -757,7 +778,7 @@ void* PageGuardManager::AddTrackedMemory(
 
         if (shadow_memory_info != nullptr)
         {
-            size_t         first_page = (mapped_offset - aligned_offset) / system_page_size_;
+            size_t         first_page = (mapped_offset - aligned_offset) >> system_page_pot_shift_;
             uint8_t*       dst_page   = static_cast<uint8_t*>(shadow_memory);
             const uint8_t* src_page   = static_cast<const uint8_t*>(mapped_memory);
 
@@ -962,8 +983,8 @@ bool PageGuardManager::HandleGuardPageViolation(void* address, bool is_write, bo
         // Get the offset from the start of the first protected memory page to the current address.
         size_t start_offset = static_cast<uint8_t*>(address) - static_cast<uint8_t*>(memory_info->aligned_address);
 
-        size_t page_index   = start_offset / system_page_size_;
-        size_t page_offset  = page_index * system_page_size_;
+        size_t page_index   = start_offset >> system_page_pot_shift_;
+        size_t page_offset  = page_index << system_page_pot_shift_;
         void*  page_address = static_cast<uint8_t*>(memory_info->aligned_address) + page_offset;
         size_t segment_size = GetMemorySegmentSize(memory_info, page_index);
 
