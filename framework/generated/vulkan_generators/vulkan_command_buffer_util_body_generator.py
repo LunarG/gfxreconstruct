@@ -147,6 +147,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
     def insertCommandHandle(self, index, value, valuePrefix='', indent=''):
         body = ''
         tail = ''
+        indexName = None
         if (value.isPointer or value.isArray) and value.name != 'pnext_value':
             if index > 0:
                 body += '\n'
@@ -156,8 +157,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
             indent += ' ' * self.INDENT_SIZE
 
             if value.isArray:
-                # TODO: Nested loops would need unique indicies to work correctly
-                body += indent + 'for (uint32_t i = 0; i < {}{}; ++i)\n'.format(valuePrefix, value.arrayLength)
+                indexName = '{}_index'.format(value.name)
+                body += indent + 'for (uint32_t {i} = 0; {i} < {}{}; ++{i})\n'.format(valuePrefix, value.arrayLength, i=indexName)
                 body += indent + '{\n'
                 tail = indent + '}\n' + tail
                 indent += ' ' * self.INDENT_SIZE
@@ -166,7 +167,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
             typeEnumValue = '{}Handle'.format(value.baseType[2:])
             valueName = valuePrefix + value.name
             if value.isArray:
-                valueName = '{}[i]'.format(valueName)
+                valueName = '{}[{}]'.format(valueName, indexName)
             elif value.isPointer:
                 valueName = '(*{})'.format(valueName)
 
@@ -174,7 +175,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
         elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
             if value.isArray:
-                accessOperator = '[i].'
+                accessOperator = '[{}].'.format(indexName)
             elif value.isPointer:
                 accessOperator = '->'
             else:
@@ -191,6 +192,10 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                         body += indent + 'switch (pnext_header->sType)\n'
                         body += indent + '{\n'
                         indent += ' ' * self.INDENT_SIZE
+                        body += indent + 'default:\n'
+                        indent += ' ' * self.INDENT_SIZE
+                        body += indent + 'break;\n'
+                        indent = indent[:-self.INDENT_SIZE]
                         for extStruct in extStructsWithHandles:
                             body += indent + 'case {}:\n'.format(self.pNextStructs[extStruct])
                             body += indent + '{\n'
