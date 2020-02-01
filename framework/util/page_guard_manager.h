@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2015-2019 Valve Corporation
-** Copyright (c) 2015-2019 LunarG, Inc.
+** Copyright (c) 2015-2020 Valve Corporation
+** Copyright (c) 2015-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class PageGuardManager
 {
   public:
-    static const bool kDefaultEnableShadowMemory      = true;
     static const bool kDefaultEnablePersistentMemory  = false;
     static const bool kDefaultEnableCopyOnMap         = true;
     static const bool kDefaultEnableSeparateRead      = true;
@@ -49,8 +48,7 @@ class PageGuardManager
     typedef std::function<void(uint64_t, void*, size_t, size_t)> ModifiedMemoryFunc;
 
   public:
-    static void Create(bool enable_shadow_memory,
-                       bool enable_persistent_memory,
+    static void Create(bool enable_persistent_memory,
                        bool enable_copy_on_map,
                        bool enable_separate_read,
                        bool expect_read_write_same_page);
@@ -63,8 +61,14 @@ class PageGuardManager
 
     bool GetTrackedMemory(uint64_t memory_id, void** memory);
 
-    void* AddTrackedMemory(
-        uint64_t memory_id, void* mapped_memory, size_t mapped_offset, size_t mapped_range, size_t allocation_size);
+    // The use_write_watch parameter is ignored on all platforms except Windows.
+    void* AddTrackedMemory(uint64_t memory_id,
+                           void*    mapped_memory,
+                           size_t   mapped_offset,
+                           size_t   mapped_range,
+                           bool     use_shadow_memory,
+                           bool     use_write_watch,
+                           size_t   allocation_size);
 
     void RemoveTrackedMemory(uint64_t memory_id);
 
@@ -78,15 +82,15 @@ class PageGuardManager
 
     size_t GetAlignedSize(size_t size) const;
 
-    void* AllocateMemory(size_t aligned_size);
+    // The use_write_watch parameter is ignored on all platforms except Windows.
+    void* AllocateMemory(size_t aligned_size, bool use_write_watch);
 
     void FreeMemory(void* pMemory, size_t aligned_size);
 
   protected:
     PageGuardManager();
 
-    PageGuardManager(bool enable_shadow_memory,
-                     bool enable_persistent_memory,
+    PageGuardManager(bool enable_persistent_memory,
                      bool enable_copy_on_map,
                      bool enable_separate_read,
                      bool expect_read_write_same_page);
@@ -105,11 +109,12 @@ class PageGuardManager
                    size_t      tp,
                    size_t      lss,
                    const void* sa,
-                   const void* ea) :
+                   const void* ea,
+                   bool        ww) :
             status_tracker(tp),
             mapped_memory(mm), mapped_range(mr), shadow_memory(sm), shadow_range(sr), aligned_address(aa),
             aligned_offset(ao), total_pages(tp), last_segment_size(lss), start_address(sa), end_address(ea),
-            is_modified(false)
+            use_write_watch(ww), is_modified(false)
         {
 #if defined(WIN32)
             if (shadow_memory == nullptr)
@@ -133,6 +138,7 @@ class PageGuardManager
         size_t      last_segment_size; // Size of the last segment of the mapped memory, which may not be a full page.
         const void* start_address;     // Start address for the protected memory region.
         const void* end_address;       // Address immediately after the end of the protected memory region.
+        bool        use_write_watch;
         bool        is_modified;
 
 #if defined(WIN32)
@@ -197,7 +203,6 @@ class PageGuardManager
     uint32_t                 exception_handler_count_;
     const size_t             system_page_size_;
     const size_t             system_page_pot_shift_;
-    const bool               enable_shadow_memory_;
     const bool               enable_persistent_memory_;
     const bool               enable_copy_on_map_;
     const bool               enable_separate_read_;
