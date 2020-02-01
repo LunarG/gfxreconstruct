@@ -297,8 +297,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     {
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
-            util::PageGuardManager::Create(!page_guard_external_memory_,
-                                           trace_settings.page_guard_persistent_memory,
+            util::PageGuardManager::Create(trace_settings.page_guard_persistent_memory,
                                            trace_settings.page_guard_copy_on_map,
                                            trace_settings.page_guard_separate_read,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage);
@@ -1140,7 +1139,7 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
             // physical_device_properties2.  For now we align to system page size.
             size_t external_memory_size =
                 manager->GetAlignedSize(static_cast<size_t>(pAllocateInfo_unwrapped->allocationSize));
-            external_memory = manager->AllocateMemory(external_memory_size);
+            external_memory = manager->AllocateMemory(external_memory_size, true);
 
             if (external_memory != nullptr)
             {
@@ -1318,11 +1317,14 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
 
                     // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
                     // not the mapped memory.
-                    (*ppData) = manager->AddTrackedMemory(wrapper->handle_id,
-                                                          (*ppData),
-                                                          static_cast<size_t>(offset),
-                                                          static_cast<size_t>(size),
-                                                          static_cast<size_t>(wrapper->allocation_size));
+                    (*ppData) = manager->AddTrackedMemory(
+                        wrapper->handle_id,
+                        (*ppData),
+                        static_cast<size_t>(offset),
+                        static_cast<size_t>(size),
+                        !page_guard_external_memory_, // No shadow memory for external memory mode.
+                        page_guard_external_memory_,  // Use write watch for external memory mode.
+                        static_cast<size_t>(wrapper->allocation_size));
                 }
             }
             else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
