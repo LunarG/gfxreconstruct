@@ -853,6 +853,14 @@ class TraceManager
         kModeWriteAndTrack = (kModeWrite | kModeTrack)
     };
 
+    enum PageGuardMemoryMode : uint32_t
+    {
+        kMemoryModeDisabled,
+        kMemoryModeShadowInternal,   // Internally managed shadow memory allocations.
+        kMemoryModeShadowPersistent, // Externally managed shadow memory allocations.
+        kMemoryModeExternal          // Imported host memory without shadow allocations.
+    };
+
     typedef uint32_t CaptureMode;
 
     class ThreadData
@@ -947,8 +955,8 @@ class TraceManager
     std::unique_ptr<util::Compressor>               compressor_;
     CaptureSettings::MemoryTrackingMode             memory_tracking_mode_;
     bool                                            page_guard_align_buffer_sizes_;
-    bool                                            page_guard_external_memory_;
     bool                                            page_guard_track_ahb_memory_;
+    PageGuardMemoryMode                             page_guard_memory_mode_;
     std::mutex                                      mapped_memory_lock_;
     std::set<DeviceMemoryWrapper*>                  mapped_memory_; // Track mapped memory for unassisted tracking mode.
     bool                                            trim_enabled_;
