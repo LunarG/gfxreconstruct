@@ -23,6 +23,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
+#include "util/page_guard_manager.h"
 
 #include "vulkan/vulkan.h"
 
@@ -147,6 +148,7 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     VkDeviceSize     mapped_size{ 0 };
     VkMemoryMapFlags mapped_flags{ 0 };
     void*            external_allocation{ nullptr };
+    uintptr_t        shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
     AHardwareBuffer* hardware_buffer{ nullptr };
     format::HandleId hardware_buffer_memory_id{ 0 };
 };
