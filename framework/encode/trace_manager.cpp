@@ -91,7 +91,7 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
 TraceManager::TraceManager() :
     force_file_flush_(false), bytes_written_(0), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
-    page_guard_external_memory_(false), page_guard_track_ahb_memory_(false), trim_enabled_(false),
+    page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
     trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite)
 {}
 
@@ -218,22 +218,37 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     {
         page_guard_align_buffer_sizes_ = trace_settings.page_guard_align_buffer_sizes;
         page_guard_track_ahb_memory_   = trace_settings.page_guard_track_ahb_memory;
-#if defined(WIN32)
-        page_guard_external_memory_ = trace_settings.page_guard_external_memory;
-#else
-        page_guard_external_memory_ = false;
-        if (trace_settings.page_guard_external_memory)
+
+        bool use_external_memory = trace_settings.page_guard_external_memory;
+
+#if !defined(WIN32)
+        if (use_external_memory)
         {
+            use_external_memory = false;
             GFXRECON_LOG_WARNING("Ignoring page guard external memory option on unsupported platform (Only Windows is "
                                  "currently supported)")
         }
 #endif
+
+        // External memory takes precedence over shadow memory modes.
+        if (use_external_memory)
+        {
+            page_guard_memory_mode_ = kMemoryModeExternal;
+        }
+        else if (trace_settings.page_guard_persistent_memory)
+        {
+            page_guard_memory_mode_ = kMemoryModeShadowPersistent;
+        }
+        else
+        {
+            page_guard_memory_mode_ = kMemoryModeShadowInternal;
+        }
     }
     else
     {
         page_guard_align_buffer_sizes_ = false;
         page_guard_track_ahb_memory_   = false;
-        page_guard_external_memory_    = false;
+        page_guard_memory_mode_        = kMemoryModeDisabled;
     }
 
     if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty())
@@ -303,8 +318,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     {
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
-            util::PageGuardManager::Create(trace_settings.page_guard_persistent_memory,
-                                           trace_settings.page_guard_copy_on_map,
+            util::PageGuardManager::Create(trace_settings.page_guard_copy_on_map,
                                            trace_settings.page_guard_separate_read,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage);
         }
@@ -1091,7 +1105,7 @@ VkResult TraceManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCrea
 
     if (CreateInstance())
     {
-        if (instance_->page_guard_external_memory_)
+        if (instance_->page_guard_memory_mode_ == kMemoryModeExternal)
         {
             assert(pCreateInfo != nullptr);
 
@@ -1145,7 +1159,7 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
     VkDeviceCreateInfo* pCreateInfo_unwrapped =
         const_cast<VkDeviceCreateInfo*>(UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory));
 
-    if (page_guard_external_memory_)
+    if (page_guard_memory_mode_ == kMemoryModeExternal)
     {
         assert(pCreateInfo_unwrapped != nullptr);
 
@@ -1236,7 +1250,7 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
         FindAllocateMemoryExtensions(pAllocateInfo_unwrapped);
 #endif
 
-    if (page_guard_external_memory_)
+    if (page_guard_memory_mode_ == kMemoryModeExternal)
     {
         auto                  device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
         VkMemoryPropertyFlags properties     = GetMemoryProperties(device_wrapper, pAllocateInfo->memoryTypeIndex);
@@ -1466,9 +1480,9 @@ void TraceManager::ProcessImportAndroidHardwareBuffer(VkDevice         device,
                     data,
                     0,
                     static_cast<size_t>(memory_wrapper->allocation_size),
-                    false, // No shadow memory for the imported AHB memory; Track directly with mprotect().
-                    false, // Write watch is not supported for this case.
-                    static_cast<size_t>(memory_wrapper->allocation_size));
+                    util::PageGuardManager::kNullShadowHandle,
+                    false,  // No shadow memory for the imported AHB memory; Track directly with mprotect().
+                    false); // Write watch is not supported for this case.
             }
 
             result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
@@ -1600,21 +1614,33 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
                 {
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, offset);
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, wrapper->allocation_size);
 
                     util::PageGuardManager* manager = util::PageGuardManager::Get();
                     assert(manager != nullptr);
 
+                    bool use_shadow_memory = true;
+                    bool use_write_watch   = false;
+
+                    if (page_guard_memory_mode_ == kMemoryModeExternal)
+                    {
+                        use_shadow_memory = false;
+                        use_write_watch   = true;
+                    }
+                    else if ((page_guard_memory_mode_ == kMemoryModeShadowPersistent) &&
+                             (wrapper->shadow_allocation == util::PageGuardManager::kNullShadowHandle))
+                    {
+                        wrapper->shadow_allocation = manager->AllocatePersistentShadowMemory(static_cast<size_t>(size));
+                    }
+
                     // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
                     // not the mapped memory.
-                    (*ppData) = manager->AddTrackedMemory(
-                        wrapper->handle_id,
-                        (*ppData),
-                        static_cast<size_t>(offset),
-                        static_cast<size_t>(size),
-                        !page_guard_external_memory_, // No shadow memory for external memory mode.
-                        page_guard_external_memory_,  // Use write watch for external memory mode.
-                        static_cast<size_t>(wrapper->allocation_size));
+                    (*ppData) = manager->AddTrackedMemory(wrapper->handle_id,
+                                                          (*ppData),
+                                                          static_cast<size_t>(offset),
+                                                          static_cast<size_t>(size),
+                                                          wrapper->shadow_allocation,
+                                                          use_shadow_memory,
+                                                          use_write_watch);
                 }
             }
             else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
@@ -1819,14 +1845,15 @@ void TraceManager::PostProcess_vkFreeMemory(VkDevice                     device,
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
 
-            // Ensure shadow memory allocations are freed.
-            manager->FreeTrackedMemory(wrapper->handle_id);
-
-            if (page_guard_external_memory_ && (wrapper->external_allocation != nullptr))
+            if ((page_guard_memory_mode_ == kMemoryModeExternal) && (wrapper->external_allocation != nullptr))
             {
-
                 size_t external_memory_size = manager->GetAlignedSize(static_cast<size_t>(wrapper->allocation_size));
                 manager->FreeMemory(wrapper->external_allocation, external_memory_size);
+            }
+            else if ((page_guard_memory_mode_ == kMemoryModeShadowPersistent) &&
+                     (wrapper->shadow_allocation != util::PageGuardManager::kNullShadowHandle))
+            {
+                manager->FreePersistentShadowMemory(wrapper->shadow_allocation);
             }
         }
 

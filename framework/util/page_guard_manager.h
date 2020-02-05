@@ -36,10 +36,11 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class PageGuardManager
 {
   public:
-    static const bool kDefaultEnablePersistentMemory  = false;
     static const bool kDefaultEnableCopyOnMap         = true;
     static const bool kDefaultEnableSeparateRead      = true;
     static const bool kDefaultEnableReadWriteSamePage = true;
+
+    static const uintptr_t kNullShadowHandle = 0;
 
   public:
     // Callback for processing modified memory.  The function parameters are the ID of the modified memory object,
@@ -48,10 +49,7 @@ class PageGuardManager
     typedef std::function<void(uint64_t, void*, size_t, size_t)> ModifiedMemoryFunc;
 
   public:
-    static void Create(bool enable_persistent_memory,
-                       bool enable_copy_on_map,
-                       bool enable_separate_read,
-                       bool expect_read_write_same_page);
+    static void Create(bool enable_copy_on_map, bool enable_separate_read, bool expect_read_write_same_page);
 
     static void Destroy();
 
@@ -61,18 +59,27 @@ class PageGuardManager
 
     bool GetTrackedMemory(uint64_t memory_id, void** memory);
 
-    // The use_write_watch parameter is ignored on all platforms except Windows.
-    void* AddTrackedMemory(uint64_t memory_id,
-                           void*    mapped_memory,
-                           size_t   mapped_offset,
-                           size_t   mapped_range,
-                           bool     use_shadow_memory,
-                           bool     use_write_watch,
-                           size_t   allocation_size);
+    // The use_write_watch parameter is ignored on all platforms except Windows, and is ignored on Windows if
+    // shadow_memory is true.
+    //
+    // The shadow_memory_handle parameter is an option value that allows the lifetime of the shadow memory allocation to
+    // be managed externally.  Unless opy-on-map is disabled, copies from the mapped_range portion of mapped_memory to
+    // the shadow memory are performed once, the first time that the shadow memory is added for tracking.  Copies will
+    // not be performed if the mapped range is removed from tracking and then added again.
+    //
+    // When use_shadow_memory is true and shadow_memory_handle is kNullShadowHandle, an internally managed shadow
+    // allocation will be created.  Unless copy-on-map is disabled, the content of the mapped_range portion of
+    // mapped_memory will be copied to the shadow allocation.  The shadow allocation will be freed by
+    // RemoveTrackedMemory.
+    void* AddTrackedMemory(uint64_t  memory_id,
+                           void*     mapped_memory,
+                           size_t    mapped_offset,
+                           size_t    mapped_range,
+                           uintptr_t shadow_memory_handle,
+                           bool      use_shadow_memory,
+                           bool      use_write_watch);
 
     void RemoveTrackedMemory(uint64_t memory_id);
-
-    void FreeTrackedMemory(uint64_t memory_id);
 
     void ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemoryFunc& handle_modified);
 
@@ -87,13 +94,14 @@ class PageGuardManager
 
     void FreeMemory(void* pMemory, size_t aligned_size);
 
+    uintptr_t AllocatePersistentShadowMemory(size_t size);
+
+    void FreePersistentShadowMemory(uintptr_t shadow_memory_handle);
+
   protected:
     PageGuardManager();
 
-    PageGuardManager(bool enable_persistent_memory,
-                     bool enable_copy_on_map,
-                     bool enable_separate_read,
-                     bool expect_read_write_same_page);
+    PageGuardManager(bool enable_copy_on_map, bool enable_separate_read, bool expect_read_write_same_page);
 
     ~PageGuardManager();
 
@@ -110,11 +118,12 @@ class PageGuardManager
                    size_t      lss,
                    const void* sa,
                    const void* ea,
-                   bool        ww) :
+                   bool        ww,
+                   bool        os) :
             status_tracker(tp),
             mapped_memory(mm), mapped_range(mr), shadow_memory(sm), shadow_range(sr), aligned_address(aa),
             aligned_offset(ao), total_pages(tp), last_segment_size(lss), start_address(sa), end_address(ea),
-            use_write_watch(ww), is_modified(false)
+            use_write_watch(ww), is_modified(false), own_shadow_memory(os)
         {
 #if defined(WIN32)
             if (shadow_memory == nullptr)
@@ -140,6 +149,7 @@ class PageGuardManager
         const void* end_address;       // Address immediately after the end of the protected memory region.
         bool        use_write_watch;
         bool        is_modified;
+        bool        own_shadow_memory;
 
 #if defined(WIN32)
         // Memory for retrieving modified pages with GetWriteWatch.
@@ -161,7 +171,6 @@ class PageGuardManager
     };
 
     typedef std::unordered_map<uint64_t, MemoryInfo>       MemoryInfoMap;
-    typedef std::unordered_map<uint64_t, ShadowMemoryInfo> ShadowMemoryMap;
 
   private:
     size_t GetSystemPageSize() const;
@@ -196,14 +205,11 @@ class PageGuardManager
   private:
     static PageGuardManager* instance_;
     MemoryInfoMap            memory_info_;
-    ShadowMemoryMap          shadow_memory_;
-    std::mutex               shadow_memory_lock_;
     std::mutex               tracked_memory_lock_;
     void*                    exception_handler_;
     uint32_t                 exception_handler_count_;
     const size_t             system_page_size_;
     const size_t             system_page_pot_shift_;
-    const bool               enable_persistent_memory_;
     const bool               enable_copy_on_map_;
     const bool               enable_separate_read_;
 
