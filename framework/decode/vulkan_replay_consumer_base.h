@@ -366,12 +366,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                             const DeviceMemoryInfo*                                    memory_info,
                             const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator);
 
-    VkResult OverrideBindBufferMemory(PFN_vkBindBufferMemory  func,
-                                      VkResult                original_result,
-                                      const DeviceInfo*       device_info,
-                                      BufferInfo*             buffer_info,
-                                      const DeviceMemoryInfo* memory_info,
-                                      VkDeviceSize            memoryOffset);
+    VkResult OverrideBindBufferMemory(PFN_vkBindBufferMemory func,
+                                      VkResult               original_result,
+                                      const DeviceInfo*      device_info,
+                                      BufferInfo*            buffer_info,
+                                      DeviceMemoryInfo*      memory_info,
+                                      VkDeviceSize           memoryOffset);
 
     VkResult OverrideBindBufferMemory2(PFN_vkBindBufferMemory2                                     func,
                                        VkResult                                                    original_result,
@@ -379,12 +379,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                        uint32_t                                                    bindInfoCount,
                                        const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>& pBindInfos);
 
-    VkResult OverrideBindImageMemory(PFN_vkBindImageMemory   func,
-                                     VkResult                original_result,
-                                     const DeviceInfo*       device_info,
-                                     ImageInfo*              image_info,
-                                     const DeviceMemoryInfo* memory_info,
-                                     VkDeviceSize            memoryOffset);
+    VkResult OverrideBindImageMemory(PFN_vkBindImageMemory func,
+                                     VkResult              original_result,
+                                     const DeviceInfo*     device_info,
+                                     ImageInfo*            image_info,
+                                     DeviceMemoryInfo*     memory_info,
+                                     VkDeviceSize          memoryOffset);
 
     VkResult OverrideBindImageMemory2(PFN_vkBindImageMemory2                                     func,
                                       VkResult                                                   original_result,

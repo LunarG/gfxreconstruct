@@ -17,6 +17,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 #define GFXRECON_DECODE_VULKAN_OBJECT_INFO_H
 
+#include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_initializer.h"
 #include "decode/window.h"
 #include "format/format.h"
@@ -84,7 +85,8 @@ typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurati
 
 struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 {
-    VkPhysicalDevice parent{ VK_NULL_HANDLE };
+    VkPhysicalDevice                         parent{ VK_NULL_HANDLE };
+    std::unique_ptr<VulkanResourceAllocator> allocator;
 
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
