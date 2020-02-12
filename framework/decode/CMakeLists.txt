@@ -20,6 +20,8 @@ target_sources(gfxrecon_decode
                    pnext_typed_node.h
                    pointer_decoder_base.h
                    pointer_decoder.h
+                   portability.h
+                   portability.cpp
                    string_array_decoder.h
                    string_decoder.h
                    struct_pointer_decoder.h
@@ -36,6 +38,8 @@ target_sources(gfxrecon_decode
                    vulkan_enum_util.h
                    vulkan_object_info.h
                    vulkan_object_info_table.h
+                   vulkan_remap_allocator.h
+                   vulkan_remap_allocator.cpp
                    vulkan_replay_consumer_base.h
                    vulkan_replay_consumer_base.cpp
                    vulkan_replay_options.h

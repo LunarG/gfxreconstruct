@@ -20,6 +20,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_typed_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/portability.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/portability.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/string_array_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/string_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/struct_pointer_decoder.h
@@ -36,6 +38,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_enum_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_remap_allocator.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_remap_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_options.h

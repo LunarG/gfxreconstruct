@@ -19,7 +19,7 @@
 
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/descriptor_update_template_decoder.h"
-#include "decode/vulkan_default_allocator.h"
+#include "decode/portability.h"
 #include "decode/vulkan_enum_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/logging.h"
@@ -1952,7 +1952,11 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
             table->GetPhysicalDeviceMemoryProperties(physical_device, &device_info->memory_properties);
 
             // Get the appropriate memory allocator for the current physical device.
-            device_info->allocator = std::make_unique<VulkanDefaultAllocator>();
+            // TODO: Get capture properties.
+            VkPhysicalDeviceMemoryProperties capture_props = device_info->memory_properties;
+
+            device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(
+                portability::CreateGraphicsResourceAllocator(capture_props, device_info->memory_properties, true));
         }
     }
 
