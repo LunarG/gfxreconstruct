@@ -105,6 +105,23 @@ void VulkanDecoderBase::DispatchDestroyHardwareBufferCommand(format::ThreadId th
     }
 }
 
+void VulkanDecoderBase::DispatchSetDeviceMemoryPropertiesCommand(
+    format::ThreadId                             thread_id,
+    format::HandleId                             physical_device_id,
+    uint32_t                                     memory_type_count,
+    const std::vector<format::DeviceMemoryType>& memory_types,
+    uint32_t                                     memory_heap_count,
+    const std::vector<format::DeviceMemoryHeap>& memory_heaps)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetDeviceMemoryPropertiesCommand(
+            physical_device_id, memory_type_count, memory_types, memory_heap_count, memory_heaps);
+    }
+}
+
 void VulkanDecoderBase::DispatchSetSwapchainImageStateCommand(
     format::ThreadId                                    thread_id,
     format::HandleId                                    device_id,
