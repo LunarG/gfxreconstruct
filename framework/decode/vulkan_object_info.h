@@ -48,7 +48,6 @@ struct VulkanObjectInfo
 //
 
 typedef VulkanObjectInfo<VkInstance>                      InstanceInfo;
-typedef VulkanObjectInfo<VkPhysicalDevice>                PhysicalDeviceInfo;
 typedef VulkanObjectInfo<VkQueue>                         QueueInfo;
 typedef VulkanObjectInfo<VkSemaphore>                     SemaphoreInfo;
 typedef VulkanObjectInfo<VkCommandBuffer>                 CommandBufferInfo;
@@ -83,14 +82,21 @@ typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurati
 // Declarations for Vulkan objects with additional replay state info.
 //
 
+struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
+{
+    VkPhysicalDeviceMemoryProperties capture_memory_properties{};
+    VkPhysicalDeviceMemoryProperties replay_memory_properties{};
+};
+
 struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 {
     VkPhysicalDevice                         parent{ VK_NULL_HANDLE };
     std::unique_ptr<VulkanResourceAllocator> allocator;
+    const VkPhysicalDeviceMemoryProperties*  capture_memory_properties{ nullptr };
+    const VkPhysicalDeviceMemoryProperties*  replay_memory_properties{ nullptr };
 
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
-    VkPhysicalDeviceMemoryProperties           memory_properties{};
     std::unique_ptr<VulkanResourceInitializer> resource_initializer;
 };
 
