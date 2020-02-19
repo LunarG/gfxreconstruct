@@ -111,6 +111,7 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 {
     InstanceTable                       layer_table;
     std::vector<PhysicalDeviceWrapper*> child_physical_devices;
+    bool                                have_device_properties{ false };
 };
 
 struct QueueWrapper : public HandleWrapper<VkQueue>

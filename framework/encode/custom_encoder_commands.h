@@ -69,6 +69,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkEnumeratePhysicalDevices(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>
 {
     template <typename... Args>

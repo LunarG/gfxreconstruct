@@ -979,6 +979,57 @@ void TraceManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
     }
 }
 
+void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
+                                                         const VkPhysicalDeviceMemoryProperties& memory_properties)
+{
+    assert((capture_mode_ & kModeWrite) == kModeWrite);
+
+    format::SetDeviceMemoryPropertiesCommand memory_properties_cmd;
+
+    auto thread_data = GetThreadData();
+    assert(thread_data != nullptr);
+
+    memory_properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    memory_properties_cmd.meta_header.block_header.size =
+        (sizeof(memory_properties_cmd) - sizeof(memory_properties_cmd.meta_header.block_header)) +
+        (sizeof(format::DeviceMemoryType) * memory_properties.memoryTypeCount) +
+        (sizeof(format::DeviceMemoryHeap) * memory_properties.memoryHeapCount);
+    memory_properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDeviceMemoryPropertiesCommand;
+    memory_properties_cmd.thread_id                  = thread_data->thread_id_;
+    memory_properties_cmd.physical_device_id         = physical_device_id;
+    memory_properties_cmd.memory_type_count          = memory_properties.memoryTypeCount;
+    memory_properties_cmd.memory_heap_count          = memory_properties.memoryHeapCount;
+
+    {
+        std::lock_guard<std::mutex> lock(file_lock_);
+
+        bytes_written_ += file_stream_->Write(&memory_properties_cmd, sizeof(memory_properties_cmd));
+
+        format::DeviceMemoryType type;
+        for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+        {
+            type.property_flags = memory_properties.memoryTypes[i].propertyFlags;
+            type.heap_index     = memory_properties.memoryTypes[i].heapIndex;
+
+            bytes_written_ += file_stream_->Write(&type, sizeof(type));
+        }
+
+        format::DeviceMemoryHeap heap;
+        for (uint32_t i = 0; i < memory_properties.memoryHeapCount; ++i)
+        {
+            heap.size  = memory_properties.memoryHeaps[i].size;
+            heap.flags = memory_properties.memoryHeaps[i].flags;
+
+            bytes_written_ += file_stream_->Write(&heap, sizeof(heap));
+        }
+
+        if (force_file_flush_)
+        {
+            file_stream_->Flush();
+        }
+    }
+}
+
 void TraceManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
                                                    const VkDescriptorUpdateTemplateCreateInfo* create_info)
 {
@@ -1527,6 +1578,44 @@ void TraceManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer
 #else
     GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
 #endif
+}
+
+void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
+                                                          VkInstance        instance,
+                                                          uint32_t*         pPhysicalDeviceCount,
+                                                          VkPhysicalDevice* pPhysicalDevices)
+{
+    if (((capture_mode_ & kModeWrite) == kModeWrite) && (result >= 0) && (pPhysicalDeviceCount != nullptr) &&
+        (pPhysicalDevices != nullptr))
+    {
+        auto     instance_wrapper = reinterpret_cast<InstanceWrapper*>(instance);
+        uint32_t count            = *pPhysicalDeviceCount;
+
+        if (!instance_wrapper->have_device_properties)
+        {
+            // Only filter duplicate checks when we have a complete list of physical devices.
+            if (result != VK_INCOMPLETE)
+            {
+                instance_wrapper->have_device_properties = true;
+            }
+
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                VkPhysicalDevice physical_device = pPhysicalDevices[i];
+
+                if (physical_device != VK_NULL_HANDLE)
+                {
+                    auto physical_device_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
+                    VkPhysicalDeviceMemoryProperties properties;
+
+                    GetInstanceTable(physical_device)
+                        ->GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
+
+                    WriteSetDeviceMemoryPropertiesCommand(physical_device_wrapper->handle_id, properties);
+                }
+            }
+        }
+    }
 }
 
 void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                       instance,

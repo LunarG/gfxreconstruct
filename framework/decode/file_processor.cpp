@@ -628,6 +628,73 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read destroy hardware buffer meta-data block");
         }
     }
+    else if (meta_type == format::MetaDataType::kSetDeviceMemoryPropertiesCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetDeviceMemoryPropertiesCommand header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.physical_device_id, sizeof(header.physical_device_id));
+        success = success && ReadBytes(&header.memory_type_count, sizeof(header.memory_type_count));
+        success = success && ReadBytes(&header.memory_heap_count, sizeof(header.memory_heap_count));
+
+        if (success)
+        {
+            std::vector<format::DeviceMemoryType> types;
+            std::vector<format::DeviceMemoryHeap> heaps;
+
+            for (uint32_t i = 0; i < header.memory_type_count; ++i)
+            {
+                format::DeviceMemoryType type;
+
+                if (!ReadBytes(&type, sizeof(type)))
+                {
+                    success = false;
+                    break;
+                }
+
+                types.emplace_back(std::move(type));
+            }
+
+            for (uint32_t i = 0; i < header.memory_heap_count; ++i)
+            {
+                format::DeviceMemoryHeap heap;
+
+                if (!ReadBytes(&heap, sizeof(heap)))
+                {
+                    success = false;
+                    break;
+                }
+
+                heaps.emplace_back(std::move(heap));
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchSetDeviceMemoryPropertiesCommand(header.thread_id,
+                                                                      header.physical_device_id,
+                                                                      header.memory_type_count,
+                                                                      types,
+                                                                      header.memory_heap_count,
+                                                                      heaps);
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockData,
+                                     "Failed to read set device memory properties meta-data block");
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read set device memory properties meta-data block header");
+        }
+    }
     else if (meta_type == format::MetaDataType::kSetSwapchainImageStateCommand)
     {
         // This command does not support compression.
@@ -645,7 +712,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             std::vector<format::SwapchainImageStateInfo> entries;
 
-            for (uint64_t i = 0; i < header.image_info_count; ++i)
+            for (uint32_t i = 0; i < header.image_info_count; ++i)
             {
                 format::SwapchainImageStateInfo entry;
 
@@ -655,7 +722,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                     break;
                 }
 
-                entries.emplace_back(entry);
+                entries.emplace_back(std::move(entry));
             }
 
             if (success)

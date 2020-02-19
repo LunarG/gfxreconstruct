@@ -306,6 +306,11 @@ class TraceManager
                                     const VkAllocationCallbacks* pAllocator,
                                     VkDeviceMemory*              pMemory);
 
+    void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
+                                                VkInstance        instance,
+                                                uint32_t*         pPhysicalDeviceCount,
+                                                VkPhysicalDevice* pPhysicalDevices);
+
     void PostProcess_vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice                  physicalDevice,
                                                          VkPhysicalDeviceMemoryProperties* pMemoryProperties)
     {
@@ -955,6 +960,8 @@ class TraceManager
                                       AHardwareBuffer*                                    buffer,
                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
     void WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer);
+    void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
+                                               const VkPhysicalDeviceMemoryProperties& memory_properties);
 
     void SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTemplate                  update_template,
                                          const VkDescriptorUpdateTemplateCreateInfo* create_info);
