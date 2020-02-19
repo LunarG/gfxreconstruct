@@ -61,6 +61,13 @@ class VulkanConsumerBase
 
     virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) {}
 
+    virtual void ProcessSetDeviceMemoryPropertiesCommand(format::HandleId physical_device_id,
+                                                         uint32_t         memory_type_count,
+                                                         const std::vector<format::DeviceMemoryType>& memory_types,
+                                                         uint32_t                                     memory_heap_count,
+                                                         const std::vector<format::DeviceMemoryHeap>& memory_heaps)
+    {}
+
     virtual void ProcessSetSwapchainImageStateCommand(format::HandleId device_id,
                                                       format::HandleId swapchain_id,
                                                       uint32_t         last_presented_image,

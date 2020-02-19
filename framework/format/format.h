@@ -73,17 +73,19 @@ enum MarkerType : uint32_t
 
 enum MetaDataType : uint32_t
 {
-    kUnknownMetaDataType           = 0,
-    kDisplayMessageCommand         = 1,
-    kFillMemoryCommand             = 2,
-    kResizeWindowCommand           = 3,
-    kSetSwapchainImageStateCommand = 4,
-    kBeginResourceInitCommand      = 5,
-    kEndResourceInitCommand        = 6,
-    kInitBufferCommand             = 7,
-    kInitImageCommand              = 8,
-    kCreateHardwareBufferCommand   = 9,
-    kDestroyHardwareBufferCommand  = 10
+    kUnknownMetaDataType                = 0,
+    kDisplayMessageCommand              = 1,
+    kFillMemoryCommand                  = 2,
+    kResizeWindowCommand                = 3,
+    kSetSwapchainImageStateCommand      = 4,
+    kBeginResourceInitCommand           = 5,
+    kEndResourceInitCommand             = 6,
+    kInitBufferCommand                  = 7,
+    kInitImageCommand                   = 8,
+    kCreateHardwareBufferCommand        = 9,
+    kDestroyHardwareBufferCommand       = 10,
+    kSetDevicePropertiesCommand         = 11,
+    kSetDeviceMemoryPropertiesCommand   = 12
 };
 
 enum CompressionType : uint32_t
@@ -305,6 +307,27 @@ struct InitImageCommandHeader
     uint32_t         aspect;
     uint32_t         layout;
     uint32_t         level_count;
+};
+
+struct SetDeviceMemoryPropertiesCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId physical_device_id;
+    uint32_t         memory_type_count;
+    uint32_t         memory_heap_count;
+};
+
+struct DeviceMemoryType
+{
+    uint32_t property_flags;
+    uint32_t heap_index;
+};
+
+struct DeviceMemoryHeap
+{
+    uint64_t size;
+    uint32_t flags;
 };
 
 #pragma pack(pop)
