@@ -79,36 +79,6 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevic
 };
 
 template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>
-{
-    template <typename... Args>
-    static void Dispatch(TraceManager* manager, Args... args)
-    {
-        manager->PostProcess_vkGetPhysicalDeviceMemoryProperties(args...);
-    }
-};
-
-template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2>
-{
-    template <typename... Args>
-    static void Dispatch(TraceManager* manager, Args... args)
-    {
-        manager->PostProcess_vkGetPhysicalDeviceMemoryProperties2(args...);
-    }
-};
-
-template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR>
-{
-    template <typename... Args>
-    static void Dispatch(TraceManager* manager, Args... args)
-    {
-        manager->PostProcess_vkGetPhysicalDeviceMemoryProperties2(args...);
-    }
-};
-
-template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyProperties>
 {
     template <typename... Args>

@@ -982,50 +982,51 @@ void TraceManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
 void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                          const VkPhysicalDeviceMemoryProperties& memory_properties)
 {
-    assert((capture_mode_ & kModeWrite) == kModeWrite);
-
-    format::SetDeviceMemoryPropertiesCommand memory_properties_cmd;
-
-    auto thread_data = GetThreadData();
-    assert(thread_data != nullptr);
-
-    memory_properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    memory_properties_cmd.meta_header.block_header.size =
-        (sizeof(memory_properties_cmd) - sizeof(memory_properties_cmd.meta_header.block_header)) +
-        (sizeof(format::DeviceMemoryType) * memory_properties.memoryTypeCount) +
-        (sizeof(format::DeviceMemoryHeap) * memory_properties.memoryHeapCount);
-    memory_properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDeviceMemoryPropertiesCommand;
-    memory_properties_cmd.thread_id                  = thread_data->thread_id_;
-    memory_properties_cmd.physical_device_id         = physical_device_id;
-    memory_properties_cmd.memory_type_count          = memory_properties.memoryTypeCount;
-    memory_properties_cmd.memory_heap_count          = memory_properties.memoryHeapCount;
-
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
     {
-        std::lock_guard<std::mutex> lock(file_lock_);
+        format::SetDeviceMemoryPropertiesCommand memory_properties_cmd;
 
-        bytes_written_ += file_stream_->Write(&memory_properties_cmd, sizeof(memory_properties_cmd));
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
 
-        format::DeviceMemoryType type;
-        for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+        memory_properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        memory_properties_cmd.meta_header.block_header.size =
+            (sizeof(memory_properties_cmd) - sizeof(memory_properties_cmd.meta_header.block_header)) +
+            (sizeof(format::DeviceMemoryType) * memory_properties.memoryTypeCount) +
+            (sizeof(format::DeviceMemoryHeap) * memory_properties.memoryHeapCount);
+        memory_properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDeviceMemoryPropertiesCommand;
+        memory_properties_cmd.thread_id                  = thread_data->thread_id_;
+        memory_properties_cmd.physical_device_id         = physical_device_id;
+        memory_properties_cmd.memory_type_count          = memory_properties.memoryTypeCount;
+        memory_properties_cmd.memory_heap_count          = memory_properties.memoryHeapCount;
+
         {
-            type.property_flags = memory_properties.memoryTypes[i].propertyFlags;
-            type.heap_index     = memory_properties.memoryTypes[i].heapIndex;
+            std::lock_guard<std::mutex> lock(file_lock_);
 
-            bytes_written_ += file_stream_->Write(&type, sizeof(type));
-        }
+            bytes_written_ += file_stream_->Write(&memory_properties_cmd, sizeof(memory_properties_cmd));
 
-        format::DeviceMemoryHeap heap;
-        for (uint32_t i = 0; i < memory_properties.memoryHeapCount; ++i)
-        {
-            heap.size  = memory_properties.memoryHeaps[i].size;
-            heap.flags = memory_properties.memoryHeaps[i].flags;
+            format::DeviceMemoryType type;
+            for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+            {
+                type.property_flags = memory_properties.memoryTypes[i].propertyFlags;
+                type.heap_index     = memory_properties.memoryTypes[i].heapIndex;
 
-            bytes_written_ += file_stream_->Write(&heap, sizeof(heap));
-        }
+                bytes_written_ += file_stream_->Write(&type, sizeof(type));
+            }
 
-        if (force_file_flush_)
-        {
-            file_stream_->Flush();
+            format::DeviceMemoryHeap heap;
+            for (uint32_t i = 0; i < memory_properties.memoryHeapCount; ++i)
+            {
+                heap.size  = memory_properties.memoryHeaps[i].size;
+                heap.flags = memory_properties.memoryHeaps[i].flags;
+
+                bytes_written_ += file_stream_->Write(&heap, sizeof(heap));
+            }
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
         }
     }
 }
@@ -1385,39 +1386,11 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
 
 VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index)
 {
-    VkMemoryPropertyFlags  flags                   = 0;
     PhysicalDeviceWrapper* physical_device_wrapper = device_wrapper->physical_device;
-
-    if (memory_type_index >= physical_device_wrapper->memory_types.size())
-    {
-        // When trimming is enabled, the state tracker would populate this list when the application queried for
-        // available memory types.  If state tracking is not enabled, or the application didn't make the appropriate
-        // query, the query is made here.
-        InstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
-        assert(instance_table != nullptr);
-
-        VkPhysicalDeviceMemoryProperties memory_properties;
-        instance_table->GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &memory_properties);
-
-        if ((capture_mode_ & kModeTrack) == kModeTrack)
-        {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackPhysicalDeviceMemoryProperties(
-                reinterpret_cast<VkPhysicalDevice>(physical_device_wrapper), &memory_properties);
-            assert(memory_type_index < physical_device_wrapper->memory_types.size());
-        }
-        else
-        {
-            for (size_t i = 0; i < memory_properties.memoryTypeCount; ++i)
-            {
-                physical_device_wrapper->memory_types.push_back(memory_properties.memoryTypes[i]);
-            }
-        }
-    }
 
     assert(memory_type_index < physical_device_wrapper->memory_types.size());
 
-    return flags = physical_device_wrapper->memory_types[memory_type_index].propertyFlags;
+    return physical_device_wrapper->memory_types[memory_type_index].propertyFlags;
 }
 
 const VkImportAndroidHardwareBufferInfoANDROID*
@@ -1585,8 +1558,7 @@ void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          resu
                                                           uint32_t*         pPhysicalDeviceCount,
                                                           VkPhysicalDevice* pPhysicalDevices)
 {
-    if (((capture_mode_ & kModeWrite) == kModeWrite) && (result >= 0) && (pPhysicalDeviceCount != nullptr) &&
-        (pPhysicalDevices != nullptr))
+    if ((result >= 0) && (pPhysicalDeviceCount != nullptr) && (pPhysicalDevices != nullptr))
     {
         auto     instance_wrapper = reinterpret_cast<InstanceWrapper*>(instance);
         uint32_t count            = *pPhysicalDeviceCount;
@@ -1610,6 +1582,21 @@ void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          resu
 
                     GetInstanceTable(physical_device)
                         ->GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
+
+                    if ((capture_mode_ & kModeTrack) == kModeTrack)
+                    {
+                        // Let the state tracker process the memory properties.
+                        assert(state_tracker_ != nullptr);
+                        state_tracker_->TrackPhysicalDeviceMemoryProperties(physical_device, &properties);
+                    }
+                    else
+                    {
+                        // When not tracking state, set the memory types directly.
+                        for (uint32_t i = 0; i < properties.memoryTypeCount; ++i)
+                        {
+                            physical_device_wrapper->memory_types.push_back(properties.memoryTypes[i]);
+                        }
+                    }
 
                     WriteSetDeviceMemoryPropertiesCommand(physical_device_wrapper->handle_id, properties);
                 }
