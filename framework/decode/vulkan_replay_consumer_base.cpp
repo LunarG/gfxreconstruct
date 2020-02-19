@@ -517,11 +517,27 @@ void VulkanReplayConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
     uint32_t                                     memory_heap_count,
     const std::vector<format::DeviceMemoryHeap>& memory_heaps)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(physical_device_id);
-    GFXRECON_UNREFERENCED_PARAMETER(memory_type_count);
-    GFXRECON_UNREFERENCED_PARAMETER(memory_types);
-    GFXRECON_UNREFERENCED_PARAMETER(memory_heap_count);
-    GFXRECON_UNREFERENCED_PARAMETER(memory_heaps);
+    PhysicalDeviceInfo* physical_device_info = object_info_table_.GetPhysicalDeviceInfo(physical_device_id);
+
+    if (physical_device_info != nullptr)
+    {
+        VkPhysicalDeviceMemoryProperties* memory_properties = &physical_device_info->capture_memory_properties;
+
+        memory_properties->memoryTypeCount = memory_type_count;
+        memory_properties->memoryHeapCount = memory_heap_count;
+
+        for (uint32_t i = 0; i < memory_type_count; ++i)
+        {
+            memory_properties->memoryTypes[i].propertyFlags = memory_types[i].property_flags;
+            memory_properties->memoryTypes[i].heapIndex     = memory_types[i].heap_index;
+        }
+
+        for (uint32_t i = 0; i < memory_heap_count; ++i)
+        {
+            memory_properties->memoryHeaps[i].size  = memory_heaps[i].size;
+            memory_properties->memoryHeaps[i].flags = memory_heaps[i].flags;
+        }
+    }
 }
 
 void VulkanReplayConsumerBase::ProcessSetSwapchainImageStateCommand(
@@ -1882,8 +1898,8 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 }
 
 VkResult
-VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  original_result,
-                                               const PhysicalDeviceInfo* physical_device_info,
+VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_result,
+                                               PhysicalDeviceInfo* physical_device_info,
                                                const StructPointerDecoder<Decoded_VkDeviceCreateInfo>&    pCreateInfo,
                                                const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
                                                HandlePointerDecoder<VkDevice>*                            pDevice)
@@ -1960,17 +1976,23 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult                  origina
             device_info->extensions = std::move(extensions);
             device_info->parent     = physical_device;
 
-            auto table = GetInstanceTable(physical_device);
-            assert(table != nullptr);
-
-            table->GetPhysicalDeviceMemoryProperties(physical_device, &device_info->memory_properties);
-
             // Get the appropriate memory allocator for the current physical device.
-            // TODO: Get capture properties.
-            VkPhysicalDeviceMemoryProperties capture_props = device_info->memory_properties;
+            if (physical_device_info->replay_memory_properties.memoryHeapCount == 0)
+            {
+                // Memory properties weren't queried before device creation, so retrieve them now.
+                auto table = GetInstanceTable(physical_device);
+                assert(table != nullptr);
+                table->GetPhysicalDeviceMemoryProperties(physical_device,
+                                                         &physical_device_info->replay_memory_properties);
+            }
+
+            device_info->capture_memory_properties = &physical_device_info->capture_memory_properties;
+            device_info->replay_memory_properties  = &physical_device_info->replay_memory_properties;
 
             device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(
-                portability::CreateGraphicsResourceAllocator(capture_props, device_info->memory_properties, true));
+                portability::CreateGraphicsResourceAllocator(physical_device_info->capture_memory_properties,
+                                                             physical_device_info->replay_memory_properties,
+                                                             true));
         }
     }
 
@@ -2050,21 +2072,52 @@ void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2(
     ProcessPhysicalDeviceProperties(physical_device, &capture_properties->properties, &replay_properties->properties);
 }
 
-void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2KHR(
-    PFN_vkGetPhysicalDeviceProperties2KHR                         func,
-    const PhysicalDeviceInfo*                                     physical_device_info,
-    StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2KHR>* pProperties)
+void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties(
+    PFN_vkGetPhysicalDeviceMemoryProperties                         func,
+    PhysicalDeviceInfo*                                             physical_device_info,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties>* pMemoryProperties)
 {
-    assert((physical_device_info != nullptr) && (pProperties != nullptr) && (pProperties->GetPointer() != nullptr) &&
-           (pProperties->GetOutputPointer() != nullptr));
+    assert((physical_device_info != nullptr) && (pMemoryProperties != nullptr) &&
+           (pMemoryProperties->GetPointer() != nullptr) && (pMemoryProperties->GetOutputPointer() != nullptr));
 
     VkPhysicalDevice physical_device   = physical_device_info->handle;
-    auto             replay_properties = pProperties->GetOutputPointer();
+    auto             replay_properties = pMemoryProperties->GetOutputPointer();
 
     func(physical_device, replay_properties);
 
-    auto capture_properties = pProperties->GetPointer();
-    ProcessPhysicalDeviceProperties(physical_device, &capture_properties->properties, &replay_properties->properties);
+    physical_device_info->replay_memory_properties = *replay_properties;
+
+    if ((physical_device_info->capture_memory_properties.memoryHeapCount == 0) ||
+        (physical_device_info->capture_memory_properties.memoryHeapCount == 0))
+    {
+        // This can be set by ProcessSetDeviceMemoryPropertiesCommand, but older files will not contain that data.
+        auto capture_properties                         = pMemoryProperties->GetPointer();
+        physical_device_info->capture_memory_properties = *capture_properties;
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties2(
+    PFN_vkGetPhysicalDeviceMemoryProperties2                         func,
+    PhysicalDeviceInfo*                                              physical_device_info,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties)
+{
+    assert((physical_device_info != nullptr) && (pMemoryProperties != nullptr) &&
+           (pMemoryProperties->GetPointer() != nullptr) && (pMemoryProperties->GetOutputPointer() != nullptr));
+
+    VkPhysicalDevice physical_device   = physical_device_info->handle;
+    auto             replay_properties = pMemoryProperties->GetOutputPointer();
+
+    func(physical_device, replay_properties);
+
+    physical_device_info->replay_memory_properties = replay_properties->memoryProperties;
+
+    if ((physical_device_info->capture_memory_properties.memoryHeapCount == 0) ||
+        (physical_device_info->capture_memory_properties.memoryHeapCount == 0))
+    {
+        // This can be set by ProcessSetDeviceMemoryPropertiesCommand, but older files will not contain that data.
+        auto capture_properties                         = pMemoryProperties->GetPointer();
+        physical_device_info->capture_memory_properties = capture_properties->memoryProperties;
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences                  func,
@@ -2245,10 +2298,11 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
             auto memory_info = reinterpret_cast<DeviceMemoryInfo*>(pMemory->GetConsumerData(0));
             assert(memory_info != nullptr);
 
-            assert(replay_allocate_info->memoryTypeIndex < device_info->memory_properties.memoryTypeCount);
+            auto replay_memory_properties = device_info->replay_memory_properties;
+            assert(replay_allocate_info->memoryTypeIndex < replay_memory_properties->memoryTypeCount);
 
             memory_info->property_flags =
-                device_info->memory_properties.memoryTypes[replay_allocate_info->memoryTypeIndex].propertyFlags;
+                replay_memory_properties->memoryTypes[replay_allocate_info->memoryTypeIndex].propertyFlags;
         }
     }
     else

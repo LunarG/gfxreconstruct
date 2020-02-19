@@ -283,7 +283,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     HandlePointerDecoder<VkInstance>*                          pInstance);
 
     VkResult OverrideCreateDevice(VkResult                                                   original_result,
-                                  const PhysicalDeviceInfo*                                  physical_device_info,
+                                  PhysicalDeviceInfo*                                        physical_device_info,
                                   const StructPointerDecoder<Decoded_VkDeviceCreateInfo>&    pCreateInfo,
                                   const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
                                   HandlePointerDecoder<VkDevice>*                            pDevice);
@@ -302,10 +302,15 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                               const PhysicalDeviceInfo*          physical_device_info,
                                               StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties);
 
-    void
-    OverrideGetPhysicalDeviceProperties2KHR(PFN_vkGetPhysicalDeviceProperties2KHR func,
-                                            const PhysicalDeviceInfo*             physical_device_info,
-                                            StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2KHR>* pProperties);
+    void OverrideGetPhysicalDeviceMemoryProperties(
+        PFN_vkGetPhysicalDeviceMemoryProperties                         func,
+        PhysicalDeviceInfo*                                             physical_device_info,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties>* pMemoryProperties);
+
+    void OverrideGetPhysicalDeviceMemoryProperties2(
+        PFN_vkGetPhysicalDeviceMemoryProperties2                         func,
+        PhysicalDeviceInfo*                                              physical_device_info,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties);
 
     VkResult OverrideWaitForFences(PFN_vkWaitForFences                  func,
                                    VkResult                             original_result,
