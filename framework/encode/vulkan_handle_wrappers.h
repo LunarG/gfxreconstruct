@@ -148,6 +148,7 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     VkMemoryMapFlags mapped_flags{ 0 };
     void*            external_allocation{ nullptr };
     AHardwareBuffer* hardware_buffer{ nullptr };
+    format::HandleId hardware_buffer_memory_id{ 0 };
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>

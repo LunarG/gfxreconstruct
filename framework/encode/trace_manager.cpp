@@ -1447,7 +1447,8 @@ void TraceManager::ProcessImportAndroidHardwareBuffer(VkDevice         device,
             ahb_info.memory_id           = memory_id;
             ahb_info.reference_count     = 1;
 
-            memory_wrapper->hardware_buffer = hardware_buffer;
+            memory_wrapper->hardware_buffer           = hardware_buffer;
+            memory_wrapper->hardware_buffer_memory_id = memory_id;
 
             WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
             WriteFillMemoryCmd(memory_id, 0, memory_wrapper->allocation_size, data);
