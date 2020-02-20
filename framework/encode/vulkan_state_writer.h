@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_table.h"
 #include "format/format.h"
+#include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/compressor.h"
 #include "util/defines.h"
@@ -117,6 +118,11 @@ class VulkanStateWriter
     void WriteSurfaceKhrState(const VulkanStateTable& state_table);
 
     void WriteSwapchainKhrState(const VulkanStateTable& state_table);
+
+    void WriteDeviceMemoryState(const VulkanStateTable& state_table);
+
+    void
+    ProcessHardwareBuffer(format::HandleId memory_id, AHardwareBuffer* hardware_buffer, VkDeviceSize allocation_size);
 
     void ProcessBufferMemory(const DeviceWrapper*                   device_wrapper,
                              const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
@@ -233,6 +239,10 @@ class VulkanStateWriter
     void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
 
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
+
+    void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
+                                      AHardwareBuffer*                                    hardware_buffer,
+                                      const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
 
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)
