@@ -1555,6 +1555,23 @@ void TraceManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
     }
 }
 
+void TraceManager::PreProcess_vkGetPhysicalDeviceSurfaceFormats2KHR(VkPhysicalDevice physicalDevice,
+                                                                    const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+                                                                    uint32_t*            pSurfaceFormatCount,
+                                                                    VkSurfaceFormat2KHR* pSurfaceFormats)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(physicalDevice);
+    GFXRECON_UNREFERENCED_PARAMETER(pSurfaceInfo);
+
+    if ((pSurfaceFormats != nullptr))
+    {
+        for (int i = 0; i < *pSurfaceFormatCount; i++)
+        {
+            pSurfaceFormats[i].pNext = nullptr;
+        }
+    }
+}
+
 #if defined(__ANDROID__)
 void TraceManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*         pPresentModeCount,
                                                                    VkPresentModeKHR* pPresentModes)

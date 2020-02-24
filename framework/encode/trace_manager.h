@@ -785,6 +785,11 @@ class TraceManager
                                                         const VkAllocationCallbacks*                pAllocator,
                                                         VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
+    void PreProcess_vkGetPhysicalDeviceSurfaceFormats2KHR(VkPhysicalDevice                       physicalDevice,
+                                                          const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+                                                          uint32_t*                              pSurfaceFormatCount,
+                                                          VkSurfaceFormat2KHR*                   pSurfaceFormats);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
