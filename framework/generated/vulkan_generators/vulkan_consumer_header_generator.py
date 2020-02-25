@@ -110,7 +110,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
             if self.genOpts.isOverride:
                 cmddef += self.indent('virtual ' + decl + ' override;', self.INDENT_SIZE)
             else:
-                cmddef += self.indent('virtual ' + decl + ' = 0;', self.INDENT_SIZE)
+                cmddef += self.indent('virtual ' + decl + ' {}', self.INDENT_SIZE)
 
             write(cmddef, file=self.outFile)
             first = False
