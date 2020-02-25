@@ -77,6 +77,8 @@ void Application::SendAsicInfo()
                                      "numShaderArraysPerSE=%d|"
                                      "totalCU=%d|"
                                      "numSimdsPerCU=%d|",
+                                     "numWaveSlotsPerSimd=%d|",
+                                     "chipName=%d|",
                                      hw_info->chipFamily,
                                      hw_info->chipID,
                                      hw_info->revisionID,
@@ -87,7 +89,9 @@ void Application::SendAsicInfo()
                                      hw_info->numShaderEngines,
                                      hw_info->numShaderArraysPerSE,
                                      hw_info->totalCU,
-                                     hw_info->numSimdsPerCU);
+                                     hw_info->numSimdsPerCU,
+                                     hw_info->waveSlotsPerSimd,
+                                     hw_info->asicName);
         }
     }
 #else

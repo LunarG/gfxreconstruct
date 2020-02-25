@@ -251,6 +251,7 @@ enum PE_BLOCK_ID : UINT
     PE_BLOCK_CHCG,
     PE_BLOCK_GCR,
     PE_BLOCK_GE,
+    PE_BLOCK_GE1 = PE_BLOCK_GE,
     PE_BLOCK_GL1A,
     PE_BLOCK_GL1C,
     PE_BLOCK_GL1CG,
@@ -260,6 +261,10 @@ enum PE_BLOCK_ID : UINT
     PE_BLOCK_PH,
     PE_BLOCK_UTCL1,
     PE_BLOCK_MAX_GFX10,
+    PE_BLOCK_GE2_DIST,
+    PE_BLOCK_GE2_SE,
+    PE_BLOCK_DF_MALL,
+    PE_BLOCK_MAX_GFX10_3,
 };
 
 // Counter parameters
@@ -337,6 +342,16 @@ struct PE_SET_CLOCK_MODE_OUTPUT
 {
     float memoryClockRatioToPeak;  ///< Ratio of current mem clock to peak clock
     float engineClockRatioToPeak;  ///< Ratio of current gpu core clock to peak clock
+};
+
+union DfCounterEventId
+{
+    struct
+    {
+        unsigned int eventId    : 16;   ///< Event ID for DF counters
+        unsigned int unitMask   : 16;   ///< Unit mask for DF counters
+    } bits;
+    unsigned int u32All;
 };
 
 #endif // _AMDDXPERF_H_
