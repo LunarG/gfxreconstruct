@@ -91,18 +91,21 @@ class VulkanConsumerBase
     virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
                                                            format::HandleId descriptorSet,
                                                            format::HandleId descriptorUpdateTemplate,
-                                                           const DescriptorUpdateTemplateDecoder& pData) = 0;
+                                                           const DescriptorUpdateTemplateDecoder& pData)
+    {}
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
                                                                format::HandleId descriptorUpdateTemplate,
                                                                format::HandleId layout,
                                                                uint32_t         set,
-                                                               const DescriptorUpdateTemplateDecoder& pData) = 0;
+                                                               const DescriptorUpdateTemplateDecoder& pData)
+    {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
                                                               format::HandleId descriptorSet,
                                                               format::HandleId descriptorUpdateTemplate,
-                                                              const DescriptorUpdateTemplateDecoder& pData) = 0;
+                                                              const DescriptorUpdateTemplateDecoder& pData)
+    {}
 
     virtual void
     Process_vkRegisterObjectsNVX(VkResult                                                   returnValue,
@@ -110,7 +113,8 @@ class VulkanConsumerBase
                                  format::HandleId                                           objectTable,
                                  uint32_t                                                   objectCount,
                                  const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
-                                 const PointerDecoder<uint32_t>&                            pObjectIndices) = 0;
+                                 const PointerDecoder<uint32_t>&                            pObjectIndices)
+    {}
 };
 
 GFXRECON_END_NAMESPACE(decode)
