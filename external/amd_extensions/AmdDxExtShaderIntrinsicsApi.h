@@ -29,7 +29,7 @@
 #include "AmdDxExtShaderIntrinsics.h"
 
 const unsigned int AmdDxShaderIntrinsicsMajorVersion = 2;
-const unsigned int AmdDxShaderIntrinsicsMinorVersion = 3;
+const unsigned int AmdDxShaderIntrinsicsMinorVersion = 8;
 // Extension ID passed to IAmdDxExt::GetExtInterface()
 const unsigned int AmdDxExtShaderIntrinsicsID = 21;
 

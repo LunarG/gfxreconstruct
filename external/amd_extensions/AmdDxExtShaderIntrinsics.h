@@ -36,6 +36,8 @@
 struct AmdDxExtShaderIntrinsicsInfo
 {
     unsigned int waveSize;
+    unsigned int minWaveSize;  // Version 2.5 and above
+    unsigned int maxWaveSize;  // Version 2.5 and above
 };
 
 /**
@@ -103,7 +105,16 @@ enum AmdDxExtShaderIntrinsicsOpcode
     AmdDxExtShaderIntrinsicsOpcode_RtArraySlice    = 0x11,
     AmdDxExtShaderIntrinsicsOpcode_WaveReduce      = 0x12,
     AmdDxExtShaderIntrinsicsOpcode_WaveScan        = 0x13,
-    AmdDxExtShaderIntrinsicsOpcode_LastValidOpcode = 0x13,
+    AmdDxExtShaderIntrinsicsOpcode_Reserved1       = 0x14,
+    AmdDxExtShaderIntrinsicsOpcode_Reserved2       = 0x15,
+    AmdDxExtShaderIntrinsicsOpcode_Reserved3       = 0x16,
+    AmdDxExtShaderIntrinsicsOpcode_DrawIndex       = 0x17,
+    AmdDxExtShaderIntrinsicsOpcode_AtomicU64       = 0x18,
+    AmdDxExtShaderIntrinsicsOpcode_GetWaveSize     = 0x19,
+    AmdDxExtShaderIntrinsicsOpcode_BaseInstance    = 0x1a,
+    AmdDxExtShaderIntrinsicsOpcode_BaseVertex      = 0x1b,
+    AmdDxExtShaderIntrinsicsOpcode_ReadlaneAt      = 0x1c,
+    AmdDxExtShaderIntrinsicsOpcode_LastValidOpcode = 0x1c
 };
 
 /**
@@ -140,6 +151,12 @@ enum AmdDxExtShaderIntrinsicsSupport
     AmdDxExtShaderIntrinsicsSupport_MultiViewIndices = 0x0a,
     AmdDxExtShaderIntrinsicsSupport_WaveReduce       = 0x0b,
     AmdDxExtShaderIntrinsicsSupport_WaveScan         = 0x0c,
+    AmdDxExtShaderIntrinsicsSupport_DrawIndex        = 0x0d,
+    AmdDxExtShaderIntrinsicsSupport_AtomicU64        = 0x0e,
+    AmdDxExtShaderIntrinsicsSupport_GetWaveSize      = 0x0f,
+    AmdDxExtShaderIntrinsicsSupport_BaseInstance     = 0x10,
+    AmdDxExtShaderIntrinsicsSupport_BaseVertex       = 0x11,
+    AmdDxExtShaderIntrinsicsSupport_ReadlaneAt       = 0x12,
 };
 
 /**
@@ -220,6 +237,24 @@ const unsigned int AmdDxExtShaderIntrinsicsWaveOp_FlagShift   = 8;
 const unsigned int AmdDxExtShaderIntrinsicsWaveOp_FlagMask    = 0xff;
 const unsigned int AmdDxExtShaderIntrinsicsWaveOp_Inclusive   = 0x01;
 const unsigned int AmdDxExtShaderIntrinsicsWaveOp_Exclusive   = 0x02;
+
+/**
+***********************************************************************************************************************
+* @brief
+*    AmdDxExtShaderIntrinsicsAtomicOp enumeration to specify the atomic operation
+***********************************************************************************************************************
+*/
+enum AmdDxExtShaderIntrinsicsAtomicOp
+{
+    AmdDxExtShaderIntrinsicsAtomicOp_MinU64     = 0x01,
+    AmdDxExtShaderIntrinsicsAtomicOp_MaxU64     = 0x02,
+    AmdDxExtShaderIntrinsicsAtomicOp_AndU64     = 0x03,
+    AmdDxExtShaderIntrinsicsAtomicOp_OrU64      = 0x04,
+    AmdDxExtShaderIntrinsicsAtomicOp_XorU64     = 0x05,
+    AmdDxExtShaderIntrinsicsAtomicOp_AddU64     = 0x06,
+    AmdDxExtShaderIntrinsicsAtomicOp_XchgU64    = 0x07,
+    AmdDxExtShaderIntrinsicsAtomicOp_CmpXchgU64 = 0x08,
+};
 
 
 #endif //_AMDDXEXTSHADERINTRINSICS_H_

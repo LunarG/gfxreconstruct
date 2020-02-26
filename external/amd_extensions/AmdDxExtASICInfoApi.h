@@ -31,7 +31,7 @@
 #include "AmdDxExtASICInfo.h"
 
 
-const unsigned int AmdDxASICInfoMajorVersion = 1;
+const unsigned int AmdDxASICInfoMajorVersion = 2;
 const unsigned int AmdDxASICInfoMinorVersion = 0;
 // ASIC Info extension ID passed to IAmdDxExt::GetExtInterface()
 const unsigned int AmdDxExtASICInfoID = 9;
