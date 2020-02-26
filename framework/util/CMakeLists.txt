@@ -17,6 +17,8 @@ target_sources(gfxrecon_util
                    lz4_compressor.cpp
                    zlib_compressor.h
                    zlib_compressor.cpp
+                   zstd_compressor.h
+                   zstd_compressor.cpp
                    memory_output_stream.h
                    memory_output_stream.cpp
                    output_stream.h
@@ -59,6 +61,11 @@ if (TARGET ZLIB::ZLIB)
                                    ENABLE_ZLIB_COMPRESSION
                                    $<$<BOOL:${WIN32}>:ZLIB_WINAPI>)
     target_link_libraries(gfxrecon_util ZLIB::ZLIB)
+endif()
+
+if (TARGET ZSTD::ZSTD)
+    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_ZSTD_COMPRESSION)
+    target_link_libraries(gfxrecon_util ZSTD::ZSTD)
 endif()
 
 common_build_directives(gfxrecon_util)

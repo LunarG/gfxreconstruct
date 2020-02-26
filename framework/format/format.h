@@ -88,7 +88,8 @@ enum CompressionType : uint32_t
 {
     kNone = 0,
     kLz4  = 1,
-    kZlib = 2
+    kZlib = 2,
+    kZstd = 3
 };
 
 enum FileOption : uint32_t

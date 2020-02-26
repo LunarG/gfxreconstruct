@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -452,6 +452,10 @@ format::CompressionType CaptureSettings::ParseCompressionTypeString(const std::s
     else if (util::platform::StringCompareNoCase("zlib", value_string.c_str()) == 0)
     {
         result = format::CompressionType::kZlib;
+    }
+    else if (util::platform::StringCompareNoCase("zstd", value_string.c_str()) == 0)
+    {
+        result = format::CompressionType::kZstd;
     }
     else
     {
