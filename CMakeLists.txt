@@ -79,6 +79,7 @@ endif(MSVC)
 
 # GFXReconstruct provided find modules
 find_package(LZ4)
+find_package(ZSTD)
 if(UNIX)
     find_package(XCB)
     find_package(WAYLAND)

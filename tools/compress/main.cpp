@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -68,9 +68,10 @@ void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  <output_file>\t\tPath to the output file to generate.");
     GFXRECON_WRITE_CONSOLE("  <compression_format>\tCompression format to apply to the output file.");
     GFXRECON_WRITE_CONSOLE("                      \tOptions are: ");
-    GFXRECON_WRITE_CONSOLE("                      \t  LZ4  - To output using LZ4 compression.");
-    GFXRECON_WRITE_CONSOLE("                      \t  ZLIB - To output using Zlib compression.");
-    GFXRECON_WRITE_CONSOLE("                      \t  NONE - To output without using compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  LZ4  - Use LZ4 compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  ZLIB - Use Zlib compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  ZSTD - Use Zstandard compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  NONE - Remove compression.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit");
 }
@@ -115,6 +116,10 @@ int main(int argc, const char** argv)
             {
                 compression_type = gfxrecon::format::CompressionType::kZlib;
             }
+            else if (dst_compression_string == "ZSTD")
+            {
+                compression_type = gfxrecon::format::CompressionType::kZstd;
+            }
             else
             {
                 GFXRECON_LOG_ERROR("Unsupported compression format \'%s\'", positional_arguments[2].c_str());
@@ -157,6 +162,9 @@ int main(int argc, const char** argv)
                                 break;
                             case gfxrecon::format::CompressionType::kZlib:
                                 src_compression = "ZLIB";
+                                break;
+                            case gfxrecon::format::CompressionType::kZstd:
+                                src_compression = "ZSTD";
                                 break;
                             default:
                                 GFXRECON_LOG_ERROR("Unknown source compression type %d", option.value);

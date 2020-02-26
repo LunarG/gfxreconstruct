@@ -175,7 +175,7 @@ On Ubuntu, the required packages can be installed with the following
 command:
 ```
 sudo apt-get install git cmake build-essential libx11-xcb-dev libxcb-keysyms1-dev libxkbcommon-dev \
-        libwayland-dev libxrandr-dev  liblz4-dev clang-format clang-tidy
+        libwayland-dev libxrandr-dev liblz4-dev libzstd-dev clang-format clang-tidy
 ```
 
 ##### Fedora Core
@@ -183,7 +183,7 @@ On Fedora Core, the required packages can be installed with the following
 command:
 ```
 sudo dnf install git cmake libxcb-devel xcb-util-keysyms-devel libxkbcommon-devel \
-        libXrandr-devel wayland-devel clang clang-tools-extra
+        libXrandr-devel wayland-devel lz4-devel libzstd-devel clang clang-tools-extra
 ```
 
 ### Linux Build
