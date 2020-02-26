@@ -34,6 +34,7 @@ from decode_pnext_struct_generator import DecodePNextStructGenerator,DecodePNext
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator,VulkanConsumerHeaderGeneratorOptions
 from vulkan_ascii_consumer_body_generator import VulkanAsciiConsumerBodyGenerator,VulkanAsciiConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator,VulkanReplayConsumerBodyGeneratorOptions
+from vulkan_resource_tracking_consumer_body_generator import VulkanResourceTrackingConsumerBodyGenerator,VulkanResourceTrackingConsumerBodyGeneratorOptions
 from vulkan_struct_handle_mappers_header_generator import VulkanStructHandleMappersHeaderGenerator,VulkanStructHandleMappersHeaderGeneratorOptions
 from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMappersBodyGenerator,VulkanStructHandleMappersBodyGeneratorOptions
 
@@ -71,6 +72,7 @@ def endTimer(timeit, msg):
 defaultBlacklists = 'blacklists.json'
 defaultPlatformTypes = 'platform_types.json'
 defaultReplayOverrides = 'replay_overrides.json'
+defaultResourceTrackingOverrides = 'resource_tracking_overrides.json'
 defaultCaptureOverrides = 'capture_overrides.json'
 
 # Returns a directory of [ generator function, generator options ] indexed
@@ -89,6 +91,7 @@ def makeGenOpts(args):
     blacklists = os.path.join(args.configs, defaultBlacklists)
     platformTypes = os.path.join(args.configs, defaultPlatformTypes)
     replayOverrides = os.path.join(args.configs, defaultReplayOverrides)
+    resourceTrackingOverrides = os.path.join(args.configs, defaultResourceTrackingOverrides)
     captureOverrides = os.path.join(args.configs, defaultCaptureOverrides)
 
     # Copyright text prefixing all headers (list of strings).
@@ -96,6 +99,25 @@ def makeGenOpts(args):
         '/*',
         '** Copyright (c) 2018-2020 Valve Corporation',
         '** Copyright (c) 2018-2020 LunarG, Inc.',
+        '**',
+        '** Licensed under the Apache License, Version 2.0 (the "License");',
+        '** you may not use this file except in compliance with the License.',
+        '** You may obtain a copy of the License at',
+        '**',
+        '**     http://www.apache.org/licenses/LICENSE-2.0',
+        '**',
+        '** Unless required by applicable law or agreed to in writing, software',
+        '** distributed under the License is distributed on an "AS IS" BASIS,',
+        '** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.',
+        '** See the License for the specific language governing permissions and',
+        '** limitations under the License.',
+        '*/',
+        ''
+    ]
+
+    amdPrefixStrings = [
+        '/*',
+        '** Copyright (c) 2020 Advanced Micro Devices, Inc. All rights reserved'
         '**',
         '** Licensed under the Apache License, Version 2.0 (the "License");',
         '** you may not use this file except in compliance with the License.',
@@ -243,6 +265,22 @@ def makeGenOpts(args):
         protectFeature    = False)
     ]
 
+    genOpts['generated_vulkan_resource_tracking_consumer.h'] = [
+        VulkanConsumerHeaderGenerator,
+        VulkanConsumerHeaderGeneratorOptions(
+        className         = 'VulkanResourceTrackingConsumer',
+        baseClassHeader   = 'vulkan_resource_tracking_consumer_base.h',
+        isOverride        = True,
+        constructorArgs   = 'VulkanReplayConsumer* replay_consumer, const ReplayOptions& options',
+        filename          = 'generated_vulkan_resource_tracking_consumer.h',
+        directory         = directory,
+        blacklists        = blacklists,
+        platformTypes     = platformTypes,
+        prefixText        = amdPrefixStrings + vkPrefixStrings,
+        protectFile       = True,
+        protectFeature    = False)
+    ]
+
     genOpts['generated_vulkan_ascii_consumer.cpp'] = [
         VulkanAsciiConsumerBodyGenerator,
         VulkanAsciiConsumerBodyGeneratorOptions(
@@ -266,6 +304,19 @@ def makeGenOpts(args):
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
         protectFeature    = False)
+    ]
+
+    genOpts['generated_vulkan_resource_tracking_consumer.cpp'] = [
+        VulkanResourceTrackingConsumerBodyGenerator,
+        VulkanResourceTrackingConsumerBodyGeneratorOptions(
+        filename                    = 'generated_vulkan_resource_tracking_consumer.cpp',
+        directory                   = directory,
+        blacklists                  = blacklists,
+        resourceTrackingOverrides   = resourceTrackingOverrides,
+        platformTypes               = platformTypes,
+        prefixText                  = amdPrefixStrings + vkPrefixStrings,
+        protectFile                 = False,
+        protectFeature              = False)
     ]
 
     genOpts['generated_vulkan_struct_handle_mappers.h'] = [
