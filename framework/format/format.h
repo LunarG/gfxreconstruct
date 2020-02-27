@@ -39,6 +39,8 @@ typedef uint64_t HandleEncodeType;
 typedef uint64_t DeviceSizeEncodeType;
 typedef uint64_t SizeTEncodeType;
 typedef uint64_t AddressEncodeType;
+typedef uint8_t  CharEncodeType;  // Encoding type for UTF-8 strings.
+typedef uint16_t WCharEncodeType; // Encoding type for LPCWSTR (UTF-16) strings.
 
 typedef HandleEncodeType HandleId;
 typedef uint64_t         ThreadId;
@@ -107,8 +109,8 @@ enum PointerAttributes : uint32_t
     kIsArray        = 0x04, // Pointer to an array of values (can be combined with kIsString or kIsStruct).
 
     // Type modifiers for pointers to aggregate data types
-    kIsString       = 0x08, // Pointer to a string.
-    kIsWString      = 0x10, // Pointer to a wide character string.
+    kIsString       = 0x08, // Pointer to a UTF-8 string.
+    kIsWString      = 0x10, // Pointer to a UTF-16 string.
     kIsStruct       = 0x20, // Pointer to a struct.
 
     // What was encoded
