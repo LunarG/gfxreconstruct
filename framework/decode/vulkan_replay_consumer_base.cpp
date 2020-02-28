@@ -134,7 +134,7 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options) :
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
-    window_factory_(window_factory), options_(options), loading_trim_state_(false)
+    window_factory_(window_factory), options_(options), loading_trim_state_(false), have_imported_semaphores_(false)
 {
     assert(window_factory != nullptr);
     assert(options.create_resource_allocator != nullptr);
@@ -2591,6 +2591,197 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
+                                                       VkResult          original_result,
+                                                       const QueueInfo*  queue_info,
+                                                       uint32_t          submitCount,
+                                                       const StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
+                                                       const FenceInfo*                                  fence_info)
+{
+    assert((queue_info != nullptr) && (pSubmits != nullptr));
+
+    VkResult            result       = VK_SUCCESS;
+    const VkSubmitInfo* submit_infos = pSubmits->GetPointer();
+    VkFence             fence        = VK_NULL_HANDLE;
+
+    if (fence_info != nullptr)
+    {
+        fence = fence_info->handle;
+    }
+
+    // Only attempt to filter imported semaphores if we know at least one has been imported.
+    if (!have_imported_semaphores_ || (submit_infos == nullptr))
+    {
+        result = func(queue_info->handle, submitCount, submit_infos, fence);
+    }
+    else
+    {
+        // Check for imported semaphores in the current submission list, mapping the pSubmits array index to a vector of
+        // imported semaphore info structures.
+        std::unordered_map<uint32_t, std::vector<const SemaphoreInfo*>> imported_wait_submits;
+        std::vector<const SemaphoreInfo*>                               imported_semaphores;
+
+        auto submit_info_data = pSubmits->GetMetaStructPointer();
+        if (submit_info_data != nullptr)
+        {
+            for (uint32_t i = 0; i < submitCount; i++)
+            {
+                GetImportedSemaphores(submit_info_data[i].pWaitSemaphores, &imported_semaphores);
+
+                if (!imported_semaphores.empty())
+                {
+                    imported_wait_submits[i].swap(imported_semaphores);
+                    assert(imported_semaphores.empty());
+                }
+            }
+        }
+
+        if (imported_wait_submits.empty())
+        {
+            result = func(queue_info->handle, submitCount, submit_infos, fence);
+        }
+        else
+        {
+            // Make shallow copies of the VkSubmit info structures and change pWaitSemaphores to reference a copy of the
+            // original semaphore array with the imported semaphores omitted.
+            std::vector<VkSubmitInfo> modified_submit_infos(submit_infos, std::next(submit_infos, submitCount));
+            std::vector<std::vector<VkSemaphore>> semaphore_memory(imported_wait_submits.size());
+
+            auto memory_iter = semaphore_memory.begin();
+
+            for (const auto& submit_iter : imported_wait_submits)
+            {
+                // Shallow copy with filtered copy of pWaitSemaphores for submission info with imported semaphores.
+                VkSubmitInfo& modified_submit_info = modified_submit_infos[submit_iter.first];
+                auto          semaphore_iter       = submit_iter.second.begin();
+
+                for (uint32_t i = 0; i < modified_submit_info.waitSemaphoreCount; ++i)
+                {
+                    VkSemaphore semaphore = modified_submit_info.pWaitSemaphores[i];
+
+                    if ((semaphore_iter == submit_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                    {
+                        memory_iter->push_back(semaphore);
+                    }
+                    else
+                    {
+                        // Omit the imported semaphore from the current submission.
+                        ++semaphore_iter;
+                    }
+                }
+
+                modified_submit_info.waitSemaphoreCount = static_cast<uint32_t>(memory_iter->size());
+                modified_submit_info.pWaitSemaphores    = memory_iter->data();
+
+                ++memory_iter;
+            }
+
+            result = func(queue_info->handle,
+                          static_cast<uint32_t>(modified_submit_infos.size()),
+                          modified_submit_infos.data(),
+                          fence);
+        }
+    }
+
+    return result;
+}
+
+VkResult
+VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse                                 func,
+                                                  VkResult                                              original_result,
+                                                  const QueueInfo*                                      queue_info,
+                                                  uint32_t                                              bindInfoCount,
+                                                  const StructPointerDecoder<Decoded_VkBindSparseInfo>* pBindInfo,
+                                                  const FenceInfo*                                      fence_info)
+{
+    assert((queue_info != nullptr) && (pBindInfo != nullptr));
+
+    VkResult                result     = VK_SUCCESS;
+    const VkBindSparseInfo* bind_infos = pBindInfo->GetPointer();
+    VkFence                 fence      = VK_NULL_HANDLE;
+
+    if (fence_info != nullptr)
+    {
+        fence = fence_info->handle;
+    }
+
+    // Only attempt to filter imported semaphores if we know at least one has been imported.
+    if (!have_imported_semaphores_ || (bind_infos == nullptr))
+    {
+        result = func(queue_info->handle, bindInfoCount, bind_infos, fence);
+    }
+    else
+    {
+        // Check for imported semaphores in the current bind info list, mapping the pBindInfo array index to a vector of
+        // imported semaphore info structures.
+        std::unordered_map<uint32_t, std::vector<const SemaphoreInfo*>> imported_wait_binds;
+        std::vector<const SemaphoreInfo*>                               imported_semaphores;
+
+        auto bind_info_data = pBindInfo->GetMetaStructPointer();
+        if (bind_info_data != nullptr)
+        {
+            for (uint32_t i = 0; i < bindInfoCount; i++)
+            {
+                GetImportedSemaphores(bind_info_data[i].pWaitSemaphores, &imported_semaphores);
+
+                if (!imported_semaphores.empty())
+                {
+                    imported_wait_binds[i].swap(imported_semaphores);
+                    assert(imported_semaphores.empty());
+                }
+            }
+        }
+
+        if (imported_wait_binds.empty())
+        {
+            result = func(queue_info->handle, bindInfoCount, bind_infos, fence);
+        }
+        else
+        {
+            // Make shallow copies of the VkBindSparseInfo structures and change pWaitSemaphores to reference a copy of
+            // the original semaphore array with the imported semaphores omitted.
+            std::vector<VkBindSparseInfo>         modified_bind_infos(bind_infos, std::next(bind_infos, bindInfoCount));
+            std::vector<std::vector<VkSemaphore>> semaphore_memory(imported_wait_binds.size());
+
+            auto memory_iter = semaphore_memory.begin();
+
+            for (const auto& bind_iter : imported_wait_binds)
+            {
+                // Shallow copy with filtered copy of pWaitSemaphores for bind info with imported semaphores.
+                VkBindSparseInfo& modified_bind_info = modified_bind_infos[bind_iter.first];
+                auto              semaphore_iter     = bind_iter.second.begin();
+
+                for (uint32_t j = 0; j < modified_bind_info.waitSemaphoreCount; ++j)
+                {
+                    VkSemaphore semaphore = modified_bind_info.pWaitSemaphores[j];
+
+                    if ((semaphore_iter == bind_iter.second.end()) || ((*semaphore_iter)->handle != semaphore))
+                    {
+                        memory_iter->push_back(semaphore);
+                    }
+                    else
+                    {
+                        // Omit the imported semaphore from the current submission.
+                        ++semaphore_iter;
+                    }
+                }
+
+                modified_bind_info.waitSemaphoreCount = static_cast<uint32_t>(memory_iter->size());
+                modified_bind_info.pWaitSemaphores    = memory_iter->data();
+
+                ++memory_iter;
+            }
+
+            result = func(queue_info->handle,
+                          static_cast<uint32_t>(modified_bind_infos.size()),
+                          modified_bind_infos.data(),
+                          fence);
+        }
+    }
+
+    return result;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
     PFN_vkAllocateCommandBuffers                                     func,
     VkResult                                                         original_result,
@@ -3713,6 +3904,166 @@ VkResult VulkanReplayConsumerBase::OverrideAcquireNextImage2KHR(
     return result;
 }
 
+VkResult
+VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR                                 func,
+                                                  VkResult                                              original_result,
+                                                  const QueueInfo*                                      queue_info,
+                                                  const StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo)
+{
+    assert((queue_info != nullptr) && (pPresentInfo != nullptr));
+
+    VkResult                result       = VK_SUCCESS;
+    const VkPresentInfoKHR* present_info = pPresentInfo->GetPointer();
+
+    // Only attempt to find imported semaphores if we know at least one has been imported.
+    if (!have_imported_semaphores_ || (present_info == nullptr))
+    {
+        result = func(queue_info->handle, present_info);
+    }
+    else
+    {
+        // Check for imported semaphores in the present info, creating a vector of imported semaphore info structures.
+        std::vector<const SemaphoreInfo*> imported_semaphores;
+        auto                              present_info_data = pPresentInfo->GetMetaStructPointer();
+        if (present_info_data != nullptr)
+        {
+            GetImportedSemaphores(present_info_data->pWaitSemaphores, &imported_semaphores);
+        }
+
+        if (imported_semaphores.empty())
+        {
+            result = func(queue_info->handle, present_info);
+        }
+        else
+        {
+            // Make a shallow copy of the VkPresentInfoKHR structure and change pWaitSemaphores to reference a copy of
+            // the original semaphore array with the imported semaphores omitted.
+            std::vector<VkSemaphore> semaphore_memory;
+            auto                     semaphore_iter = imported_semaphores.begin();
+
+            for (uint32_t i = 0; i < present_info->waitSemaphoreCount; i++)
+            {
+                VkSemaphore semaphore = present_info->pWaitSemaphores[i];
+
+                if ((semaphore_iter == imported_semaphores.end()) || ((*semaphore_iter)->handle != semaphore))
+                {
+                    semaphore_memory.push_back(semaphore);
+                }
+                else
+                {
+                    // Omit the imported semaphore from the current submission.
+                    ++semaphore_iter;
+                }
+            }
+
+            VkPresentInfoKHR modified_present_info   = *present_info;
+            modified_present_info.waitSemaphoreCount = static_cast<uint32_t>(semaphore_memory.size());
+            modified_present_info.pWaitSemaphores    = semaphore_memory.data();
+
+            result = func(queue_info->handle, &modified_present_info);
+        }
+    }
+
+    return result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideImportSemaphoreFdKHR(
+    PFN_vkImportSemaphoreFdKHR                                      func,
+    VkResult                                                        original_result,
+    const DeviceInfo*                                               device_info,
+    const StructPointerDecoder<Decoded_VkImportSemaphoreFdInfoKHR>* pImportSemaphoreFdInfo)
+{
+    // Skip external semaphore import.  There is no actual file descriptor backing it in replay.
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+
+    assert(pImportSemaphoreFdInfo != nullptr);
+
+    // Track and remove imported sempahore from future wait operations as it will never be signaled.
+    if (original_result == VK_SUCCESS)
+    {
+        auto info = pImportSemaphoreFdInfo->GetMetaStructPointer();
+        assert(info != nullptr);
+
+        SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(info->semaphore);
+
+        if (semaphore_info != nullptr)
+        {
+            have_imported_semaphores_   = true;
+            semaphore_info->is_external = true;
+        }
+    }
+
+    return original_result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetSemaphoreFdKHR(
+    PFN_vkGetSemaphoreFdKHR                                      func,
+    VkResult                                                     original_result,
+    const DeviceInfo*                                            device_info,
+    const StructPointerDecoder<Decoded_VkSemaphoreGetFdInfoKHR>* pGetFdInfo,
+    const PointerDecoder<int>*                                   pFd)
+{
+    // Skip external semaphore file descriptor acquire so that replay is not responsible for closing the file
+    // descriptor.
+    // From spec:
+    //      To avoid leaking resources, the application must release ownership
+    //      of the file descriptor when it is no longer needed.
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+    GFXRECON_UNREFERENCED_PARAMETER(pGetFdInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(pFd);
+    return original_result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideImportSemaphoreWin32HandleKHR(
+    PFN_vkImportSemaphoreWin32HandleKHR                                      func,
+    VkResult                                                                 original_result,
+    const DeviceInfo*                                                        device_info,
+    const StructPointerDecoder<Decoded_VkImportSemaphoreWin32HandleInfoKHR>* pImportSemaphoreWin32HandleInfo)
+{
+    // Skip external semaphore import.  There is no actual OS resource backing it in replay.
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+
+    assert(pImportSemaphoreWin32HandleInfo != nullptr);
+
+    // Track and remove imported sempahore from future wait operations as it will never be signaled.
+    if (original_result == VK_SUCCESS)
+    {
+        auto info = pImportSemaphoreWin32HandleInfo->GetMetaStructPointer();
+        assert(info != nullptr);
+
+        SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(info->semaphore);
+
+        if (semaphore_info != nullptr)
+        {
+            have_imported_semaphores_   = true;
+            semaphore_info->is_external = true;
+        }
+    }
+
+    return original_result;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetSemaphoreWin32HandleKHR(
+    PFN_vkGetSemaphoreWin32HandleKHR                                      func,
+    VkResult                                                              original_result,
+    const DeviceInfo*                                                     device_info,
+    const StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>* pGetWin32HandleInfo,
+    const PointerDecoder<uint64_t, void*>*                                pHandle)
+{
+    // Skip external semaphore handle acquire so that replay is not responsible for closing the handle.
+    // From spec:
+    //      To avoid leaking resources, the application must release ownership
+    //      of them using the CloseHandle system call when they are no longer needed.
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+    GFXRECON_UNREFERENCED_PARAMETER(device_info);
+    GFXRECON_UNREFERENCED_PARAMETER(pGetWin32HandleInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(pHandle);
+    return original_result;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(
     PFN_vkCreateAndroidSurfaceKHR                                      func,
     VkResult                                                           original_result,
@@ -3971,6 +4322,27 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
             else
             {
                 texel_buffer_view_handles[i] = VK_NULL_HANDLE;
+            }
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::GetImportedSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
+                                                     std::vector<const SemaphoreInfo*>*       imported_semaphores)
+{
+    assert(imported_semaphores != nullptr);
+
+    const format::HandleId* semaphore_ids = semaphore_data.GetPointer();
+    if (semaphore_ids != nullptr)
+    {
+        size_t count = semaphore_data.GetLength();
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            const SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
+            if ((semaphore_info != nullptr) && semaphore_info->is_external)
+            {
+                imported_semaphores->push_back(semaphore_info);
             }
         }
     }

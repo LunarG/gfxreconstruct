@@ -372,6 +372,20 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          VkDeviceSize              stride,
                                          VkQueryResultFlags        flags);
 
+    VkResult OverrideQueueSubmit(PFN_vkQueueSubmit                                 func,
+                                 VkResult                                          original_result,
+                                 const QueueInfo*                                  queue_info,
+                                 uint32_t                                          submitCount,
+                                 const StructPointerDecoder<Decoded_VkSubmitInfo>* pSubmits,
+                                 const FenceInfo*                                  fence_info);
+
+    VkResult OverrideQueueBindSparse(PFN_vkQueueBindSparse                                 func,
+                                     VkResult                                              original_result,
+                                     const QueueInfo*                                      queue_info,
+                                     uint32_t                                              bindInfoCount,
+                                     const StructPointerDecoder<Decoded_VkBindSparseInfo>* pBindInfo,
+                                     const FenceInfo*                                      fence_info);
+
     VkResult
     OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers                                     func,
                                    VkResult                                                         original_result,
@@ -548,6 +562,36 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                           const StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>* pAcquireInfo,
                                           PointerDecoder<uint32_t>*                                      pImageIndex);
 
+    VkResult OverrideQueuePresentKHR(PFN_vkQueuePresentKHR                                 func,
+                                     VkResult                                              original_result,
+                                     const QueueInfo*                                      queue_info,
+                                     const StructPointerDecoder<Decoded_VkPresentInfoKHR>* pPresentInfo);
+
+    VkResult OverrideImportSemaphoreFdKHR(
+        PFN_vkImportSemaphoreFdKHR                                      func,
+        VkResult                                                        original_result,
+        const DeviceInfo*                                               device_info,
+        const StructPointerDecoder<Decoded_VkImportSemaphoreFdInfoKHR>* pImportSemaphoreFdInfo);
+
+    VkResult OverrideGetSemaphoreFdKHR(PFN_vkGetSemaphoreFdKHR                                      func,
+                                       VkResult                                                     original_result,
+                                       const DeviceInfo*                                            device_info,
+                                       const StructPointerDecoder<Decoded_VkSemaphoreGetFdInfoKHR>* pGetFdInfo,
+                                       const PointerDecoder<int>*                                   pFd);
+
+    VkResult OverrideImportSemaphoreWin32HandleKHR(
+        PFN_vkImportSemaphoreWin32HandleKHR                                      func,
+        VkResult                                                                 original_result,
+        const DeviceInfo*                                                        device_info,
+        const StructPointerDecoder<Decoded_VkImportSemaphoreWin32HandleInfoKHR>* pImportSemaphoreWin32HandleInfo);
+
+    VkResult OverrideGetSemaphoreWin32HandleKHR(
+        PFN_vkGetSemaphoreWin32HandleKHR                                      func,
+        VkResult                                                              original_result,
+        const DeviceInfo*                                                     device_info,
+        const StructPointerDecoder<Decoded_VkSemaphoreGetWin32HandleInfoKHR>* pGetWin32HandleInfo,
+        const PointerDecoder<uint64_t, void*>*                                pHandle);
+
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
     VkResult
@@ -658,6 +702,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateInfo* update_template_info,
                                             DescriptorUpdateTemplateDecoder*    decoder);
 
+    void GetImportedSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
+                               std::vector<const SemaphoreInfo*>*       imported_semaphores);
+
     // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
     // the expected layout and keep them acquired until first use.
     void ProcessSetSwapchainImageStatePreAcquire(VkDevice                                            device,
@@ -719,6 +766,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     ActiveWindows                                                    active_windows_;
     ReplayOptions                                                    options_;
     bool                                                             loading_trim_state_;
+    bool                                                             have_imported_semaphores_;
     SwapchainImageTracker                                            swapchain_image_tracker_;
     HardwareBufferMap                                                hardware_buffers_;
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
