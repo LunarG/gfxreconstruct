@@ -150,7 +150,6 @@ struct VulkanObjectInfo
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanObjectInfo<VkSemaphore>                     SemaphoreInfo;
 typedef VulkanObjectInfo<VkCommandBuffer>                 CommandBufferInfo;
 typedef VulkanObjectInfo<VkFence>                         FenceInfo;
 typedef VulkanObjectInfo<VkEvent>                         EventInfo;
@@ -237,6 +236,11 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 struct QueueInfo : public VulkanObjectInfo<VkQueue>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+};
+
+struct SemaphoreInfo : public VulkanObjectInfo<VkSemaphore>
+{
+    bool is_external{ false };
 };
 
 struct DeviceMemoryInfo : public VulkanObjectInfo<VkDeviceMemory>
