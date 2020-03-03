@@ -192,17 +192,6 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>
     }
 };
 
-// Dispatch custom command for unused pNext initialization during GetPhysicalDeviceSurfaceFormats2KHR call.
-template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR>
-{
-    template <typename... Args>
-    static void Dispatch(TraceManager* manager, Args... args)
-    {
-        manager->PreProcess_vkGetPhysicalDeviceSurfaceFormats2KHR(args...);
-    }
-};
-
 template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireNextImageKHR>
 {
