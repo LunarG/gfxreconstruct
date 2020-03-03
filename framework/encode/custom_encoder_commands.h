@@ -263,12 +263,52 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBindBufferMemory2(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBindBufferMemory2(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, VkResult result, Args... args)
     {
         manager->PostProcess_vkBindImageMemory(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBindImageMemory2(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBindImageMemory2(result, args...);
     }
 };
 
