@@ -542,6 +542,23 @@ class TraceManager
         }
     }
 
+    void PostProcess_vkBindBufferMemory2(VkResult                      result,
+                                         VkDevice                      device,
+                                         uint32_t                      bindInfoCount,
+                                         const VkBindBufferMemoryInfo* pBindInfos)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (pBindInfos != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            for (uint32_t i = 0; i < bindInfoCount; ++i)
+            {
+                state_tracker_->TrackBufferMemoryBinding(
+                    device, pBindInfos[i].buffer, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
+            }
+        }
+    }
+
     void PostProcess_vkBindImageMemory(
         VkResult result, VkDevice device, VkImage image, VkDeviceMemory memory, VkDeviceSize memoryOffset)
     {
@@ -549,6 +566,23 @@ class TraceManager
         {
             assert(state_tracker_ != nullptr);
             state_tracker_->TrackImageMemoryBinding(device, image, memory, memoryOffset);
+        }
+    }
+
+    void PostProcess_vkBindImageMemory2(VkResult                     result,
+                                        VkDevice                     device,
+                                        uint32_t                     bindInfoCount,
+                                        const VkBindImageMemoryInfo* pBindInfos)
+    {
+        if (((capture_mode_ & kModeTrack) == kModeTrack) && (result == VK_SUCCESS) && (pBindInfos != nullptr))
+        {
+            assert(state_tracker_ != nullptr);
+
+            for (uint32_t i = 0; i < bindInfoCount; ++i)
+            {
+                state_tracker_->TrackImageMemoryBinding(
+                    device, pBindInfos[i].image, pBindInfos[i].memory, pBindInfos[i].memoryOffset);
+            }
         }
     }
 
