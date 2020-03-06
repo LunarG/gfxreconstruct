@@ -38,6 +38,8 @@ target_sources(gfxrecon_decode
                    vulkan_enum_util.h
                    vulkan_object_info.h
                    vulkan_object_info_table.h
+                   vulkan_rebind_allocator.h
+                   vulkan_rebind_allocator.cpp
                    vulkan_remap_allocator.h
                    vulkan_remap_allocator.cpp
                    vulkan_replay_consumer_base.h
@@ -71,7 +73,7 @@ target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific)
 
 common_build_directives(gfxrecon_decode)
 
