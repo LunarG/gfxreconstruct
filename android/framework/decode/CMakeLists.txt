@@ -38,6 +38,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_enum_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_rebind_allocator.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_rebind_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_remap_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_remap_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.h
@@ -66,4 +68,4 @@ target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific)
