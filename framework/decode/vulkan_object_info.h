@@ -47,7 +47,6 @@ struct VulkanObjectInfo
 // Declarations for Vulkan objects without additional replay state info.
 //
 
-typedef VulkanObjectInfo<VkInstance>                      InstanceInfo;
 typedef VulkanObjectInfo<VkQueue>                         QueueInfo;
 typedef VulkanObjectInfo<VkSemaphore>                     SemaphoreInfo;
 typedef VulkanObjectInfo<VkCommandBuffer>                 CommandBufferInfo;
@@ -82,8 +81,15 @@ typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurati
 // Declarations for Vulkan objects with additional replay state info.
 //
 
+struct InstanceInfo : public VulkanObjectInfo<VkInstance>
+{
+    uint32_t api_version{ 0 };
+};
+
 struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 {
+    VkInstance                       parent{ VK_NULL_HANDLE };
+    uint32_t                         parent_api_version{ 0 };
     VkPhysicalDeviceMemoryProperties capture_memory_properties{};
     VkPhysicalDeviceMemoryProperties replay_memory_properties{};
 };
@@ -102,7 +108,11 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 
 struct DeviceMemoryInfo : public VulkanObjectInfo<VkDeviceMemory>
 {
-    void* mapped_memory{ nullptr };
+    VulkanResourceAllocator* allocator{ nullptr };
+    void*                    mapped_memory{ nullptr };
+
+    // The following values are only used for memory portability.
+    uintptr_t allocator_info{ 0 };
 
     // The following values are only used when loading the initial state for trimmed files.
     VkMemoryPropertyFlags property_flags{ 0 };
@@ -110,6 +120,9 @@ struct DeviceMemoryInfo : public VulkanObjectInfo<VkDeviceMemory>
 
 struct BufferInfo : public VulkanObjectInfo<VkBuffer>
 {
+    // The following values are only used for memory portability.
+    uintptr_t allocator_info{ 0 };
+
     // The following values are only used when loading the initial state for trimmed files.
     VkDeviceMemory        memory{ VK_NULL_HANDLE };
     VkMemoryPropertyFlags memory_property_flags{ 0 };
@@ -120,6 +133,9 @@ struct BufferInfo : public VulkanObjectInfo<VkBuffer>
 
 struct ImageInfo : public VulkanObjectInfo<VkImage>
 {
+    // The following values are only used for memory portability.
+    uintptr_t allocator_info{ 0 };
+
     // The following values are only used when loading the initial state for trimmed files.
     VkDeviceMemory        memory{ VK_NULL_HANDLE };
     VkMemoryPropertyFlags memory_property_flags{ 0 };
