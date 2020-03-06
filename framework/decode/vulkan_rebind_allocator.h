@@ -104,28 +104,18 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                         const uint8_t*          data) override;
 
   private:
-    VmaMemoryUsage GetBufferMemoryUsage(VkBufferUsageFlags          buffer_usage,
-                                        VkMemoryPropertyFlags       capture_properties,
-                                        const VkMemoryRequirements& replay_requirements);
-
-    VmaMemoryUsage GetImageMemoryUsage(VkImageUsageFlags           image_usage,
-                                       VkImageTiling               tiling,
-                                       VkMemoryPropertyFlags       capture_properties,
-                                       const VkMemoryRequirements& replay_requirements);
-
-    VmaMemoryUsage AdjustMemoryUsage(VmaMemoryUsage desired_usage, const VkMemoryRequirements& replay_requirements);
-
-  private:
     struct MemoryAllocInfo;
 
     struct ResourceAllocInfo
     {
         MemoryAllocInfo* memory_info{ nullptr };
         VmaAllocation    allocation{ VK_NULL_HANDLE };
+        bool             is_host_visible{ false };
         void*            mapped_pointer{ nullptr };
         VkDeviceSize     original_offset{ 0 };
         VkDeviceSize     rebind_offset{ 0 };
         VkDeviceSize     size{ 0 };
+        bool             is_image{ false };
     };
 
     struct MemoryAllocInfo
@@ -138,6 +128,29 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         std::unordered_map<VkBuffer, ResourceAllocInfo*> original_buffers;
         std::unordered_map<VkImage, ResourceAllocInfo*>  original_images;
     };
+
+  private:
+    void WriteBoundResource(ResourceAllocInfo* resource_alloc_info,
+                            VkDeviceSize       src_offset,
+                            VkDeviceSize       dst_offset,
+                            VkDeviceSize       data_size,
+                            const uint8_t*     data);
+
+    void UpdateBoundResource(ResourceAllocInfo* resource_alloc_info,
+                             VkDeviceSize       write_start,
+                             VkDeviceSize       write_end,
+                             const uint8_t*     data);
+
+    VmaMemoryUsage GetBufferMemoryUsage(VkBufferUsageFlags          buffer_usage,
+                                        VkMemoryPropertyFlags       capture_properties,
+                                        const VkMemoryRequirements& replay_requirements);
+
+    VmaMemoryUsage GetImageMemoryUsage(VkImageUsageFlags           image_usage,
+                                       VkImageTiling               tiling,
+                                       VkMemoryPropertyFlags       capture_properties,
+                                       const VkMemoryRequirements& replay_requirements);
+
+    VmaMemoryUsage AdjustMemoryUsage(VmaMemoryUsage desired_usage, const VkMemoryRequirements& replay_requirements);
 
   private:
     VkDevice                         device_;

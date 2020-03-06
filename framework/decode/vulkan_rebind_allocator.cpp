@@ -22,10 +22,12 @@
 #include "decode/vulkan_rebind_allocator.h"
 
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/vulkan_enum_util.h"
 #include "decode/vulkan_object_info.h"
 #include "format/format.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "util/platform.h"
 
 #include <algorithm>
 
@@ -161,6 +163,11 @@ void VulkanRebindAllocator::DestroyBuffer(BufferInfo* buffer_info, const VkAlloc
             memory_alloc_info->original_buffers.erase(buffer_info->handle);
         }
 
+        if (resource_alloc_info->mapped_pointer != nullptr)
+        {
+            vmaUnmapMemory(allocator_, resource_alloc_info->allocation);
+        }
+
         vmaDestroyBuffer(allocator_, buffer_info->handle, resource_alloc_info->allocation);
 
         delete resource_alloc_info;
@@ -185,6 +192,11 @@ void VulkanRebindAllocator::DestroyImage(ImageInfo* image_info, const VkAllocati
         if (memory_alloc_info != nullptr)
         {
             memory_alloc_info->original_images.erase(image_info->handle);
+        }
+
+        if (resource_alloc_info->mapped_pointer != nullptr)
+        {
+            vmaUnmapMemory(allocator_, resource_alloc_info->allocation);
         }
 
         vmaDestroyImage(allocator_, image_info->handle, resource_alloc_info->allocation);
@@ -302,6 +314,24 @@ VkResult VulkanRebindAllocator::BindBufferMemory(BufferInfo*       buffer_info,
                 resource_alloc_info->original_offset = memoryOffset;
                 resource_alloc_info->rebind_offset   = allocation_info.offset;
                 resource_alloc_info->size            = allocation_info.size;
+                resource_alloc_info->is_image        = false;
+
+                if ((replay_memory_properties_.memoryTypes[allocation_info.memoryType].propertyFlags &
+                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+                {
+                    resource_alloc_info->is_host_visible = true;
+                }
+
+                if (memory_alloc_info->original_content != nullptr)
+                {
+                    // Memory has been mapped and written prior to bind.  Copy the original content to the new
+                    // allocation to ensure it contains the correct data.
+                    WriteBoundResource(resource_alloc_info,
+                                       memoryOffset,
+                                       0,
+                                       allocation_info.size,
+                                       memory_alloc_info->original_content.get());
+                }
 
                 memory_alloc_info->original_buffers.insert(std::make_pair(buffer_info->handle, resource_alloc_info));
                 buffer_info->allocator_info = reinterpret_cast<uintptr_t>(resource_alloc_info);
@@ -364,6 +394,24 @@ VulkanRebindAllocator::BindImageMemory(ImageInfo* image_info, DeviceMemoryInfo* 
                 resource_alloc_info->original_offset = memoryOffset;
                 resource_alloc_info->rebind_offset   = allocation_info.offset;
                 resource_alloc_info->size            = allocation_info.size;
+                resource_alloc_info->is_image        = true;
+
+                if ((replay_memory_properties_.memoryTypes[allocation_info.memoryType].propertyFlags &
+                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+                {
+                    resource_alloc_info->is_host_visible = true;
+                }
+
+                if (memory_alloc_info->original_content != nullptr)
+                {
+                    // Memory has been mapped and written prior to bind.  Copy the original content to the new
+                    // allocation to ensure it contains the correct data.
+                    WriteBoundResource(resource_alloc_info,
+                                       memoryOffset,
+                                       0,
+                                       allocation_info.size,
+                                       memory_alloc_info->original_content.get());
+                }
 
                 memory_alloc_info->original_images.insert(std::make_pair(image_info->handle, resource_alloc_info));
                 image_info->allocator_info = reinterpret_cast<uintptr_t>(resource_alloc_info);
@@ -427,7 +475,144 @@ void VulkanRebindAllocator::WriteMappedMemoryRange(const DeviceMemoryInfo* memor
                                                    uint64_t                offset,
                                                    uint64_t                size,
                                                    const uint8_t*          data)
-{}
+{
+    if ((memory_info != nullptr) && (memory_info->allocator_info != 0))
+    {
+        auto memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(memory_info->allocator_info);
+
+        assert(memory_alloc_info->is_mapped);
+
+        if (memory_alloc_info->original_content == nullptr)
+        {
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, memory_alloc_info->allocation_size);
+            size_t allocation_size = static_cast<size_t>(memory_alloc_info->allocation_size);
+
+            memory_alloc_info->original_content = std::make_unique<uint8_t[]>(allocation_size);
+        }
+
+        // Update the reconstructed memory, which is written to memory allocations performed at resource bind to ensure
+        // they contain the correct data.
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+        size_t copy_size = static_cast<size_t>(size);
+
+        util::platform::MemoryCopy(memory_alloc_info->original_content.get() + offset, copy_size, data, copy_size);
+
+        VkDeviceSize write_start = memory_alloc_info->mapped_offset + offset;
+        VkDeviceSize write_end   = write_start + size;
+
+        // Copy to the resources that were bound to this range at capture.
+        for (const auto& entry : memory_alloc_info->original_buffers)
+        {
+            UpdateBoundResource(entry.second, write_start, write_end, data);
+        }
+
+        for (const auto& entry : memory_alloc_info->original_images)
+        {
+            UpdateBoundResource(entry.second, write_start, write_end, data);
+        }
+    }
+}
+
+void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc_info,
+                                               VkDeviceSize       src_offset,
+                                               VkDeviceSize       dst_offset,
+                                               VkDeviceSize       data_size,
+                                               const uint8_t*     data)
+{
+    assert(resource_alloc_info != nullptr);
+
+    if (resource_alloc_info->is_host_visible)
+    {
+        VkResult result = VK_SUCCESS;
+
+        if (resource_alloc_info->mapped_pointer == nullptr)
+        {
+            // After first map, the allocation will stay mapped until it is destroyed.
+            result = vmaMapMemory(allocator_, resource_alloc_info->allocation, &resource_alloc_info->mapped_pointer);
+        }
+
+        if ((result == VK_SUCCESS) && (resource_alloc_info->mapped_pointer != nullptr))
+        {
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, src_offset);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, dst_offset);
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, data_size);
+
+            size_t copy_src_offset = static_cast<size_t>(src_offset);
+            size_t copy_dst_offset = static_cast<size_t>(dst_offset);
+            size_t copy_size       = static_cast<size_t>(data_size);
+
+            if (!resource_alloc_info->is_image)
+            {
+                util::platform::MemoryCopy(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer) + copy_dst_offset,
+                                           copy_size,
+                                           data + copy_src_offset,
+                                           copy_size);
+            }
+            else
+            {
+                // TODO: Copy needs to be row pitch aware.
+                util::platform::MemoryCopy(static_cast<uint8_t*>(resource_alloc_info->mapped_pointer) + copy_dst_offset,
+                                           copy_size,
+                                           data + copy_src_offset,
+                                           copy_size);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Failed to map device memory: vmaMapMemory returned %s",
+                               enumutil::GetResultValueString(result));
+        }
+    }
+    else
+    {
+        // TODO: Staging copy.
+        GFXRECON_LOG_WARNING("Skipping mapped memory write the needs to be converted to a staging copy");
+    }
+}
+
+void VulkanRebindAllocator::UpdateBoundResource(ResourceAllocInfo* resource_alloc_info,
+                                                VkDeviceSize       write_start,
+                                                VkDeviceSize       write_end,
+                                                const uint8_t*     data)
+{
+    assert(resource_alloc_info != nullptr);
+
+    VkDeviceSize buffer_start = resource_alloc_info->original_offset;
+    VkDeviceSize buffer_end   = buffer_start + resource_alloc_info->size;
+
+    // Range ends are exclusive.
+    if ((buffer_end <= write_start) || (write_end <= buffer_start))
+    {
+        // Buffer is outside of the copy range.
+        return;
+    }
+
+    VkDeviceSize src_offset = 0;
+    VkDeviceSize dst_offset = 0;
+    VkDeviceSize data_size  = 0;
+
+    if (write_start > buffer_start)
+    {
+        // Write starts inside the buffer.
+        dst_offset = write_start - buffer_start;
+    }
+    else
+    {
+        src_offset = buffer_start - write_start;
+    }
+
+    if (write_end > buffer_end)
+    {
+        // Write ends outside the buffer.
+        data_size = buffer_end - (buffer_start + dst_offset);
+    }
+    else
+    {
+        data_size = write_end - (buffer_start + dst_offset);
+    }
+
+    WriteBoundResource(resource_alloc_info, src_offset, dst_offset, data_size, data);
+}
 
 VmaMemoryUsage VulkanRebindAllocator::GetBufferMemoryUsage(VkBufferUsageFlags          buffer_usage,
                                                            VkMemoryPropertyFlags       capture_properties,
