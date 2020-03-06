@@ -659,11 +659,10 @@ void VulkanReplayConsumer::Process_vkDestroyBuffer(
     format::HandleId                            buffer,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkBuffer in_buffer = MapHandle<BufferInfo>(buffer, &VulkanObjectInfoTable::GetBufferInfo);
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_buffer = GetObjectInfoTable().GetBufferInfo(buffer);
 
-    GetDeviceTable(in_device)->DestroyBuffer(in_device, in_buffer, in_pAllocator);
+    OverrideDestroyBuffer(GetDeviceTable(in_device->handle)->DestroyBuffer, in_device, in_buffer, pAllocator);
 }
 
 void VulkanReplayConsumer::Process_vkCreateBufferView(
@@ -721,11 +720,10 @@ void VulkanReplayConsumer::Process_vkDestroyImage(
     format::HandleId                            image,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkImage in_image = MapHandle<ImageInfo>(image, &VulkanObjectInfoTable::GetImageInfo);
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_image = GetObjectInfoTable().GetImageInfo(image);
 
-    GetDeviceTable(in_device)->DestroyImage(in_device, in_image, in_pAllocator);
+    OverrideDestroyImage(GetDeviceTable(in_device->handle)->DestroyImage, in_device, in_image, pAllocator);
 }
 
 void VulkanReplayConsumer::Process_vkGetImageSubresourceLayout(

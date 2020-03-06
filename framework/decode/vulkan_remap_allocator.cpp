@@ -23,9 +23,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanRemapAllocator::AllocateMemory(PFN_vkAllocateMemory                                      func,
-                                              const DeviceInfo*                                         device_info,
-                                              const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
+VkResult VulkanRemapAllocator::AllocateMemory(const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
                                               const VkAllocationCallbacks*                              pAllocator,
                                               HandlePointerDecoder<VkDeviceMemory>*                     pMemory)
 {
@@ -37,7 +35,7 @@ VkResult VulkanRemapAllocator::AllocateMemory(PFN_vkAllocateMemory              
     // TODO: Store the new memory type index in the DeviceMemoryInfo structure and add a check at buffer/image bind,
     // reporting errors when binding to incompatible memory types.
 
-    return func(device_info->handle, &replay_allocate_info, pAllocator, pMemory->GetHandlePointer());
+    return GetFunctions().allocate_memory(GetDevice(), &replay_allocate_info, pAllocator, pMemory->GetHandlePointer());
 }
 
 GFXRECON_END_NAMESPACE(decode)

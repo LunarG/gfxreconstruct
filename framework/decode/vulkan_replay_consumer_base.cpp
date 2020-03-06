@@ -178,10 +178,16 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 
     if ((memory_info != nullptr) && (memory_info->mapped_memory != nullptr))
     {
-        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-        size_t copy_size = static_cast<size_t>(size);
-        util::platform::MemoryCopy(
-            static_cast<uint8_t*>(memory_info->mapped_memory) + offset, copy_size, data, copy_size);
+        if (memory_info->allocator != nullptr)
+        {
+            memory_info->allocator->WriteMappedMemoryRange(memory_info, offset, size, data);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Skipping memory fill for VkDeviceMemory object (ID = %" PRIu64
+                                 ") that is not associated with a resource allocator",
+                                 memory_id);
+        }
     }
     else
     {
@@ -1695,6 +1701,101 @@ bool VulkanReplayConsumerBase::CheckTrimDeviceExtensions(VkPhysicalDevice       
     return have_extensions;
 }
 
+void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceInfo*       physical_device_info,
+                                                           VkDevice                        device,
+                                                           const std::vector<std::string>& enabled_device_extensions,
+                                                           VulkanResourceAllocator*        allocator)
+{
+    assert((physical_device_info != nullptr) && (device != VK_NULL_HANDLE) && (allocator != nullptr));
+
+    // Initialize the memory allocator's function table.
+    auto instance_table = GetInstanceTable(physical_device_info->handle);
+    auto device_table   = GetDeviceTable(device);
+    assert((instance_table != nullptr) && (device_table != nullptr));
+
+    VulkanResourceAllocator::Functions functions;
+    functions.get_physical_device_properties        = instance_table->GetPhysicalDeviceProperties;
+    functions.get_physical_device_memory_properties = instance_table->GetPhysicalDeviceMemoryProperties;
+
+    if (instance_table->GetPhysicalDeviceMemoryProperties2 != nullptr)
+    {
+        functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2;
+    }
+    else
+    {
+        functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2KHR;
+    }
+
+    functions.allocate_memory                = device_table->AllocateMemory;
+    functions.free_memory                    = device_table->FreeMemory;
+    functions.get_device_memory_commitment   = device_table->GetDeviceMemoryCommitment;
+    functions.map_memory                     = device_table->MapMemory;
+    functions.unmap_memory                   = device_table->UnmapMemory;
+    functions.flush_memory_ranges            = device_table->FlushMappedMemoryRanges;
+    functions.invalidate_memory_ranges       = device_table->InvalidateMappedMemoryRanges;
+    functions.create_buffer                  = device_table->CreateBuffer;
+    functions.destroy_buffer                 = device_table->DestroyBuffer;
+    functions.get_buffer_memory_requirements = device_table->GetBufferMemoryRequirements;
+    functions.bind_buffer_memory             = device_table->BindBufferMemory;
+    functions.cmd_copy_buffer                = device_table->CmdCopyBuffer;
+    functions.create_image                   = device_table->CreateImage;
+    functions.destroy_image                  = device_table->DestroyImage;
+    functions.get_image_memory_requirements  = device_table->GetImageMemoryRequirements;
+    functions.bind_image_memory              = device_table->BindImageMemory;
+
+    if (device_table->GetBufferMemoryRequirements2 != nullptr)
+    {
+        functions.get_buffer_memory_requirements2 = device_table->GetBufferMemoryRequirements2;
+    }
+    else
+    {
+        functions.get_buffer_memory_requirements2 = device_table->GetBufferMemoryRequirements2KHR;
+    }
+
+    if (device_table->BindBufferMemory2 != nullptr)
+    {
+        functions.bind_buffer_memory2 = device_table->BindBufferMemory2;
+    }
+    else
+    {
+        functions.bind_buffer_memory2 = device_table->BindBufferMemory2KHR;
+    }
+
+    if (device_table->GetImageMemoryRequirements2 != nullptr)
+    {
+        functions.get_image_memory_requirements2 = device_table->GetImageMemoryRequirements2;
+    }
+    else
+    {
+        functions.get_image_memory_requirements2 = device_table->GetImageMemoryRequirements2KHR;
+    }
+
+    if (device_table->BindImageMemory2 != nullptr)
+    {
+        functions.bind_image_memory2 = device_table->BindImageMemory2;
+    }
+    else
+    {
+        functions.bind_image_memory2 = device_table->BindImageMemory2KHR;
+    }
+
+    VkResult result = allocator->Initialize(physical_device_info->parent_api_version,
+                                            physical_device_info->parent,
+                                            physical_device_info->handle,
+                                            device,
+                                            enabled_device_extensions,
+                                            physical_device_info->capture_memory_properties,
+                                            physical_device_info->replay_memory_properties,
+                                            functions);
+
+    if (result < 0)
+    {
+        GFXRECON_LOG_FATAL("Failed to initialize memory allocator.  Replay cannot continue.");
+        RaiseFatalError(
+            "Replay has encountered a fatal error and cannot continue (failed to initialize memory allocator)");
+    }
+}
+
 VkResult
 VulkanReplayConsumerBase::CreateSurface(VkInstance instance, VkFlags flags, HandlePointerDecoder<VkSurfaceKHR>* surface)
 {
@@ -1892,6 +1993,14 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
     if ((replay_instance != nullptr) && (result == VK_SUCCESS))
     {
         AddInstanceTable(*replay_instance);
+
+        if (modified_create_info.pApplicationInfo != nullptr)
+        {
+            auto instance_info = reinterpret_cast<InstanceInfo*>(pInstance->GetConsumerData(0));
+            assert(instance_info != nullptr);
+
+            instance_info->api_version = modified_create_info.pApplicationInfo->apiVersion;
+        }
     }
 
     return result;
@@ -1989,10 +2098,15 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
             device_info->capture_memory_properties = &physical_device_info->capture_memory_properties;
             device_info->replay_memory_properties  = &physical_device_info->replay_memory_properties;
 
-            device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(
-                portability::CreateGraphicsResourceAllocator(physical_device_info->capture_memory_properties,
-                                                             physical_device_info->replay_memory_properties,
-                                                             true));
+            auto allocator = portability::CreateGraphicsResourceAllocator(
+                physical_device_info->capture_memory_properties, physical_device_info->replay_memory_properties, true);
+
+            std::vector<std::string> enabled_extensions(replay_create_info->ppEnabledExtensionNames,
+                                                        replay_create_info->ppEnabledExtensionNames +
+                                                            replay_create_info->enabledExtensionCount);
+            InitializeResourceAllocator(physical_device_info, *replay_device, enabled_extensions, allocator);
+
+            device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
         }
     }
 
@@ -2019,6 +2133,17 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
 
     if ((result >= 0) && (replay_devices != nullptr) && (instance_devices_.find(instance) == instance_devices_.end()))
     {
+        for (uint32_t i = 0; i < replay_device_count; ++i)
+        {
+            // TODO: This will require GH #189 to work correctly when the capture and replay systems have a different
+            // number of physcial devices.
+            auto physical_device_info = reinterpret_cast<PhysicalDeviceInfo*>(pPhysicalDevices->GetConsumerData(i));
+            assert(physical_device_info != nullptr);
+
+            physical_device_info->parent             = instance;
+            physical_device_info->parent_api_version = instance_info->api_version;
+        }
+
         InstanceDevices         devices;
         uint32_t                capture_device_count = (*pPhysicalDeviceCount->GetPointer());
         const format::HandleId* capture_devices      = pPhysicalDevices->GetPointer();
@@ -2274,6 +2399,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkDeviceMemory>*                      pMemory)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
     assert((device_info != nullptr) && (pMemory != nullptr) && (pMemory->GetHandlePointer() != nullptr));
 
     VkResult result = original_result;
@@ -2287,8 +2414,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         ProcessImportAndroidHardwareBufferInfo(pAllocateInfo.GetMetaStructPointer());
 #endif
 
-        result =
-            allocator->AllocateMemory(func, device_info, pAllocateInfo, GetAllocationCallbacks(pAllocator), pMemory);
+        result = allocator->AllocateMemory(pAllocateInfo, GetAllocationCallbacks(pAllocator), pMemory);
 
         const VkMemoryAllocateInfo* replay_allocate_info = pAllocateInfo.GetPointer();
         auto                        replay_memory        = pMemory->GetHandlePointer();
@@ -2297,6 +2423,8 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         {
             auto memory_info = reinterpret_cast<DeviceMemoryInfo*>(pMemory->GetConsumerData(0));
             assert(memory_info != nullptr);
+
+            memory_info->allocator = allocator;
 
             auto replay_memory_properties = device_info->replay_memory_properties;
             assert(replay_allocate_info->memoryTypeIndex < replay_memory_properties->memoryTypeCount);
@@ -2323,6 +2451,7 @@ VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory   func,
                                                      VkMemoryMapFlags  flags,
                                                      void**            ppData)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
     assert((device_info != nullptr) && (memory_info != nullptr));
@@ -2330,7 +2459,7 @@ VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory   func,
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    VkResult result = allocator->MapMemory(func, device_info, memory_info, offset, size, flags, ppData);
+    VkResult result = allocator->MapMemory(memory_info, offset, size, flags, ppData);
 
     if ((result == VK_SUCCESS) && (ppData != nullptr) && ((*ppData) != nullptr))
     {
@@ -2344,6 +2473,8 @@ void VulkanReplayConsumerBase::OverrideUnmapMemory(PFN_vkUnmapMemory func,
                                                    const DeviceInfo* device_info,
                                                    DeviceMemoryInfo* memory_info)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
     assert((device_info != nullptr) && (memory_info != nullptr));
 
     auto allocator = device_info->allocator.get();
@@ -2351,20 +2482,22 @@ void VulkanReplayConsumerBase::OverrideUnmapMemory(PFN_vkUnmapMemory func,
 
     memory_info->mapped_memory = nullptr;
 
-    allocator->UnmapMemory(func, device_info, memory_info);
+    allocator->UnmapMemory(memory_info);
 }
 
-void VulkanReplayConsumerBase::OverrideFreeMemory(PFN_vkFreeMemory        func,
-                                                  const DeviceInfo*       device_info,
-                                                  const DeviceMemoryInfo* memory_info,
+void VulkanReplayConsumerBase::OverrideFreeMemory(PFN_vkFreeMemory  func,
+                                                  const DeviceInfo* device_info,
+                                                  DeviceMemoryInfo* memory_info,
                                                   const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
     assert(device_info != nullptr);
 
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    allocator->FreeMemory(func, device_info, memory_info, GetAllocationCallbacks(pAllocator));
+    allocator->FreeMemory(memory_info, GetAllocationCallbacks(pAllocator));
 }
 
 VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemory func,
@@ -2374,6 +2507,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
                                                             DeviceMemoryInfo*      memory_info,
                                                             VkDeviceSize           memoryOffset)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
     assert((device_info != nullptr) && (buffer_info != nullptr) && (memory_info != nullptr));
@@ -2381,7 +2515,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    VkResult result = allocator->BindBufferMemory(func, device_info, buffer_info, memory_info, memoryOffset);
+    VkResult result = allocator->BindBufferMemory(buffer_info, memory_info, memoryOffset);
 
     if (result == VK_SUCCESS)
     {
@@ -2400,6 +2534,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
     uint32_t                                                    bindInfoCount,
     const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>& pBindInfos)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
     assert(device_info != nullptr);
@@ -2407,7 +2542,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    VkResult result = allocator->BindBufferMemory2(func, device_info, bindInfoCount, pBindInfos);
+    VkResult result = allocator->BindBufferMemory2(bindInfoCount, pBindInfos);
 
     if (result == VK_SUCCESS)
     {
@@ -2440,6 +2575,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
                                                            DeviceMemoryInfo*     memory_info,
                                                            VkDeviceSize          memoryOffset)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
     assert((device_info != nullptr) && (image_info != nullptr) && (memory_info != nullptr));
@@ -2447,7 +2583,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    VkResult result = allocator->BindImageMemory(func, device_info, image_info, memory_info, memoryOffset);
+    VkResult result = allocator->BindImageMemory(image_info, memory_info, memoryOffset);
 
     if (result == VK_SUCCESS)
     {
@@ -2466,6 +2602,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
     uint32_t                                                   bindInfoCount,
     const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>& pBindInfos)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(func);
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
     assert(device_info != nullptr);
@@ -2473,7 +2610,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    VkResult result = allocator->BindImageMemory2(func, device_info, bindInfoCount, pBindInfos);
+    VkResult result = allocator->BindImageMemory2(bindInfoCount, pBindInfos);
 
     if (result == VK_SUCCESS)
     {
@@ -2511,10 +2648,13 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 
     assert((device_info != nullptr) && (pBuffer != nullptr) && (pBuffer->GetHandlePointer() != nullptr));
 
+    auto allocator = device_info->allocator.get();
+    assert(allocator != nullptr);
+
+    VkResult result = allocator->CreateBuffer(pCreateInfo, GetAllocationCallbacks(pAllocator), pBuffer);
+
     auto replay_create_info = pCreateInfo.GetPointer();
     auto replay_buffer      = pBuffer->GetHandlePointer();
-
-    VkResult result = func(device_info->handle, replay_create_info, GetAllocationCallbacks(pAllocator), replay_buffer);
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
     {
@@ -2537,6 +2677,20 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
     return result;
 }
 
+void VulkanReplayConsumerBase::OverrideDestroyBuffer(
+    PFN_vkDestroyBuffer                                        func,
+    const DeviceInfo*                                          device_info,
+    BufferInfo*                                                buffer_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    auto allocator = device_info->allocator.get();
+    assert(allocator != nullptr);
+
+    allocator->DestroyBuffer(buffer_info, GetAllocationCallbacks(pAllocator));
+}
+
 VkResult
 VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                                      func,
                                               VkResult                                               original_result,
@@ -2549,10 +2703,13 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
 
     assert((device_info != nullptr) && (pImage != nullptr) && (pImage->GetHandlePointer() != nullptr));
 
+    auto allocator = device_info->allocator.get();
+    assert(allocator != nullptr);
+
+    VkResult result = allocator->CreateImage(pCreateInfo, GetAllocationCallbacks(pAllocator), pImage);
+
     auto replay_create_info = pCreateInfo.GetPointer();
     auto replay_image       = pImage->GetHandlePointer();
-
-    VkResult result = func(device_info->handle, replay_create_info, GetAllocationCallbacks(pAllocator), replay_image);
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_image) != VK_NULL_HANDLE))
     {
@@ -2581,6 +2738,20 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     }
 
     return result;
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyImage(
+    PFN_vkDestroyImage                                         func,
+    const DeviceInfo*                                          device_info,
+    ImageInfo*                                                 image_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    auto allocator = device_info->allocator.get();
+    assert(allocator != nullptr);
+
+    allocator->DestroyImage(image_info, GetAllocationCallbacks(pAllocator));
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(

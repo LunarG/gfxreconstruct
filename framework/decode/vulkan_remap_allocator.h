@@ -32,9 +32,7 @@ class VulkanRemapAllocator : public VulkanDefaultAllocator
 
     VulkanRemapAllocator(std::vector<uint32_t>&& index_map) : index_map_(std::move(index_map)) {}
 
-    virtual VkResult AllocateMemory(PFN_vkAllocateMemory                                      func,
-                                    const DeviceInfo*                                         device_info,
-                                    const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
+    virtual VkResult AllocateMemory(const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
                                     const VkAllocationCallbacks*                              pAllocator,
                                     HandlePointerDecoder<VkDeviceMemory>*                     pMemory) override;
 

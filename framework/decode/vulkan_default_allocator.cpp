@@ -19,23 +19,73 @@
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/vulkan_object_info.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "util/platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanDefaultAllocator::AllocateMemory(PFN_vkAllocateMemory                                      func,
-                                                const DeviceInfo*                                         device_info,
-                                                const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
+VulkanDefaultAllocator::VulkanDefaultAllocator() : device_(VK_NULL_HANDLE) {}
+
+VkResult VulkanDefaultAllocator::Initialize(uint32_t                                api_version,
+                                            VkInstance                              instance,
+                                            VkPhysicalDevice                        physical_device,
+                                            VkDevice                                device,
+                                            const std::vector<std::string>&         enabled_device_extensions,
+                                            const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
+                                            const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
+                                            const Functions&                        functions)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(api_version);
+    GFXRECON_UNREFERENCED_PARAMETER(instance);
+    GFXRECON_UNREFERENCED_PARAMETER(physical_device);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(enabled_device_extensions);
+    GFXRECON_UNREFERENCED_PARAMETER(capture_memory_properties);
+    GFXRECON_UNREFERENCED_PARAMETER(replay_memory_properties);
+
+    device_    = device;
+    functions_ = functions;
+
+    return VK_SUCCESS;
+}
+
+void VulkanDefaultAllocator::Destroy()
+{
+    device_ = VK_NULL_HANDLE;
+}
+
+VkResult VulkanDefaultAllocator::CreateBuffer(const StructPointerDecoder<Decoded_VkBufferCreateInfo>& pCreateInfo,
+                                              const VkAllocationCallbacks*                            pAllocator,
+                                              HandlePointerDecoder<VkBuffer>*                         pBuffer)
+{
+    return functions_.create_buffer(device_, pCreateInfo.GetPointer(), pAllocator, pBuffer->GetHandlePointer());
+}
+
+void VulkanDefaultAllocator::DestroyBuffer(BufferInfo* buffer_info, const VkAllocationCallbacks* pAllocator)
+{
+    functions_.destroy_buffer(device_, buffer_info->handle, pAllocator);
+}
+
+VkResult VulkanDefaultAllocator::CreateImage(const StructPointerDecoder<Decoded_VkImageCreateInfo>& pCreateInfo,
+                                             const VkAllocationCallbacks*                           pAllocator,
+                                             HandlePointerDecoder<VkImage>*                         pImage)
+{
+    return functions_.create_image(device_, pCreateInfo.GetPointer(), pAllocator, pImage->GetHandlePointer());
+}
+
+void VulkanDefaultAllocator::DestroyImage(ImageInfo* image_info, const VkAllocationCallbacks* pAllocator)
+{
+    functions_.destroy_image(device_, image_info->handle, pAllocator);
+}
+
+VkResult VulkanDefaultAllocator::AllocateMemory(const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
                                                 const VkAllocationCallbacks*                              pAllocator,
                                                 HandlePointerDecoder<VkDeviceMemory>*                     pMemory)
 {
-    return func(device_info->handle, pAllocateInfo.GetPointer(), pAllocator, pMemory->GetHandlePointer());
+    return functions_.allocate_memory(device_, pAllocateInfo.GetPointer(), pAllocator, pMemory->GetHandlePointer());
 }
 
-void VulkanDefaultAllocator::FreeMemory(PFN_vkFreeMemory             func,
-                                        const DeviceInfo*            device_info,
-                                        const DeviceMemoryInfo*      memory_info,
-                                        const VkAllocationCallbacks* pAllocator)
+void VulkanDefaultAllocator::FreeMemory(DeviceMemoryInfo* memory_info, const VkAllocationCallbacks* pAllocator)
 {
     VkDeviceMemory memory = VK_NULL_HANDLE;
 
@@ -44,86 +94,73 @@ void VulkanDefaultAllocator::FreeMemory(PFN_vkFreeMemory             func,
         memory = memory_info->handle;
     }
 
-    func(device_info->handle, memory, pAllocator);
+    functions_.free_memory(device_, memory, pAllocator);
 }
 
-void VulkanDefaultAllocator::GetDeviceMemoryCommitment(PFN_vkGetDeviceMemoryCommitment func,
-                                                       const DeviceInfo*               device_info,
-                                                       const DeviceMemoryInfo*         memory_info,
-                                                       VkDeviceSize*                   pCommittedMemoryInBytes)
+void VulkanDefaultAllocator::GetDeviceMemoryCommitment(const DeviceMemoryInfo* memory_info,
+                                                       VkDeviceSize*           pCommittedMemoryInBytes)
 {
-    func(device_info->handle, memory_info->handle, pCommittedMemoryInBytes);
+    functions_.get_device_memory_commitment(device_, memory_info->handle, pCommittedMemoryInBytes);
 }
 
-VkResult VulkanDefaultAllocator::BindBufferMemory(PFN_vkBindBufferMemory func,
-                                                  const DeviceInfo*      device_info,
-                                                  const BufferInfo*      buffer_info,
-                                                  DeviceMemoryInfo*      memory_info,
-                                                  VkDeviceSize           memoryOffset)
+VkResult VulkanDefaultAllocator::BindBufferMemory(BufferInfo*       buffer_info,
+                                                  DeviceMemoryInfo* memory_info,
+                                                  VkDeviceSize      memoryOffset)
 {
-    return func(device_info->handle, buffer_info->handle, memory_info->handle, memoryOffset);
+    return functions_.bind_buffer_memory(device_, buffer_info->handle, memory_info->handle, memoryOffset);
 }
 
 VkResult
-VulkanDefaultAllocator::BindBufferMemory2(PFN_vkBindBufferMemory2                                     func,
-                                          const DeviceInfo*                                           device_info,
-                                          uint32_t                                                    bindInfoCount,
+VulkanDefaultAllocator::BindBufferMemory2(uint32_t                                                    bindInfoCount,
                                           const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>& pBindInfos)
 {
-    return func(device_info->handle, bindInfoCount, pBindInfos.GetPointer());
-}
-
-VkResult VulkanDefaultAllocator::BindImageMemory(PFN_vkBindImageMemory func,
-                                                 const DeviceInfo*     device_info,
-                                                 const ImageInfo*      image_info,
-                                                 DeviceMemoryInfo*     memory_info,
-                                                 VkDeviceSize          memoryOffset)
-{
-    return func(device_info->handle, image_info->handle, memory_info->handle, memoryOffset);
-}
-
-VkResult VulkanDefaultAllocator::BindImageMemory2(PFN_vkBindImageMemory2 func,
-                                                  const DeviceInfo*      device_info,
-                                                  uint32_t               bindInfoCount,
-                                                  const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>& pBindInfos)
-{
-    return func(device_info->handle, bindInfoCount, pBindInfos.GetPointer());
-}
-
-VkResult VulkanDefaultAllocator::MapMemory(PFN_vkMapMemory   func,
-                                           const DeviceInfo* device_info,
-                                           DeviceMemoryInfo* memory_info,
-                                           VkDeviceSize      offset,
-                                           VkDeviceSize      size,
-                                           VkMemoryMapFlags  flags,
-                                           void**            ppData)
-{
-    return func(device_info->handle, memory_info->handle, offset, size, flags, ppData);
-}
-
-void VulkanDefaultAllocator::UnmapMemory(PFN_vkUnmapMemory func,
-                                         const DeviceInfo* device_info,
-                                         DeviceMemoryInfo* memory_info)
-{
-    func(device_info->handle, memory_info->handle);
+    return functions_.bind_buffer_memory2(device_, bindInfoCount, pBindInfos.GetPointer());
 }
 
 VkResult
-VulkanDefaultAllocator::FlushMappedMemoryRange(PFN_vkFlushMappedMemoryRanges func,
-                                               const DeviceInfo*             device_info,
-                                               uint32_t                      memoryRangeCount,
-                                               const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges)
+VulkanDefaultAllocator::BindImageMemory(ImageInfo* image_info, DeviceMemoryInfo* memory_info, VkDeviceSize memoryOffset)
 {
-    return func(device_info->handle, memoryRangeCount, pMemoryRanges.GetPointer());
+    return functions_.bind_image_memory(device_, image_info->handle, memory_info->handle, memoryOffset);
 }
 
-VkResult VulkanDefaultAllocator::InvalidateMappedMemoryRange(
-    PFN_vkInvalidateMappedMemoryRanges                       func,
-    const DeviceInfo*                                        device_info,
-    uint32_t                                                 memoryRangeCount,
-    const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges)
+VkResult VulkanDefaultAllocator::BindImageMemory2(uint32_t bindInfoCount,
+                                                  const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>& pBindInfos)
 {
-    return func(device_info->handle, memoryRangeCount, pMemoryRanges.GetPointer());
+    return functions_.bind_image_memory2(device_, bindInfoCount, pBindInfos.GetPointer());
+}
+
+VkResult VulkanDefaultAllocator::MapMemory(
+    DeviceMemoryInfo* memory_info, VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags, void** ppData)
+{
+    return functions_.map_memory(device_, memory_info->handle, offset, size, flags, ppData);
+}
+
+void VulkanDefaultAllocator::UnmapMemory(DeviceMemoryInfo* memory_info)
+{
+    functions_.unmap_memory(device_, memory_info->handle);
+}
+
+VkResult
+VulkanDefaultAllocator::FlushMappedMemoryRanges(uint32_t memoryRangeCount,
+                                                const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges)
+{
+    return functions_.flush_memory_ranges(device_, memoryRangeCount, pMemoryRanges.GetPointer());
+}
+
+VkResult VulkanDefaultAllocator::InvalidateMappedMemoryRanges(
+    uint32_t memoryRangeCount, const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges)
+{
+    return functions_.invalidate_memory_ranges(device_, memoryRangeCount, pMemoryRanges.GetPointer());
+}
+
+void VulkanDefaultAllocator::WriteMappedMemoryRange(const DeviceMemoryInfo* memory_info,
+                                                    uint64_t                offset,
+                                                    uint64_t                size,
+                                                    const uint8_t*          data)
+{
+    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+    size_t copy_size = static_cast<size_t>(size);
+    util::platform::MemoryCopy(static_cast<uint8_t*>(memory_info->mapped_memory) + offset, copy_size, data, copy_size);
 }
 
 GFXRECON_END_NAMESPACE(decode)

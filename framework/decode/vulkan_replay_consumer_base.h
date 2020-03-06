@@ -24,6 +24,7 @@
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
+#include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_initializer.h"
 #include "decode/window.h"
 #include "format/api_call_id.h"
@@ -375,7 +376,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void OverrideFreeMemory(PFN_vkFreeMemory                                           func,
                             const DeviceInfo*                                          device_info,
-                            const DeviceMemoryInfo*                                    memory_info,
+                            DeviceMemoryInfo*                                          memory_info,
                             const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator);
 
     VkResult OverrideBindBufferMemory(PFN_vkBindBufferMemory func,
@@ -411,12 +412,22 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                   const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
                                   HandlePointerDecoder<VkBuffer>*                            pBuffer);
 
+    void OverrideDestroyBuffer(PFN_vkDestroyBuffer                                        func,
+                               const DeviceInfo*                                          device_info,
+                               BufferInfo*                                                buffer_info,
+                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator);
+
     VkResult OverrideCreateImage(PFN_vkCreateImage                                          func,
                                  VkResult                                                   original_result,
                                  const DeviceInfo*                                          device_info,
                                  const StructPointerDecoder<Decoded_VkImageCreateInfo>&     pCreateInfo,
                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
                                  HandlePointerDecoder<VkImage>*                             pImage);
+
+    void OverrideDestroyImage(PFN_vkDestroyImage                                         func,
+                              const DeviceInfo*                                          device_info,
+                              ImageInfo*                                                 image_info,
+                              const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator);
 
     VkResult OverrideCreateDescriptorUpdateTemplate(
         PFN_vkCreateDescriptorUpdateTemplate                                      func,
@@ -563,6 +574,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void OverridePhysicalDevice(VkPhysicalDevice* physical_device);
 
     bool CheckTrimDeviceExtensions(VkPhysicalDevice physical_device, std::vector<std::string>* extensions);
+
+    void InitializeResourceAllocator(const PhysicalDeviceInfo*       physical_device_info,
+                                     VkDevice                        device,
+                                     const std::vector<std::string>& enabled_device_extensions,
+                                     VulkanResourceAllocator*        allocator);
 
     VkResult CreateSurface(VkInstance instance, VkFlags flags, HandlePointerDecoder<VkSurfaceKHR>* surface);
 
