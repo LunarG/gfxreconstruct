@@ -26,12 +26,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(portability)
 
-const uint32_t kInvalidIndex = std::numeric_limits<uint32_t>::max();
-
-VulkanResourceAllocator* CreateGraphicsResourceAllocator(const VkPhysicalDeviceMemoryProperties& capture_props,
-                                                         const VkPhysicalDeviceMemoryProperties& replay_props,
-                                                         bool                                    prefer_index_remap);
-
 // Memory types are considered compatible when each capture memory type has a matching replay memory type where the
 // replay property flags are a superset of the capture property flags and the replay heap size is >= the capture heap
 // size.  When ignore_heap_sizes is true, only the memory propery flags are compared.
@@ -45,12 +39,10 @@ bool CheckMemoryTypeCompatibility(const VkPhysicalDeviceMemoryProperties& captur
 //    size is >= capture heap size.
 // 2. If a match is not found, check for replay memory property flags that are a superset of the capture flags, and
 //    check that the replay heap size is >= capture heap size.
-//
-// If the first two checks fail, and the relaxed_checks parameter is set to false, a value of -1 will be returned to
-// indicate that a compatible memory type could not be found.  If the relaxed_checks parameter is set to true, the
-// following additional checks are performed:
-// 3. Check for an exact match between replay and capture memory property flags, without checking heap sizes.
-// 4. Check for replay memory property flags that are a superset of the capture flags, without checking heap sizes.
+// 3. If a match is not found, check for an exact match between replay and capture memory property flags, without
+//    checking heap sizes.
+// 4. If a match is not found, check for replay memory property flags that are a superset of the capture flags, without
+//    checking heap sizes.
 //
 // If a match is still not found, the memory property flags will be adjusted for the following cases:
 // - If flags was zero, set flags to HOST_VISIBLE|HOST_COHERENT and run checks 1-4. (Previous checks were skipped with
@@ -58,8 +50,9 @@ bool CheckMemoryTypeCompatibility(const VkPhysicalDeviceMemoryProperties& captur
 // - If flags contained both the HOST_VISIBLE and DEVICE_LOCAL bits, remove the DEVICE_LOCAL bit and rerun checks 1-4.
 uint32_t FindCompatibleMemoryType(uint32_t                                capture_index,
                                   const VkPhysicalDeviceMemoryProperties& capture_props,
-                                  const VkPhysicalDeviceMemoryProperties& replay_props,
-                                  bool                                    relaxed_checks);
+                                  const VkPhysicalDeviceMemoryProperties& replay_props);
+
+bool CheckMemoryTypeIndexValidity(std::vector<uint32_t> indexes);
 
 GFXRECON_END_NAMESPACE(portability)
 GFXRECON_END_NAMESPACE(decode)

@@ -28,6 +28,7 @@
 #include "format/format.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_decoders.h"
+#include "util/logging.h"
 #include "util/platform.h"
 
 #include <algorithm>

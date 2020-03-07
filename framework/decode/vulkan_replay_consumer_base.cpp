@@ -19,7 +19,6 @@
 
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/descriptor_update_template_decoder.h"
-#include "decode/portability.h"
 #include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
@@ -135,6 +134,7 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory
     window_factory_(window_factory), options_(options), loading_trim_state_(false)
 {
     assert(window_factory != nullptr);
+    assert(options.create_resource_allocator != nullptr);
 }
 
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
@@ -2063,8 +2063,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
             device_info->capture_memory_properties = &physical_device_info->capture_memory_properties;
             device_info->replay_memory_properties  = &physical_device_info->replay_memory_properties;
 
-            auto allocator = portability::CreateGraphicsResourceAllocator(
-                physical_device_info->capture_memory_properties, physical_device_info->replay_memory_properties, true);
+            auto allocator = options_.create_resource_allocator();
 
             std::vector<std::string> enabled_extensions(replay_create_info->ppEnabledExtensionNames,
                                                         replay_create_info->ppEnabledExtensionNames +
