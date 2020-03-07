@@ -28,9 +28,16 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanRemapAllocator : public VulkanDefaultAllocator
 {
   public:
-    VulkanRemapAllocator(const std::vector<uint32_t>& index_map) : index_map_(index_map) {}
+    VulkanRemapAllocator() {}
 
-    VulkanRemapAllocator(std::vector<uint32_t>&& index_map) : index_map_(std::move(index_map)) {}
+    virtual VkResult Initialize(uint32_t                                api_version,
+                                VkInstance                              instance,
+                                VkPhysicalDevice                        physical_device,
+                                VkDevice                                device,
+                                const std::vector<std::string>&         enabled_device_extensions,
+                                const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
+                                const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
+                                const Functions&                        functions) override;
 
     virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,

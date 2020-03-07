@@ -16,9 +16,6 @@
 
 #include "decode/portability.h"
 
-#include "decode/vulkan_default_allocator.h"
-#include "decode/vulkan_remap_allocator.h"
-
 #include <cassert>
 #include <limits>
 #include <vector>
@@ -30,25 +27,8 @@ GFXRECON_BEGIN_NAMESPACE(portability)
 // Minimum heap size to use when checking for memory type compatibility without comparing capture and replay heap
 // sizes, to prevent invalid mappings from iGPU DEVICE_LOCAL|HOST_VISIBLE types to the special 256MB
 // DEVICE_LOCAL|HOST_VISIBLE heaps provided by some dGPUs.
-const VkDeviceSize kMinHeapSize = 0x40000000; // 1 GB
-
-static bool CheckIndexValidity(std::vector<uint32_t> indexes)
-{
-    if (indexes.empty())
-    {
-        return false;
-    }
-
-    for (auto index : indexes)
-    {
-        if (index == kInvalidIndex)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
+const VkDeviceSize kMinHeapSize  = 0x40000000; // 1 GB
+const uint32_t     kInvalidIndex = std::numeric_limits<uint32_t>::max();
 
 static uint32_t FindMemoryTypeMatch(VkMemoryPropertyFlags                   capture_flags,
                                     uint32_t                                capture_occurrence,
@@ -142,31 +122,6 @@ static uint32_t GetMemoryTypeOccurence(uint32_t index, const VkPhysicalDeviceMem
     return occurrence;
 }
 
-VulkanResourceAllocator* CreateGraphicsResourceAllocator(const VkPhysicalDeviceMemoryProperties& capture_props,
-                                                         const VkPhysicalDeviceMemoryProperties& replay_props,
-                                                         bool                                    prefer_index_remap)
-{
-    if (CheckMemoryTypeCompatibility(capture_props, replay_props, prefer_index_remap))
-    {
-        return new VulkanDefaultAllocator();
-    }
-
-    std::vector<uint32_t> index_map;
-    index_map.resize(capture_props.memoryTypeCount);
-
-    for (uint32_t i = 0; i < capture_props.memoryTypeCount; ++i)
-    {
-        index_map[i] = FindCompatibleMemoryType(i, capture_props, replay_props, prefer_index_remap);
-    }
-
-    if (CheckIndexValidity(index_map))
-    {
-        return new VulkanRemapAllocator(std::move(index_map));
-    }
-
-    return new VulkanDefaultAllocator();
-}
-
 bool CheckMemoryTypeCompatibility(const VkPhysicalDeviceMemoryProperties& capture_props,
                                   const VkPhysicalDeviceMemoryProperties& replay_props,
                                   bool                                    ignore_heap_sizes)
@@ -202,8 +157,7 @@ bool CheckMemoryTypeCompatibility(const VkPhysicalDeviceMemoryProperties& captur
 
 uint32_t FindCompatibleMemoryType(uint32_t                                capture_index,
                                   const VkPhysicalDeviceMemoryProperties& capture_props,
-                                  const VkPhysicalDeviceMemoryProperties& replay_props,
-                                  bool                                    relaxed_checks)
+                                  const VkPhysicalDeviceMemoryProperties& replay_props)
 {
     VkMemoryPropertyFlags capture_flags      = capture_props.memoryTypes[capture_index].propertyFlags;
     uint32_t              capture_heap_index = capture_props.memoryTypes[capture_index].heapIndex;
@@ -229,28 +183,21 @@ uint32_t FindCompatibleMemoryType(uint32_t                                captur
             return index;
         }
 
-        // For relaxed checks, redo the previous checks, but allow replay heap sizes to be smaller than capture heap
-        // sizes.
-        if (relaxed_checks)
+        // Check for exact property match, allowing replay heap sizes to be smaller than capture heap sizes.
+        index = FindMemoryTypeMatch(capture_flags, capture_occurrence, capture_heap_size, replay_props, true, false);
+        if (index != kInvalidIndex)
         {
-            // Check for exact property match.
-            index =
-                FindMemoryTypeMatch(capture_flags, capture_occurrence, capture_heap_size, replay_props, true, false);
-            if (index != kInvalidIndex)
-            {
-                return index;
-            }
-
-            // Check for property superset.
-            index =
-                FindMemoryTypeMatch(capture_flags, capture_occurrence, capture_heap_size, replay_props, false, false);
-            if (index != kInvalidIndex)
-            {
-                return index;
-            }
+            return index;
         }
 
-        // If present, remove AMD device properties and try again with just the 'standard' properties.
+        // Check for property superset, allowing replay heap sizes to be smaller than capture heap sizes.
+        index = FindMemoryTypeMatch(capture_flags, capture_occurrence, capture_heap_size, replay_props, false, false);
+        if (index != kInvalidIndex)
+        {
+            return index;
+        }
+
+        // If present, remove AMD device property flag bits and try again with just the core property flags.
         VkMemoryPropertyFlags new_flags =
             capture_flags & ~(VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD | VK_MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD);
 
@@ -264,60 +211,75 @@ uint32_t FindCompatibleMemoryType(uint32_t                                captur
         }
     }
 
-    if (relaxed_checks)
+    // If a match has not been found, try adjusting the memory property flags and try again.
+    const VkMemoryPropertyFlags kDeviceAndHost =
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+
+    VkMemoryPropertyFlags new_flags = capture_flags;
+
+    if (new_flags == 0)
     {
-        const VkMemoryPropertyFlags kDeviceAndHost =
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+        // Attempt to map memory types that report no flags to host memory.
+        new_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    }
+    else if ((new_flags & kDeviceAndHost) == kDeviceAndHost)
+    {
+        // The replay device may not have a memory type that is both device local and host visible, so we default to
+        // just the host visible type.
+        new_flags &= ~VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    }
 
-        VkMemoryPropertyFlags new_flags = capture_flags;
-
-        // Adjust the property flags and try again.
-        if (new_flags == 0)
+    // If the flags are unchanged, there is nothing else to do.
+    if (new_flags != capture_flags)
+    {
+        // Check for exact property match with compatible heap size.
+        index = FindMemoryTypeMatch(new_flags, capture_occurrence, capture_heap_size, replay_props, true, true);
+        if (index != kInvalidIndex)
         {
-            // Attempt to map memory types that report no flags to host memory.
-            new_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            return index;
         }
-        else if ((new_flags & kDeviceAndHost) == kDeviceAndHost)
+
+        // Check for property superset with compatible heap size.
+        index = FindMemoryTypeMatch(new_flags, capture_occurrence, capture_heap_size, replay_props, false, true);
+        if (index != kInvalidIndex)
         {
-            // The replay device may not have a memory type that is both device local and host visible, so we default to
-            // just the host visible type.
-            new_flags &= ~VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+            return index;
         }
 
-        // If the flags are unchanged, there is nothing else to do.
-        if (new_flags != capture_flags)
+        // Check for exact property match.
+        index = FindMemoryTypeMatch(new_flags, capture_occurrence, capture_heap_size, replay_props, true, false);
+        if (index != kInvalidIndex)
         {
-            // Check for exact property match with compatible heap size.
-            index = FindMemoryTypeMatch(new_flags, capture_occurrence, capture_heap_size, replay_props, true, true);
-            if (index != kInvalidIndex)
-            {
-                return index;
-            }
+            return index;
+        }
 
-            // Check for property superset with compatible heap size.
-            index = FindMemoryTypeMatch(new_flags, capture_occurrence, capture_heap_size, replay_props, false, true);
-            if (index != kInvalidIndex)
-            {
-                return index;
-            }
-
-            // Check for exact property match.
-            index = FindMemoryTypeMatch(new_flags, capture_occurrence, capture_heap_size, replay_props, true, false);
-            if (index != kInvalidIndex)
-            {
-                return index;
-            }
-
-            // Check for property superset.
-            index = FindMemoryTypeMatch(new_flags, capture_occurrence, capture_heap_size, replay_props, false, false);
-            if (index != kInvalidIndex)
-            {
-                return index;
-            }
+        // Check for property superset.
+        index = FindMemoryTypeMatch(new_flags, capture_occurrence, capture_heap_size, replay_props, false, false);
+        if (index != kInvalidIndex)
+        {
+            return index;
         }
     }
 
     return index;
+}
+
+bool CheckMemoryTypeIndexValidity(std::vector<uint32_t> indexes)
+{
+    if (indexes.empty())
+    {
+        return false;
+    }
+
+    for (auto index : indexes)
+    {
+        if (index == kInvalidIndex)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 GFXRECON_END_NAMESPACE(portability)
