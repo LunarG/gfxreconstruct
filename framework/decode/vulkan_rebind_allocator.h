@@ -73,14 +73,18 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     virtual VkResult
     BindBufferMemory(BufferInfo* buffer_info, DeviceMemoryInfo* memory_info, VkDeviceSize memoryOffset) override;
 
-    virtual VkResult BindBufferMemory2(uint32_t                                                    bindInfoCount,
-                                       const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>& pBindInfos) override;
+    virtual VkResult BindBufferMemory2(uint32_t                      bindInfoCount,
+                                       const VkBindBufferMemoryInfo* pBindInfos,
+                                       DeviceMemoryInfo* const*      memory_infos,
+                                       BufferInfo* const*            buffer_infos) override;
 
     virtual VkResult
     BindImageMemory(ImageInfo* image_info, DeviceMemoryInfo* memory_info, VkDeviceSize memoryOffset) override;
 
-    virtual VkResult BindImageMemory2(uint32_t                                                   bindInfoCount,
-                                      const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>& pBindInfos) override;
+    virtual VkResult BindImageMemory2(uint32_t                     bindInfoCount,
+                                      const VkBindImageMemoryInfo* pBindInfos,
+                                      DeviceMemoryInfo* const*     memory_infos,
+                                      ImageInfo* const*            image_infos) override;
 
     virtual VkResult MapMemory(DeviceMemoryInfo* memory_info,
                                VkDeviceSize      offset,

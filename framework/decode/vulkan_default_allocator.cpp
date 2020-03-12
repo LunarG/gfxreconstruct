@@ -110,11 +110,15 @@ VkResult VulkanDefaultAllocator::BindBufferMemory(BufferInfo*       buffer_info,
     return functions_.bind_buffer_memory(device_, buffer_info->handle, memory_info->handle, memoryOffset);
 }
 
-VkResult
-VulkanDefaultAllocator::BindBufferMemory2(uint32_t                                                    bindInfoCount,
-                                          const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>& pBindInfos)
+VkResult VulkanDefaultAllocator::BindBufferMemory2(uint32_t                      bindInfoCount,
+                                                   const VkBindBufferMemoryInfo* pBindInfos,
+                                                   DeviceMemoryInfo* const*      memory_infos,
+                                                   BufferInfo* const*            buffer_infos)
 {
-    return functions_.bind_buffer_memory2(device_, bindInfoCount, pBindInfos.GetPointer());
+    GFXRECON_UNREFERENCED_PARAMETER(memory_infos);
+    GFXRECON_UNREFERENCED_PARAMETER(buffer_infos);
+
+    return functions_.bind_buffer_memory2(device_, bindInfoCount, pBindInfos);
 }
 
 VkResult
@@ -123,10 +127,15 @@ VulkanDefaultAllocator::BindImageMemory(ImageInfo* image_info, DeviceMemoryInfo*
     return functions_.bind_image_memory(device_, image_info->handle, memory_info->handle, memoryOffset);
 }
 
-VkResult VulkanDefaultAllocator::BindImageMemory2(uint32_t bindInfoCount,
-                                                  const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>& pBindInfos)
+VkResult VulkanDefaultAllocator::BindImageMemory2(uint32_t                     bindInfoCount,
+                                                  const VkBindImageMemoryInfo* pBindInfos,
+                                                  DeviceMemoryInfo* const*     memory_infos,
+                                                  ImageInfo* const*            image_infos)
 {
-    return functions_.bind_image_memory2(device_, bindInfoCount, pBindInfos.GetPointer());
+    GFXRECON_UNREFERENCED_PARAMETER(memory_infos);
+    GFXRECON_UNREFERENCED_PARAMETER(image_infos);
+
+    return functions_.bind_image_memory2(device_, bindInfoCount, pBindInfos);
 }
 
 VkResult VulkanDefaultAllocator::MapMemory(

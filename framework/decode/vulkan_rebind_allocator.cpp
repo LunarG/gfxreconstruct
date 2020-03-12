@@ -342,12 +342,90 @@ VkResult VulkanRebindAllocator::BindBufferMemory(BufferInfo*       buffer_info,
     return result;
 }
 
-VkResult
-VulkanRebindAllocator::BindBufferMemory2(uint32_t                                                    bindInfoCount,
-                                         const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>& pBindInfos)
+VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      bindInfoCount,
+                                                  const VkBindBufferMemoryInfo* pBindInfos,
+                                                  DeviceMemoryInfo* const*      memory_infos,
+                                                  BufferInfo* const*            buffer_infos)
 {
-    // TODO
-    return VK_ERROR_FEATURE_NOT_PRESENT;
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if ((pBindInfos != nullptr) && (memory_infos != nullptr) && (buffer_infos != nullptr))
+    {
+        for (uint32_t i = 0; i < bindInfoCount; ++i)
+        {
+            auto memory_info = memory_infos[i];
+            auto buffer_info = buffer_infos[i];
+
+            if ((memory_info != nullptr) && (memory_info->allocator_info != 0) && (buffer_info != nullptr) &&
+                (buffer_info->handle != VK_NULL_HANDLE))
+            {
+                VmaAllocation allocation        = VK_NULL_HANDLE;
+                auto          memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(memory_info->allocator_info);
+
+                VkMemoryRequirements requirements;
+                functions_.get_buffer_memory_requirements(device_, buffer_info->handle, &requirements);
+
+                VmaAllocationCreateInfo create_info;
+                create_info.flags = 0;
+                create_info.usage = GetBufferMemoryUsage(
+                    buffer_info->usage,
+                    capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
+                    requirements);
+                create_info.requiredFlags  = 0;
+                create_info.preferredFlags = 0;
+                create_info.memoryTypeBits = 0;
+                create_info.pool           = VK_NULL_HANDLE;
+                create_info.pUserData      = nullptr;
+
+                VmaAllocationInfo allocation_info;
+                result = vmaAllocateMemoryForBuffer(
+                    allocator_, buffer_info->handle, &create_info, &allocation, &allocation_info);
+
+                if (result >= 0)
+                {
+                    auto bind_info = &pBindInfos[i];
+
+                    result = vmaBindBufferMemory2(allocator_, allocation, 0, buffer_info->handle, bind_info->pNext);
+
+                    if (result >= 0)
+                    {
+                        auto resource_alloc_info = new ResourceAllocInfo;
+
+                        resource_alloc_info->allocation      = allocation;
+                        resource_alloc_info->mapped_pointer  = nullptr;
+                        resource_alloc_info->memory_info     = memory_alloc_info;
+                        resource_alloc_info->original_offset = bind_info->memoryOffset;
+                        resource_alloc_info->rebind_offset   = allocation_info.offset;
+                        resource_alloc_info->size            = allocation_info.size;
+                        resource_alloc_info->is_image        = false;
+
+                        if ((replay_memory_properties_.memoryTypes[allocation_info.memoryType].propertyFlags &
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+                        {
+                            resource_alloc_info->is_host_visible = true;
+                        }
+
+                        if (memory_alloc_info->original_content != nullptr)
+                        {
+                            // Memory has been mapped and written prior to bind.  Copy the original content to the new
+                            // allocation to ensure it contains the correct data.
+                            WriteBoundResource(resource_alloc_info,
+                                               bind_info->memoryOffset,
+                                               0,
+                                               allocation_info.size,
+                                               memory_alloc_info->original_content.get());
+                        }
+
+                        memory_alloc_info->original_buffers.insert(
+                            std::make_pair(buffer_info->handle, resource_alloc_info));
+                        buffer_info->allocator_info = reinterpret_cast<uintptr_t>(resource_alloc_info);
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 VkResult
@@ -422,11 +500,91 @@ VulkanRebindAllocator::BindImageMemory(ImageInfo* image_info, DeviceMemoryInfo* 
     return result;
 }
 
-VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t bindInfoCount,
-                                                 const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>& pBindInfos)
+VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bindInfoCount,
+                                                 const VkBindImageMemoryInfo* pBindInfos,
+                                                 DeviceMemoryInfo* const*     memory_infos,
+                                                 ImageInfo* const*            image_infos)
 {
-    // TODO
-    return VK_ERROR_FEATURE_NOT_PRESENT;
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if ((pBindInfos != nullptr) && (memory_infos != nullptr) && (image_infos != nullptr))
+    {
+        for (uint32_t i = 0; i < bindInfoCount; ++i)
+        {
+            auto memory_info = memory_infos[i];
+            auto image_info  = image_infos[i];
+
+            if ((memory_info != nullptr) && (memory_info->allocator_info != 0) && (image_info != nullptr) &&
+                (image_info->handle != VK_NULL_HANDLE))
+            {
+                VmaAllocation allocation        = VK_NULL_HANDLE;
+                auto          memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(memory_info->allocator_info);
+
+                VkMemoryRequirements requirements;
+                functions_.get_image_memory_requirements(device_, image_info->handle, &requirements);
+
+                VmaAllocationCreateInfo create_info;
+                create_info.flags = 0;
+                create_info.usage = GetImageMemoryUsage(
+                    image_info->usage,
+                    image_info->tiling,
+                    capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
+                    requirements);
+                create_info.requiredFlags  = 0;
+                create_info.preferredFlags = 0;
+                create_info.memoryTypeBits = 0;
+                create_info.pool           = VK_NULL_HANDLE;
+                create_info.pUserData      = nullptr;
+
+                VmaAllocationInfo allocation_info;
+                result = vmaAllocateMemoryForImage(
+                    allocator_, image_info->handle, &create_info, &allocation, &allocation_info);
+
+                if (result >= 0)
+                {
+                    auto bind_info = &pBindInfos[i];
+
+                    result = vmaBindImageMemory2(allocator_, allocation, 0, image_info->handle, bind_info->pNext);
+
+                    if (result >= 0)
+                    {
+                        auto resource_alloc_info = new ResourceAllocInfo;
+
+                        resource_alloc_info->allocation      = allocation;
+                        resource_alloc_info->mapped_pointer  = nullptr;
+                        resource_alloc_info->memory_info     = memory_alloc_info;
+                        resource_alloc_info->original_offset = bind_info->memoryOffset;
+                        resource_alloc_info->rebind_offset   = allocation_info.offset;
+                        resource_alloc_info->size            = allocation_info.size;
+                        resource_alloc_info->is_image        = true;
+
+                        if ((replay_memory_properties_.memoryTypes[allocation_info.memoryType].propertyFlags &
+                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+                        {
+                            resource_alloc_info->is_host_visible = true;
+                        }
+
+                        if (memory_alloc_info->original_content != nullptr)
+                        {
+                            // Memory has been mapped and written prior to bind.  Copy the original content to the new
+                            // allocation to ensure it contains the correct data.
+                            WriteBoundResource(resource_alloc_info,
+                                               bind_info->memoryOffset,
+                                               0,
+                                               allocation_info.size,
+                                               memory_alloc_info->original_content.get());
+                        }
+
+                        memory_alloc_info->original_images.insert(
+                            std::make_pair(image_info->handle, resource_alloc_info));
+                        image_info->allocator_info = reinterpret_cast<uintptr_t>(resource_alloc_info);
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 VkResult VulkanRebindAllocator::MapMemory(
