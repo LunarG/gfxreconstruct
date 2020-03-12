@@ -2539,25 +2539,35 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
 
     assert(device_info != nullptr);
 
+    const VkBindBufferMemoryInfo*         replay_bind_infos      = pBindInfos.GetPointer();
+    const Decoded_VkBindBufferMemoryInfo* replay_bind_meta_infos = pBindInfos.GetMetaStructPointer();
+    assert((replay_bind_infos != nullptr) && (replay_bind_meta_infos != nullptr));
+
+    std::vector<DeviceMemoryInfo*> memory_infos;
+    std::vector<BufferInfo*>       buffer_infos;
+
+    for (uint32_t i = 0; i < bindInfoCount; ++i)
+    {
+        const Decoded_VkBindBufferMemoryInfo* bind_meta_info = &replay_bind_meta_infos[i];
+
+        memory_infos.push_back(object_info_table_.GetDeviceMemoryInfo(bind_meta_info->memory));
+        buffer_infos.push_back(object_info_table_.GetBufferInfo(bind_meta_info->buffer));
+    }
+
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    VkResult result = allocator->BindBufferMemory2(bindInfoCount, pBindInfos);
+    VkResult result =
+        allocator->BindBufferMemory2(bindInfoCount, replay_bind_infos, memory_infos.data(), buffer_infos.data());
 
     if (result == VK_SUCCESS)
     {
-        const VkBindBufferMemoryInfo*         replay_bind_info      = pBindInfos.GetPointer();
-        const Decoded_VkBindBufferMemoryInfo* replay_bind_meta_info = pBindInfos.GetMetaStructPointer();
-
-        assert((replay_bind_info != nullptr) && (replay_bind_meta_info != nullptr));
-
         for (uint32_t i = 0; i < bindInfoCount; ++i)
         {
-            const VkBindBufferMemoryInfo*         bind_info      = &replay_bind_info[i];
-            const Decoded_VkBindBufferMemoryInfo* bind_meta_info = &replay_bind_meta_info[i];
+            const VkBindBufferMemoryInfo* bind_info = &replay_bind_infos[i];
 
-            BufferInfo*       buffer_info = object_info_table_.GetBufferInfo(bind_meta_info->buffer);
-            DeviceMemoryInfo* memory_info = object_info_table_.GetDeviceMemoryInfo(bind_meta_info->memory);
+            DeviceMemoryInfo* memory_info = memory_infos[i];
+            BufferInfo*       buffer_info = buffer_infos[i];
 
             buffer_info->memory                = memory_info->handle;
             buffer_info->memory_property_flags = memory_info->property_flags;
@@ -2607,25 +2617,37 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
 
     assert(device_info != nullptr);
 
+    const VkBindImageMemoryInfo*         replay_bind_infos      = pBindInfos.GetPointer();
+    const Decoded_VkBindImageMemoryInfo* replay_bind_meta_infos = pBindInfos.GetMetaStructPointer();
+    assert((replay_bind_infos != nullptr) && (replay_bind_meta_infos != nullptr));
+
+    std::vector<DeviceMemoryInfo*> memory_infos;
+    std::vector<ImageInfo*>        image_infos;
+
+    for (uint32_t i = 0; i < bindInfoCount; ++i)
+    {
+        const VkBindImageMemoryInfo*         bind_info      = &replay_bind_infos[i];
+        const Decoded_VkBindImageMemoryInfo* bind_meta_info = &replay_bind_meta_infos[i];
+
+        memory_infos.push_back(object_info_table_.GetDeviceMemoryInfo(bind_meta_info->memory));
+        image_infos.push_back(object_info_table_.GetImageInfo(bind_meta_info->image));
+    }
+
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    VkResult result = allocator->BindImageMemory2(bindInfoCount, pBindInfos);
+    VkResult result =
+        allocator->BindImageMemory2(bindInfoCount, replay_bind_infos, memory_infos.data(), image_infos.data());
 
     if (result == VK_SUCCESS)
     {
-        const VkBindImageMemoryInfo*         replay_bind_info      = pBindInfos.GetPointer();
-        const Decoded_VkBindImageMemoryInfo* replay_bind_meta_info = pBindInfos.GetMetaStructPointer();
-
-        assert((replay_bind_info != nullptr) && (replay_bind_meta_info != nullptr));
 
         for (uint32_t i = 0; i < bindInfoCount; ++i)
         {
-            const VkBindImageMemoryInfo*         bind_info      = &replay_bind_info[i];
-            const Decoded_VkBindImageMemoryInfo* bind_meta_info = &replay_bind_meta_info[i];
+            const VkBindImageMemoryInfo* bind_info = &replay_bind_infos[i];
 
-            ImageInfo*        image_info  = object_info_table_.GetImageInfo(bind_meta_info->image);
-            DeviceMemoryInfo* memory_info = object_info_table_.GetDeviceMemoryInfo(bind_meta_info->memory);
+            DeviceMemoryInfo* memory_info = memory_infos[i];
+            ImageInfo*        image_info  = image_infos[i];
 
             image_info->memory                = memory_info->handle;
             image_info->memory_property_flags = memory_info->property_flags;
