@@ -374,6 +374,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void OverrideUnmapMemory(PFN_vkUnmapMemory func, const DeviceInfo* device_info, DeviceMemoryInfo* memory_info);
 
+    VkResult OverrideFlushMappedMemoryRanges(PFN_vkFlushMappedMemoryRanges                            func,
+                                             VkResult                                                 original_result,
+                                             const DeviceInfo*                                        device_info,
+                                             uint32_t                                                 memoryRangeCount,
+                                             const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges);
+
+    VkResult
+    OverrideInvalidateMappedMemoryRanges(PFN_vkInvalidateMappedMemoryRanges                       func,
+                                         VkResult                                                 original_result,
+                                         const DeviceInfo*                                        device_info,
+                                         uint32_t                                                 memoryRangeCount,
+                                         const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges);
+
     void OverrideFreeMemory(PFN_vkFreeMemory                                           func,
                             const DeviceInfo*                                          device_info,
                             DeviceMemoryInfo*                                          memory_info,

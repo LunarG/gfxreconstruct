@@ -149,17 +149,20 @@ void VulkanDefaultAllocator::UnmapMemory(DeviceMemoryInfo* memory_info)
     functions_.unmap_memory(device_, memory_info->handle);
 }
 
-VkResult
-VulkanDefaultAllocator::FlushMappedMemoryRanges(uint32_t memoryRangeCount,
-                                                const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges)
+VkResult VulkanDefaultAllocator::FlushMappedMemoryRanges(uint32_t                   memoryRangeCount,
+                                                         const VkMappedMemoryRange* pMemoryRanges,
+                                                         DeviceMemoryInfo* const*   memory_infos)
 {
-    return functions_.flush_memory_ranges(device_, memoryRangeCount, pMemoryRanges.GetPointer());
+    GFXRECON_UNREFERENCED_PARAMETER(memory_infos);
+    return functions_.flush_memory_ranges(device_, memoryRangeCount, pMemoryRanges);
 }
 
-VkResult VulkanDefaultAllocator::InvalidateMappedMemoryRanges(
-    uint32_t memoryRangeCount, const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges)
+VkResult VulkanDefaultAllocator::InvalidateMappedMemoryRanges(uint32_t                   memoryRangeCount,
+                                                              const VkMappedMemoryRange* pMemoryRanges,
+                                                              DeviceMemoryInfo* const*   memory_infos)
 {
-    return functions_.invalidate_memory_ranges(device_, memoryRangeCount, pMemoryRanges.GetPointer());
+    GFXRECON_UNREFERENCED_PARAMETER(memory_infos);
+    return functions_.invalidate_memory_ranges(device_, memoryRangeCount, pMemoryRanges);
 }
 
 void VulkanDefaultAllocator::WriteMappedMemoryRange(const DeviceMemoryInfo* memory_info,

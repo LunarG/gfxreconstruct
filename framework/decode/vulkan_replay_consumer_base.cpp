@@ -2485,6 +2485,64 @@ void VulkanReplayConsumerBase::OverrideUnmapMemory(PFN_vkUnmapMemory func,
     allocator->UnmapMemory(memory_info);
 }
 
+VkResult VulkanReplayConsumerBase::OverrideFlushMappedMemoryRanges(
+    PFN_vkFlushMappedMemoryRanges                            func,
+    VkResult                                                 original_result,
+    const DeviceInfo*                                        device_info,
+    uint32_t                                                 memoryRangeCount,
+    const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    assert(device_info != nullptr);
+
+    const Decoded_VkMappedMemoryRange* replay_range_meta_datas = pMemoryRanges.GetMetaStructPointer();
+    assert(replay_range_meta_datas != nullptr);
+
+    std::vector<DeviceMemoryInfo*> memory_infos;
+
+    for (uint32_t i = 0; i < memoryRangeCount; ++i)
+    {
+        const Decoded_VkMappedMemoryRange* range_meta_data = &replay_range_meta_datas[i];
+
+        memory_infos.push_back(object_info_table_.GetDeviceMemoryInfo(range_meta_data->memory));
+    }
+
+    auto allocator = device_info->allocator.get();
+    assert(allocator != nullptr);
+
+    return allocator->FlushMappedMemoryRanges(memoryRangeCount, pMemoryRanges.GetPointer(), memory_infos.data());
+}
+
+VkResult VulkanReplayConsumerBase::OverrideInvalidateMappedMemoryRanges(
+    PFN_vkInvalidateMappedMemoryRanges                       func,
+    VkResult                                                 original_result,
+    const DeviceInfo*                                        device_info,
+    uint32_t                                                 memoryRangeCount,
+    const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    assert(device_info != nullptr);
+
+    const Decoded_VkMappedMemoryRange* replay_range_meta_datas = pMemoryRanges.GetMetaStructPointer();
+    assert(replay_range_meta_datas != nullptr);
+
+    std::vector<DeviceMemoryInfo*> memory_infos;
+
+    for (uint32_t i = 0; i < memoryRangeCount; ++i)
+    {
+        const Decoded_VkMappedMemoryRange* range_meta_data = &replay_range_meta_datas[i];
+
+        memory_infos.push_back(object_info_table_.GetDeviceMemoryInfo(range_meta_data->memory));
+    }
+
+    auto allocator = device_info->allocator.get();
+    assert(allocator != nullptr);
+
+    return allocator->InvalidateMappedMemoryRanges(memoryRangeCount, pMemoryRanges.GetPointer(), memory_infos.data());
+}
+
 void VulkanReplayConsumerBase::OverrideFreeMemory(PFN_vkFreeMemory  func,
                                                   const DeviceInfo* device_info,
                                                   DeviceMemoryInfo* memory_info,

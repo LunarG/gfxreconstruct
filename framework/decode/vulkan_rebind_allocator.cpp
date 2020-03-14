@@ -614,19 +614,18 @@ void VulkanRebindAllocator::UnmapMemory(DeviceMemoryInfo* memory_info)
     }
 }
 
-VkResult
-VulkanRebindAllocator::FlushMappedMemoryRanges(uint32_t memoryRangeCount,
-                                               const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges)
+VkResult VulkanRebindAllocator::FlushMappedMemoryRanges(uint32_t                   memoryRangeCount,
+                                                        const VkMappedMemoryRange* pMemoryRanges,
+                                                        DeviceMemoryInfo* const*   memory_infos)
 {
-    // TODO
-    return VK_ERROR_FEATURE_NOT_PRESENT;
+    return UpdateMappedMemoryRanges(memoryRangeCount, pMemoryRanges, memory_infos, vmaFlushAllocation);
 }
 
-VkResult VulkanRebindAllocator::InvalidateMappedMemoryRanges(
-    uint32_t memoryRangeCount, const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges)
+VkResult VulkanRebindAllocator::InvalidateMappedMemoryRanges(uint32_t                   memoryRangeCount,
+                                                             const VkMappedMemoryRange* pMemoryRanges,
+                                                             DeviceMemoryInfo* const*   memory_infos)
 {
-    // TODO
-    return VK_ERROR_FEATURE_NOT_PRESENT;
+    return UpdateMappedMemoryRanges(memoryRangeCount, pMemoryRanges, memory_infos, vmaInvalidateAllocation);
 }
 
 void VulkanRebindAllocator::WriteMappedMemoryRange(const DeviceMemoryInfo* memory_info,
@@ -728,6 +727,56 @@ void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc
     }
 }
 
+bool VulkanRebindAllocator::TranslateMemoryRange(const ResourceAllocInfo* resource_alloc_info,
+                                                 VkDeviceSize             original_start,
+                                                 VkDeviceSize             original_end,
+                                                 VkDeviceSize*            src_offset,
+                                                 VkDeviceSize*            dst_offset,
+                                                 VkDeviceSize*            data_size)
+{
+    assert((src_offset != nullptr) && (dst_offset != nullptr) && (data_size));
+
+    VkDeviceSize resource_start = resource_alloc_info->original_offset;
+    VkDeviceSize resource_end   = resource_start + resource_alloc_info->size;
+
+    // Range ends are exclusive.
+    if ((resource_end <= original_start) || (original_end <= resource_start))
+    {
+        // Resource is outside of the copy range.
+        return false;
+    }
+
+    VkDeviceSize new_src_offset = 0;
+    VkDeviceSize new_dst_offset = 0;
+    VkDeviceSize new_data_size  = 0;
+
+    if (original_start > resource_start)
+    {
+        // Write starts inside the buffer.
+        new_dst_offset = original_start - resource_start;
+    }
+    else
+    {
+        new_src_offset = resource_start - original_start;
+    }
+
+    if (original_end > resource_end)
+    {
+        // Write ends outside the buffer.
+        new_data_size = resource_end - (resource_start + new_dst_offset);
+    }
+    else
+    {
+        new_data_size = original_end - (resource_start + new_dst_offset);
+    }
+
+    (*src_offset) = new_src_offset;
+    (*dst_offset) = new_dst_offset;
+    (*data_size)  = new_data_size;
+
+    return true;
+}
+
 void VulkanRebindAllocator::UpdateBoundResource(ResourceAllocInfo* resource_alloc_info,
                                                 VkDeviceSize       write_start,
                                                 VkDeviceSize       write_end,
@@ -735,41 +784,91 @@ void VulkanRebindAllocator::UpdateBoundResource(ResourceAllocInfo* resource_allo
 {
     assert(resource_alloc_info != nullptr);
 
-    VkDeviceSize buffer_start = resource_alloc_info->original_offset;
-    VkDeviceSize buffer_end   = buffer_start + resource_alloc_info->size;
-
-    // Range ends are exclusive.
-    if ((buffer_end <= write_start) || (write_end <= buffer_start))
-    {
-        // Buffer is outside of the copy range.
-        return;
-    }
-
     VkDeviceSize src_offset = 0;
     VkDeviceSize dst_offset = 0;
     VkDeviceSize data_size  = 0;
 
-    if (write_start > buffer_start)
+    if (TranslateMemoryRange(resource_alloc_info, write_start, write_end, &src_offset, &dst_offset, &data_size))
     {
-        // Write starts inside the buffer.
-        dst_offset = write_start - buffer_start;
+        WriteBoundResource(resource_alloc_info, src_offset, dst_offset, data_size, data);
     }
-    else
+}
+
+VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
+    ResourceAllocInfo* resource_alloc_info,
+    VkDeviceSize       oiriginal_start,
+    VkDeviceSize       original_end,
+    void (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
+{
+    VkResult     result     = VK_SUCCESS;
+    VkDeviceSize src_offset = 0;
+    VkDeviceSize dst_offset = 0;
+    VkDeviceSize data_size  = 0;
+
+    if (TranslateMemoryRange(resource_alloc_info, oiriginal_start, original_end, &src_offset, &dst_offset, &data_size))
     {
-        src_offset = buffer_start - write_start;
+        if (resource_alloc_info->mapped_pointer == nullptr)
+        {
+            // After first map, the allocation will stay mapped until it is destroyed.
+            result = vmaMapMemory(allocator_, resource_alloc_info->allocation, &resource_alloc_info->mapped_pointer);
+        }
+
+        if (result == VK_SUCCESS)
+        {
+            update_func(allocator_, resource_alloc_info->allocation, dst_offset, data_size);
+        }
     }
 
-    if (write_end > buffer_end)
+    return result;
+}
+
+VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
+    uint32_t                   memoryRangeCount,
+    const VkMappedMemoryRange* pMemoryRanges,
+    DeviceMemoryInfo* const*   memory_infos,
+    void (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
+{
+    VkResult result = VK_SUCCESS;
+
+    if ((pMemoryRanges != nullptr) && (memory_infos != nullptr))
     {
-        // Write ends outside the buffer.
-        data_size = buffer_end - (buffer_start + dst_offset);
-    }
-    else
-    {
-        data_size = write_end - (buffer_start + dst_offset);
+        for (uint32_t i = 0; i < memoryRangeCount; ++i)
+        {
+            auto memory_info = memory_infos[i];
+
+            if ((memory_info != nullptr) && (memory_info->allocator_info != 0))
+            {
+                auto memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(memory_info->allocator_info);
+                VkDeviceSize size = pMemoryRanges[i].size;
+
+                if (size == VK_WHOLE_SIZE)
+                {
+                    size = memory_alloc_info->allocation_size - pMemoryRanges[i].offset;
+                }
+
+                VkDeviceSize range_start = pMemoryRanges[i].offset;
+                VkDeviceSize range_end   = range_start + size;
+
+                for (const auto& entry : memory_alloc_info->original_buffers)
+                {
+                    if (UpdateMappedMemoryRange(entry.second, range_start, range_end, update_func) != VK_SUCCESS)
+                    {
+                        result = VK_ERROR_MEMORY_MAP_FAILED;
+                    }
+                }
+
+                for (const auto& entry : memory_alloc_info->original_images)
+                {
+                    if (UpdateMappedMemoryRange(entry.second, range_start, range_end, update_func) != VK_SUCCESS)
+                    {
+                        result = VK_ERROR_MEMORY_MAP_FAILED;
+                    }
+                }
+            }
+        }
     }
 
-    WriteBoundResource(resource_alloc_info, src_offset, dst_offset, data_size, data);
+    return result;
 }
 
 VmaMemoryUsage VulkanRebindAllocator::GetBufferMemoryUsage(VkBufferUsageFlags          buffer_usage,
