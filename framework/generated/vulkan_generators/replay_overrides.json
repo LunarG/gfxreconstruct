@@ -18,6 +18,8 @@
     "vkAllocateMemory": "OverrideAllocateMemory",
     "vkMapMemory": "OverrideMapMemory",
     "vkUnmapMemory": "OverrideUnmapMemory",
+    "vkFlushMappedMemoryRanges": "OverrideFlushMappedMemoryRanges",
+    "vkInvalidateMappedMemoryRanges": "OverrideInvalidateMappedMemoryRanges",
     "vkFreeMemory": "OverrideFreeMemory",
     "vkBindBufferMemory": "OverrideBindBufferMemory",
     "vkBindBufferMemory2": "OverrideBindBufferMemory2",

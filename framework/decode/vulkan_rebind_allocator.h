@@ -94,13 +94,13 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     virtual void UnmapMemory(DeviceMemoryInfo* memory_info) override;
 
-    virtual VkResult
-    FlushMappedMemoryRanges(uint32_t                                                 memoryRangeCount,
-                            const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges) override;
+    virtual VkResult FlushMappedMemoryRanges(uint32_t                   memoryRangeCount,
+                                             const VkMappedMemoryRange* pMemoryRanges,
+                                             DeviceMemoryInfo* const*   memory_infos) override;
 
-    virtual VkResult
-    InvalidateMappedMemoryRanges(uint32_t                                                 memoryRangeCount,
-                                 const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges) override;
+    virtual VkResult InvalidateMappedMemoryRanges(uint32_t                   memoryRangeCount,
+                                                  const VkMappedMemoryRange* pMemoryRanges,
+                                                  DeviceMemoryInfo* const*   memory_infos) override;
 
     virtual void WriteMappedMemoryRange(const DeviceMemoryInfo* memory_info,
                                         uint64_t                offset,
@@ -140,10 +140,31 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                             VkDeviceSize       data_size,
                             const uint8_t*     data);
 
+    // Identify sub-ranges of resources that overlap with a memory region from their original memory binding.  If the
+    // resource overlapped with the original range, the src_offset is the offset from the start of the original
+    // resource, the dst_offset is the offset from the start of the new resource allocation, and the data_size is the
+    // region of the resource that overlaps with the original memory region.
+    bool TranslateMemoryRange(const ResourceAllocInfo* resource_alloc_info,
+                              VkDeviceSize             oiriginal_start,
+                              VkDeviceSize             original_end,
+                              VkDeviceSize*            src_offset,
+                              VkDeviceSize*            dst_offset,
+                              VkDeviceSize*            data_size);
+
     void UpdateBoundResource(ResourceAllocInfo* resource_alloc_info,
                              VkDeviceSize       write_start,
                              VkDeviceSize       write_end,
                              const uint8_t*     data);
+
+    VkResult UpdateMappedMemoryRange(ResourceAllocInfo* resource_alloc_info,
+                                     VkDeviceSize       oiriginal_start,
+                                     VkDeviceSize       original_end,
+                                     void (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize));
+
+    VkResult UpdateMappedMemoryRanges(uint32_t                   memoryRangeCount,
+                                      const VkMappedMemoryRange* pMemoryRanges,
+                                      DeviceMemoryInfo* const*   memory_infos,
+                                      void (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize));
 
     VmaMemoryUsage GetBufferMemoryUsage(VkBufferUsageFlags          buffer_usage,
                                         VkMemoryPropertyFlags       capture_properties,

@@ -84,13 +84,13 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
 
     virtual void UnmapMemory(DeviceMemoryInfo* memory_info) override;
 
-    virtual VkResult
-    FlushMappedMemoryRanges(uint32_t                                                 memoryRangeCount,
-                            const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges) override;
+    virtual VkResult FlushMappedMemoryRanges(uint32_t                   memoryRangeCount,
+                                             const VkMappedMemoryRange* pMemoryRanges,
+                                             DeviceMemoryInfo* const*   memory_infos) override;
 
-    virtual VkResult
-    InvalidateMappedMemoryRanges(uint32_t                                                 memoryRangeCount,
-                                 const StructPointerDecoder<Decoded_VkMappedMemoryRange>& pMemoryRanges) override;
+    virtual VkResult InvalidateMappedMemoryRanges(uint32_t                   memoryRangeCount,
+                                                  const VkMappedMemoryRange* pMemoryRanges,
+                                                  DeviceMemoryInfo* const*   memory_infos) override;
 
     virtual void WriteMappedMemoryRange(const DeviceMemoryInfo* memory_info,
                                         uint64_t                offset,
