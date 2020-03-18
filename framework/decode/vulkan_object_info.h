@@ -108,20 +108,14 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 
 struct DeviceMemoryInfo : public VulkanObjectInfo<VkDeviceMemory>
 {
-    VulkanResourceAllocator* allocator{ nullptr };
-    void*                    mapped_memory{ nullptr };
-
-    // The following values are only used for memory portability.
-    uintptr_t allocator_info{ 0 };
-
-    // The following values are only used when loading the initial state for trimmed files.
-    VkMemoryPropertyFlags property_flags{ 0 };
+    VulkanResourceAllocator*            allocator{ nullptr };
+    VulkanResourceAllocator::MemoryData allocator_data{ 0 };
 };
 
 struct BufferInfo : public VulkanObjectInfo<VkBuffer>
 {
     // The following values are only used for memory portability.
-    uintptr_t allocator_info{ 0 };
+    VulkanResourceAllocator::ResourceData allocator_data{ 0 };
 
     // The following values are only used when loading the initial state for trimmed files.
     VkDeviceMemory        memory{ VK_NULL_HANDLE };
@@ -134,7 +128,7 @@ struct BufferInfo : public VulkanObjectInfo<VkBuffer>
 struct ImageInfo : public VulkanObjectInfo<VkImage>
 {
     // The following values are only used for memory portability.
-    uintptr_t allocator_info{ 0 };
+    VulkanResourceAllocator::ResourceData allocator_data{ 0 };
 
     // The following values are only used when loading the initial state for trimmed files.
     VkDeviceMemory        memory{ VK_NULL_HANDLE };
