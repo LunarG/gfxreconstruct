@@ -1141,6 +1141,9 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
         VkBuffer       buffer = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;
 
+        auto allocator = device_info->allocator.get();
+        assert(allocator != nullptr);
+
         auto table = GetDeviceTable(device);
         assert(table != nullptr);
 
@@ -1164,7 +1167,7 @@ void VulkanReplayConsumerBase::ProcessBeginResourceInitCommand(format::HandleId 
         }
 
         device_info->resource_initializer = std::make_unique<VulkanResourceInitializer>(
-            device, max_copy_size, properties, have_shader_stencil_write, table);
+            device, max_copy_size, properties, have_shader_stencil_write, allocator, table);
     }
 }
 
@@ -1202,7 +1205,8 @@ void VulkanReplayConsumerBase::ProcessInitBufferCommand(format::HandleId device_
             {
                 assert(buffer_info->memory != VK_NULL_HANDLE);
 
-                result = initializer->LoadData(buffer_info->memory, buffer_info->bind_offset, data_size, data);
+                result = initializer->LoadData(
+                    buffer_info->memory, buffer_info->bind_offset, data_size, data, buffer_info->memory_allocator_data);
 
                 if (result != VK_SUCCESS)
                 {
@@ -1286,7 +1290,11 @@ void VulkanReplayConsumerBase::ProcessInitImageCommand(format::HandleId         
                 {
                     assert(image_info->memory != VK_NULL_HANDLE);
 
-                    result = initializer->LoadData(image_info->memory, image_info->bind_offset, data_size, data);
+                    result = initializer->LoadData(image_info->memory,
+                                                   image_info->bind_offset,
+                                                   data_size,
+                                                   data,
+                                                   image_info->memory_allocator_data);
 
                     if (result != VK_SUCCESS)
                     {
@@ -2582,8 +2590,9 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
 
     if (result == VK_SUCCESS)
     {
-        buffer_info->memory      = memory_info->handle;
-        buffer_info->bind_offset = memoryOffset;
+        buffer_info->memory                = memory_info->handle;
+        buffer_info->memory_allocator_data = memory_info->allocator_data;
+        buffer_info->bind_offset           = memoryOffset;
     }
 
     return result;
@@ -2654,6 +2663,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
             {
                 buffer_info->bind_offset           = bind_info->memoryOffset;
                 buffer_info->memory                = memory_info->handle;
+                buffer_info->memory_allocator_data = memory_info->allocator_data;
                 buffer_info->memory_property_flags = memory_property_flags[i];
             }
         }
@@ -2686,8 +2696,9 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
 
     if (result == VK_SUCCESS)
     {
-        image_info->memory      = memory_info->handle;
-        image_info->bind_offset = memoryOffset;
+        image_info->memory                = memory_info->handle;
+        image_info->memory_allocator_data = memory_info->allocator_data;
+        image_info->bind_offset           = memoryOffset;
     }
 
     return result;
@@ -2757,6 +2768,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
 
             image_info->bind_offset           = bind_info->memoryOffset;
             image_info->memory                = memory_info->handle;
+            image_info->memory_allocator_data = memory_info->allocator_data;
             image_info->memory_property_flags = memory_property_flags[i];
         }
     }

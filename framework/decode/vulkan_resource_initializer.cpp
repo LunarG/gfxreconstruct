@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,14 +30,16 @@ VulkanResourceInitializer::VulkanResourceInitializer(VkDevice                   
                                                      VkDeviceSize                            max_copy_size,
                                                      const VkPhysicalDeviceMemoryProperties& memory_properties,
                                                      bool                                    have_shader_stencil_write,
+                                                     VulkanResourceAllocator*                resource_allocator,
                                                      const encode::DeviceTable*              device_table) :
     device_(device),
-    staging_memory_(VK_NULL_HANDLE), staging_buffer_(VK_NULL_HANDLE), draw_sampler_(VK_NULL_HANDLE),
-    draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE), draw_set_(VK_NULL_HANDLE),
-    max_copy_size_(max_copy_size), have_shader_stencil_write_(have_shader_stencil_write), device_table_(device_table)
+    staging_memory_(VK_NULL_HANDLE), staging_memory_data_(0), staging_buffer_(VK_NULL_HANDLE), staging_buffer_data_(0),
+    draw_sampler_(VK_NULL_HANDLE), draw_pool_(VK_NULL_HANDLE), draw_set_layout_(VK_NULL_HANDLE),
+    draw_set_(VK_NULL_HANDLE), max_copy_size_(max_copy_size), have_shader_stencil_write_(have_shader_stencil_write),
+    resource_allocator_(resource_allocator), device_table_(device_table)
 {
     assert((device != VK_NULL_HANDLE) && (memory_properties.memoryTypeCount > 0) &&
-           (memory_properties.memoryHeapCount > 0) && (device_table != nullptr));
+           (memory_properties.memoryHeapCount > 0) && (resource_allocator != nullptr) && (device_table != nullptr));
 
     size_t type_size = memory_properties.memoryTypeCount * sizeof(memory_properties.memoryTypes[0]);
     size_t heap_size = memory_properties.memoryHeapCount * sizeof(memory_properties.memoryHeaps[0]);
@@ -56,26 +58,36 @@ VulkanResourceInitializer::~VulkanResourceInitializer()
         device_table_->DestroyCommandPool(device_, entry.second.command_pool, nullptr);
     }
 
-    device_table_->DestroyBuffer(device_, staging_buffer_, nullptr);
-    device_table_->FreeMemory(device_, staging_memory_, nullptr);
+    if (staging_buffer_ != VK_NULL_HANDLE)
+    {
+        resource_allocator_->DestroyBuffer(staging_buffer_, nullptr, staging_buffer_data_);
+    }
+
+    if (staging_memory_ != VK_NULL_HANDLE)
+    {
+        resource_allocator_->FreeMemory(staging_memory_, nullptr, staging_memory_data_);
+    }
 
     device_table_->DestroySampler(device_, draw_sampler_, nullptr);
     device_table_->DestroyDescriptorPool(device_, draw_pool_, nullptr);
     device_table_->DestroyDescriptorSetLayout(device_, draw_set_layout_, nullptr);
 }
 
-VkResult
-VulkanResourceInitializer::LoadData(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const uint8_t* data)
+VkResult VulkanResourceInitializer::LoadData(VkDeviceMemory                      memory,
+                                             VkDeviceSize                        offset,
+                                             VkDeviceSize                        size,
+                                             const uint8_t*                      data,
+                                             VulkanResourceAllocator::MemoryData allocator_data)
 {
     void*    mapped_memory = nullptr;
-    VkResult result        = device_table_->MapMemory(device_, memory, offset, size, 0, &mapped_memory);
+    VkResult result        = resource_allocator_->MapMemory(memory, offset, size, 0, &mapped_memory, allocator_data);
 
     if (result == VK_SUCCESS)
     {
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
         size_t copy_size = static_cast<size_t>(size);
-        util::platform::MemoryCopy(mapped_memory, copy_size, data, copy_size);
-        device_table_->UnmapMemory(device_, memory);
+        resource_allocator_->WriteMappedMemoryRange(allocator_data, offset, size, data);
+        resource_allocator_->UnmapMemory(memory, allocator_data);
     }
 
     return result;
@@ -92,16 +104,19 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
     // TODO: handle usage cases without TRANSFER_DST.
     GFXRECON_UNREFERENCED_PARAMETER(usage);
 
-    VkQueue         queue          = VK_NULL_HANDLE;
-    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
-    VkDeviceMemory  staging_memory = VK_NULL_HANDLE;
-    VkBuffer        staging_buffer = VK_NULL_HANDLE;
+    VkQueue                               queue               = VK_NULL_HANDLE;
+    VkCommandBuffer                       command_buffer      = VK_NULL_HANDLE;
+    VkDeviceMemory                        staging_memory      = VK_NULL_HANDLE;
+    VkBuffer                              staging_buffer      = VK_NULL_HANDLE;
+    VulkanResourceAllocator::MemoryData   staging_memory_data = 0;
+    VulkanResourceAllocator::ResourceData staging_buffer_data = 0;
 
     VkResult result = GetCommandExecObjects(queue_family_index, &queue, &command_buffer);
 
     if (result == VK_SUCCESS)
     {
-        result = AcquireInitializedStagingBuffer(data_size, data, &staging_memory, &staging_buffer);
+        result = AcquireInitializedStagingBuffer(
+            data_size, data, &staging_memory, &staging_buffer, &staging_memory_data, &staging_buffer_data);
 
         if (result == VK_SUCCESS)
         {
@@ -115,7 +130,7 @@ VkResult VulkanResourceInitializer::InitializeBuffer(VkDeviceSize        data_si
                 result = ExecuteCommandBuffer(queue, command_buffer);
             }
 
-            ReleaseStagingBuffer(staging_memory, staging_buffer);
+            ReleaseStagingBuffer(staging_memory, staging_buffer, staging_memory_data, staging_buffer_data);
         }
     }
 
@@ -138,14 +153,17 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
                                                     uint32_t                 level_count,
                                                     const VkBufferImageCopy* level_copies)
 {
-    VkDeviceMemory staging_memory = VK_NULL_HANDLE;
-    VkBuffer       staging_buffer = VK_NULL_HANDLE;
+    VkDeviceMemory                        staging_memory      = VK_NULL_HANDLE;
+    VkBuffer                              staging_buffer      = VK_NULL_HANDLE;
+    VulkanResourceAllocator::MemoryData   staging_memory_data = 0;
+    VulkanResourceAllocator::ResourceData staging_buffer_data = 0;
 
-    VkResult result = AcquireInitializedStagingBuffer(data_size, data, &staging_memory, &staging_buffer);
+    VkResult result = AcquireInitializedStagingBuffer(
+        data_size, data, &staging_memory, &staging_buffer, &staging_memory_data, &staging_buffer_data);
 
     if (result == VK_SUCCESS)
     {
-        result = LoadData(staging_memory, 0, data_size, data);
+        result = LoadData(staging_memory, 0, data_size, data, staging_memory_data);
 
         if (result == VK_SUCCESS)
         {
@@ -193,7 +211,7 @@ VkResult VulkanResourceInitializer::InitializeImage(VkDeviceSize             dat
             }
         }
 
-        ReleaseStagingBuffer(staging_memory, staging_buffer);
+        ReleaseStagingBuffer(staging_memory, staging_buffer, staging_memory_data, staging_buffer_data);
     }
 
     return result;
@@ -764,19 +782,25 @@ void VulkanResourceInitializer::DestroyDrawObjects(VkRenderPass     pass,
     device_table_->DestroyRenderPass(device_, pass, nullptr);
 }
 
-VkResult VulkanResourceInitializer::CreateStagingImage(const VkImageCreateInfo* image_create_info,
-                                                       VkDeviceMemory*          memory,
-                                                       VkImage*                 image)
+VkResult VulkanResourceInitializer::CreateStagingImage(const VkImageCreateInfo*               image_create_info,
+                                                       VkDeviceMemory*                        memory,
+                                                       VkImage*                               image,
+                                                       VulkanResourceAllocator::MemoryData*   allocator_memory_data,
+                                                       VulkanResourceAllocator::ResourceData* allocator_image_data)
 {
-    assert((memory != nullptr) && (image != nullptr));
+    assert((memory != nullptr) && (image != nullptr) && (allocator_memory_data != nullptr) &&
+           (allocator_image_data != nullptr));
 
-    VkImage  staging_image = VK_NULL_HANDLE;
-    VkResult result        = device_table_->CreateImage(device_, image_create_info, nullptr, &staging_image);
+    VkImage                               staging_image      = VK_NULL_HANDLE;
+    VulkanResourceAllocator::ResourceData staging_image_data = 0;
+
+    VkResult result = resource_allocator_->CreateImage(image_create_info, nullptr, &staging_image, &staging_image_data);
 
     if (result == VK_SUCCESS)
     {
-        VkDeviceMemory       staging_memory = VK_NULL_HANDLE;
-        VkMemoryRequirements memory_reqs;
+        VkDeviceMemory                      staging_memory      = VK_NULL_HANDLE;
+        VulkanResourceAllocator::MemoryData staging_memory_data = 0;
+        VkMemoryRequirements                memory_reqs;
 
         device_table_->GetImageMemoryRequirements(device_, staging_image, &memory_reqs);
 
@@ -790,31 +814,45 @@ VkResult VulkanResourceInitializer::CreateStagingImage(const VkImageCreateInfo* 
         alloc_info.memoryTypeIndex      = memory_type_index;
         alloc_info.allocationSize       = memory_reqs.size;
 
-        result = device_table_->AllocateMemory(device_, &alloc_info, nullptr, &staging_memory);
+        result = resource_allocator_->AllocateMemory(&alloc_info, nullptr, &staging_memory, &staging_memory_data);
 
         if (result == VK_SUCCESS)
         {
-            result = device_table_->BindImageMemory(device_, staging_image, staging_memory, 0);
+            VkMemoryPropertyFlags flags;
+            result = resource_allocator_->BindImageMemory(
+                staging_image, staging_memory, 0, staging_image_data, staging_memory_data, &flags);
         }
 
         if (result == VK_SUCCESS)
         {
-            (*memory) = staging_memory;
-            (*image)  = staging_image;
+            (*memory)                = staging_memory;
+            (*image)                 = staging_image;
+            (*allocator_memory_data) = staging_memory_data;
+            (*allocator_image_data)  = staging_image_data;
         }
         else
         {
-            DestroyStagingImage(staging_memory, staging_image);
+            DestroyStagingImage(staging_memory, staging_image, staging_memory_data, staging_image_data);
         }
     }
 
     return result;
 }
 
-void VulkanResourceInitializer::DestroyStagingImage(VkDeviceMemory memory, VkImage image)
+void VulkanResourceInitializer::DestroyStagingImage(VkDeviceMemory                        memory,
+                                                    VkImage                               image,
+                                                    VulkanResourceAllocator::MemoryData   allocator_memory_data,
+                                                    VulkanResourceAllocator::ResourceData allocator_image_data)
 {
-    device_table_->DestroyImage(device_, image, nullptr);
-    device_table_->FreeMemory(device_, memory, nullptr);
+    if (image != VK_NULL_HANDLE)
+    {
+        resource_allocator_->DestroyImage(image, nullptr, allocator_image_data);
+    }
+
+    if (memory != VK_NULL_HANDLE)
+    {
+        resource_allocator_->FreeMemory(memory, nullptr, allocator_memory_data);
+    }
 }
 
 VkResult VulkanResourceInitializer::CreateFramebufferResources(const VkImageViewCreateInfo* view_create_info,
@@ -862,9 +900,14 @@ void VulkanResourceInitializer::DestroyFramebufferResources(VkImageView view, Vk
     device_table_->DestroyImageView(device_, view, nullptr);
 }
 
-VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceMemory* memory, VkBuffer* buffer, VkDeviceSize size)
+VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceMemory*                        memory,
+                                                         VkBuffer*                              buffer,
+                                                         VkDeviceSize                           size,
+                                                         VulkanResourceAllocator::MemoryData*   allocator_memory_data,
+                                                         VulkanResourceAllocator::ResourceData* allocator_buffer_data)
 {
-    assert((memory != nullptr) && (buffer != nullptr) && (size > 0));
+    assert((memory != nullptr) && (buffer != nullptr) && (size > 0) && (allocator_memory_data != nullptr) &&
+           (allocator_buffer_data != nullptr));
 
     VkResult result = VK_SUCCESS;
 
@@ -873,7 +916,8 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceMemory* memory,
     // temporary staging buffer that will be destroyed on release.
     if ((staging_buffer_ == VK_NULL_HANDLE) || (size > max_copy_size_))
     {
-        VkBuffer staging_buffer = VK_NULL_HANDLE;
+        VkBuffer                              staging_buffer      = VK_NULL_HANDLE;
+        VulkanResourceAllocator::ResourceData staging_buffer_data = 0;
 
         VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
         create_info.pNext                 = nullptr;
@@ -884,7 +928,7 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceMemory* memory,
         create_info.queueFamilyIndexCount = 0;
         create_info.pQueueFamilyIndices   = nullptr;
 
-        result = device_table_->CreateBuffer(device_, &create_info, nullptr, &staging_buffer);
+        result = resource_allocator_->CreateBuffer(&create_info, nullptr, &staging_buffer, &staging_buffer_data);
 
         if (result == VK_SUCCESS)
         {
@@ -897,60 +941,97 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceMemory* memory,
             assert(memory_type_index != std::numeric_limits<uint32_t>::max());
 
             // Allocate the memory for the buffer.
+            VkDeviceMemory                      staging_memory      = VK_NULL_HANDLE;
+            VulkanResourceAllocator::MemoryData staging_memory_data = 0;
+
             VkMemoryAllocateInfo alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
             alloc_info.pNext                = nullptr;
             alloc_info.allocationSize       = memory_requirements.size;
             alloc_info.memoryTypeIndex      = memory_type_index;
 
-            result = device_table_->AllocateMemory(device_, &alloc_info, nullptr, memory);
+            result = resource_allocator_->AllocateMemory(&alloc_info, nullptr, &staging_memory, &staging_memory_data);
 
             if (result == VK_SUCCESS)
             {
-                result    = device_table_->BindBufferMemory(device_, staging_buffer, *memory, 0);
-                (*buffer) = staging_buffer;
+                VkMemoryPropertyFlags flags;
+                result = resource_allocator_->BindBufferMemory(
+                    staging_buffer, staging_memory, 0, staging_buffer_data, staging_memory_data, &flags);
+            }
+
+            if (result == VK_SUCCESS)
+            {
+                (*memory)                = staging_memory;
+                (*buffer)                = staging_buffer;
+                (*allocator_memory_data) = staging_memory_data;
+                (*allocator_buffer_data) = staging_buffer_data;
 
                 if (size <= max_copy_size_)
                 {
-                    staging_memory_ = (*memory);
-                    staging_buffer_ = staging_buffer;
+                    staging_memory_      = staging_memory;
+                    staging_buffer_      = staging_buffer;
+                    staging_memory_data_ = staging_memory_data;
+                    staging_buffer_data_ = staging_buffer_data;
                 }
             }
             else
             {
-                device_table_->DestroyBuffer(device_, staging_buffer, nullptr);
+                resource_allocator_->DestroyBuffer(staging_buffer, nullptr, staging_buffer_data);
+
+                if ((*memory) != VK_NULL_HANDLE)
+                {
+                    resource_allocator_->FreeMemory(staging_memory, nullptr, staging_memory_data);
+                }
             }
         }
     }
     else
     {
-        (*memory) = staging_memory_;
-        (*buffer) = staging_buffer_;
+        (*memory)                = staging_memory_;
+        (*buffer)                = staging_buffer_;
+        (*allocator_memory_data) = staging_memory_data_;
+        (*allocator_buffer_data) = staging_buffer_data_;
     }
 
     return result;
 }
 
-VkResult VulkanResourceInitializer::AcquireInitializedStagingBuffer(VkDeviceSize    data_size,
-                                                                    const uint8_t*  data,
-                                                                    VkDeviceMemory* staging_memory,
-                                                                    VkBuffer*       staging_buffer)
+VkResult
+VulkanResourceInitializer::AcquireInitializedStagingBuffer(VkDeviceSize                           data_size,
+                                                           const uint8_t*                         data,
+                                                           VkDeviceMemory*                        staging_memory,
+                                                           VkBuffer*                              staging_buffer,
+                                                           VulkanResourceAllocator::MemoryData*   staging_memory_data,
+                                                           VulkanResourceAllocator::ResourceData* staging_buffer_data)
 {
-    VkResult result = AcquireStagingBuffer(staging_memory, staging_buffer, data_size);
+    VkResult result =
+        AcquireStagingBuffer(staging_memory, staging_buffer, data_size, staging_memory_data, staging_buffer_data);
 
     if (result == VK_SUCCESS)
     {
-        result = LoadData(*staging_memory, 0, data_size, data);
+        assert((staging_memory != nullptr) && (staging_memory_data != nullptr));
+
+        result = LoadData(*staging_memory, 0, data_size, data, *staging_memory_data);
     }
 
     return result;
 }
 
-void VulkanResourceInitializer::ReleaseStagingBuffer(VkDeviceMemory memory, VkBuffer buffer)
+void VulkanResourceInitializer::ReleaseStagingBuffer(VkDeviceMemory                        memory,
+                                                     VkBuffer                              buffer,
+                                                     VulkanResourceAllocator::MemoryData   staging_memory_data,
+                                                     VulkanResourceAllocator::ResourceData staging_buffer_data)
 {
     if (buffer != staging_buffer_)
     {
-        device_table_->DestroyBuffer(device_, buffer, nullptr);
-        device_table_->FreeMemory(device_, memory, nullptr);
+        if (buffer != VK_NULL_HANDLE)
+        {
+            resource_allocator_->DestroyBuffer(buffer, nullptr, staging_buffer_data);
+        }
+
+        if (memory != VK_NULL_HANDLE)
+        {
+            resource_allocator_->FreeMemory(memory, nullptr, staging_memory_data);
+        }
     }
 }
 
@@ -1208,9 +1289,13 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
             image_info.pQueueFamilyIndices   = nullptr;
             image_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
 
-            VkImage        staging_image  = VK_NULL_HANDLE;
-            VkDeviceMemory staging_memory = VK_NULL_HANDLE;
-            result                        = CreateStagingImage(&image_info, &staging_memory, &staging_image);
+            VkImage                               staging_image       = VK_NULL_HANDLE;
+            VkDeviceMemory                        staging_memory      = VK_NULL_HANDLE;
+            VulkanResourceAllocator::ResourceData staging_image_data  = 0;
+            VulkanResourceAllocator::MemoryData   staging_memory_data = 0;
+
+            result = CreateStagingImage(
+                &image_info, &staging_memory, &staging_image, &staging_memory_data, &staging_image_data);
 
             if (result == VK_SUCCESS)
             {
@@ -1329,7 +1414,7 @@ VkResult VulkanResourceInitializer::PixelShaderImageCopy(uint32_t               
                     }
                 }
 
-                DestroyStagingImage(staging_memory, staging_image);
+                DestroyStagingImage(staging_memory, staging_image, staging_memory_data, staging_image_data);
             }
 
             DestroyDrawObjects(render_pass, pipeline_layout, pipeline);
