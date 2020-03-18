@@ -27,10 +27,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// This template class stores Vulkan object capture handle ID.
-// It is used as a base class for all Vulkan objects.
-template <typename T>
-class VulkanTrackedObjectInfo
+// This class stores only the instance capture Id and replay handle Id
+class TrackedInstanceInfo
 {
   public:
     // Set capture ID
@@ -39,15 +37,6 @@ class VulkanTrackedObjectInfo
     // Get capture ID
     format::HandleId GetCaptureId() { return capture_id_; }
 
-  private:
-    typedef T        HandleType;
-    format::HandleId capture_id_{ 0 }; // ID assigned to the object at capture.
-};
-
-// This class stores only the instance capture Id and replay handle Id
-class TrackedInstanceInfo : public VulkanTrackedObjectInfo<VkInstance>
-{
-  public:
     // Set hanlde ID
     void SetHandleId(VkInstance handle_id) { handle_ = handle_id; }
 
@@ -55,31 +44,63 @@ class TrackedInstanceInfo : public VulkanTrackedObjectInfo<VkInstance>
     VkInstance GetHandleId() { return handle_; }
 
   private:
+    // ID assigned to the object at capture.
+    format::HandleId capture_id_{ 0 };
+
     // Instance handle created during first pass
     VkInstance handle_;
 };
 
 // This class stores only the physical device capture Id and replay handle Id
-class TrackedPhysicalDeviceInfo : public VulkanTrackedObjectInfo<VkPhysicalDevice>
+class TrackedPhysicalDeviceInfo
 {
   public:
+    // Set capture ID
+    void SetCaptureId(format::HandleId capture_id) { capture_id_ = capture_id; }
+
+    // Get capture ID
+    format::HandleId GetCaptureId() { return capture_id_; }
+
     // Set hanlde ID
     void SetHandleId(VkPhysicalDevice handle_id) { handle_ = handle_id; }
 
     // Get handle ID
     VkPhysicalDevice GetHandleId() { return handle_; }
+    // Set capture device physical memory properties
+    void SetCaptureDevicePhysicalMemoryProperties(VkPhysicalDeviceMemoryProperties memory_properties);
+
+    // Get capture device physical memory properties
+    VkPhysicalDeviceMemoryProperties* GetCaptureDevicePhysicalMemoryProperties();
+
+    // Set replay device physical memory properties
+    void SetReplayDevicePhysicalMemoryProperties(VkPhysicalDeviceMemoryProperties memory_properties);
+
+    // Get replay device physical memory properties
+    VkPhysicalDeviceMemoryProperties* GetReplayDevicePhysicalMemoryProperties();
 
   private:
+    // ID assigned to the object at capture.
+    format::HandleId capture_id_{ 0 };
+
     // Instance handle created during first pass
     VkPhysicalDevice handle_;
+
+    VkPhysicalDeviceMemoryProperties capture_memory_properties_{};
+    VkPhysicalDeviceMemoryProperties replay_memory_properties_{};
 };
 
 // This class stores the tracked device information
 // during the first pass of the replay.
-// It is need to query the resources' new memory requirement.
-class TrackedDeviceInfo : public VulkanTrackedObjectInfo<VkDevice>
+// It is need to query the resources' memory requirement on the replay device.
+class TrackedDeviceInfo
 {
   public:
+    // Set capture ID
+    void SetCaptureId(format::HandleId capture_id) { capture_id_ = capture_id; }
+
+    // Get capture ID
+    format::HandleId GetCaptureId() { return capture_id_; }
+
     // Set hanlde ID
     void SetHandleId(VkDevice handle_id) { handle_ = handle_id; }
 
@@ -91,24 +112,171 @@ class TrackedDeviceInfo : public VulkanTrackedObjectInfo<VkDevice>
     // Get physical device which is the parent of this logical device
     VkPhysicalDevice GetParentPhysicalDevice();
 
+    // Set capture device physical memory properties
+    void SetCaptureDevicePhysicalMemoryProperties(const VkPhysicalDeviceMemoryProperties* memory_properties);
+
+    // Get capture device physical memory properties
+    const VkPhysicalDeviceMemoryProperties* GetCaptureDevicePhysicalMemoryProperties();
+
+    // Set replay device physical memory properties
+    void SetReplayDevicePhysicalMemoryProperties(const VkPhysicalDeviceMemoryProperties* memory_properties);
+
+    // Get replay device physical memory properties
+    const VkPhysicalDeviceMemoryProperties* GetReplayDevicePhysicalMemoryProperties();
+
   private:
+    // ID assigned to the object at capture.
+    format::HandleId capture_id_{ 0 };
+
     // Device handle created during first pass
     VkDevice         handle_;
     VkPhysicalDevice parent_{ VK_NULL_HANDLE };
+    // capture device and replay device physical memory properties
+    const VkPhysicalDeviceMemoryProperties* capture_memory_properties_{ nullptr };
+    const VkPhysicalDeviceMemoryProperties* replay_memory_properties_{ nullptr };
+};
+
+// This class stores the tracked resources (buffer and image) information
+// during the first pass of the replay.
+// It is accessed by replay consumer class in second pass of
+// replay to support memory portability
+class TrackedResourceInfo
+{
+  public:
+    // Set capture ID
+    void SetCaptureId(format::HandleId capture_id) { capture_id_ = capture_id; }
+
+    // Get capture ID
+    format::HandleId GetCaptureId() { return capture_id_; }
+
+    // Set memory ID that this buffer bound to
+    void SetBoundMemoryId(format::HandleId memory_id);
+
+    // Get memory ID that this buffer bound to
+    format::HandleId GetBoundMemoryId();
+
+    // Set memory property flags that this buffer bound to
+    void SetBoundMemoryPropertyFlags(VkMemoryPropertyFlags memory_property_flags);
+
+    // Get memory property flags that this buffer bound to
+    VkMemoryPropertyFlags GetBoundMemoryPropertyFlags();
+
+    // Set trace resource binding offset
+    void SetTraceBindOffset(VkDeviceSize bind_offset);
+
+    // Get trace resource binding offset
+    VkDeviceSize GetTraceBindOffset();
+
+    // Set replay resource binding offset
+    void SetReplayBindOffset(VkDeviceSize bind_offset);
+
+    // Get replay resource binding offset
+    VkDeviceSize GetReplayBindOffset();
+
+    // Set required size of the resource in the replay device
+    void SetReplayResourceSize(VkDeviceSize size);
+
+    // Get required size of the resource in the replay device
+    VkDeviceSize GetReplayResourceSize();
+
+    // Set required alignment of the resource in the replay device
+    void SetReplayResourceAlignment(VkDeviceSize alignment);
+
+    // Get required alignment of the resource in the replay device
+    VkDeviceSize GetReplayResourceAlignment();
+
+    // Set required memory type bit of the resource in the replay device
+    void SetReplayResourceMemoryTypeBits(uint32_t memory_type_bits);
+
+    // Get required memory type bit of the resource in the replay device
+    uint32_t GetReplayResourceMemoryTypeBits();
+
+    // Set buffer's queue family index
+    void SetQueueFamilyIndex(uint32_t queue_family_index);
+
+    // Get buffer's queue family index
+    uint32_t GetQueueFamilyIndex();
+
+    // Set buffer replay handle ID
+    void SetBufferReplayHandleId(VkBuffer handle_id) { buffer_handle_ = handle_id; }
+
+    // Get buffer replay handle ID
+    VkBuffer GetBufferReplayHandleId() { return buffer_handle_; }
+
+    // Set buffer creation information
+    void SetBufferCreateInfo(VkBufferCreateInfo buffer_create_info);
+
+    // Get buffer binding offset
+    VkBufferCreateInfo GetBufferCreateInfo();
+
+    // Set image replay handle ID
+    void SetImageReplayHandleId(VkImage handle_id) { image_handle_ = handle_id; }
+
+    // Get image replay handle ID
+    VkImage GetImageReplayHandleId() { return image_handle_; }
+
+    // Set image creation information
+    void SetImageCreateInfo(VkImageCreateInfo image_create_info);
+
+    // Get image creation information
+    VkImageCreateInfo GetImageCreateInfo();
+
+    // Set image flag
+    void SetImageFlag(bool flag) { is_image = flag; };
+
+    // Get image flag
+    bool GetImageFlag() { return is_image; };
+
+  private:
+    // ID assigned to the object at capture.
+    format::HandleId capture_id_{ 0 };
+
+    // bound memory id and property flags
+    format::HandleId      memory_id_;
+    VkMemoryPropertyFlags memory_property_flags_{ 0 };
+
+    // binding offsets
+    VkDeviceSize trace_bind_offset_{ 0 };
+    VkDeviceSize replay_bind_offset_{ 0 };
+
+    // Replay memory requirement
+    VkDeviceSize replay_size_{ 0 };
+    VkDeviceSize replay_alignment_{ 0 };
+    uint32_t     replay_memory_type_bits_{ 0 };
+
+    // Replay queue family index
+    uint32_t queue_family_index_{ 0 };
+
+    // Buffer replay handle and create info (buffer size etc)
+    VkBuffer           buffer_handle_;
+    VkBufferCreateInfo buffer_create_info_;
+
+    // Image replay handle and create info (image format etc)
+    VkImage           image_handle_;
+    VkImageCreateInfo image_create_info_;
+
+    // Flag to indicate if this resource is an image (true) or a buffer (false)
+    bool is_image{ false };
 };
 
 // This class stores the tracked device memory information
 // during the first pass of the replay.
 // It is accessed by replay consumer class in second pass of
 // replay to support memory portability
-class TrackedDeviceMemoryInfo : public VulkanTrackedObjectInfo<VkDeviceMemory>
+class TrackedDeviceMemoryInfo
 {
   public:
-    // Set memory allocation size
-    void SetMemoryAllocationSize(VkDeviceSize memory_allocation_size);
+    // Set capture ID
+    void SetCaptureId(format::HandleId capture_id) { capture_id_ = capture_id; }
 
-    // Get memory allocation size
-    VkDeviceSize GetMemoryAllocationSize();
+    // Get capture ID
+    format::HandleId GetCaptureId() { return capture_id_; }
+
+    // Set trace memory allocation size
+    void SetTraceMemoryAllocationSize(VkDeviceSize memory_allocation_size);
+
+    // Get trace memory allocation size
+    VkDeviceSize GetTraceMemoryAllocationSize();
 
     // Insert the mapped memory size number into the mapped memories sizes list
     void InsertMappedMemorySizesList(VkDeviceSize mapped_memory_size);
@@ -134,23 +302,35 @@ class TrackedDeviceMemoryInfo : public VulkanTrackedObjectInfo<VkDeviceMemory>
     // Get filled memories offsets list
     const std::vector<VkDeviceSize>& GetFilledMemoryOffsetsList();
 
-    // Insert the buffer capture ID into the  bound buffer ID list
-    void InsertBoundBufferIdList(format::HandleId buffer_id);
+    // Insert resource into the bound resource list
+    void InsertBoundResourcesList(TrackedResourceInfo buffer_id);
 
-    // Get bound buffer ID list
-    const std::vector<format::HandleId>& GetBoundBufferIdList();
+    // Get bound resource list
+    std::vector<TrackedResourceInfo>* GetBoundResourcesList();
 
-    // Insert the image capture ID into the  bound image ID list
-    void InsertBoundImageIdList(format::HandleId image_id);
+    // Allocate replay memory allocation size by increment
+    // on each resource binding call
+    void AllocateReplayMemoryAllocationSize(VkDeviceSize size);
 
-    // Get bound buffer ID list
-    const std::vector<format::HandleId>& GetBoundImageIdList();
+    // Get replay memory allocation size number
+    VkDeviceSize GetReplayMemoryAllocationSize();
+
+    // Set memory property flags
+    void SetMemoryPropertyFlags(VkMemoryPropertyFlags property_flags);
+
+    // Get memory property flags
+    VkMemoryPropertyFlags GetMemoryPropertyFlags();
 
   private:
-    VkMemoryPropertyFlags property_flags{ 0 };
+    // ID assigned to the object at capture.
+    format::HandleId capture_id_{ 0 };
+
+    // memory property flags in replay
+    VkMemoryPropertyFlags property_flags_{ 0 };
 
     // memory allocation size
-    VkDeviceSize memory_allocation_size_;
+    VkDeviceSize trace_memory_allocation_size_{ 0 };
+    VkDeviceSize replay_memory_allocation_size_{ 0 };
 
     // mapped memory sizes and offsets
     std::vector<VkDeviceSize> mapped_memories_sizes_;
@@ -160,137 +340,8 @@ class TrackedDeviceMemoryInfo : public VulkanTrackedObjectInfo<VkDeviceMemory>
     std::vector<VkDeviceSize> filled_memories_sizes_;
     std::vector<VkDeviceSize> filled_memories_offsets_;
 
-    // resources id bound to this memory
-    std::vector<format::HandleId> buffers_id_;
-    std::vector<format::HandleId> images_id_;
-};
-
-// This class stores the tracked buffer information
-// during the first pass of the replay.
-// It is accessed by replay consumer class in second pass of
-// replay to support memory portability
-class TrackedBufferInfo : public VulkanTrackedObjectInfo<VkBuffer>
-{
-  public:
-    // Set memory ID that this buffer bound to
-    void SetBoundMemoryId(format::HandleId memory_id);
-
-    // Get memory ID that this buffer bound to
-    format::HandleId GetBoundMemoryId();
-
-    // Set memory property flags that this buffer bound to
-    void SetBoundMemoryPropertyFlags(VkMemoryPropertyFlags memory_property_flags);
-
-    // Get memory property flags that this buffer bound to
-    VkMemoryPropertyFlags GetBoundMemoryPropertyFlags();
-
-    // Set buffer binding offset
-    void SetBufferBindOffset(VkDeviceSize bind_offset);
-
-    // Get buffer binding offset
-    VkDeviceSize GetBufferBindOffset();
-
-    // Set buffer's queue family index
-    void SetQueueFamilyIndex(uint32_t queue_family_index);
-
-    // Get buffer's queue family index
-    uint32_t GetQueueFamilyIndex();
-
-    // Set buffer creation information
-    void SetBufferCreateInfo(VkBufferCreateInfo buffer_create_info);
-
-    // Get buffer binding offset
-    VkBufferCreateInfo GetBufferCreateInfo();
-
-    // Set memory requirement of the buffer in the replay device
-    void SetMemoryRequirement(VkMemoryRequirements memory_requirement);
-
-    // Get memory requirement of the buffer in the replay device
-    VkMemoryRequirements GetMemoryRequirement();
-
-    // Set hanlde ID
-    void SetHandleId(VkBuffer handle_id) { handle_ = handle_id; }
-
-    // Get handle ID
-    VkBuffer GetHandleId() { return handle_; }
-
-  private:
-    format::HandleId      memory_id_;
-    VkMemoryPropertyFlags memory_property_flags_{ 0 };
-    VkDeviceSize          bind_offset_{ 0 };
-    uint32_t              queue_family_index_{ 0 };
-
-    VkBuffer handle_;
-
-    // Buffer create info (buffer size etc)
-    VkBufferCreateInfo buffer_create_info_;
-
-    // Buffer new memory requirement
-    VkMemoryRequirements buffer_memory_requirement_;
-};
-
-// This class stores the tracked image information
-// during the first pass of the replay.
-// It is accessed by replay consumer class in second pass of
-// replay to support memory portability
-class TrackedImageInfo : public VulkanTrackedObjectInfo<VkImage>
-{
-  public:
-    // Set memory ID that this image bound to
-    void SetBoundMemoryId(format::HandleId memory_id);
-
-    // Get memory ID that this image bound to
-    format::HandleId GetBoundMemoryId();
-
-    // Set memory property flags that this image bound to
-    void SetBoundMemoryPropertyFlags(VkMemoryPropertyFlags memory_property_flags);
-
-    // Get memory property flags that this image bound to
-    VkMemoryPropertyFlags GetBoundMemoryPropertyFlags();
-
-    // Set image binding offset
-    void SetImageBindOffset(VkDeviceSize bind_offset);
-
-    // Get image binding offset
-    VkDeviceSize GetImageBindOffset();
-
-    // Set image's queue family index
-    void SetQueueFamilyIndex(uint32_t queue_family_index);
-
-    // Get image's queue family index
-    uint32_t GetQueueFamilyIndex();
-
-    // Set image creation information
-    void SetImageCreateInfo(VkImageCreateInfo image_create_info);
-
-    // Get image binding offset
-    VkImageCreateInfo GetimageCreateInfo();
-
-    // Set memory requirement of the image in the replay device
-    void SetMemoryRequirement(VkMemoryRequirements memory_requirement);
-
-    // Get memory requirement of the image in the replay device
-    VkMemoryRequirements GetMemoryRequirement();
-
-    // Set hanlde ID
-    void SetHandleId(VkImage handle_id) { handle_ = handle_id; }
-
-    // Get handle ID
-    VkImage GetHandleId() { return handle_; }
-
-  private:
-    format::HandleId      memory_id_;
-    VkMemoryPropertyFlags memory_property_flags_{ 0 };
-    VkDeviceSize          bind_offset_{ 0 };
-    uint32_t              queue_family_index_{ 0 };
-
-    VkImage handle_;
-
-    // Image create info (image size etc)
-    VkImageCreateInfo image_create_info_;
-
-    // Image new memory requirement
-    VkMemoryRequirements image_memory_requirement_;
+    // a list of tracked resources (buffers and images) bound to this memory
+    std::vector<TrackedResourceInfo> bound_resources_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

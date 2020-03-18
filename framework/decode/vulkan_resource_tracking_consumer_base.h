@@ -16,6 +16,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
+#include "generated/generated_vulkan_dispatch_table.h"
 
 #include "util/defines.h"
 
@@ -33,6 +34,20 @@ class VulkanResourceTrackingConsumerBase : public VulkanConsumer
     VulkanResourceTrackingConsumerBase(const ReplayOptions& options);
 
     virtual ~VulkanResourceTrackingConsumerBase() override;
+
+    void InitializeLoader();
+
+    void AddInstanceTable(VkInstance instance);
+
+    void AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
+
+    PFN_vkGetDeviceProcAddr GetDeviceAddrProc(VkPhysicalDevice physical_device);
+
+    PFN_vkCreateDevice GetCreateDeviceProc(VkPhysicalDevice physical_device);
+
+    const encode::InstanceTable* GetInstanceTable(const void* handle) const;
+
+    const encode::DeviceTable* GetDeviceTable(const void* handle) const;
 
     void OverrideCreateInstance(const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo,
                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
@@ -121,19 +136,21 @@ class VulkanResourceTrackingConsumerBase : public VulkanConsumer
 
     VulkanTrackedObjectInfoTable& GetTrackedObjectInfoTable() { return tracked_object_info_table_; }
 
+    void SortMemoriesBoundResourcesByOffset();
+
+    void CalculateReplayBindingOffsetAndMemoryAllocationSize();
+
   private:
+    util::platform::LibraryHandle loader_handle_;
+
+    // map to function pointers to API calls
+    std::unordered_map<encode::DispatchKey, PFN_vkGetDeviceProcAddr> get_device_proc_addrs_;
+    std::unordered_map<encode::DispatchKey, PFN_vkCreateDevice>      create_device_procs_;
+    std::unordered_map<encode::DispatchKey, encode::InstanceTable>   instance_tables_;
+    std::unordered_map<encode::DispatchKey, encode::DeviceTable>     device_tables_;
     // funtion pointers to the API calls that will be made during the first pass of replay
-    PFN_vkCreateInstance              create_instance_function_;
-    PFN_vkEnumeratePhysicalDevices    enumerate_physical_devices_function_;
-    PFN_vkCreateDevice                create_device_function_;
-    PFN_vkCreateBuffer                create_buffer_function_;
-    PFN_vkCreateImage                 create_image_function_;
-    PFN_vkGetBufferMemoryRequirements get_buffer_memory_requirement_function_;
-    PFN_vkGetImageMemoryRequirements  get_image_memory_requirement_function_;
-    PFN_vkDestroyBuffer               destroy_buffer_function_;
-    PFN_vkDestroyImage                destroy_image_function_;
-    PFN_vkDestroyDevice               destroy_device_function_;
-    PFN_vkDestroyInstance             destroy_instance_function_;
+    PFN_vkCreateInstance      create_instance_function_;
+    PFN_vkGetInstanceProcAddr get_instance_proc_addr_;
 
     ReplayOptions                options_;
     VulkanTrackedObjectInfoTable tracked_object_info_table_;

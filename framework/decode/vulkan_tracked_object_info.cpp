@@ -31,16 +31,42 @@ VkPhysicalDevice TrackedDeviceInfo::GetParentPhysicalDevice()
     return parent_;
 }
 
-// Set memory allocation size
-void TrackedDeviceMemoryInfo::SetMemoryAllocationSize(VkDeviceSize memory_allocation_size)
+// Set capture device physical memory properties
+void TrackedDeviceInfo::SetCaptureDevicePhysicalMemoryProperties(
+    const VkPhysicalDeviceMemoryProperties* memory_properties)
 {
-    memory_allocation_size_ = memory_allocation_size;
+    capture_memory_properties_ = memory_properties;
 }
 
-// Get memory allocation size
-VkDeviceSize TrackedDeviceMemoryInfo::GetMemoryAllocationSize()
+// Get capture device physical memory properties
+const VkPhysicalDeviceMemoryProperties* TrackedDeviceInfo::GetCaptureDevicePhysicalMemoryProperties()
 {
-    return memory_allocation_size_;
+    return capture_memory_properties_;
+}
+
+// Set replay device physical memory properties
+void TrackedDeviceInfo::SetReplayDevicePhysicalMemoryProperties(
+    const VkPhysicalDeviceMemoryProperties* memory_properties)
+{
+    replay_memory_properties_ = memory_properties;
+}
+
+// Get replay device physical memory properties
+const VkPhysicalDeviceMemoryProperties* TrackedDeviceInfo::GetReplayDevicePhysicalMemoryProperties()
+{
+    return replay_memory_properties_;
+}
+
+// Set trace memory allocation size
+void TrackedDeviceMemoryInfo::SetTraceMemoryAllocationSize(VkDeviceSize memory_allocation_size)
+{
+    trace_memory_allocation_size_ = memory_allocation_size;
+}
+
+// Get trace memory allocation size
+VkDeviceSize TrackedDeviceMemoryInfo::GetTraceMemoryAllocationSize()
+{
+    return trace_memory_allocation_size_;
 }
 
 // Insert the mapped memory size number into the mapped memories sizes list
@@ -91,168 +117,180 @@ const std::vector<VkDeviceSize>& TrackedDeviceMemoryInfo::GetFilledMemoryOffsets
     return filled_memories_offsets_;
 }
 
-// Insert the buffer capture ID into the  bound buffer ID list
-void TrackedDeviceMemoryInfo::InsertBoundBufferIdList(format::HandleId buffer_id)
+// Insert resource into the  bound resource list
+void TrackedDeviceMemoryInfo::InsertBoundResourcesList(TrackedResourceInfo resource)
 {
-    buffers_id_.push_back(buffer_id);
+    bound_resources_.push_back(resource);
 }
 
-// Get bound buffer ID list
-const std::vector<format::HandleId>& TrackedDeviceMemoryInfo::GetBoundBufferIdList()
+// Get bound resource list
+std::vector<TrackedResourceInfo>* TrackedDeviceMemoryInfo::GetBoundResourcesList()
 {
-    return buffers_id_;
+    return &bound_resources_;
 }
 
-// Insert the image capture ID into the  bound image ID list
-void TrackedDeviceMemoryInfo::InsertBoundImageIdList(format::HandleId image_id)
+void TrackedDeviceMemoryInfo::AllocateReplayMemoryAllocationSize(VkDeviceSize size)
 {
-    images_id_.push_back(image_id);
+    replay_memory_allocation_size_ = size;
 }
 
-// Get bound buffer ID list
-const std::vector<format::HandleId>& TrackedDeviceMemoryInfo::GetBoundImageIdList()
+VkDeviceSize TrackedDeviceMemoryInfo::GetReplayMemoryAllocationSize()
 {
-    return images_id_;
+    return replay_memory_allocation_size_;
 }
 
-// Set memory ID that this buffer bound to
-void TrackedBufferInfo::SetBoundMemoryId(format::HandleId memory_id)
+void TrackedDeviceMemoryInfo::SetMemoryPropertyFlags(VkMemoryPropertyFlags property_flags)
+{
+    property_flags_ = property_flags;
+}
+
+VkMemoryPropertyFlags TrackedDeviceMemoryInfo::GetMemoryPropertyFlags()
+{
+    return property_flags_;
+}
+
+// Set memory ID that this resource bound to
+void TrackedResourceInfo::SetBoundMemoryId(format::HandleId memory_id)
 {
     memory_id_ = memory_id;
 }
 
-// Get memory ID that this buffer bound to
-format::HandleId TrackedBufferInfo::GetBoundMemoryId()
+// Get memory ID that this resource bound to
+format::HandleId TrackedResourceInfo::GetBoundMemoryId()
 {
     return memory_id_;
 }
 
-// Set memory property flags that this buffer bound to
-void TrackedBufferInfo::SetBoundMemoryPropertyFlags(VkMemoryPropertyFlags memory_property_flags)
+// Set memory property flags that this resource bound to
+void TrackedResourceInfo::SetBoundMemoryPropertyFlags(VkMemoryPropertyFlags memory_property_flags)
 {
     memory_property_flags_ = memory_property_flags;
 }
 
-// Get memory property flags that this buffer bound to
-VkMemoryPropertyFlags TrackedBufferInfo::GetBoundMemoryPropertyFlags()
+// Get memory property flags that this resource bound to
+VkMemoryPropertyFlags TrackedResourceInfo::GetBoundMemoryPropertyFlags()
 {
     return memory_property_flags_;
 }
 
-// Set buffer binding offset
-void TrackedBufferInfo::SetBufferBindOffset(VkDeviceSize bind_offset)
+// Set trace resource binding offset
+void TrackedResourceInfo::SetTraceBindOffset(VkDeviceSize bind_offset)
 {
-    bind_offset_ = bind_offset;
+    if (bind_offset > 0)
+    {
+        trace_bind_offset_ = bind_offset;
+    }
 }
 
-// Get buffer binding offset
-VkDeviceSize TrackedBufferInfo::GetBufferBindOffset()
+// Get trace source binding offset
+VkDeviceSize TrackedResourceInfo::GetTraceBindOffset()
 {
-    return bind_offset_;
+    return trace_bind_offset_;
 }
 
-// Set buffer's queue family index
-void TrackedBufferInfo::SetQueueFamilyIndex(uint32_t queue_family_index)
+void TrackedResourceInfo::SetReplayBindOffset(VkDeviceSize bind_offset)
+{
+    if (bind_offset > 0)
+    {
+        replay_bind_offset_ = bind_offset;
+    }
+}
+
+VkDeviceSize TrackedResourceInfo::GetReplayBindOffset()
+{
+    return replay_bind_offset_;
+}
+
+void TrackedResourceInfo::SetReplayResourceSize(VkDeviceSize size)
+{
+    if (size > 0)
+    {
+        replay_size_ = size;
+    }
+}
+
+VkDeviceSize TrackedResourceInfo::GetReplayResourceSize()
+{
+    return replay_size_;
+}
+
+void TrackedResourceInfo::SetReplayResourceAlignment(VkDeviceSize alignment)
+{
+    if (alignment > 0)
+    {
+        replay_alignment_ = alignment;
+    }
+}
+
+VkDeviceSize TrackedResourceInfo::GetReplayResourceAlignment()
+{
+    return replay_alignment_;
+}
+
+void TrackedResourceInfo::SetReplayResourceMemoryTypeBits(uint32_t memory_type_bits)
+{
+    replay_memory_type_bits_ = memory_type_bits;
+}
+
+uint32_t TrackedResourceInfo::GetReplayResourceMemoryTypeBits()
+{
+    return replay_memory_type_bits_;
+}
+
+// Set resource's queue family index
+void TrackedResourceInfo::SetQueueFamilyIndex(uint32_t queue_family_index)
 {
     queue_family_index_ = queue_family_index;
 }
 
-// Get buffer's queue family index
-uint32_t TrackedBufferInfo::GetQueueFamilyIndex()
+// Get resource's queue family index
+uint32_t TrackedResourceInfo::GetQueueFamilyIndex()
 {
     return queue_family_index_;
 }
 
 // Set buffer creation information
-void TrackedBufferInfo::SetBufferCreateInfo(VkBufferCreateInfo buffer_create_info)
+void TrackedResourceInfo::SetBufferCreateInfo(VkBufferCreateInfo buffer_create_info)
 {
     buffer_create_info_ = buffer_create_info;
 }
 
 // Get buffer binding offset
-VkBufferCreateInfo TrackedBufferInfo::GetBufferCreateInfo()
+VkBufferCreateInfo TrackedResourceInfo::GetBufferCreateInfo()
 {
     return buffer_create_info_;
 }
 
-void TrackedBufferInfo::SetMemoryRequirement(VkMemoryRequirements memory_requirement)
-{
-    buffer_memory_requirement_ = memory_requirement;
-}
-
-VkMemoryRequirements TrackedBufferInfo::GetMemoryRequirement()
-{
-    return buffer_memory_requirement_;
-}
-
-// Set memory ID that this image bound to
-void TrackedImageInfo::SetBoundMemoryId(format::HandleId memory_id)
-{
-    memory_id_ = memory_id;
-}
-
-// Get memory ID that this image bound to
-format::HandleId TrackedImageInfo::GetBoundMemoryId()
-{
-    return memory_id_;
-}
-
-// Set memory property flags that this image bound to
-void TrackedImageInfo::SetBoundMemoryPropertyFlags(VkMemoryPropertyFlags memory_property_flags)
-{
-    memory_property_flags_ = memory_property_flags;
-}
-
-// Get memory property flags that this image bound to
-VkMemoryPropertyFlags TrackedImageInfo::GetBoundMemoryPropertyFlags()
-{
-    return memory_property_flags_;
-}
-
-// Set image binding offset
-void TrackedImageInfo::SetImageBindOffset(VkDeviceSize bind_offset)
-{
-    bind_offset_ = bind_offset;
-}
-
-// Get image binding offset
-VkDeviceSize TrackedImageInfo::GetImageBindOffset()
-{
-    return bind_offset_;
-}
-
-// Set image's queue family index
-void TrackedImageInfo::SetQueueFamilyIndex(uint32_t queue_family_index)
-{
-    queue_family_index_ = queue_family_index;
-}
-
-// Get image's queue family index
-uint32_t TrackedImageInfo::GetQueueFamilyIndex()
-{
-    return queue_family_index_;
-}
-
-// Set image creation information
-void TrackedImageInfo::SetImageCreateInfo(VkImageCreateInfo image_create_info)
+void TrackedResourceInfo::SetImageCreateInfo(VkImageCreateInfo image_create_info)
 {
     image_create_info_ = image_create_info;
 }
 
-// Get image binding offset
-VkImageCreateInfo TrackedImageInfo::GetimageCreateInfo()
+VkImageCreateInfo TrackedResourceInfo::GetImageCreateInfo()
 {
     return image_create_info_;
 }
 
-void TrackedImageInfo::SetMemoryRequirement(VkMemoryRequirements memory_requirement)
+void TrackedPhysicalDeviceInfo::SetCaptureDevicePhysicalMemoryProperties(
+    VkPhysicalDeviceMemoryProperties memory_properties)
 {
-    image_memory_requirement_ = memory_requirement;
+    capture_memory_properties_ = memory_properties;
 }
 
-VkMemoryRequirements TrackedImageInfo::GetMemoryRequirement()
+VkPhysicalDeviceMemoryProperties* TrackedPhysicalDeviceInfo::GetCaptureDevicePhysicalMemoryProperties()
 {
-    return image_memory_requirement_;
+    return &capture_memory_properties_;
+}
+
+void TrackedPhysicalDeviceInfo::SetReplayDevicePhysicalMemoryProperties(
+    VkPhysicalDeviceMemoryProperties memory_properties)
+{
+    replay_memory_properties_ = memory_properties;
+}
+
+VkPhysicalDeviceMemoryProperties* TrackedPhysicalDeviceInfo::GetReplayDevicePhysicalMemoryProperties()
+{
+    return &replay_memory_properties_;
 }
 
 GFXRECON_END_NAMESPACE(decode)
