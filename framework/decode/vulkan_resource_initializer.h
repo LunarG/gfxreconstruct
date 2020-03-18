@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_RESOURCE_INITIALIZER_H
 #define GFXRECON_DECODE_VULKAN_RESOURCE_INITIALIZER_H
 
+#include "decode/vulkan_resource_allocator.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 
@@ -35,11 +36,16 @@ class VulkanResourceInitializer
                               VkDeviceSize                            max_copy_size,
                               const VkPhysicalDeviceMemoryProperties& memory_properties,
                               bool                                    have_shader_stencil_write,
+                              VulkanResourceAllocator*                resource_allocator,
                               const encode::DeviceTable*              device_table);
 
     ~VulkanResourceInitializer();
 
-    VkResult LoadData(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, const uint8_t* data);
+    VkResult LoadData(VkDeviceMemory                      memory,
+                      VkDeviceSize                        offset,
+                      VkDeviceSize                        size,
+                      const uint8_t*                      data,
+                      VulkanResourceAllocator::MemoryData allocator_data);
 
     VkResult InitializeBuffer(VkDeviceSize        data_size,
                               const uint8_t*      data,
@@ -92,9 +98,16 @@ class VulkanResourceInitializer
 
     void DestroyDrawObjects(VkRenderPass pass, VkPipelineLayout pipeline_layout, VkPipeline pipeline);
 
-    VkResult CreateStagingImage(const VkImageCreateInfo* image_create_info, VkDeviceMemory* memory, VkImage* image);
+    VkResult CreateStagingImage(const VkImageCreateInfo*               image_create_info,
+                                VkDeviceMemory*                        memory,
+                                VkImage*                               image,
+                                VulkanResourceAllocator::MemoryData*   allocator_memory_data,
+                                VulkanResourceAllocator::ResourceData* allocator_image_data);
 
-    void DestroyStagingImage(VkDeviceMemory memory, VkImage image);
+    void DestroyStagingImage(VkDeviceMemory                        memory,
+                             VkImage                               image,
+                             VulkanResourceAllocator::MemoryData   allocator_memory_data,
+                             VulkanResourceAllocator::ResourceData allocator_image_data);
 
     VkResult CreateFramebufferResources(const VkImageViewCreateInfo* view_create_info,
                                         uint32_t                     width,
@@ -105,14 +118,23 @@ class VulkanResourceInitializer
 
     void DestroyFramebufferResources(VkImageView view, VkFramebuffer framebuffer);
 
-    VkResult AcquireStagingBuffer(VkDeviceMemory* memory, VkBuffer* buffer, VkDeviceSize size);
+    VkResult AcquireStagingBuffer(VkDeviceMemory*                        memory,
+                                  VkBuffer*                              buffer,
+                                  VkDeviceSize                           size,
+                                  VulkanResourceAllocator::MemoryData*   allocator_memory_data,
+                                  VulkanResourceAllocator::ResourceData* allocator_buffer_data);
 
-    VkResult AcquireInitializedStagingBuffer(VkDeviceSize    data_size,
-                                             const uint8_t*  data,
-                                             VkDeviceMemory* staging_memory,
-                                             VkBuffer*       staging_buffer);
+    VkResult AcquireInitializedStagingBuffer(VkDeviceSize                           data_size,
+                                             const uint8_t*                         data,
+                                             VkDeviceMemory*                        staging_memory,
+                                             VkBuffer*                              staging_buffer,
+                                             VulkanResourceAllocator::MemoryData*   staging_memory_data,
+                                             VulkanResourceAllocator::ResourceData* staging_buffer_data);
 
-    void ReleaseStagingBuffer(VkDeviceMemory memory, VkBuffer buffer);
+    void ReleaseStagingBuffer(VkDeviceMemory                        memory,
+                              VkBuffer                              buffer,
+                              VulkanResourceAllocator::MemoryData   staging_memory_data,
+                              VulkanResourceAllocator::ResourceData staging_buffer_data);
 
     void UpdateDrawDescriptorSet(VkDescriptorSet set, VkImageView view, VkSampler sampler);
 
@@ -162,18 +184,21 @@ class VulkanResourceInitializer
     typedef std::unordered_map<uint32_t, CommandExecObjects> CommandExecObjectMap;
 
   private:
-    VkDevice                         device_;
-    CommandExecObjectMap             command_exec_objects_;
-    VkDeviceMemory                   staging_memory_;
-    VkBuffer                         staging_buffer_;
-    VkSampler                        draw_sampler_;
-    VkDescriptorPool                 draw_pool_;
-    VkDescriptorSetLayout            draw_set_layout_;
-    VkDescriptorSet                  draw_set_;
-    VkDeviceSize                     max_copy_size_;
-    VkPhysicalDeviceMemoryProperties memory_properties_;
-    bool                             have_shader_stencil_write_;
-    const encode::DeviceTable*       device_table_;
+    VkDevice                              device_;
+    CommandExecObjectMap                  command_exec_objects_;
+    VkDeviceMemory                        staging_memory_;
+    VulkanResourceAllocator::MemoryData   staging_memory_data_;
+    VkBuffer                              staging_buffer_;
+    VulkanResourceAllocator::ResourceData staging_buffer_data_;
+    VkSampler                             draw_sampler_;
+    VkDescriptorPool                      draw_pool_;
+    VkDescriptorSetLayout                 draw_set_layout_;
+    VkDescriptorSet                       draw_set_;
+    VkDeviceSize                          max_copy_size_;
+    VkPhysicalDeviceMemoryProperties      memory_properties_;
+    bool                                  have_shader_stencil_write_;
+    VulkanResourceAllocator*              resource_allocator_;
+    const encode::DeviceTable*            device_table_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
