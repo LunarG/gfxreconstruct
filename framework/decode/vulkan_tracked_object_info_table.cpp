@@ -43,16 +43,10 @@ void VulkanTrackedObjectInfoTable::AddTrackedDeviceMemoryInfo(TrackedDeviceMemor
     AddTrackedObjectInfo(std::move(info), &tracked_device_memory_map_);
 }
 
-// Add tracked buffer information into the tracked buffers information table map
-void VulkanTrackedObjectInfoTable::AddTrackedBufferInfo(TrackedBufferInfo&& info)
+// Add tracked resource information into the tracked buffers information table map
+void VulkanTrackedObjectInfoTable::AddTrackedResourceInfo(TrackedResourceInfo&& info)
 {
-    AddTrackedObjectInfo(std::move(info), &tracked_buffer_map_);
-}
-
-// Add tracked image information into the tracked images information table map
-void VulkanTrackedObjectInfoTable::AddTrackedImageInfo(TrackedImageInfo&& info)
-{
-    AddTrackedObjectInfo(std::move(info), &tracked_image_map_);
+    AddTrackedObjectInfo(std::move(info), &tracked_resource_map_);
 }
 
 TrackedInstanceInfo* VulkanTrackedObjectInfoTable::GetTrackedInstanceInfo(format::HandleId id)
@@ -77,15 +71,15 @@ TrackedDeviceMemoryInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoryInf
 }
 
 // Return specified handle ID's buffer information from the tracked buffers information table map
-TrackedBufferInfo* VulkanTrackedObjectInfoTable::GetTrackedBufferInfo(format::HandleId id)
+TrackedResourceInfo* VulkanTrackedObjectInfoTable::GetTrackedResourceInfo(format::HandleId id)
 {
-    return GetTrackedObjectInfo<TrackedBufferInfo>(id, &tracked_buffer_map_);
+    return GetTrackedObjectInfo<TrackedResourceInfo>(id, &tracked_resource_map_);
 }
 
-// Return specified handle ID's image information from the tracked images information table map
-TrackedImageInfo* VulkanTrackedObjectInfoTable::GetTrackedImageInfo(format::HandleId id)
+std::unordered_map<format::HandleId, TrackedDeviceMemoryInfo>*
+VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoriesInfoMap()
 {
-    return GetTrackedObjectInfo<TrackedImageInfo>(id, &tracked_image_map_);
+    return &tracked_device_memory_map_;
 }
 
 GFXRECON_END_NAMESPACE(decode)

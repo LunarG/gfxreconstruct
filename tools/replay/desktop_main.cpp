@@ -165,6 +165,12 @@ int main(int argc, const char** argv)
 
                         file_processor_resource_tracking.RemoveDecoder(&decoder);
                         decoder.RemoveConsumer(resource_tracking_consumer.get());
+
+                        // sort the bound resources according to the binding offsets
+                        resource_tracking_consumer->SortMemoriesBoundResourcesByOffset();
+
+                        // calculate the replay binding offset of the bound resources and replay memory allocation size
+                        resource_tracking_consumer->CalculateReplayBindingOffsetAndMemoryAllocationSize();
                     }
                 }
 

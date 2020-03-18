@@ -50,11 +50,8 @@ class VulkanTrackedObjectInfoTable
     // Add tracked memory information into the tracked memories information table map
     void AddTrackedDeviceMemoryInfo(TrackedDeviceMemoryInfo&& info);
 
-    // Add tracked buffer information into the tracked buffers information table map
-    void AddTrackedBufferInfo(TrackedBufferInfo&& info);
-
-    // Add tracked image information into the tracked images information table map
-    void AddTrackedImageInfo(TrackedImageInfo&& info);
+    // Add tracked resource information into the tracked resource (buffers and images) information table map
+    void AddTrackedResourceInfo(TrackedResourceInfo&& info);
 
     // Return specified handle ID's instance information from the tracked instances information table map
     TrackedInstanceInfo* GetTrackedInstanceInfo(format::HandleId id);
@@ -68,11 +65,11 @@ class VulkanTrackedObjectInfoTable
     // Return specified handle ID's device memory information from the tracked memories information table map
     TrackedDeviceMemoryInfo* GetTrackedDeviceMemoryInfo(format::HandleId id);
 
-    // Return specified handle ID's buffer information from the tracked buffers information table map
-    TrackedBufferInfo* GetTrackedBufferInfo(format::HandleId id);
+    // Return specified handle ID's resource information from the tracked resources information table map
+    TrackedResourceInfo* GetTrackedResourceInfo(format::HandleId id);
 
-    // Return specified handle ID's image information from the tracked images information table map
-    TrackedImageInfo* GetTrackedImageInfo(format::HandleId id);
+    // Return tracked device memories information table map
+    std::unordered_map<format::HandleId, TrackedDeviceMemoryInfo>* GetTrackedDeviceMemoriesInfoMap();
 
   private:
     // Helper template function for updating tracked objects ID with the information
@@ -125,8 +122,7 @@ class VulkanTrackedObjectInfoTable
     std::unordered_map<format::HandleId, TrackedPhysicalDeviceInfo> tracked_physical_device_map_;
     std::unordered_map<format::HandleId, TrackedDeviceInfo>         tracked_device_map_;
     std::unordered_map<format::HandleId, TrackedDeviceMemoryInfo>   tracked_device_memory_map_;
-    std::unordered_map<format::HandleId, TrackedBufferInfo>         tracked_buffer_map_;
-    std::unordered_map<format::HandleId, TrackedImageInfo>          tracked_image_map_;
+    std::unordered_map<format::HandleId, TrackedResourceInfo>       tracked_resource_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
