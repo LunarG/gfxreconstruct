@@ -49,63 +49,82 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     virtual void Destroy() override;
 
-    virtual VkResult CreateBuffer(const StructPointerDecoder<Decoded_VkBufferCreateInfo>& pCreateInfo,
-                                  const VkAllocationCallbacks*                            pAllocator,
-                                  HandlePointerDecoder<VkBuffer>*                         pBuffer) override;
+    virtual VkResult CreateBuffer(const VkBufferCreateInfo*    create_info,
+                                  const VkAllocationCallbacks* allocation_callbacks,
+                                  VkBuffer*                    buffer,
+                                  ResourceData*                allocator_data) override;
 
-    virtual void DestroyBuffer(BufferInfo* buffer_info, const VkAllocationCallbacks* pAllocator) override;
+    virtual void DestroyBuffer(VkBuffer                     buffer,
+                               const VkAllocationCallbacks* allocation_callbacks,
+                               ResourceData                 allocator_data) override;
 
-    virtual VkResult CreateImage(const StructPointerDecoder<Decoded_VkImageCreateInfo>& pCreateInfo,
-                                 const VkAllocationCallbacks*                           pAllocator,
-                                 HandlePointerDecoder<VkImage>*                         pImage) override;
+    virtual VkResult CreateImage(const VkImageCreateInfo*     create_info,
+                                 const VkAllocationCallbacks* allocation_callbacks,
+                                 VkImage*                     image,
+                                 ResourceData*                allocator_data) override;
 
-    virtual void DestroyImage(ImageInfo* image_info, const VkAllocationCallbacks* pAllocator) override;
+    virtual void DestroyImage(VkImage                      image,
+                              const VkAllocationCallbacks* allocation_callbacks,
+                              ResourceData                 allocator_data) override;
 
-    virtual VkResult AllocateMemory(const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
-                                    const VkAllocationCallbacks*                              pAllocator,
-                                    HandlePointerDecoder<VkDeviceMemory>*                     pMemory) override;
+    virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
+                                    const VkAllocationCallbacks* allocation_callbacks,
+                                    VkDeviceMemory*              memory,
+                                    MemoryData*                  allocator_data) override;
 
-    virtual void FreeMemory(DeviceMemoryInfo* memory_info, const VkAllocationCallbacks* pAllocator) override;
+    virtual void FreeMemory(VkDeviceMemory               memory,
+                            const VkAllocationCallbacks* allocation_callbacks,
+                            MemoryData                   allocator_data) override;
 
-    virtual void GetDeviceMemoryCommitment(const DeviceMemoryInfo* memory_info,
-                                           VkDeviceSize*           pCommittedMemoryInBytes) override;
+    virtual void GetDeviceMemoryCommitment(VkDeviceMemory memory,
+                                           VkDeviceSize*  committed_memory_in_bytes,
+                                           MemoryData     allocator_data) override;
 
-    virtual VkResult
-    BindBufferMemory(BufferInfo* buffer_info, DeviceMemoryInfo* memory_info, VkDeviceSize memoryOffset) override;
+    virtual VkResult BindBufferMemory(VkBuffer               buffer,
+                                      VkDeviceMemory         memory,
+                                      VkDeviceSize           memory_offset,
+                                      ResourceData           allocator_buffer_data,
+                                      MemoryData             allocator_memory_data,
+                                      VkMemoryPropertyFlags* bind_memory_properties) override;
 
-    virtual VkResult BindBufferMemory2(uint32_t                      bindInfoCount,
-                                       const VkBindBufferMemoryInfo* pBindInfos,
-                                       DeviceMemoryInfo* const*      memory_infos,
-                                       BufferInfo* const*            buffer_infos) override;
+    virtual VkResult BindBufferMemory2(uint32_t                      bind_info_count,
+                                       const VkBindBufferMemoryInfo* bind_infos,
+                                       const ResourceData*           allocator_buffer_datas,
+                                       const MemoryData*             allocator_memory_datas,
+                                       VkMemoryPropertyFlags*        bind_memory_properties) override;
 
-    virtual VkResult
-    BindImageMemory(ImageInfo* image_info, DeviceMemoryInfo* memory_info, VkDeviceSize memoryOffset) override;
+    virtual VkResult BindImageMemory(VkImage                image,
+                                     VkDeviceMemory         memory,
+                                     VkDeviceSize           memory_offset,
+                                     ResourceData           allocator_image_data,
+                                     MemoryData             allocator_memory_data,
+                                     VkMemoryPropertyFlags* bind_memory_properties) override;
 
-    virtual VkResult BindImageMemory2(uint32_t                     bindInfoCount,
-                                      const VkBindImageMemoryInfo* pBindInfos,
-                                      DeviceMemoryInfo* const*     memory_infos,
-                                      ImageInfo* const*            image_infos) override;
+    virtual VkResult BindImageMemory2(uint32_t                     bind_info_count,
+                                      const VkBindImageMemoryInfo* bind_infos,
+                                      const ResourceData*          allocator_image_datas,
+                                      const MemoryData*            allocator_memory_datas,
+                                      VkMemoryPropertyFlags*       bind_memory_properties) override;
 
-    virtual VkResult MapMemory(DeviceMemoryInfo* memory_info,
-                               VkDeviceSize      offset,
-                               VkDeviceSize      size,
-                               VkMemoryMapFlags  flags,
-                               void**            ppData) override;
+    virtual VkResult MapMemory(VkDeviceMemory   memory,
+                               VkDeviceSize     offset,
+                               VkDeviceSize     size,
+                               VkMemoryMapFlags flags,
+                               void**           data,
+                               MemoryData       allocator_data) override;
 
-    virtual void UnmapMemory(DeviceMemoryInfo* memory_info) override;
+    virtual void UnmapMemory(VkDeviceMemory memory, MemoryData allocator_data) override;
 
-    virtual VkResult FlushMappedMemoryRanges(uint32_t                   memoryRangeCount,
-                                             const VkMappedMemoryRange* pMemoryRanges,
-                                             DeviceMemoryInfo* const*   memory_infos) override;
+    virtual VkResult FlushMappedMemoryRanges(uint32_t                   memory_range_count,
+                                             const VkMappedMemoryRange* memory_ranges,
+                                             const MemoryData*          allocator_datas) override;
 
-    virtual VkResult InvalidateMappedMemoryRanges(uint32_t                   memoryRangeCount,
-                                                  const VkMappedMemoryRange* pMemoryRanges,
-                                                  DeviceMemoryInfo* const*   memory_infos) override;
+    virtual VkResult InvalidateMappedMemoryRanges(uint32_t                   memory_range_count,
+                                                  const VkMappedMemoryRange* memory_ranges,
+                                                  const MemoryData*          allocator_datas) override;
 
-    virtual void WriteMappedMemoryRange(const DeviceMemoryInfo* memory_info,
-                                        uint64_t                offset,
-                                        uint64_t                size,
-                                        const uint8_t*          data) override;
+    virtual void
+    WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
   private:
     struct MemoryAllocInfo;
@@ -120,6 +139,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         VkDeviceSize     rebind_offset{ 0 };
         VkDeviceSize     size{ 0 };
         bool             is_image{ false };
+        VkFlags          usage{ 0 };
+        VkImageTiling    tiling{};
     };
 
     struct MemoryAllocInfo
@@ -161,9 +182,9 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                      VkDeviceSize       original_end,
                                      void (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize));
 
-    VkResult UpdateMappedMemoryRanges(uint32_t                   memoryRangeCount,
-                                      const VkMappedMemoryRange* pMemoryRanges,
-                                      DeviceMemoryInfo* const*   memory_infos,
+    VkResult UpdateMappedMemoryRanges(uint32_t                   memory_range_count,
+                                      const VkMappedMemoryRange* memory_ranges,
+                                      const MemoryData*          allocator_datas,
                                       void (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize));
 
     VmaMemoryUsage GetBufferMemoryUsage(VkBufferUsageFlags          buffer_usage,

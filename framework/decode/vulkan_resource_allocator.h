@@ -36,6 +36,10 @@ struct ImageInfo;
 class VulkanResourceAllocator
 {
   public:
+    typedef uintptr_t ResourceData;
+    typedef uintptr_t MemoryData;
+
+  public:
     struct Functions
     {
         PFN_vkGetPhysicalDeviceProperties        get_physical_device_properties{ nullptr };
@@ -77,63 +81,80 @@ class VulkanResourceAllocator
 
     virtual void Destroy() = 0;
 
-    virtual VkResult CreateBuffer(const StructPointerDecoder<Decoded_VkBufferCreateInfo>& pCreateInfo,
-                                  const VkAllocationCallbacks*                            pAllocator,
-                                  HandlePointerDecoder<VkBuffer>*                         pBuffer) = 0;
+    virtual VkResult CreateBuffer(const VkBufferCreateInfo*    create_info,
+                                  const VkAllocationCallbacks* allocation_callbacks,
+                                  VkBuffer*                    buffer,
+                                  ResourceData*                allocator_data) = 0;
 
-    virtual void DestroyBuffer(BufferInfo* buffer_info, const VkAllocationCallbacks* pAllocator) = 0;
+    virtual void
+    DestroyBuffer(VkBuffer buffer, const VkAllocationCallbacks* allocation_callbacks, ResourceData allocator_data) = 0;
 
-    virtual VkResult CreateImage(const StructPointerDecoder<Decoded_VkImageCreateInfo>& pCreateInfo,
-                                 const VkAllocationCallbacks*                           pAllocator,
-                                 HandlePointerDecoder<VkImage>*                         pImage) = 0;
+    virtual VkResult CreateImage(const VkImageCreateInfo*     create_info,
+                                 const VkAllocationCallbacks* allocation_callbacks,
+                                 VkImage*                     image,
+                                 ResourceData*                allocator_data) = 0;
 
-    virtual void DestroyImage(ImageInfo* image_info, const VkAllocationCallbacks* pAllocator) = 0;
+    virtual void
+    DestroyImage(VkImage image, const VkAllocationCallbacks* allocation_callbacks, ResourceData allocator_data) = 0;
 
-    virtual VkResult AllocateMemory(const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
-                                    const VkAllocationCallbacks*                              pAllocator,
-                                    HandlePointerDecoder<VkDeviceMemory>*                     pMemory) = 0;
+    virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
+                                    const VkAllocationCallbacks* allocation_callbacks,
+                                    VkDeviceMemory*              memory,
+                                    MemoryData*                  allocator_data) = 0;
 
-    virtual void FreeMemory(DeviceMemoryInfo* memory_info, const VkAllocationCallbacks* pAllocator) = 0;
+    virtual void
+    FreeMemory(VkDeviceMemory memory, const VkAllocationCallbacks* allocation_callbacks, MemoryData allocator_data) = 0;
 
-    virtual void GetDeviceMemoryCommitment(const DeviceMemoryInfo* memory_info,
-                                           VkDeviceSize*           pCommittedMemoryInBytes) = 0;
+    virtual void GetDeviceMemoryCommitment(VkDeviceMemory memory,
+                                           VkDeviceSize*  committed_memory_in_bytes,
+                                           MemoryData     allocator_data) = 0;
 
-    virtual VkResult
-    BindBufferMemory(BufferInfo* buffer_info, DeviceMemoryInfo* memory_info, VkDeviceSize memoryOffset) = 0;
+    virtual VkResult BindBufferMemory(VkBuffer               buffer,
+                                      VkDeviceMemory         memory,
+                                      VkDeviceSize           memory_offset,
+                                      ResourceData           allocator_buffer_data,
+                                      MemoryData             allocator_memory_data,
+                                      VkMemoryPropertyFlags* bind_memory_properties) = 0;
 
-    virtual VkResult BindBufferMemory2(uint32_t                      bindInfoCount,
-                                       const VkBindBufferMemoryInfo* pBindInfos,
-                                       DeviceMemoryInfo* const*      memory_infos,
-                                       BufferInfo* const*            buffer_infos) = 0;
+    virtual VkResult BindBufferMemory2(uint32_t                      bind_info_count,
+                                       const VkBindBufferMemoryInfo* bind_infos,
+                                       const ResourceData*           allocator_buffer_datas,
+                                       const MemoryData*             allocator_memory_datas,
+                                       VkMemoryPropertyFlags*        bind_memory_properties) = 0;
 
-    virtual VkResult
-    BindImageMemory(ImageInfo* image_info, DeviceMemoryInfo* memory_info, VkDeviceSize memoryOffset) = 0;
+    virtual VkResult BindImageMemory(VkImage                image,
+                                     VkDeviceMemory         memory,
+                                     VkDeviceSize           memory_offset,
+                                     ResourceData           allocator_image_data,
+                                     MemoryData             allocator_memory_data,
+                                     VkMemoryPropertyFlags* bind_memory_properties) = 0;
 
-    virtual VkResult BindImageMemory2(uint32_t                     bindInfoCount,
-                                      const VkBindImageMemoryInfo* pBindInfos,
-                                      DeviceMemoryInfo* const*     memory_infos,
-                                      ImageInfo* const*            image_infos) = 0;
+    virtual VkResult BindImageMemory2(uint32_t                     bind_info_count,
+                                      const VkBindImageMemoryInfo* bind_infos,
+                                      const ResourceData*          allocator_image_datas,
+                                      const MemoryData*            allocator_memory_datas,
+                                      VkMemoryPropertyFlags*       bind_memory_properties) = 0;
 
-    virtual VkResult MapMemory(DeviceMemoryInfo* memory_info,
-                               VkDeviceSize      offset,
-                               VkDeviceSize      size,
-                               VkMemoryMapFlags  flags,
-                               void**            ppData) = 0;
+    virtual VkResult MapMemory(VkDeviceMemory   memory,
+                               VkDeviceSize     offset,
+                               VkDeviceSize     size,
+                               VkMemoryMapFlags flags,
+                               void**           data,
+                               MemoryData       allocator_data) = 0;
 
-    virtual void UnmapMemory(DeviceMemoryInfo* memory_info) = 0;
+    virtual void UnmapMemory(VkDeviceMemory memory, MemoryData allocator_data) = 0;
 
-    virtual VkResult FlushMappedMemoryRanges(uint32_t                   memoryRangeCount,
-                                             const VkMappedMemoryRange* pMemoryRanges,
-                                             DeviceMemoryInfo* const*   memory_infos) = 0;
+    virtual VkResult FlushMappedMemoryRanges(uint32_t                   memory_range_count,
+                                             const VkMappedMemoryRange* memory_ranges,
+                                             const MemoryData*          allocator_datas) = 0;
 
-    virtual VkResult InvalidateMappedMemoryRanges(uint32_t                   memoryRangeCount,
-                                                  const VkMappedMemoryRange* pMemoryRanges,
-                                                  DeviceMemoryInfo* const*   memory_infos) = 0;
+    virtual VkResult InvalidateMappedMemoryRanges(uint32_t                   memory_range_count,
+                                                  const VkMappedMemoryRange* memory_ranges,
+                                                  const MemoryData*          allocator_datas) = 0;
 
-    virtual void WriteMappedMemoryRange(const DeviceMemoryInfo* memory_info,
-                                        uint64_t                offset,
-                                        uint64_t                size,
-                                        const uint8_t*          data) = 0;
+    // Offset is relative to the start of the pointer returned by vkMapMemory.
+    virtual void
+    WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)

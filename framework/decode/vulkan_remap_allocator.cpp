@@ -23,19 +23,24 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VkResult VulkanRemapAllocator::AllocateMemory(const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
-                                              const VkAllocationCallbacks*                              pAllocator,
-                                              HandlePointerDecoder<VkDeviceMemory>*                     pMemory)
+VkResult VulkanRemapAllocator::AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
+                                              const VkAllocationCallbacks* allocation_callbacks,
+                                              VkDeviceMemory*              memory,
+                                              MemoryData*                  allocator_data)
 {
-    const VkMemoryAllocateInfo* capture_allocate_info = pAllocateInfo.GetPointer();
-    VkMemoryAllocateInfo        replay_allocate_info  = *capture_allocate_info;
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
-    replay_allocate_info.memoryTypeIndex = index_map_[capture_allocate_info->memoryTypeIndex];
+    if (allocate_info != nullptr)
+    {
+        VkMemoryAllocateInfo replay_allocate_info = *allocate_info;
 
-    // TODO: Store the new memory type index in the DeviceMemoryInfo structure and add a check at buffer/image bind,
-    // reporting errors when binding to incompatible memory types.
+        replay_allocate_info.memoryTypeIndex = index_map_[allocate_info->memoryTypeIndex];
 
-    return GetFunctions().allocate_memory(GetDevice(), &replay_allocate_info, pAllocator, pMemory->GetHandlePointer());
+        result =
+            VulkanDefaultAllocator::AllocateMemory(&replay_allocate_info, allocation_callbacks, memory, allocator_data);
+    }
+
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(decode)
