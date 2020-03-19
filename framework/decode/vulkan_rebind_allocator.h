@@ -67,6 +67,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                               const VkAllocationCallbacks* allocation_callbacks,
                               ResourceData                 allocator_data) override;
 
+    virtual void GetImageSubresourceLayout(VkImage                    image,
+                                           const VkImageSubresource*  subresource,
+                                           VkSubresourceLayout*       layout,
+                                           const VkSubresourceLayout* original_layout,
+                                           ResourceData               allocator_data) override;
+
     virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,
                                     VkDeviceMemory*              memory,
@@ -123,11 +129,18 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                                   const VkMappedMemoryRange* memory_ranges,
                                                   const MemoryData*          allocator_datas) override;
 
-    virtual void
+    virtual VkResult
     WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
   private:
     struct MemoryAllocInfo;
+
+    struct SubresourceLayouts
+    {
+        VkImageSubresource  subresource{};
+        VkSubresourceLayout original{};
+        VkSubresourceLayout rebind{};
+    };
 
     struct ResourceAllocInfo
     {
@@ -141,6 +154,10 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         bool             is_image{ false };
         VkFlags          usage{ 0 };
         VkImageTiling    tiling{};
+
+        // Image layouts for performing mapped memory writes to linear images with different capture/replay memory
+        // alignments.
+        std::vector<SubresourceLayouts> layouts;
     };
 
     struct MemoryAllocInfo

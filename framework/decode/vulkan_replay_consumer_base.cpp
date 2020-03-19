@@ -20,12 +20,12 @@
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/portability.h"
+#include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
-#include <algorithm>
 #include <cstdint>
 #include <limits>
 #include <unordered_set>
@@ -173,6 +173,8 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
                                                         uint64_t       size,
                                                         const uint8_t* data)
 {
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
     // We need to find the device memory associated with this ID, and then lookup its mapped pointer.
     const DeviceMemoryInfo* memory_info = object_info_table_.GetDeviceMemoryInfo(memory_id);
 
@@ -182,7 +184,7 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 
         if (allocator != nullptr)
         {
-            allocator->WriteMappedMemoryRange(memory_info->allocator_data, offset, size, data);
+            result = allocator->WriteMappedMemoryRange(memory_info->allocator_data, offset, size, data);
         }
         else
         {
@@ -191,19 +193,21 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
                                  memory_id);
         }
     }
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
     else
     {
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
         auto entry = hardware_buffer_memory_info_.find(memory_id);
         if (entry != hardware_buffer_memory_info_.end())
         {
+            result = VK_SUCCESS;
+
             void*                           buffer_data = nullptr;
             const HardwareBufferMemoryInfo& buffer_info = entry->second;
 
-            int result = AHardwareBuffer_lock(
+            int lock_result = AHardwareBuffer_lock(
                 buffer_info.hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr, &buffer_data);
 
-            if (result == 0)
+            if (lock_result == 0)
             {
                 assert(buffer_data != nullptr);
 
@@ -224,62 +228,12 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
                     size_t capture_row_pitch = buffer_info.plane_info[0].capture_row_pitch;
                     size_t replay_row_pitch  = buffer_info.plane_info[0].replay_row_pitch;
 
-                    size_t copy_row_pitch = std::min(capture_row_pitch, replay_row_pitch);
-
-                    size_t start_row  = data_offset / capture_row_pitch;
-                    size_t row_offset = data_offset % capture_row_pitch;
-
-                    if (row_offset >= copy_row_pitch)
-                    {
-                        // When the replay row pitch is smaller than the capture row pitch, and the offset points to
-                        // padding at the end of the row, which is outside the bounds of the replay row pitch, we
-                        // advance to the start of the next row.  If the write was only to the padding, we set both
-                        // row_offset and data_size to zero and don't copy anything.
-                        data_size -= std::min(capture_row_pitch - row_offset, data_size);
-                        row_offset = 0;
-                        ++start_row;
-                    }
-
-                    const uint8_t* copy_src = data;
-                    uint8_t*       copy_dst =
-                        reinterpret_cast<uint8_t*>(buffer_data) + (start_row * replay_row_pitch) + row_offset;
-
-                    // Process first partial row.
-                    if (row_offset > 0)
-                    {
-                        // Handle row with both partial begin and end positions.
-                        size_t copy_size = std::min(copy_row_pitch - row_offset, data_size);
-                        util::platform::MemoryCopy(copy_dst, copy_size, copy_src, copy_size);
-
-                        copy_src += capture_row_pitch - row_offset;
-                        copy_dst += replay_row_pitch - row_offset;
-
-                        data_size -= std::min(capture_row_pitch - row_offset, data_size);
-                    }
-
-                    // Process remaining rows.
-                    if (data_size > 0)
-                    {
-                        size_t total_rows    = data_size / capture_row_pitch;
-                        size_t row_remainder = data_size % capture_row_pitch;
-
-                        // First process the complete rows.
-                        for (size_t i = 0; i < total_rows; ++i)
-                        {
-                            size_t copy_size = copy_row_pitch;
-                            util::platform::MemoryCopy(copy_dst, copy_size, copy_src, copy_size);
-
-                            copy_src += capture_row_pitch;
-                            copy_dst += replay_row_pitch;
-                        }
-
-                        // Process a partial end row.
-                        if (row_remainder != 0)
-                        {
-                            size_t copy_size = std::min(copy_row_pitch, row_remainder);
-                            util::platform::MemoryCopy(copy_dst, copy_size, copy_src, copy_size);
-                        }
-                    }
+                    resource::CopyImageSubresourceMemory(static_cast<uint8_t*>(buffer_data),
+                                                         data,
+                                                         data_offset,
+                                                         data_size,
+                                                         capture_row_pitch,
+                                                         capture_row_pitch);
                 }
                 else
                 {
@@ -290,8 +244,8 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
                                        memory_id);
                 }
 
-                result = AHardwareBuffer_unlock(buffer_info.hardware_buffer, nullptr);
-                if (result != 0)
+                lock_result = AHardwareBuffer_unlock(buffer_info.hardware_buffer, nullptr);
+                if (lock_result != 0)
                 {
                     GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed for AHardwareBuffer object (Memory ID = %" PRIu64
                                        ")",
@@ -304,18 +258,18 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
                                    memory_id);
             }
         }
-        else
+    }
 #endif
-            if (memory_info == nullptr)
-        {
-            GFXRECON_LOG_WARNING("Skipping memory fill for unrecognized VkDeviceMemory object (ID = %" PRIu64 ")",
-                                 memory_id);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Skipping memory fill for VkDeviceMemory object (ID = %" PRIu64 ") that is not mapped",
-                                 memory_id);
-        }
+
+    if (result == VK_ERROR_MEMORY_MAP_FAILED)
+    {
+        GFXRECON_LOG_WARNING("Skipping memory fill for VkDeviceMemory object (ID = %" PRIu64 ") that is not mapped",
+                             memory_id);
+    }
+    else if (result == VK_ERROR_INITIALIZATION_FAILED)
+    {
+        GFXRECON_LOG_WARNING("Skipping memory fill for unrecognized VkDeviceMemory object (ID = %" PRIu64 ")",
+                             memory_id);
     }
 }
 
@@ -1751,6 +1705,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
     functions.create_image                   = device_table->CreateImage;
     functions.destroy_image                  = device_table->DestroyImage;
     functions.get_image_memory_requirements  = device_table->GetImageMemoryRequirements;
+    functions.get_image_subresource_layout   = device_table->GetImageSubresourceLayout;
     functions.bind_image_memory              = device_table->BindImageMemory;
 
     if (device_table->GetBufferMemoryRequirements2 != nullptr)
@@ -2904,6 +2859,28 @@ void VulkanReplayConsumerBase::OverrideDestroyImage(
     assert(allocator != nullptr);
 
     allocator->DestroyImage(image_info->handle, GetAllocationCallbacks(pAllocator), image_info->allocator_data);
+}
+
+void VulkanReplayConsumerBase::OverrideGetImageSubresourceLayout(
+    PFN_vkGetImageSubresourceLayout                         func,
+    const DeviceInfo*                                       device_info,
+    const ImageInfo*                                        image_info,
+    const StructPointerDecoder<Decoded_VkImageSubresource>& pSubresource,
+    StructPointerDecoder<Decoded_VkSubresourceLayout>*      pLayout)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    assert((device_info != nullptr) && (image_info != nullptr) && !pSubresource.IsNull() && (pLayout != nullptr) &&
+           !pLayout->IsNull() && (pLayout->GetOutputPointer() != nullptr));
+
+    auto allocator = device_info->allocator.get();
+    assert(allocator != nullptr);
+
+    allocator->GetImageSubresourceLayout(image_info->handle,
+                                         pSubresource.GetPointer(),
+                                         pLayout->GetOutputPointer(),
+                                         pLayout->GetPointer(),
+                                         image_info->allocator_data);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
