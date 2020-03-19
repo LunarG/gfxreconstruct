@@ -63,6 +63,7 @@ class VulkanResourceAllocator
         PFN_vkDestroyImage                       destroy_image{ nullptr };
         PFN_vkGetImageMemoryRequirements         get_image_memory_requirements{ nullptr };
         PFN_vkGetImageMemoryRequirements2        get_image_memory_requirements2{ nullptr };
+        PFN_vkGetImageSubresourceLayout          get_image_subresource_layout{ nullptr };
         PFN_vkBindImageMemory                    bind_image_memory{ nullptr };
         PFN_vkBindImageMemory2                   bind_image_memory2{ nullptr };
     };
@@ -96,6 +97,12 @@ class VulkanResourceAllocator
 
     virtual void
     DestroyImage(VkImage image, const VkAllocationCallbacks* allocation_callbacks, ResourceData allocator_data) = 0;
+
+    virtual void GetImageSubresourceLayout(VkImage                    image,
+                                           const VkImageSubresource*  subresource,
+                                           VkSubresourceLayout*       layout,
+                                           const VkSubresourceLayout* original_layout,
+                                           ResourceData               allocator_data) = 0;
 
     virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,
@@ -153,7 +160,7 @@ class VulkanResourceAllocator
                                                   const MemoryData*          allocator_datas) = 0;
 
     // Offset is relative to the start of the pointer returned by vkMapMemory.
-    virtual void
+    virtual VkResult
     WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) = 0;
 };
 

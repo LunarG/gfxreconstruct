@@ -442,6 +442,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                               ImageInfo*                                                 image_info,
                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator);
 
+    void OverrideGetImageSubresourceLayout(PFN_vkGetImageSubresourceLayout                         func,
+                                           const DeviceInfo*                                       device_info,
+                                           const ImageInfo*                                        image_info,
+                                           const StructPointerDecoder<Decoded_VkImageSubresource>& pSubresource,
+                                           StructPointerDecoder<Decoded_VkSubresourceLayout>*      pLayout);
+
     VkResult OverrideCreateDescriptorUpdateTemplate(
         PFN_vkCreateDescriptorUpdateTemplate                                      func,
         VkResult                                                                  original_result,

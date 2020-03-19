@@ -732,12 +732,11 @@ void VulkanReplayConsumer::Process_vkGetImageSubresourceLayout(
     const StructPointerDecoder<Decoded_VkImageSubresource>& pSubresource,
     StructPointerDecoder<Decoded_VkSubresourceLayout>* pLayout)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkImage in_image = MapHandle<ImageInfo>(image, &VulkanObjectInfoTable::GetImageInfo);
-    const VkImageSubresource* in_pSubresource = pSubresource.GetPointer();
-    VkSubresourceLayout* out_pLayout = pLayout->AllocateOutputData(1);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_image = GetObjectInfoTable().GetImageInfo(image);
+    pLayout->AllocateOutputData(1);
 
-    GetDeviceTable(in_device)->GetImageSubresourceLayout(in_device, in_image, in_pSubresource, out_pLayout);
+    OverrideGetImageSubresourceLayout(GetDeviceTable(in_device->handle)->GetImageSubresourceLayout, in_device, in_image, pSubresource, pLayout);
 }
 
 void VulkanReplayConsumer::Process_vkCreateImageView(
