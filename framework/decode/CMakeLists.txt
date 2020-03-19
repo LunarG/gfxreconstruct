@@ -22,6 +22,8 @@ target_sources(gfxrecon_decode
                    pointer_decoder.h
                    portability.h
                    portability.cpp
+                   resource_util.h
+                   resource_util.cpp
                    string_array_decoder.h
                    string_decoder.h
                    struct_pointer_decoder.h

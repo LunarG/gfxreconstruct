@@ -88,6 +88,17 @@ void VulkanDefaultAllocator::DestroyImage(VkImage                      image,
     functions_.destroy_image(device_, image, allocation_callbacks);
 }
 
+void VulkanDefaultAllocator::GetImageSubresourceLayout(VkImage                    image,
+                                                       const VkImageSubresource*  subresource,
+                                                       VkSubresourceLayout*       layout,
+                                                       const VkSubresourceLayout* original_layout,
+                                                       ResourceData               allocator_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_layout);
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_data);
+    functions_.get_image_subresource_layout(device_, image, subresource, layout);
+}
+
 VkResult VulkanDefaultAllocator::AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                                 const VkAllocationCallbacks* allocation_callbacks,
                                                 VkDeviceMemory*              memory,
@@ -292,20 +303,34 @@ VkResult VulkanDefaultAllocator::InvalidateMappedMemoryRanges(uint32_t          
     return functions_.invalidate_memory_ranges(device_, memory_range_count, memory_ranges);
 }
 
-void VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator_data,
-                                                    uint64_t       offset,
-                                                    uint64_t       size,
-                                                    const uint8_t* data)
+VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator_data,
+                                                        uint64_t       offset,
+                                                        uint64_t       size,
+                                                        const uint8_t* data)
 {
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
     if (allocator_data != 0)
     {
-        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-
-        size_t copy_size         = static_cast<size_t>(size);
         auto   memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
 
-        util::platform::MemoryCopy(memory_alloc_info->mapped_pointer + offset, copy_size, data, copy_size);
+        if (memory_alloc_info->mapped_pointer != nullptr)
+        {
+            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+
+            size_t copy_size = static_cast<size_t>(size);
+
+            util::platform::MemoryCopy(memory_alloc_info->mapped_pointer + offset, copy_size, data, copy_size);
+
+            result = VK_SUCCESS;
+        }
+        else
+        {
+            result = VK_ERROR_MEMORY_MAP_FAILED;
+        }
     }
+
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(decode)

@@ -22,6 +22,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/portability.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/portability.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/resource_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/resource_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/string_array_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/string_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/struct_pointer_decoder.h

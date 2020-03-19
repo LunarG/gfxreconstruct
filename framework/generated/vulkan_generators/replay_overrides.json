@@ -31,6 +31,7 @@
     "vkDestroyBuffer": "OverrideDestroyBuffer",
     "vkCreateImage": "OverrideCreateImage",
     "vkDestroyImage": "OverrideDestroyImage",
+    "vkGetImageSubresourceLayout" : "OverrideGetImageSubresourceLayout",
     "vkCreatePipelineCache": "OverrideCreatePipelineCache",
     "vkCreateDescriptorUpdateTemplate": "OverrideCreateDescriptorUpdateTemplate",
     "vkCreateDescriptorUpdateTemplateKHR": "OverrideCreateDescriptorUpdateTemplate",
