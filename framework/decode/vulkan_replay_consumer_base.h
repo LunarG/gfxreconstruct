@@ -461,6 +461,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                  const DescriptorUpdateTemplateInfo*   descriptor_update_template_info,
                                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator);
 
+    VkResult OverrideCreateShaderModule(PFN_vkCreateShaderModule                                      func,
+                                        VkResult                                                      original_result,
+                                        const DeviceInfo*                                             device_info,
+                                        const StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>& pCreateInfo,
+                                        const StructPointerDecoder<Decoded_VkAllocationCallbacks>&    pAllocator,
+                                        HandlePointerDecoder<VkShaderModule>*                         pShaderModule);
+
     VkResult OverrideCreatePipelineCache(PFN_vkCreatePipelineCache                                      func,
                                          VkResult                                                       original_result,
                                          const DeviceInfo*                                              device_info,
@@ -623,6 +630,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void ProcessSwapchainFullScreenExclusiveInfo(Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
 
     void ProcessImportAndroidHardwareBufferInfo(Decoded_VkMemoryAllocateInfo* allocate_info);
+
+    uint32_t CheckSum(const uint32_t* pCode, size_t pSize);
 
   private:
     struct InstanceDevices
