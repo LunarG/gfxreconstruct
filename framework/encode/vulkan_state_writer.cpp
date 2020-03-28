@@ -770,10 +770,32 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
     state_table.VisitWrappers([&](const SwapchainKHRWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        WriteResizeWindowCmd(wrapper->surface->handle_id, wrapper->extent.width, wrapper->extent.height);
+        const SurfaceKHRWrapper* surface_wrapper = wrapper->surface;
+        assert(surface_wrapper != nullptr);
+
+        WriteResizeWindowCmd(surface_wrapper->handle_id, wrapper->extent.width, wrapper->extent.height);
 
         // Write swapchain creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+
+        // Write the query for swapchain image count.
+        uint32_t image_count = static_cast<uint32_t>(wrapper->child_images.size());
+
+        if (image_count > 0)
+        {
+            const DeviceWrapper* device_wrapper = wrapper->device;
+            assert(device_wrapper != nullptr);
+
+            const VkResult result = VK_SUCCESS;
+            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            encoder_.EncodeUInt32Ptr(&image_count, false);
+            encoder_.EncodeHandleIdArray(nullptr, 0, false);
+            encoder_.EncodeEnumValue(result);
+
+            WriteFunctionCall(format::ApiCallId::ApiCall_vkGetSwapchainImagesKHR, &parameter_stream_);
+            parameter_stream_.Reset();
+        }
     });
 }
 
@@ -1322,10 +1344,24 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
 
         if (memory_wrapper != nullptr)
         {
-            assert(wrapper->bind_device != nullptr);
-
             const DeviceWrapper* device_wrapper = wrapper->bind_device;
+            const DeviceTable*   device_table   = &device_wrapper->layer_table;
 
+            assert((device_wrapper != nullptr) && (device_table != nullptr));
+
+            // Write memory requirements query before bind command.
+            VkMemoryRequirements memory_requirements;
+
+            device_table->GetBufferMemoryRequirements(device_wrapper->handle, wrapper->handle, &memory_requirements);
+
+            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            EncodeStructPtr(&encoder_, &memory_requirements);
+
+            WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
+            parameter_stream_.Reset();
+
+            // Write memory bind command.
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
             encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
@@ -1375,10 +1411,24 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
 
         if (memory_wrapper != nullptr)
         {
-            assert(wrapper->bind_device != nullptr);
-
             const DeviceWrapper* device_wrapper = wrapper->bind_device;
+            const DeviceTable*   device_table   = &device_wrapper->layer_table;
 
+            assert((device_wrapper != nullptr) && (device_table != nullptr));
+
+            // Write memory requirements query before bind command.
+            VkMemoryRequirements memory_requirements;
+
+            device_table->GetImageMemoryRequirements(device_wrapper->handle, wrapper->handle, &memory_requirements);
+
+            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            EncodeStructPtr(&encoder_, &memory_requirements);
+
+            WriteFunctionCall(format::ApiCall_vkGetImageMemoryRequirements, &parameter_stream_);
+            parameter_stream_.Reset();
+
+            // Write memory bind command.
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
             encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
@@ -1400,7 +1450,6 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
             // layouts, no data could have been loaded into it and its data will be omitted from the state snapshot.
             if (is_transitioned || is_writable)
             {
-
                 // Group images with memory bindings by device for memory snapshot.
                 ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
                 ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
@@ -1408,7 +1457,8 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                 bool need_staging_copy = !IsImageReadable(memory_properties, memory_wrapper, wrapper);
 
                 std::vector<VkImageAspectFlagBits> aspects;
-                GetFormatAspects(wrapper->format, &aspects);
+                bool                               combined_depth_stencil;
+                GetFormatAspects(wrapper->format, &aspects, &combined_depth_stencil);
 
                 for (auto aspect : aspects)
                 {
@@ -1433,10 +1483,65 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                     }
 
                     snapshot_entry.images.emplace_back(snapshot_info);
+
+                    // Write image subresource layout queries for linear/host-visible images.
+                    if (is_writable)
+                    {
+                        VkImageAspectFlags aspect_flags = aspect;
+
+                        if (!combined_depth_stencil)
+                        {
+                            WriteImageSubresourceLayouts(wrapper, aspect_flags);
+                        }
+                        else
+                        {
+                            // Specify combined depth-stencil aspect flags for combined depth-stencil formats when
+                            // processing the depth aspect, while skipping image subresource layout query for
+                            // stencil aspect.
+                            if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
+                            {
+                                aspect_flags = GetFormatAspectMask(wrapper->format);
+                                WriteImageSubresourceLayouts(wrapper, aspect_flags);
+                            }
+                        }
+                    }
                 }
             }
         }
     });
+}
+
+void VulkanStateWriter::WriteImageSubresourceLayouts(const ImageWrapper* image_wrapper, VkImageAspectFlags aspect_flags)
+{
+    assert((image_wrapper != nullptr) && (aspect_flags != 0));
+
+    const DeviceWrapper* device_wrapper = image_wrapper->bind_device;
+    const DeviceTable*   device_table   = &device_wrapper->layer_table;
+
+    assert((device_wrapper != nullptr) && (device_table != nullptr));
+
+    for (uint32_t layer = 0; layer < image_wrapper->array_layers; ++layer)
+    {
+        for (uint32_t level = 0; level < image_wrapper->mip_levels; ++level)
+        {
+            VkSubresourceLayout layout = {};
+            VkImageSubresource  subresource;
+            subresource.aspectMask = aspect_flags;
+            subresource.mipLevel   = level;
+            subresource.arrayLayer = layer;
+
+            device_table->GetImageSubresourceLayout(
+                device_wrapper->handle, image_wrapper->handle, &subresource, &layout);
+
+            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+            encoder_.EncodeHandleIdValue(image_wrapper->handle_id);
+            EncodeStructPtr(&encoder_, &subresource);
+            EncodeStructPtr(&encoder_, &layout);
+
+            WriteFunctionCall(format::ApiCall_vkGetImageSubresourceLayout, &parameter_stream_);
+            parameter_stream_.Reset();
+        }
+    }
 }
 
 void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_table)
@@ -2886,9 +2991,13 @@ VkImageAspectFlags VulkanStateWriter::GetFormatAspectMask(VkFormat format)
     }
 }
 
-void VulkanStateWriter::GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects)
+void VulkanStateWriter::GetFormatAspects(VkFormat                            format,
+                                         std::vector<VkImageAspectFlagBits>* aspects,
+                                         bool*                               combined_depth_stencil)
 {
-    assert(aspects != nullptr);
+    assert((aspects != nullptr) && (combined_depth_stencil != nullptr));
+
+    (*combined_depth_stencil) = false;
 
     switch (format)
     {
@@ -2897,6 +3006,7 @@ void VulkanStateWriter::GetFormatAspects(VkFormat format, std::vector<VkImageAsp
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
             aspects->push_back(VK_IMAGE_ASPECT_DEPTH_BIT);
             aspects->push_back(VK_IMAGE_ASPECT_STENCIL_BIT);
+            (*combined_depth_stencil) = true;
             break;
         case VK_FORMAT_D16_UNORM:
         case VK_FORMAT_X8_D24_UNORM_PACK32:
