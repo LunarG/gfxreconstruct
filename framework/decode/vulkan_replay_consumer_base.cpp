@@ -22,6 +22,7 @@
 #include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
+#include "util/file_path.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
@@ -3058,6 +3059,65 @@ void VulkanReplayConsumerBase::OverrideDestroyDescriptorUpdateTemplate(
     }
 
     func(device, descriptor_update_template, GetAllocationCallbacks(pAllocator));
+}
+
+uint32_t VulkanReplayConsumerBase::CheckSum(const uint32_t* code, size_t code_size)
+{
+    uint32_t sum            = 0;
+    size_t   uint_code_size = code_size / sizeof(uint32_t);
+    for (size_t i = 0; i < uint_code_size; i++)
+    {
+        uint32_t u = code[i];
+        uint32_t s = i % 32;
+        sum ^= (u << s) | (u >> (32 - s));
+    }
+    return sum;
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
+    PFN_vkCreateShaderModule                                      func,
+    VkResult                                                      original_result,
+    const DeviceInfo*                                             device_info,
+    const StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>& pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>&    pAllocator,
+    HandlePointerDecoder<VkShaderModule>*                         pShaderModule)
+{
+    assert((device_info != nullptr) && !pCreateInfo.IsNull() && (pShaderModule != nullptr) && !pShaderModule->IsNull());
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    const VkShaderModuleCreateInfo* original_info = pCreateInfo.GetPointer();
+    if (options_.replace_dir.empty())
+    {
+        return func(
+            device_info->handle, original_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
+    }
+
+    VkShaderModuleCreateInfo override_info = *original_info;
+
+    // Replace shader in 'override_info'
+    std::unique_ptr<char[]> file_code;
+    const uint32_t*         orig_code = pCreateInfo.GetPointer()->pCode;
+    size_t                  orig_size = pCreateInfo.GetPointer()->codeSize;
+    uint32_t                check_sum = CheckSum(orig_code, orig_size);
+    std::string             file_name = "sh" + std::to_string(check_sum);
+    std::string             file_path = util::filepath::Join(options_.replace_dir, file_name);
+
+    FILE*   fp     = nullptr;
+    int32_t result = util::platform::FileOpen(&fp, file_path.c_str(), "rb");
+    if (result == 0)
+    {
+        util::platform::FileSeek(fp, 0L, util::platform::FileSeekEnd);
+        size_t file_size = static_cast<size_t>(util::platform::FileTell(fp));
+        file_code        = std::make_unique<char[]>(file_size);
+        util::platform::FileSeek(fp, 0L, util::platform::FileSeekSet);
+        util::platform::FileRead(file_code.get(), sizeof(char), file_size, fp);
+        override_info.pCode    = (uint32_t*)file_code.get();
+        override_info.codeSize = file_size;
+        GFXRECON_LOG_INFO("Replacement shader found: %s", file_path.c_str());
+    }
+
+    return func(
+        device_info->handle, &override_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
