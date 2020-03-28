@@ -153,6 +153,8 @@ class VulkanStateWriter
                                VkDeviceSize*           max_resource_size,
                                VkDeviceSize*           max_staging_copy_size);
 
+    void WriteImageSubresourceLayouts(const ImageWrapper* image_wrapper, VkImageAspectFlags aspect_flags);
+
     void WriteResourceMemoryState(const VulkanStateTable& state_table);
 
     void WriteMappedMemoryState(const VulkanStateTable& state_table);
@@ -302,7 +304,7 @@ class VulkanStateWriter
 
     VkImageAspectFlags GetFormatAspectMask(VkFormat format);
 
-    void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects);
+    void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects, bool* combined_depth_stencil);
 
     VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect);
 
