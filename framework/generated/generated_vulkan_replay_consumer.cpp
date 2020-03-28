@@ -777,16 +777,16 @@ void VulkanReplayConsumer::Process_vkCreateShaderModule(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>& pAllocator,
     HandlePointerDecoder<VkShaderModule>*       pShaderModule)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    const VkShaderModuleCreateInfo* in_pCreateInfo = pCreateInfo.GetPointer();
-    MapStructHandles(pCreateInfo.GetMetaStructPointer(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-    VkShaderModule* out_pShaderModule = pShaderModule->GetHandlePointer();
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateShaderModule(in_device, in_pCreateInfo, in_pAllocator, out_pShaderModule);
+    MapStructHandles(pCreateInfo.GetMetaStructPointer(), GetObjectInfoTable());
+    ShaderModuleInfo handle_info;
+    pShaderModule->SetConsumerData(0, &handle_info);
+
+    VkResult replay_result = OverrideCreateShaderModule(GetDeviceTable(in_device->handle)->CreateShaderModule, returnValue, in_device, pCreateInfo, pAllocator, pShaderModule);
     CheckResult("vkCreateShaderModule", returnValue, replay_result);
 
-    AddHandle<ShaderModuleInfo>(pShaderModule->GetPointer(), out_pShaderModule, &VulkanObjectInfoTable::AddShaderModuleInfo);
+    AddHandle<ShaderModuleInfo>(pShaderModule->GetPointer(), pShaderModule->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::AddShaderModuleInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyShaderModule(

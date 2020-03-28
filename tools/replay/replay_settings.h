@@ -44,9 +44,10 @@ const char kOmitPipelineCacheDataShortOption[] = "--opcd";
 const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
 const char kMemoryPortabilityShortOption[]     = "-m";
 const char kMemoryPortabilityLongOption[]      = "--memory-translation";
+const char kShaderReplaceArgument[]            = "--replace-shaders";
 
 const char kOptions[]   = "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
-const char kArguments[] = "--gpu,--pause-frame,-m|--memory-translation";
+const char kArguments[] = "--gpu,--pause-frame,-m|--memory-translation,--replace-shaders";
 
 const char kMemoryTranslationNone[]   = "none";
 const char kMemoryTranslationRemap[]  = "remap";
@@ -147,6 +148,7 @@ static gfxrecon::decode::ReplayOptions GetReplayOptions(const gfxrecon::util::Ar
     }
 
     replay_options.create_resource_allocator = GetCreateResourceAllocatorFunc(arg_parser);
+    replay_options.replace_dir               = arg_parser.GetArgumentValue(kShaderReplaceArgument);
 
     return replay_options;
 }
@@ -187,6 +189,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s\t[--version] [--gpu <index>] [--pause-frame <N>]", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("\t\t\t[--paused] [--sfa | --skip-failed-allocations]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>] <file>\n");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
@@ -204,6 +207,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --sfa\t\t\tSkip vkAllocateMemory, vkAllocateCommandBuffers, and");
     GFXRECON_WRITE_CONSOLE("       \t\t\tvkAllocateDescriptorSets calls that failed during");
     GFXRECON_WRITE_CONSOLE("       \t\t\tcapture (same as --skip-failed-allocations).");
+    GFXRECON_WRITE_CONSOLE("  --replace-shaders <dir> Replace the shader code in each CreateShaderModule");
+    GFXRECON_WRITE_CONSOLE("       \t\t\twith the contents of the file <dir>/sh<hash> if found, where ");
+    GFXRECON_WRITE_CONSOLE("       \t\t\t<hash> is the xor sum of the original shader code.");
     GFXRECON_WRITE_CONSOLE("  --opcd\t\tOmit pipeline cache data from calls to");
     GFXRECON_WRITE_CONSOLE("        \t\tvkCreatePipelineCache (same as --omit-pipeline-cache-data).");
     GFXRECON_WRITE_CONSOLE("  -m <mode>\t\tEnable memory translation for replay on GPUs with memory");
