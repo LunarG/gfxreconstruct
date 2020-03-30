@@ -123,7 +123,6 @@ void android_main(struct android_app* app)
 
                     app->userData = application.get();
                     application->Run();
-                    app->userData = nullptr;
                 }
             }
         }
@@ -135,6 +134,9 @@ void android_main(struct android_app* app)
         {
             GFXRECON_WRITE_CONSOLE("Replay failed due to an unhandled exception");
         }
+
+        // Ensure user data is cleared after either a successful run or an exception.
+        app->userData = nullptr;
     }
 
     gfxrecon::util::Log::Release();
