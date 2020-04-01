@@ -2379,14 +2379,11 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 #endif
 
         VulkanResourceAllocator::MemoryData allocator_data;
+        const VkMemoryAllocateInfo*         replay_allocate_info = pAllocateInfo.GetPointer();
+        auto                                replay_memory        = pMemory->GetHandlePointer();
 
-        result = allocator->AllocateMemory(pAllocateInfo.GetPointer(),
-                                           GetAllocationCallbacks(pAllocator),
-                                           pMemory->GetHandlePointer(),
-                                           &allocator_data);
-
-        const VkMemoryAllocateInfo* replay_allocate_info = pAllocateInfo.GetPointer();
-        auto                        replay_memory        = pMemory->GetHandlePointer();
+        result = allocator->AllocateMemory(
+            replay_allocate_info, GetAllocationCallbacks(pAllocator), replay_memory, &allocator_data);
 
         if ((result == VK_SUCCESS) && (replay_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
         {
@@ -2395,6 +2392,12 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
             memory_info->allocator      = allocator;
             memory_info->allocator_data = allocator_data;
+        }
+        else if (original_result == VK_SUCCESS)
+        {
+            // When memory allocation fails at replay, but succeeded at capture, check for memory incompatibilities and
+            // recommend enabling memory translation.
+            allocator->ReportAllocateMemoryIncompatibility(replay_allocate_info);
         }
     }
     else
@@ -2548,6 +2551,13 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
         buffer_info->memory_allocator_data = memory_info->allocator_data;
         buffer_info->bind_offset           = memoryOffset;
     }
+    else if (original_result == VK_SUCCESS)
+    {
+        // When bind fails at replay, but succeeded at capture, check for memory incompatibilities and recommend
+        // enabling memory translation.
+        allocator->ReportBindBufferIncompatibility(
+            buffer_info->handle, buffer_info->allocator_data, memory_info->allocator_data);
+    }
 
     return result;
 }
@@ -2622,6 +2632,13 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory2(
             }
         }
     }
+    else if (original_result == VK_SUCCESS)
+    {
+        // When bind fails at replay, but succeeded at capture, check for memory incompatibilities and recommend
+        // enabling memory translation.
+        allocator->ReportBindBuffer2Incompatibility(
+            bindInfoCount, replay_bind_infos, allocator_buffer_datas.data(), allocator_memory_datas.data());
+    }
 
     return result;
 }
@@ -2653,6 +2670,13 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
         image_info->memory                = memory_info->handle;
         image_info->memory_allocator_data = memory_info->allocator_data;
         image_info->bind_offset           = memoryOffset;
+    }
+    else if (original_result == VK_SUCCESS)
+    {
+        // When bind fails at replay, but succeeded at capture, check for memory incompatibilities and recommend
+        // enabling memory translation.
+        allocator->ReportBindImageIncompatibility(
+            image_info->handle, image_info->allocator_data, memory_info->allocator_data);
     }
 
     return result;
@@ -2725,6 +2749,13 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
             image_info->memory_allocator_data = memory_info->allocator_data;
             image_info->memory_property_flags = memory_property_flags[i];
         }
+    }
+    else if (original_result == VK_SUCCESS)
+    {
+        // When bind fails at replay, but succeeded at capture, check for memory incompatibilities and recommend
+        // enabling memory translation.
+        allocator->ReportBindImage2Incompatibility(
+            bindInfoCount, replay_bind_infos, allocator_image_datas.data(), allocator_memory_datas.data());
     }
 
     return result;
