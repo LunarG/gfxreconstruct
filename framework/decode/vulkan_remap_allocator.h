@@ -30,6 +30,10 @@ class VulkanRemapAllocator : public VulkanDefaultAllocator
   public:
     VulkanRemapAllocator() {}
 
+    VulkanRemapAllocator(const std::string& custom_error_string) : VulkanDefaultAllocator(custom_error_string) {}
+
+    VulkanRemapAllocator(std::string&& custom_error_string) : VulkanDefaultAllocator(std::move(custom_error_string)) {}
+
     virtual VkResult Initialize(uint32_t                                api_version,
                                 VkInstance                              instance,
                                 VkPhysicalDevice                        physical_device,

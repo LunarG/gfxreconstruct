@@ -45,7 +45,12 @@ VkResult VulkanRemapAllocator::Initialize(uint32_t                              
                                        replay_memory_properties,
                                        functions);
 
-    if (portability::CheckMemoryTypeCompatibility(capture_memory_properties, replay_memory_properties, false))
+    if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties.memoryTypeCount == 0))
+    {
+        GFXRECON_LOG_FATAL("Capture file does not contain physical device memory properties and cannot be used with "
+                           "memory translation.");
+    }
+    else if (portability::CheckMemoryTypeCompatibility(capture_memory_properties, replay_memory_properties, false))
     {
         // One-to-one mapping when all memory types match.
         for (uint32_t i = 0; i < replay_memory_properties.memoryTypeCount; ++i)
@@ -72,9 +77,9 @@ VkResult VulkanRemapAllocator::Initialize(uint32_t                              
         else
         {
             GFXRECON_LOG_FATAL(
-                "Failed to find valid memory type mappings for replay when using the \"-m remap\" option");
+                "Failed to find valid memory type mappings for replay when using the \"-m remap\" option.");
             GFXRECON_LOG_FATAL(
-                "Try replay with rebind memory translation enabled via the \"-m rebind\" option instead");
+                "Try replay with rebind memory translation enabled via the \"-m rebind\" option instead.");
         }
     }
 
@@ -88,14 +93,13 @@ VkResult VulkanRemapAllocator::AllocateMemory(const VkMemoryAllocateInfo*  alloc
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
-    if (allocate_info != nullptr)
+    if ((allocate_info != nullptr) && (allocator_data != nullptr))
     {
         VkMemoryAllocateInfo replay_allocate_info = *allocate_info;
 
         replay_allocate_info.memoryTypeIndex = index_map_[allocate_info->memoryTypeIndex];
 
-        result =
-            VulkanDefaultAllocator::AllocateMemory(&replay_allocate_info, allocation_callbacks, memory, allocator_data);
+        result = Allocate(&replay_allocate_info, allocation_callbacks, memory, allocator_data);
     }
 
     return result;
