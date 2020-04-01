@@ -55,7 +55,12 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
-    if (allocator_ == VK_NULL_HANDLE)
+    if ((capture_memory_properties.memoryTypeCount == 0) || (replay_memory_properties.memoryTypeCount == 0))
+    {
+        GFXRECON_LOG_FATAL("Capture file does not contain physical device memory properties and cannot be used with "
+                           "memory translation.");
+    }
+    else if (allocator_ == VK_NULL_HANDLE)
     {
         device_                    = device;
         functions_                 = functions;
@@ -164,6 +169,11 @@ VkResult VulkanRebindAllocator::CreateBuffer(const VkBufferCreateInfo*    create
             resource_alloc_info->usage    = create_info->usage;
             resource_alloc_info->is_image = false;
             (*allocator_data)             = reinterpret_cast<uintptr_t>(resource_alloc_info);
+
+            if (create_info->pNext != nullptr)
+            {
+                resource_alloc_info->uses_extensions = true;
+            }
         }
     }
 
@@ -219,6 +229,11 @@ VkResult VulkanRebindAllocator::CreateImage(const VkImageCreateInfo*     create_
             resource_alloc_info->tiling   = create_info->tiling;
             resource_alloc_info->is_image = true;
             (*allocator_data)             = reinterpret_cast<uintptr_t>(resource_alloc_info);
+
+            if (create_info->pNext != nullptr)
+            {
+                resource_alloc_info->uses_extensions = true;
+            }
         }
     }
 
@@ -788,6 +803,55 @@ VkResult VulkanRebindAllocator::WriteMappedMemoryRange(MemoryData     allocator_
     return result;
 }
 
+void VulkanRebindAllocator::ReportAllocateMemoryIncompatibility(const VkMemoryAllocateInfo* allocate_info)
+{
+    // The rebind allocator defers allocation until bind and always returns success from vkAllocateMemory, so has no
+    // incompatibility to check for.
+    GFXRECON_UNREFERENCED_PARAMETER(allocate_info);
+}
+
+void VulkanRebindAllocator::ReportBindBufferIncompatibility(VkBuffer     buffer,
+                                                            ResourceData allocator_resource_data,
+                                                            MemoryData   allocator_memory_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(buffer);
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_memory_data);
+
+    ReportBindIncompatibility(&allocator_resource_data, 1);
+}
+
+void VulkanRebindAllocator::ReportBindBuffer2Incompatibility(uint32_t                      bind_info_count,
+                                                             const VkBindBufferMemoryInfo* bind_infos,
+                                                             const ResourceData*           allocator_resource_datas,
+                                                             const MemoryData*             allocator_memory_datas)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(bind_infos);
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_memory_datas);
+
+    ReportBindIncompatibility(allocator_resource_datas, bind_info_count);
+}
+
+void VulkanRebindAllocator::ReportBindImageIncompatibility(VkImage      image,
+                                                           ResourceData allocator_resource_data,
+                                                           MemoryData   allocator_memory_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(image);
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_memory_data);
+
+    ReportBindIncompatibility(&allocator_resource_data, 1);
+}
+
+void VulkanRebindAllocator::ReportBindImage2Incompatibility(uint32_t                     bind_info_count,
+                                                            const VkBindImageMemoryInfo* bind_infos,
+                                                            const ResourceData*          allocator_resource_datas,
+                                                            const MemoryData*            allocator_memory_datas)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(bind_infos);
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_memory_datas);
+
+    ReportBindIncompatibility(allocator_resource_datas, bind_info_count);
+}
+
 void VulkanRebindAllocator::WriteBoundResource(ResourceAllocInfo* resource_alloc_info,
                                                VkDeviceSize       src_offset,
                                                VkDeviceSize       dst_offset,
@@ -1203,6 +1267,29 @@ VmaMemoryUsage VulkanRebindAllocator::AdjustMemoryUsage(VmaMemoryUsage          
     }
 
     return memory_usage;
+}
+
+void VulkanRebindAllocator::ReportBindIncompatibility(const ResourceData* allocator_resource_datas,
+                                                      uint32_t            resource_count)
+{
+    assert(allocator_resource_datas != nullptr);
+
+    for (uint32_t i = 0; i < resource_count; ++i)
+    {
+        auto allocator_resource_data = allocator_resource_datas[i];
+
+        if (allocator_resource_data != 0)
+        {
+            auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_resource_data);
+
+            if (resource_alloc_info->uses_extensions)
+            {
+                GFXRECON_LOG_FATAL("Resource memory bind failed: resource was created with an extension that may not "
+                                   "be supported by memory rebind translation.");
+                break;
+            }
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

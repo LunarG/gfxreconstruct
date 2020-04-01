@@ -20,6 +20,8 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "util/defines.h"
 
+#include <limits>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -27,6 +29,10 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
 {
   public:
     VulkanDefaultAllocator();
+
+    VulkanDefaultAllocator(const std::string& custom_error_string);
+
+    VulkanDefaultAllocator(std::string&& custom_error_string);
 
     virtual VkResult Initialize(uint32_t                                api_version,
                                 VkInstance                              instance,
@@ -122,17 +128,50 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
     virtual VkResult
     WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
+    virtual void ReportAllocateMemoryIncompatibility(const VkMemoryAllocateInfo* allocate_info) override;
+
+    virtual void ReportBindBufferIncompatibility(VkBuffer     buffer,
+                                                 ResourceData allocator_resource_data,
+                                                 MemoryData   allocator_memory_data) override;
+
+    virtual void ReportBindBuffer2Incompatibility(uint32_t                      bind_info_count,
+                                                  const VkBindBufferMemoryInfo* bind_infos,
+                                                  const ResourceData*           allocator_resource_datas,
+                                                  const MemoryData*             allocator_memory_datas) override;
+
+    virtual void ReportBindImageIncompatibility(VkImage      image,
+                                                ResourceData allocator_resource_data,
+                                                MemoryData   allocator_memory_data) override;
+
+    virtual void ReportBindImage2Incompatibility(uint32_t                     bind_info_count,
+                                                 const VkBindImageMemoryInfo* bind_infos,
+                                                 const ResourceData*          allocator_resource_datas,
+                                                 const MemoryData*            allocator_memory_datas) override;
+
+  protected:
+    VkResult Allocate(const VkMemoryAllocateInfo*  allocate_info,
+                      const VkAllocationCallbacks* allocation_callbacks,
+                      VkDeviceMemory*              memory,
+                      MemoryData*                  allocator_data);
+
   private:
     struct MemoryAllocInfo
     {
+        uint32_t              memory_type_index{ std::numeric_limits<uint32_t>::max() };
         VkMemoryPropertyFlags property_flags{ 0 };
         uint8_t*              mapped_pointer{ nullptr };
     };
 
   private:
+    void ReportBindIncompatibility(const VkMemoryRequirements* requirements,
+                                   const MemoryData*           allocator_memory_datas,
+                                   uint32_t                    resource_count);
+
+  private:
     VkDevice                         device_;
     Functions                        functions_;
     VkPhysicalDeviceMemoryProperties memory_properties_;
+    std::string                      custom_error_string_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

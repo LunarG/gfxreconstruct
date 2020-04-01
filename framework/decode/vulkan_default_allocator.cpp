@@ -26,6 +26,14 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanDefaultAllocator::VulkanDefaultAllocator() : device_(VK_NULL_HANDLE) {}
 
+VulkanDefaultAllocator::VulkanDefaultAllocator(const std::string& custom_error_string) :
+    device_(VK_NULL_HANDLE), custom_error_string_(custom_error_string)
+{}
+
+VulkanDefaultAllocator::VulkanDefaultAllocator(std::string&& custom_error_string) :
+    device_(VK_NULL_HANDLE), custom_error_string_(std::move(custom_error_string))
+{}
+
 VkResult VulkanDefaultAllocator::Initialize(uint32_t                                api_version,
                                             VkInstance                              instance,
                                             VkPhysicalDevice                        physical_device,
@@ -108,17 +116,7 @@ VkResult VulkanDefaultAllocator::AllocateMemory(const VkMemoryAllocateInfo*  all
 
     if ((allocate_info != nullptr) && (allocator_data != nullptr))
     {
-        result = functions_.allocate_memory(device_, allocate_info, allocation_callbacks, memory);
-
-        if (result >= 0)
-        {
-            assert(allocate_info->memoryTypeIndex < memory_properties_.memoryTypeCount);
-
-            auto memory_alloc_info = new MemoryAllocInfo;
-            memory_alloc_info->property_flags =
-                memory_properties_.memoryTypes[allocate_info->memoryTypeIndex].propertyFlags;
-            (*allocator_data) = reinterpret_cast<uintptr_t>(memory_alloc_info);
-        }
+        result = Allocate(allocate_info, allocation_callbacks, memory, allocator_data);
     }
 
     return result;
@@ -312,7 +310,7 @@ VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator
 
     if (allocator_data != 0)
     {
-        auto   memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+        auto memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
 
         if (memory_alloc_info->mapped_pointer != nullptr)
         {
@@ -328,6 +326,142 @@ VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator
         {
             result = VK_ERROR_MEMORY_MAP_FAILED;
         }
+    }
+
+    return result;
+}
+
+void VulkanDefaultAllocator::ReportAllocateMemoryIncompatibility(const VkMemoryAllocateInfo* allocate_info)
+{
+    if ((allocate_info != nullptr) && (allocate_info->memoryTypeIndex >= memory_properties_.memoryTypeCount))
+    {
+        GFXRECON_LOG_FATAL(
+            "Memory allocation failed: specified memory type index exceeds number of available memory types.");
+
+        if (!custom_error_string_.empty())
+        {
+            GFXRECON_LOG_FATAL("%s", custom_error_string_.c_str());
+        }
+    }
+}
+
+void VulkanDefaultAllocator::ReportBindBufferIncompatibility(VkBuffer     buffer,
+                                                             ResourceData allocator_resource_data,
+                                                             MemoryData   allocator_memory_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_resource_data);
+
+    if (allocator_memory_data != 0)
+    {
+        VkMemoryRequirements requirements;
+        functions_.get_buffer_memory_requirements(device_, buffer, &requirements);
+        ReportBindIncompatibility(&requirements, &allocator_memory_data, 1);
+    }
+}
+
+void VulkanDefaultAllocator::ReportBindBuffer2Incompatibility(uint32_t                      bind_info_count,
+                                                              const VkBindBufferMemoryInfo* bind_infos,
+                                                              const ResourceData*           allocator_resource_datas,
+                                                              const MemoryData*             allocator_memory_datas)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_resource_datas);
+
+    if ((bind_infos != nullptr) && (allocator_memory_datas != nullptr))
+    {
+        std::vector<VkMemoryRequirements> requirements(bind_info_count);
+
+        for (uint32_t i = 0; i < bind_info_count; ++i)
+        {
+            functions_.get_buffer_memory_requirements(device_, bind_infos[i].buffer, &requirements[i]);
+        }
+
+        ReportBindIncompatibility(requirements.data(), allocator_memory_datas, bind_info_count);
+    }
+}
+
+void VulkanDefaultAllocator::ReportBindImageIncompatibility(VkImage      image,
+                                                            ResourceData allocator_resource_data,
+                                                            MemoryData   allocator_memory_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_resource_data);
+
+    if (allocator_memory_data != 0)
+    {
+        VkMemoryRequirements requirements;
+        functions_.get_image_memory_requirements(device_, image, &requirements);
+        ReportBindIncompatibility(&requirements, &allocator_memory_data, 1);
+    }
+}
+
+void VulkanDefaultAllocator::ReportBindImage2Incompatibility(uint32_t                     bind_info_count,
+                                                             const VkBindImageMemoryInfo* bind_infos,
+                                                             const ResourceData*          allocator_resource_datas,
+                                                             const MemoryData*            allocator_memory_datas)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_resource_datas);
+
+    if ((bind_infos != nullptr) && (allocator_memory_datas != nullptr))
+    {
+        std::vector<VkMemoryRequirements> requirements(bind_info_count);
+
+        for (uint32_t i = 0; i < bind_info_count; ++i)
+        {
+            functions_.get_image_memory_requirements(device_, bind_infos[i].image, &requirements[i]);
+        }
+
+        ReportBindIncompatibility(requirements.data(), allocator_memory_datas, bind_info_count);
+    }
+}
+
+void VulkanDefaultAllocator::ReportBindIncompatibility(const VkMemoryRequirements* requirements,
+                                                       const MemoryData*           allocator_memory_datas,
+                                                       uint32_t                    resource_count)
+{
+    assert((requirements != nullptr) && (allocator_memory_datas != nullptr));
+
+    for (uint32_t i = 0; i < resource_count; ++i)
+    {
+        auto allocator_memory_data = allocator_memory_datas[i];
+
+        if (allocator_memory_data != 0)
+        {
+            auto     memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+            uint32_t memory_type_index = memory_alloc_info->memory_type_index;
+
+            if ((requirements[i].memoryTypeBits & (1 << memory_type_index)) != 0)
+            {
+                GFXRECON_LOG_FATAL(
+                    "Resource memory bind failed: resource is not compatible with the specified memory type.");
+
+                if (!custom_error_string_.empty())
+                {
+                    GFXRECON_LOG_FATAL("%s", custom_error_string_.c_str());
+                }
+
+                break;
+            }
+        }
+    }
+}
+
+VkResult VulkanDefaultAllocator::Allocate(const VkMemoryAllocateInfo*  allocate_info,
+                                          const VkAllocationCallbacks* allocation_callbacks,
+                                          VkDeviceMemory*              memory,
+                                          MemoryData*                  allocator_data)
+{
+    assert((allocate_info != nullptr) && (allocator_data != nullptr));
+
+    VkResult result = functions_.allocate_memory(device_, allocate_info, allocation_callbacks, memory);
+
+    if (result >= 0)
+    {
+        assert(allocate_info->memoryTypeIndex < memory_properties_.memoryTypeCount);
+
+        auto memory_alloc_info               = new MemoryAllocInfo;
+        memory_alloc_info->memory_type_index = allocate_info->memoryTypeIndex;
+        memory_alloc_info->property_flags =
+            memory_properties_.memoryTypes[allocate_info->memoryTypeIndex].propertyFlags;
+        (*allocator_data) = reinterpret_cast<uintptr_t>(memory_alloc_info);
     }
 
     return result;

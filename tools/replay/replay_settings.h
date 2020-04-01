@@ -67,12 +67,14 @@ static void CheckActiveLayers(const char* env_var)
 
 static gfxrecon::decode::VulkanResourceAllocator* CreateDefaultAllocator()
 {
-    return new gfxrecon::decode::VulkanDefaultAllocator();
+    return new gfxrecon::decode::VulkanDefaultAllocator(
+        "Try replay with the '-m remap' or '-m rebind' options to enable memory translation.");
 }
 
 static gfxrecon::decode::VulkanResourceAllocator* CreateRemapAllocator()
 {
-    return new gfxrecon::decode::VulkanRemapAllocator();
+    return new gfxrecon::decode::VulkanRemapAllocator(
+        "Try replay with the '-m rebind' option to enable advanced memory translation.");
 }
 
 static gfxrecon::decode::VulkanResourceAllocator* CreateRebindAllocator()

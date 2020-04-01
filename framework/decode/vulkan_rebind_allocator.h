@@ -132,6 +132,26 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     virtual VkResult
     WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
+    virtual void ReportAllocateMemoryIncompatibility(const VkMemoryAllocateInfo* allocate_info) override;
+
+    virtual void ReportBindBufferIncompatibility(VkBuffer     buffer,
+                                                 ResourceData allocator_resource_data,
+                                                 MemoryData   allocator_memory_data) override;
+
+    virtual void ReportBindBuffer2Incompatibility(uint32_t                      bind_info_count,
+                                                  const VkBindBufferMemoryInfo* bind_infos,
+                                                  const ResourceData*           allocator_resource_datas,
+                                                  const MemoryData*             allocator_memory_datas) override;
+
+    virtual void ReportBindImageIncompatibility(VkImage      image,
+                                                ResourceData allocator_resource_data,
+                                                MemoryData   allocator_memory_data) override;
+
+    virtual void ReportBindImage2Incompatibility(uint32_t                     bind_info_count,
+                                                 const VkBindImageMemoryInfo* bind_infos,
+                                                 const ResourceData*          allocator_resource_datas,
+                                                 const MemoryData*            allocator_memory_datas) override;
+
   private:
     struct MemoryAllocInfo;
 
@@ -154,6 +174,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         bool             is_image{ false };
         VkFlags          usage{ 0 };
         VkImageTiling    tiling{};
+        bool             uses_extensions{ false };
 
         // Image layouts for performing mapped memory writes to linear images with different capture/replay memory
         // alignments.
@@ -214,6 +235,8 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                        const VkMemoryRequirements& replay_requirements);
 
     VmaMemoryUsage AdjustMemoryUsage(VmaMemoryUsage desired_usage, const VkMemoryRequirements& replay_requirements);
+
+    void ReportBindIncompatibility(const ResourceData* allocator_resource_datas, uint32_t resource_count);
 
   private:
     VkDevice                         device_;
