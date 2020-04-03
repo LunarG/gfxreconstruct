@@ -96,7 +96,7 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
     std::vector<DisplayKHRWrapper*> child_displays;
 
     // Track memory types for use when creating snapshots of buffer and image resource memory content.
-    std::vector<VkMemoryType> memory_types;
+    VkPhysicalDeviceMemoryProperties memory_properties{};
 
     // Track queue family properties retrieval call data to write to state snapshot after physical device creation.
     // The queue family data is only written to the state snapshot if the application made the API call to retrieve it.

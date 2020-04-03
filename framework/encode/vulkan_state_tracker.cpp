@@ -87,10 +87,7 @@ void VulkanStateTracker::TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice   
 
     auto wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
 
-    for (uint32_t i = 0; i < properties->memoryTypeCount; ++i)
-    {
-        wrapper->memory_types.push_back(properties->memoryTypes[i]);
-    }
+    wrapper->memory_properties = *properties;
 }
 
 void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice               physical_device,
