@@ -246,6 +246,9 @@ class VulkanStateWriter
                                       AHardwareBuffer*                                    hardware_buffer,
                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
 
+    void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
+                                               const VkPhysicalDeviceMemoryProperties& memory_properties);
+
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)
     {

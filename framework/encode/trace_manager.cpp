@@ -1386,11 +1386,12 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
 
 VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index)
 {
-    PhysicalDeviceWrapper* physical_device_wrapper = device_wrapper->physical_device;
+    PhysicalDeviceWrapper*                  physical_device_wrapper = device_wrapper->physical_device;
+    const VkPhysicalDeviceMemoryProperties* memory_properties       = &physical_device_wrapper->memory_properties;
 
-    assert(memory_type_index < physical_device_wrapper->memory_types.size());
+    assert(memory_type_index < memory_properties->memoryTypeCount);
 
-    return physical_device_wrapper->memory_types[memory_type_index].propertyFlags;
+    return memory_properties->memoryTypes[memory_type_index].propertyFlags;
 }
 
 const VkImportAndroidHardwareBufferInfoANDROID*
@@ -1592,13 +1593,11 @@ void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          resu
                     else
                     {
                         // When not tracking state, set the memory types directly.
-                        for (uint32_t i = 0; i < properties.memoryTypeCount; ++i)
-                        {
-                            physical_device_wrapper->memory_types.push_back(properties.memoryTypes[i]);
-                        }
+                        physical_device_wrapper->memory_properties = std::move(properties);
                     }
 
-                    WriteSetDeviceMemoryPropertiesCommand(physical_device_wrapper->handle_id, properties);
+                    WriteSetDeviceMemoryPropertiesCommand(physical_device_wrapper->handle_id,
+                                                          physical_device_wrapper->memory_properties);
                 }
             }
         }

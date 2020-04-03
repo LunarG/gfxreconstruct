@@ -186,6 +186,9 @@ void VulkanStateWriter::WritePhysicalDeviceState(const VulkanStateTable& state_t
             processed.insert(wrapper->create_parameters.get());
         }
 
+        // Write the meta-data command to set physical device memory properties.
+        WriteSetDeviceMemoryPropertiesCommand(wrapper->handle_id, wrapper->memory_properties);
+
         // Write the call to retrieve queue family properties, if the call was previously made by the application.
         if (wrapper->queue_family_properties_call_id != format::ApiCallId::ApiCall_Unknown)
         {
@@ -2448,34 +2451,59 @@ void VulkanStateWriter::WriteCreateHardwareBufferCmd(format::HandleId memory_id,
 #endif
 }
 
+void VulkanStateWriter::WriteSetDeviceMemoryPropertiesCommand(format::HandleId physical_device_id,
+                                                              const VkPhysicalDeviceMemoryProperties& memory_properties)
+{
+    format::SetDeviceMemoryPropertiesCommand memory_properties_cmd;
+
+    memory_properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    memory_properties_cmd.meta_header.block_header.size =
+        (sizeof(memory_properties_cmd) - sizeof(memory_properties_cmd.meta_header.block_header)) +
+        (sizeof(format::DeviceMemoryType) * memory_properties.memoryTypeCount) +
+        (sizeof(format::DeviceMemoryHeap) * memory_properties.memoryHeapCount);
+    memory_properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDeviceMemoryPropertiesCommand;
+    memory_properties_cmd.thread_id                  = thread_id_;
+    memory_properties_cmd.physical_device_id         = physical_device_id;
+    memory_properties_cmd.memory_type_count          = memory_properties.memoryTypeCount;
+    memory_properties_cmd.memory_heap_count          = memory_properties.memoryHeapCount;
+
+    output_stream_->Write(&memory_properties_cmd, sizeof(memory_properties_cmd));
+
+    format::DeviceMemoryType type;
+    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+    {
+        type.property_flags = memory_properties.memoryTypes[i].propertyFlags;
+        type.heap_index     = memory_properties.memoryTypes[i].heapIndex;
+
+        output_stream_->Write(&type, sizeof(type));
+    }
+
+    format::DeviceMemoryHeap heap;
+    for (uint32_t i = 0; i < memory_properties.memoryHeapCount; ++i)
+    {
+        heap.size  = memory_properties.memoryHeaps[i].size;
+        heap.flags = memory_properties.memoryHeaps[i].flags;
+
+        output_stream_->Write(&heap, sizeof(heap));
+    }
+}
+
 VkMemoryPropertyFlags VulkanStateWriter::GetMemoryProperties(const DeviceWrapper*       device_wrapper,
                                                              const DeviceMemoryWrapper* memory_wrapper,
                                                              const VulkanStateTable&    state_table)
 {
     assert((device_wrapper != nullptr) && (memory_wrapper != nullptr));
 
-    VkMemoryPropertyFlags        flags                   = 0;
-    const PhysicalDeviceWrapper* physical_device_wrapper = device_wrapper->physical_device;
+    VkMemoryPropertyFlags flags = 0;
 
+    const PhysicalDeviceWrapper* physical_device_wrapper = device_wrapper->physical_device;
     assert(physical_device_wrapper != nullptr);
 
-    if (!physical_device_wrapper->memory_types.empty())
-    {
-        assert(memory_wrapper->memory_type_index < physical_device_wrapper->memory_types.size());
-        flags = physical_device_wrapper->memory_types[memory_wrapper->memory_type_index].propertyFlags;
-    }
-    else
-    {
-        // The application has not queried for memory types.
-        VkPhysicalDeviceMemoryProperties properties;
+    const VkPhysicalDeviceMemoryProperties* memory_properties = &physical_device_wrapper->memory_properties;
+    assert((memory_properties->memoryTypeCount > 0) &&
+           (memory_wrapper->memory_type_index < memory_properties->memoryTypeCount));
 
-        const InstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
-        assert(instance_table != nullptr);
-
-        instance_table->GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
-
-        flags = properties.memoryTypes[memory_wrapper->memory_type_index].propertyFlags;
-    }
+    flags = memory_properties->memoryTypes[memory_wrapper->memory_type_index].propertyFlags;
 
     return flags;
 }
@@ -2494,58 +2522,27 @@ bool VulkanStateWriter::FindMemoryTypeIndex(const DeviceWrapper*    device_wrapp
     const PhysicalDeviceWrapper* physical_device_wrapper = device_wrapper->physical_device;
     assert(physical_device_wrapper != nullptr);
 
-    if (!physical_device_wrapper->memory_types.empty())
+    const VkPhysicalDeviceMemoryProperties* memory_properties = &physical_device_wrapper->memory_properties;
+    assert(memory_properties->memoryTypeCount > 0);
+
+    for (uint32_t i = 0; i < memory_properties->memoryTypeCount; ++i)
     {
-        for (uint32_t i = 0; i < physical_device_wrapper->memory_types.size(); ++i)
+        if ((memory_type_bits & (1 << i)) &&
+            ((memory_properties->memoryTypes[i].propertyFlags & desired_flags) == desired_flags))
         {
-            if ((memory_type_bits & (1 << i)) &&
-                ((physical_device_wrapper->memory_types[i].propertyFlags & desired_flags) == desired_flags))
+            found = true;
+
+            if (found_index != nullptr)
             {
-                found = true;
-
-                if (found_index != nullptr)
-                {
-                    (*found_index) = i;
-                }
-
-                if (found_flags != nullptr)
-                {
-                    (*found_flags) = physical_device_wrapper->memory_types[i].propertyFlags;
-                }
-
-                break;
+                (*found_index) = i;
             }
-        }
-    }
-    else
-    {
-        // The application has not queried for memory types.
-        VkPhysicalDeviceMemoryProperties properties;
 
-        const InstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
-        assert(instance_table != nullptr);
-
-        instance_table->GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
-
-        for (uint32_t i = 0; i < properties.memoryTypeCount; ++i)
-        {
-            if ((memory_type_bits & (1 << i)) &&
-                ((properties.memoryTypes[i].propertyFlags & desired_flags) == desired_flags))
+            if (found_flags != nullptr)
             {
-                found = true;
-
-                if (found_index != nullptr)
-                {
-                    (*found_index) = i;
-                }
-
-                if (found_flags != nullptr)
-                {
-                    (*found_flags) = properties.memoryTypes[i].propertyFlags;
-                }
-
-                break;
+                (*found_flags) = memory_properties->memoryTypes[i].propertyFlags;
             }
+
+            break;
         }
     }
 
