@@ -303,10 +303,10 @@ class TrackedDeviceMemoryInfo
     const std::vector<VkDeviceSize>& GetFilledMemoryOffsetsList();
 
     // Insert resource into the bound resource list
-    void InsertBoundResourcesList(TrackedResourceInfo buffer_id);
+    void InsertBoundResourcesList(TrackedResourceInfo* buffer_id);
 
     // Get bound resource list
-    std::vector<TrackedResourceInfo>* GetBoundResourcesList();
+    std::vector<TrackedResourceInfo*>* GetBoundResourcesList();
 
     // Allocate replay memory allocation size by increment
     // on each resource binding call
@@ -341,7 +341,7 @@ class TrackedDeviceMemoryInfo
     std::vector<VkDeviceSize> filled_memories_offsets_;
 
     // a list of tracked resources (buffers and images) bound to this memory
-    std::vector<TrackedResourceInfo> bound_resources_;
+    std::vector<TrackedResourceInfo*> bound_resources_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -360,7 +360,7 @@ void VulkanResourceTrackingConsumerBase::OverrideBindBufferMemory(format::Handle
     buffer_info->SetBoundMemoryId(memory);
     buffer_info->SetTraceBindOffset(memory_offset);
 
-    memory_info->InsertBoundResourcesList(*buffer_info);
+    memory_info->InsertBoundResourcesList(buffer_info);
 
     if ((buffer_info->GetBufferCreateInfo().usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT))
     {
@@ -386,7 +386,7 @@ void VulkanResourceTrackingConsumerBase::OverrideBindImageMemory(format::HandleI
     image_info->SetBoundMemoryId(memory);
     image_info->SetTraceBindOffset(memory_offset);
 
-    memory_info->InsertBoundResourcesList(*image_info);
+    memory_info->InsertBoundResourcesList(image_info);
 }
 
 void VulkanResourceTrackingConsumerBase::OverrideMapMemory(format::HandleId                 device,
@@ -545,9 +545,9 @@ void VulkanResourceTrackingConsumerBase::Process_vkUpdateDescriptorSetWithTempla
 }
 
 // Util function for sorting: compares two resources according to the trace binding offset number.
-bool CompareOffset(TrackedResourceInfo resource1, TrackedResourceInfo resource2)
+bool CompareOffset(TrackedResourceInfo* resource1, TrackedResourceInfo* resource2)
 {
-    return (resource1.GetTraceBindOffset() < resource2.GetTraceBindOffset());
+    return (resource1->GetTraceBindOffset() < resource2->GetTraceBindOffset());
 }
 
 // Sort the bound resources in each device memory object according to their trace binding offset.
@@ -560,7 +560,7 @@ void VulkanResourceTrackingConsumerBase::SortMemoriesBoundResourcesByOffset()
     {
         TrackedDeviceMemoryInfo tracked_device_memory = iterator.second;
 
-        std::vector<TrackedResourceInfo>* resources = tracked_device_memory.GetBoundResourcesList();
+        std::vector<TrackedResourceInfo*>* resources = tracked_device_memory.GetBoundResourcesList();
 
         if (resources != nullptr)
         {
@@ -582,26 +582,26 @@ void VulkanResourceTrackingConsumerBase::CalculateReplayBindingOffsetAndMemoryAl
     {
         TrackedDeviceMemoryInfo tracked_device_memory = iterator.second;
 
-        std::vector<TrackedResourceInfo>* resources = tracked_device_memory.GetBoundResourcesList();
+        std::vector<TrackedResourceInfo*>* resources = tracked_device_memory.GetBoundResourcesList();
 
         // set the replay binding offset for first resource element to be same as trace offset
         // and recalculate the replay binding offset base on replay alignment requirement
-        VkDeviceSize replay_bind_offset = (*resources)[0].GetTraceBindOffset();
-        if ((*resources)[0].GetReplayResourceAlignment() > 0)
+        VkDeviceSize replay_bind_offset = (*resources)[0]->GetTraceBindOffset();
+        if ((*resources)[0]->GetReplayResourceAlignment() > 0)
         {
-            VkDeviceSize alignment_remainder = replay_bind_offset % (*resources)[0].GetReplayResourceAlignment();
+            VkDeviceSize alignment_remainder = replay_bind_offset % (*resources)[0]->GetReplayResourceAlignment();
             if (alignment_remainder != 0)
             {
-                while ((replay_bind_offset % (*resources)[0].GetReplayResourceAlignment()) != 0)
+                while ((replay_bind_offset % (*resources)[0]->GetReplayResourceAlignment()) != 0)
                 {
                     // increment offset and new memory allocation size until it aligned
                     replay_bind_offset++;
                 }
             }
         }
-        (*resources)[0].SetReplayBindOffset(replay_bind_offset);
+        (*resources)[0]->SetReplayBindOffset(replay_bind_offset);
 
-        if (replay_bind_offset != (*resources)[0].GetTraceBindOffset())
+        if (replay_bind_offset != (*resources)[0]->GetTraceBindOffset())
         {
             GFXRECON_LOG_INFO("Trace binding offset has been recalculated and updated during replay.")
         }
@@ -609,39 +609,38 @@ void VulkanResourceTrackingConsumerBase::CalculateReplayBindingOffsetAndMemoryAl
         // update replay memory allocation size based on replay binding offset and size
         VkDeviceSize replay_memory_allocation_size =
             std::max(tracked_device_memory.GetReplayMemoryAllocationSize(),
-                     replay_bind_offset + (*resources)[0].GetReplayResourceSize());
+                     replay_bind_offset + (*resources)[0]->GetReplayResourceSize());
         tracked_device_memory.AllocateReplayMemoryAllocationSize(replay_memory_allocation_size);
 
         // loop through the rest of the resources elements to make sure no overlap with the previous one
         for (size_t i = 1; i < (*resources).size(); i++)
         {
             size_t previous_resource_index             = i - 1;
-            replay_bind_offset                         = (*resources)[i].GetTraceBindOffset();
-            VkDeviceSize previous_replay_bind_offset   = (*resources)[previous_resource_index].GetReplayBindOffset();
-            VkDeviceSize previous_replay_resource_size = (*resources)[previous_resource_index].GetReplayResourceSize();
+            replay_bind_offset                         = (*resources)[i]->GetTraceBindOffset();
+            VkDeviceSize previous_replay_bind_offset   = (*resources)[previous_resource_index]->GetReplayBindOffset();
+            VkDeviceSize previous_replay_resource_size = (*resources)[previous_resource_index]->GetReplayResourceSize();
             // increment to avoid offset with previous resource
-            while (replay_bind_offset >= previous_replay_bind_offset &&
-                   replay_bind_offset <= previous_replay_bind_offset + previous_replay_resource_size)
+            while (replay_bind_offset <= previous_replay_bind_offset + previous_replay_resource_size)
             {
                 replay_bind_offset++;
             }
 
             // recalculate base on replay alignment
-            if ((*resources)[i].GetReplayResourceAlignment() > 0)
+            if ((*resources)[i]->GetReplayResourceAlignment() > 0)
             {
-                VkDeviceSize alignment_remainder = replay_bind_offset % (*resources)[i].GetReplayResourceAlignment();
+                VkDeviceSize alignment_remainder = replay_bind_offset % (*resources)[i]->GetReplayResourceAlignment();
                 if (alignment_remainder != 0)
                 {
-                    while ((replay_bind_offset % (*resources)[i].GetReplayResourceAlignment()) != 0)
+                    while ((replay_bind_offset % (*resources)[i]->GetReplayResourceAlignment()) != 0)
                     {
                         // increment offset and new memory allocation size until it aligned
                         replay_bind_offset++;
                     }
                 }
             }
-            (*resources)[i].SetReplayBindOffset(replay_bind_offset);
+            (*resources)[i]->SetReplayBindOffset(replay_bind_offset);
 
-            if (replay_bind_offset != (*resources)[i].GetTraceBindOffset())
+            if (replay_bind_offset != (*resources)[i]->GetTraceBindOffset())
             {
                 GFXRECON_LOG_INFO("Trace binding offset has been recalculated and updated during replay.")
             }
@@ -649,7 +648,7 @@ void VulkanResourceTrackingConsumerBase::CalculateReplayBindingOffsetAndMemoryAl
             // update replay memory allocation size based on replay binding offset and size
             VkDeviceSize replay_memory_allocation_size =
                 std::max(tracked_device_memory.GetReplayMemoryAllocationSize(),
-                         replay_bind_offset + (*resources)[i].GetReplayResourceSize());
+                         replay_bind_offset + (*resources)[i]->GetReplayResourceSize());
             tracked_device_memory.AllocateReplayMemoryAllocationSize(replay_memory_allocation_size);
         }
 
