@@ -118,13 +118,13 @@ const std::vector<VkDeviceSize>& TrackedDeviceMemoryInfo::GetFilledMemoryOffsets
 }
 
 // Insert resource into the  bound resource list
-void TrackedDeviceMemoryInfo::InsertBoundResourcesList(TrackedResourceInfo resource)
+void TrackedDeviceMemoryInfo::InsertBoundResourcesList(TrackedResourceInfo* resource)
 {
     bound_resources_.push_back(resource);
 }
 
 // Get bound resource list
-std::vector<TrackedResourceInfo>* TrackedDeviceMemoryInfo::GetBoundResourcesList()
+std::vector<TrackedResourceInfo*>* TrackedDeviceMemoryInfo::GetBoundResourcesList()
 {
     return &bound_resources_;
 }

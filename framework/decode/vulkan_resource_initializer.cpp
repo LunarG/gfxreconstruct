@@ -86,7 +86,7 @@ VkResult VulkanResourceInitializer::LoadData(VkDeviceMemory                     
     {
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
         size_t copy_size = static_cast<size_t>(size);
-        resource_allocator_->WriteMappedMemoryRange(allocator_data, 0, size, data);
+        resource_allocator_->WriteMappedMemoryRange(allocator_data, 0, size, 0, data);
         resource_allocator_->UnmapMemory(memory, allocator_data);
     }
 

@@ -675,8 +675,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info);
 
-    // Util function to find the matching offset with the resources offsets, return match index
-    int FindMatchResourcesOffsets(TrackedDeviceMemoryInfo* tracked_memory_info, VkDeviceSize& offset);
+    // Util function to find the matching offset with the resources offsets
+    void FindMatchResourcesOffsets(TrackedDeviceMemoryInfo* tracked_memory_info, VkDeviceSize& offset);
+
+    // Util function to update the resource data (memcpy to mapped memory)
+    void UpdateResourcesData(const std::shared_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
+                             uint64_t                                               memory_id,
+                             uint64_t                                               offset,
+                             uint64_t                                               size,
+                             uint64_t&                                              mapped_memory_offset,
+                             uint64_t&                                              data_offset,
+                             uint64_t&                                              copy_size,
+                             const uint8_t*                                         data);
 
   private:
     typedef std::unordered_set<Window*> ActiveWindows;

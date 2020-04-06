@@ -755,10 +755,8 @@ VkResult VulkanRebindAllocator::InvalidateMappedMemoryRanges(uint32_t           
     return UpdateMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas, vmaInvalidateAllocation);
 }
 
-VkResult VulkanRebindAllocator::WriteMappedMemoryRange(MemoryData     allocator_data,
-                                                       uint64_t       offset,
-                                                       uint64_t       size,
-                                                       const uint8_t* data)
+VkResult VulkanRebindAllocator::WriteMappedMemoryRange(
+    MemoryData allocator_data, uint64_t offset, uint64_t size, uint64_t data_offset, const uint8_t* data)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
