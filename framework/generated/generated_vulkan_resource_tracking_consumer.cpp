@@ -1245,7 +1245,7 @@ void VulkanResourceTrackingConsumer::Process_vkBindBufferMemory2(
     uint32_t                                    bindInfoCount,
     StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
 {
-    //printf("%s\n", "vkBindBufferMemory2");
+    OverrideBindBufferMemory2(device, bindInfoCount, pBindInfos);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkBindImageMemory2(
@@ -1254,7 +1254,7 @@ void VulkanResourceTrackingConsumer::Process_vkBindImageMemory2(
     uint32_t                                    bindInfoCount,
     StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
 {
-    //printf("%s\n", "vkBindImageMemory2");
+    OverrideBindImageMemory2(device, bindInfoCount, pBindInfos);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkGetDeviceGroupPeerMemoryFeatures(

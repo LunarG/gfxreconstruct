@@ -8,6 +8,8 @@
     "vkAllocateMemory": "OverrideAllocateMemory",
     "vkBindBufferMemory": "OverrideBindBufferMemory",
     "vkBindImageMemory": "OverrideBindImageMemory",
+    "vkBindBufferMemory2": "OverrideBindBufferMemory2",
+    "vkBindImageMemory2": "OverrideBindImageMemory2",
     "vkMapMemory": "OverrideMapMemory",
     "vkGetBufferMemoryRequirements": "OverrideGetBufferMemoryRequirements",
     "vkGetImageMemoryRequirements": "OverrideGetImageMemoryRequirements",

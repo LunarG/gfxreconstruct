@@ -2836,11 +2836,6 @@ VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory   func,
         {
             size = std::max(tracked_memory_info->GetReplayMemoryAllocationSize(), size);
         }
-        else
-        {
-            // TODO(gfxrec-28): handle multiple map call per memory object case?
-            GFXRECON_LOG_WARNING("Multiple map with offsets on same memory object does not handled for now.");
-        }
 
         // update map memory offset
         VkDeviceSize ori_offset = offset;

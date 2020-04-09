@@ -87,6 +87,14 @@ class VulkanResourceTrackingConsumerBase : public VulkanConsumer
                                  format::HandleId memory,
                                  VkDeviceSize     memory_offset);
 
+    void OverrideBindBufferMemory2(format::HandleId                                            device,
+                                   uint32_t                                                    bindInfoCount,
+                                   const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos);
+
+    void OverrideBindImageMemory2(format::HandleId                                           device,
+                                  uint32_t                                                   bindInfoCount,
+                                  const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos);
+
     void OverrideMapMemory(format::HandleId                 device,
                            format::HandleId                 memory,
                            VkDeviceSize                     offset,
