@@ -59,7 +59,6 @@ std::mutex                                             TraceManager::instance_lo
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 LayerTable                                             TraceManager::layer_table_;
 std::atomic<format::ThreadId>                          TraceManager::unique_id_counter_{ 0 };
-bool                                                   TraceManager::previous_hotkey_trigger_ = false;
 
 TraceManager::ThreadData::ThreadData() : thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
 {
@@ -92,7 +91,7 @@ TraceManager::TraceManager() :
     force_file_flush_(false), bytes_written_(0), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
-    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite)
+    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false)
 {}
 
 TraceManager::~TraceManager()
@@ -431,135 +430,13 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
     }
 }
 
-#if defined(__linux__) && !defined(__ANDROID__)
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-static xcb_connection_t* keyboard_connection = nullptr;
-
-// On Linux platform, xcb calls need Connection which is connected to target
-// server, because hotkey process is supposed to insert into target application,
-// so we need to capture the connection that target app use. the function is
-// used to insert into Vulkan vkCreateXcbSurfaceKHR call to capture and
-// save the connection.
-static void SetKeyboardConnection(xcb_connection_t* connection)
-{
-    keyboard_connection = connection;
-}
-
-// Get connection which is used by target application.
-static xcb_connection_t* GetKeyboardConnection()
-{
-    return keyboard_connection;
-}
-
-// Get specified key's real time state: it's released (0) or pressed (1) now.
-// the function is platform specific.
-static int GetAsyncKeyState(int key_code)
-{
-    int                key_state      = 0;
-    xcb_connection_t*  connection     = GetKeyboardConnection();
-    xcb_key_symbols_t* hot_key_symbol = xcb_key_symbols_alloc(connection);
-    if (hot_key_symbol != nullptr)
-    {
-        xcb_keycode_t* xcb_key_code = xcb_key_symbols_get_keycode(hot_key_symbol, key_code);
-        if (xcb_key_code != nullptr)
-        {
-            xcb_query_keymap_cookie_t cookie       = xcb_query_keymap(connection);
-            xcb_query_keymap_reply_t* keys_bit_map = xcb_query_keymap_reply(connection, cookie, NULL);
-            if ((keys_bit_map->keys[(*xcb_key_code / 8)] & (1 << (*xcb_key_code % 8))) != 0)
-            {
-                key_state = 1;
-            }
-            free(keys_bit_map);
-            free(xcb_key_code);
-        }
-        xcb_key_symbols_free(hot_key_symbol);
-    }
-
-    return key_state;
-}
-#else
-// TODO(issue #272) GetAsyncKeyState for other Linux window systems
-static int GetAsyncKeyState(int key_code)
-{
-    GFXRECON_LOG_ERROR("Hotkey trigger is not supported for the current WSI platform.");
-    return 0;
-}
-#endif
-#elif defined(__ANDROID__)
-// TODO(issue #272) implement GetAsyncKeyState for Android
-// return 0 if hotkey not pressed
-// return 1 if hotkey pressed
-static int GetAsyncKeyState(int key_code)
-{
-    GFXRECON_LOG_ERROR("Hotkey trigger is not supported in Android yet.");
-    return 0;
-}
-#endif
-
-// Return true if specific key has been pressed, else false.
-// This function is "semi"cross-platform: the interface is cross-platform, the
-// implementation is platform specific.
 bool TraceManager::IsTrimHotkeyPressed()
 {
-#ifdef _WIN32
-    static std::unordered_map<std::string, int> key_code_map = {
-        { "F1", VK_F1 },   { "F2", VK_F2 },   { "F3", VK_F3 },   { "F4", VK_F4 },          { "F5", VK_F5 },
-        { "F6", VK_F6 },   { "F7", VK_F7 },   { "F8", VK_F8 },   { "F9", VK_F9 },          { "F10", VK_F10 },
-        { "F11", VK_F11 }, { "F12", VK_F12 }, { "TAB", VK_TAB }, { "CONTROL", VK_CONTROL }
-    };
-#elif defined(__linux__) && !defined(__ANDROID__)
-#if defined(VK_USE_PLATFORM_XCB_KHR)
-    static std::unordered_map<std::string, int> key_code_map = { { "F1", XK_F1 },
-                                                                 { "F2", XK_F2 },
-                                                                 { "F3", XK_F3 },
-                                                                 { "F4", XK_F4 },
-                                                                 { "F5", XK_F5 },
-                                                                 { "F6", XK_F6 },
-                                                                 { "F7", XK_F7 },
-                                                                 { "F8", XK_F8 },
-                                                                 { "F9", XK_F9 },
-                                                                 { "F10", XK_F10 },
-                                                                 { "F11", XK_F11 },
-                                                                 { "F12", XK_F12 },
-                                                                 { "Tab", XK_Tab },
-                                                                 { "ControlLeft", XK_Control_L },
-                                                                 { "ControlRight", XK_Control_R } };
-#else
-    // TODO(issue #272) implement key_code_map for other Linux window systems
-    static std::unordered_map<std::string, int> key_code_map = {};
-#endif
-#elif defined(__ANDROID__)
-    // TODO(issue #272) implement key_code_map for Android
-    static std::unordered_map<std::string, int> key_code_map = {};
-#endif
-
-    bool hotkey_triggered  = false;
-    auto iterator_key_code = key_code_map.find(trim_key_);
-    if (iterator_key_code != key_code_map.end())
-    {
-        int key_code = iterator_key_code->second;
-        if (GetAsyncKeyState(key_code) != 0)
-        {
-            // the key is down or was down
-            // after the previous call to
-            // GetAsyncKeyState
-            hotkey_triggered = true;
-
-            // detect only the transition of the keypress event
-            // in case of oversampling issue
-            if (previous_hotkey_trigger_ == hotkey_triggered)
-            {
-                hotkey_triggered = false;
-            }
-            previous_hotkey_trigger_ = true;
-        }
-        else
-        {
-            previous_hotkey_trigger_ = false;
-        }
-    }
-
-    return hotkey_triggered;
+    // Return true when GetKeyState() transitions from false to true
+    bool        hotkey_state          = keyboard_.GetKeyState(trim_key_);
+    bool        hotkey_pressed        = hotkey_state && !previous_hotkey_state_;
+    previous_hotkey_state_            = hotkey_state;
+    return hotkey_pressed;
 }
 
 void TraceManager::CheckContinueCaptureForWriteMode()
@@ -1617,7 +1494,7 @@ void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                  
     assert(pCreateInfo != nullptr);
     if (pCreateInfo)
     {
-        SetKeyboardConnection(pCreateInfo->connection);
+        keyboard_.Initialize(pCreateInfo->connection);
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
