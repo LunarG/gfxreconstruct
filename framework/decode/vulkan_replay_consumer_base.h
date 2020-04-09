@@ -631,8 +631,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ProcessImportAndroidHardwareBufferInfo(Decoded_VkMemoryAllocateInfo* allocate_info);
 
-    uint32_t CheckSum(const uint32_t* pCode, size_t pSize);
-
   private:
     struct InstanceDevices
     {
