@@ -11,6 +11,8 @@ target_sources(gfxrecon_util
                    file_output_stream.cpp
                    file_path.h
                    file_path.cpp
+                   hash.h
+                   hash.cpp
                    logging.h
                    logging.cpp
                    lz4_compressor.h

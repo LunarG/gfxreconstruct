@@ -23,6 +23,7 @@
 #include "decode/vulkan_enum_util.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/file_path.h"
+#include "util/hash.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
@@ -3061,19 +3062,6 @@ void VulkanReplayConsumerBase::OverrideDestroyDescriptorUpdateTemplate(
     func(device, descriptor_update_template, GetAllocationCallbacks(pAllocator));
 }
 
-uint32_t VulkanReplayConsumerBase::CheckSum(const uint32_t* code, size_t code_size)
-{
-    uint32_t sum            = 0;
-    size_t   uint_code_size = code_size / sizeof(uint32_t);
-    for (size_t i = 0; i < uint_code_size; i++)
-    {
-        uint32_t u = code[i];
-        uint32_t s = i % 32;
-        sum ^= (u << s) | (u >> (32 - s));
-    }
-    return sum;
-}
-
 VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     PFN_vkCreateShaderModule                                      func,
     VkResult                                                      original_result,
@@ -3098,7 +3086,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     std::unique_ptr<char[]> file_code;
     const uint32_t*         orig_code = pCreateInfo.GetPointer()->pCode;
     size_t                  orig_size = pCreateInfo.GetPointer()->codeSize;
-    uint32_t                check_sum = CheckSum(orig_code, orig_size);
+    uint32_t                check_sum = util::hash::CheckSum(orig_code, orig_size);
     std::string             file_name = "sh" + std::to_string(check_sum);
     std::string             file_path = util::filepath::Join(options_.replace_dir, file_name);
 
