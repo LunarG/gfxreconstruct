@@ -33,6 +33,7 @@
 #include "util/compressor.h"
 #include "util/defines.h"
 #include "util/file_output_stream.h"
+#include "util/keyboard.h"
 #include "util/memory_output_stream.h"
 
 #include "vulkan/vulkan.h"
@@ -965,7 +966,6 @@ class TraceManager
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static LayerTable                               layer_table_;
     static std::atomic<format::HandleId>            unique_id_counter_;
-    static bool                                     previous_hotkey_trigger_;
     format::EnabledOptions                          file_options_;
     std::unique_ptr<util::FileOutputStream>         file_stream_;
     std::string                                     base_filename_;
@@ -988,6 +988,8 @@ class TraceManager
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
     CaptureMode                                     capture_mode_;
     HardwareBufferMap                               hardware_buffers_;
+    util::Keyboard                                  keyboard_;
+    bool                                            previous_hotkey_state_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -13,6 +13,8 @@ target_sources(gfxrecon_util
                    file_path.cpp
                    hash.h
                    hash.cpp
+                   keyboard.h
+                   keyboard.cpp
                    logging.h
                    logging.cpp
                    lz4_compressor.h
@@ -40,7 +42,7 @@ target_include_directories(gfxrecon_util
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS})
+target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS} $<$<BOOL:${XCB_FOUND}>:${XCB_LIBRARIES}>)
 
 if (UNIX AND NOT APPLE)
     # Check for clock_gettime in libc
