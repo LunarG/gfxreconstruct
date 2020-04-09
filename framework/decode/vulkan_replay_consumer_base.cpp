@@ -2094,14 +2094,15 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
            (pPhysicalDeviceCount->GetPointer() != nullptr) && (pPhysicalDevices != nullptr));
 
     VkInstance        instance            = instance_info->handle;
-    uint32_t          replay_device_count = (*pPhysicalDeviceCount->GetPointer());
+    uint32_t*         replay_device_count = pPhysicalDeviceCount->GetOutputPointer();
     VkPhysicalDevice* replay_devices      = pPhysicalDevices->GetHandlePointer();
 
-    VkResult result = func(instance, &replay_device_count, replay_devices);
+    VkResult result = func(instance, replay_device_count, replay_devices);
 
-    if ((result >= 0) && (replay_devices != nullptr) && (instance_devices_.find(instance) == instance_devices_.end()))
+    if ((result >= 0) && (replay_device_count != nullptr) && (replay_devices != nullptr) &&
+        (instance_devices_.find(instance) == instance_devices_.end()))
     {
-        for (uint32_t i = 0; i < replay_device_count; ++i)
+        for (uint32_t i = 0; i < *replay_device_count; ++i)
         {
             // TODO: This will require GH #189 to work correctly when the capture and replay systems have a different
             // number of physcial devices.
@@ -2121,7 +2122,7 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
             devices.capture_devices.push_back(capture_devices[i]);
         }
 
-        for (uint32_t i = 0; i < replay_device_count; ++i)
+        for (uint32_t i = 0; i < *replay_device_count; ++i)
         {
             devices.replay_devices.push_back(replay_devices[i]);
         }
