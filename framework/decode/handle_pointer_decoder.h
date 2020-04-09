@@ -32,13 +32,7 @@ class HandlePointerDecoder
   public:
     HandlePointerDecoder() : handle_data_(nullptr), capacity_(0), is_memory_external_(false) {}
 
-    ~HandlePointerDecoder()
-    {
-        if ((handle_data_ != nullptr) && !is_memory_external_)
-        {
-            delete[] handle_data_;
-        }
-    }
+    ~HandlePointerDecoder() {}
 
     bool IsNull() const { return decoder_.IsNull(); }
 
@@ -83,7 +77,7 @@ class HandlePointerDecoder
             assert(handle_data_ == nullptr);
 
             size_t len   = GetLength();
-            handle_data_ = new T[len];
+            handle_data_ = decoder_.AllocateOutputData(len);
         }
 
         return result;
@@ -119,11 +113,11 @@ class HandlePointerDecoder
     }
 
   private:
-    PointerDecoder<format::HandleId> decoder_;
-    T*                               handle_data_;
-    size_t                           capacity_;
-    bool                             is_memory_external_;
-    std::unique_ptr<void* []>        consumer_data_;
+    PointerDecoder<format::HandleId, T> decoder_;
+    T*                                  handle_data_;
+    size_t                              capacity_;
+    bool                                is_memory_external_;
+    std::unique_ptr<void* []>           consumer_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
