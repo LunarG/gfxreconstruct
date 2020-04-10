@@ -48,6 +48,42 @@ void        ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
 void        DestroyActivity(struct android_app* app);
 
+void run_first_pass_replay_portability(const gfxrecon::decode::ReplayOptions replay_options,
+
+                                       gfxrecon::decode::VulkanDecoder                   decoder,
+                                       gfxrecon::util::ArgumentParser                    arg_parser,
+                                       gfxrecon::decode::VulkanResourceTrackingConsumer* resource_tracking_consumer,
+                                       std::string                                       filename)
+{
+    if (replay_options.enable_multipass_replay_portability == true)
+    {
+        // enable first pass of replay to generate resource tracking information
+        GFXRECON_WRITE_CONSOLE("First pass of replay resource tracking for memory portability. This may "
+                               "take some time. Please wait...");
+        gfxrecon::decode::FileProcessor file_processor_resource_tracking;
+        resource_tracking_consumer = new gfxrecon::decode::VulkanResourceTrackingConsumer(replay_options);
+
+        if (file_processor_resource_tracking.Initialize(filename))
+        {
+            decoder.AddConsumer(resource_tracking_consumer);
+
+            file_processor_resource_tracking.AddDecoder(&decoder);
+            file_processor_resource_tracking.ProcessAllFrames();
+
+            file_processor_resource_tracking.RemoveDecoder(&decoder);
+            decoder.RemoveConsumer(resource_tracking_consumer);
+        }
+
+        // sort the bound resources according to the binding offsets
+        resource_tracking_consumer->SortMemoriesBoundResourcesByOffset();
+
+        // calculate the replay binding offset of the bound resources and replay memory allocation size
+        resource_tracking_consumer->CalculateReplayBindingOffsetAndMemoryAllocationSize();
+
+        GFXRECON_WRITE_CONSOLE("First pass of replay resource tracking done.");
+    }
+}
+
 void android_main(struct android_app* app)
 {
     gfxrecon::util::Log::Init();
@@ -106,40 +142,17 @@ void android_main(struct android_app* app)
                 {
                     gfxrecon::decode::VulkanDecoder        decoder;
 
-                    // TODO(gfxrec-28): add user option to enable multipass replay for memory portability
-                    // first pass of replay to generate resource tracking information
-                    bool                                                              enable_multipass = false;
-                    std::shared_ptr<gfxrecon::decode::VulkanResourceTrackingConsumer> resource_tracking_consumer;
+                    // get user replay option and check if multi-pass replay is enabled for memory portability
+                    const gfxrecon::decode::ReplayOptions             replay_options = GetReplayOptions(arg_parser);
+                    gfxrecon::decode::VulkanResourceTrackingConsumer* resource_tracking_consumer = nullptr;
 
-                    if (enable_multipass)
-                    {
-                        gfxrecon::decode::FileProcessor file_processor_resource_tracking;
-
-                        resource_tracking_consumer = std::make_shared<gfxrecon::decode::VulkanResourceTrackingConsumer>(
-                            GetReplayOptions(arg_parser));
-
-                        if (file_processor_resource_tracking.Initialize(filename))
-                        {
-                            decoder.AddConsumer(resource_tracking_consumer.get());
-
-                            file_processor_resource_tracking.AddDecoder(&decoder);
-                            file_processor_resource_tracking.ProcessAllFrames();
-
-                            file_processor_resource_tracking.RemoveDecoder(&decoder);
-                            decoder.RemoveConsumer(resource_tracking_consumer.get());
-
-                            // sort the bound resources according to the binding offsets
-                            resource_tracking_consumer->SortMemoriesBoundResourcesByOffset();
-
-                            // calculate the replay binding offset of the bound resources and replay memory allocation
-                            // size
-                            resource_tracking_consumer->CalculateReplayBindingOffsetAndMemoryAllocationSize();
-                        }
-                    }
+                    // run first pass of resouce tracking in replay for memory portability if enabled by user
+                    run_first_pass_replay_portability(
+                        replay_options, decoder, arg_parser, resource_tracking_consumer, filename);
 
                     // replay trace
                     gfxrecon::decode::VulkanReplayConsumer replay_consumer(
-                        window_factory.get(), resource_tracking_consumer, GetReplayOptions(arg_parser));
+                        window_factory.get(), resource_tracking_consumer, replay_options);
 
                     replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });
