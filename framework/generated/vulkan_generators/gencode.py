@@ -255,7 +255,7 @@ def makeGenOpts(args):
         className         = 'VulkanReplayConsumer',
         baseClassHeader   = 'vulkan_replay_consumer_base.h',
         isOverride        = True,
-        constructorArgs   = 'WindowFactory* window_factory, const std::shared_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer, const ReplayOptions& options',
+        constructorArgs   = 'WindowFactory* window_factory, VulkanResourceTrackingConsumer* resource_tracking_consumer, const ReplayOptions& options',
         filename          = 'generated_vulkan_replay_consumer.h',
         directory         = directory,
         blacklists        = blacklists,

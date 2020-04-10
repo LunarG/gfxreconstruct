@@ -35,24 +35,26 @@
 const char kApplicationName[] = "GFXReconstruct Replay";
 const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 
-const char kHelpShortOption[]                  = "-h";
-const char kHelpLongOption[]                   = "--help";
-const char kVersionOption[]                    = "--version";
-const char kOverrideGpuArgument[]              = "--gpu";
-const char kPausedOption[]                     = "--paused";
-const char kPauseFrameArgument[]               = "--pause-frame";
-const char kSkipFailedAllocationShortOption[]  = "--sfa";
-const char kSkipFailedAllocationLongOption[]   = "--skip-failed-allocations";
-const char kOmitPipelineCacheDataShortOption[] = "--opcd";
-const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
-const char kWsiArgument[]                      = "--wsi";
-const char kMemoryPortabilityShortOption[]     = "-m";
-const char kMemoryPortabilityLongOption[]      = "--memory-translation";
-const char kShaderReplaceArgument[]            = "--replace-shaders";
-const char kNoDebugPopup[]                     = "--no-debug-popup";
+const char kHelpShortOption[]                             = "-h";
+const char kHelpLongOption[]                              = "--help";
+const char kVersionOption[]                               = "--version";
+const char kNoDebugPopup[]                                = "--no-debug-popup";
+const char kOverrideGpuArgument[]                         = "--gpu";
+const char kPausedOption[]                                = "--paused";
+const char kPauseFrameArgument[]                          = "--pause-frame";
+const char kSkipFailedAllocationShortOption[]             = "--sfa";
+const char kSkipFailedAllocationLongOption[]              = "--skip-failed-allocations";
+const char kOmitPipelineCacheDataShortOption[]            = "--opcd";
+const char kOmitPipelineCacheDataLongOption[]             = "--omit-pipeline-cache-data";
+const char kWsiArgument[]                                 = "--wsi";
+const char kMemoryPortabilityShortOption[]                = "-m";
+const char kMemoryPortabilityLongOption[]                 = "--memory-translation";
+const char kShaderReplaceArgument[]                       = "--replace-shaders";
+const char kEnableMultipassReplayPortabilityLongOption[]  = "--enable-multipass-replay-portability";
+const char kEnableMultipassReplayPortabilityShortOption[] = "--emrp";
 
-const char kOptions[] =
-    "-h|--help,--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data,--no-debug-popup";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-"
+                        "pipeline-cache-data,--emrp|--enable-multipass-replay-portability";
 const char kArguments[] = "--gpu,--pause-frame,--wsi,-m|--memory-translation,--replace-shaders";
 
 enum class WsiPlatform
@@ -240,6 +242,12 @@ static gfxrecon::decode::ReplayOptions GetReplayOptions(const gfxrecon::util::Ar
 
     replay_options.create_resource_allocator = GetCreateResourceAllocatorFunc(arg_parser);
     replay_options.replace_dir               = arg_parser.GetArgumentValue(kShaderReplaceArgument);
+
+    if (arg_parser.IsOptionSet(kEnableMultipassReplayPortabilityLongOption) ||
+        arg_parser.IsOptionSet(kEnableMultipassReplayPortabilityShortOption))
+    {
+        replay_options.enable_multipass_replay_portability = true;
+    }
 
     return replay_options;
 }

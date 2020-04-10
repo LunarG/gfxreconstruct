@@ -132,10 +132,9 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 }
 #endif
 
-VulkanReplayConsumerBase::VulkanReplayConsumerBase(
-    WindowFactory*                                         window_factory,
-    const std::shared_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
-    const ReplayOptions&                                   options) :
+VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory*                  window_factory,
+                                                   VulkanResourceTrackingConsumer* resource_tracking_consumer,
+                                                   const ReplayOptions&            options) :
     loader_handle_(nullptr),
     get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), window_factory_(window_factory),
     resource_tracking_consumer_(resource_tracking_consumer), options_(options), loading_trim_state_(false)
@@ -209,7 +208,7 @@ void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& m
 }
 
 void VulkanReplayConsumerBase::UpdateResourcesData(
-    const std::shared_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
+    const std::unique_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
     uint64_t                                               memory_id,
     uint64_t                                               offset,
     uint64_t                                               size,
