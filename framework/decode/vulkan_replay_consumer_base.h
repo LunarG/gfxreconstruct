@@ -285,6 +285,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         }
     }
 
+    template <typename HandleInfoT>
+    void SetOutputArrayCount(format::HandleId handle_id,
+                             uint32_t         index,
+                             size_t           count,
+                             HandleInfoT* (VulkanObjectInfoTable::*HandleInfoFunc)(format::HandleId))
+    {
+        HandleInfoT* info = (object_info_table_.*HandleInfoFunc)(handle_id);
+        if (info != nullptr)
+        {
+            info->array_counts[index] = count;
+        }
+    }
+
     //
     // Replay function overrides provided to the replay consumer code generator with replay_overrides.json
     //
