@@ -177,11 +177,25 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         return body
 
     #
+    # Generate expressions to store the result of the count query for an array containing a variable number of values.
+    def makeVariableLengthArrayPostExpr(self, name, value, values, lengthName):
+        handleValue = values[0]
+        if self.isHandle(values[1].baseType):
+            handleValue = values[1]
+
+        indexId = 'k{}Array{}'.format(handleValue.baseType[2:], name[2:])
+        handleType = '{}Info'.format(handleValue.baseType[2:])
+        infoFunc = '&VulkanObjectInfoTable::Get{}Info'.format(handleValue.baseType[2:])
+
+        return 'if ({}->IsNull()) {{ SetOutputArrayCount<{}>({}, {}, {}, {}); }}'.format(value.name, handleType, handleValue.name, indexId, lengthName, infoFunc)
+
+    #
     # Generating expressions for mapping decoded parameters to arguments used in the API call
     def makeBodyExpressions(self, name, values, isOverride):
         # For array lengths that are stored in pointers, this will map the original parameter name
         # to the temporary parameter name that was created to store the value to be provided to the Vulkan API call.
         arrayLengths = dict()
+        isVariableLength = False
 
         args = []       # List of arguments to the API call.
         preexpr = []    # Variable declarations for handle mappings, temporary output allocations, and input pointers.
@@ -220,6 +234,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         # API call.  The 'arrayLengths' dictionary contains a mapping of the original parameter name to the
                         # intermediate value name.  For this case, we need to use the intermediate value for array allocations.
                         lengthName = arrayLengths[lengthName]
+                        isVariableLength = True
                     elif '->' in lengthName:
                         # Some counts are members of an allocate info struct.  Similar to the above PointerDecoder<T> case,
                         # Pointers to structures are received in a StructPointerDecoder<T> object and an intermediate value is
@@ -276,6 +291,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                 else:
                     # Initialize output pointer.
                     if value.isArray:
+                        if isVariableLength:
+                            # Store the result of an array size query.
+                            postexpr.append(self.makeVariableLengthArrayPostExpr(name, value, values, lengthName))
+
                         if value.baseType in self.EXTERNAL_OBJECT_TYPES:
                             # This is effectively an array with type void*, which was encoded as an array of bytes.
                             if needTempValue:
@@ -293,25 +312,24 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 expr = 'for (size_t i = 0; i < {}; ++i) {{ {}->SetConsumerData(i, &handle_info[i]); }}'.format(lengthName, value.name);
                                 postexpr.append('AddHandles<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info);'.format(lengthName, paramname=value.name, basetype=value.baseType[2:]))
                         elif self.isStruct(value.baseType):
-                            if needTempValue:
+                            # Generate the expression to allocate the output array.
+                            allocExpr = ''
+                            if value.baseType in self.sTypeValues:
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
-                                if value.baseType in self.sTypeValues:
-                                    # TODO: recreate pNext value read from the capture file.
-                                    expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({}, {}{{ {}, nullptr }});'.format(lengthName, value.baseType, self.sTypeValues[value.baseType], paramname=value.name)
-                                else:
-                                    expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({});'.format(lengthName, paramname=value.name)
+                                # TODO: recreate pNext value read from the capture file.
+                                allocExpr += 'AllocateOutputData({}, {}{{ {}, nullptr }});'.format(lengthName, value.baseType, self.sTypeValues[value.baseType])
+                            else:
+                                allocExpr += 'AllocateOutputData({});'.format(lengthName)
+
+                            if needTempValue:
+                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->{}'.format(allocExpr, paramname=value.name)
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.baseType in self.structsWithHandles:
                                     if value.baseType in self.structsWithHandlePtrs:
                                         preexpr.append('SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'.format(value.baseType, paramname=value.name))
                                     postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {}, {}, GetObjectInfoTable());'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
                             else:
-                                # If this is a struct with sType and pNext fields, we need to initialize them.
-                                if value.baseType in self.sTypeValues:
-                                    # TODO: recreate pNext value read from the capture file.
-                                    expr += 'if (!{paramname}->IsNull()) {{ {paramname}->AllocateOutputData({}, {}{{ {}, nullptr }}); }}'.format(lengthName, value.baseType, self.sTypeValues[value.baseType], paramname=value.name)
-                                else:
-                                    expr += 'if (!{paramname}->IsNull()) {{ {paramname}->AllocateOutputData({}); }}'.format(lengthName, paramname=value.name)
+                                expr += 'if (!{paramname}->IsNull()) {{ {paramname}->{} }}'.format(allocExpr, paramname=value.name)
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.baseType in self.structsWithHandles:
                                     if value.baseType in self.structsWithHandlePtrs:
