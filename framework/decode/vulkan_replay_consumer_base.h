@@ -32,6 +32,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
 
@@ -294,8 +295,51 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         HandleInfoT* info = (object_info_table_.*HandleInfoFunc)(handle_id);
         if (info != nullptr)
         {
-            info->array_counts[index] = count;
+            info->array_counts[index] = static_cast<size_t>(count);
         }
+    }
+
+    template <typename CountT, typename HandleInfoT, typename ArrayT>
+    CountT GetOutputArrayCount(const char*                   func_name,
+                               VkResult                      original_result,
+                               format::HandleId              handle_id,
+                               uint32_t                      index,
+                               const PointerDecoder<CountT>* original_count,
+                               const ArrayT*                 original_array,
+                               const HandleInfoT* (VulkanObjectInfoTable::*HandleInfoFunc)(format::HandleId) const)
+    {
+        assert((original_count != nullptr) && (original_array != nullptr));
+
+        CountT replay_count = 0;
+
+        if (!original_count->IsNull() && !original_array->IsNull())
+        {
+            // When the array parameter is not null, start with array count set equal to the capture count and then
+            // adjust if the replay count is different.
+            replay_count = (*original_count->GetPointer());
+
+            // Only adjust the replay array count if the call succeeded on capture so that errors generated at capture,
+            // such as VK_INCOMPLETE, continue to be generated at replay.
+            if (original_result == VK_SUCCESS)
+            {
+                const HandleInfoT* info = (object_info_table_.*HandleInfoFunc)(handle_id);
+                if (info != nullptr)
+                {
+                    auto entry = info->array_counts.find(index);
+                    if ((entry != info->array_counts.end()) && (entry->second != replay_count))
+                    {
+                        GFXRECON_LOG_INFO("Replay adjusted the %s array count: capture count = %" PRIuPTR
+                                          ", replay count = %" PRIuPTR,
+                                          func_name,
+                                          static_cast<size_t>(replay_count),
+                                          entry->second);
+                        replay_count = static_cast<CountT>(entry->second);
+                    }
+                }
+            }
+        }
+
+        return replay_count;
     }
 
     //
