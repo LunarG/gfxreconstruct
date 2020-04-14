@@ -21,11 +21,11 @@
 
 #include "util/defines.h"
 
-#include <string>
-
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-#include <xcb/xcb_keysyms.h>
+#include "util/xcb_keysyms_loader.h"
 #endif
+
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -48,6 +48,7 @@ class Keyboard
   private:
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     xcb_connection_t* xcb_connection_;
+    XcbKeysymsLoader  xcb_keysyms_loader_;
 #endif
 };
 

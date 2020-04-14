@@ -34,6 +34,8 @@ target_sources(gfxrecon_util
                    settings_loader.cpp
                    $<$<BOOL:${XCB_FOUND}>:xcb_loader.h>
                    $<$<BOOL:${XCB_FOUND}>:xcb_loader.cpp>
+                   $<$<BOOL:${XCB_FOUND}>:xcb_keysyms_loader.h>
+                   $<$<BOOL:${XCB_FOUND}>:xcb_keysyms_loader.cpp>
                    $<$<BOOL:${WAYLAND_FOUND}>:wayland_loader.h>
                    $<$<BOOL:${WAYLAND_FOUND}>:wayland_loader.cpp>
               )
@@ -42,7 +44,7 @@ target_include_directories(gfxrecon_util
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS} $<$<BOOL:${XCB_FOUND}>:${XCB_LIBRARIES}>)
+target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS})
 
 if (UNIX AND NOT APPLE)
     # Check for clock_gettime in libc
