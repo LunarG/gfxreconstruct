@@ -21,6 +21,9 @@
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
 #include <X11/keysym.h>
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+#include <X11/Xlib-xcb.h>
+#endif
 #endif
 
 #include <unordered_map>
@@ -35,6 +38,25 @@ void Keyboard::Initialize(xcb_connection_t* connection)
     {
         xcb_connection_ = connection;
     }
+}
+#endif
+
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+void Keyboard::Initialize(Display* display)
+{
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+    // TODO: Native Xlib support
+    auto xlib_xcb = util::platform::OpenLibrary("libX11-xcb.so");
+    if (xlib_xcb)
+    {
+        auto x_get_xcb_connection = reinterpret_cast<decltype(XGetXCBConnection)*>(
+            util::platform::GetProcAddress(xlib_xcb, "XGetXCBConnection"));
+        Initialize(x_get_xcb_connection(display));
+        util::platform::CloseLibrary(xlib_xcb);
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(display);
+#endif
 }
 #endif
 

@@ -1481,6 +1481,26 @@ void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          resu
     }
 }
 
+void TraceManager::PreProcess_vkCreateXlibSurfaceKHR(VkInstance                        instance,
+                                                     const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
+                                                     const VkAllocationCallbacks*      pAllocator,
+                                                     VkSurfaceKHR*                     pSurface)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pSurface);
+
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+    assert(pCreateInfo != nullptr);
+    if (pCreateInfo)
+    {
+        keyboard_.Initialize(pCreateInfo->dpy);
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
+#endif
+}
+
 void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                       instance,
                                                     const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
                                                     const VkAllocationCallbacks*     pAllocator,
