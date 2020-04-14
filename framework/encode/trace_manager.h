@@ -400,6 +400,11 @@ class TraceManager
         }
     }
 
+    void PreProcess_vkCreateXlibSurfaceKHR(VkInstance                        instance,
+                                           const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
+                                           const VkAllocationCallbacks*      pAllocator,
+                                           VkSurfaceKHR*                     pSurface);
+
     void PreProcess_vkCreateXcbSurfaceKHR(VkInstance                       instance,
                                           const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
                                           const VkAllocationCallbacks*     pAllocator,
