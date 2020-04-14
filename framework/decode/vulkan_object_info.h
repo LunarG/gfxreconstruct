@@ -26,9 +26,9 @@
 
 #include "vulkan/vulkan.h"
 
-#include <array>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -38,8 +38,6 @@ enum InstanceArrayIndices : uint32_t
 {
     kInstanceArrayEnumeratePhysicalDevices      = 0,
     kInstanceArrayEnumeratePhysicalDeviceGroups = 1,
-    // Value to use for array sizes.
-    kInstanceArrayIndexCount,
     // Aliases for extensions functions that were promoted to core.
     kInstanceArrayEnumeratePhysicalDeviceGroupsKHR = kInstanceArrayEnumeratePhysicalDeviceGroups
 };
@@ -60,8 +58,6 @@ enum PhysicalDeviceArrayIndices : uint32_t
     kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixPropertiesNV                  = 11,
     kPhysicalDeviceArrayGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV = 12,
     kPhysicalDeviceArrayGetPhysicalDeviceSurfacePresentModes2EXT                        = 13,
-    // Value to use for array sizes.
-    kPhysicalDeviceArrayIndexCount,
     // Aliases for extensions functions that were promoted to core.
     kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2KHR =
         kPhysicalDeviceArrayGetPhysicalDeviceQueueFamilyProperties2,
@@ -75,70 +71,52 @@ enum DeviceArrayIndices : uint32_t
     kDeviceArrayGetPipelineExecutablePropertiesKHR              = 1,
     kDeviceArrayGetPipelineExecutableStatisticsKHR              = 2,
     kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR = 3,
-    // Value to use for array sizes.
-    kDeviceArrayIndexCount,
     // Aliases for extensions functions that were promoted to core.
     kDeviceArrayGetImageSparseMemoryRequirements2KHR = kDeviceArrayGetImageSparseMemoryRequirements2
 };
 
 enum QueueArrayIndices : uint32_t
 {
-    kQueueArrayGetQueueCheckpointDataNV = 0,
-    // Value to use for array sizes.
-    kQueueArrayIndexCount
+    kQueueArrayGetQueueCheckpointDataNV = 0
 };
 
 enum ImageArrayIndices : uint32_t
 {
-    kImageArrayGetImageSparseMemoryRequirements = 0,
-    // Value to use for array sizes.
-    kImageArrayIndexCount
+    kImageArrayGetImageSparseMemoryRequirements = 0
 };
 
 enum PipelineCacheArrayIndices : uint32_t
 {
-    kPipelineCacheArrayGetPipelineCacheData = 0,
-    // Value to use for array sizes.
-    kPipelineCacheArrayIndexCount
+    kPipelineCacheArrayGetPipelineCacheData = 0
 };
 
 enum PipelineArrayIndices : uint32_t
 {
-    kPipelineArrayGetShaderInfoAMD = 0,
-    // Value to use for array sizes.
-    kPipelineArrayIndexCount
+    kPipelineArrayGetShaderInfoAMD = 0
 };
 
 enum DisplayKHRArrayIndices : uint32_t
 {
     kDisplayKHRArrayGetDisplayModePropertiesKHR  = 0,
-    kDisplayKHRArrayGetDisplayModeProperties2KHR = 1,
-    // Value to use for array sizes.
-    kDisplayKHRArrayIndexCount
+    kDisplayKHRArrayGetDisplayModeProperties2KHR = 1
 };
 
 enum SurfaceKHRArrayIndices : uint32_t
 {
     kSurfaceKHRArrayGetPhysicalDeviceSurfaceFormatsKHR      = 0,
     kSurfaceKHRArrayGetPhysicalDeviceSurfacePresentModesKHR = 1,
-    kSurfaceKHRArrayGetPhysicalDevicePresentRectanglesKHR   = 2,
-    // Value to use for array sizes.
-    kSurfaceKHRArrayIndexCount
+    kSurfaceKHRArrayGetPhysicalDevicePresentRectanglesKHR   = 2
 };
 
 enum SwapchainKHRArrayIndices : uint32_t
 {
     kSwapchainKHRArrayGetSwapchainImagesKHR           = 0,
-    kSwapchainKHRArrayGetPastPresentationTimingGOOGLE = 1,
-    // Value to use for array sizes.
-    kSwapchainKHRArrayIndexCount
+    kSwapchainKHRArrayGetPastPresentationTimingGOOGLE = 1
 };
 
 enum ValidationCacheEXTArrayIndices : uint32_t
 {
-    kValidationCacheEXTArrayGetValidationCacheDataEXT = 0,
-    // Value to use for array sizes.
-    kValidationCacheEXTArrayIndexCount
+    kValidationCacheEXTArrayGetValidationCacheDataEXT = 0
 };
 
 template <typename T>
@@ -186,26 +164,26 @@ typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurati
 
 struct InstanceInfo : public VulkanObjectInfo<VkInstance>
 {
-    uint32_t                                     api_version{ 0 };
-    std::array<size_t, kInstanceArrayIndexCount> array_counts;
+    uint32_t                             api_version{ 0 };
+    std::unordered_map<uint32_t, size_t> array_counts;
 };
 
 struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 {
-    VkInstance                                         parent{ VK_NULL_HANDLE };
-    uint32_t                                           parent_api_version{ 0 };
-    VkPhysicalDeviceMemoryProperties                   capture_memory_properties{};
-    VkPhysicalDeviceMemoryProperties                   replay_memory_properties{};
-    std::array<size_t, kPhysicalDeviceArrayIndexCount> array_counts;
+    VkInstance                           parent{ VK_NULL_HANDLE };
+    uint32_t                             parent_api_version{ 0 };
+    VkPhysicalDeviceMemoryProperties     capture_memory_properties{};
+    VkPhysicalDeviceMemoryProperties     replay_memory_properties{};
+    std::unordered_map<uint32_t, size_t> array_counts;
 };
 
 struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 {
-    VkPhysicalDevice                           parent{ VK_NULL_HANDLE };
-    std::unique_ptr<VulkanResourceAllocator>   allocator;
-    const VkPhysicalDeviceMemoryProperties*    capture_memory_properties{ nullptr };
-    const VkPhysicalDeviceMemoryProperties*    replay_memory_properties{ nullptr };
-    std::array<size_t, kDeviceArrayIndexCount> array_counts;
+    VkPhysicalDevice                         parent{ VK_NULL_HANDLE };
+    std::unique_ptr<VulkanResourceAllocator> allocator;
+    const VkPhysicalDeviceMemoryProperties*  capture_memory_properties{ nullptr };
+    const VkPhysicalDeviceMemoryProperties*  replay_memory_properties{ nullptr };
+    std::unordered_map<uint32_t, size_t>     array_counts;
 
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
@@ -214,7 +192,7 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 
 struct QueueInfo : public VulkanObjectInfo<VkQueue>
 {
-    std::array<size_t, kQueueArrayIndexCount> array_counts;
+    std::unordered_map<uint32_t, size_t> array_counts;
 };
 
 struct DeviceMemoryInfo : public VulkanObjectInfo<VkDeviceMemory>
@@ -239,7 +217,7 @@ struct BufferInfo : public VulkanObjectInfo<VkBuffer>
 
 struct ImageInfo : public VulkanObjectInfo<VkImage>
 {
-    std::array<size_t, kImageArrayIndexCount> array_counts;
+    std::unordered_map<uint32_t, size_t> array_counts;
 
     // The following values are only used for memory portability.
     VulkanResourceAllocator::ResourceData allocator_data{ 0 };
@@ -263,12 +241,12 @@ struct ImageInfo : public VulkanObjectInfo<VkImage>
 
 struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
 {
-    std::array<size_t, kPipelineCacheArrayIndexCount> array_counts;
+    std::unordered_map<uint32_t, size_t> array_counts;
 };
 
 struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
 {
-    std::array<size_t, kPipelineArrayIndexCount> array_counts;
+    std::unordered_map<uint32_t, size_t> array_counts;
 };
 
 struct DescriptorUpdateTemplateInfo : public VulkanObjectInfo<VkDescriptorUpdateTemplate>
@@ -278,19 +256,19 @@ struct DescriptorUpdateTemplateInfo : public VulkanObjectInfo<VkDescriptorUpdate
 
 struct DisplayKHRInfo : public VulkanObjectInfo<VkDisplayKHR>
 {
-    std::array<size_t, kDisplayKHRArrayIndexCount> array_counts;
+    std::unordered_map<uint32_t, size_t> array_counts;
 };
 
 struct SurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
 {
-    Window*                                        window{ nullptr };
-    std::array<size_t, kSurfaceKHRArrayIndexCount> array_counts;
+    Window*                              window{ nullptr };
+    std::unordered_map<uint32_t, size_t> array_counts;
 };
 
 struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 {
-    VkSurfaceKHR                                     surface{ VK_NULL_HANDLE };
-    std::array<size_t, kSwapchainKHRArrayIndexCount> array_counts;
+    VkSurfaceKHR                         surface{ VK_NULL_HANDLE };
+    std::unordered_map<uint32_t, size_t> array_counts;
 
     // The following values are only used when loading the initial state for trimmed files.
     uint32_t queue_family_index{ 0 };
@@ -298,7 +276,7 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
 {
-    std::array<size_t, kValidationCacheEXTArrayIndexCount> array_counts;
+    std::unordered_map<uint32_t, size_t> array_counts;
 };
 
 //

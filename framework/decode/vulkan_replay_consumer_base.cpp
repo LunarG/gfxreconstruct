@@ -24,7 +24,6 @@
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/file_path.h"
 #include "util/hash.h"
-#include "util/logging.h"
 #include "util/platform.h"
 
 #include <cstdint>

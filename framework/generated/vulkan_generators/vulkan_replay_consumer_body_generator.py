@@ -137,7 +137,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         body = ''
         isOverride = name in self.REPLAY_OVERRIDES
 
-        args, preexpr, postexpr = self.makeBodyExpressions(name, values, isOverride)
+        args, preexpr, postexpr = self.makeBodyExpressions(returnType, name, values, isOverride)
         arglist = ', '.join(args)
 
         dispatchfunc = ''
@@ -190,8 +190,33 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         return 'if ({}->IsNull()) {{ SetOutputArrayCount<{}>({}, {}, {}, {}); }}'.format(value.name, handleType, handleValue.name, indexId, lengthName, infoFunc)
 
     #
+    # Generate expressions to call a function that retrieves the count of an array containing a variable number of values.
+    def makeVariableLengthArrayGetCountCall(self, returnType, name, value, values):
+        returnValue = 'VK_SUCCESS'
+        if (returnType == 'VkResult'):
+            returnValue = 'returnValue'
+
+        handleValue = values[0]
+        if self.isHandle(values[1].baseType):
+            handleValue = values[1]
+
+        arrayName = None
+        for v in values:
+            if v.arrayLength == value.name:
+                arrayName = v.name
+
+        if not arrayName:
+            print("WARNING: Could not determine the name of the array parameter associate with function {} count parameter {}.".format(name, value.name))
+
+        indexId = 'k{}Array{}'.format(handleValue.baseType[2:], name[2:])
+        handleType = '{}Info'.format(handleValue.baseType[2:])
+        infoFunc = '&VulkanObjectInfoTable::Get{}Info'.format(handleValue.baseType[2:])
+
+        return 'GetOutputArrayCount<{}, {}>("{}", {}, {}, {}, {}, {}, {})'.format(value.baseType, handleType, name, returnValue, handleValue.name, indexId, value.name, arrayName, infoFunc)
+
+    #
     # Generating expressions for mapping decoded parameters to arguments used in the API call
-    def makeBodyExpressions(self, name, values, isOverride):
+    def makeBodyExpressions(self, returnType, name, values, isOverride):
         # For array lengths that are stored in pointers, this will map the original parameter name
         # to the temporary parameter name that was created to store the value to be provided to the Vulkan API call.
         arrayLengths = dict()
@@ -362,7 +387,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         else:
                             if self.isArrayLen(value.name, values):
                                 # If this is an array length, it is an in/out parameter and we need to assign the input value.
-                                expr += '{}->AllocateOutputData(1, {paramname}->IsNull() ? static_cast<{}>(0) : (*{paramname}->GetPointer()));'.format(value.name, value.baseType, paramname = value.name)
+                                expr += '{}->AllocateOutputData(1, {});'.format(value.name, self.makeVariableLengthArrayGetCountCall(returnType, name, value, values))
                                 # Need to store the name of the intermediate value for use with allocating the array associated with this length.
                                 if needTempValue:
                                     arrayLengths[value.name] = '*{}'.format(argName)
