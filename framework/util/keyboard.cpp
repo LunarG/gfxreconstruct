@@ -31,7 +31,10 @@ GFXRECON_BEGIN_NAMESPACE(util)
 #if defined(VK_USE_PLATFORM_XCB_KHR)
 void Keyboard::Initialize(xcb_connection_t* connection)
 {
-    xcb_connection_ = connection;
+    if (xcb_keysyms_loader_.Initialize())
+    {
+        xcb_connection_ = connection;
+    }
 }
 #endif
 
@@ -81,18 +84,21 @@ bool Keyboard::GetKeyState(const std::string& key)
                                                                            { "ControlRight", XK_Control_R } };
     if (xcb_connection_)
     {
-        auto iterator_key_code = xcb_key_code_map.find(key);
+        auto& xcb_keysyms       = xcb_keysyms_loader_.GetFunctionTable();
+        auto  iterator_key_code = xcb_key_code_map.find(key);
         if (iterator_key_code != xcb_key_code_map.end())
         {
             int                key_state      = 0;
-            xcb_key_symbols_t* hot_key_symbol = xcb_key_symbols_alloc(xcb_connection_);
+            xcb_key_symbols_t* hot_key_symbol = xcb_keysyms.key_symbols_alloc(xcb_connection_);
             if (hot_key_symbol != nullptr)
             {
-                xcb_keycode_t* xcb_key_code = xcb_key_symbols_get_keycode(hot_key_symbol, iterator_key_code->second);
+                xcb_keycode_t* xcb_key_code =
+                    xcb_keysyms.key_symbols_get_keycode(hot_key_symbol, iterator_key_code->second);
                 if (xcb_key_code != nullptr)
                 {
-                    xcb_query_keymap_cookie_t cookie       = xcb_query_keymap(xcb_connection_);
-                    xcb_query_keymap_reply_t* keys_bit_map = xcb_query_keymap_reply(xcb_connection_, cookie, NULL);
+                    xcb_query_keymap_cookie_t cookie = xcb_keysyms.query_keymap(xcb_connection_);
+                    xcb_query_keymap_reply_t* keys_bit_map =
+                        xcb_keysyms.query_keymap_reply(xcb_connection_, cookie, NULL);
                     if ((keys_bit_map->keys[(*xcb_key_code / 8)] & (1 << (*xcb_key_code % 8))) != 0)
                     {
                         result = true;
@@ -100,7 +106,7 @@ bool Keyboard::GetKeyState(const std::string& key)
                     free(keys_bit_map);
                     free(xcb_key_code);
                 }
-                xcb_key_symbols_free(hot_key_symbol);
+                xcb_keysyms.key_symbols_free(hot_key_symbol);
             }
         }
     }
