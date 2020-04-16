@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018-2019 Valve Corporation
-# Copyright (c) 2018-2019 LunarG, Inc.
+# Copyright (c) 2018-2020 Valve Corporation
+# Copyright (c) 2018-2020 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -228,7 +228,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         if needTempValue:
                             lengthName = 'in_' + lengthName
                         else:
-                            lengthName = lengthName.replace('->', '.GetPointer()->')
+                            lengthName = lengthName.replace('->', '->GetPointer()->')
 
                 if not needTempValue:
                     args.append(value.name)
@@ -262,21 +262,21 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                     elif self.isHandle(value.baseType):
                         # We received an array of 64-bit integer IDs from the decoder.
                         if needTempValue:
-                            expr = expr.replace('const', '').lstrip() + '{}.GetHandlePointer();'.format(value.name)
+                            expr = expr.replace('const', '').lstrip() + '{}->GetHandlePointer();'.format(value.name)
                             preexpr.append(expr)
-                            expr = 'MapHandles<{type}Info>({paramname}.GetPointer(), {paramname}.GetLength(), {}, {}, &VulkanObjectInfoTable::Get{type}Info);'.format(argName, lengthName, type=value.baseType[2:], paramname=value.name)
+                            expr = 'MapHandles<{type}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &VulkanObjectInfoTable::Get{type}Info);'.format(argName, lengthName, type=value.baseType[2:], paramname=value.name)
                         else:
-                            expr = 'MapHandles<{type}Info>({paramname}.GetPointer(), {paramname}.GetLength(), {paramname}.GetHandlePointer(), {}, &VulkanObjectInfoTable::Get{type}Info);'.format(lengthName, type=value.baseType[2:], paramname=value.name)
+                            expr = 'MapHandles<{type}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, &VulkanObjectInfoTable::Get{type}Info);'.format(lengthName, type=value.baseType[2:], paramname=value.name)
                     else:
                         if needTempValue:
-                            expr += '{}.GetPointer();'.format(value.name)
+                            expr += '{}->GetPointer();'.format(value.name)
 
                         if value.baseType in self.structsWithHandles:
                             preexpr.append(expr)
                             if value.isArray:
-                                expr = 'MapStructArrayHandles({name}.GetMetaStructPointer(), {name}.GetLength(), GetObjectInfoTable());'.format(name=value.name)
+                                expr = 'MapStructArrayHandles({name}->GetMetaStructPointer(), {name}->GetLength(), GetObjectInfoTable());'.format(name=value.name)
                             else:
-                                expr = 'MapStructHandles({}.GetMetaStructPointer(), GetObjectInfoTable());'.format(value.name)
+                                expr = 'MapStructHandles({}->GetMetaStructPointer(), GetObjectInfoTable());'.format(value.name)
                 else:
                     # Initialize output pointer.
                     if value.isArray:

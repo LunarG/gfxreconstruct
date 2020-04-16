@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2019 Valve Corporation
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 Valve Corporation
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -52,8 +52,6 @@ class HandlePointerDecoder
 
     size_t GetLength() const { return decoder_.GetLength(); }
 
-    format::HandleId* GetPointer() { return decoder_.GetPointer(); }
-
     const format::HandleId* GetPointer() const { return decoder_.GetPointer(); }
 
     void SetExternalMemory(T* data, size_t capacity)
@@ -72,7 +70,9 @@ class HandlePointerDecoder
         }
     }
 
-    T* GetHandlePointer() const { return handle_data_; }
+    T* GetHandlePointer() { return handle_data_; }
+
+    const T* GetHandlePointer() const { return handle_data_; }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size)
     {

@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2020 Valve Corporation
+# Copyright (c) 2018-2020 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
         for value in values:
             decodeType = self.makeDecodedParamType(value)
             body += '    {} {};\n'.format(decodeType, value.name)
-            if self.isOutputParameter(value):
+            if 'Decoder' in decodeType:
                 argNames.append('&{}'.format(value.name))
             else:
                 argNames.append(value.name)

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -42,9 +42,11 @@ class PNextTypedNode : public PNextNode
 
     virtual void* GetPointer() override { return struct_pointer_.GetPointer(); }
 
-    const virtual void* GetPointer() const override { return struct_pointer_.GetPointer(); }
+    virtual const void* GetPointer() const override { return struct_pointer_.GetPointer(); }
 
-    virtual void* GetMetaStructPointer() const override { return struct_pointer_.GetMetaStructPointer(); }
+    virtual void* GetMetaStructPointer() override { return struct_pointer_.GetMetaStructPointer(); }
+
+    virtual const void* GetMetaStructPointer() const override { return struct_pointer_.GetMetaStructPointer(); }
 
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) override
     {
