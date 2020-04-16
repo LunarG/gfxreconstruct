@@ -50,7 +50,7 @@ target_compile_definitions(platform_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE
 
 add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${GFXRECON_SOURCE_DIR}/external/Vulkan-Headers/include)
-target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES)
+target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
 add_library(vulkan_memory_allocator INTERFACE)
 target_include_directories(vulkan_memory_allocator INTERFACE ${GFXRECON_SOURCE_DIR}/external/VulkanMemoryAllocator/include)

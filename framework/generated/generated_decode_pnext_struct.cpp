@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -458,6 +458,10 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  s
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkSurfaceProtectedCapabilitiesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_DEFERRED_OPERATION_INFO_KHR:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkDeferredOperationInfoKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -706,8 +710,8 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  s
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
-                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkWriteDescriptorSetAccelerationStructureNV>>();
+            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV:
@@ -810,8 +814,8 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  s
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
-            case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO_INTEL:
-                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkQueryPoolCreateInfoINTEL>>();
+            case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkQueryPoolPerformanceQueryCreateInfoINTEL>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT:
@@ -942,6 +946,18 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  s
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkGraphicsPipelineShaderGroupsCreateInfoNV>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -956,6 +972,26 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  s
                 break;
             case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES_EXT:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkDeviceDiagnosticsConfigCreateInfoNV>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceRayTracingFeaturesKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_KHR:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceRayTracingPropertiesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             }

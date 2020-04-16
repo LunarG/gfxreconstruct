@@ -70,7 +70,8 @@ class ValueInfo():
                  altArrayLength = None,
                  arrayCapacity = None,
                  platformBaseType = None,
-                 platformFullType = None):
+                 platformFullType = None,
+                 bitfieldWidth = None):
         self.name = name
         self.baseType = baseType
         self.fullType = fullType
@@ -80,6 +81,7 @@ class ValueInfo():
         self.arrayCapacity = arrayCapacity
         self.platformBaseType = platformBaseType
         self.platformFullType = platformFullType
+        self.bitfieldWidth = bitfieldWidth
 
         self.isPointer = True if pointerCount > 0 else False
         self.isArray = True if arrayLength else False
@@ -370,7 +372,8 @@ class BaseGenerator(OutputGenerator):
         for param in params:
             # Get name
             elem = param.find('name')
-            name = noneStr(elem.text) #+ noneStr(elem.tail)
+            name = noneStr(elem.text)
+            nameTail = noneStr(elem.tail)
 
             # Get type info
             elem = param.find('type')
@@ -395,6 +398,11 @@ class BaseGenerator(OutputGenerator):
                 arrayCapacity = arrayLength
                 arrayLength = self.getStaticArrayLen(name, params, arrayCapacity)
 
+            # Get bitfield width
+            bitfieldWidth = None
+            if ':' in nameTail:
+                bitfieldWidth = nameTail
+
             values.append(ValueInfo(
                 name = name,
                 baseType = baseType,
@@ -404,7 +412,8 @@ class BaseGenerator(OutputGenerator):
                 altArrayLength = altArrayLength,
                 arrayCapacity = arrayCapacity,
                 platformBaseType = platformBaseType,
-                platformFullType = platformFullType))
+                platformFullType = platformFullType,
+                bitfieldWidth = bitfieldWidth))
 
         return values
 
@@ -508,7 +517,11 @@ class BaseGenerator(OutputGenerator):
                 if paramenumsize is not None:
                     result = paramenumsize.text
                 else:
-                    result = paramname.tail[1:-1]
+                    paramsizes = paramname.tail[1:-1].split('][')
+                    sizetokens = []
+                    for paramsize in paramsizes:
+                        sizetokens.append(paramsize)
+                    result = ', '.join(sizetokens)
         return result
 
     #
@@ -843,7 +856,10 @@ class BaseGenerator(OutputGenerator):
                 lengthName = self.parseLateXMath(value.arrayLength)
                 lengthExpr = value.altArrayLength
 
-            methodCall += 'Array'
+            if ',' in lengthName:
+                methodCall += '{}DMatrix'.format(lengthName.count(',') + 1)
+            else:
+                methodCall += 'Array'
 
             # Build a list of parameter names and search for the array length value.
             lengthValue = None

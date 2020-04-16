@@ -168,11 +168,12 @@ typedef VulkanObjectInfo<VkCommandPool>                   CommandPoolInfo;
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>        SamplerYcbcrConversionInfo;
 typedef VulkanObjectInfo<VkDisplayModeKHR>                DisplayModeKHRInfo;
 typedef VulkanObjectInfo<VkDebugReportCallbackEXT>        DebugReportCallbackEXTInfo;
-typedef VulkanObjectInfo<VkObjectTableNVX>                ObjectTableNVXInfo;
-typedef VulkanObjectInfo<VkIndirectCommandsLayoutNVX>     IndirectCommandsLayoutNVXInfo;
+typedef VulkanObjectInfo<VkIndirectCommandsLayoutNV>      IndirectCommandsLayoutNVInfo;
 typedef VulkanObjectInfo<VkDebugUtilsMessengerEXT>        DebugUtilsMessengerEXTInfo;
+typedef VulkanObjectInfo<VkAccelerationStructureKHR>      AccelerationStructureKHRInfo;
 typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureNVInfo;
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
+typedef VulkanObjectInfo<VkDeferredOperationKHR>          DeferredOperationKHRInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.

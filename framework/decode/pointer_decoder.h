@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -72,6 +72,25 @@ class PointerDecoder : public PointerDecoderBase
         }
 
         return output_data_.get();
+    }
+
+    template <size_t N, size_t M>
+    void SetExternalMemory(T (&data)[N][M], size_t n, size_t m)
+    {
+        assert((data_ == nullptr) && (N == n) && (M == m));
+
+        size_t capacity = n * m;
+
+        if ((data != nullptr) && (capacity > 0))
+        {
+            data_               = reinterpret_cast<T*>(data);
+            capacity_           = capacity;
+            is_memory_external_ = true;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Pointer decoder's external memory was initialized with a NULL pointer");
+        }
     }
 
     void SetExternalMemory(T* data, size_t capacity)

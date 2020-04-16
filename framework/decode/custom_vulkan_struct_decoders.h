@@ -69,6 +69,26 @@ struct Decoded_VkPipelineExecutableStatisticValueKHR
     VkPipelineExecutableStatisticValueKHR* decoded_value{ nullptr };
 };
 
+struct Decoded_VkDeviceOrHostAddressKHR
+{
+    using struct_type = VkDeviceOrHostAddressKHR;
+    VkDeviceOrHostAddressKHR* decoded_value{ nullptr };
+    uint64_t                  hostAddress{ 0 };
+};
+
+struct Decoded_VkDeviceOrHostAddressConstKHR
+{
+    using struct_type = VkDeviceOrHostAddressConstKHR;
+    VkDeviceOrHostAddressConstKHR* decoded_value{ nullptr };
+    uint64_t                       hostAddress{ 0 };
+};
+
+struct Decoded_VkAccelerationStructureGeometryDataKHR
+{
+    using struct_type = VkAccelerationStructureGeometryDataKHR;
+    VkAccelerationStructureGeometryDataKHR* decoded_value{ nullptr };
+};
+
 // This union wrapper does not have a DecodeStruct function.  It is decoded by the Decoded_VkPerformanceValueINTEL
 // DecodeStruct function, based on the value of VkPerformanceValueINTEL::type.
 struct Decoded_VkPerformanceValueDataINTEL
@@ -113,9 +133,11 @@ struct Decoded_VkPerformanceValueINTEL
     std::unique_ptr<Decoded_VkPerformanceValueDataINTEL> data;
 };
 
-struct Decoded_VkObjectTableEntryNVX
+struct Decoded_VkAccelerationStructureBuildGeometryInfoKHR
 {
-    VkObjectTableEntryNVX* decoded_value{ nullptr };
+    using struct_type = VkAccelerationStructureBuildGeometryInfoKHR;
+    VkAccelerationStructureBuildGeometryInfoKHR* decoded_value{ nullptr };
+    // TODO
 };
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.

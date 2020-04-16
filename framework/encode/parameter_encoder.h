@@ -124,6 +124,9 @@ class ParameterEncoder
     void EncodeStringArray(const char* const* str, size_t len, bool omit_data = false, bool omit_addr = false)        { EncodeBasicStringArray<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, len, omit_data, omit_addr); }
     void EncodeWStringArray(const wchar_t* const* str, size_t len, bool omit_data = false, bool omit_addr = false)    { EncodeBasicStringArray<wchar_t, format::WCharEncodeType, format::PointerAttributes::kIsWString>(str, len, omit_data, omit_addr); }
 
+    template <size_t N, size_t M>
+    void EncodeFloat2DMatrix(const float (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const float*>(arr), n * m, omit_data, omit_addr); }
+
     // clang-format on
 
     void EncodeStructPtrPreamble(const void* ptr, bool omit_data = false, bool omit_addr = false)

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -191,6 +191,11 @@ void UnwrapStructHandles(VkGraphicsPipelineCreateInfo* value, HandleUnwrapMemory
 {
     if (value != nullptr)
     {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
+        }
+
         value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
 
         value->layout = GetWrappedHandle<VkPipelineLayout>(value->layout);
@@ -686,6 +691,14 @@ void UnwrapStructHandles(VkDisplayPlaneInfo2KHR* value, HandleUnwrapMemory* unwr
     }
 }
 
+void UnwrapStructHandles(VkDeferredOperationInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->operationHandle = GetWrappedHandle<VkDeferredOperationKHR>(value->operationHandle);
+    }
+}
+
 void UnwrapStructHandles(VkPipelineInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -699,6 +712,14 @@ void UnwrapStructHandles(VkPipelineExecutableInfoKHR* value, HandleUnwrapMemory*
     if (value != nullptr)
     {
         value->pipeline = GetWrappedHandle<VkPipeline>(value->pipeline);
+    }
+}
+
+void UnwrapStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pLibraries = UnwrapHandles<VkPipeline>(value->pLibraries, value->libraryCount, unwrap_memory);
     }
 }
 
@@ -737,84 +758,6 @@ void UnwrapStructHandles(VkConditionalRenderingBeginInfoEXT* value, HandleUnwrap
     if (value != nullptr)
     {
         value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
-    }
-}
-
-void UnwrapStructHandles(VkIndirectCommandsTokenNVX* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
-    }
-}
-
-void UnwrapStructHandles(VkCmdProcessCommandsInfoNVX* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->objectTable = GetWrappedHandle<VkObjectTableNVX>(value->objectTable);
-
-        value->indirectCommandsLayout = GetWrappedHandle<VkIndirectCommandsLayoutNVX>(value->indirectCommandsLayout);
-
-        value->pIndirectCommandsTokens = UnwrapStructArrayHandles(value->pIndirectCommandsTokens, value->indirectCommandsTokenCount, unwrap_memory);
-
-        value->targetCommandBuffer = GetWrappedHandle<VkCommandBuffer>(value->targetCommandBuffer);
-
-        value->sequencesCountBuffer = GetWrappedHandle<VkBuffer>(value->sequencesCountBuffer);
-
-        value->sequencesIndexBuffer = GetWrappedHandle<VkBuffer>(value->sequencesIndexBuffer);
-    }
-}
-
-void UnwrapStructHandles(VkCmdReserveSpaceForCommandsInfoNVX* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->objectTable = GetWrappedHandle<VkObjectTableNVX>(value->objectTable);
-
-        value->indirectCommandsLayout = GetWrappedHandle<VkIndirectCommandsLayoutNVX>(value->indirectCommandsLayout);
-    }
-}
-
-void UnwrapStructHandles(VkObjectTablePipelineEntryNVX* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->pipeline = GetWrappedHandle<VkPipeline>(value->pipeline);
-    }
-}
-
-void UnwrapStructHandles(VkObjectTableDescriptorSetEntryNVX* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->pipelineLayout = GetWrappedHandle<VkPipelineLayout>(value->pipelineLayout);
-
-        value->descriptorSet = GetWrappedHandle<VkDescriptorSet>(value->descriptorSet);
-    }
-}
-
-void UnwrapStructHandles(VkObjectTableVertexBufferEntryNVX* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
-    }
-}
-
-void UnwrapStructHandles(VkObjectTableIndexBufferEntryNVX* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
-    }
-}
-
-void UnwrapStructHandles(VkObjectTablePushConstantEntryNVX* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->pipelineLayout = GetWrappedHandle<VkPipelineLayout>(value->pipelineLayout);
     }
 }
 
@@ -900,21 +843,21 @@ void UnwrapStructHandles(VkAccelerationStructureCreateInfoNV* value, HandleUnwra
     }
 }
 
-void UnwrapStructHandles(VkBindAccelerationStructureMemoryInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapStructHandles(VkBindAccelerationStructureMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
-        value->accelerationStructure = GetWrappedHandle<VkAccelerationStructureNV>(value->accelerationStructure);
+        value->accelerationStructure = GetWrappedHandle<VkAccelerationStructureKHR>(value->accelerationStructure);
 
         value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
-void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureNV* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
-        value->pAccelerationStructures = UnwrapHandles<VkAccelerationStructureNV>(value->pAccelerationStructures, value->accelerationStructureCount, unwrap_memory);
+        value->pAccelerationStructures = UnwrapHandles<VkAccelerationStructureKHR>(value->pAccelerationStructures, value->accelerationStructureCount, unwrap_memory);
     }
 }
 
@@ -923,6 +866,160 @@ void UnwrapStructHandles(VkAccelerationStructureMemoryRequirementsInfoNV* value,
     if (value != nullptr)
     {
         value->accelerationStructure = GetWrappedHandle<VkAccelerationStructureNV>(value->accelerationStructure);
+    }
+}
+
+void UnwrapStructHandles(VkGraphicsShaderGroupCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(VkGraphicsPipelineShaderGroupsCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pGroups = UnwrapStructArrayHandles(value->pGroups, value->groupCount, unwrap_memory);
+
+        value->pPipelines = UnwrapHandles<VkPipeline>(value->pPipelines, value->pipelineCount, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(VkIndirectCommandsStreamNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
+    }
+}
+
+void UnwrapStructHandles(VkIndirectCommandsLayoutTokenNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pushconstantPipelineLayout = GetWrappedHandle<VkPipelineLayout>(value->pushconstantPipelineLayout);
+    }
+}
+
+void UnwrapStructHandles(VkIndirectCommandsLayoutCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pTokens = UnwrapStructArrayHandles(value->pTokens, value->tokenCount, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(VkGeneratedCommandsInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pipeline = GetWrappedHandle<VkPipeline>(value->pipeline);
+
+        value->indirectCommandsLayout = GetWrappedHandle<VkIndirectCommandsLayoutNV>(value->indirectCommandsLayout);
+
+        value->pStreams = UnwrapStructArrayHandles(value->pStreams, value->streamCount, unwrap_memory);
+
+        value->preprocessBuffer = GetWrappedHandle<VkBuffer>(value->preprocessBuffer);
+
+        value->sequencesCountBuffer = GetWrappedHandle<VkBuffer>(value->sequencesCountBuffer);
+
+        value->sequencesIndexBuffer = GetWrappedHandle<VkBuffer>(value->sequencesIndexBuffer);
+    }
+}
+
+void UnwrapStructHandles(VkGeneratedCommandsMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pipeline = GetWrappedHandle<VkPipeline>(value->pipeline);
+
+        value->indirectCommandsLayout = GetWrappedHandle<VkIndirectCommandsLayoutNV>(value->indirectCommandsLayout);
+    }
+}
+
+void UnwrapStructHandles(VkRayTracingPipelineCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
+        }
+
+        value->pStages = UnwrapStructArrayHandles(value->pStages, value->stageCount, unwrap_memory);
+
+        UnwrapStructHandles(&value->libraries, unwrap_memory);
+
+        value->layout = GetWrappedHandle<VkPipelineLayout>(value->layout);
+
+        value->basePipelineHandle = GetWrappedHandle<VkPipeline>(value->basePipelineHandle);
+    }
+}
+
+void UnwrapStructHandles(VkAccelerationStructureMemoryRequirementsInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->accelerationStructure = GetWrappedHandle<VkAccelerationStructureKHR>(value->accelerationStructure);
+    }
+}
+
+void UnwrapStructHandles(VkAccelerationStructureDeviceAddressInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->accelerationStructure = GetWrappedHandle<VkAccelerationStructureKHR>(value->accelerationStructure);
+    }
+}
+
+void UnwrapStructHandles(VkStridedBufferRegionKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
+    }
+}
+
+void UnwrapStructHandles(VkCopyAccelerationStructureToMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
+        }
+
+        value->src = GetWrappedHandle<VkAccelerationStructureKHR>(value->src);
+    }
+}
+
+void UnwrapStructHandles(VkCopyMemoryToAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
+        }
+
+        value->dst = GetWrappedHandle<VkAccelerationStructureKHR>(value->dst);
+    }
+}
+
+void UnwrapStructHandles(VkCopyAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->pNext != nullptr)
+        {
+            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
+        }
+
+        value->src = GetWrappedHandle<VkAccelerationStructureKHR>(value->src);
+
+        value->dst = GetWrappedHandle<VkAccelerationStructureKHR>(value->dst);
     }
 }
 
@@ -1467,8 +1564,8 @@ static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleU
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL*>(base), 1, unwrap_memory));
         break;
-    case VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO_INTEL:
-        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueryPoolCreateInfoINTEL*>(base), 1, unwrap_memory));
+    case VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkQueryPoolPerformanceQueryCreateInfoINTEL*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePCIBusInfoPropertiesEXT*>(base), 1, unwrap_memory));
@@ -1566,6 +1663,12 @@ static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleU
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT*>(base), 1, unwrap_memory));
         break;
@@ -1577,6 +1680,21 @@ static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleU
         break;
     case VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkCommandBufferInheritanceRenderPassTransformInfoQCOM*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceDiagnosticsConfigFeaturesNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceRayTracingFeaturesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceRayTracingPropertiesKHR*>(base), 1, unwrap_memory));
         break;
     }
 
@@ -1615,14 +1733,18 @@ const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwr
             return UnwrapStructPtrHandles(reinterpret_cast<const VkBindImageMemorySwapchainInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_DEFERRED_OPERATION_INFO_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkDeferredOperationInfoKHR*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkDedicatedAllocationMemoryAllocateInfoNV*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkWin32KeyedMutexAcquireReleaseInfoNV*>(base), unwrap_memory);
         case VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT:
             return UnwrapStructPtrHandles(reinterpret_cast<const VkShaderModuleValidationCacheCreateInfoEXT*>(base), unwrap_memory);
-        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
-            return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(base), unwrap_memory);
+        case VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV:
+            return UnwrapStructPtrHandles(reinterpret_cast<const VkGraphicsPipelineShaderGroupsCreateInfoNV*>(base), unwrap_memory);
         }
     }
 

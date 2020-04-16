@@ -107,6 +107,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     StandardCreateWrite<DebugReportCallbackEXTWrapper>(state_table);
     StandardCreateWrite<DebugUtilsMessengerEXTWrapper>(state_table);
     StandardCreateWrite<ValidationCacheEXTWrapper>(state_table);
+    StandardCreateWrite<DeferredOperationKHRWrapper>(state_table);
 
     // Synchronization primitive creation.
     WriteFenceState(state_table);
@@ -144,6 +145,8 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     WritePipelineLayoutState(state_table);
     StandardCreateWrite<PipelineCacheWrapper>(state_table);
     WritePipelineState(state_table);
+    StandardCreateWrite<AccelerationStructureKHRWrapper>(state_table);
+    StandardCreateWrite<AccelerationStructureNVWrapper>(state_table);
 
     // Descriptor creation.
     StandardCreateWrite<DescriptorPoolWrapper>(state_table);
@@ -151,15 +154,13 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     WriteDescriptorSetState(state_table);
 
     // Query object creation.
-    StandardCreateWrite<AccelerationStructureNVWrapper>(state_table);
     WriteQueryPoolState(state_table);
     StandardCreateWrite<PerformanceConfigurationINTELWrapper>(state_table);
 
     // Command creation.
     StandardCreateWrite<CommandPoolWrapper>(state_table);
     WriteCommandBufferState(state_table);
-    StandardCreateWrite<ObjectTableNVXWrapper>(state_table);
-    StandardCreateWrite<IndirectCommandsLayoutNVXWrapper>(state_table);  // TODO: If we intend to support this, we need to reserve command space after creation.
+    StandardCreateWrite<IndirectCommandsLayoutNVWrapper>(state_table);  // TODO: If we intend to support this, we need to reserve command space after creation.
 
     // Process swapchain image acquire.
     WriteSwapchainImageState(state_table);
@@ -3337,10 +3338,12 @@ bool VulkanStateWriter::CheckCommandHandle(CommandHandleType       handle_type,
             return (state_table.GetRenderPassWrapper(handle_id) != nullptr);
         case CommandHandleType::AccelerationStructureNVHandle:
             return (state_table.GetAccelerationStructureNVWrapper(handle_id) != nullptr);
-        case CommandHandleType::IndirectCommandsLayoutNVXHandle:
-            return (state_table.GetIndirectCommandsLayoutNVXWrapper(handle_id) != nullptr);
-        case CommandHandleType::ObjectTableNVXHandle:
-            return (state_table.GetObjectTableNVXWrapper(handle_id) != nullptr);
+        case CommandHandleType::AccelerationStructureKHRHandle:
+            return (state_table.GetAccelerationStructureKHRWrapper(handle_id) != nullptr);
+        case CommandHandleType::IndirectCommandsLayoutNVHandle:
+            return (state_table.GetIndirectCommandsLayoutNVWrapper(handle_id) != nullptr);
+        case CommandHandleType::DeferredOperationKHRHandle:
+            return (state_table.GetDeferredOperationKHRWrapper(handle_id) != nullptr);
         default:
             GFXRECON_LOG_ERROR("State write is skipping unrecognized handle type when checking handles "
                                "referenced by command buffers");

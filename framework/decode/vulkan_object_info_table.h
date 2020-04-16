@@ -68,12 +68,13 @@ class VulkanObjectInfoTable
     void AddDisplayModeKHRInfo(DisplayModeKHRInfo&& info)                               { AddObjectInfo(std::move(info), &display_mode_khr_map_); }
     void AddSamplerYcbcrConversionKHRInfo(SamplerYcbcrConversionKHRInfo&& info)         { AddObjectInfo(std::move(info), &sampler_ycbcr_conversion_khr_map_); }
     void AddDebugReportCallbackEXTInfo(DebugReportCallbackEXTInfo&& info)               { AddObjectInfo(std::move(info), &debug_report_callback_ext_map_); }
-    void AddObjectTableNVXInfo(ObjectTableNVXInfo&& info)                               { AddObjectInfo(std::move(info), &object_table_nvx_map_); }
-    void AddIndirectCommandsLayoutNVXInfo(IndirectCommandsLayoutNVXInfo&& info)         { AddObjectInfo(std::move(info), &indirect_commands_layout_nvx_map_); }
+    void AddIndirectCommandsLayoutNVInfo(IndirectCommandsLayoutNVInfo&& info)           { AddObjectInfo(std::move(info), &indirect_commands_layout_nv_map_); }
     void AddDebugUtilsMessengerEXTInfo(DebugUtilsMessengerEXTInfo&& info)               { AddObjectInfo(std::move(info), &debug_utils_messenger_ext_map_); }
     void AddValidationCacheEXTInfo(ValidationCacheEXTInfo&& info)                       { AddObjectInfo(std::move(info), &validation_cache_ext_map_); }
+    void AddAccelerationStructureKHRInfo(AccelerationStructureKHRInfo&& info)           { AddObjectInfo(std::move(info), &acceleration_structure_khr_map_); }
     void AddAccelerationStructureNVInfo(AccelerationStructureNVInfo&& info)             { AddObjectInfo(std::move(info), &acceleration_structure_nv_map_); }
     void AddPerformanceConfigurationINTELInfo(PerformanceConfigurationINTELInfo&& info) { AddObjectInfo(std::move(info), &performance_configuration_intel_map_); }
+    void AddDeferredOperationKHRInfo(DeferredOperationKHRInfo&& info)                   { AddObjectInfo(std::move(info), &deferred_operation_khr_map_); }
 
     const InstanceInfo*                      GetInstanceInfo(format::HandleId id) const                       { return GetObjectInfo<InstanceInfo>(id, &instance_map_); }
     const PhysicalDeviceInfo*                GetPhysicalDeviceInfo(format::HandleId id) const                 { return GetObjectInfo<PhysicalDeviceInfo>(id, &physical_device_map_); }
@@ -108,12 +109,13 @@ class VulkanObjectInfoTable
     const DisplayModeKHRInfo*                GetDisplayModeKHRInfo(format::HandleId id) const                 { return GetObjectInfo<DisplayModeKHRInfo>(id, &display_mode_khr_map_); }
     const SamplerYcbcrConversionKHRInfo*     GetSamplerYcbcrConversionKHRInfo(format::HandleId id) const      { return GetObjectInfo<SamplerYcbcrConversionKHRInfo>(id, &sampler_ycbcr_conversion_khr_map_); }
     const DebugReportCallbackEXTInfo*        GetDebugReportCallbackEXTInfo(format::HandleId id) const         { return GetObjectInfo<DebugReportCallbackEXTInfo>(id, &debug_report_callback_ext_map_); }
-    const ObjectTableNVXInfo*                GetObjectTableNVXInfo(format::HandleId id) const                 { return GetObjectInfo<ObjectTableNVXInfo>(id, &object_table_nvx_map_); }
-    const IndirectCommandsLayoutNVXInfo*     GetIndirectCommandsLayoutNVXInfo(format::HandleId id) const      { return GetObjectInfo<IndirectCommandsLayoutNVXInfo>(id, &indirect_commands_layout_nvx_map_); }
+    const IndirectCommandsLayoutNVInfo*      GetIndirectCommandsLayoutNVInfo(format::HandleId id) const       { return GetObjectInfo<IndirectCommandsLayoutNVInfo>(id, &indirect_commands_layout_nv_map_); }
     const DebugUtilsMessengerEXTInfo*        GetDebugUtilsMessengerEXTInfo(format::HandleId id) const         { return GetObjectInfo<DebugUtilsMessengerEXTInfo>(id, &debug_utils_messenger_ext_map_); }
     const ValidationCacheEXTInfo*            GetValidationCacheEXTInfo(format::HandleId id) const             { return GetObjectInfo<ValidationCacheEXTInfo>(id, &validation_cache_ext_map_); }
+    const AccelerationStructureKHRInfo*      GetAccelerationStructureKHRInfo(format::HandleId id) const       { return GetObjectInfo<AccelerationStructureKHRInfo>(id, &acceleration_structure_khr_map_); }
     const AccelerationStructureNVInfo*       GetAccelerationStructureNVInfo(format::HandleId id) const        { return GetObjectInfo<AccelerationStructureNVInfo>(id, &acceleration_structure_nv_map_); }
     const PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id) const  { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performance_configuration_intel_map_); }
+    const DeferredOperationKHRInfo*          GetDeferredOperationKHRInfo(format::HandleId id) const           { return GetObjectInfo<DeferredOperationKHRInfo>(id, &deferred_operation_khr_map_); }
 
     InstanceInfo*                      GetInstanceInfo(format::HandleId id)                       { return GetObjectInfo<InstanceInfo>(id, &instance_map_); }
     PhysicalDeviceInfo*                GetPhysicalDeviceInfo(format::HandleId id)                 { return GetObjectInfo<PhysicalDeviceInfo>(id, &physical_device_map_); }
@@ -148,12 +150,13 @@ class VulkanObjectInfoTable
     DisplayModeKHRInfo*                GetDisplayModeKHRInfo(format::HandleId id)                 { return GetObjectInfo<DisplayModeKHRInfo>(id, &display_mode_khr_map_); }
     SamplerYcbcrConversionKHRInfo*     GetSamplerYcbcrConversionKHRInfo(format::HandleId id)      { return GetObjectInfo<SamplerYcbcrConversionKHRInfo>(id, &sampler_ycbcr_conversion_khr_map_); }
     DebugReportCallbackEXTInfo*        GetDebugReportCallbackEXTInfo(format::HandleId id)         { return GetObjectInfo<DebugReportCallbackEXTInfo>(id, &debug_report_callback_ext_map_); }
-    ObjectTableNVXInfo*                GetObjectTableNVXInfo(format::HandleId id)                 { return GetObjectInfo<ObjectTableNVXInfo>(id, &object_table_nvx_map_); }
-    IndirectCommandsLayoutNVXInfo*     GetIndirectCommandsLayoutNVXInfo(format::HandleId id)      { return GetObjectInfo<IndirectCommandsLayoutNVXInfo>(id, &indirect_commands_layout_nvx_map_); }
+    IndirectCommandsLayoutNVInfo*      GetIndirectCommandsLayoutNVInfo(format::HandleId id)       { return GetObjectInfo<IndirectCommandsLayoutNVInfo>(id, &indirect_commands_layout_nv_map_); }
     DebugUtilsMessengerEXTInfo*        GetDebugUtilsMessengerEXTInfo(format::HandleId id)         { return GetObjectInfo<DebugUtilsMessengerEXTInfo>(id, &debug_utils_messenger_ext_map_); }
     ValidationCacheEXTInfo*            GetValidationCacheEXTInfo(format::HandleId id)             { return GetObjectInfo<ValidationCacheEXTInfo>(id, &validation_cache_ext_map_); }
+    AccelerationStructureKHRInfo*      GetAccelerationStructureKHRInfo(format::HandleId id)       { return GetObjectInfo<AccelerationStructureKHRInfo>(id, &acceleration_structure_khr_map_); }
     AccelerationStructureNVInfo*       GetAccelerationStructureNVInfo(format::HandleId id)        { return GetObjectInfo<AccelerationStructureNVInfo>(id, &acceleration_structure_nv_map_); }
     PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id)  { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performance_configuration_intel_map_); }
+    DeferredOperationKHRInfo*          GetDeferredOperationKHRInfo(format::HandleId id)           { return GetObjectInfo<DeferredOperationKHRInfo>(id, &deferred_operation_khr_map_); }
     // clang-format on
 
     void ReplaceSemaphore(VkSemaphore target, VkSemaphore replacement)
@@ -291,12 +294,13 @@ class VulkanObjectInfoTable
     std::unordered_map<format::HandleId, DisplayModeKHRInfo>                display_mode_khr_map_;
     std::unordered_map<format::HandleId, SamplerYcbcrConversionKHRInfo>     sampler_ycbcr_conversion_khr_map_;
     std::unordered_map<format::HandleId, DebugReportCallbackEXTInfo>        debug_report_callback_ext_map_;
-    std::unordered_map<format::HandleId, ObjectTableNVXInfo>                object_table_nvx_map_;
-    std::unordered_map<format::HandleId, IndirectCommandsLayoutNVXInfo>     indirect_commands_layout_nvx_map_;
+    std::unordered_map<format::HandleId, IndirectCommandsLayoutNVInfo>      indirect_commands_layout_nv_map_;
     std::unordered_map<format::HandleId, DebugUtilsMessengerEXTInfo>        debug_utils_messenger_ext_map_;
     std::unordered_map<format::HandleId, ValidationCacheEXTInfo>            validation_cache_ext_map_;
+    std::unordered_map<format::HandleId, AccelerationStructureKHRInfo>      acceleration_structure_khr_map_;
     std::unordered_map<format::HandleId, AccelerationStructureNVInfo>       acceleration_structure_nv_map_;
     std::unordered_map<format::HandleId, PerformanceConfigurationINTELInfo> performance_configuration_intel_map_;
+    std::unordered_map<format::HandleId, DeferredOperationKHRInfo>          deferred_operation_khr_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

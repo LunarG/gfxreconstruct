@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -281,43 +281,26 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
         manager, device, descriptorSet, descriptorUpdateTemplate, pData);
 }
 
-VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                            device,
-                                                  VkObjectTableNVX                    objectTable,
-                                                  uint32_t                            objectCount,
-                                                  const VkObjectTableEntryNVX* const* ppObjectTableEntries,
-                                                  const uint32_t*                     pObjectIndices)
+VKAPI_ATTR void VKAPI_CALL
+                CmdBuildAccelerationStructureKHR(VkCommandBuffer                                         commandBuffer,
+                                                 uint32_t                                                infoCount,
+                                                 const VkAccelerationStructureBuildGeometryInfoKHR*      pInfos,
+                                                 const VkAccelerationStructureBuildOffsetInfoKHR* const* ppOffsetInfos)
 {
-    TraceManager* manager = TraceManager::Get();
-    assert(manager != nullptr);
+    // TODO
+    GFXRECON_LOG_ERROR("CmdBuildAccelerationStructureKHR encoding is not supported");
+    GetDeviceTable(commandBuffer)->CmdBuildAccelerationStructureKHR(commandBuffer, infoCount, pInfos, ppOffsetInfos);
+}
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkRegisterObjectsNVX>::Dispatch(
-        manager, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
-
-    auto handle_unwrap_memory  = TraceManager::Get()->GetHandleUnwrapMemory();
-    auto device_unwrapped      = GetWrappedHandle<VkDevice>(device);
-    auto objectTable_unwrapped = GetWrappedHandle<VkObjectTableNVX>(objectTable);
-    auto ppObjectTableEntries_unwrapped =
-        UnwrapStructArrayHandles(ppObjectTableEntries, objectCount, handle_unwrap_memory);
-
-    VkResult result = GetDeviceTable(device)->RegisterObjectsNVX(
-        device_unwrapped, objectTable_unwrapped, objectCount, ppObjectTableEntries_unwrapped, pObjectIndices);
-
-    auto encoder = manager->BeginApiCallTrace(format::ApiCallId::ApiCall_vkRegisterObjectsNVX);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(objectTable);
-        encoder->EncodeUInt32Value(objectCount);
-        EncodeStructArray(encoder, ppObjectTableEntries, objectCount);
-        encoder->EncodeUInt32Array(pObjectIndices, objectCount);
-        encoder->EncodeEnumValue(result);
-        manager->EndApiCallTrace(encoder);
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkRegisterObjectsNVX>::Dispatch(
-        manager, result, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
-
-    return result;
+VKAPI_ATTR VkResult VKAPI_CALL
+                    BuildAccelerationStructureKHR(VkDevice                                                device,
+                                                  uint32_t                                                infoCount,
+                                                  const VkAccelerationStructureBuildGeometryInfoKHR*      pInfos,
+                                                  const VkAccelerationStructureBuildOffsetInfoKHR* const* ppOffsetInfos)
+{
+    // TODO
+    GFXRECON_LOG_ERROR("BuildAccelerationStructureKHR encoding is not supported");
+    return GetDeviceTable(device)->BuildAccelerationStructureKHR(device, infoCount, pInfos, ppOffsetInfos);
 }
 
 GFXRECON_END_NAMESPACE(encode)
