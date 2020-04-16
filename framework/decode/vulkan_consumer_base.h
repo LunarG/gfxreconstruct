@@ -95,32 +95,31 @@ class VulkanConsumerBase
                                          const uint8_t*               data)
     {}
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
-                                                           format::HandleId descriptorSet,
-                                                           format::HandleId descriptorUpdateTemplate,
-                                                           const DescriptorUpdateTemplateDecoder& pData)
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
+                                                           format::HandleId                 descriptorSet,
+                                                           format::HandleId                 descriptorUpdateTemplate,
+                                                           DescriptorUpdateTemplateDecoder* pData)
     {}
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
                                                                format::HandleId descriptorUpdateTemplate,
                                                                format::HandleId layout,
                                                                uint32_t         set,
-                                                               const DescriptorUpdateTemplateDecoder& pData)
+                                                               DescriptorUpdateTemplateDecoder* pData)
     {}
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
-                                                              format::HandleId descriptorSet,
-                                                              format::HandleId descriptorUpdateTemplate,
-                                                              const DescriptorUpdateTemplateDecoder& pData)
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
+                                                              format::HandleId                 descriptorSet,
+                                                              format::HandleId                 descriptorUpdateTemplate,
+                                                              DescriptorUpdateTemplateDecoder* pData)
     {}
 
-    virtual void
-    Process_vkRegisterObjectsNVX(VkResult                                                   returnValue,
-                                 format::HandleId                                           device,
-                                 format::HandleId                                           objectTable,
-                                 uint32_t                                                   objectCount,
-                                 const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
-                                 const PointerDecoder<uint32_t>&                            pObjectIndices)
+    virtual void Process_vkRegisterObjectsNVX(VkResult                                             returnValue,
+                                              format::HandleId                                     device,
+                                              format::HandleId                                     objectTable,
+                                              uint32_t                                             objectCount,
+                                              StructPointerDecoder<Decoded_VkObjectTableEntryNVX>* ppObjectTableEntries,
+                                              PointerDecoder<uint32_t>*                            pObjectIndices)
     {}
 };
 

@@ -1,8 +1,8 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2013-2016 The Khronos Group Inc.
-# Copyright (c) 2018-2019 Valve Corporation
-# Copyright (c) 2018-2019 LunarG, Inc.
+# Copyright (c) 2018-2020 Valve Corporation
+# Copyright (c) 2018-2020 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -737,12 +737,8 @@ class BaseGenerator(OutputGenerator):
         for value in values:
             paramType = self.makeDecodedParamType(value)
 
-            # Pass pointer decoder classes by const reference when input and pointer when output.
-            if 'Decoder' in paramType or 'Decoded_' in paramType:
-                if (self.isOutputParameter(value)):
-                    paramType = '{}*'.format(paramType)
-                else:
-                    paramType = 'const {}&'.format(paramType)
+            if 'Decoder' in paramType:
+                paramType = '{}*'.format(paramType)
 
             paramDecl = self.makeAlignedParamDecl(paramType, value.name, self.INDENT_SIZE, self.genOpts.alignFuncParam)
             paramDecls.append(paramDecl)

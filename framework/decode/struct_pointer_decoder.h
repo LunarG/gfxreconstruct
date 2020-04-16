@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -52,7 +52,9 @@ class StructPointerDecoder : public PointerDecoderBase
         }
     }
 
-    T* GetMetaStructPointer() const { return decoded_structs_; }
+    T* GetMetaStructPointer() { return decoded_structs_; }
+
+    const T* GetMetaStructPointer() const { return decoded_structs_; }
 
     typename T::struct_type* GetPointer() { return struct_memory_; }
 

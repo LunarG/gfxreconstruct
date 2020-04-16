@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ void VulkanAsciiConsumerBase::Destroy()
 void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
                                                                         format::HandleId descriptorSet,
                                                                         format::HandleId descriptorUpdateTemplate,
-                                                                        const DescriptorUpdateTemplateDecoder& pData)
+                                                                        DescriptorUpdateTemplateDecoder* pData)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(descriptorSet);
@@ -66,12 +66,11 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(format::
     fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplate");
 }
 
-void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
-    format::HandleId                       commandBuffer,
-    format::HandleId                       descriptorUpdateTemplate,
-    format::HandleId                       layout,
-    uint32_t                               set,
-    const DescriptorUpdateTemplateDecoder& pData)
+void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
+                                                                            format::HandleId descriptorUpdateTemplate,
+                                                                            format::HandleId layout,
+                                                                            uint32_t         set,
+                                                                            DescriptorUpdateTemplateDecoder* pData)
 {
     GFXRECON_UNREFERENCED_PARAMETER(commandBuffer);
     GFXRECON_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
@@ -84,7 +83,7 @@ void VulkanAsciiConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
 void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
                                                                            format::HandleId descriptorSet,
                                                                            format::HandleId descriptorUpdateTemplate,
-                                                                           const DescriptorUpdateTemplateDecoder& pData)
+                                                                           DescriptorUpdateTemplateDecoder* pData)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(descriptorSet);
@@ -94,12 +93,12 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(forma
 }
 
 void VulkanAsciiConsumerBase::Process_vkRegisterObjectsNVX(
-    VkResult                                                   returnValue,
-    format::HandleId                                           device,
-    format::HandleId                                           objectTable,
-    uint32_t                                                   objectCount,
-    const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
-    const PointerDecoder<uint32_t>&                            pObjectIndices)
+    VkResult                                             returnValue,
+    format::HandleId                                     device,
+    format::HandleId                                     objectTable,
+    uint32_t                                             objectCount,
+    StructPointerDecoder<Decoded_VkObjectTableEntryNVX>* ppObjectTableEntries,
+    PointerDecoder<uint32_t>*                            pObjectIndices)
 {
     GFXRECON_UNREFERENCED_PARAMETER(returnValue);
     GFXRECON_UNREFERENCED_PARAMETER(device);

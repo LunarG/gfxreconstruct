@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -45,29 +45,28 @@ class VulkanAsciiConsumerBase : public VulkanConsumer
 
     const std::string& GetFilename() const { return m_filename; }
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
-                                                           format::HandleId descriptorSet,
-                                                           format::HandleId descriptorUpdateTemplate,
-                                                           const DescriptorUpdateTemplateDecoder& pData) override;
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
+                                                           format::HandleId                 descriptorSet,
+                                                           format::HandleId                 descriptorUpdateTemplate,
+                                                           DescriptorUpdateTemplateDecoder* pData) override;
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
                                                                format::HandleId descriptorUpdateTemplate,
                                                                format::HandleId layout,
                                                                uint32_t         set,
-                                                               const DescriptorUpdateTemplateDecoder& pData) override;
+                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
-                                                              format::HandleId descriptorSet,
-                                                              format::HandleId descriptorUpdateTemplate,
-                                                              const DescriptorUpdateTemplateDecoder& pData) override;
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
+                                                              format::HandleId                 descriptorSet,
+                                                              format::HandleId                 descriptorUpdateTemplate,
+                                                              DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void
-    Process_vkRegisterObjectsNVX(VkResult                                                   returnValue,
-                                 format::HandleId                                           device,
-                                 format::HandleId                                           objectTable,
-                                 uint32_t                                                   objectCount,
-                                 const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
-                                 const PointerDecoder<uint32_t>&                            pObjectIndices) override;
+    virtual void Process_vkRegisterObjectsNVX(VkResult                                             returnValue,
+                                              format::HandleId                                     device,
+                                              format::HandleId                                     objectTable,
+                                              uint32_t                                             objectCount,
+                                              StructPointerDecoder<Decoded_VkObjectTableEntryNVX>* ppObjectTableEntries,
+                                              PointerDecoder<uint32_t>* pObjectIndices) override;
 
   protected:
     FILE* GetFile() const { return m_file; }
