@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -7791,6 +7791,144 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddressKHR(
     return result;
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL CreateDeferredOperationKHR(
+    VkDevice                                    device,
+    const VkAllocationCallbacks*                pAllocator,
+    VkDeferredOperationKHR*                     pDeferredOperation)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR>::Dispatch(TraceManager::Get(), device, pAllocator, pDeferredOperation);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+
+    VkResult result = GetDeviceTable(device)->CreateDeferredOperationKHR(device_unwrapped, pAllocator, pDeferredOperation);
+
+    if (result >= 0)
+    {
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, DeferredOperationKHRWrapper>(device, NoParentWrapper::kHandleValue, pDeferredOperation, TraceManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeHandlePtr(pDeferredOperation, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndCreateApiCallTrace<VkDevice, DeferredOperationKHRWrapper, void>(result, device, pDeferredOperation, nullptr, encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR>::Dispatch(TraceManager::Get(), result, device, pAllocator, pDeferredOperation);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyDeferredOperationKHR(
+    VkDevice                                    device,
+    VkDeferredOperationKHR                      operation,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR>::Dispatch(TraceManager::Get(), device, operation, pAllocator);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(operation);
+        EncodeStructPtr(encoder, pAllocator);
+        TraceManager::Get()->EndDestroyApiCallTrace<DeferredOperationKHRWrapper>(operation, encoder);
+    }
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkDeferredOperationKHR operation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(operation);
+
+    GetDeviceTable(device)->DestroyDeferredOperationKHR(device_unwrapped, operation_unwrapped, pAllocator);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR>::Dispatch(TraceManager::Get(), device, operation, pAllocator);
+
+    DestroyWrappedHandle<DeferredOperationKHRWrapper>(operation);
+}
+
+VKAPI_ATTR uint32_t VKAPI_CALL GetDeferredOperationMaxConcurrencyKHR(
+    VkDevice                                    device,
+    VkDeferredOperationKHR                      operation)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR>::Dispatch(TraceManager::Get(), device, operation);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkDeferredOperationKHR operation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(operation);
+
+    uint32_t result = GetDeviceTable(device)->GetDeferredOperationMaxConcurrencyKHR(device_unwrapped, operation_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(operation);
+        encoder->EncodeUInt32Value(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR>::Dispatch(TraceManager::Get(), result, device, operation);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDeferredOperationResultKHR(
+    VkDevice                                    device,
+    VkDeferredOperationKHR                      operation)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR>::Dispatch(TraceManager::Get(), device, operation);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkDeferredOperationKHR operation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(operation);
+
+    VkResult result = GetDeviceTable(device)->GetDeferredOperationResultKHR(device_unwrapped, operation_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(operation);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR>::Dispatch(TraceManager::Get(), result, device, operation);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(
+    VkDevice                                    device,
+    VkDeferredOperationKHR                      operation)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR>::Dispatch(TraceManager::Get(), device, operation);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkDeferredOperationKHR operation_unwrapped = GetWrappedHandle<VkDeferredOperationKHR>(operation);
+
+    VkResult result = GetDeviceTable(device)->DeferredOperationJoinKHR(device_unwrapped, operation_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(operation);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR>::Dispatch(TraceManager::Get(), result, device, operation);
+
+    return result;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(
     VkDevice                                    device,
     const VkPipelineInfoKHR*                    pPipelineInfo,
@@ -8607,236 +8745,6 @@ VKAPI_ATTR void VKAPI_CALL CmdEndConditionalRenderingEXT(
     GetDeviceTable(commandBuffer)->CmdEndConditionalRenderingEXT(commandBuffer_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT>::Dispatch(TraceManager::Get(), commandBuffer);
-}
-
-VKAPI_ATTR void VKAPI_CALL CmdProcessCommandsNVX(
-    VkCommandBuffer                             commandBuffer,
-    const VkCmdProcessCommandsInfoNVX*          pProcessCommandsInfo)
-{
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdProcessCommandsNVX>::Dispatch(TraceManager::Get(), commandBuffer, pProcessCommandsInfo);
-
-    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdProcessCommandsNVX);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(commandBuffer);
-        EncodeStructPtr(encoder, pProcessCommandsInfo);
-        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdProcessCommandsNVXHandles, pProcessCommandsInfo);
-    }
-
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
-    const VkCmdProcessCommandsInfoNVX* pProcessCommandsInfo_unwrapped = UnwrapStructPtrHandles(pProcessCommandsInfo, handle_unwrap_memory);
-
-    GetDeviceTable(commandBuffer)->CmdProcessCommandsNVX(commandBuffer_unwrapped, pProcessCommandsInfo_unwrapped);
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdProcessCommandsNVX>::Dispatch(TraceManager::Get(), commandBuffer, pProcessCommandsInfo);
-}
-
-VKAPI_ATTR void VKAPI_CALL CmdReserveSpaceForCommandsNVX(
-    VkCommandBuffer                             commandBuffer,
-    const VkCmdReserveSpaceForCommandsInfoNVX*  pReserveSpaceInfo)
-{
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdReserveSpaceForCommandsNVX>::Dispatch(TraceManager::Get(), commandBuffer, pReserveSpaceInfo);
-
-    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdReserveSpaceForCommandsNVX);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(commandBuffer);
-        EncodeStructPtr(encoder, pReserveSpaceInfo);
-        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdReserveSpaceForCommandsNVXHandles, pReserveSpaceInfo);
-    }
-
-    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
-    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
-    const VkCmdReserveSpaceForCommandsInfoNVX* pReserveSpaceInfo_unwrapped = UnwrapStructPtrHandles(pReserveSpaceInfo, handle_unwrap_memory);
-
-    GetDeviceTable(commandBuffer)->CmdReserveSpaceForCommandsNVX(commandBuffer_unwrapped, pReserveSpaceInfo_unwrapped);
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdReserveSpaceForCommandsNVX>::Dispatch(TraceManager::Get(), commandBuffer, pReserveSpaceInfo);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNVX(
-    VkDevice                                    device,
-    const VkIndirectCommandsLayoutCreateInfoNVX* pCreateInfo,
-    const VkAllocationCallbacks*                pAllocator,
-    VkIndirectCommandsLayoutNVX*                pIndirectCommandsLayout)
-{
-    bool omit_output_data = false;
-
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNVX>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
-
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-
-    VkResult result = GetDeviceTable(device)->CreateIndirectCommandsLayoutNVX(device_unwrapped, pCreateInfo, pAllocator, pIndirectCommandsLayout);
-
-    if (result >= 0)
-    {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, IndirectCommandsLayoutNVXWrapper>(device, NoParentWrapper::kHandleValue, pIndirectCommandsLayout, TraceManager::GetUniqueId);
-    }
-    else
-    {
-        omit_output_data = true;
-    }
-
-    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNVX);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(device);
-        EncodeStructPtr(encoder, pCreateInfo);
-        EncodeStructPtr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pIndirectCommandsLayout, omit_output_data);
-        encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndCreateApiCallTrace<VkDevice, IndirectCommandsLayoutNVXWrapper, VkIndirectCommandsLayoutCreateInfoNVX>(result, device, pIndirectCommandsLayout, pCreateInfo, encoder);
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNVX>::Dispatch(TraceManager::Get(), result, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
-
-    return result;
-}
-
-VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNVX(
-    VkDevice                                    device,
-    VkIndirectCommandsLayoutNVX                 indirectCommandsLayout,
-    const VkAllocationCallbacks*                pAllocator)
-{
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNVX>::Dispatch(TraceManager::Get(), device, indirectCommandsLayout, pAllocator);
-
-    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNVX);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(indirectCommandsLayout);
-        EncodeStructPtr(encoder, pAllocator);
-        TraceManager::Get()->EndDestroyApiCallTrace<IndirectCommandsLayoutNVXWrapper>(indirectCommandsLayout, encoder);
-    }
-
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    VkIndirectCommandsLayoutNVX indirectCommandsLayout_unwrapped = GetWrappedHandle<VkIndirectCommandsLayoutNVX>(indirectCommandsLayout);
-
-    GetDeviceTable(device)->DestroyIndirectCommandsLayoutNVX(device_unwrapped, indirectCommandsLayout_unwrapped, pAllocator);
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNVX>::Dispatch(TraceManager::Get(), device, indirectCommandsLayout, pAllocator);
-
-    DestroyWrappedHandle<IndirectCommandsLayoutNVXWrapper>(indirectCommandsLayout);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL CreateObjectTableNVX(
-    VkDevice                                    device,
-    const VkObjectTableCreateInfoNVX*           pCreateInfo,
-    const VkAllocationCallbacks*                pAllocator,
-    VkObjectTableNVX*                           pObjectTable)
-{
-    bool omit_output_data = false;
-
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateObjectTableNVX>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pObjectTable);
-
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-
-    VkResult result = GetDeviceTable(device)->CreateObjectTableNVX(device_unwrapped, pCreateInfo, pAllocator, pObjectTable);
-
-    if (result >= 0)
-    {
-        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, ObjectTableNVXWrapper>(device, NoParentWrapper::kHandleValue, pObjectTable, TraceManager::GetUniqueId);
-    }
-    else
-    {
-        omit_output_data = true;
-    }
-
-    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateObjectTableNVX);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(device);
-        EncodeStructPtr(encoder, pCreateInfo);
-        EncodeStructPtr(encoder, pAllocator);
-        encoder->EncodeHandlePtr(pObjectTable, omit_output_data);
-        encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndCreateApiCallTrace<VkDevice, ObjectTableNVXWrapper, VkObjectTableCreateInfoNVX>(result, device, pObjectTable, pCreateInfo, encoder);
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateObjectTableNVX>::Dispatch(TraceManager::Get(), result, device, pCreateInfo, pAllocator, pObjectTable);
-
-    return result;
-}
-
-VKAPI_ATTR void VKAPI_CALL DestroyObjectTableNVX(
-    VkDevice                                    device,
-    VkObjectTableNVX                            objectTable,
-    const VkAllocationCallbacks*                pAllocator)
-{
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyObjectTableNVX>::Dispatch(TraceManager::Get(), device, objectTable, pAllocator);
-
-    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyObjectTableNVX);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(objectTable);
-        EncodeStructPtr(encoder, pAllocator);
-        TraceManager::Get()->EndDestroyApiCallTrace<ObjectTableNVXWrapper>(objectTable, encoder);
-    }
-
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    VkObjectTableNVX objectTable_unwrapped = GetWrappedHandle<VkObjectTableNVX>(objectTable);
-
-    GetDeviceTable(device)->DestroyObjectTableNVX(device_unwrapped, objectTable_unwrapped, pAllocator);
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyObjectTableNVX>::Dispatch(TraceManager::Get(), device, objectTable, pAllocator);
-
-    DestroyWrappedHandle<ObjectTableNVXWrapper>(objectTable);
-}
-
-VKAPI_ATTR VkResult VKAPI_CALL UnregisterObjectsNVX(
-    VkDevice                                    device,
-    VkObjectTableNVX                            objectTable,
-    uint32_t                                    objectCount,
-    const VkObjectEntryTypeNVX*                 pObjectEntryTypes,
-    const uint32_t*                             pObjectIndices)
-{
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUnregisterObjectsNVX>::Dispatch(TraceManager::Get(), device, objectTable, objectCount, pObjectEntryTypes, pObjectIndices);
-
-    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    VkObjectTableNVX objectTable_unwrapped = GetWrappedHandle<VkObjectTableNVX>(objectTable);
-
-    VkResult result = GetDeviceTable(device)->UnregisterObjectsNVX(device_unwrapped, objectTable_unwrapped, objectCount, pObjectEntryTypes, pObjectIndices);
-
-    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkUnregisterObjectsNVX);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(device);
-        encoder->EncodeHandleValue(objectTable);
-        encoder->EncodeUInt32Value(objectCount);
-        encoder->EncodeEnumArray(pObjectEntryTypes, objectCount);
-        encoder->EncodeUInt32Array(pObjectIndices, objectCount);
-        encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndApiCallTrace(encoder);
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUnregisterObjectsNVX>::Dispatch(TraceManager::Get(), result, device, objectTable, objectCount, pObjectEntryTypes, pObjectIndices);
-
-    return result;
-}
-
-VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceGeneratedCommandsPropertiesNVX(
-    VkPhysicalDevice                            physicalDevice,
-    VkDeviceGeneratedCommandsFeaturesNVX*       pFeatures,
-    VkDeviceGeneratedCommandsLimitsNVX*         pLimits)
-{
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX>::Dispatch(TraceManager::Get(), physicalDevice, pFeatures, pLimits);
-
-    VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
-
-    GetInstanceTable(physicalDevice)->GetPhysicalDeviceGeneratedCommandsPropertiesNVX(physicalDevice_unwrapped, pFeatures, pLimits);
-
-    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX);
-    if (encoder)
-    {
-        encoder->EncodeHandleValue(physicalDevice);
-        EncodeStructPtr(encoder, pFeatures);
-        EncodeStructPtr(encoder, pLimits);
-        TraceManager::Get()->EndApiCallTrace(encoder);
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX>::Dispatch(TraceManager::Get(), physicalDevice, pFeatures, pLimits);
 }
 
 VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingNV(
@@ -9978,9 +9886,35 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(
     return result;
 }
 
+VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(
+    VkDevice                                    device,
+    VkAccelerationStructureKHR                  accelerationStructure,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR>::Dispatch(TraceManager::Get(), device, accelerationStructure, pAllocator);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(accelerationStructure);
+        EncodeStructPtr(encoder, pAllocator);
+        TraceManager::Get()->EndDestroyApiCallTrace<AccelerationStructureKHRWrapper>(accelerationStructure, encoder);
+    }
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkAccelerationStructureKHR accelerationStructure_unwrapped = GetWrappedHandle<VkAccelerationStructureKHR>(accelerationStructure);
+
+    GetDeviceTable(device)->DestroyAccelerationStructureKHR(device_unwrapped, accelerationStructure_unwrapped, pAllocator);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR>::Dispatch(TraceManager::Get(), device, accelerationStructure, pAllocator);
+
+    DestroyWrappedHandle<AccelerationStructureKHRWrapper>(accelerationStructure);
+}
+
 VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(
     VkDevice                                    device,
-    VkAccelerationStructureNV                   accelerationStructure,
+    VkAccelerationStructureKHR                  accelerationStructure,
     const VkAllocationCallbacks*                pAllocator)
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(TraceManager::Get(), device, accelerationStructure, pAllocator);
@@ -9991,17 +9925,17 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(
         encoder->EncodeHandleValue(device);
         encoder->EncodeHandleValue(accelerationStructure);
         EncodeStructPtr(encoder, pAllocator);
-        TraceManager::Get()->EndDestroyApiCallTrace<AccelerationStructureNVWrapper>(accelerationStructure, encoder);
+        TraceManager::Get()->EndDestroyApiCallTrace<AccelerationStructureKHRWrapper>(accelerationStructure, encoder);
     }
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    VkAccelerationStructureNV accelerationStructure_unwrapped = GetWrappedHandle<VkAccelerationStructureNV>(accelerationStructure);
+    VkAccelerationStructureKHR accelerationStructure_unwrapped = GetWrappedHandle<VkAccelerationStructureKHR>(accelerationStructure);
 
     GetDeviceTable(device)->DestroyAccelerationStructureNV(device_unwrapped, accelerationStructure_unwrapped, pAllocator);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV>::Dispatch(TraceManager::Get(), device, accelerationStructure, pAllocator);
 
-    DestroyWrappedHandle<AccelerationStructureNVWrapper>(accelerationStructure);
+    DestroyWrappedHandle<AccelerationStructureKHRWrapper>(accelerationStructure);
 }
 
 VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsNV(
@@ -10029,16 +9963,44 @@ VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryKHR(
+    VkDevice                                    device,
+    uint32_t                                    bindInfoCount,
+    const VkBindAccelerationStructureMemoryInfoKHR* pBindInfos)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryKHR>::Dispatch(TraceManager::Get(), device, bindInfoCount, pBindInfos);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkBindAccelerationStructureMemoryInfoKHR* pBindInfos_unwrapped = UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->BindAccelerationStructureMemoryKHR(device_unwrapped, bindInfoCount, pBindInfos_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeUInt32Value(bindInfoCount);
+        EncodeStructArray(encoder, pBindInfos, bindInfoCount);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryKHR>::Dispatch(TraceManager::Get(), result, device, bindInfoCount, pBindInfos);
+
+    return result;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryNV(
     VkDevice                                    device,
     uint32_t                                    bindInfoCount,
-    const VkBindAccelerationStructureMemoryInfoNV* pBindInfos)
+    const VkBindAccelerationStructureMemoryInfoKHR* pBindInfos)
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV>::Dispatch(TraceManager::Get(), device, bindInfoCount, pBindInfos);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    const VkBindAccelerationStructureMemoryInfoNV* pBindInfos_unwrapped = UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_unwrap_memory);
+    const VkBindAccelerationStructureMemoryInfoKHR* pBindInfos_unwrapped = UnwrapStructArrayHandles(pBindInfos, bindInfoCount, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->BindAccelerationStructureMemoryNV(device_unwrapped, bindInfoCount, pBindInfos_unwrapped);
 
@@ -10063,8 +10025,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(
     VkBuffer                                    instanceData,
     VkDeviceSize                                instanceOffset,
     VkBool32                                    update,
-    VkAccelerationStructureNV                   dst,
-    VkAccelerationStructureNV                   src,
+    VkAccelerationStructureKHR                  dst,
+    VkAccelerationStructureKHR                  src,
     VkBuffer                                    scratch,
     VkDeviceSize                                scratchOffset)
 {
@@ -10089,8 +10051,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
     const VkAccelerationStructureInfoNV* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
     VkBuffer instanceData_unwrapped = GetWrappedHandle<VkBuffer>(instanceData);
-    VkAccelerationStructureNV dst_unwrapped = GetWrappedHandle<VkAccelerationStructureNV>(dst);
-    VkAccelerationStructureNV src_unwrapped = GetWrappedHandle<VkAccelerationStructureNV>(src);
+    VkAccelerationStructureKHR dst_unwrapped = GetWrappedHandle<VkAccelerationStructureKHR>(dst);
+    VkAccelerationStructureKHR src_unwrapped = GetWrappedHandle<VkAccelerationStructureKHR>(src);
     VkBuffer scratch_unwrapped = GetWrappedHandle<VkBuffer>(scratch);
 
     GetDeviceTable(commandBuffer)->CmdBuildAccelerationStructureNV(commandBuffer_unwrapped, pInfo_unwrapped, instanceData_unwrapped, instanceOffset, update, dst_unwrapped, src_unwrapped, scratch_unwrapped, scratchOffset);
@@ -10100,9 +10062,9 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(
 
 VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(
     VkCommandBuffer                             commandBuffer,
-    VkAccelerationStructureNV                   dst,
-    VkAccelerationStructureNV                   src,
-    VkCopyAccelerationStructureModeNV           mode)
+    VkAccelerationStructureKHR                  dst,
+    VkAccelerationStructureKHR                  src,
+    VkCopyAccelerationStructureModeKHR          mode)
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureNV>::Dispatch(TraceManager::Get(), commandBuffer, dst, src, mode);
 
@@ -10117,8 +10079,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(
     }
 
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
-    VkAccelerationStructureNV dst_unwrapped = GetWrappedHandle<VkAccelerationStructureNV>(dst);
-    VkAccelerationStructureNV src_unwrapped = GetWrappedHandle<VkAccelerationStructureNV>(src);
+    VkAccelerationStructureKHR dst_unwrapped = GetWrappedHandle<VkAccelerationStructureKHR>(dst);
+    VkAccelerationStructureKHR src_unwrapped = GetWrappedHandle<VkAccelerationStructureKHR>(src);
 
     GetDeviceTable(commandBuffer)->CmdCopyAccelerationStructureNV(commandBuffer_unwrapped, dst_unwrapped, src_unwrapped, mode);
 
@@ -10222,6 +10184,45 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(
     return result;
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesKHR(
+    VkDevice                                    device,
+    VkPipeline                                  pipeline,
+    uint32_t                                    firstGroup,
+    uint32_t                                    groupCount,
+    size_t                                      dataSize,
+    void*                                       pData)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR>::Dispatch(TraceManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkPipeline pipeline_unwrapped = GetWrappedHandle<VkPipeline>(pipeline);
+
+    VkResult result = GetDeviceTable(device)->GetRayTracingShaderGroupHandlesKHR(device_unwrapped, pipeline_unwrapped, firstGroup, groupCount, dataSize, pData);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(pipeline);
+        encoder->EncodeUInt32Value(firstGroup);
+        encoder->EncodeUInt32Value(groupCount);
+        encoder->EncodeSizeTValue(dataSize);
+        encoder->EncodeVoidArray(pData, dataSize, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR>::Dispatch(TraceManager::Get(), result, device, pipeline, firstGroup, groupCount, dataSize, pData);
+
+    return result;
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(
     VkDevice                                    device,
     VkPipeline                                  pipeline,
@@ -10263,7 +10264,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(
 
 VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(
     VkDevice                                    device,
-    VkAccelerationStructureNV                   accelerationStructure,
+    VkAccelerationStructureKHR                  accelerationStructure,
     size_t                                      dataSize,
     void*                                       pData)
 {
@@ -10272,7 +10273,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV>::Dispatch(TraceManager::Get(), device, accelerationStructure, dataSize, pData);
 
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    VkAccelerationStructureNV accelerationStructure_unwrapped = GetWrappedHandle<VkAccelerationStructureNV>(accelerationStructure);
+    VkAccelerationStructureKHR accelerationStructure_unwrapped = GetWrappedHandle<VkAccelerationStructureKHR>(accelerationStructure);
 
     VkResult result = GetDeviceTable(device)->GetAccelerationStructureHandleNV(device_unwrapped, accelerationStructure_unwrapped, dataSize, pData);
     if (result < 0)
@@ -10296,10 +10297,42 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(
     return result;
 }
 
+VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesKHR(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    accelerationStructureCount,
+    const VkAccelerationStructureKHR*           pAccelerationStructures,
+    VkQueryType                                 queryType,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    firstQuery)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR>::Dispatch(TraceManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeUInt32Value(accelerationStructureCount);
+        encoder->EncodeHandleArray(pAccelerationStructures, accelerationStructureCount);
+        encoder->EncodeEnumValue(queryType);
+        encoder->EncodeHandleValue(queryPool);
+        encoder->EncodeUInt32Value(firstQuery);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdWriteAccelerationStructuresPropertiesKHRHandles, accelerationStructureCount, pAccelerationStructures, queryPool);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkAccelerationStructureKHR* pAccelerationStructures_unwrapped = UnwrapHandles<VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, handle_unwrap_memory);
+    VkQueryPool queryPool_unwrapped = GetWrappedHandle<VkQueryPool>(queryPool);
+
+    GetDeviceTable(commandBuffer)->CmdWriteAccelerationStructuresPropertiesKHR(commandBuffer_unwrapped, accelerationStructureCount, pAccelerationStructures_unwrapped, queryType, queryPool_unwrapped, firstQuery);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR>::Dispatch(TraceManager::Get(), commandBuffer, accelerationStructureCount, pAccelerationStructures, queryType, queryPool, firstQuery);
+}
+
 VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(
     VkCommandBuffer                             commandBuffer,
     uint32_t                                    accelerationStructureCount,
-    const VkAccelerationStructureNV*            pAccelerationStructures,
+    const VkAccelerationStructureKHR*           pAccelerationStructures,
     VkQueryType                                 queryType,
     VkQueryPool                                 queryPool,
     uint32_t                                    firstQuery)
@@ -10320,7 +10353,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
     VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
-    const VkAccelerationStructureNV* pAccelerationStructures_unwrapped = UnwrapHandles<VkAccelerationStructureNV>(pAccelerationStructures, accelerationStructureCount, handle_unwrap_memory);
+    const VkAccelerationStructureKHR* pAccelerationStructures_unwrapped = UnwrapHandles<VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, handle_unwrap_memory);
     VkQueryPool queryPool_unwrapped = GetWrappedHandle<VkQueryPool>(queryPool);
 
     GetDeviceTable(commandBuffer)->CmdWriteAccelerationStructuresPropertiesNV(commandBuffer_unwrapped, accelerationStructureCount, pAccelerationStructures_unwrapped, queryType, queryPool_unwrapped, firstQuery);
@@ -11302,6 +11335,665 @@ VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(
     GetDeviceTable(device)->ResetQueryPoolEXT(device_unwrapped, queryPool_unwrapped, firstQuery, queryCount);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>::Dispatch(TraceManager::Get(), device, queryPool, firstQuery, queryCount);
+}
+
+VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsNV(
+    VkDevice                                    device,
+    const VkGeneratedCommandsMemoryRequirementsInfoNV* pInfo,
+    VkMemoryRequirements2*                      pMemoryRequirements)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkGeneratedCommandsMemoryRequirementsInfoNV* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    GetDeviceTable(device)->GetGeneratedCommandsMemoryRequirementsNV(device_unwrapped, pInfo_unwrapped, pMemoryRequirements);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        EncodeStructPtr(encoder, pMemoryRequirements);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdPreprocessGeneratedCommandsNV(
+    VkCommandBuffer                             commandBuffer,
+    const VkGeneratedCommandsInfoNV*            pGeneratedCommandsInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV>::Dispatch(TraceManager::Get(), commandBuffer, pGeneratedCommandsInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pGeneratedCommandsInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdPreprocessGeneratedCommandsNVHandles, pGeneratedCommandsInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkGeneratedCommandsInfoNV* pGeneratedCommandsInfo_unwrapped = UnwrapStructPtrHandles(pGeneratedCommandsInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdPreprocessGeneratedCommandsNV(commandBuffer_unwrapped, pGeneratedCommandsInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV>::Dispatch(TraceManager::Get(), commandBuffer, pGeneratedCommandsInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdExecuteGeneratedCommandsNV(
+    VkCommandBuffer                             commandBuffer,
+    VkBool32                                    isPreprocessed,
+    const VkGeneratedCommandsInfoNV*            pGeneratedCommandsInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV>::Dispatch(TraceManager::Get(), commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeVkBool32Value(isPreprocessed);
+        EncodeStructPtr(encoder, pGeneratedCommandsInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdExecuteGeneratedCommandsNVHandles, pGeneratedCommandsInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkGeneratedCommandsInfoNV* pGeneratedCommandsInfo_unwrapped = UnwrapStructPtrHandles(pGeneratedCommandsInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdExecuteGeneratedCommandsNV(commandBuffer_unwrapped, isPreprocessed, pGeneratedCommandsInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV>::Dispatch(TraceManager::Get(), commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdBindPipelineShaderGroupNV(
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    VkPipeline                                  pipeline,
+    uint32_t                                    groupIndex)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV>::Dispatch(TraceManager::Get(), commandBuffer, pipelineBindPoint, pipeline, groupIndex);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeEnumValue(pipelineBindPoint);
+        encoder->EncodeHandleValue(pipeline);
+        encoder->EncodeUInt32Value(groupIndex);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBindPipelineShaderGroupNVHandles, pipeline);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    VkPipeline pipeline_unwrapped = GetWrappedHandle<VkPipeline>(pipeline);
+
+    GetDeviceTable(commandBuffer)->CmdBindPipelineShaderGroupNV(commandBuffer_unwrapped, pipelineBindPoint, pipeline_unwrapped, groupIndex);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV>::Dispatch(TraceManager::Get(), commandBuffer, pipelineBindPoint, pipeline, groupIndex);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNV(
+    VkDevice                                    device,
+    const VkIndirectCommandsLayoutCreateInfoNV* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkIndirectCommandsLayoutNV*                 pIndirectCommandsLayout)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkIndirectCommandsLayoutCreateInfoNV* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->CreateIndirectCommandsLayoutNV(device_unwrapped, pCreateInfo_unwrapped, pAllocator, pIndirectCommandsLayout);
+
+    if (result >= 0)
+    {
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, IndirectCommandsLayoutNVWrapper>(device, NoParentWrapper::kHandleValue, pIndirectCommandsLayout, TraceManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pCreateInfo);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeHandlePtr(pIndirectCommandsLayout, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndCreateApiCallTrace<VkDevice, IndirectCommandsLayoutNVWrapper, VkIndirectCommandsLayoutCreateInfoNV>(result, device, pIndirectCommandsLayout, pCreateInfo, encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV>::Dispatch(TraceManager::Get(), result, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(
+    VkDevice                                    device,
+    VkIndirectCommandsLayoutNV                  indirectCommandsLayout,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV>::Dispatch(TraceManager::Get(), device, indirectCommandsLayout, pAllocator);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(indirectCommandsLayout);
+        EncodeStructPtr(encoder, pAllocator);
+        TraceManager::Get()->EndDestroyApiCallTrace<IndirectCommandsLayoutNVWrapper>(indirectCommandsLayout, encoder);
+    }
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkIndirectCommandsLayoutNV indirectCommandsLayout_unwrapped = GetWrappedHandle<VkIndirectCommandsLayoutNV>(indirectCommandsLayout);
+
+    GetDeviceTable(device)->DestroyIndirectCommandsLayoutNV(device_unwrapped, indirectCommandsLayout_unwrapped, pAllocator);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV>::Dispatch(TraceManager::Get(), device, indirectCommandsLayout, pAllocator);
+
+    DestroyWrappedHandle<IndirectCommandsLayoutNVWrapper>(indirectCommandsLayout);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(
+    VkDevice                                    device,
+    const VkAccelerationStructureCreateInfoKHR* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkAccelerationStructureKHR*                 pAccelerationStructure)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pAccelerationStructure);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+
+    VkResult result = GetDeviceTable(device)->CreateAccelerationStructureKHR(device_unwrapped, pCreateInfo, pAllocator, pAccelerationStructure);
+
+    if (result >= 0)
+    {
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, AccelerationStructureKHRWrapper>(device, NoParentWrapper::kHandleValue, pAccelerationStructure, TraceManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pCreateInfo);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeHandlePtr(pAccelerationStructure, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndCreateApiCallTrace<VkDevice, AccelerationStructureKHRWrapper, VkAccelerationStructureCreateInfoKHR>(result, device, pAccelerationStructure, pCreateInfo, encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR>::Dispatch(TraceManager::Get(), result, device, pCreateInfo, pAllocator, pAccelerationStructure);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsKHR(
+    VkDevice                                    device,
+    const VkAccelerationStructureMemoryRequirementsInfoKHR* pInfo,
+    VkMemoryRequirements2*                      pMemoryRequirements)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsKHR>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkAccelerationStructureMemoryRequirementsInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    GetDeviceTable(device)->GetAccelerationStructureMemoryRequirementsKHR(device_unwrapped, pInfo_unwrapped, pMemoryRequirements);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        EncodeStructPtr(encoder, pMemoryRequirements);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsKHR>::Dispatch(TraceManager::Get(), device, pInfo, pMemoryRequirements);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureIndirectKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkAccelerationStructureBuildGeometryInfoKHR* pInfo,
+    VkBuffer                                    indirectBuffer,
+    VkDeviceSize                                indirectOffset,
+    uint32_t                                    indirectStride)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureIndirectKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo, indirectBuffer, indirectOffset, indirectStride);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureIndirectKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeHandleValue(indirectBuffer);
+        encoder->EncodeVkDeviceSizeValue(indirectOffset);
+        encoder->EncodeUInt32Value(indirectStride);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBuildAccelerationStructureIndirectKHRHandles, pInfo, indirectBuffer);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkAccelerationStructureBuildGeometryInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+    VkBuffer indirectBuffer_unwrapped = GetWrappedHandle<VkBuffer>(indirectBuffer);
+
+    GetDeviceTable(commandBuffer)->CmdBuildAccelerationStructureIndirectKHR(commandBuffer_unwrapped, pInfo_unwrapped, indirectBuffer_unwrapped, indirectOffset, indirectStride);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureIndirectKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo, indirectBuffer, indirectOffset, indirectStride);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(
+    VkDevice                                    device,
+    const VkCopyAccelerationStructureInfoKHR*   pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkCopyAccelerationStructureInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->CopyAccelerationStructureKHR(device_unwrapped, pInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureToMemoryKHR(
+    VkDevice                                    device,
+    const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->CopyAccelerationStructureToMemoryKHR(device_unwrapped, pInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToAccelerationStructureKHR(
+    VkDevice                                    device,
+    const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->CopyMemoryToAccelerationStructureKHR(device_unwrapped, pInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL WriteAccelerationStructuresPropertiesKHR(
+    VkDevice                                    device,
+    uint32_t                                    accelerationStructureCount,
+    const VkAccelerationStructureKHR*           pAccelerationStructures,
+    VkQueryType                                 queryType,
+    size_t                                      dataSize,
+    void*                                       pData,
+    size_t                                      stride)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR>::Dispatch(TraceManager::Get(), device, accelerationStructureCount, pAccelerationStructures, queryType, dataSize, pData, stride);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkAccelerationStructureKHR* pAccelerationStructures_unwrapped = UnwrapHandles<VkAccelerationStructureKHR>(pAccelerationStructures, accelerationStructureCount, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->WriteAccelerationStructuresPropertiesKHR(device_unwrapped, accelerationStructureCount, pAccelerationStructures_unwrapped, queryType, dataSize, pData, stride);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeUInt32Value(accelerationStructureCount);
+        encoder->EncodeHandleArray(pAccelerationStructures, accelerationStructureCount);
+        encoder->EncodeEnumValue(queryType);
+        encoder->EncodeSizeTValue(dataSize);
+        encoder->EncodeVoidArray(pData, dataSize, omit_output_data);
+        encoder->EncodeSizeTValue(stride);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR>::Dispatch(TraceManager::Get(), result, device, accelerationStructureCount, pAccelerationStructures, queryType, dataSize, pData, stride);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyAccelerationStructureInfoKHR*   pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyAccelerationStructureKHRHandles, pInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkCopyAccelerationStructureInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdCopyAccelerationStructureKHR(commandBuffer_unwrapped, pInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureToMemoryKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyAccelerationStructureToMemoryKHRHandles, pInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkCopyAccelerationStructureToMemoryInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdCopyAccelerationStructureToMemoryKHR(commandBuffer_unwrapped, pInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdCopyMemoryToAccelerationStructureKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyMemoryToAccelerationStructureKHRHandles, pInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkCopyMemoryToAccelerationStructureInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdCopyMemoryToAccelerationStructureKHR(commandBuffer_unwrapped, pInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR>::Dispatch(TraceManager::Get(), commandBuffer, pInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkStridedBufferRegionKHR*             pRaygenShaderBindingTable,
+    const VkStridedBufferRegionKHR*             pMissShaderBindingTable,
+    const VkStridedBufferRegionKHR*             pHitShaderBindingTable,
+    const VkStridedBufferRegionKHR*             pCallableShaderBindingTable,
+    uint32_t                                    width,
+    uint32_t                                    height,
+    uint32_t                                    depth)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysKHR>::Dispatch(TraceManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pRaygenShaderBindingTable);
+        EncodeStructPtr(encoder, pMissShaderBindingTable);
+        EncodeStructPtr(encoder, pHitShaderBindingTable);
+        EncodeStructPtr(encoder, pCallableShaderBindingTable);
+        encoder->EncodeUInt32Value(width);
+        encoder->EncodeUInt32Value(height);
+        encoder->EncodeUInt32Value(depth);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdTraceRaysKHRHandles, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkStridedBufferRegionKHR* pRaygenShaderBindingTable_unwrapped = UnwrapStructPtrHandles(pRaygenShaderBindingTable, handle_unwrap_memory);
+    const VkStridedBufferRegionKHR* pMissShaderBindingTable_unwrapped = UnwrapStructPtrHandles(pMissShaderBindingTable, handle_unwrap_memory);
+    const VkStridedBufferRegionKHR* pHitShaderBindingTable_unwrapped = UnwrapStructPtrHandles(pHitShaderBindingTable, handle_unwrap_memory);
+    const VkStridedBufferRegionKHR* pCallableShaderBindingTable_unwrapped = UnwrapStructPtrHandles(pCallableShaderBindingTable, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdTraceRaysKHR(commandBuffer_unwrapped, pRaygenShaderBindingTable_unwrapped, pMissShaderBindingTable_unwrapped, pHitShaderBindingTable_unwrapped, pCallableShaderBindingTable_unwrapped, width, height, depth);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysKHR>::Dispatch(TraceManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, width, height, depth);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(
+    VkDevice                                    device,
+    VkPipelineCache                             pipelineCache,
+    uint32_t                                    createInfoCount,
+    const VkRayTracingPipelineCreateInfoKHR*    pCreateInfos,
+    const VkAllocationCallbacks*                pAllocator,
+    VkPipeline*                                 pPipelines)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(TraceManager::Get(), device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkPipelineCache pipelineCache_unwrapped = GetWrappedHandle<VkPipelineCache>(pipelineCache);
+    const VkRayTracingPipelineCreateInfoKHR* pCreateInfos_unwrapped = UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->CreateRayTracingPipelinesKHR(device_unwrapped, pipelineCache_unwrapped, createInfoCount, pCreateInfos_unwrapped, pAllocator, pPipelines);
+
+    if (result >= 0)
+    {
+        CreateWrappedHandles<DeviceWrapper, PipelineCacheWrapper, PipelineWrapper>(device, pipelineCache, pPipelines, createInfoCount, TraceManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(pipelineCache);
+        encoder->EncodeUInt32Value(createInfoCount);
+        EncodeStructArray(encoder, pCreateInfos, createInfoCount);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeHandleArray(pPipelines, createInfoCount, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndGroupCreateApiCallTrace<VkDevice, VkPipelineCache, PipelineWrapper, VkRayTracingPipelineCreateInfoKHR>(result, device, pipelineCache, createInfoCount, pPipelines, pCreateInfos, encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR>::Dispatch(TraceManager::Get(), result, device, pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+
+    return result;
+}
+
+VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetAccelerationStructureDeviceAddressKHR(
+    VkDevice                                    device,
+    const VkAccelerationStructureDeviceAddressInfoKHR* pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkAccelerationStructureDeviceAddressInfoKHR* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    VkDeviceAddress result = GetDeviceTable(device)->GetAccelerationStructureDeviceAddressKHR(device_unwrapped, pInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeVkDeviceAddressValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingCaptureReplayShaderGroupHandlesKHR(
+    VkDevice                                    device,
+    VkPipeline                                  pipeline,
+    uint32_t                                    firstGroup,
+    uint32_t                                    groupCount,
+    size_t                                      dataSize,
+    void*                                       pData)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR>::Dispatch(TraceManager::Get(), device, pipeline, firstGroup, groupCount, dataSize, pData);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkPipeline pipeline_unwrapped = GetWrappedHandle<VkPipeline>(pipeline);
+
+    VkResult result = GetDeviceTable(device)->GetRayTracingCaptureReplayShaderGroupHandlesKHR(device_unwrapped, pipeline_unwrapped, firstGroup, groupCount, dataSize, pData);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(pipeline);
+        encoder->EncodeUInt32Value(firstGroup);
+        encoder->EncodeUInt32Value(groupCount);
+        encoder->EncodeSizeTValue(dataSize);
+        encoder->EncodeVoidArray(pData, dataSize, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR>::Dispatch(TraceManager::Get(), result, device, pipeline, firstGroup, groupCount, dataSize, pData);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirectKHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkStridedBufferRegionKHR*             pRaygenShaderBindingTable,
+    const VkStridedBufferRegionKHR*             pMissShaderBindingTable,
+    const VkStridedBufferRegionKHR*             pHitShaderBindingTable,
+    const VkStridedBufferRegionKHR*             pCallableShaderBindingTable,
+    VkBuffer                                    buffer,
+    VkDeviceSize                                offset)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR>::Dispatch(TraceManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, buffer, offset);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pRaygenShaderBindingTable);
+        EncodeStructPtr(encoder, pMissShaderBindingTable);
+        EncodeStructPtr(encoder, pHitShaderBindingTable);
+        EncodeStructPtr(encoder, pCallableShaderBindingTable);
+        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeVkDeviceSizeValue(offset);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdTraceRaysIndirectKHRHandles, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, buffer);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkStridedBufferRegionKHR* pRaygenShaderBindingTable_unwrapped = UnwrapStructPtrHandles(pRaygenShaderBindingTable, handle_unwrap_memory);
+    const VkStridedBufferRegionKHR* pMissShaderBindingTable_unwrapped = UnwrapStructPtrHandles(pMissShaderBindingTable, handle_unwrap_memory);
+    const VkStridedBufferRegionKHR* pHitShaderBindingTable_unwrapped = UnwrapStructPtrHandles(pHitShaderBindingTable, handle_unwrap_memory);
+    const VkStridedBufferRegionKHR* pCallableShaderBindingTable_unwrapped = UnwrapStructPtrHandles(pCallableShaderBindingTable, handle_unwrap_memory);
+    VkBuffer buffer_unwrapped = GetWrappedHandle<VkBuffer>(buffer);
+
+    GetDeviceTable(commandBuffer)->CmdTraceRaysIndirectKHR(commandBuffer_unwrapped, pRaygenShaderBindingTable_unwrapped, pMissShaderBindingTable_unwrapped, pHitShaderBindingTable_unwrapped, pCallableShaderBindingTable_unwrapped, buffer_unwrapped, offset);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR>::Dispatch(TraceManager::Get(), commandBuffer, pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable, buffer, offset);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDeviceAccelerationStructureCompatibilityKHR(
+    VkDevice                                    device,
+    const VkAccelerationStructureVersionKHR*    version)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR>::Dispatch(TraceManager::Get(), device, version);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+
+    VkResult result = GetDeviceTable(device)->GetDeviceAccelerationStructureCompatibilityKHR(device_unwrapped, version);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, version);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR>::Dispatch(TraceManager::Get(), result, device, version);
+
+    return result;
 }
 
 GFXRECON_END_NAMESPACE(encode)

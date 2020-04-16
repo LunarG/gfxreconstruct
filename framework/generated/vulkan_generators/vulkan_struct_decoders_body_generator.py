@@ -175,6 +175,12 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
             elif isHandle:
                 body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
                 body += '    value->{} = VK_NULL_HANDLE;\n'.format(value.name)
+            elif value.bitfieldWidth:
+                # Bit fields need to be read into a tempoaray and then assigned to the struct member.
+                tempParamName = 'temp_{}'.format(value.name)
+                body += '    {} {};\n'.format(value.baseType, tempParamName)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(typeName, bufferArgs, tempParamName)
+                body += '    value->{} = {};\n'.format(value.name, tempParamName)
             else:
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(typeName, bufferArgs, value.name)
 

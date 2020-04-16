@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -72,6 +72,22 @@ void EncodeStruct(ParameterEncoder* encoder, const VkClearValue& value)
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatisticValueKHR& value)
 {
     encoder->EncodeUInt64Value(value.u64);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressKHR& value)
+{
+    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressConstKHR& value)
+{
+    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryDataKHR& value)
+{
+    // TODO
+    GFXRECON_LOG_ERROR("VkAccelerationStructureGeometryDataKHR is not supported");
 }
 
 // Encodes both VkWriteDescriptorSet and VkDescriptorImageInfo based on descriptor type.
@@ -147,37 +163,10 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceValueINTEL& valu
     }
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableEntryNVX* value)
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildGeometryInfoKHR& value)
 {
-    if (value != nullptr)
-    {
-        switch (value->type)
-        {
-            case VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX:
-                EncodeStructPtr(encoder, reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(value));
-                break;
-            case VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX:
-                EncodeStructPtr(encoder, reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(value));
-                break;
-            case VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX:
-                EncodeStructPtr(encoder, reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(value));
-                break;
-            case VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX:
-                EncodeStructPtr(encoder, reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(value));
-                break;
-            case VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX:
-                EncodeStructPtr(encoder, reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(value));
-                break;
-            default:
-                GFXRECON_LOG_WARNING("Skipping custom struct encoding for unrecognized VkObjectEntryTypeNVX %u",
-                                     value->type);
-                break;
-        }
-    }
-    else
-    {
-        encoder->EncodeStructPtrPreamble(nullptr);
-    }
+    // TODO
+    GFXRECON_LOG_ERROR("VkAccelerationStructureBuildGeometryInfoKHR is not supported");
 }
 
 // The WIN32 SID structure has a variable size, so will be encoded as an array of bytes instead of a struct.

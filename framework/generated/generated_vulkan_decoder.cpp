@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -5844,6 +5844,108 @@ size_t VulkanDecoder::Decode_vkGetDeviceMemoryOpaqueCaptureAddressKHR(const uint
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCreateDeferredOperationKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkDeferredOperationKHR> pDeferredOperation;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pDeferredOperation.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreateDeferredOperationKHR(return_value, device, &pAllocator, &pDeferredOperation);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkDestroyDeferredOperationKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId operation;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &operation);
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkDestroyDeferredOperationKHR(device, operation, &pAllocator);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDeferredOperationMaxConcurrencyKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId operation;
+    uint32_t return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &operation);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeferredOperationMaxConcurrencyKHR(return_value, device, operation);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDeferredOperationResultKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId operation;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &operation);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeferredOperationResultKHR(return_value, device, operation);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkDeferredOperationJoinKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId operation;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &operation);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkDeferredOperationJoinKHR(return_value, device, operation);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkGetPipelineExecutablePropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -6467,176 +6569,6 @@ size_t VulkanDecoder::Decode_vkCmdEndConditionalRenderingEXT(const uint8_t* para
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkCmdEndConditionalRenderingEXT(commandBuffer);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoder::Decode_vkCmdProcessCommandsNVX(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkCmdProcessCommandsInfoNVX> pProcessCommandsInfo;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pProcessCommandsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkCmdProcessCommandsNVX(commandBuffer, &pProcessCommandsInfo);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoder::Decode_vkCmdReserveSpaceForCommandsNVX(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkCmdReserveSpaceForCommandsInfoNVX> pReserveSpaceInfo;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pReserveSpaceInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkCmdReserveSpaceForCommandsNVX(commandBuffer, &pReserveSpaceInfo);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoder::Decode_vkCreateIndirectCommandsLayoutNVX(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId device;
-    StructPointerDecoder<Decoded_VkIndirectCommandsLayoutCreateInfoNVX> pCreateInfo;
-    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
-    HandlePointerDecoder<VkIndirectCommandsLayoutNVX> pIndirectCommandsLayout;
-    VkResult return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pIndirectCommandsLayout.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkCreateIndirectCommandsLayoutNVX(return_value, device, &pCreateInfo, &pAllocator, &pIndirectCommandsLayout);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoder::Decode_vkDestroyIndirectCommandsLayoutNVX(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId device;
-    format::HandleId indirectCommandsLayout;
-    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &indirectCommandsLayout);
-    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkDestroyIndirectCommandsLayoutNVX(device, indirectCommandsLayout, &pAllocator);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoder::Decode_vkCreateObjectTableNVX(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId device;
-    StructPointerDecoder<Decoded_VkObjectTableCreateInfoNVX> pCreateInfo;
-    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
-    HandlePointerDecoder<VkObjectTableNVX> pObjectTable;
-    VkResult return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pObjectTable.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkCreateObjectTableNVX(return_value, device, &pCreateInfo, &pAllocator, &pObjectTable);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoder::Decode_vkDestroyObjectTableNVX(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId device;
-    format::HandleId objectTable;
-    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectTable);
-    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkDestroyObjectTableNVX(device, objectTable, &pAllocator);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoder::Decode_vkUnregisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId device;
-    format::HandleId objectTable;
-    uint32_t objectCount;
-    PointerDecoder<VkObjectEntryTypeNVX> pObjectEntryTypes;
-    PointerDecoder<uint32_t> pObjectIndices;
-    VkResult return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectTable);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectCount);
-    bytes_read += pObjectEntryTypes.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pObjectIndices.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkUnregisterObjectsNVX(return_value, device, objectTable, objectCount, &pObjectEntryTypes, &pObjectIndices);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoder::Decode_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId physicalDevice;
-    StructPointerDecoder<Decoded_VkDeviceGeneratedCommandsFeaturesNVX> pFeatures;
-    StructPointerDecoder<Decoded_VkDeviceGeneratedCommandsLimitsNVX> pLimits;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &physicalDevice);
-    bytes_read += pFeatures.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pLimits.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX(physicalDevice, &pFeatures, &pLimits);
     }
 
     return bytes_read;
@@ -7480,6 +7412,26 @@ size_t VulkanDecoder::Decode_vkCreateAccelerationStructureNV(const uint8_t* para
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkDestroyAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId accelerationStructure;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &accelerationStructure);
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkDestroyAccelerationStructureKHR(device, accelerationStructure, &pAllocator);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkDestroyAccelerationStructureNV(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -7520,13 +7472,35 @@ size_t VulkanDecoder::Decode_vkGetAccelerationStructureMemoryRequirementsNV(cons
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkBindAccelerationStructureMemoryKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    uint32_t bindInfoCount;
+    StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoKHR> pBindInfos;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bindInfoCount);
+    bytes_read += pBindInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkBindAccelerationStructureMemoryKHR(return_value, device, bindInfoCount, &pBindInfos);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkBindAccelerationStructureMemoryNV(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
     format::HandleId device;
     uint32_t bindInfoCount;
-    StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV> pBindInfos;
+    StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoKHR> pBindInfos;
     VkResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
@@ -7581,7 +7555,7 @@ size_t VulkanDecoder::Decode_vkCmdCopyAccelerationStructureNV(const uint8_t* par
     format::HandleId commandBuffer;
     format::HandleId dst;
     format::HandleId src;
-    VkCopyAccelerationStructureModeNV mode;
+    VkCopyAccelerationStructureModeKHR mode;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dst);
@@ -7668,6 +7642,34 @@ size_t VulkanDecoder::Decode_vkCreateRayTracingPipelinesNV(const uint8_t* parame
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkGetRayTracingShaderGroupHandlesKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId pipeline;
+    uint32_t firstGroup;
+    uint32_t groupCount;
+    size_t dataSize;
+    PointerDecoder<uint8_t> pData;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipeline);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstGroup);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &groupCount);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dataSize);
+    bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetRayTracingShaderGroupHandlesKHR(return_value, device, pipeline, firstGroup, groupCount, dataSize, &pData);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkGetRayTracingShaderGroupHandlesNV(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -7720,13 +7722,39 @@ size_t VulkanDecoder::Decode_vkGetAccelerationStructureHandleNV(const uint8_t* p
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCmdWriteAccelerationStructuresPropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    uint32_t accelerationStructureCount;
+    HandlePointerDecoder<VkAccelerationStructureKHR> pAccelerationStructures;
+    VkQueryType queryType;
+    format::HandleId queryPool;
+    uint32_t firstQuery;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &accelerationStructureCount);
+    bytes_read += pAccelerationStructures.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queryType);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queryPool);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstQuery);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdWriteAccelerationStructuresPropertiesKHR(commandBuffer, accelerationStructureCount, &pAccelerationStructures, queryType, queryPool, firstQuery);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCmdWriteAccelerationStructuresPropertiesNV(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
     uint32_t accelerationStructureCount;
-    HandlePointerDecoder<VkAccelerationStructureNV> pAccelerationStructures;
+    HandlePointerDecoder<VkAccelerationStructureKHR> pAccelerationStructures;
     VkQueryType queryType;
     format::HandleId queryPool;
     uint32_t firstQuery;
@@ -8477,6 +8505,496 @@ size_t VulkanDecoder::Decode_vkResetQueryPoolEXT(const uint8_t* parameter_buffer
     for (auto consumer : GetConsumers())
     {
         consumer->Process_vkResetQueryPoolEXT(device, queryPool, firstQuery, queryCount);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetGeneratedCommandsMemoryRequirementsNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV> pInfo;
+    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetGeneratedCommandsMemoryRequirementsNV(device, &pInfo, &pMemoryRequirements);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdPreprocessGeneratedCommandsNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV> pGeneratedCommandsInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pGeneratedCommandsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdPreprocessGeneratedCommandsNV(commandBuffer, &pGeneratedCommandsInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdExecuteGeneratedCommandsNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkBool32 isPreprocessed;
+    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV> pGeneratedCommandsInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeVkBool32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &isPreprocessed);
+    bytes_read += pGeneratedCommandsInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdExecuteGeneratedCommandsNV(commandBuffer, isPreprocessed, &pGeneratedCommandsInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBindPipelineShaderGroupNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    VkPipelineBindPoint pipelineBindPoint;
+    format::HandleId pipeline;
+    uint32_t groupIndex;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipelineBindPoint);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipeline);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &groupIndex);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBindPipelineShaderGroupNV(commandBuffer, pipelineBindPoint, pipeline, groupIndex);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCreateIndirectCommandsLayoutNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkIndirectCommandsLayoutCreateInfoNV> pCreateInfo;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkIndirectCommandsLayoutNV> pIndirectCommandsLayout;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pIndirectCommandsLayout.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreateIndirectCommandsLayoutNV(return_value, device, &pCreateInfo, &pAllocator, &pIndirectCommandsLayout);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkDestroyIndirectCommandsLayoutNV(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId indirectCommandsLayout;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &indirectCommandsLayout);
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkDestroyIndirectCommandsLayoutNV(device, indirectCommandsLayout, &pAllocator);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCreateAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoKHR> pCreateInfo;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkAccelerationStructureKHR> pAccelerationStructure;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pCreateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAccelerationStructure.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreateAccelerationStructureKHR(return_value, device, &pCreateInfo, &pAllocator, &pAccelerationStructure);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetAccelerationStructureMemoryRequirementsKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoKHR> pInfo;
+    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMemoryRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetAccelerationStructureMemoryRequirementsKHR(device, &pInfo, &pMemoryRequirements);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBuildAccelerationStructureIndirectKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR> pInfo;
+    format::HandleId indirectBuffer;
+    VkDeviceSize indirectOffset;
+    uint32_t indirectStride;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &indirectBuffer);
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &indirectOffset);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &indirectStride);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBuildAccelerationStructureIndirectKHR(commandBuffer, &pInfo, indirectBuffer, indirectOffset, indirectStride);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCopyAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR> pInfo;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCopyAccelerationStructureKHR(return_value, device, &pInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCopyAccelerationStructureToMemoryKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR> pInfo;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCopyAccelerationStructureToMemoryKHR(return_value, device, &pInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCopyMemoryToAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR> pInfo;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCopyMemoryToAccelerationStructureKHR(return_value, device, &pInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkWriteAccelerationStructuresPropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    uint32_t accelerationStructureCount;
+    HandlePointerDecoder<VkAccelerationStructureKHR> pAccelerationStructures;
+    VkQueryType queryType;
+    size_t dataSize;
+    PointerDecoder<uint8_t> pData;
+    size_t stride;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &accelerationStructureCount);
+    bytes_read += pAccelerationStructures.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &queryType);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dataSize);
+    bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &stride);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkWriteAccelerationStructuresPropertiesKHR(return_value, device, accelerationStructureCount, &pAccelerationStructures, queryType, dataSize, &pData, stride);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR> pInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyAccelerationStructureKHR(commandBuffer, &pInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyAccelerationStructureToMemoryKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR> pInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyAccelerationStructureToMemoryKHR(commandBuffer, &pInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyMemoryToAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR> pInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyMemoryToAccelerationStructureKHR(commandBuffer, &pInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdTraceRaysKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR> pRaygenShaderBindingTable;
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR> pMissShaderBindingTable;
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR> pHitShaderBindingTable;
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR> pCallableShaderBindingTable;
+    uint32_t width;
+    uint32_t height;
+    uint32_t depth;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pRaygenShaderBindingTable.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMissShaderBindingTable.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHitShaderBindingTable.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCallableShaderBindingTable.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &width);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &height);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &depth);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdTraceRaysKHR(commandBuffer, &pRaygenShaderBindingTable, &pMissShaderBindingTable, &pHitShaderBindingTable, &pCallableShaderBindingTable, width, height, depth);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCreateRayTracingPipelinesKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId pipelineCache;
+    uint32_t createInfoCount;
+    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR> pCreateInfos;
+    StructPointerDecoder<Decoded_VkAllocationCallbacks> pAllocator;
+    HandlePointerDecoder<VkPipeline> pPipelines;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipelineCache);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &createInfoCount);
+    bytes_read += pCreateInfos.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pAllocator.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPipelines.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCreateRayTracingPipelinesKHR(return_value, device, pipelineCache, createInfoCount, &pCreateInfos, &pAllocator, &pPipelines);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetAccelerationStructureDeviceAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR> pInfo;
+    VkDeviceAddress return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeVkDeviceAddressValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetAccelerationStructureDeviceAddressKHR(return_value, device, &pInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    format::HandleId pipeline;
+    uint32_t firstGroup;
+    uint32_t groupCount;
+    size_t dataSize;
+    PointerDecoder<uint8_t> pData;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pipeline);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &firstGroup);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &groupCount);
+    bytes_read += ValueDecoder::DecodeSizeTValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &dataSize);
+    bytes_read += pData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(return_value, device, pipeline, firstGroup, groupCount, dataSize, &pData);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdTraceRaysIndirectKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR> pRaygenShaderBindingTable;
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR> pMissShaderBindingTable;
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR> pHitShaderBindingTable;
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR> pCallableShaderBindingTable;
+    format::HandleId buffer;
+    VkDeviceSize offset;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pRaygenShaderBindingTable.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pMissShaderBindingTable.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pHitShaderBindingTable.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pCallableShaderBindingTable.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &buffer);
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &offset);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdTraceRaysIndirectKHR(commandBuffer, &pRaygenShaderBindingTable, &pMissShaderBindingTable, &pHitShaderBindingTable, &pCallableShaderBindingTable, buffer, offset);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkGetDeviceAccelerationStructureCompatibilityKHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId device;
+    StructPointerDecoder<Decoded_VkAccelerationStructureVersionKHR> version;
+    VkResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
+    bytes_read += version.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkGetDeviceAccelerationStructureCompatibilityKHR(return_value, device, &version);
     }
 
     return bytes_read;
@@ -9278,6 +9796,21 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR:
         Decode_vkGetDeviceMemoryOpaqueCaptureAddressKHR(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkCreateDeferredOperationKHR:
+        Decode_vkCreateDeferredOperationKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkDestroyDeferredOperationKHR:
+        Decode_vkDestroyDeferredOperationKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeferredOperationMaxConcurrencyKHR:
+        Decode_vkGetDeferredOperationMaxConcurrencyKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeferredOperationResultKHR:
+        Decode_vkGetDeferredOperationResultKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR:
+        Decode_vkDeferredOperationJoinKHR(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkGetPipelineExecutablePropertiesKHR:
         Decode_vkGetPipelineExecutablePropertiesKHR(parameter_buffer, buffer_size);
         break;
@@ -9358,30 +9891,6 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkCmdEndConditionalRenderingEXT:
         Decode_vkCmdEndConditionalRenderingEXT(parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkCmdProcessCommandsNVX:
-        Decode_vkCmdProcessCommandsNVX(parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkCmdReserveSpaceForCommandsNVX:
-        Decode_vkCmdReserveSpaceForCommandsNVX(parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNVX:
-        Decode_vkCreateIndirectCommandsLayoutNVX(parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNVX:
-        Decode_vkDestroyIndirectCommandsLayoutNVX(parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkCreateObjectTableNVX:
-        Decode_vkCreateObjectTableNVX(parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkDestroyObjectTableNVX:
-        Decode_vkDestroyObjectTableNVX(parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkUnregisterObjectsNVX:
-        Decode_vkUnregisterObjectsNVX(parameter_buffer, buffer_size);
-        break;
-    case format::ApiCallId::ApiCall_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX:
-        Decode_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdSetViewportWScalingNV:
         Decode_vkCmdSetViewportWScalingNV(parameter_buffer, buffer_size);
@@ -9500,11 +10009,17 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkCreateAccelerationStructureNV:
         Decode_vkCreateAccelerationStructureNV(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkDestroyAccelerationStructureKHR:
+        Decode_vkDestroyAccelerationStructureKHR(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkDestroyAccelerationStructureNV:
         Decode_vkDestroyAccelerationStructureNV(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsNV:
         Decode_vkGetAccelerationStructureMemoryRequirementsNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryKHR:
+        Decode_vkBindAccelerationStructureMemoryKHR(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkBindAccelerationStructureMemoryNV:
         Decode_vkBindAccelerationStructureMemoryNV(parameter_buffer, buffer_size);
@@ -9521,11 +10036,17 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesNV:
         Decode_vkCreateRayTracingPipelinesNV(parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesKHR:
+        Decode_vkGetRayTracingShaderGroupHandlesKHR(parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_vkGetRayTracingShaderGroupHandlesNV:
         Decode_vkGetRayTracingShaderGroupHandlesNV(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkGetAccelerationStructureHandleNV:
         Decode_vkGetAccelerationStructureHandleNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesKHR:
+        Decode_vkCmdWriteAccelerationStructuresPropertiesKHR(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCmdWriteAccelerationStructuresPropertiesNV:
         Decode_vkCmdWriteAccelerationStructuresPropertiesNV(parameter_buffer, buffer_size);
@@ -9631,6 +10152,72 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkResetQueryPoolEXT:
         Decode_vkResetQueryPoolEXT(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsNV:
+        Decode_vkGetGeneratedCommandsMemoryRequirementsNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsNV:
+        Decode_vkCmdPreprocessGeneratedCommandsNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsNV:
+        Decode_vkCmdExecuteGeneratedCommandsNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBindPipelineShaderGroupNV:
+        Decode_vkCmdBindPipelineShaderGroupNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutNV:
+        Decode_vkCreateIndirectCommandsLayoutNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV:
+        Decode_vkDestroyIndirectCommandsLayoutNV(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCreateAccelerationStructureKHR:
+        Decode_vkCreateAccelerationStructureKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetAccelerationStructureMemoryRequirementsKHR:
+        Decode_vkGetAccelerationStructureMemoryRequirementsKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBuildAccelerationStructureIndirectKHR:
+        Decode_vkCmdBuildAccelerationStructureIndirectKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCopyAccelerationStructureKHR:
+        Decode_vkCopyAccelerationStructureKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCopyAccelerationStructureToMemoryKHR:
+        Decode_vkCopyAccelerationStructureToMemoryKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCopyMemoryToAccelerationStructureKHR:
+        Decode_vkCopyMemoryToAccelerationStructureKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkWriteAccelerationStructuresPropertiesKHR:
+        Decode_vkWriteAccelerationStructuresPropertiesKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureKHR:
+        Decode_vkCmdCopyAccelerationStructureKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyAccelerationStructureToMemoryKHR:
+        Decode_vkCmdCopyAccelerationStructureToMemoryKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyMemoryToAccelerationStructureKHR:
+        Decode_vkCmdCopyMemoryToAccelerationStructureKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdTraceRaysKHR:
+        Decode_vkCmdTraceRaysKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR:
+        Decode_vkCreateRayTracingPipelinesKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetAccelerationStructureDeviceAddressKHR:
+        Decode_vkGetAccelerationStructureDeviceAddressKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR:
+        Decode_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdTraceRaysIndirectKHR:
+        Decode_vkCmdTraceRaysIndirectKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkGetDeviceAccelerationStructureCompatibilityKHR:
+        Decode_vkGetDeviceAccelerationStructureCompatibilityKHR(parameter_buffer, buffer_size);
         break;
     }
 }

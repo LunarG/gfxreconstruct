@@ -27,7 +27,6 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/string_array_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/string_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/struct_pointer_decoder.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/struct_pointer_decoder_nvx.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/swapchain_image_tracker.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/value_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_ascii_consumer_base.h

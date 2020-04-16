@@ -142,13 +142,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void Process_vkRegisterObjectsNVX(VkResult                                             returnValue,
-                                              format::HandleId                                     device,
-                                              format::HandleId                                     objectTable,
-                                              uint32_t                                             objectCount,
-                                              StructPointerDecoder<Decoded_VkObjectTableEntryNVX>* ppObjectTableEntries,
-                                              PointerDecoder<uint32_t>* pObjectIndices) override;
-
   protected:
     const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 

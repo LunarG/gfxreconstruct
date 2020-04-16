@@ -141,8 +141,6 @@ class VulkanDecoderBase : public ApiDecoder
 
     size_t Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkRegisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size);
-
   private:
     std::vector<VulkanConsumer*> consumers_;
 };

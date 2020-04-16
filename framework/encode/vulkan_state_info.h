@@ -106,9 +106,10 @@ enum CommandHandleType : uint32_t
     QueryPoolHandle,
     RenderPassHandle,
     SamplerHandle,
+    AccelerationStructureKHRHandle,
     AccelerationStructureNVHandle,
-    IndirectCommandsLayoutNVXHandle,
-    ObjectTableNVXHandle,
+    IndirectCommandsLayoutNVHandle,
+    DeferredOperationKHRHandle,
     NumHandleTypes
 };
 

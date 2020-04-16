@@ -19,12 +19,15 @@
 #define GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
 
 #include "format/platform_types.h"
+#include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/descriptor_update_template_decoder.h"
+#include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
-#include "decode/struct_pointer_decoder_nvx.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"
+
 
 #include "vulkan/vulkan.h"
 
@@ -120,14 +123,6 @@ class VulkanConsumerBase
                                                               format::HandleId                 descriptorSet,
                                                               format::HandleId                 descriptorUpdateTemplate,
                                                               DescriptorUpdateTemplateDecoder* pData)
-    {}
-
-    virtual void Process_vkRegisterObjectsNVX(VkResult                                             returnValue,
-                                              format::HandleId                                     device,
-                                              format::HandleId                                     objectTable,
-                                              uint32_t                                             objectCount,
-                                              StructPointerDecoder<Decoded_VkObjectTableEntryNVX>* ppObjectTableEntries,
-                                              PointerDecoder<uint32_t>*                            pObjectIndices)
     {}
 };
 

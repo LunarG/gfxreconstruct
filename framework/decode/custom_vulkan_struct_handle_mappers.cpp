@@ -21,6 +21,7 @@
 #include "decode/vulkan_object_info.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
+#include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -102,6 +103,13 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectI
                 break;
         }
     }
+}
+
+void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper,
+                      const VulkanObjectInfoTable&                         object_info_table)
+{
+    // TODO
+    GFXRECON_LOG_ERROR("VkAccelerationStructureBuildGeometryInfoKHR handle mapping is not supported");
 }
 
 GFXRECON_END_NAMESPACE(decode)

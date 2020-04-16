@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -175,9 +175,13 @@ void UnwrapStructHandles(VkDisplayModeProperties2KHR* value, HandleUnwrapMemory*
 
 void UnwrapStructHandles(VkDisplayPlaneInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkDeferredOperationInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkPipelineInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkPipelineExecutableInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkDedicatedAllocationMemoryAllocateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -186,22 +190,6 @@ void UnwrapStructHandles(VkImageViewHandleInfoNVX* value, HandleUnwrapMemory* un
 void UnwrapStructHandles(VkWin32KeyedMutexAcquireReleaseInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkConditionalRenderingBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkIndirectCommandsTokenNVX* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCmdProcessCommandsInfoNVX* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkCmdReserveSpaceForCommandsInfoNVX* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkObjectTablePipelineEntryNVX* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkObjectTableDescriptorSetEntryNVX* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkObjectTableVertexBufferEntryNVX* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkObjectTableIndexBufferEntryNVX* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(VkObjectTablePushConstantEntryNVX* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkMemoryGetAndroidHardwareBufferInfoANDROID* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -221,11 +209,39 @@ void UnwrapStructHandles(VkAccelerationStructureInfoNV* value, HandleUnwrapMemor
 
 void UnwrapStructHandles(VkAccelerationStructureCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkBindAccelerationStructureMemoryInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBindAccelerationStructureMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkAccelerationStructureMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGraphicsShaderGroupCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGraphicsPipelineShaderGroupsCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkIndirectCommandsStreamNV* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkIndirectCommandsLayoutTokenNV* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkIndirectCommandsLayoutCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGeneratedCommandsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkGeneratedCommandsMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkRayTracingPipelineCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkAccelerationStructureMemoryRequirementsInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkAccelerationStructureDeviceAddressInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkStridedBufferRegionKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyAccelerationStructureToMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyMemoryToAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
 

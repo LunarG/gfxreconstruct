@@ -92,22 +92,5 @@ void VulkanAsciiConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(forma
     fprintf(m_file, "%s\n", "vkUpdateDescriptorSetWithTemplateKHR");
 }
 
-void VulkanAsciiConsumerBase::Process_vkRegisterObjectsNVX(
-    VkResult                                             returnValue,
-    format::HandleId                                     device,
-    format::HandleId                                     objectTable,
-    uint32_t                                             objectCount,
-    StructPointerDecoder<Decoded_VkObjectTableEntryNVX>* ppObjectTableEntries,
-    PointerDecoder<uint32_t>*                            pObjectIndices)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(objectTable);
-    GFXRECON_UNREFERENCED_PARAMETER(objectCount);
-    GFXRECON_UNREFERENCED_PARAMETER(ppObjectTableEntries);
-    GFXRECON_UNREFERENCED_PARAMETER(pObjectIndices);
-    fprintf(m_file, "%s\n", "vkRegisterObjectsNVX");
-}
-
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

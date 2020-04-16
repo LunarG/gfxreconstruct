@@ -114,75 +114,10 @@ void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap
     }
 }
 
-const VkObjectTableEntryNVX* const*
-UnwrapStructArrayHandles(const VkObjectTableEntryNVX* const* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
-    if ((values != nullptr) && (len > 0))
-    {
-        size_t table_size      = sizeof(values[0]) * len;
-        auto   unwrapped_table = reinterpret_cast<const VkObjectTableEntryNVX**>(unwrap_memory->GetBuffer(table_size));
-
-        for (size_t i = 0; i < len; ++i)
-        {
-            const VkObjectTableEntryNVX* entry = values[i];
-
-            if (entry != nullptr)
-            {
-                switch (entry->type)
-                {
-                    case VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX:
-                    {
-                        auto unwrapped_struct = UnwrapStructPtrHandles(
-                            reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(entry), unwrap_memory);
-                        unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
-                        break;
-                    }
-                    case VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX:
-                    {
-                        auto unwrapped_struct = UnwrapStructPtrHandles(
-                            reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(entry), unwrap_memory);
-                        unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
-                        break;
-                    }
-                    case VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX:
-                    {
-                        auto unwrapped_struct = UnwrapStructPtrHandles(
-                            reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(entry), unwrap_memory);
-                        unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
-                        break;
-                    }
-                    case VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX:
-                    {
-                        auto unwrapped_struct = UnwrapStructPtrHandles(
-                            reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(entry), unwrap_memory);
-                        unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
-                        break;
-                    }
-                    case VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX:
-                    {
-                        auto unwrapped_struct = UnwrapStructPtrHandles(
-                            reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(entry), unwrap_memory);
-                        unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
-                        break;
-                    }
-                    default:
-                        GFXRECON_LOG_WARNING("Skipping custom struct handle unwrapping for VkObjectTableEntryNVX "
-                                             "struct with unrecognized type %u",
-                                             entry->type);
-                        break;
-                }
-            }
-            else
-            {
-                unwrapped_table[i] = nullptr;
-            }
-        }
-
-        return unwrapped_table;
-    }
-
-    // Leave the original memory in place when the pointer is not null, but size is zero.
-    return values;
+    // TODO
+    GFXRECON_LOG_ERROR("VkAccelerationStructureBuildGeometryInfoKHR handle unwrapping is not supported");
 }
 
 GFXRECON_END_NAMESPACE(encode)

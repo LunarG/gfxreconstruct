@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -2408,6 +2408,47 @@ void VulkanAsciiConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddressKHR(
     fprintf(GetFile(), "%s\n", "vkGetDeviceMemoryOpaqueCaptureAddressKHR");
 }
 
+void VulkanAsciiConsumer::Process_vkCreateDeferredOperationKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkDeferredOperationKHR>* pDeferredOperation)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateDeferredOperationKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkDestroyDeferredOperationKHR(
+    format::HandleId                            device,
+    format::HandleId                            operation,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    fprintf(GetFile(), "%s\n", "vkDestroyDeferredOperationKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetDeferredOperationMaxConcurrencyKHR(
+    uint32_t                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            operation)
+{
+    fprintf(GetFile(), "%s\n", "vkGetDeferredOperationMaxConcurrencyKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetDeferredOperationResultKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            operation)
+{
+    fprintf(GetFile(), "%s\n", "vkGetDeferredOperationResultKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkDeferredOperationJoinKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            operation)
+{
+    fprintf(GetFile(), "%s\n", "vkDeferredOperationJoinKHR");
+}
+
 void VulkanAsciiConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,
@@ -2666,75 +2707,6 @@ void VulkanAsciiConsumer::Process_vkCmdEndConditionalRenderingEXT(
     format::HandleId                            commandBuffer)
 {
     fprintf(GetFile(), "%s\n", "vkCmdEndConditionalRenderingEXT");
-}
-
-void VulkanAsciiConsumer::Process_vkCmdProcessCommandsNVX(
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCmdProcessCommandsInfoNVX>* pProcessCommandsInfo)
-{
-    fprintf(GetFile(), "%s\n", "vkCmdProcessCommandsNVX");
-}
-
-void VulkanAsciiConsumer::Process_vkCmdReserveSpaceForCommandsNVX(
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkCmdReserveSpaceForCommandsInfoNVX>* pReserveSpaceInfo)
-{
-    fprintf(GetFile(), "%s\n", "vkCmdReserveSpaceForCommandsNVX");
-}
-
-void VulkanAsciiConsumer::Process_vkCreateIndirectCommandsLayoutNVX(
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkIndirectCommandsLayoutCreateInfoNVX>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkIndirectCommandsLayoutNVX>* pIndirectCommandsLayout)
-{
-    fprintf(GetFile(), "%s\n", "vkCreateIndirectCommandsLayoutNVX");
-}
-
-void VulkanAsciiConsumer::Process_vkDestroyIndirectCommandsLayoutNVX(
-    format::HandleId                            device,
-    format::HandleId                            indirectCommandsLayout,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
-{
-    fprintf(GetFile(), "%s\n", "vkDestroyIndirectCommandsLayoutNVX");
-}
-
-void VulkanAsciiConsumer::Process_vkCreateObjectTableNVX(
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkObjectTableCreateInfoNVX>* pCreateInfo,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkObjectTableNVX>*     pObjectTable)
-{
-    fprintf(GetFile(), "%s\n", "vkCreateObjectTableNVX");
-}
-
-void VulkanAsciiConsumer::Process_vkDestroyObjectTableNVX(
-    format::HandleId                            device,
-    format::HandleId                            objectTable,
-    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
-{
-    fprintf(GetFile(), "%s\n", "vkDestroyObjectTableNVX");
-}
-
-void VulkanAsciiConsumer::Process_vkUnregisterObjectsNVX(
-    VkResult                                    returnValue,
-    format::HandleId                            device,
-    format::HandleId                            objectTable,
-    uint32_t                                    objectCount,
-    PointerDecoder<VkObjectEntryTypeNVX>*       pObjectEntryTypes,
-    PointerDecoder<uint32_t>*                   pObjectIndices)
-{
-    fprintf(GetFile(), "%s\n", "vkUnregisterObjectsNVX");
-}
-
-void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX(
-    format::HandleId                            physicalDevice,
-    StructPointerDecoder<Decoded_VkDeviceGeneratedCommandsFeaturesNVX>* pFeatures,
-    StructPointerDecoder<Decoded_VkDeviceGeneratedCommandsLimitsNVX>* pLimits)
-{
-    fprintf(GetFile(), "%s\n", "vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX");
 }
 
 void VulkanAsciiConsumer::Process_vkCmdSetViewportWScalingNV(
@@ -3078,6 +3050,14 @@ void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureNV(
     fprintf(GetFile(), "%s\n", "vkCreateAccelerationStructureNV");
 }
 
+void VulkanAsciiConsumer::Process_vkDestroyAccelerationStructureKHR(
+    format::HandleId                            device,
+    format::HandleId                            accelerationStructure,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    fprintf(GetFile(), "%s\n", "vkDestroyAccelerationStructureKHR");
+}
+
 void VulkanAsciiConsumer::Process_vkDestroyAccelerationStructureNV(
     format::HandleId                            device,
     format::HandleId                            accelerationStructure,
@@ -3094,11 +3074,20 @@ void VulkanAsciiConsumer::Process_vkGetAccelerationStructureMemoryRequirementsNV
     fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureMemoryRequirementsNV");
 }
 
+void VulkanAsciiConsumer::Process_vkBindAccelerationStructureMemoryKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint32_t                                    bindInfoCount,
+    StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoKHR>* pBindInfos)
+{
+    fprintf(GetFile(), "%s\n", "vkBindAccelerationStructureMemoryKHR");
+}
+
 void VulkanAsciiConsumer::Process_vkBindAccelerationStructureMemoryNV(
     VkResult                                    returnValue,
     format::HandleId                            device,
     uint32_t                                    bindInfoCount,
-    StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoNV>* pBindInfos)
+    StructPointerDecoder<Decoded_VkBindAccelerationStructureMemoryInfoKHR>* pBindInfos)
 {
     fprintf(GetFile(), "%s\n", "vkBindAccelerationStructureMemoryNV");
 }
@@ -3121,7 +3110,7 @@ void VulkanAsciiConsumer::Process_vkCmdCopyAccelerationStructureNV(
     format::HandleId                            commandBuffer,
     format::HandleId                            dst,
     format::HandleId                            src,
-    VkCopyAccelerationStructureModeNV           mode)
+    VkCopyAccelerationStructureModeKHR          mode)
 {
     fprintf(GetFile(), "%s\n", "vkCmdCopyAccelerationStructureNV");
 }
@@ -3158,6 +3147,18 @@ void VulkanAsciiConsumer::Process_vkCreateRayTracingPipelinesNV(
     fprintf(GetFile(), "%s\n", "vkCreateRayTracingPipelinesNV");
 }
 
+void VulkanAsciiConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            pipeline,
+    uint32_t                                    firstGroup,
+    uint32_t                                    groupCount,
+    size_t                                      dataSize,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    fprintf(GetFile(), "%s\n", "vkGetRayTracingShaderGroupHandlesKHR");
+}
+
 void VulkanAsciiConsumer::Process_vkGetRayTracingShaderGroupHandlesNV(
     VkResult                                    returnValue,
     format::HandleId                            device,
@@ -3180,10 +3181,21 @@ void VulkanAsciiConsumer::Process_vkGetAccelerationStructureHandleNV(
     fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureHandleNV");
 }
 
+void VulkanAsciiConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    accelerationStructureCount,
+    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+    VkQueryType                                 queryType,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdWriteAccelerationStructuresPropertiesKHR");
+}
+
 void VulkanAsciiConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesNV(
     format::HandleId                            commandBuffer,
     uint32_t                                    accelerationStructureCount,
-    HandlePointerDecoder<VkAccelerationStructureNV>* pAccelerationStructures,
+    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
     VkQueryType                                 queryType,
     format::HandleId                            queryPool,
     uint32_t                                    firstQuery)
@@ -3489,6 +3501,207 @@ void VulkanAsciiConsumer::Process_vkResetQueryPoolEXT(
     uint32_t                                    queryCount)
 {
     fprintf(GetFile(), "%s\n", "vkResetQueryPoolEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsNV(
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV>* pInfo,
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
+{
+    fprintf(GetFile(), "%s\n", "vkGetGeneratedCommandsMemoryRequirementsNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdPreprocessGeneratedCommandsNV(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdPreprocessGeneratedCommandsNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdExecuteGeneratedCommandsNV(
+    format::HandleId                            commandBuffer,
+    VkBool32                                    isPreprocessed,
+    StructPointerDecoder<Decoded_VkGeneratedCommandsInfoNV>* pGeneratedCommandsInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdExecuteGeneratedCommandsNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdBindPipelineShaderGroupNV(
+    format::HandleId                            commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    format::HandleId                            pipeline,
+    uint32_t                                    groupIndex)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdBindPipelineShaderGroupNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCreateIndirectCommandsLayoutNV(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkIndirectCommandsLayoutCreateInfoNV>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkIndirectCommandsLayoutNV>* pIndirectCommandsLayout)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateIndirectCommandsLayoutNV");
+}
+
+void VulkanAsciiConsumer::Process_vkDestroyIndirectCommandsLayoutNV(
+    format::HandleId                            device,
+    format::HandleId                            indirectCommandsLayout,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    fprintf(GetFile(), "%s\n", "vkDestroyIndirectCommandsLayoutNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoKHR>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructure)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateAccelerationStructureKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetAccelerationStructureMemoryRequirementsKHR(
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoKHR>* pInfo,
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
+{
+    fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureMemoryRequirementsKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdBuildAccelerationStructureIndirectKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfo,
+    format::HandleId                            indirectBuffer,
+    VkDeviceSize                                indirectOffset,
+    uint32_t                                    indirectStride)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdBuildAccelerationStructureIndirectKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCopyAccelerationStructureKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCopyAccelerationStructureKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCopyAccelerationStructureToMemoryKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCopyAccelerationStructureToMemoryKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCopyMemoryToAccelerationStructureKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCopyMemoryToAccelerationStructureKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkWriteAccelerationStructuresPropertiesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    uint32_t                                    accelerationStructureCount,
+    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+    VkQueryType                                 queryType,
+    size_t                                      dataSize,
+    PointerDecoder<uint8_t>*                    pData,
+    size_t                                      stride)
+{
+    fprintf(GetFile(), "%s\n", "vkWriteAccelerationStructuresPropertiesKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdCopyAccelerationStructureKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdCopyAccelerationStructureKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdCopyAccelerationStructureToMemoryKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureToMemoryInfoKHR>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdCopyAccelerationStructureToMemoryKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdCopyMemoryToAccelerationStructureKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyMemoryToAccelerationStructureInfoKHR>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdCopyMemoryToAccelerationStructureKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdTraceRaysKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pCallableShaderBindingTable,
+    uint32_t                                    width,
+    uint32_t                                    height,
+    uint32_t                                    depth)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdTraceRaysKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCreateRayTracingPipelinesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            pipelineCache,
+    uint32_t                                    createInfoCount,
+    StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkPipeline>*           pPipelines)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateRayTracingPipelinesKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetAccelerationStructureDeviceAddressKHR(
+    VkDeviceAddress                             returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkGetAccelerationStructureDeviceAddressKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            pipeline,
+    uint32_t                                    firstGroup,
+    uint32_t                                    groupCount,
+    size_t                                      dataSize,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    fprintf(GetFile(), "%s\n", "vkGetRayTracingCaptureReplayShaderGroupHandlesKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdTraceRaysIndirectKHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedBufferRegionKHR>* pCallableShaderBindingTable,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdTraceRaysIndirectKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetDeviceAccelerationStructureCompatibilityKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkAccelerationStructureVersionKHR>* version)
+{
+    fprintf(GetFile(), "%s\n", "vkGetDeviceAccelerationStructureCompatibilityKHR");
 }
 
 GFXRECON_END_NAMESPACE(decode)
