@@ -25,6 +25,7 @@
 
 #include "vulkan/vulkan.h"
 
+#include <cassert>
 #include <limits>
 #include <set>
 #include <string>
@@ -116,14 +117,16 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     }
 
     virtual void Process_vkCreateInstance(
-        VkResult                                                                                      returnValue,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkInstanceCreateInfo>& pCreateInfo,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>&,
+        VkResult                                                                                returnValue,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkInstanceCreateInfo>* pCreateInfo,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
         gfxrecon::decode::HandlePointerDecoder<VkInstance>*) override
     {
-        if ((returnValue >= 0) && !pCreateInfo.IsNull())
+        assert(pCreateInfo != nullptr);
+
+        if ((returnValue >= 0) && !pCreateInfo->IsNull())
         {
-            auto create_info = pCreateInfo.GetPointer();
+            auto create_info = pCreateInfo->GetPointer();
             auto app_info    = create_info->pApplicationInfo;
             if (app_info != nullptr)
             {
@@ -171,12 +174,12 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         }
     }
 
-    virtual void Process_vkCreateDevice(
-        VkResult                   returnValue,
-        gfxrecon::format::HandleId physicalDevice,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkDeviceCreateInfo>&,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>&,
-        gfxrecon::decode::HandlePointerDecoder<VkDevice>*) override
+    virtual void
+    Process_vkCreateDevice(VkResult                   returnValue,
+                           gfxrecon::format::HandleId physicalDevice,
+                           gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkDeviceCreateInfo>*,
+                           gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
+                           gfxrecon::decode::HandlePointerDecoder<VkDevice>*) override
     {
         if (returnValue >= 0)
         {
@@ -189,8 +192,8 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::format::HandleId,
         gfxrecon::format::HandleId,
         uint32_t createInfoCount,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkGraphicsPipelineCreateInfo>&,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>&,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkGraphicsPipelineCreateInfo>*,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
         gfxrecon::decode::HandlePointerDecoder<VkPipeline>*) override
     {
         if (returnValue >= 0)
@@ -204,8 +207,8 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::format::HandleId,
         gfxrecon::format::HandleId,
         uint32_t createInfoCount,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkComputePipelineCreateInfo>&,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>&,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkComputePipelineCreateInfo>*,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
         gfxrecon::decode::HandlePointerDecoder<VkPipeline>*) override
     {
         if (returnValue >= 0)
@@ -340,17 +343,19 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     virtual void Process_vkAllocateMemory(
         VkResult returnValue,
         gfxrecon::format::HandleId,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkMemoryAllocateInfo>& pAllocateInfo,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>&,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkMemoryAllocateInfo>* pAllocateInfo,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
         gfxrecon::decode::HandlePointerDecoder<VkDeviceMemory>*) override
     {
+        assert(pAllocateInfo != nullptr);
+
         if (returnValue >= 0)
         {
             ++allocation_count_;
 
-            if (!pAllocateInfo.IsNull())
+            if (!pAllocateInfo->IsNull())
             {
-                auto allocate_info = pAllocateInfo.GetPointer();
+                auto allocate_info = pAllocateInfo->GetPointer();
 
                 if (allocate_info->allocationSize < min_allocation_size_)
                 {
