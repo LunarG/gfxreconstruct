@@ -268,6 +268,20 @@ void AddStructArrayHandles(const T* id_wrappers, size_t id_len, const typename T
     }
 }
 
+void SetStructHandleLengths(Decoded_VkPhysicalDeviceGroupProperties* wrapper);
+
+template <typename T>
+void SetStructArrayHandleLengths(T* wrappers, size_t len)
+{
+    if (wrappers != nullptr)
+    {
+        for (size_t i = 0; i < len; ++i)
+        {
+            SetStructHandleLengths(&wrappers[i]);
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

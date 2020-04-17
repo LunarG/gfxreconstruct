@@ -30,7 +30,7 @@ template <typename T>
 class HandlePointerDecoder
 {
   public:
-    HandlePointerDecoder() : handle_data_(nullptr), capacity_(0), is_memory_external_(false) {}
+    HandlePointerDecoder() : handle_data_(nullptr), handle_data_len_(0), capacity_(0), is_memory_external_(false) {}
 
     ~HandlePointerDecoder() {}
 
@@ -64,32 +64,30 @@ class HandlePointerDecoder
         }
     }
 
+    void SetHandleLength(size_t len)
+    {
+        handle_data_len_ = len;
+
+        if (!is_memory_external_)
+        {
+            handle_data_ = decoder_.AllocateOutputData(len);
+        }
+    }
+
+    size_t GetHandleLength() const { return handle_data_len_; }
+
     T* GetHandlePointer() { return handle_data_; }
 
     const T* GetHandlePointer() const { return handle_data_; }
 
-    size_t Decode(const uint8_t* buffer, size_t buffer_size)
-    {
-        size_t result = decoder_.DecodeHandleId(buffer, buffer_size);
-
-        if (!IsNull() && !is_memory_external_)
-        {
-            assert(handle_data_ == nullptr);
-
-            size_t len   = GetLength();
-            handle_data_ = decoder_.AllocateOutputData(len);
-        }
-
-        return result;
-    }
+    size_t Decode(const uint8_t* buffer, size_t buffer_size) { return decoder_.DecodeHandleId(buffer, buffer_size); }
 
     // The value returned is only guaranteed to be valid if the current consumer has called SetConsumerData.
     void* GetConsumerData(size_t index) const
     {
-        size_t len           = GetLength();
-        void*  consumer_data = nullptr;
+        void* consumer_data = nullptr;
 
-        if ((consumer_data_ != nullptr) && (index < len))
+        if ((consumer_data_ != nullptr) && (index < handle_data_len_))
         {
             consumer_data = consumer_data_[index];
         }
@@ -99,13 +97,11 @@ class HandlePointerDecoder
 
     void SetConsumerData(size_t index, void* consumer_data)
     {
-        size_t len = GetLength();
-
-        if (index < len)
+        if (index < handle_data_len_)
         {
             if (consumer_data_ == nullptr)
             {
-                consumer_data_ = std::make_unique<void* []>(len);
+                consumer_data_ = std::make_unique<void* []>(handle_data_len_);
             }
 
             consumer_data_[index] = consumer_data;
@@ -115,6 +111,7 @@ class HandlePointerDecoder
   private:
     PointerDecoder<format::HandleId, T> decoder_;
     T*                                  handle_data_;
+    size_t                              handle_data_len_;
     size_t                              capacity_;
     bool                                is_memory_external_;
     std::unique_ptr<void* []>           consumer_data_;

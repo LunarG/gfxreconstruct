@@ -175,16 +175,26 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     template <typename T>
-    void MapHandles(const format::HandleId* ids,
-                    size_t                  ids_len,
-                    typename T::HandleType* handles,
-                    size_t                  handles_len,
-                    const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
+    typename T::HandleType* MapHandles(HandlePointerDecoder<typename T::HandleType>* handle_pointer,
+                                       size_t                                        handles_len,
+                                       const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
-        if ((ids != nullptr) && (handles != nullptr))
+        assert(handle_pointer != nullptr);
+
+        typename T::HandleType* handles = nullptr;
+
+        if (!handle_pointer->IsNull())
         {
+            size_t                  ids_len = handle_pointer->GetLength();
+            const format::HandleId* ids     = handle_pointer->GetPointer();
+
             // The array sizes are expected to be the same for mapping operations.
             assert(ids_len == handles_len);
+
+            handle_pointer->SetHandleLength(handles_len);
+
+            handles = handle_pointer->GetHandlePointer();
+
             for (size_t i = 0; i < handles_len; ++i)
             {
                 const T* info = (object_info_table_.*MapFunc)(ids[i]);
@@ -199,6 +209,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                 }
             }
         }
+
+        return handles;
     }
 
     template <typename T>
