@@ -42,8 +42,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  %s [--dir <dir>] <file>\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Optional arguments:");
     GFXRECON_WRITE_CONSOLE("  --dir <dir>\tPlace extracted shaders into directory <dir>. Otherwise");
-    GFXRECON_WRITE_CONSOLE("             \tuse <file>.shaders in working directory. Create directory")
-    GFXRECON_WRITE_CONSOLE("             \tif necessary.")
+    GFXRECON_WRITE_CONSOLE("             \tuse <file>.shaders in working directory. Create directory");
+    GFXRECON_WRITE_CONSOLE("             \tif necessary. Each shader is placed in individual file");
+    GFXRECON_WRITE_CONSOLE("             \tnamed sh<handle_id> where handle_id is handle id of the");
+    GFXRECON_WRITE_CONSOLE("             \tCreateShaderModule call. See gfxrecon-replay --replace-shaders.");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\tThe GFXReconstruct capture file to be processed.");
 }

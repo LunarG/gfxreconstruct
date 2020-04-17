@@ -31,8 +31,9 @@ Optional arguments:
                         vkAllocateDescriptorSets calls that failed during
                         capture (same as --skip-failed-allocations).
   --replace-shaders <dir> Replace the shader code in each CreateShaderModule
-                        with the contents of the file <dir>/sh<hash> if found, where
-                        <hash> is the xor sum of the original shader code.
+                        with the contents of the file <dir>/sh<handle_id> if
+                        found, where <handle_id> is the handle id of the
+                        vkCreateShaderModule call. Also see gfxrecon-extract.
   --opcd                Omit pipeline cache data from calls to
                         vkCreatePipelineCache (same as --omit-pipeline-cache-data).
   --wsi <platform>      Force replay to use the specified wsi platform.

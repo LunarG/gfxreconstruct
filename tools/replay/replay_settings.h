@@ -287,8 +287,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("       \t\t\tvkAllocateDescriptorSets calls that failed during");
     GFXRECON_WRITE_CONSOLE("       \t\t\tcapture (same as --skip-failed-allocations).");
     GFXRECON_WRITE_CONSOLE("  --replace-shaders <dir> Replace the shader code in each CreateShaderModule");
-    GFXRECON_WRITE_CONSOLE("       \t\t\twith the contents of the file <dir>/sh<hash> if found, where");
-    GFXRECON_WRITE_CONSOLE("       \t\t\t<hash> is the xor sum of the original shader code.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\twith the contents of the file <dir>/sh<handle_id> if found, where");
+    GFXRECON_WRITE_CONSOLE("       \t\t\t<handle_id> is the handle id of the CreateShaderModule call.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tSee gfxrecon-extract.");
     GFXRECON_WRITE_CONSOLE("  --opcd\t\tOmit pipeline cache data from calls to");
     GFXRECON_WRITE_CONSOLE("        \t\tvkCreatePipelineCache (same as --omit-pipeline-cache-data).");
     GFXRECON_WRITE_CONSOLE("  --wsi <platform>\tForce replay to use the specified wsi platform.");
