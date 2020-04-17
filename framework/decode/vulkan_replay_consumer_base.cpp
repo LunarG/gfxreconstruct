@@ -3616,11 +3616,22 @@ void VulkanReplayConsumerBase::MapDescriptorUpdateTemplateHandles(
 
     if (texel_buffer_view_count > 0)
     {
-        MapHandles<BufferViewInfo>(decoder->GetTexelBufferViewHandleIdsPointer(),
-                                   texel_buffer_view_count,
-                                   decoder->GetTexelBufferViewPointer(),
-                                   texel_buffer_view_count,
-                                   &VulkanObjectInfoTable::GetBufferViewInfo);
+        auto texel_buffer_view_ids     = decoder->GetTexelBufferViewHandleIdsPointer();
+        auto texel_buffer_view_handles = decoder->GetTexelBufferViewPointer();
+
+        for (size_t i = 0; i < texel_buffer_view_count; ++i)
+        {
+            auto texel_buffer_view_info = object_info_table_.GetBufferViewInfo(texel_buffer_view_ids[i]);
+
+            if (texel_buffer_view_info != nullptr)
+            {
+                texel_buffer_view_handles[i] = texel_buffer_view_info->handle;
+            }
+            else
+            {
+                texel_buffer_view_handles[i] = VK_NULL_HANDLE;
+            }
+        }
     }
 }
 

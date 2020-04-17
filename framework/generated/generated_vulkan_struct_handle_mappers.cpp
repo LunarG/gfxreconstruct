@@ -23,9 +23,11 @@
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/handle_pointer_decoder.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 
 #include <algorithm>
+#include <cassert>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -45,14 +47,23 @@ static typename T::HandleType MapHandle(format::HandleId             id,
 }
 
 template <typename T>
-static void MapHandleArray(const format::HandleId*      ids,
-                           typename T::HandleType*      handles,
-                           size_t                       len,
-                           const VulkanObjectInfoTable& object_info_table,
-                           const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const)
+static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::HandleType>* handle_pointer,
+                                              const VulkanObjectInfoTable&                  object_info_table,
+                                              const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const)
 {
-    if ((ids != nullptr) && (handles != nullptr))
+    assert(handle_pointer != nullptr);
+
+    typename T::HandleType* handles = nullptr;
+
+    if (!handle_pointer->IsNull())
     {
+        size_t                  len = handle_pointer->GetLength();
+        const format::HandleId* ids = handle_pointer->GetPointer();
+
+        handle_pointer->SetHandleLength(len);
+
+        handles = handle_pointer->GetHandlePointer();
+
         for (size_t i = 0; i < len; ++i)
         {
             const T* info = (object_info_table.*MapFunc)(ids[i]);
@@ -62,6 +73,8 @@ static void MapHandleArray(const format::HandleId*      ids,
             }
         }
     }
+
+        return handles;
 }
 
 template <typename T>
@@ -120,11 +133,11 @@ void MapStructHandles(Decoded_VkSubmitInfo* wrapper, const VulkanObjectInfoTable
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
         }
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pWaitSemaphores.GetPointer(), wrapper->pWaitSemaphores.GetHandlePointer(), wrapper->pWaitSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pWaitSemaphores = MapHandleArray<SemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
 
-        MapHandleArray<CommandBufferInfo>(wrapper->pCommandBuffers.GetPointer(), wrapper->pCommandBuffers.GetHandlePointer(), wrapper->pCommandBuffers.GetLength(), object_info_table, &VulkanObjectInfoTable::GetCommandBufferInfo);
+        value->pCommandBuffers = MapHandleArray<CommandBufferInfo>(&wrapper->pCommandBuffers, object_info_table, &VulkanObjectInfoTable::GetCommandBufferInfo);
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pSignalSemaphores.GetPointer(), wrapper->pSignalSemaphores.GetHandlePointer(), wrapper->pSignalSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pSignalSemaphores = MapHandleArray<SemaphoreInfo>(&wrapper->pSignalSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
@@ -211,7 +224,7 @@ void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const VulkanObjectInfoT
     {
         VkBindSparseInfo* value = wrapper->decoded_value;
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pWaitSemaphores.GetPointer(), wrapper->pWaitSemaphores.GetHandlePointer(), wrapper->pWaitSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pWaitSemaphores = MapHandleArray<SemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
 
         MapStructArrayHandles<Decoded_VkSparseBufferMemoryBindInfo>(wrapper->pBufferBinds->GetMetaStructPointer(), wrapper->pBufferBinds->GetLength(), object_info_table);
 
@@ -219,7 +232,7 @@ void MapStructHandles(Decoded_VkBindSparseInfo* wrapper, const VulkanObjectInfoT
 
         MapStructArrayHandles<Decoded_VkSparseImageMemoryBindInfo>(wrapper->pImageBinds->GetMetaStructPointer(), wrapper->pImageBinds->GetLength(), object_info_table);
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pSignalSemaphores.GetPointer(), wrapper->pSignalSemaphores.GetHandlePointer(), wrapper->pSignalSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pSignalSemaphores = MapHandleArray<SemaphoreInfo>(&wrapper->pSignalSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
@@ -316,7 +329,7 @@ void MapStructHandles(Decoded_VkPipelineLayoutCreateInfo* wrapper, const VulkanO
     {
         VkPipelineLayoutCreateInfo* value = wrapper->decoded_value;
 
-        MapHandleArray<DescriptorSetLayoutInfo>(wrapper->pSetLayouts.GetPointer(), wrapper->pSetLayouts.GetHandlePointer(), wrapper->pSetLayouts.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
+        value->pSetLayouts = MapHandleArray<DescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
     }
 }
 
@@ -337,7 +350,7 @@ void MapStructHandles(Decoded_VkDescriptorSetLayoutBinding* wrapper, const Vulka
     {
         VkDescriptorSetLayoutBinding* value = wrapper->decoded_value;
 
-        MapHandleArray<SamplerInfo>(wrapper->pImmutableSamplers.GetPointer(), wrapper->pImmutableSamplers.GetHandlePointer(), wrapper->pImmutableSamplers.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSamplerInfo);
+        value->pImmutableSamplers = MapHandleArray<SamplerInfo>(&wrapper->pImmutableSamplers, object_info_table, &VulkanObjectInfoTable::GetSamplerInfo);
     }
 }
 
@@ -357,7 +370,7 @@ void MapStructHandles(Decoded_VkDescriptorSetAllocateInfo* wrapper, const Vulkan
 
         value->descriptorPool = MapHandle<DescriptorPoolInfo>(wrapper->descriptorPool, object_info_table, &VulkanObjectInfoTable::GetDescriptorPoolInfo);
 
-        MapHandleArray<DescriptorSetLayoutInfo>(wrapper->pSetLayouts.GetPointer(), wrapper->pSetLayouts.GetHandlePointer(), wrapper->pSetLayouts.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
+        value->pSetLayouts = MapHandleArray<DescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
     }
 }
 
@@ -391,7 +404,7 @@ void MapStructHandles(Decoded_VkFramebufferCreateInfo* wrapper, const VulkanObje
 
         value->renderPass = MapHandle<RenderPassInfo>(wrapper->renderPass, object_info_table, &VulkanObjectInfoTable::GetRenderPassInfo);
 
-        MapHandleArray<ImageViewInfo>(wrapper->pAttachments.GetPointer(), wrapper->pAttachments.GetHandlePointer(), wrapper->pAttachments.GetLength(), object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+        value->pAttachments = MapHandleArray<ImageViewInfo>(&wrapper->pAttachments, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
     }
 }
 
@@ -505,11 +518,9 @@ void MapStructHandles(Decoded_VkMemoryDedicatedAllocateInfo* wrapper, const Vulk
 
 void MapStructHandles(Decoded_VkPhysicalDeviceGroupProperties* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    if (wrapper != nullptr)
     {
-        VkPhysicalDeviceGroupProperties* value = wrapper->decoded_value;
-
-        MapHandleArray<PhysicalDeviceInfo>(wrapper->physicalDevices.GetPointer(), wrapper->physicalDevices.GetHandlePointer(), wrapper->physicalDevices.GetLength(), object_info_table, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+        MapHandleArray<PhysicalDeviceInfo>(&wrapper->physicalDevices, object_info_table, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
     }
 }
 
@@ -519,7 +530,7 @@ void MapStructHandles(Decoded_VkDeviceGroupDeviceCreateInfo* wrapper, const Vulk
     {
         VkDeviceGroupDeviceCreateInfo* value = wrapper->decoded_value;
 
-        MapHandleArray<PhysicalDeviceInfo>(wrapper->pPhysicalDevices.GetPointer(), wrapper->pPhysicalDevices.GetHandlePointer(), wrapper->pPhysicalDevices.GetLength(), object_info_table, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
+        value->pPhysicalDevices = MapHandleArray<PhysicalDeviceInfo>(&wrapper->pPhysicalDevices, object_info_table, &VulkanObjectInfoTable::GetPhysicalDeviceInfo);
     }
 }
 
@@ -593,9 +604,9 @@ void MapStructHandles(Decoded_VkPresentInfoKHR* wrapper, const VulkanObjectInfoT
     {
         VkPresentInfoKHR* value = wrapper->decoded_value;
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pWaitSemaphores.GetPointer(), wrapper->pWaitSemaphores.GetHandlePointer(), wrapper->pWaitSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pWaitSemaphores = MapHandleArray<SemaphoreInfo>(&wrapper->pWaitSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
 
-        MapHandleArray<SwapchainKHRInfo>(wrapper->pSwapchains.GetPointer(), wrapper->pSwapchains.GetHandlePointer(), wrapper->pSwapchains.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
+        value->pSwapchains = MapHandleArray<SwapchainKHRInfo>(&wrapper->pSwapchains, object_info_table, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
     }
 }
 
@@ -699,9 +710,9 @@ void MapStructHandles(Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR* wrapper, c
     {
         VkWin32KeyedMutexAcquireReleaseInfoKHR* value = wrapper->decoded_value;
 
-        MapHandleArray<DeviceMemoryInfo>(wrapper->pAcquireSyncs.GetPointer(), wrapper->pAcquireSyncs.GetHandlePointer(), wrapper->pAcquireSyncs.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->pAcquireSyncs = MapHandleArray<DeviceMemoryInfo>(&wrapper->pAcquireSyncs, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
 
-        MapHandleArray<DeviceMemoryInfo>(wrapper->pReleaseSyncs.GetPointer(), wrapper->pReleaseSyncs.GetHandlePointer(), wrapper->pReleaseSyncs.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->pReleaseSyncs = MapHandleArray<DeviceMemoryInfo>(&wrapper->pReleaseSyncs, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
@@ -751,7 +762,7 @@ void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfoKHR* wrapper, const
     {
         VkRenderPassAttachmentBeginInfoKHR* value = wrapper->decoded_value;
 
-        MapHandleArray<ImageViewInfo>(wrapper->pAttachments.GetPointer(), wrapper->pAttachments.GetHandlePointer(), wrapper->pAttachments.GetLength(), object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+        value->pAttachments = MapHandleArray<ImageViewInfo>(&wrapper->pAttachments, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
     }
 }
 
@@ -845,7 +856,7 @@ void MapStructHandles(Decoded_VkSemaphoreWaitInfoKHR* wrapper, const VulkanObjec
     {
         VkSemaphoreWaitInfoKHR* value = wrapper->decoded_value;
 
-        MapHandleArray<SemaphoreInfo>(wrapper->pSemaphores.GetPointer(), wrapper->pSemaphores.GetHandlePointer(), wrapper->pSemaphores.GetLength(), object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+        value->pSemaphores = MapHandleArray<SemaphoreInfo>(&wrapper->pSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
@@ -909,9 +920,9 @@ void MapStructHandles(Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV* wrapper, co
     {
         VkWin32KeyedMutexAcquireReleaseInfoNV* value = wrapper->decoded_value;
 
-        MapHandleArray<DeviceMemoryInfo>(wrapper->pAcquireSyncs.GetPointer(), wrapper->pAcquireSyncs.GetHandlePointer(), wrapper->pAcquireSyncs.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->pAcquireSyncs = MapHandleArray<DeviceMemoryInfo>(&wrapper->pAcquireSyncs, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
 
-        MapHandleArray<DeviceMemoryInfo>(wrapper->pReleaseSyncs.GetPointer(), wrapper->pReleaseSyncs.GetHandlePointer(), wrapper->pReleaseSyncs.GetLength(), object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+        value->pReleaseSyncs = MapHandleArray<DeviceMemoryInfo>(&wrapper->pReleaseSyncs, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
     }
 }
 
@@ -1129,7 +1140,7 @@ void MapStructHandles(Decoded_VkWriteDescriptorSetAccelerationStructureNV* wrapp
     {
         VkWriteDescriptorSetAccelerationStructureNV* value = wrapper->decoded_value;
 
-        MapHandleArray<AccelerationStructureNVInfo>(wrapper->pAccelerationStructures.GetPointer(), wrapper->pAccelerationStructures.GetHandlePointer(), wrapper->pAccelerationStructures.GetLength(), object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureNVInfo);
+        value->pAccelerationStructures = MapHandleArray<AccelerationStructureNVInfo>(&wrapper->pAccelerationStructures, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureNVInfo);
     }
 }
 
@@ -1254,6 +1265,14 @@ void AddStructHandles(const Decoded_VkDisplayModeProperties2KHR* id_wrapper, con
     if (id_wrapper != nullptr)
     {
         AddStructHandles(id_wrapper->displayModeProperties.get(), &handle_struct->displayModeProperties, object_info_table);
+    }
+}
+
+void SetStructHandleLengths(Decoded_VkPhysicalDeviceGroupProperties* wrapper)
+{
+    if (wrapper != nullptr)
+    {
+        wrapper->physicalDevices.SetHandleLength(wrapper->physicalDevices.GetLength());
     }
 }
 

@@ -56,6 +56,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
+        self.structsWithHandlePtrs = []
         # Map of struct types to associated VkStructureType.
         self.sTypeValues = dict()
 
@@ -92,7 +93,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            self.checkStructMemberHandles(typename, self.structsWithHandles)
+            self.checkStructMemberHandles(typename, self.structsWithHandles, self.structsWithHandlePtrs)
 
             sType = self.makeStructureTypeEnum(typeinfo, typename)
             if sType:
@@ -261,12 +262,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                             expr += 'GetAllocationCallbacks({});'.format(value.name)
                     elif self.isHandle(value.baseType):
                         # We received an array of 64-bit integer IDs from the decoder.
-                        if needTempValue:
-                            expr = expr.replace('const', '').lstrip() + '{}->GetHandlePointer();'.format(value.name)
-                            preexpr.append(expr)
-                            expr = 'MapHandles<{type}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &VulkanObjectInfoTable::Get{type}Info);'.format(argName, lengthName, type=value.baseType[2:], paramname=value.name)
-                        else:
-                            expr = 'MapHandles<{type}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, &VulkanObjectInfoTable::Get{type}Info);'.format(lengthName, type=value.baseType[2:], paramname=value.name)
+                        expr += 'MapHandles<{type}Info>({}, {}, &VulkanObjectInfoTable::Get{type}Info);'.format(value.name, lengthName, type=value.baseType[2:])
                     else:
                         if needTempValue:
                             expr += '{}->GetPointer();'.format(value.name)
@@ -288,12 +284,12 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 expr = 'if (!{name}->IsNull()) {{ {name}->AllocateOutputData({}); }}'.format(lengthName, name=value.name)
                         elif self.isHandle(value.baseType):
                             # Add mappings for the newly created handles.
+                            preexpr.append('if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength({}); }}'.format(lengthName, paramname=value.name))
                             if needTempValue:
                                 expr += '{}->GetHandlePointer();'.format(value.name)
                                 postexpr.append('AddHandles<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &VulkanObjectInfoTable::Add{basetype}Info);'.format(argName, lengthName, paramname=value.name, basetype=value.baseType[2:]))
                             else:
-                                expr = 'std::vector<{}Info> handle_info({});'.format(value.baseType[2:], lengthName)
-                                preexpr.append(expr)
+                                preexpr.append('std::vector<{}Info> handle_info({});'.format(value.baseType[2:], lengthName))
                                 expr = 'for (size_t i = 0; i < {}; ++i) {{ {}->SetConsumerData(i, &handle_info[i]); }}'.format(lengthName, value.name);
                                 postexpr.append('AddHandles<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info);'.format(lengthName, paramname=value.name, basetype=value.baseType[2:]))
                         elif self.isStruct(value.baseType):
@@ -306,6 +302,8 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                     expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({});'.format(lengthName, paramname=value.name)
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.baseType in self.structsWithHandles:
+                                    if value.baseType in self.structsWithHandlePtrs:
+                                        preexpr.append('SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'.format(value.baseType, paramname=value.name))
                                     postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {}, {}, GetObjectInfoTable());'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
                             else:
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
@@ -316,12 +314,14 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                     expr += 'if (!{paramname}->IsNull()) {{ {paramname}->AllocateOutputData({}); }}'.format(lengthName, paramname=value.name)
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.baseType in self.structsWithHandles:
+                                    if value.baseType in self.structsWithHandlePtrs:
+                                        preexpr.append('SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'.format(value.baseType, paramname=value.name))
                                     postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {paramname}->GetOutputPointer(), {}, GetObjectInfoTable());'.format(lengthName, paramname=value.name, basetype=value.baseType))
                         else:
                             if needTempValue:
                                 expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({});'.format(lengthName, paramname=value.name)
                             else:
-                                expr += 'if ({paramname}->IsNull()) {{ {paramname}->AllocateOutputData({}); }}'.format(lengthName, paramname=value.name)
+                                expr = 'if ({paramname}->IsNull()) {{ {paramname}->AllocateOutputData({}); }}'.format(lengthName, paramname=value.name)
                     else:
                         if isExtenalObject:
                             # Map the object ID to the new object
@@ -333,12 +333,12 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 postexpr.append('PostProcessExternalObject(replay_result, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'.format(paramname=value.name, name=name))
                         elif self.isHandle(value.baseType):
                             # Add mapping for the newly created handle
+                            preexpr.append('if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength(1); }}'.format(paramname=value.name))
                             if needTempValue:
                                 expr += '{}->GetHandlePointer();'.format(value.name)
                                 postexpr.append('AddHandle<{basetype}Info>({}->GetPointer(), {}, &VulkanObjectInfoTable::Add{basetype}Info);'.format(value.name, argName, basetype=value.baseType[2:]))
                             else:
-                                expr = '{}Info handle_info;'.format(value.baseType[2:])
-                                preexpr.append(expr)
+                                preexpr.append('{}Info handle_info;'.format(value.baseType[2:]))
                                 expr = '{}->SetConsumerData(0, &handle_info);'.format(value.name);
                                 postexpr.append('AddHandle<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info);'.format(paramname=value.name, basetype=value.baseType[2:]))
                         else:
@@ -361,8 +361,12 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.baseType in self.structsWithHandles:
                                     if needTempValue:
+                                        if value.baseType in self.structsWithHandlePtrs:
+                                            preexpr.append('SetStructHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'.format(value.baseType, paramname=value.name))
                                         postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {}, GetObjectInfoTable());'.format(argName, name=value.name, basetype=value.baseType))
                                     else:
+                                        if value.baseType in self.structsWithHandlePtrs:
+                                            preexpr.append('SetStructHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'.format(value.baseType, paramname=value.name))
                                         postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {name}->GetOutputPointer(), GetObjectTable());'.format(name=value.name, basetype=value.baseType))
                             else:
                                 expr += '{}->AllocateOutputData(1, static_cast<{}>(0));'.format(value.name, value.baseType)

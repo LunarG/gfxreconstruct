@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2019 Valve Corporation
-# Copyright (c) 2019 LunarG, Inc.
+# Copyright (c) 2019-2020 Valve Corporation
+# Copyright (c) 2019-2020 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
+        self.structsWithHandlePtrs = []
         self.pNextStructs = dict()          # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
         # List of structs containing handles that are also used as output parameters for a command
         self.outputStructsWithHandles = []
@@ -60,9 +61,11 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         write('#include "generated/generated_vulkan_struct_handle_mappers.h"', file=self.outFile)
         self.newline()
         write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
+        write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         self.newline()
         write('#include <algorithm>', file=self.outFile)
+        write('#include <cassert>', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
@@ -86,14 +89,23 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         # Implement a utility function to be used for mapping arrays of handles.
         self.newline()
         write('template <typename T>', file=self.outFile)
-        write('static void MapHandleArray(const format::HandleId*      ids,', file=self.outFile)
-        write('                           typename T::HandleType*      handles,', file=self.outFile)
-        write('                           size_t                       len,', file=self.outFile)
-        write('                           const VulkanObjectInfoTable& object_info_table,', file=self.outFile)
-        write('                           const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const)', file=self.outFile)
+        write('static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::HandleType>* handle_pointer,', file=self.outFile)
+        write('                                              const VulkanObjectInfoTable&                  object_info_table,', file=self.outFile)
+        write('                                              const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const)', file=self.outFile)
         write('{', file=self.outFile)
-        write('    if ((ids != nullptr) && (handles != nullptr))', file=self.outFile)
+        write('    assert(handle_pointer != nullptr);', file=self.outFile)
+        self.newline()
+        write('    typename T::HandleType* handles = nullptr;', file=self.outFile)
+        self.newline()
+        write('    if (!handle_pointer->IsNull())', file=self.outFile)
         write('    {', file=self.outFile)
+        write('        size_t                  len = handle_pointer->GetLength();', file=self.outFile)
+        write('        const format::HandleId* ids = handle_pointer->GetPointer();', file=self.outFile)
+        self.newline()
+        write('        handle_pointer->SetHandleLength(len);', file=self.outFile)
+        self.newline()
+        write('        handles = handle_pointer->GetHandlePointer();', file=self.outFile)
+        self.newline()
         write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
         write('        {', file=self.outFile)
         write('            const T* info = (object_info_table.*MapFunc)(ids[i]);', file=self.outFile)
@@ -103,6 +115,8 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         write('            }', file=self.outFile)
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
+        self.newline()
+        write('        return handles;', file=self.outFile)
         write('}', file=self.outFile)
 
         # Implement a utility function to be used for adding a single handle.
@@ -171,6 +185,12 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
             self.newline()
             write(self.makeStructHandleAdditions(struct, self.structsWithHandles[struct]), file=self.outFile)
 
+        # Generate handle memory allocation functions for output structs with handles
+        for struct in self.outputStructsWithHandles:
+            if struct in self.structsWithHandlePtrs:
+                self.newline()
+                write(self.makeStructHandleAllocations(struct, self.structsWithHandles[struct]), file=self.outFile)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -184,7 +204,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            if self.checkStructMemberHandles(typename, self.structsWithHandles):
+            if self.checkStructMemberHandles(typename, self.structsWithHandles, self.structsWithHandlePtrs):
                 # Track this struct if it can be present in a pNext chain, for generating the MapPNextStructHandles code.
                 parentStructs = typeinfo.elem.get('structextends')
                 if parentStructs:
@@ -220,18 +240,19 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
             if struct in self.structsWithHandles:
                 members = self.structsWithHandles[struct]
 
-                # Determine if the struct only contains members that are structs that contain handles, and does not contain handles directly.
-                structsOnly = True
+                # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
+                # and does not need a temporary variable referencing the struct value.
+                needsValuePtr = False
                 for member in members:
-                    if self.isHandle(member.baseType):
-                        structsOnly = False
+                    if self.isHandle(member.baseType) and not (member.isArray and not member.isDynamic):
+                        needsValuePtr = True
                         break
 
                 body = '\n'
                 body += 'void MapStructHandles(Decoded_{}* wrapper, const VulkanObjectInfoTable& object_info_table)\n'.format(struct)
                 body += '{\n'
 
-                if structsOnly:
+                if not needsValuePtr:
                     body += '    if (wrapper != nullptr)\n'
                     body += '    {'
                 else:
@@ -269,10 +290,10 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
             else:
                 # If it is an array or pointer, map with the utility function.
                 if (member.isArray or member.isPointer):
-                    if member.isArray:
-                        body += '        MapHandleArray<{type}Info>(wrapper->{name}.GetPointer(), wrapper->{name}.GetHandlePointer(), wrapper->{name}.GetLength(), object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
+                    if member.isDynamic or member.isPointer:
+                        body += '        value->{name} = MapHandleArray<{type}Info>(&wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
                     else:
-                        body += '        MapHandleArray<{type}Info>(wrapper->{name}.GetPointer(), wrapper->{name}.GetHandlePointer(), 1, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
+                        body += '        MapHandleArray<{type}Info>(&wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
                 else:
                     body += '        value->{name} = MapHandle<{type}Info>(wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
 
@@ -310,6 +331,58 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                         body += '        AddHandleArray<{type}Info>(id_wrapper->{name}.GetPointer(), 1, handle_struct->{name}, 1, object_info_table, &VulkanObjectInfoTable::Add{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
                 else:
                     body += '        AddHandle<{type}Info>(id_wrapper->{name}, handle_struct->{name}, object_info_table, &VulkanObjectInfoTable::Add{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
+
+        body += '    }\n'
+        body += '}'
+        return body
+
+    #
+    # Generate expressions to allocate memory for handles created at replay that are embedded in structs
+    def makeStructHandleAllocations(self, name, members):
+        # Determine if the struct only contains members that are structs that contain handles or static arrays of handles,
+        # and does not need a temporary variable referencing the struct value.
+        needsValuePtr = False
+        for member in members:
+            if self.isHandle(member.baseType) and not (member.isArray and not member.isDynamic):
+                needsValuePtr = False
+                break
+
+        body = 'void SetStructHandleLengths(Decoded_{name}* wrapper)\n'.format(name=name)
+        body +='{\n'
+
+        if not needsValuePtr:
+            body += '    if (wrapper != nullptr)\n'
+            body += '    {\n'
+        else:
+            body += '    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))\n'
+            body += '    {\n'
+            body += '        {}* value = wrapper->decoded_value;\n'.format(name)
+            body += '\n'
+
+        for member in members:
+            if 'pNext' in member.name:
+                body += '        if (wrapper->pNext)\n'
+                body += '        {\n'
+                body += '            SetPNextStructHandleLengths(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer());\n'
+                body += '        }\n'
+            elif self.isStruct(member.baseType):
+                # This is a struct that includes handles.
+                if member.isArray:
+                    body += '        SetStructArrayHandleLengths<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength());\n'.format(member.baseType, name=member.name)
+                elif member.isPointer:
+                    body += '        SetStructArrayHandleLengths<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), 1);\n'.format(member.baseType, name=member.name)
+                else:
+                    body += '        SetStructHandleLengths(wrapper->{name}.get());\n'.format(name=member.name)
+            else:
+                # If it is an array or pointer, add with the utility function.
+                if (member.isArray or member.isPointer):
+                    if member.isArray:
+                        body += '        wrapper->{name}.SetHandleLength(wrapper->{name}.GetLength());\n'.format(name=member.name)
+                    else:
+                        body += '        wrapper->{}.SetHandleLength(1);\n'.format(member.name)
+
+                    if member.isDynamic or member.isPointer:
+                        body += '        value->{name} = wrapper->{name}.GetHandlePointer();\n'.format(name=member.name)
 
         body += '    }\n'
         body += '}'
