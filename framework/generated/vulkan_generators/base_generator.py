@@ -206,6 +206,8 @@ class BaseGenerator(OutputGenerator):
         if self.processStructs:
             self.featureStructMembers = dict()            # Map of struct names to lists of per-member ValueInfo
             self.featureStructAliases = dict()            # Map of struct names to aliases
+            self.extensionStructsWithHandles = dict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
+            self.extensionStructsWithHandlePtrs = dict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.processCmds:
             self.featureCmdParams = dict()                # Map of cmd names to lists of per-parameter ValueInfo
 
@@ -558,38 +560,76 @@ class BaseGenerator(OutputGenerator):
     #
     # Determines if the specified struct type can reference pNext extension structs that contain handles.
     def checkStructPNextHandles(self, typename):
+        foundHandles = False
+        foundHandlePtrs = False
         validExtensionStructs = self.registry.validextensionstructs.get(typename)
         if validExtensionStructs:
             # Need to search the XML tree for pNext structures that have not been processed yet.
             for structName in validExtensionStructs:
-                typeInfo = self.registry.lookupElementInfo(structName, self.registry.typedict)
-                if typeInfo:
-                    memberTypes = [member.text for member in typeInfo.elem.findall('.//member/type')]
-                    if memberTypes:
-                        for memberType in memberTypes:
-                            found = self.registry.tree.find("types/type/[name='" + memberType + "'][@category='handle']")
-                            if found:
-                                return True
-        return False
+                # Check for cached results from a previous check for this struct
+                if structName in self.extensionStructsWithHandles:
+                    if self.extensionStructsWithHandles[structName]:
+                        foundHandles = True
+                    if self.extensionStructsWithHandlePtrs[structName]:
+                        foundHandlePtrs = True
+                else:
+                    # If a pre-existing result was not found, check the XML registry for the struct
+                    hasHandles = False
+                    hasHandlePtrs = False
+                    typeInfo = self.registry.lookupElementInfo(structName, self.registry.typedict)
+                    if typeInfo:
+                        memberInfos = [member for member in typeInfo.elem.findall('.//member/type')]
+                        if memberInfos:
+                            for memberInfo in memberInfos:
+                                found = self.registry.tree.find("types/type/[name='" + memberInfo.text + "'][@category='handle']")
+                                if found:
+                                    hasHandles = True
+                                    self.extensionStructsWithHandles[structName] = True
+                                    if memberInfo.tail and ('*' in memberInfo.tail):
+                                        self.extensionStructsWithHandlePtrs[structName] = True
+                                        hasHandlePtrs = True
+                                    else:
+                                        self.extensionStructsWithHandlePtrs[structName] = False
+
+                    if hasHandles:
+                        foundHandles = True
+                        if hasHandlePtrs:
+                            fountHandlePtrs = True
+                    else:
+                        self.extensionStructsWithHandles[structName] = False
+                        self.extensionStructsWithHandlePtrs[structName] = False
+
+        return foundHandles, foundHandlePtrs
 
     #
     # Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
-    # Structs with member handles are added to a dictionary, where the key is teh structure type and the value is a list of the handle members.
-    def checkStructMemberHandles(self, typename, structsWithHandles):
+    # Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
+    # An optional list of structure types that contain handle members with pointer types may also be generated.
+    def checkStructMemberHandles(self, typename, structsWithHandles, structsWithHandlePtrs = None):
         handles = []
+        hasHandlePointer = False
         for value in self.featureStructMembers[typename]:
             if self.isHandle(value.baseType):
                 # The member is a handle.
                 handles.append(value)
+                if (not structsWithHandlePtrs is None) and (value.isPointer or value.isArray):
+                    hasHandlePointer = True
             elif self.isStruct(value.baseType) and (value.baseType in structsWithHandles):
                 # The member is a struct that contains a handle.
                 handles.append(value)
+                if (not structsWithHandlePtrs is None)  and (value.name in structsWithHandlePtrs):
+                    hasHandlePointer = True
             elif 'pNext' in value.name:
                 # The pNext chain may include a struct with handles.
-                if self.checkStructPNextHandles(typename):
+                hasPNextHandles, hasPNextHandlePtrs = self.checkStructPNextHandles(typename)
+                if hasPNextHandles:
                     handles.append(value)
+                    if (not structsWithHandlePtrs is None) and hasPNextHandlePtrs:
+                        hasHandlePointer = True
         if handles:
             structsWithHandles[typename] = handles
+            if (not structsWithHandlePtrs is None) and hasHandlePointer:
+                structsWithHandlePtrs.append(typename)
             return True
         return False
 

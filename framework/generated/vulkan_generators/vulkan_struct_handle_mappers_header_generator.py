@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2019 Valve Corporation
-# Copyright (c) 2019 LunarG, Inc.
+# Copyright (c) 2019-2020 Valve Corporation
+# Copyright (c) 2019-2020 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
+        self.structsWithHandlePtrs = []
         # List of structs containing handles that are also used as output parameters for a command
         self.outputStructsWithHandles = []
 
@@ -103,6 +104,25 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
         self.newline()
+
+        for struct in self.outputStructsWithHandles:
+            if struct in self.structsWithHandlePtrs:
+                write('void SetStructHandleLengths(Decoded_{type}* wrapper);'.format(type=struct), file=self.outFile)
+                self.newline()
+
+        write('template <typename T>', file=self.outFile)
+        write('void SetStructArrayHandleLengths(T* wrappers, size_t len)', file=self.outFile)
+        write('{', file=self.outFile)
+        write('    if (wrappers != nullptr)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
+        write('        {', file=self.outFile)
+        write('            SetStructHandleLengths(&wrappers[i]);', file=self.outFile)
+        write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+        self.newline()
+
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -115,7 +135,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            self.checkStructMemberHandles(typename, self.structsWithHandles)
+            self.checkStructMemberHandles(typename, self.structsWithHandles, self.structsWithHandlePtrs)
 
     #
     # Method override
