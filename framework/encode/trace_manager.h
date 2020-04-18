@@ -410,6 +410,11 @@ class TraceManager
                                           const VkAllocationCallbacks*     pAllocator,
                                           VkSurfaceKHR*                    pSurface);
 
+    void PreProcess_vkCreateWaylandSurfaceKHR(VkInstance                           instance,
+                                              const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
+                                              const VkAllocationCallbacks*         pAllocator,
+                                              VkSurfaceKHR*                        pSurface);
+
     void PreProcess_vkCreateSwapchain(VkDevice                        device,
                                       const VkSwapchainCreateInfoKHR* pCreateInfo,
                                       const VkAllocationCallbacks*    pAllocator,

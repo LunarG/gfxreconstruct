@@ -17,6 +17,7 @@
 */
 
 #include "util/keyboard.h"
+
 #include "util/platform.h"
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
@@ -32,31 +33,39 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-void Keyboard::Initialize(xcb_connection_t* connection)
+bool Keyboard::Initialize(xcb_connection_t* connection)
 {
     if (xcb_keysyms_loader_.Initialize())
     {
         xcb_connection_ = connection;
+        return true;
     }
+    return false;
 }
 #endif
 
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-void Keyboard::Initialize(Display* display)
+bool Keyboard::Initialize(Display* display)
 {
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     // TODO: Native Xlib support
     auto xlib_xcb = util::platform::OpenLibrary("libX11-xcb.so");
     if (xlib_xcb)
     {
+        // Convert X display to XCB connection
         auto x_get_xcb_connection = reinterpret_cast<decltype(XGetXCBConnection)*>(
             util::platform::GetProcAddress(xlib_xcb, "XGetXCBConnection"));
-        Initialize(x_get_xcb_connection(display));
+        auto xcb_connection = x_get_xcb_connection(display);
         util::platform::CloseLibrary(xlib_xcb);
+
+        // Initialize using XCB keyboard implementation
+        return Initialize(xcb_connection);
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(display);
+    GFXRECON_LOG_WARNING("Xlib-XCB interop is not enabled on this system");
 #endif
+    return false;
 }
 #endif
 
