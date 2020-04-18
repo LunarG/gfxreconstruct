@@ -37,10 +37,10 @@ class Keyboard
 {
   public:
 #if defined(VK_USE_PLATFORM_XCB_KHR)
-    void Initialize(xcb_connection_t* connection);
+    bool Initialize(xcb_connection_t* connection);
 #endif
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
-    void Initialize(Display* display);
+    bool Initialize(Display* display);
 #endif
     bool GetKeyState(const std::string& key);
 
