@@ -369,10 +369,10 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         if isExtenalObject:
                             # Map the object ID to the new object
                             if value.platformFullType:
-                                expr += 'reinterpret_cast<{}>({}->AllocateOutputData(1));'.format(fullType, value.name)
+                                expr += '{paramname}->IsNull() ? nullptr : reinterpret_cast<{}>({paramname}->AllocateOutputData(1));'.format(fullType, paramname=value.name)
                                 postexpr.append('PostProcessExternalObject(replay_result, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'.format(value.name, argName, name=name))
                             else:
-                                expr += '{}->AllocateOutputData(1);'.format(value.name)
+                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(paramname=value.name)
                                 postexpr.append('PostProcessExternalObject(replay_result, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'.format(paramname=value.name, name=name))
                         elif self.isHandle(value.baseType):
                             # Add mapping for the newly created handle
@@ -387,7 +387,8 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                         else:
                             if self.isArrayLen(value.name, values):
                                 # If this is an array length, it is an in/out parameter and we need to assign the input value.
-                                expr += '{}->AllocateOutputData(1, {});'.format(value.name, self.makeVariableLengthArrayGetCountCall(returnType, name, value, values))
+                                arrayLenExpr = self.makeVariableLengthArrayGetCountCall(returnType, name, value, values)
+                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, {});'.format(arrayLenExpr, paramname=value.name)
                                 # Need to store the name of the intermediate value for use with allocating the array associated with this length.
                                 if needTempValue:
                                     arrayLengths[value.name] = '*{}'.format(argName)
@@ -397,9 +398,9 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 # If this is a struct with sType and pNext fields, we need to initialize them.
                                 if value.baseType in self.sTypeValues:
                                     # TODO: recreate pNext value read from the capture file; pNext is currently null.
-                                    expr += '{}->AllocateOutputData(1, {{ {}, nullptr }});'.format(value.name, self.sTypeValues[value.baseType])
+                                    expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, {{ {}, nullptr }});'.format(self.sTypeValues[value.baseType], paramname=value.name)
                                 else:
-                                    expr += '{}->AllocateOutputData(1);'.format(value.name)
+                                    expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(paramname=value.name)
 
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.baseType in self.structsWithHandles:
@@ -412,7 +413,7 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                             preexpr.append('SetStructHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'.format(value.baseType, paramname=value.name))
                                         postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {name}->GetOutputPointer(), GetObjectTable());'.format(name=value.name, basetype=value.baseType))
                             else:
-                                expr += '{}->AllocateOutputData(1, static_cast<{}>(0));'.format(value.name, value.baseType)
+                                expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, static_cast<{}>(0));'.format(value.baseType, paramname=value.name)
                 if expr:
                     preexpr.append(expr)
             elif self.isHandle(value.baseType):
