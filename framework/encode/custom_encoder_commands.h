@@ -172,6 +172,17 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>
     }
 };
 
+// Dispatch custom command to give implementation warning during create wayland surface
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkCreateWaylandSurfaceKHR(args...);
+    }
+};
+
 // Dispatch custom command for window resize command generation.
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateSwapchainKHR>

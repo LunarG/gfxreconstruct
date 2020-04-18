@@ -1492,12 +1492,19 @@ void TraceManager::PreProcess_vkCreateXlibSurfaceKHR(VkInstance                 
 
 #if defined(VK_USE_PLATFORM_XLIB_KHR)
     assert(pCreateInfo != nullptr);
-    if (pCreateInfo)
+    if (pCreateInfo && !trim_key_.empty())
     {
-        keyboard_.Initialize(pCreateInfo->dpy);
+        if (!keyboard_.Initialize(pCreateInfo->dpy))
+        {
+            GFXRECON_LOG_ERROR("Failed to initialize Xlib keyboard capture trigger");
+        }
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
+    if (!trim_key_.empty())
+    {
+        GFXRECON_LOG_WARNING("Xlib keyboard capture trigger is not enabled on this system");
+    }
 #endif
 }
 
@@ -1512,13 +1519,35 @@ void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                  
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     assert(pCreateInfo != nullptr);
-    if (pCreateInfo)
+    if (pCreateInfo && !trim_key_.empty())
     {
-        keyboard_.Initialize(pCreateInfo->connection);
+        if (!keyboard_.Initialize(pCreateInfo->connection))
+        {
+            GFXRECON_LOG_ERROR("Failed to initialize XCB keyboard capture trigger");
+        }
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
+    if (!trim_key_.empty())
+    {
+        GFXRECON_LOG_WARNING("Xcb keyboard capture trigger is not enabled on this system");
+    }
 #endif
+}
+
+void TraceManager::PreProcess_vkCreateWaylandSurfaceKHR(VkInstance                           instance,
+                                                        const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
+                                                        const VkAllocationCallbacks*         pAllocator,
+                                                        VkSurfaceKHR*                        pSurface)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance);
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pSurface);
+    if (!trim_key_.empty())
+    {
+        GFXRECON_LOG_WARNING("Wayland keyboard capture trigger is not implemented");
+    }
 }
 
 void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
