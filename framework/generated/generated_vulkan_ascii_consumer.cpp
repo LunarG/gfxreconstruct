@@ -1461,6 +1461,122 @@ void VulkanAsciiConsumer::Process_vkGetDescriptorSetLayoutSupport(
     fprintf(GetFile(), "%s\n", "vkGetDescriptorSetLayoutSupport");
 }
 
+void VulkanAsciiConsumer::Process_vkCmdDrawIndirectCount(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    format::HandleId                            countBuffer,
+    VkDeviceSize                                countBufferOffset,
+    uint32_t                                    maxDrawCount,
+    uint32_t                                    stride)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdDrawIndirectCount");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdDrawIndexedIndirectCount(
+    format::HandleId                            commandBuffer,
+    format::HandleId                            buffer,
+    VkDeviceSize                                offset,
+    format::HandleId                            countBuffer,
+    VkDeviceSize                                countBufferOffset,
+    uint32_t                                    maxDrawCount,
+    uint32_t                                    stride)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdDrawIndexedIndirectCount");
+}
+
+void VulkanAsciiConsumer::Process_vkCreateRenderPass2(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkRenderPassCreateInfo2>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkRenderPass>*         pRenderPass)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateRenderPass2");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdBeginRenderPass2(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
+    StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdBeginRenderPass2");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdNextSubpass2(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
+    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdNextSubpass2");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdEndRenderPass2(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdEndRenderPass2");
+}
+
+void VulkanAsciiConsumer::Process_vkResetQueryPool(
+    format::HandleId                            device,
+    format::HandleId                            queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount)
+{
+    fprintf(GetFile(), "%s\n", "vkResetQueryPool");
+}
+
+void VulkanAsciiConsumer::Process_vkGetSemaphoreCounterValue(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            semaphore,
+    PointerDecoder<uint64_t>*                   pValue)
+{
+    fprintf(GetFile(), "%s\n", "vkGetSemaphoreCounterValue");
+}
+
+void VulkanAsciiConsumer::Process_vkWaitSemaphores(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkSemaphoreWaitInfo>* pWaitInfo,
+    uint64_t                                    timeout)
+{
+    fprintf(GetFile(), "%s\n", "vkWaitSemaphores");
+}
+
+void VulkanAsciiConsumer::Process_vkSignalSemaphore(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkSignalSemaphore");
+}
+
+void VulkanAsciiConsumer::Process_vkGetBufferDeviceAddress(
+    VkDeviceAddress                             returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkGetBufferDeviceAddress");
+}
+
+void VulkanAsciiConsumer::Process_vkGetBufferOpaqueCaptureAddress(
+    uint64_t                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkGetBufferOpaqueCaptureAddress");
+}
+
+void VulkanAsciiConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddress(
+    uint64_t                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkGetDeviceMemoryOpaqueCaptureAddress");
+}
+
 void VulkanAsciiConsumer::Process_vkDestroySurfaceKHR(
     format::HandleId                            instance,
     format::HandleId                            surface,
@@ -1980,7 +2096,7 @@ void VulkanAsciiConsumer::Process_vkDestroyDescriptorUpdateTemplateKHR(
 void VulkanAsciiConsumer::Process_vkCreateRenderPass2KHR(
     VkResult                                    returnValue,
     format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkRenderPassCreateInfo2KHR>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkRenderPassCreateInfo2>* pCreateInfo,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
@@ -1990,22 +2106,22 @@ void VulkanAsciiConsumer::Process_vkCreateRenderPass2KHR(
 void VulkanAsciiConsumer::Process_vkCmdBeginRenderPass2KHR(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-    StructPointerDecoder<Decoded_VkSubpassBeginInfoKHR>* pSubpassBeginInfo)
+    StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo)
 {
     fprintf(GetFile(), "%s\n", "vkCmdBeginRenderPass2KHR");
 }
 
 void VulkanAsciiConsumer::Process_vkCmdNextSubpass2KHR(
     format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkSubpassBeginInfoKHR>* pSubpassBeginInfo,
-    StructPointerDecoder<Decoded_VkSubpassEndInfoKHR>* pSubpassEndInfo)
+    StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
+    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     fprintf(GetFile(), "%s\n", "vkCmdNextSubpass2KHR");
 }
 
 void VulkanAsciiConsumer::Process_vkCmdEndRenderPass2KHR(
     format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkSubpassEndInfoKHR>* pSubpassEndInfo)
+    StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo)
 {
     fprintf(GetFile(), "%s\n", "vkCmdEndRenderPass2KHR");
 }
@@ -2058,6 +2174,39 @@ void VulkanAsciiConsumer::Process_vkGetFenceFdKHR(
     PointerDecoder<int>*                        pFd)
 {
     fprintf(GetFile(), "%s\n", "vkGetFenceFdKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    uint32_t                                    queueFamilyIndex,
+    PointerDecoder<uint32_t>*                   pCounterCount,
+    StructPointerDecoder<Decoded_VkPerformanceCounterKHR>* pCounters,
+    StructPointerDecoder<Decoded_VkPerformanceCounterDescriptionKHR>* pCounterDescriptions)
+{
+    fprintf(GetFile(), "%s\n", "vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(
+    format::HandleId                            physicalDevice,
+    StructPointerDecoder<Decoded_VkQueryPoolPerformanceCreateInfoKHR>* pPerformanceQueryCreateInfo,
+    PointerDecoder<uint32_t>*                   pNumPasses)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkAcquireProfilingLockKHR(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkAcquireProfilingLockKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkReleaseProfilingLockKHR(
+    format::HandleId                            device)
+{
+    fprintf(GetFile(), "%s\n", "vkReleaseProfilingLockKHR");
 }
 
 void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
@@ -2221,7 +2370,7 @@ void VulkanAsciiConsumer::Process_vkGetSemaphoreCounterValueKHR(
 void VulkanAsciiConsumer::Process_vkWaitSemaphoresKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkSemaphoreWaitInfoKHR>* pWaitInfo,
+    StructPointerDecoder<Decoded_VkSemaphoreWaitInfo>* pWaitInfo,
     uint64_t                                    timeout)
 {
     fprintf(GetFile(), "%s\n", "vkWaitSemaphoresKHR");
@@ -2230,9 +2379,33 @@ void VulkanAsciiConsumer::Process_vkWaitSemaphoresKHR(
 void VulkanAsciiConsumer::Process_vkSignalSemaphoreKHR(
     VkResult                                    returnValue,
     format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkSemaphoreSignalInfoKHR>* pSignalInfo)
+    StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo)
 {
     fprintf(GetFile(), "%s\n", "vkSignalSemaphoreKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetBufferDeviceAddressKHR(
+    VkDeviceAddress                             returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkGetBufferDeviceAddressKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetBufferOpaqueCaptureAddressKHR(
+    uint64_t                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkGetBufferOpaqueCaptureAddressKHR");
+}
+
+void VulkanAsciiConsumer::Process_vkGetDeviceMemoryOpaqueCaptureAddressKHR(
+    uint64_t                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkGetDeviceMemoryOpaqueCaptureAddressKHR");
 }
 
 void VulkanAsciiConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
@@ -3224,9 +3397,18 @@ void VulkanAsciiConsumer::Process_vkCreateMetalSurfaceEXT(
 void VulkanAsciiConsumer::Process_vkGetBufferDeviceAddressEXT(
     VkDeviceAddress                             returnValue,
     format::HandleId                            device,
-    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfoEXT>* pInfo)
+    StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
     fprintf(GetFile(), "%s\n", "vkGetBufferDeviceAddressEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceToolPropertiesEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            physicalDevice,
+    PointerDecoder<uint32_t>*                   pToolCount,
+    StructPointerDecoder<Decoded_VkPhysicalDeviceToolPropertiesEXT>* pToolProperties)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPhysicalDeviceToolPropertiesEXT");
 }
 
 void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(

@@ -999,6 +999,83 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
         StructPointerDecoder<Decoded_VkDescriptorSetLayoutSupport>* pSupport) override;
 
+    virtual void Process_vkCmdDrawIndirectCount(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        format::HandleId                            countBuffer,
+        VkDeviceSize                                countBufferOffset,
+        uint32_t                                    maxDrawCount,
+        uint32_t                                    stride) override;
+
+    virtual void Process_vkCmdDrawIndexedIndirectCount(
+        format::HandleId                            commandBuffer,
+        format::HandleId                            buffer,
+        VkDeviceSize                                offset,
+        format::HandleId                            countBuffer,
+        VkDeviceSize                                countBufferOffset,
+        uint32_t                                    maxDrawCount,
+        uint32_t                                    stride) override;
+
+    virtual void Process_vkCreateRenderPass2(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkRenderPassCreateInfo2>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkRenderPass>*         pRenderPass) override;
+
+    virtual void Process_vkCmdBeginRenderPass2(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
+        StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo) override;
+
+    virtual void Process_vkCmdNextSubpass2(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
+        StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
+
+    virtual void Process_vkCmdEndRenderPass2(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
+
+    virtual void Process_vkResetQueryPool(
+        format::HandleId                            device,
+        format::HandleId                            queryPool,
+        uint32_t                                    firstQuery,
+        uint32_t                                    queryCount) override;
+
+    virtual void Process_vkGetSemaphoreCounterValue(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            semaphore,
+        PointerDecoder<uint64_t>*                   pValue) override;
+
+    virtual void Process_vkWaitSemaphores(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkSemaphoreWaitInfo>* pWaitInfo,
+        uint64_t                                    timeout) override;
+
+    virtual void Process_vkSignalSemaphore(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo) override;
+
+    virtual void Process_vkGetBufferDeviceAddress(
+        VkDeviceAddress                             returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+
+    virtual void Process_vkGetBufferOpaqueCaptureAddress(
+        uint64_t                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+
+    virtual void Process_vkGetDeviceMemoryOpaqueCaptureAddress(
+        uint64_t                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo) override;
+
     virtual void Process_vkDestroySurfaceKHR(
         format::HandleId                            instance,
         format::HandleId                            surface,
@@ -1350,23 +1427,23 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
     virtual void Process_vkCreateRenderPass2KHR(
         VkResult                                    returnValue,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkRenderPassCreateInfo2KHR>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkRenderPassCreateInfo2>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
         HandlePointerDecoder<VkRenderPass>*         pRenderPass) override;
 
     virtual void Process_vkCmdBeginRenderPass2KHR(
         format::HandleId                            commandBuffer,
         StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* pRenderPassBegin,
-        StructPointerDecoder<Decoded_VkSubpassBeginInfoKHR>* pSubpassBeginInfo) override;
+        StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo) override;
 
     virtual void Process_vkCmdNextSubpass2KHR(
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkSubpassBeginInfoKHR>* pSubpassBeginInfo,
-        StructPointerDecoder<Decoded_VkSubpassEndInfoKHR>* pSubpassEndInfo) override;
+        StructPointerDecoder<Decoded_VkSubpassBeginInfo>* pSubpassBeginInfo,
+        StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
 
     virtual void Process_vkCmdEndRenderPass2KHR(
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkSubpassEndInfoKHR>* pSubpassEndInfo) override;
+        StructPointerDecoder<Decoded_VkSubpassEndInfo>* pSubpassEndInfo) override;
 
     virtual void Process_vkGetSwapchainStatusKHR(
         VkResult                                    returnValue,
@@ -1399,6 +1476,27 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkFenceGetFdInfoKHR>* pGetFdInfo,
         PointerDecoder<int>*                        pFd) override;
+
+    virtual void Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        uint32_t                                    queueFamilyIndex,
+        PointerDecoder<uint32_t>*                   pCounterCount,
+        StructPointerDecoder<Decoded_VkPerformanceCounterKHR>* pCounters,
+        StructPointerDecoder<Decoded_VkPerformanceCounterDescriptionKHR>* pCounterDescriptions) override;
+
+    virtual void Process_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(
+        format::HandleId                            physicalDevice,
+        StructPointerDecoder<Decoded_VkQueryPoolPerformanceCreateInfoKHR>* pPerformanceQueryCreateInfo,
+        PointerDecoder<uint32_t>*                   pNumPasses) override;
+
+    virtual void Process_vkAcquireProfilingLockKHR(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkAcquireProfilingLockInfoKHR>* pInfo) override;
+
+    virtual void Process_vkReleaseProfilingLockKHR(
+        format::HandleId                            device) override;
 
     virtual void Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
         VkResult                                    returnValue,
@@ -1510,13 +1608,28 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
     virtual void Process_vkWaitSemaphoresKHR(
         VkResult                                    returnValue,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkSemaphoreWaitInfoKHR>* pWaitInfo,
+        StructPointerDecoder<Decoded_VkSemaphoreWaitInfo>* pWaitInfo,
         uint64_t                                    timeout) override;
 
     virtual void Process_vkSignalSemaphoreKHR(
         VkResult                                    returnValue,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkSemaphoreSignalInfoKHR>* pSignalInfo) override;
+        StructPointerDecoder<Decoded_VkSemaphoreSignalInfo>* pSignalInfo) override;
+
+    virtual void Process_vkGetBufferDeviceAddressKHR(
+        VkDeviceAddress                             returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+
+    virtual void Process_vkGetBufferOpaqueCaptureAddressKHR(
+        uint64_t                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+
+    virtual void Process_vkGetDeviceMemoryOpaqueCaptureAddressKHR(
+        uint64_t                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo>* pInfo) override;
 
     virtual void Process_vkGetPipelineExecutablePropertiesKHR(
         VkResult                                    returnValue,
@@ -2186,7 +2299,13 @@ class VulkanAsciiConsumer : public VulkanAsciiConsumerBase
     virtual void Process_vkGetBufferDeviceAddressEXT(
         VkDeviceAddress                             returnValue,
         format::HandleId                            device,
-        StructPointerDecoder<Decoded_VkBufferDeviceAddressInfoEXT>* pInfo) override;
+        StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo) override;
+
+    virtual void Process_vkGetPhysicalDeviceToolPropertiesEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            physicalDevice,
+        PointerDecoder<uint32_t>*                   pToolCount,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceToolPropertiesEXT>* pToolProperties) override;
 
     virtual void Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(
         VkResult                                    returnValue,
