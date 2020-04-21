@@ -301,9 +301,9 @@ void TrackCmdBeginRenderPassHandles(CommandBufferWrapper* wrapper, const VkRende
             {
                 default:
                     break;
-                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO_KHR:
+                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfoKHR*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header);
                     if (pnext_value->pAttachments != nullptr)
                     {
                         for (uint32_t pAttachments_index = 0; pAttachments_index < pnext_value->attachmentCount; ++pAttachments_index)
@@ -331,6 +331,55 @@ void TrackCmdExecuteCommandsHandles(CommandBufferWrapper* wrapper, uint32_t comm
         {
             wrapper->command_handles[CommandHandleType::CommandBufferHandle].insert(GetWrappedId(pCommandBuffers[pCommandBuffers_index]));
         }
+    }
+}
+
+void TrackCmdDrawIndirectCountHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer)
+{
+    assert(wrapper != nullptr);
+
+    wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(buffer));
+    wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(countBuffer));
+}
+
+void TrackCmdDrawIndexedIndirectCountHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer)
+{
+    assert(wrapper != nullptr);
+
+    wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(buffer));
+    wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(countBuffer));
+}
+
+void TrackCmdBeginRenderPass2Handles(CommandBufferWrapper* wrapper, const VkRenderPassBeginInfo* pRenderPassBegin)
+{
+    assert(wrapper != nullptr);
+
+    if (pRenderPassBegin != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pRenderPassBegin->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header);
+                    if (pnext_value->pAttachments != nullptr)
+                    {
+                        for (uint32_t pAttachments_index = 0; pAttachments_index < pnext_value->attachmentCount; ++pAttachments_index)
+                        {
+                            wrapper->command_handles[CommandHandleType::ImageViewHandle].insert(GetWrappedId(pnext_value->pAttachments[pAttachments_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        wrapper->command_handles[CommandHandleType::RenderPassHandle].insert(GetWrappedId(pRenderPassBegin->renderPass));
+        wrapper->command_handles[CommandHandleType::FramebufferHandle].insert(GetWrappedId(pRenderPassBegin->framebuffer));
     }
 }
 
@@ -409,9 +458,9 @@ void TrackCmdBeginRenderPass2KHRHandles(CommandBufferWrapper* wrapper, const VkR
             {
                 default:
                     break;
-                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO_KHR:
+                case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
-                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfoKHR*>(pnext_header);
+                    auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header);
                     if (pnext_value->pAttachments != nullptr)
                     {
                         for (uint32_t pAttachments_index = 0; pAttachments_index < pnext_value->attachmentCount; ++pAttachments_index)

@@ -586,6 +586,56 @@ void MapStructHandles(Decoded_VkDescriptorUpdateTemplateCreateInfo* wrapper, con
     }
 }
 
+void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkRenderPassAttachmentBeginInfo* value = wrapper->decoded_value;
+
+        value->pAttachments = MapHandleArray<ImageViewInfo>(&wrapper->pAttachments, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkSemaphoreWaitInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkSemaphoreWaitInfo* value = wrapper->decoded_value;
+
+        value->pSemaphores = MapHandleArray<SemaphoreInfo>(&wrapper->pSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkSemaphoreSignalInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkSemaphoreSignalInfo* value = wrapper->decoded_value;
+
+        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkBufferDeviceAddressInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkBufferDeviceAddressInfo* value = wrapper->decoded_value;
+
+        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkDeviceMemoryOpaqueCaptureAddressInfo* value = wrapper->decoded_value;
+
+        value->memory = MapHandle<DeviceMemoryInfo>(wrapper->memory, object_info_table, &VulkanObjectInfoTable::GetDeviceMemoryInfo);
+    }
+}
+
 void MapStructHandles(Decoded_VkSwapchainCreateInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -756,16 +806,6 @@ void MapStructHandles(Decoded_VkSemaphoreGetFdInfoKHR* wrapper, const VulkanObje
     }
 }
 
-void MapStructHandles(Decoded_VkRenderPassAttachmentBeginInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkRenderPassAttachmentBeginInfoKHR* value = wrapper->decoded_value;
-
-        value->pAttachments = MapHandleArray<ImageViewInfo>(&wrapper->pAttachments, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
-    }
-}
-
 void MapStructHandles(Decoded_VkImportFenceWin32HandleInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -847,26 +887,6 @@ void MapStructHandles(Decoded_VkDisplayPlaneInfo2KHR* wrapper, const VulkanObjec
         VkDisplayPlaneInfo2KHR* value = wrapper->decoded_value;
 
         value->mode = MapHandle<DisplayModeKHRInfo>(wrapper->mode, object_info_table, &VulkanObjectInfoTable::GetDisplayModeKHRInfo);
-    }
-}
-
-void MapStructHandles(Decoded_VkSemaphoreWaitInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkSemaphoreWaitInfoKHR* value = wrapper->decoded_value;
-
-        value->pSemaphores = MapHandleArray<SemaphoreInfo>(&wrapper->pSemaphores, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
-    }
-}
-
-void MapStructHandles(Decoded_VkSemaphoreSignalInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkSemaphoreSignalInfoKHR* value = wrapper->decoded_value;
-
-        value->semaphore = MapHandle<SemaphoreInfo>(wrapper->semaphore, object_info_table, &VulkanObjectInfoTable::GetSemaphoreInfo);
     }
 }
 
@@ -1154,16 +1174,6 @@ void MapStructHandles(Decoded_VkAccelerationStructureMemoryRequirementsInfoNV* w
     }
 }
 
-void MapStructHandles(Decoded_VkBufferDeviceAddressInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkBufferDeviceAddressInfoEXT* value = wrapper->decoded_value;
-
-        value->buffer = MapHandle<BufferInfo>(wrapper->buffer, object_info_table, &VulkanObjectInfoTable::GetBufferInfo);
-    }
-}
-
 void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((value != nullptr) && (wrapper != nullptr))
@@ -1184,6 +1194,9 @@ void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectI
         case VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO:
             MapStructHandles(reinterpret_cast<Decoded_VkSamplerYcbcrConversionInfo*>(wrapper), object_info_table);
             break;
+        case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
+            MapStructHandles(reinterpret_cast<Decoded_VkRenderPassAttachmentBeginInfo*>(wrapper), object_info_table);
+            break;
         case VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR:
             MapStructHandles(reinterpret_cast<Decoded_VkImageSwapchainCreateInfoKHR*>(wrapper), object_info_table);
             break;
@@ -1192,9 +1205,6 @@ void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectI
             break;
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR:
             MapStructHandles(reinterpret_cast<Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR*>(wrapper), object_info_table);
-            break;
-        case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_VkRenderPassAttachmentBeginInfoKHR*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV:
             MapStructHandles(reinterpret_cast<Decoded_VkDedicatedAllocationMemoryAllocateInfoNV*>(wrapper), object_info_table);

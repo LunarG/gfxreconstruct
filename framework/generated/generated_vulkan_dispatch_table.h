@@ -108,6 +108,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(VkInstanc
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferPropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceExternalBufferInfo*, VkExternalBufferProperties*) {}
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphorePropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceExternalSemaphoreInfo*, VkExternalSemaphoreProperties*) {}
 static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFencePropertiesKHR(VkPhysicalDevice, const VkPhysicalDeviceExternalFenceInfo*, VkExternalFenceProperties*) {}
+static VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(VkPhysicalDevice, uint32_t, uint32_t*, VkPerformanceCounterKHR*, VkPerformanceCounterDescriptionKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(VkPhysicalDevice, const VkQueryPoolPerformanceCreateInfoKHR*, uint32_t*) {}
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkSurfaceCapabilities2KHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, uint32_t*, VkSurfaceFormat2KHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(VkPhysicalDevice, uint32_t*, VkDisplayProperties2KHR*) { return VK_SUCCESS; }
@@ -134,6 +136,7 @@ static VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMultisamplePropertiesEXT(VkPh
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(VkPhysicalDevice, uint32_t*, VkTimeDomainEXT*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(VkInstance, const VkImagePipeSurfaceCreateInfoFUCHSIA*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(VkInstance, const VkMetalSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice, uint32_t*, VkPhysicalDeviceToolPropertiesEXT*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(VkPhysicalDevice, uint32_t*, VkCooperativeMatrixPropertiesNV*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(VkPhysicalDevice, uint32_t*, VkFramebufferMixedSamplesCombinationNV*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, uint32_t*, VkPresentModeKHR*) { return VK_SUCCESS; }
@@ -275,6 +278,19 @@ static VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(VkDevice, c
 static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(VkDevice, VkDescriptorUpdateTemplate, const VkAllocationCallbacks*) {}
 static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplate(VkDevice, VkDescriptorSet, VkDescriptorUpdateTemplate, const void*) {}
 static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupport(VkDevice, const VkDescriptorSetLayoutCreateInfo*, VkDescriptorSetLayoutSupport*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCount(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
+static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCount(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
+static VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2(VkDevice, const VkRenderPassCreateInfo2*, const VkAllocationCallbacks*, VkRenderPass*) { return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2(VkCommandBuffer, const VkRenderPassBeginInfo*, const VkSubpassBeginInfo*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2(VkCommandBuffer, const VkSubpassBeginInfo*, const VkSubpassEndInfo*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2(VkCommandBuffer, const VkSubpassEndInfo*) {}
+static VKAPI_ATTR void VKAPI_CALL ResetQueryPool(VkDevice, VkQueryPool, uint32_t, uint32_t) {}
+static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValue(VkDevice, VkSemaphore, uint64_t*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphores(VkDevice, const VkSemaphoreWaitInfo*, uint64_t) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphore(VkDevice, const VkSemaphoreSignalInfo*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddress(VkDevice, const VkBufferDeviceAddressInfo*) { return 0; }
+static VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddress(VkDevice, const VkBufferDeviceAddressInfo*) { return 0; }
+static VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddress(VkDevice, const VkDeviceMemoryOpaqueCaptureAddressInfo*) { return 0; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice, const VkSwapchainCreateInfoKHR*, const VkAllocationCallbacks*, VkSwapchainKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(VkDevice, VkSwapchainKHR, const VkAllocationCallbacks*) {}
 static VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(VkDevice, VkSwapchainKHR, uint32_t*, VkImage*) { return VK_SUCCESS; }
@@ -301,15 +317,17 @@ static VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandB
 static VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(VkDevice, const VkDescriptorUpdateTemplateCreateInfo*, const VkAllocationCallbacks*, VkDescriptorUpdateTemplate*) { return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(VkDevice, VkDescriptorUpdateTemplate, const VkAllocationCallbacks*) {}
 static VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice, VkDescriptorSet, VkDescriptorUpdateTemplate, const void*) {}
-static VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(VkDevice, const VkRenderPassCreateInfo2KHR*, const VkAllocationCallbacks*, VkRenderPass*) { return VK_SUCCESS; }
-static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(VkCommandBuffer, const VkRenderPassBeginInfo*, const VkSubpassBeginInfoKHR*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(VkCommandBuffer, const VkSubpassBeginInfoKHR*, const VkSubpassEndInfoKHR*) {}
-static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2KHR(VkCommandBuffer, const VkSubpassEndInfoKHR*) {}
+static VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(VkDevice, const VkRenderPassCreateInfo2*, const VkAllocationCallbacks*, VkRenderPass*) { return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(VkCommandBuffer, const VkRenderPassBeginInfo*, const VkSubpassBeginInfo*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(VkCommandBuffer, const VkSubpassBeginInfo*, const VkSubpassEndInfo*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2KHR(VkCommandBuffer, const VkSubpassEndInfo*) {}
 static VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainStatusKHR(VkDevice, VkSwapchainKHR) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL ImportFenceWin32HandleKHR(VkDevice, const VkImportFenceWin32HandleInfoKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(VkDevice, const VkFenceGetWin32HandleInfoKHR*, HANDLE*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(VkDevice, const VkImportFenceFdInfoKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(VkDevice, const VkFenceGetFdInfoKHR*, int*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL AcquireProfilingLockKHR(VkDevice, const VkAcquireProfilingLockInfoKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL ReleaseProfilingLockKHR(VkDevice) {}
 static VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2KHR(VkDevice, const VkImageMemoryRequirementsInfo2*, VkMemoryRequirements2*) {}
 static VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2KHR(VkDevice, const VkBufferMemoryRequirementsInfo2*, VkMemoryRequirements2*) {}
 static VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2KHR(VkDevice, const VkImageSparseMemoryRequirementsInfo2*, uint32_t*, VkSparseImageMemoryRequirements2*) {}
@@ -321,8 +339,11 @@ static VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupportKHR(VkDevice, con
 static VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
 static VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(VkCommandBuffer, VkBuffer, VkDeviceSize, VkBuffer, VkDeviceSize, uint32_t, uint32_t) {}
 static VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(VkDevice, VkSemaphore, uint64_t*) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(VkDevice, const VkSemaphoreWaitInfoKHR*, uint64_t) { return VK_SUCCESS; }
-static VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(VkDevice, const VkSemaphoreSignalInfoKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(VkDevice, const VkSemaphoreWaitInfo*, uint64_t) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(VkDevice, const VkSemaphoreSignalInfo*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { return 0; }
+static VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddressKHR(VkDevice, const VkBufferDeviceAddressInfo*) { return 0; }
+static VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddressKHR(VkDevice, const VkDeviceMemoryOpaqueCaptureAddressInfo*) { return 0; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(VkDevice, const VkPipelineInfoKHR*, uint32_t*, VkPipelineExecutablePropertiesKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableStatisticKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableInternalRepresentationKHR*) { return VK_SUCCESS; }
@@ -411,7 +432,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL ReleasePerformanceConfigurationINTEL(VkDev
 static VKAPI_ATTR VkResult VKAPI_CALL QueueSetPerformanceConfigurationINTEL(VkQueue, VkPerformanceConfigurationINTEL) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPerformanceParameterINTEL(VkDevice, VkPerformanceParameterTypeINTEL, VkPerformanceValueINTEL*) { return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(VkDevice, VkSwapchainKHR, VkBool32) {}
-static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(VkDevice, const VkBufferDeviceAddressInfoEXT*) { return 0; }
+static VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(VkDevice, const VkBufferDeviceAddressInfo*) { return 0; }
 static VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(VkDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkDeviceGroupPresentModeFlagsKHR*) { return VK_SUCCESS; }
@@ -484,6 +505,8 @@ struct InstanceTable
     PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHR GetPhysicalDeviceExternalBufferPropertiesKHR{ noop::GetPhysicalDeviceExternalBufferPropertiesKHR };
     PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR GetPhysicalDeviceExternalSemaphorePropertiesKHR{ noop::GetPhysicalDeviceExternalSemaphorePropertiesKHR };
     PFN_vkGetPhysicalDeviceExternalFencePropertiesKHR GetPhysicalDeviceExternalFencePropertiesKHR{ noop::GetPhysicalDeviceExternalFencePropertiesKHR };
+    PFN_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR{ noop::EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR };
+    PFN_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR{ noop::GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR };
     PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR GetPhysicalDeviceSurfaceCapabilities2KHR{ noop::GetPhysicalDeviceSurfaceCapabilities2KHR };
     PFN_vkGetPhysicalDeviceSurfaceFormats2KHR GetPhysicalDeviceSurfaceFormats2KHR{ noop::GetPhysicalDeviceSurfaceFormats2KHR };
     PFN_vkGetPhysicalDeviceDisplayProperties2KHR GetPhysicalDeviceDisplayProperties2KHR{ noop::GetPhysicalDeviceDisplayProperties2KHR };
@@ -510,6 +533,7 @@ struct InstanceTable
     PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT GetPhysicalDeviceCalibrateableTimeDomainsEXT{ noop::GetPhysicalDeviceCalibrateableTimeDomainsEXT };
     PFN_vkCreateImagePipeSurfaceFUCHSIA CreateImagePipeSurfaceFUCHSIA{ noop::CreateImagePipeSurfaceFUCHSIA };
     PFN_vkCreateMetalSurfaceEXT CreateMetalSurfaceEXT{ noop::CreateMetalSurfaceEXT };
+    PFN_vkGetPhysicalDeviceToolPropertiesEXT GetPhysicalDeviceToolPropertiesEXT{ noop::GetPhysicalDeviceToolPropertiesEXT };
     PFN_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV GetPhysicalDeviceCooperativeMatrixPropertiesNV{ noop::GetPhysicalDeviceCooperativeMatrixPropertiesNV };
     PFN_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV{ noop::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV };
     PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT GetPhysicalDeviceSurfacePresentModes2EXT{ noop::GetPhysicalDeviceSurfacePresentModes2EXT };
@@ -655,6 +679,19 @@ struct DeviceTable
     PFN_vkDestroyDescriptorUpdateTemplate DestroyDescriptorUpdateTemplate{ noop::DestroyDescriptorUpdateTemplate };
     PFN_vkUpdateDescriptorSetWithTemplate UpdateDescriptorSetWithTemplate{ noop::UpdateDescriptorSetWithTemplate };
     PFN_vkGetDescriptorSetLayoutSupport GetDescriptorSetLayoutSupport{ noop::GetDescriptorSetLayoutSupport };
+    PFN_vkCmdDrawIndirectCount CmdDrawIndirectCount{ noop::CmdDrawIndirectCount };
+    PFN_vkCmdDrawIndexedIndirectCount CmdDrawIndexedIndirectCount{ noop::CmdDrawIndexedIndirectCount };
+    PFN_vkCreateRenderPass2 CreateRenderPass2{ noop::CreateRenderPass2 };
+    PFN_vkCmdBeginRenderPass2 CmdBeginRenderPass2{ noop::CmdBeginRenderPass2 };
+    PFN_vkCmdNextSubpass2 CmdNextSubpass2{ noop::CmdNextSubpass2 };
+    PFN_vkCmdEndRenderPass2 CmdEndRenderPass2{ noop::CmdEndRenderPass2 };
+    PFN_vkResetQueryPool ResetQueryPool{ noop::ResetQueryPool };
+    PFN_vkGetSemaphoreCounterValue GetSemaphoreCounterValue{ noop::GetSemaphoreCounterValue };
+    PFN_vkWaitSemaphores WaitSemaphores{ noop::WaitSemaphores };
+    PFN_vkSignalSemaphore SignalSemaphore{ noop::SignalSemaphore };
+    PFN_vkGetBufferDeviceAddress GetBufferDeviceAddress{ noop::GetBufferDeviceAddress };
+    PFN_vkGetBufferOpaqueCaptureAddress GetBufferOpaqueCaptureAddress{ noop::GetBufferOpaqueCaptureAddress };
+    PFN_vkGetDeviceMemoryOpaqueCaptureAddress GetDeviceMemoryOpaqueCaptureAddress{ noop::GetDeviceMemoryOpaqueCaptureAddress };
     PFN_vkCreateSwapchainKHR CreateSwapchainKHR{ noop::CreateSwapchainKHR };
     PFN_vkDestroySwapchainKHR DestroySwapchainKHR{ noop::DestroySwapchainKHR };
     PFN_vkGetSwapchainImagesKHR GetSwapchainImagesKHR{ noop::GetSwapchainImagesKHR };
@@ -690,6 +727,8 @@ struct DeviceTable
     PFN_vkGetFenceWin32HandleKHR GetFenceWin32HandleKHR{ noop::GetFenceWin32HandleKHR };
     PFN_vkImportFenceFdKHR ImportFenceFdKHR{ noop::ImportFenceFdKHR };
     PFN_vkGetFenceFdKHR GetFenceFdKHR{ noop::GetFenceFdKHR };
+    PFN_vkAcquireProfilingLockKHR AcquireProfilingLockKHR{ noop::AcquireProfilingLockKHR };
+    PFN_vkReleaseProfilingLockKHR ReleaseProfilingLockKHR{ noop::ReleaseProfilingLockKHR };
     PFN_vkGetImageMemoryRequirements2KHR GetImageMemoryRequirements2KHR{ noop::GetImageMemoryRequirements2KHR };
     PFN_vkGetBufferMemoryRequirements2KHR GetBufferMemoryRequirements2KHR{ noop::GetBufferMemoryRequirements2KHR };
     PFN_vkGetImageSparseMemoryRequirements2KHR GetImageSparseMemoryRequirements2KHR{ noop::GetImageSparseMemoryRequirements2KHR };
@@ -703,6 +742,9 @@ struct DeviceTable
     PFN_vkGetSemaphoreCounterValueKHR GetSemaphoreCounterValueKHR{ noop::GetSemaphoreCounterValueKHR };
     PFN_vkWaitSemaphoresKHR WaitSemaphoresKHR{ noop::WaitSemaphoresKHR };
     PFN_vkSignalSemaphoreKHR SignalSemaphoreKHR{ noop::SignalSemaphoreKHR };
+    PFN_vkGetBufferDeviceAddressKHR GetBufferDeviceAddressKHR{ noop::GetBufferDeviceAddressKHR };
+    PFN_vkGetBufferOpaqueCaptureAddressKHR GetBufferOpaqueCaptureAddressKHR{ noop::GetBufferOpaqueCaptureAddressKHR };
+    PFN_vkGetDeviceMemoryOpaqueCaptureAddressKHR GetDeviceMemoryOpaqueCaptureAddressKHR{ noop::GetDeviceMemoryOpaqueCaptureAddressKHR };
     PFN_vkGetPipelineExecutablePropertiesKHR GetPipelineExecutablePropertiesKHR{ noop::GetPipelineExecutablePropertiesKHR };
     PFN_vkGetPipelineExecutableStatisticsKHR GetPipelineExecutableStatisticsKHR{ noop::GetPipelineExecutableStatisticsKHR };
     PFN_vkGetPipelineExecutableInternalRepresentationsKHR GetPipelineExecutableInternalRepresentationsKHR{ noop::GetPipelineExecutableInternalRepresentationsKHR };
@@ -869,6 +911,8 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceExternalBufferPropertiesKHR", &table->GetPhysicalDeviceExternalBufferPropertiesKHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR", &table->GetPhysicalDeviceExternalSemaphorePropertiesKHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceExternalFencePropertiesKHR", &table->GetPhysicalDeviceExternalFencePropertiesKHR);
+    LoadFunction(gpa, instance, "vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR", &table->EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR", &table->GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceSurfaceCapabilities2KHR", &table->GetPhysicalDeviceSurfaceCapabilities2KHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceSurfaceFormats2KHR", &table->GetPhysicalDeviceSurfaceFormats2KHR);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceDisplayProperties2KHR", &table->GetPhysicalDeviceDisplayProperties2KHR);
@@ -895,6 +939,7 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT", &table->GetPhysicalDeviceCalibrateableTimeDomainsEXT);
     LoadFunction(gpa, instance, "vkCreateImagePipeSurfaceFUCHSIA", &table->CreateImagePipeSurfaceFUCHSIA);
     LoadFunction(gpa, instance, "vkCreateMetalSurfaceEXT", &table->CreateMetalSurfaceEXT);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceToolPropertiesEXT", &table->GetPhysicalDeviceToolPropertiesEXT);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceCooperativeMatrixPropertiesNV", &table->GetPhysicalDeviceCooperativeMatrixPropertiesNV);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV", &table->GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceSurfacePresentModes2EXT", &table->GetPhysicalDeviceSurfacePresentModes2EXT);
@@ -1042,6 +1087,19 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkDestroyDescriptorUpdateTemplate", &table->DestroyDescriptorUpdateTemplate);
     LoadFunction(gpa, device, "vkUpdateDescriptorSetWithTemplate", &table->UpdateDescriptorSetWithTemplate);
     LoadFunction(gpa, device, "vkGetDescriptorSetLayoutSupport", &table->GetDescriptorSetLayoutSupport);
+    LoadFunction(gpa, device, "vkCmdDrawIndirectCount", &table->CmdDrawIndirectCount);
+    LoadFunction(gpa, device, "vkCmdDrawIndexedIndirectCount", &table->CmdDrawIndexedIndirectCount);
+    LoadFunction(gpa, device, "vkCreateRenderPass2", &table->CreateRenderPass2);
+    LoadFunction(gpa, device, "vkCmdBeginRenderPass2", &table->CmdBeginRenderPass2);
+    LoadFunction(gpa, device, "vkCmdNextSubpass2", &table->CmdNextSubpass2);
+    LoadFunction(gpa, device, "vkCmdEndRenderPass2", &table->CmdEndRenderPass2);
+    LoadFunction(gpa, device, "vkResetQueryPool", &table->ResetQueryPool);
+    LoadFunction(gpa, device, "vkGetSemaphoreCounterValue", &table->GetSemaphoreCounterValue);
+    LoadFunction(gpa, device, "vkWaitSemaphores", &table->WaitSemaphores);
+    LoadFunction(gpa, device, "vkSignalSemaphore", &table->SignalSemaphore);
+    LoadFunction(gpa, device, "vkGetBufferDeviceAddress", &table->GetBufferDeviceAddress);
+    LoadFunction(gpa, device, "vkGetBufferOpaqueCaptureAddress", &table->GetBufferOpaqueCaptureAddress);
+    LoadFunction(gpa, device, "vkGetDeviceMemoryOpaqueCaptureAddress", &table->GetDeviceMemoryOpaqueCaptureAddress);
     LoadFunction(gpa, device, "vkCreateSwapchainKHR", &table->CreateSwapchainKHR);
     LoadFunction(gpa, device, "vkDestroySwapchainKHR", &table->DestroySwapchainKHR);
     LoadFunction(gpa, device, "vkGetSwapchainImagesKHR", &table->GetSwapchainImagesKHR);
@@ -1077,6 +1135,8 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetFenceWin32HandleKHR", &table->GetFenceWin32HandleKHR);
     LoadFunction(gpa, device, "vkImportFenceFdKHR", &table->ImportFenceFdKHR);
     LoadFunction(gpa, device, "vkGetFenceFdKHR", &table->GetFenceFdKHR);
+    LoadFunction(gpa, device, "vkAcquireProfilingLockKHR", &table->AcquireProfilingLockKHR);
+    LoadFunction(gpa, device, "vkReleaseProfilingLockKHR", &table->ReleaseProfilingLockKHR);
     LoadFunction(gpa, device, "vkGetImageMemoryRequirements2KHR", &table->GetImageMemoryRequirements2KHR);
     LoadFunction(gpa, device, "vkGetBufferMemoryRequirements2KHR", &table->GetBufferMemoryRequirements2KHR);
     LoadFunction(gpa, device, "vkGetImageSparseMemoryRequirements2KHR", &table->GetImageSparseMemoryRequirements2KHR);
@@ -1090,6 +1150,9 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetSemaphoreCounterValueKHR", &table->GetSemaphoreCounterValueKHR);
     LoadFunction(gpa, device, "vkWaitSemaphoresKHR", &table->WaitSemaphoresKHR);
     LoadFunction(gpa, device, "vkSignalSemaphoreKHR", &table->SignalSemaphoreKHR);
+    LoadFunction(gpa, device, "vkGetBufferDeviceAddressKHR", &table->GetBufferDeviceAddressKHR);
+    LoadFunction(gpa, device, "vkGetBufferOpaqueCaptureAddressKHR", &table->GetBufferOpaqueCaptureAddressKHR);
+    LoadFunction(gpa, device, "vkGetDeviceMemoryOpaqueCaptureAddressKHR", &table->GetDeviceMemoryOpaqueCaptureAddressKHR);
     LoadFunction(gpa, device, "vkGetPipelineExecutablePropertiesKHR", &table->GetPipelineExecutablePropertiesKHR);
     LoadFunction(gpa, device, "vkGetPipelineExecutableStatisticsKHR", &table->GetPipelineExecutableStatisticsKHR);
     LoadFunction(gpa, device, "vkGetPipelineExecutableInternalRepresentationsKHR", &table->GetPipelineExecutableInternalRepresentationsKHR);

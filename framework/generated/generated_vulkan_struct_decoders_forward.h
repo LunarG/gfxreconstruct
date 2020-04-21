@@ -378,6 +378,110 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorSetLayoutSupport* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderDrawParametersFeatures* wrapper);
 
+struct Decoded_VkPhysicalDeviceVulkan11Features;
+struct Decoded_VkPhysicalDeviceVulkan11Properties;
+struct Decoded_VkPhysicalDeviceVulkan12Features;
+struct Decoded_VkConformanceVersion;
+struct Decoded_VkPhysicalDeviceVulkan12Properties;
+struct Decoded_VkImageFormatListCreateInfo;
+struct Decoded_VkAttachmentDescription2;
+struct Decoded_VkAttachmentReference2;
+struct Decoded_VkSubpassDescription2;
+struct Decoded_VkSubpassDependency2;
+struct Decoded_VkRenderPassCreateInfo2;
+struct Decoded_VkSubpassBeginInfo;
+struct Decoded_VkSubpassEndInfo;
+struct Decoded_VkPhysicalDevice8BitStorageFeatures;
+struct Decoded_VkPhysicalDeviceDriverProperties;
+struct Decoded_VkPhysicalDeviceShaderAtomicInt64Features;
+struct Decoded_VkPhysicalDeviceShaderFloat16Int8Features;
+struct Decoded_VkPhysicalDeviceFloatControlsProperties;
+struct Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo;
+struct Decoded_VkPhysicalDeviceDescriptorIndexingFeatures;
+struct Decoded_VkPhysicalDeviceDescriptorIndexingProperties;
+struct Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo;
+struct Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupport;
+struct Decoded_VkSubpassDescriptionDepthStencilResolve;
+struct Decoded_VkPhysicalDeviceDepthStencilResolveProperties;
+struct Decoded_VkPhysicalDeviceScalarBlockLayoutFeatures;
+struct Decoded_VkImageStencilUsageCreateInfo;
+struct Decoded_VkSamplerReductionModeCreateInfo;
+struct Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties;
+struct Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures;
+struct Decoded_VkPhysicalDeviceImagelessFramebufferFeatures;
+struct Decoded_VkFramebufferAttachmentImageInfo;
+struct Decoded_VkFramebufferAttachmentsCreateInfo;
+struct Decoded_VkRenderPassAttachmentBeginInfo;
+struct Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeatures;
+struct Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures;
+struct Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures;
+struct Decoded_VkAttachmentReferenceStencilLayout;
+struct Decoded_VkAttachmentDescriptionStencilLayout;
+struct Decoded_VkPhysicalDeviceHostQueryResetFeatures;
+struct Decoded_VkPhysicalDeviceTimelineSemaphoreFeatures;
+struct Decoded_VkPhysicalDeviceTimelineSemaphoreProperties;
+struct Decoded_VkSemaphoreTypeCreateInfo;
+struct Decoded_VkTimelineSemaphoreSubmitInfo;
+struct Decoded_VkSemaphoreWaitInfo;
+struct Decoded_VkSemaphoreSignalInfo;
+struct Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures;
+struct Decoded_VkBufferDeviceAddressInfo;
+struct Decoded_VkBufferOpaqueCaptureAddressCreateInfo;
+struct Decoded_VkMemoryOpaqueCaptureAddressAllocateInfo;
+struct Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceVulkan11Features* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceVulkan11Properties* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceVulkan12Features* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkConformanceVersion* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceVulkan12Properties* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImageFormatListCreateInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAttachmentDescription2* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAttachmentReference2* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassDescription2* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassDependency2* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderPassCreateInfo2* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassBeginInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassEndInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevice8BitStorageFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDriverProperties* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderAtomicInt64Features* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderFloat16Int8Features* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceFloatControlsProperties* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDescriptorIndexingFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDescriptorIndexingProperties* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupport* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassDescriptionDepthStencilResolve* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDepthStencilResolveProperties* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceScalarBlockLayoutFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImageStencilUsageCreateInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSamplerReductionModeCreateInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceImagelessFramebufferFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkFramebufferAttachmentImageInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkFramebufferAttachmentsCreateInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderPassAttachmentBeginInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAttachmentReferenceStencilLayout* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAttachmentDescriptionStencilLayout* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceHostQueryResetFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceTimelineSemaphoreFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceTimelineSemaphoreProperties* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreTypeCreateInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkTimelineSemaphoreSubmitInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreWaitInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreSignalInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBufferDeviceAddressInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBufferOpaqueCaptureAddressCreateInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryOpaqueCaptureAddressAllocateInfo* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo* wrapper);
+
 struct Decoded_VkSurfaceCapabilitiesKHR;
 struct Decoded_VkSurfaceFormatKHR;
 
@@ -484,10 +588,6 @@ struct Decoded_VkPhysicalDevicePushDescriptorPropertiesKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePushDescriptorPropertiesKHR* wrapper);
 
-struct Decoded_VkPhysicalDeviceShaderFloat16Int8FeaturesKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderFloat16Int8FeaturesKHR* wrapper);
-
 struct Decoded_VkRectLayerKHR;
 struct Decoded_VkPresentRegionKHR;
 struct Decoded_VkPresentRegionsKHR;
@@ -495,32 +595,6 @@ struct Decoded_VkPresentRegionsKHR;
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRectLayerKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPresentRegionKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPresentRegionsKHR* wrapper);
-
-struct Decoded_VkPhysicalDeviceImagelessFramebufferFeaturesKHR;
-struct Decoded_VkFramebufferAttachmentImageInfoKHR;
-struct Decoded_VkFramebufferAttachmentsCreateInfoKHR;
-struct Decoded_VkRenderPassAttachmentBeginInfoKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceImagelessFramebufferFeaturesKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkFramebufferAttachmentImageInfoKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkFramebufferAttachmentsCreateInfoKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderPassAttachmentBeginInfoKHR* wrapper);
-
-struct Decoded_VkAttachmentDescription2KHR;
-struct Decoded_VkAttachmentReference2KHR;
-struct Decoded_VkSubpassDescription2KHR;
-struct Decoded_VkSubpassDependency2KHR;
-struct Decoded_VkRenderPassCreateInfo2KHR;
-struct Decoded_VkSubpassBeginInfoKHR;
-struct Decoded_VkSubpassEndInfoKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAttachmentDescription2KHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAttachmentReference2KHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassDescription2KHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassDependency2KHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderPassCreateInfo2KHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassBeginInfoKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassEndInfoKHR* wrapper);
 
 struct Decoded_VkSharedPresentSurfaceCapabilitiesKHR;
 
@@ -539,6 +613,22 @@ struct Decoded_VkFenceGetFdInfoKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImportFenceFdInfoKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkFenceGetFdInfoKHR* wrapper);
+
+struct Decoded_VkPhysicalDevicePerformanceQueryFeaturesKHR;
+struct Decoded_VkPhysicalDevicePerformanceQueryPropertiesKHR;
+struct Decoded_VkPerformanceCounterKHR;
+struct Decoded_VkPerformanceCounterDescriptionKHR;
+struct Decoded_VkQueryPoolPerformanceCreateInfoKHR;
+struct Decoded_VkAcquireProfilingLockInfoKHR;
+struct Decoded_VkPerformanceQuerySubmitInfoKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePerformanceQueryFeaturesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePerformanceQueryPropertiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerformanceCounterKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerformanceCounterDescriptionKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkQueryPoolPerformanceCreateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAcquireProfilingLockInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerformanceQuerySubmitInfoKHR* wrapper);
 
 struct Decoded_VkPhysicalDeviceSurfaceInfo2KHR;
 struct Decoded_VkSurfaceCapabilities2KHR;
@@ -560,67 +650,13 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDisplayPlaneInfo2KHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDisplayPlaneCapabilities2KHR* wrapper);
 
-struct Decoded_VkImageFormatListCreateInfoKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImageFormatListCreateInfoKHR* wrapper);
-
-struct Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR* wrapper);
-
-struct Decoded_VkPhysicalDevice8BitStorageFeaturesKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevice8BitStorageFeaturesKHR* wrapper);
-
-struct Decoded_VkPhysicalDeviceShaderAtomicInt64FeaturesKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderAtomicInt64FeaturesKHR* wrapper);
-
 struct Decoded_VkPhysicalDeviceShaderClockFeaturesKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceShaderClockFeaturesKHR* wrapper);
 
-struct Decoded_VkConformanceVersionKHR;
-struct Decoded_VkPhysicalDeviceDriverPropertiesKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkConformanceVersionKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDriverPropertiesKHR* wrapper);
-
-struct Decoded_VkPhysicalDeviceFloatControlsPropertiesKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceFloatControlsPropertiesKHR* wrapper);
-
-struct Decoded_VkSubpassDescriptionDepthStencilResolveKHR;
-struct Decoded_VkPhysicalDeviceDepthStencilResolvePropertiesKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSubpassDescriptionDepthStencilResolveKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDepthStencilResolvePropertiesKHR* wrapper);
-
-struct Decoded_VkPhysicalDeviceTimelineSemaphoreFeaturesKHR;
-struct Decoded_VkPhysicalDeviceTimelineSemaphorePropertiesKHR;
-struct Decoded_VkSemaphoreTypeCreateInfoKHR;
-struct Decoded_VkTimelineSemaphoreSubmitInfoKHR;
-struct Decoded_VkSemaphoreWaitInfoKHR;
-struct Decoded_VkSemaphoreSignalInfoKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceTimelineSemaphoreFeaturesKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceTimelineSemaphorePropertiesKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreTypeCreateInfoKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkTimelineSemaphoreSubmitInfoKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreWaitInfoKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSemaphoreSignalInfoKHR* wrapper);
-
-struct Decoded_VkPhysicalDeviceVulkanMemoryModelFeaturesKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceVulkanMemoryModelFeaturesKHR* wrapper);
-
 struct Decoded_VkSurfaceProtectedCapabilitiesKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSurfaceProtectedCapabilitiesKHR* wrapper);
-
-struct Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR* wrapper);
 
 struct Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR;
 struct Decoded_VkPipelineInfoKHR;
@@ -862,12 +898,6 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkExternalFormatANDROID* wrapper);
 
-struct Decoded_VkSamplerReductionModeCreateInfoEXT;
-struct Decoded_VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSamplerReductionModeCreateInfoEXT* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT* wrapper);
-
 struct Decoded_VkPhysicalDeviceInlineUniformBlockFeaturesEXT;
 struct Decoded_VkPhysicalDeviceInlineUniformBlockPropertiesEXT;
 struct Decoded_VkWriteDescriptorSetInlineUniformBlockEXT;
@@ -937,18 +967,6 @@ struct Decoded_VkShaderModuleValidationCacheCreateInfoEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkValidationCacheCreateInfoEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkShaderModuleValidationCacheCreateInfoEXT* wrapper);
-
-struct Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfoEXT;
-struct Decoded_VkPhysicalDeviceDescriptorIndexingFeaturesEXT;
-struct Decoded_VkPhysicalDeviceDescriptorIndexingPropertiesEXT;
-struct Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfoEXT;
-struct Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupportEXT;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfoEXT* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDescriptorIndexingFeaturesEXT* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDescriptorIndexingPropertiesEXT* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfoEXT* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupportEXT* wrapper);
 
 struct Decoded_VkShadingRatePaletteNV;
 struct Decoded_VkPipelineViewportShadingRateImageStateCreateInfoNV;
@@ -1128,10 +1146,6 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceFragmentDensityMapPropertiesEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderPassFragmentDensityMapCreateInfoEXT* wrapper);
 
-struct Decoded_VkPhysicalDeviceScalarBlockLayoutFeaturesEXT;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceScalarBlockLayoutFeaturesEXT* wrapper);
-
 struct Decoded_VkPhysicalDeviceSubgroupSizeControlFeaturesEXT;
 struct Decoded_VkPhysicalDeviceSubgroupSizeControlPropertiesEXT;
 struct Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT;
@@ -1163,16 +1177,14 @@ struct Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV;
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV* wrapper);
 
 struct Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT;
-struct Decoded_VkBufferDeviceAddressInfoEXT;
 struct Decoded_VkBufferDeviceAddressCreateInfoEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBufferDeviceAddressInfoEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBufferDeviceAddressCreateInfoEXT* wrapper);
 
-struct Decoded_VkImageStencilUsageCreateInfoEXT;
+struct Decoded_VkPhysicalDeviceToolPropertiesEXT;
 
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImageStencilUsageCreateInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceToolPropertiesEXT* wrapper);
 
 struct Decoded_VkValidationFeaturesEXT;
 
@@ -1222,10 +1234,6 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceLineRasterizationPropertiesEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineRasterizationLineStateCreateInfoEXT* wrapper);
 
-struct Decoded_VkPhysicalDeviceHostQueryResetFeaturesEXT;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceHostQueryResetFeaturesEXT* wrapper);
-
 struct Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesEXT* wrapper);
@@ -1239,6 +1247,12 @@ struct Decoded_VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT* wrapper);
+
+struct Decoded_VkRenderPassTransformBeginInfoQCOM;
+struct Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderPassTransformBeginInfoQCOM* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM* wrapper);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

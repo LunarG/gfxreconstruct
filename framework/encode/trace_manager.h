@@ -593,9 +593,9 @@ class TraceManager
         }
     }
 
-    void PostProcess_vkCmdBeginRenderPass2KHR(VkCommandBuffer              commandBuffer,
-                                              const VkRenderPassBeginInfo* pRenderPassBegin,
-                                              const VkSubpassBeginInfoKHR*)
+    void PostProcess_vkCmdBeginRenderPass2(VkCommandBuffer              commandBuffer,
+                                           const VkRenderPassBeginInfo* pRenderPassBegin,
+                                           const VkSubpassBeginInfoKHR*)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
@@ -613,7 +613,7 @@ class TraceManager
         }
     }
 
-    void PostProcess_vkCmdEndRenderPass2KHR(VkCommandBuffer commandBuffer, const VkSubpassEndInfoKHR*)
+    void PostProcess_vkCmdEndRenderPass2(VkCommandBuffer commandBuffer, const VkSubpassEndInfoKHR*)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
@@ -822,7 +822,7 @@ class TraceManager
         }
     }
 
-    void PostProcess_vkResetQueryPoolEXT(VkDevice, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount)
+    void PostProcess_vkResetQueryPool(VkDevice, VkQueryPool queryPool, uint32_t firstQuery, uint32_t queryCount)
     {
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {

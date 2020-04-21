@@ -47,7 +47,10 @@ static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentPar
 
         GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
         GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
-        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version 1.1.%u", VK_HEADER_VERSION);
+        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
+                               VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
+                               VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
+                               VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 
         return true;
     }

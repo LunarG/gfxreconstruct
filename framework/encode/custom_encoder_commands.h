@@ -325,12 +325,22 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdBeginRenderPass2(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
     {
-        manager->PostProcess_vkCmdBeginRenderPass2KHR(args...);
+        manager->PostProcess_vkCmdBeginRenderPass2(args...);
     }
 };
 
@@ -345,12 +355,22 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdEndRenderPass2(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
     {
-        manager->PostProcess_vkCmdEndRenderPass2KHR(args...);
+        manager->PostProcess_vkCmdEndRenderPass2(args...);
     }
 };
 
@@ -595,12 +615,22 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetQueryPool>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPool>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkResetQueryPool(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
     {
-        manager->PostProcess_vkResetQueryPoolEXT(args...);
+        manager->PostProcess_vkResetQueryPool(args...);
     }
 };
 
