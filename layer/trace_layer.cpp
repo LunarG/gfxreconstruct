@@ -15,12 +15,15 @@
 ** limitations under the License.
 */
 
+#include "project_version.h"
+
 #include "layer/trace_layer.h"
 
 #include "encode/trace_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
+#include "util/platform.h"
 
 #include "vulkan/vk_layer.h"
 
@@ -32,11 +35,8 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-static const VkLayerProperties LayerProps = {
-    "VK_LAYER_LUNARG_gfxreconstruct",
-    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),
-    1,
-    "GFXReconstruct Capture Layer",
+const VkLayerProperties kLayerProps = {
+    GFXRECON_PROJECT_LAYER_NAME, VK_HEADER_VERSION_COMPLETE, 1, GFXRECON_PROJECT_DESCRIPTION
 };
 
 const std::vector<VkExtensionProperties> kDeviceExtensionProps = { VkExtensionProperties{ "VK_EXT_tooling_info", 1 } };
@@ -236,7 +236,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 {
     VkResult result = VK_SUCCESS;
 
-    if ((pLayerName != nullptr) && (strcmp(pLayerName, LayerProps.layerName) == 0))
+    if ((pLayerName != nullptr) && (util::platform::StringCompare(pLayerName, kLayerProps.layerName) == 0))
     {
         if (pPropertyCount != nullptr)
         {
@@ -283,7 +283,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char* 
 {
     VkResult result = VK_SUCCESS;
 
-    if (pLayerName && (strcmp(pLayerName, LayerProps.layerName) == 0))
+    if (pLayerName && (util::platform::StringCompare(pLayerName, kLayerProps.layerName) == 0))
     {
         if (pPropertyCount != nullptr)
         {
@@ -314,7 +314,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t*       
     {
         if ((pPropertyCount != nullptr) && (*pPropertyCount >= 1))
         {
-            memcpy(pProperties, &LayerProps, sizeof(LayerProps));
+            util::platform::MemoryCopy(pProperties, sizeof(*pProperties), &kLayerProps, sizeof(kLayerProps));
             *pPropertyCount = 1;
         }
         else
