@@ -30,38 +30,42 @@ endif()
 file(STRINGS
         ${VulkanHeaders_main_header}
         VulkanHeaders_lines
-        REGEX "^#define (VK_API_VERSION.*VK_MAKE_VERSION|VK_HEADER_VERSION)")
+        REGEX "^#[ \t]*define[ \t]+(VK_HEADER_VERSION_COMPLETE[ \t]+VK_MAKE_VERSION\\(.*\\)|VK_HEADER_VERSION[ \t]+[0-9]+)$")
 
 foreach(VulkanHeaders_line ${VulkanHeaders_lines})
     # First, handle the case where we have a major/minor version
     #   Format is:
-    #        #define VK_API_VERSION_X_Y VK_MAKE_VERSION(X, Y, 0)
+    #        #define VK_HEADER_VERSION_COMPLETE VK_MAKE_VERSION(X, Y, VK_HEADER_VERSION)
     #   We grab the major version (X) and minor version (Y) out of the parentheses
-    string(REGEX MATCH "VK_MAKE_VERSION\\(.*\\)" VulkanHeaders_out ${VulkanHeaders_line})
-    string(REGEX MATCHALL "[0-9]+" VulkanHeaders_MAJOR_MINOR "${VulkanHeaders_out}")
+    string(REGEX MATCH "define[ \t]+VK_HEADER_VERSION_COMPLETE[ \t]+VK_MAKE_VERSION\\(.*\\)" VulkanHeaders_make_version ${VulkanHeaders_line})
+    string(REGEX MATCHALL "[0-9]+" VulkanHeaders_MAJOR_MINOR "${VulkanHeaders_make_version}")
     if (VulkanHeaders_MAJOR_MINOR)
-        list (GET VulkanHeaders_MAJOR_MINOR 0 VulkanHeaders_cur_major)
-        list (GET VulkanHeaders_MAJOR_MINOR 1 VulkanHeaders_cur_minor)
-        if (${VulkanHeaders_cur_major} GREATER ${VULKAN_VERSION_MAJOR})
-            set(VULKAN_VERSION_MAJOR ${VulkanHeaders_cur_major})
-            set(VULKAN_VERSION_MINOR ${VulkanHeaders_cur_minor})
-        endif()
-        if (${VulkanHeaders_cur_major} EQUAL ${VULKAN_VERSION_MAJOR} AND
-            ${VulkanHeaders_cur_minor} GREATER ${VULKAN_VERSION_MINOR})
-            set(VULKAN_VERSION_MINOR ${VulkanHeaders_cur_minor})
-        endif()
+        list (GET VulkanHeaders_MAJOR_MINOR 0 VULKAN_VERSION_MAJOR)
+        list (GET VulkanHeaders_MAJOR_MINOR 1 VULKAN_VERSION_MINOR)
     endif()
 
     # Second, handle the case where we have the patch version
     #   Format is:
     #      #define VK_HEADER_VERSION Z
     #   Where Z is the patch version which we just grab off the end
-    string(REGEX MATCH "define.*VK_HEADER_VERSION.*[0-9]+" VulkanHeaders_out ${VulkanHeaders_line})
-    list(LENGTH VulkanHeaders_out VulkanHeaders_len)
-    if (VulkanHeaders_len)
-        string(REGEX MATCH "[0-9]+" VULKAN_VERSION_PATCH "${VulkanHeaders_out}")
+    string(REGEX MATCH "define[ \t]+VK_HEADER_VERSION[ \t]+[0-9]+" VulkanHeaders_header_version ${VulkanHeaders_line})
+    list(LENGTH VulkanHeaders_header_version VulkanHeaders_len)
+    if (VulkanHeaders_header_version)
+        string(REGEX MATCH "[0-9]+" VULKAN_VERSION_PATCH "${VulkanHeaders_header_version}")
     endif()
 endforeach()
+
+if (VULKAN_VERSION_MAJOR STREQUAL "")
+        message(FATAL_ERROR "Failed to find major version in " ${VulkanHeaders_main_header})
+endif()
+
+if (VULKAN_VERSION_MINOR STREQUAL "")
+        message(FATAL_ERROR "Failed to find minor version in " ${VulkanHeaders_main_header})
+endif()
+
+if (VULKAN_VERSION_PATCH STREQUAL "")
+        message(FATAL_ERROR "Failed to find patch version in " ${VulkanHeaders_main_header})
+endif()
 
 MESSAGE(STATUS
         "Detected Vulkan Version ${VULKAN_VERSION_MAJOR}."

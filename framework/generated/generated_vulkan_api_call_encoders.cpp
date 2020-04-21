@@ -4584,6 +4584,371 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupport(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDescriptorSetLayoutSupport>::Dispatch(TraceManager::Get(), device, pCreateInfo, pSupport);
 }
 
+VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCount(
+    VkCommandBuffer                             commandBuffer,
+    VkBuffer                                    buffer,
+    VkDeviceSize                                offset,
+    VkBuffer                                    countBuffer,
+    VkDeviceSize                                countBufferOffset,
+    uint32_t                                    maxDrawCount,
+    uint32_t                                    stride)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCount>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndirectCount);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeVkDeviceSizeValue(offset);
+        encoder->EncodeHandleValue(countBuffer);
+        encoder->EncodeVkDeviceSizeValue(countBufferOffset);
+        encoder->EncodeUInt32Value(maxDrawCount);
+        encoder->EncodeUInt32Value(stride);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndirectCountHandles, buffer, countBuffer);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    VkBuffer buffer_unwrapped = GetWrappedHandle<VkBuffer>(buffer);
+    VkBuffer countBuffer_unwrapped = GetWrappedHandle<VkBuffer>(countBuffer);
+
+    GetDeviceTable(commandBuffer)->CmdDrawIndirectCount(commandBuffer_unwrapped, buffer_unwrapped, offset, countBuffer_unwrapped, countBufferOffset, maxDrawCount, stride);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndirectCount>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCount(
+    VkCommandBuffer                             commandBuffer,
+    VkBuffer                                    buffer,
+    VkDeviceSize                                offset,
+    VkBuffer                                    countBuffer,
+    VkDeviceSize                                countBufferOffset,
+    uint32_t                                    maxDrawCount,
+    uint32_t                                    stride)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        encoder->EncodeHandleValue(buffer);
+        encoder->EncodeVkDeviceSizeValue(offset);
+        encoder->EncodeHandleValue(countBuffer);
+        encoder->EncodeVkDeviceSizeValue(countBufferOffset);
+        encoder->EncodeUInt32Value(maxDrawCount);
+        encoder->EncodeUInt32Value(stride);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdDrawIndexedIndirectCountHandles, buffer, countBuffer);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    VkBuffer buffer_unwrapped = GetWrappedHandle<VkBuffer>(buffer);
+    VkBuffer countBuffer_unwrapped = GetWrappedHandle<VkBuffer>(countBuffer);
+
+    GetDeviceTable(commandBuffer)->CmdDrawIndexedIndirectCount(commandBuffer_unwrapped, buffer_unwrapped, offset, countBuffer_unwrapped, countBufferOffset, maxDrawCount, stride);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDrawIndexedIndirectCount>::Dispatch(TraceManager::Get(), commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2(
+    VkDevice                                    device,
+    const VkRenderPassCreateInfo2*              pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkRenderPass*                               pRenderPass)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateRenderPass2>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pRenderPass);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+
+    VkResult result = GetDeviceTable(device)->CreateRenderPass2(device_unwrapped, pCreateInfo, pAllocator, pRenderPass);
+
+    if (result >= 0)
+    {
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, RenderPassWrapper>(device, NoParentWrapper::kHandleValue, pRenderPass, TraceManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreateRenderPass2);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pCreateInfo);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeHandlePtr(pRenderPass, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndCreateApiCallTrace<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2>(result, device, pRenderPass, pCreateInfo, encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass2>::Dispatch(TraceManager::Get(), result, device, pCreateInfo, pAllocator, pRenderPass);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2(
+    VkCommandBuffer                             commandBuffer,
+    const VkRenderPassBeginInfo*                pRenderPassBegin,
+    const VkSubpassBeginInfo*                   pSubpassBeginInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2>::Dispatch(TraceManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBeginRenderPass2);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pRenderPassBegin);
+        EncodeStructPtr(encoder, pSubpassBeginInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBeginRenderPass2Handles, pRenderPassBegin);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkRenderPassBeginInfo* pRenderPassBegin_unwrapped = UnwrapStructPtrHandles(pRenderPassBegin, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdBeginRenderPass2(commandBuffer_unwrapped, pRenderPassBegin_unwrapped, pSubpassBeginInfo);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2>::Dispatch(TraceManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2(
+    VkCommandBuffer                             commandBuffer,
+    const VkSubpassBeginInfo*                   pSubpassBeginInfo,
+    const VkSubpassEndInfo*                     pSubpassEndInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdNextSubpass2);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pSubpassBeginInfo);
+        EncodeStructPtr(encoder, pSubpassEndInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+
+    GetDeviceTable(commandBuffer)->CmdNextSubpass2(commandBuffer_unwrapped, pSubpassBeginInfo, pSubpassEndInfo);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2(
+    VkCommandBuffer                             commandBuffer,
+    const VkSubpassEndInfo*                     pSubpassEndInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassEndInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdEndRenderPass2);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pSubpassEndInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder);
+    }
+
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+
+    GetDeviceTable(commandBuffer)->CmdEndRenderPass2(commandBuffer_unwrapped, pSubpassEndInfo);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassEndInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL ResetQueryPool(
+    VkDevice                                    device,
+    VkQueryPool                                 queryPool,
+    uint32_t                                    firstQuery,
+    uint32_t                                    queryCount)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkResetQueryPool>::Dispatch(TraceManager::Get(), device, queryPool, firstQuery, queryCount);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkResetQueryPool);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(queryPool);
+        encoder->EncodeUInt32Value(firstQuery);
+        encoder->EncodeUInt32Value(queryCount);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkQueryPool queryPool_unwrapped = GetWrappedHandle<VkQueryPool>(queryPool);
+
+    GetDeviceTable(device)->ResetQueryPool(device_unwrapped, queryPool_unwrapped, firstQuery, queryCount);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPool>::Dispatch(TraceManager::Get(), device, queryPool, firstQuery, queryCount);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValue(
+    VkDevice                                    device,
+    VkSemaphore                                 semaphore,
+    uint64_t*                                   pValue)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue>::Dispatch(TraceManager::Get(), device, semaphore, pValue);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkSemaphore semaphore_unwrapped = GetWrappedHandle<VkSemaphore>(semaphore);
+
+    VkResult result = GetDeviceTable(device)->GetSemaphoreCounterValue(device_unwrapped, semaphore_unwrapped, pValue);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(semaphore);
+        encoder->EncodeUInt64Ptr(pValue, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetSemaphoreCounterValue>::Dispatch(TraceManager::Get(), result, device, semaphore, pValue);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphores(
+    VkDevice                                    device,
+    const VkSemaphoreWaitInfo*                  pWaitInfo,
+    uint64_t                                    timeout)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitSemaphores>::Dispatch(TraceManager::Get(), device, pWaitInfo, timeout);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkSemaphoreWaitInfo* pWaitInfo_unwrapped = UnwrapStructPtrHandles(pWaitInfo, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->WaitSemaphores(device_unwrapped, pWaitInfo_unwrapped, timeout);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkWaitSemaphores);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pWaitInfo);
+        encoder->EncodeUInt64Value(timeout);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkWaitSemaphores>::Dispatch(TraceManager::Get(), result, device, pWaitInfo, timeout);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphore(
+    VkDevice                                    device,
+    const VkSemaphoreSignalInfo*                pSignalInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSignalSemaphore>::Dispatch(TraceManager::Get(), device, pSignalInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkSemaphoreSignalInfo* pSignalInfo_unwrapped = UnwrapStructPtrHandles(pSignalInfo, handle_unwrap_memory);
+
+    VkResult result = GetDeviceTable(device)->SignalSemaphore(device_unwrapped, pSignalInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSignalSemaphore);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pSignalInfo);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSignalSemaphore>::Dispatch(TraceManager::Get(), result, device, pSignalInfo);
+
+    return result;
+}
+
+VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddress(
+    VkDevice                                    device,
+    const VkBufferDeviceAddressInfo*            pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkBufferDeviceAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    VkDeviceAddress result = GetDeviceTable(device)->GetBufferDeviceAddress(device_unwrapped, pInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferDeviceAddress);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeVkDeviceAddressValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
+VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddress(
+    VkDevice                                    device,
+    const VkBufferDeviceAddressInfo*            pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkBufferDeviceAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    uint64_t result = GetDeviceTable(device)->GetBufferOpaqueCaptureAddress(device_unwrapped, pInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeUInt64Value(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddress>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
+VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddress(
+    VkDevice                                    device,
+    const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    uint64_t result = GetDeviceTable(device)->GetDeviceMemoryOpaqueCaptureAddress(device_unwrapped, pInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeUInt64Value(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddress>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
 VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(
     VkInstance                                  instance,
     VkSurfaceKHR                                surface,
@@ -6378,7 +6743,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
     VkDevice                                    device,
-    const VkRenderPassCreateInfo2KHR*           pCreateInfo,
+    const VkRenderPassCreateInfo2*              pCreateInfo,
     const VkAllocationCallbacks*                pAllocator,
     VkRenderPass*                               pRenderPass)
 {
@@ -6407,7 +6772,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
         EncodeStructPtr(encoder, pAllocator);
         encoder->EncodeHandlePtr(pRenderPass, omit_output_data);
         encoder->EncodeEnumValue(result);
-        TraceManager::Get()->EndCreateApiCallTrace<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2KHR>(result, device, pRenderPass, pCreateInfo, encoder);
+        TraceManager::Get()->EndCreateApiCallTrace<VkDevice, RenderPassWrapper, VkRenderPassCreateInfo2>(result, device, pRenderPass, pCreateInfo, encoder);
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateRenderPass2KHR>::Dispatch(TraceManager::Get(), result, device, pCreateInfo, pAllocator, pRenderPass);
@@ -6418,7 +6783,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
 VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkRenderPassBeginInfo*                pRenderPassBegin,
-    const VkSubpassBeginInfoKHR*                pSubpassBeginInfo)
+    const VkSubpassBeginInfo*                   pSubpassBeginInfo)
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pRenderPassBegin, pSubpassBeginInfo);
 
@@ -6442,8 +6807,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(
 
 VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(
     VkCommandBuffer                             commandBuffer,
-    const VkSubpassBeginInfoKHR*                pSubpassBeginInfo,
-    const VkSubpassEndInfoKHR*                  pSubpassEndInfo)
+    const VkSubpassBeginInfo*                   pSubpassBeginInfo,
+    const VkSubpassEndInfo*                     pSubpassEndInfo)
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdNextSubpass2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassBeginInfo, pSubpassEndInfo);
 
@@ -6465,7 +6830,7 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(
 
 VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2KHR(
     VkCommandBuffer                             commandBuffer,
-    const VkSubpassEndInfoKHR*                  pSubpassEndInfo)
+    const VkSubpassEndInfo*                     pSubpassEndInfo)
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pSubpassEndInfo);
 
@@ -6650,6 +7015,108 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetFenceFdKHR>::Dispatch(TraceManager::Get(), result, device, pGetFdInfo, pFd);
 
     return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t                                    queueFamilyIndex,
+    uint32_t*                                   pCounterCount,
+    VkPerformanceCounterKHR*                    pCounters,
+    VkPerformanceCounterDescriptionKHR*         pCounterDescriptions)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR>::Dispatch(TraceManager::Get(), physicalDevice, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions);
+
+    VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
+
+    VkResult result = GetInstanceTable(physicalDevice)->EnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(physicalDevice_unwrapped, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeUInt32Value(queueFamilyIndex);
+        encoder->EncodeUInt32Ptr(pCounterCount, omit_output_data);
+        EncodeStructArray(encoder, pCounters, (pCounterCount != nullptr) ? (*pCounterCount) : 0, omit_output_data);
+        EncodeStructArray(encoder, pCounterDescriptions, (pCounterCount != nullptr) ? (*pCounterCount) : 0, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR>::Dispatch(TraceManager::Get(), result, physicalDevice, queueFamilyIndex, pCounterCount, pCounters, pCounterDescriptions);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(
+    VkPhysicalDevice                            physicalDevice,
+    const VkQueryPoolPerformanceCreateInfoKHR*  pPerformanceQueryCreateInfo,
+    uint32_t*                                   pNumPasses)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pPerformanceQueryCreateInfo, pNumPasses);
+
+    VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
+
+    GetInstanceTable(physicalDevice)->GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(physicalDevice_unwrapped, pPerformanceQueryCreateInfo, pNumPasses);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(physicalDevice);
+        EncodeStructPtr(encoder, pPerformanceQueryCreateInfo);
+        encoder->EncodeUInt32Ptr(pNumPasses);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR>::Dispatch(TraceManager::Get(), physicalDevice, pPerformanceQueryCreateInfo, pNumPasses);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL AcquireProfilingLockKHR(
+    VkDevice                                    device,
+    const VkAcquireProfilingLockInfoKHR*        pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+
+    VkResult result = GetDeviceTable(device)->AcquireProfilingLockKHR(device_unwrapped, pInfo);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkAcquireProfilingLockKHR>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL ReleaseProfilingLockKHR(
+    VkDevice                                    device)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR>::Dispatch(TraceManager::Get(), device);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+
+    GetDeviceTable(device)->ReleaseProfilingLockKHR(device_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkReleaseProfilingLockKHR>::Dispatch(TraceManager::Get(), device);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(
@@ -7194,14 +7661,14 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(
 
 VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(
     VkDevice                                    device,
-    const VkSemaphoreWaitInfoKHR*               pWaitInfo,
+    const VkSemaphoreWaitInfo*                  pWaitInfo,
     uint64_t                                    timeout)
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkWaitSemaphoresKHR>::Dispatch(TraceManager::Get(), device, pWaitInfo, timeout);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    const VkSemaphoreWaitInfoKHR* pWaitInfo_unwrapped = UnwrapStructPtrHandles(pWaitInfo, handle_unwrap_memory);
+    const VkSemaphoreWaitInfo* pWaitInfo_unwrapped = UnwrapStructPtrHandles(pWaitInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->WaitSemaphoresKHR(device_unwrapped, pWaitInfo_unwrapped, timeout);
 
@@ -7222,13 +7689,13 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(
 
 VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(
     VkDevice                                    device,
-    const VkSemaphoreSignalInfoKHR*             pSignalInfo)
+    const VkSemaphoreSignalInfo*                pSignalInfo)
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSignalSemaphoreKHR>::Dispatch(TraceManager::Get(), device, pSignalInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    const VkSemaphoreSignalInfoKHR* pSignalInfo_unwrapped = UnwrapStructPtrHandles(pSignalInfo, handle_unwrap_memory);
+    const VkSemaphoreSignalInfo* pSignalInfo_unwrapped = UnwrapStructPtrHandles(pSignalInfo, handle_unwrap_memory);
 
     VkResult result = GetDeviceTable(device)->SignalSemaphoreKHR(device_unwrapped, pSignalInfo_unwrapped);
 
@@ -7242,6 +7709,84 @@ VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSignalSemaphoreKHR>::Dispatch(TraceManager::Get(), result, device, pSignalInfo);
+
+    return result;
+}
+
+VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(
+    VkDevice                                    device,
+    const VkBufferDeviceAddressInfo*            pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkBufferDeviceAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    VkDeviceAddress result = GetDeviceTable(device)->GetBufferDeviceAddressKHR(device_unwrapped, pInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeVkDeviceAddressValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
+VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddressKHR(
+    VkDevice                                    device,
+    const VkBufferDeviceAddressInfo*            pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkBufferDeviceAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    uint64_t result = GetDeviceTable(device)->GetBufferOpaqueCaptureAddressKHR(device_unwrapped, pInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeUInt64Value(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferOpaqueCaptureAddressKHR>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
+VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddressKHR(
+    VkDevice                                    device,
+    const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR>::Dispatch(TraceManager::Get(), device, pInfo);
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    uint64_t result = GetDeviceTable(device)->GetDeviceMemoryOpaqueCaptureAddressKHR(device_unwrapped, pInfo_unwrapped);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pInfo);
+        encoder->EncodeUInt64Value(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetDeviceMemoryOpaqueCaptureAddressKHR>::Dispatch(TraceManager::Get(), result, device, pInfo);
 
     return result;
 }
@@ -10433,13 +10978,13 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(
 
 VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(
     VkDevice                                    device,
-    const VkBufferDeviceAddressInfoEXT*         pInfo)
+    const VkBufferDeviceAddressInfo*            pInfo)
 {
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>::Dispatch(TraceManager::Get(), device, pInfo);
 
     auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
     VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
-    const VkBufferDeviceAddressInfoEXT* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+    const VkBufferDeviceAddressInfo* pInfo_unwrapped = UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
 
     VkDeviceAddress result = GetDeviceTable(device)->GetBufferDeviceAddressEXT(device_unwrapped, pInfo_unwrapped);
 
@@ -10453,6 +10998,38 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>::Dispatch(TraceManager::Get(), result, device, pInfo);
+
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t*                                   pToolCount,
+    VkPhysicalDeviceToolPropertiesEXT*          pToolProperties)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT>::Dispatch(TraceManager::Get(), physicalDevice, pToolCount, pToolProperties);
+
+    VkPhysicalDevice physicalDevice_unwrapped = GetWrappedHandle<VkPhysicalDevice>(physicalDevice);
+
+    VkResult result = GetInstanceTable(physicalDevice)->GetPhysicalDeviceToolPropertiesEXT(physicalDevice_unwrapped, pToolCount, pToolProperties);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(physicalDevice);
+        encoder->EncodeUInt32Ptr(pToolCount, omit_output_data);
+        EncodeStructArray(encoder, pToolProperties, (pToolCount != nullptr) ? (*pToolCount) : 0, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceToolPropertiesEXT>::Dispatch(TraceManager::Get(), result, physicalDevice, pToolCount, pToolProperties);
 
     return result;
 }

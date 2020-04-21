@@ -358,6 +358,32 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetDescriptorSetLayoutSupport(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdDrawIndirectCount(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdDrawIndexedIndirectCount(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreateRenderPass2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBeginRenderPass2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdNextSubpass2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdEndRenderPass2(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkResetQueryPool(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetSemaphoreCounterValue(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkWaitSemaphores(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkSignalSemaphore(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetBufferDeviceAddress(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetBufferOpaqueCaptureAddress(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDeviceMemoryOpaqueCaptureAddress(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkDestroySurfaceKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceSurfaceSupportKHR(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -490,6 +516,14 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetFenceFdKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkAcquireProfilingLockKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkReleaseProfilingLockKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetPhysicalDeviceSurfaceCapabilities2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceSurfaceFormats2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -527,6 +561,12 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkWaitSemaphoresKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkSignalSemaphoreKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetBufferDeviceAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetBufferOpaqueCaptureAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetDeviceMemoryOpaqueCaptureAddressKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPipelineExecutablePropertiesKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -743,6 +783,8 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkCreateMetalSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetBufferDeviceAddressEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceToolPropertiesEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
