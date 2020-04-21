@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
@@ -37,6 +38,8 @@ static const VkLayerProperties LayerProps = {
     1,
     "GFXReconstruct Capture Layer",
 };
+
+const std::vector<VkExtensionProperties> kDeviceExtensionProps = { VkExtensionProperties{ "VK_EXT_tooling_info", 1 } };
 
 static const VkLayerInstanceCreateInfo* get_instance_chain_info(const VkInstanceCreateInfo* pCreateInfo,
                                                                 VkLayerFunction             func)
@@ -233,12 +236,33 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 {
     VkResult result = VK_SUCCESS;
 
-    // This layer has no properties to export.
     if ((pLayerName != nullptr) && (strcmp(pLayerName, LayerProps.layerName) == 0))
     {
         if (pPropertyCount != nullptr)
         {
-            *pPropertyCount = 0;
+            uint32_t extension_count = static_cast<uint32_t>(kDeviceExtensionProps.size());
+
+            if (pProperties == nullptr)
+            {
+                *pPropertyCount = extension_count;
+            }
+            else
+            {
+                if ((*pPropertyCount) < extension_count)
+                {
+                    result          = VK_INCOMPLETE;
+                    extension_count = *pPropertyCount;
+                }
+                else if ((*pPropertyCount) > extension_count)
+                {
+                    *pPropertyCount = extension_count;
+                }
+
+                for (uint32_t i = 0; i < extension_count; ++i)
+                {
+                    pProperties[i] = kDeviceExtensionProps[i];
+                }
+            }
         }
     }
     else

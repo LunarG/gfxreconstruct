@@ -44,6 +44,7 @@ endif()
 
 target_include_directories(gfxrecon_encode
                            PUBLIC
+                               ${CMAKE_BINARY_DIR}
                                ${CMAKE_SOURCE_DIR}/framework)
 
 target_link_libraries(gfxrecon_encode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
