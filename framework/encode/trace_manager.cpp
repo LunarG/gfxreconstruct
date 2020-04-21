@@ -16,6 +16,8 @@
 ** limitations under the License.
 */
 
+#include "project_version.h"
+
 #include "encode/trace_manager.h"
 
 #include "encode/vulkan_handle_wrapper_util.h"
@@ -1256,6 +1258,60 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
 
         size_t external_memory_size = manager->GetAlignedSize(static_cast<size_t>(pAllocateInfo->allocationSize));
         manager->FreeMemory(external_memory, external_memory_size);
+    }
+
+    return result;
+}
+
+VkResult TraceManager::OverrideGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice                   physicalDevice,
+                                                                  uint32_t*                          pToolCount,
+                                                                  VkPhysicalDeviceToolPropertiesEXT* pToolProperties)
+{
+    auto original_pToolProperties = pToolProperties;
+    if (pToolProperties != nullptr)
+    {
+        pToolProperties->sType    = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT;
+        pToolProperties->pNext    = nullptr;
+        pToolProperties->purposes = VK_TOOL_PURPOSE_TRACING_BIT_EXT;
+
+        util::platform::StringCopy(pToolProperties->name,
+                                   VK_MAX_EXTENSION_NAME_SIZE,
+                                   GFXRECON_PROJECT_NAME,
+                                   util::platform::StringLength(GFXRECON_PROJECT_NAME));
+
+        util::platform::StringCopy(pToolProperties->version,
+                                   VK_MAX_EXTENSION_NAME_SIZE,
+                                   GFXRECON_PROJECT_VERSION_STRING,
+                                   util::platform::StringLength(GFXRECON_PROJECT_VERSION_STRING));
+
+        util::platform::StringCopy(pToolProperties->description,
+                                   VK_MAX_DESCRIPTION_SIZE,
+                                   GFXRECON_PROJECT_DESCRIPTION,
+                                   util::platform::StringLength(GFXRECON_PROJECT_DESCRIPTION));
+
+        util::platform::StringCopy(pToolProperties->layer,
+                                   VK_MAX_EXTENSION_NAME_SIZE,
+                                   GFXRECON_PROJECT_LAYER_NAME,
+                                   util::platform::StringLength(GFXRECON_PROJECT_LAYER_NAME));
+
+        if (pToolCount != nullptr)
+        {
+            pToolProperties = ((*pToolCount > 1) ? &pToolProperties[1] : nullptr);
+            --(*pToolCount);
+        }
+    }
+
+    VkResult result = GetInstanceTable(physicalDevice)
+                          ->GetPhysicalDeviceToolPropertiesEXT(physicalDevice, pToolCount, pToolProperties);
+
+    if (original_pToolProperties != nullptr)
+    {
+        pToolProperties = original_pToolProperties;
+    }
+
+    if (pToolCount != nullptr)
+    {
+        ++(*pToolCount);
     }
 
     return result;

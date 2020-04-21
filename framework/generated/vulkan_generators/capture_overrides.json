@@ -2,6 +2,7 @@
   "functions": {
     "vkCreateInstance": "TraceManager::OverrideCreateInstance",
     "vkCreateDevice": "TraceManager::Get()->OverrideCreateDevice",
-    "vkAllocateMemory": "TraceManager::Get()->OverrideAllocateMemory"
+    "vkAllocateMemory": "TraceManager::Get()->OverrideAllocateMemory",
+    "vkGetPhysicalDeviceToolPropertiesEXT": "TraceManager::Get()->OverrideGetPhysicalDeviceToolPropertiesEXT"
   }
 }
