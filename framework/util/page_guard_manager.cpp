@@ -330,18 +330,34 @@ void PageGuardManager::AddExceptionHandler()
             exception_handler_count_ = 1;
         }
 #else
-        struct sigaction sa;
-        sa.sa_flags = SA_SIGINFO;
-        sigemptyset(&sa.sa_mask);
-        sa.sa_sigaction = PageGuardExceptionHandler;
-        if (sigaction(SIGSEGV, &sa, &s_old_sigaction) == -1)
+        // Retrieve the current SIGSEGV handler info before replacing the current signal handler to determine if our
+        // replacement signal handler should use an alternate signal stack.
+        int result = sigaction(SIGSEGV, nullptr, &s_old_sigaction);
+
+        if (result != -1)
         {
-            GFXRECON_LOG_ERROR("PageGuardManager failed to register exception handler (errno = %d)", errno);
+            struct sigaction sa = {};
+
+            sa.sa_flags = SA_SIGINFO;
+            sigemptyset(&sa.sa_mask);
+            sa.sa_sigaction = PageGuardExceptionHandler;
+
+            if ((s_old_sigaction.sa_flags & SA_ONSTACK) == SA_ONSTACK)
+            {
+                sa.sa_flags |= SA_ONSTACK;
+            }
+
+            result = sigaction(SIGSEGV, &sa, nullptr);
         }
-        else
+
+        if (result != -1)
         {
             exception_handler_       = reinterpret_cast<void*>(PageGuardExceptionHandler);
             exception_handler_count_ = 1;
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("PageGuardManager failed to register exception handler (errno = %d)", errno);
         }
 #endif
     }
