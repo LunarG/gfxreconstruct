@@ -48,13 +48,6 @@ ALL_TESTS = collections.OrderedDict({
     'VkLayer_gfxreconstruct_test': [],
 })
 
-
-class TestError(Exception):
-    '''
-    Raised on a test error
-    '''
-
-
 def import_build_script():
     '''
     Import the build script - reuse build script constants
@@ -117,12 +110,12 @@ def run_test(test_exe, test_args):
     try:
         test_result = subprocess.run(run_test_args, cwd=run_test_work_dir)
         if 0 != test_result.returncode:
-            raise TestError('Running test', ' '.join(
+            raise Exception('Running test', ' '.join(
                 run_test_args), 'failed', ', working_dir:', run_test_work_dir)
-    except Exception:
-        raise TestError('Failed to run test', test_exe, ' '.join(
-            test_args), ', working_dir:', run_test_work_dir)
-
+    except Exception as error:
+        print('Failed to run test', test_exe, ' '.join(
+            test_args), ', working_dir:', run_test_work_dir, ', error:', *(error.args))
+        sys.exit(1)
 
 # Main entry point
 if '__main__' == __name__:
@@ -147,3 +140,4 @@ if '__main__' == __name__:
         tests = [(args.test_exe, args.test_args)]
     for test_exe, test_args in tests:
         run_test(test_exe, test_args)
+    sys.exit(0)
