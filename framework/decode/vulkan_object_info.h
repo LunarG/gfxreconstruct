@@ -172,10 +172,23 @@ struct InstanceInfo : public VulkanObjectInfo<VkInstance>
 
 struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 {
-    VkInstance                           parent{ VK_NULL_HANDLE };
-    uint32_t                             parent_api_version{ 0 };
-    VkPhysicalDeviceMemoryProperties     capture_memory_properties{};
-    VkPhysicalDeviceMemoryProperties     replay_memory_properties{};
+    VkInstance parent{ VK_NULL_HANDLE };
+    uint32_t   parent_api_version{ 0 };
+
+    // Capture device properties.
+    uint32_t    capture_api_version;
+    uint32_t    capture_driver_version;
+    uint32_t    capture_vendor_id;
+    uint32_t    capture_device_id;
+    uint32_t    capture_device_type;
+    uint8_t     capture_pipeline_cache_uuid[16];
+    std::string capture_device_name;
+
+    VkPhysicalDeviceProperties replay_properties{};
+
+    VkPhysicalDeviceMemoryProperties capture_memory_properties{};
+    VkPhysicalDeviceMemoryProperties replay_memory_properties{};
+
     std::unordered_map<uint32_t, size_t> array_counts;
 };
 

@@ -186,8 +186,7 @@ void VulkanStateWriter::WritePhysicalDeviceState(const VulkanStateTable& state_t
             processed.insert(wrapper->create_parameters.get());
         }
 
-        // Write the meta-data command to set physical device memory properties.
-        WriteSetDeviceMemoryPropertiesCommand(wrapper->handle_id, wrapper->memory_properties);
+        WritePhysicalDevicePropertiesMetaData(wrapper);
 
         // Write the call to retrieve queue family properties, if the call was previously made by the application.
         if (wrapper->queue_family_properties_call_id != format::ApiCallId::ApiCall_Unknown)
@@ -1782,6 +1781,23 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
     });
 }
 
+void VulkanStateWriter::WritePhysicalDevicePropertiesMetaData(const PhysicalDeviceWrapper* physical_device_wrapper)
+{
+    // Write the meta-data commands to set physical device properties.
+    const InstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
+    assert(instance_table != nullptr);
+
+    format::HandleId           physical_device_id     = physical_device_wrapper->handle_id;
+    VkPhysicalDevice           physical_device_handle = physical_device_wrapper->handle;
+    uint32_t                   count                  = 0;
+    VkPhysicalDeviceProperties properties;
+
+    instance_table->GetPhysicalDeviceProperties(physical_device_handle, &properties);
+
+    WriteSetDevicePropertiesCommand(physical_device_id, properties);
+    WriteSetDeviceMemoryPropertiesCommand(physical_device_id, physical_device_wrapper->memory_properties);
+}
+
 template <typename T>
 void VulkanStateWriter::WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiCallId call_id,
                                                                     format::HandleId  physical_device_id,
@@ -2449,6 +2465,32 @@ void VulkanStateWriter::WriteCreateHardwareBufferCmd(format::HandleId memory_id,
     GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
     GFXRECON_UNREFERENCED_PARAMETER(plane_info);
 #endif
+}
+
+void VulkanStateWriter::WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
+                                                        const VkPhysicalDeviceProperties& properties)
+{
+    format::SetDevicePropertiesCommand properties_cmd;
+
+    uint32_t device_name_len = static_cast<uint32_t>(util::platform::StringLength(properties.deviceName));
+
+    properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    properties_cmd.meta_header.block_header.size =
+        (sizeof(properties_cmd) - sizeof(properties_cmd.meta_header.block_header)) + device_name_len;
+    properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDevicePropertiesCommand;
+    properties_cmd.thread_id                  = thread_id_;
+    properties_cmd.physical_device_id         = physical_device_id;
+    properties_cmd.api_version                = properties.apiVersion;
+    properties_cmd.driver_version             = properties.driverVersion;
+    properties_cmd.vendor_id                  = properties.vendorID;
+    properties_cmd.device_id                  = properties.deviceID;
+    properties_cmd.device_type                = properties.deviceType;
+    util::platform::MemoryCopy(
+        properties_cmd.pipeline_cache_uuid, format::kUuidSize, properties.pipelineCacheUUID, VK_UUID_SIZE);
+    properties_cmd.device_name_len = device_name_len;
+
+    output_stream_->Write(&properties_cmd, sizeof(properties_cmd));
+    output_stream_->Write(properties.deviceName, properties_cmd.device_name_len);
 }
 
 void VulkanStateWriter::WriteSetDeviceMemoryPropertiesCommand(format::HandleId physical_device_id,
