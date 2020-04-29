@@ -858,6 +858,47 @@ void TraceManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
     }
 }
 
+void TraceManager::WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
+                                                   const VkPhysicalDeviceProperties& properties)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        format::SetDevicePropertiesCommand properties_cmd;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        uint32_t device_name_len = static_cast<uint32_t>(util::platform::StringLength(properties.deviceName));
+
+        properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        properties_cmd.meta_header.block_header.size =
+            (sizeof(properties_cmd) - sizeof(properties_cmd.meta_header.block_header)) + device_name_len;
+        properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDevicePropertiesCommand;
+        properties_cmd.thread_id                  = thread_data->thread_id_;
+        properties_cmd.physical_device_id         = physical_device_id;
+        properties_cmd.api_version                = properties.apiVersion;
+        properties_cmd.driver_version             = properties.driverVersion;
+        properties_cmd.vendor_id                  = properties.vendorID;
+        properties_cmd.device_id                  = properties.deviceID;
+        properties_cmd.device_type                = properties.deviceType;
+        util::platform::MemoryCopy(
+            properties_cmd.pipeline_cache_uuid, format::kUuidSize, properties.pipelineCacheUUID, VK_UUID_SIZE);
+        properties_cmd.device_name_len = device_name_len;
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&properties_cmd, sizeof(properties_cmd));
+            bytes_written_ += file_stream_->Write(properties.deviceName, properties_cmd.device_name_len);
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+    }
+}
+
 void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                          const VkPhysicalDeviceMemoryProperties& memory_properties)
 {
@@ -1497,6 +1538,7 @@ void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          resu
         auto     instance_wrapper = reinterpret_cast<InstanceWrapper*>(instance);
         uint32_t count            = *pPhysicalDeviceCount;
 
+        // Write meta-data describing physical device properties on first call to vkEnumeratePhysicalDevices.
         if (!instance_wrapper->have_device_properties)
         {
             // Only filter duplicate checks when we have a complete list of physical devices.
@@ -1511,25 +1553,34 @@ void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          resu
 
                 if (physical_device != VK_NULL_HANDLE)
                 {
-                    auto physical_device_wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
-                    VkPhysicalDeviceMemoryProperties properties;
+                    const InstanceTable* instance_table = GetInstanceTable(physical_device);
+                    assert(instance_table != nullptr);
 
-                    GetInstanceTable(physical_device)
-                        ->GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &properties);
+                    auto physical_device_wrapper            = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
+                    format::HandleId physical_device_id     = physical_device_wrapper->handle_id;
+                    VkPhysicalDevice physical_device_handle = physical_device_wrapper->handle;
+                    uint32_t         count                  = 0;
+
+                    VkPhysicalDeviceProperties       properties;
+                    VkPhysicalDeviceMemoryProperties memory_properties;
+
+                    instance_table->GetPhysicalDeviceProperties(physical_device_handle, &properties);
+                    instance_table->GetPhysicalDeviceMemoryProperties(physical_device_handle, &memory_properties);
 
                     if ((capture_mode_ & kModeTrack) == kModeTrack)
                     {
                         // Let the state tracker process the memory properties.
                         assert(state_tracker_ != nullptr);
-                        state_tracker_->TrackPhysicalDeviceMemoryProperties(physical_device, &properties);
+                        state_tracker_->TrackPhysicalDeviceMemoryProperties(physical_device, &memory_properties);
                     }
                     else
                     {
                         // When not tracking state, set the memory types directly.
-                        physical_device_wrapper->memory_properties = std::move(properties);
+                        physical_device_wrapper->memory_properties = std::move(memory_properties);
                     }
 
-                    WriteSetDeviceMemoryPropertiesCommand(physical_device_wrapper->handle_id,
+                    WriteSetDevicePropertiesCommand(physical_device_id, properties);
+                    WriteSetDeviceMemoryPropertiesCommand(physical_device_id,
                                                           physical_device_wrapper->memory_properties);
                 }
             }

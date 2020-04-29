@@ -473,11 +473,36 @@ void VulkanReplayConsumerBase::ProcessDestroyHardwareBufferCommand(uint64_t buff
 #endif
 }
 
+void VulkanReplayConsumerBase::ProcessSetDevicePropertiesCommand(format::HandleId physical_device_id,
+                                                                 uint32_t         api_version,
+                                                                 uint32_t         driver_version,
+                                                                 uint32_t         vendor_id,
+                                                                 uint32_t         device_id,
+                                                                 uint32_t         device_type,
+                                                                 const uint8_t pipeline_cache_uuid[format::kUuidSize],
+                                                                 const std::string& device_name)
+{
+    PhysicalDeviceInfo* physical_device_info = object_info_table_.GetPhysicalDeviceInfo(physical_device_id);
+
+    if (physical_device_info != nullptr)
+    {
+        physical_device_info->capture_api_version    = api_version;
+        physical_device_info->capture_driver_version = driver_version;
+        physical_device_info->capture_vendor_id      = vendor_id;
+        physical_device_info->capture_device_id      = device_id;
+        physical_device_info->capture_device_type    = device_type;
+        physical_device_info->capture_device_name    = device_name;
+
+        util::platform::MemoryCopy(physical_device_info->capture_pipeline_cache_uuid,
+                                   format::kUuidSize,
+                                   pipeline_cache_uuid,
+                                   format::kUuidSize);
+    }
+}
+
 void VulkanReplayConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
     format::HandleId                             physical_device_id,
-    uint32_t                                     memory_type_count,
     const std::vector<format::DeviceMemoryType>& memory_types,
-    uint32_t                                     memory_heap_count,
     const std::vector<format::DeviceMemoryHeap>& memory_heaps)
 {
     PhysicalDeviceInfo* physical_device_info = object_info_table_.GetPhysicalDeviceInfo(physical_device_id);
@@ -486,16 +511,16 @@ void VulkanReplayConsumerBase::ProcessSetDeviceMemoryPropertiesCommand(
     {
         VkPhysicalDeviceMemoryProperties* memory_properties = &physical_device_info->capture_memory_properties;
 
-        memory_properties->memoryTypeCount = memory_type_count;
-        memory_properties->memoryHeapCount = memory_heap_count;
+        memory_properties->memoryTypeCount = static_cast<uint32_t>(memory_types.size());
+        memory_properties->memoryHeapCount = static_cast<uint32_t>(memory_heaps.size());
 
-        for (uint32_t i = 0; i < memory_type_count; ++i)
+        for (uint32_t i = 0; i < memory_properties->memoryTypeCount; ++i)
         {
             memory_properties->memoryTypes[i].propertyFlags = memory_types[i].property_flags;
             memory_properties->memoryTypes[i].heapIndex     = memory_types[i].heap_index;
         }
 
-        for (uint32_t i = 0; i < memory_heap_count; ++i)
+        for (uint32_t i = 0; i < memory_properties->memoryHeapCount; ++i)
         {
             memory_properties->memoryHeaps[i].size  = memory_heaps[i].size;
             memory_properties->memoryHeaps[i].flags = memory_heaps[i].flags;
