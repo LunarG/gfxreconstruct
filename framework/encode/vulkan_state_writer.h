@@ -161,6 +161,8 @@ class VulkanStateWriter
 
     void WriteSwapchainImageState(const VulkanStateTable& state_table);
 
+    void WritePhysicalDevicePropertiesMetaData(const PhysicalDeviceWrapper* physical_device_wrapper);
+
     template <typename T>
     void WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiCallId call_id,
                                                      format::HandleId  physical_device_id,
@@ -245,6 +247,9 @@ class VulkanStateWriter
     void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
                                       AHardwareBuffer*                                    hardware_buffer,
                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
+
+    void WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
+                                         const VkPhysicalDeviceProperties& properties);
 
     void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);

@@ -628,6 +628,60 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read destroy hardware buffer meta-data block");
         }
     }
+    else if (meta_type == format::MetaDataType::kSetDevicePropertiesCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetDevicePropertiesCommand header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.physical_device_id, sizeof(header.physical_device_id));
+        success = success && ReadBytes(&header.api_version, sizeof(header.api_version));
+        success = success && ReadBytes(&header.driver_version, sizeof(header.driver_version));
+        success = success && ReadBytes(&header.vendor_id, sizeof(header.vendor_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
+        success = success && ReadBytes(&header.device_type, sizeof(header.device_type));
+        success = success && ReadBytes(&header.pipeline_cache_uuid, format::kUuidSize);
+        success = success && ReadBytes(&header.device_name_len, sizeof(header.device_name_len));
+
+        if (success)
+        {
+            char device_name[format::kMaxPhysicalDeviceNameSize];
+
+            if (header.device_name_len < format::kMaxPhysicalDeviceNameSize)
+            {
+                success                             = success && ReadBytes(&device_name, header.device_name_len);
+                device_name[header.device_name_len] = '\0';
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchSetDevicePropertiesCommand(header.thread_id,
+                                                                header.physical_device_id,
+                                                                header.api_version,
+                                                                header.driver_version,
+                                                                header.vendor_id,
+                                                                header.device_id,
+                                                                header.device_type,
+                                                                header.pipeline_cache_uuid,
+                                                                device_name);
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockData,
+                                     "Failed to read set device memory properties meta-data block");
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read set device memory properties meta-data block header");
+        }
+    }
     else if (meta_type == format::MetaDataType::kSetDeviceMemoryPropertiesCommand)
     {
         // This command does not support compression.
@@ -675,12 +729,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 for (auto decoder : decoders_)
                 {
-                    decoder->DispatchSetDeviceMemoryPropertiesCommand(header.thread_id,
-                                                                      header.physical_device_id,
-                                                                      header.memory_type_count,
-                                                                      types,
-                                                                      header.memory_heap_count,
-                                                                      heaps);
+                    decoder->DispatchSetDeviceMemoryPropertiesCommand(
+                        header.thread_id, header.physical_device_id, types, heaps);
                 }
             }
             else

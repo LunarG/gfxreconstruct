@@ -955,6 +955,8 @@ class TraceManager
                                       AHardwareBuffer*                                    buffer,
                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
     void WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer);
+    void WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
+                                         const VkPhysicalDeviceProperties& properties);
     void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties);
 

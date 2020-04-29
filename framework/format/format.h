@@ -45,7 +45,9 @@ typedef uint16_t WCharEncodeType; // Encoding type for LPCWSTR (UTF-16) strings.
 typedef HandleEncodeType HandleId;
 typedef uint64_t         ThreadId;
 
-const uint32_t kCompressedBlockTypeBit = 0x80000000;
+const uint32_t kCompressedBlockTypeBit    = 0x80000000;
+const size_t   kUuidSize                  = 16;
+const size_t   kMaxPhysicalDeviceNameSize = 256;
 
 constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
 {
@@ -328,6 +330,20 @@ struct DeviceMemoryHeap
 {
     uint64_t size;
     uint32_t flags;
+};
+
+struct SetDevicePropertiesCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId physical_device_id;
+    uint32_t         api_version;
+    uint32_t         driver_version;
+    uint32_t         vendor_id;
+    uint32_t         device_id;
+    uint32_t         device_type;
+    uint8_t          pipeline_cache_uuid[kUuidSize];
+    uint32_t         device_name_len;
 };
 
 #pragma pack(pop)
