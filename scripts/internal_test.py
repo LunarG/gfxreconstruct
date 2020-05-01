@@ -390,8 +390,7 @@ if '__main__' == __name__:
                             command = ""
                             if(zipfile.is_zipfile(os.path.join(srcdir, filename))):
                                 if not is_local_newer(dstfoldername, os.path.join(srcdir, filename)):
-                                    command = 'robocopy {0} {1} {2}'.format(
-                                            srcdir, dstfoldername, filename)
+                                    command = ['robocopy', srcdir, dstfoldername, filename]
                                     runcommand = subprocess.run(
                                         command, stdout=subprocess.PIPE, shell=True)
                                     output = runcommand.stdout.decode('utf-8')
@@ -399,22 +398,18 @@ if '__main__' == __name__:
                             elif os.path.exists(os.path.join(dstfoldername, filename)):
                                 if not is_local_newer(os.path.join(dstfoldername, filename), os.path.join(srcdir, filename)):
                                     if os.path.isdir(os.path.join(srcdir, filename)):
-                                        command = 'robocopy /S /E {0} {1}'.format(
-                                            os.path.join(srcdir, filename), os.path.join(dstfoldername, filename))
+                                        command = ['robocopy', '/S', '/E', os.path.join(srcdir, filename), os.path.join(dstfoldername, filename)]
                                     else:
-                                        command = 'robocopy {0} {1} {2}'.format(
-                                            srcdir, dstfoldername, filename)
+                                        command = ['robocopy', srcdir, dstfoldername, filename]
                                     runcommand = subprocess.run(
                                         command, stdout=subprocess.PIPE, shell=True)
                                     output = runcommand.stdout.decode('utf-8')
                                     print(output)
                             else:
                                 if os.path.isdir(os.path.join(srcdir, filename)):
-                                    command = 'robocopy /S /E {0} {1}'.format(
-                                        os.path.join(srcdir, filename), os.path.join(dstfoldername, filename))
+                                    command = ['robocopy', '/S', '/E', os.path.join(srcdir, filename), os.path.join(dstfoldername, filename)]
                                 else:
-                                    command = 'robocopy {0} {1} {2}'.format(
-                                        srcdir, dstfoldername, filename)
+                                    command = ['robocopy', srcdir, dstfoldername, filename]
                                 runcommand = subprocess.run(
                                     command, stdout=subprocess.PIPE, shell=True)
                                 output = runcommand.stdout.decode('utf-8')
@@ -434,15 +429,13 @@ if '__main__' == __name__:
                     for filename in os.listdir(srcdir):
                         if os.path.exists(os.path.join(dstfoldername, filename)):
                             if not is_local_newer(os.path.join(dstfoldername, filename), os.path.join(srcdir, filename)):
-                                command = 'scp {0} {1}'.format(os.path.join(
-                                    srcdir, filename), os.path.join(dstfoldername, filename))
+                                command = ['scp', os.path.join(srcdir, filename), os.path.join(dstfoldername, filename)]
                                 runcommand = subprocess.run(
                                     command, stdout=subprocess.PIPE, shell=True)
                                 output = runcommand.stdout.decode('utf-8')
                                 print(output)
                         else:
-                            command = 'scp {0} {1}'.format(os.path.join(
-                                srcdir, filename), os.path.join(dstfoldername, filename))
+                            command = ['scp', os.path.join(srcdir, filename), os.path.join(dstfoldername, filename)]
                             runcommand = subprocess.run(
                                 command, stdout=subprocess.PIPE, shell=True)
                             output = runcommand.stdout.decode('utf-8')
