@@ -295,7 +295,7 @@ class GFXTestSuite(unittest.TestCase):
         Playback trace file test
         '''
         try:
-            if gfxrfile == "":
+            if not ".gfxr" in gfxrfile:
                 raise Exception(
                     "Failed to retrieve tracefile for playback test.")
 
