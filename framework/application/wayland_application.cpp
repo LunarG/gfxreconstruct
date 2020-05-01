@@ -30,6 +30,7 @@ struct wl_pointer_listener  WaylandApplication::pointer_listener_;
 struct wl_keyboard_listener WaylandApplication::keyboard_listener_;
 struct wl_seat_listener     WaylandApplication::seat_listener_;
 struct wl_registry_listener WaylandApplication::registry_listener_;
+struct wl_output_listener   WaylandApplication::output_listener_;
 
 WaylandApplication::WaylandApplication(const std::string& name) :
     Application(name), display_(nullptr), shell_(nullptr), compositor_(nullptr), registry_(nullptr), seat_(nullptr),
@@ -96,6 +97,11 @@ bool WaylandApplication::Initialize(decode::FileProcessor* file_processor)
     pointer_listener_.motion = HandlePointerMotion;
     pointer_listener_.button = HandlePointerButton;
     pointer_listener_.axis   = HandlePointerAxis;
+
+    output_listener_.geometry = HandleOutputGeometry;
+    output_listener_.mode     = HandleOutputMode;
+    output_listener_.done     = HandleOutputDone;
+    output_listener_.scale    = HandleOutputScale;
 
     success  = wayland_loader_.Initialize();
     auto& wl = wayland_loader_.GetFunctionTable();
@@ -191,18 +197,27 @@ void WaylandApplication::HandleRegistryGlobal(
 {
     auto  app = reinterpret_cast<WaylandApplication*>(data);
     auto& wl  = app->GetWaylandFunctionTable();
-    if (strcmp(interface, "wl_compositor") == 0)
+    if (util::platform::StringCompare(interface, "wl_compositor") == 0)
     {
-        app->compositor_ = reinterpret_cast<wl_compositor*>(wl.registry_bind(registry, id, wl.compositor_interface, 1));
+        // wl_compositor needs to support wl_surface::set_buffer_scale request
+        app->compositor_ = reinterpret_cast<wl_compositor*>(
+            wl.registry_bind(registry, id, wl.compositor_interface, WL_SURFACE_SET_BUFFER_SCALE_SINCE_VERSION));
     }
-    else if (strcmp(interface, "wl_shell") == 0)
+    else if (util::platform::StringCompare(interface, "wl_shell") == 0)
     {
         app->shell_ = reinterpret_cast<wl_shell*>(wl.registry_bind(registry, id, wl.shell_interface, 1));
     }
-    else if (strcmp(interface, "wl_seat") == 0)
+    else if (util::platform::StringCompare(interface, "wl_seat") == 0)
     {
         app->seat_ = reinterpret_cast<wl_seat*>(wl.registry_bind(registry, id, wl.seat_interface, 1));
         wl.seat_add_listener(app->seat_, &seat_listener_, app);
+    }
+    else if (util::platform::StringCompare(interface, "wl_output") == 0)
+    {
+        // wl_output needs to support wl_output::scale event
+        auto output = reinterpret_cast<wl_output*>(
+            wl.registry_bind(registry, id, wl.output_interface, WL_OUTPUT_SCALE_SINCE_VERSION));
+        wl.output_add_listener(output, &output_listener_, app);
     }
 }
 
@@ -339,6 +354,39 @@ void WaylandApplication::HandlePointerButton(
 void WaylandApplication::HandlePointerAxis(
     void* data, struct wl_pointer* wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value)
 {}
+
+void WaylandApplication::HandleOutputGeometry(void*             data,
+                                              struct wl_output* wl_output,
+                                              int32_t           x,
+                                              int32_t           y,
+                                              int32_t           physical_width,
+                                              int32_t           physical_height,
+                                              int32_t           subpixel,
+                                              const char*       make,
+                                              const char*       model,
+                                              int32_t           transform)
+{}
+
+void WaylandApplication::HandleOutputMode(
+    void* data, struct wl_output* wl_output, uint32_t flags, int32_t width, int32_t height, int32_t refresh)
+{
+    auto app = reinterpret_cast<WaylandApplication*>(data);
+    if ((flags & WL_OUTPUT_MODE_CURRENT) == WL_OUTPUT_MODE_CURRENT)
+    {
+        auto& output_info  = app->output_info_map_[wl_output];
+        output_info.width  = width;
+        output_info.height = height;
+    }
+}
+
+void WaylandApplication::HandleOutputDone(void* data, struct wl_output* wl_output) {}
+
+void WaylandApplication::HandleOutputScale(void* data, struct wl_output* wl_output, int32_t factor)
+{
+    auto  app         = reinterpret_cast<WaylandApplication*>(data);
+    auto& output_info = app->output_info_map_[wl_output];
+    output_info.scale = factor;
+}
 
 GFXRECON_END_NAMESPACE(application)
 GFXRECON_END_NAMESPACE(gfxrecon)

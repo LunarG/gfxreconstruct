@@ -25,14 +25,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
+struct wl_surface_listener       WaylandWindow::surface_listener_;
 struct wl_shell_surface_listener WaylandWindow::shell_surface_listener_;
 
 WaylandWindow::WaylandWindow(WaylandApplication* application) :
-    wayland_application_(application), surface_(nullptr), shell_surface_(nullptr)
+    wayland_application_(application), surface_(nullptr), shell_surface_(nullptr), scale_(1)
 {
     assert(application != nullptr);
 
     // Populate callback structs
+    surface_listener_.enter = HandleSurfaceEnter;
+    surface_listener_.leave = HandleSurfaceLeave;
+
     shell_surface_listener_.ping       = HandlePing;
     shell_surface_listener_.configure  = HandleConfigure;
     shell_surface_listener_.popup_done = HandlePopupDone;
@@ -78,6 +82,7 @@ bool WaylandWindow::Create(
 
     wayland_application_->RegisterWaylandWindow(this);
 
+    wl.surface_add_listener(surface_, &WaylandWindow::surface_listener_, this);
     wl.shell_surface_add_listener(shell_surface_, &WaylandWindow::shell_surface_listener_, this);
     wl.shell_surface_set_title(shell_surface_, title.c_str());
     wl.shell_surface_set_toplevel(shell_surface_);
@@ -159,6 +164,20 @@ VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
 
     return table->CreateWaylandSurfaceKHR(instance, &create_info, nullptr, pSurface);
 }
+
+void WaylandWindow::HandleSurfaceEnter(void* data, struct wl_surface* surface, struct wl_output* output)
+{
+    auto  window      = reinterpret_cast<WaylandWindow*>(data);
+    auto& wl          = window->wayland_application_->GetWaylandFunctionTable();
+    auto& output_info = window->wayland_application_->GetOutputInfo(output);
+    if (output_info.scale > 0 && output_info.scale != window->scale_)
+    {
+        wl.surface_set_buffer_scale(surface, output_info.scale);
+        window->scale_ = output_info.scale;
+    }
+}
+
+void WaylandWindow::HandleSurfaceLeave(void* data, struct wl_surface* surface, struct wl_output* output) {}
 
 void WaylandWindow::HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial)
 {

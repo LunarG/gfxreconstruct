@@ -81,6 +81,8 @@ bool WaylandLoader::Initialize()
                 util::platform::GetProcAddress(libwayland_, "wl_registry_interface"));
             function_table_.keyboard_interface = reinterpret_cast<decltype(wl_keyboard_interface)*>(
                 util::platform::GetProcAddress(libwayland_, "wl_keyboard_interface"));
+            function_table_.output_interface = reinterpret_cast<decltype(wl_output_interface)*>(
+                util::platform::GetProcAddress(libwayland_, "wl_output_interface"));
             function_table_.pointer_interface = reinterpret_cast<decltype(wl_pointer_interface)*>(
                 util::platform::GetProcAddress(libwayland_, "wl_pointer_interface"));
             function_table_.shell_surface_interface = reinterpret_cast<decltype(wl_shell_surface_interface)*>(

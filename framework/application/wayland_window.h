@@ -64,6 +64,9 @@ class WaylandWindow : public decode::Window
                                    VkSurfaceKHR*                pSurface) override;
 
   private:
+    static void HandleSurfaceEnter(void* data, struct wl_surface* surface, struct wl_output* output);
+    static void HandleSurfaceLeave(void* data, struct wl_surface* surface, struct wl_output* output);
+
     static void HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial);
 
     static void
@@ -72,10 +75,12 @@ class WaylandWindow : public decode::Window
     static void HandlePopupDone(void* data, wl_shell_surface* shell_surface);
 
   private:
+    static struct wl_surface_listener       surface_listener_;
     static struct wl_shell_surface_listener shell_surface_listener_;
     WaylandApplication*                     wayland_application_;
     struct wl_surface*                      surface_;
     struct wl_shell_surface*                shell_surface_;
+    int32_t                                 scale_;
 };
 
 class WaylandWindowFactory : public decode::WindowFactory

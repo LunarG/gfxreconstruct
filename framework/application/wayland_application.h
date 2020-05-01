@@ -32,6 +32,14 @@ class WaylandWindow;
 class WaylandApplication : public Application
 {
   public:
+    struct OutputInfo
+    {
+        int32_t scale;
+        int32_t width;
+        int32_t height;
+    };
+
+  public:
     WaylandApplication(const std::string& name);
 
     virtual ~WaylandApplication() override;
@@ -43,6 +51,8 @@ class WaylandApplication : public Application
     struct wl_shell* GetShell() const { return shell_; }
 
     struct wl_compositor* GetCompositor() const { return compositor_; }
+
+    const OutputInfo& GetOutputInfo(const struct wl_output* wl_output) { return output_info_map_[wl_output]; }
 
     virtual bool Initialize(decode::FileProcessor* file_processor) override;
 
@@ -97,14 +107,31 @@ class WaylandApplication : public Application
     static void
     HandlePointerAxis(void* data, struct wl_pointer* wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value);
 
+    static void HandleOutputGeometry(void*             data,
+                                     struct wl_output* wl_output,
+                                     int32_t           x,
+                                     int32_t           y,
+                                     int32_t           physical_width,
+                                     int32_t           physical_height,
+                                     int32_t           subpixel,
+                                     const char*       make,
+                                     const char*       model,
+                                     int32_t           transform);
+    static void HandleOutputMode(
+        void* data, struct wl_output* wl_output, uint32_t flags, int32_t width, int32_t height, int32_t refresh);
+    static void HandleOutputDone(void* data, struct wl_output* wl_output);
+    static void HandleOutputScale(void* data, struct wl_output* wl_output, int32_t factor);
+
   private:
     typedef std::unordered_map<struct wl_surface*, WaylandWindow*> WaylandWindowMap;
+    typedef std::unordered_map<const struct wl_output*, OutputInfo> OutputInfoMap;
 
   private:
     static struct wl_pointer_listener  pointer_listener_;
     static struct wl_keyboard_listener keyboard_listener_;
     static struct wl_seat_listener     seat_listener_;
     static struct wl_registry_listener registry_listener_;
+    static struct wl_output_listener   output_listener_;
     struct wl_display*                 display_;
     struct wl_shell*                   shell_;
     struct wl_compositor*              compositor_;
@@ -115,6 +142,7 @@ class WaylandApplication : public Application
     struct wl_surface*                 current_keyboard_surface_;
     struct wl_surface*                 current_pointer_surface_;
     WaylandWindowMap                   wayland_windows_;
+    OutputInfoMap                      output_info_map_;
     util::WaylandLoader                wayland_loader_;
 };
 
