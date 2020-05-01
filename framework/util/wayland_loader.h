@@ -53,6 +53,7 @@ class WaylandLoader
         // interfaces
         decltype(wl_registry_interface)*      registry_interface;
         decltype(wl_keyboard_interface)*      keyboard_interface;
+        decltype(wl_output_interface)*        output_interface;
         decltype(wl_pointer_interface)*       pointer_interface;
         decltype(wl_shell_surface_interface)* shell_surface_interface;
         decltype(wl_surface_interface)*       surface_interface;
@@ -93,6 +94,12 @@ class WaylandLoader
         void keyboard_destroy(struct wl_keyboard* wl_keyboard) const
         {
             this->proxy_destroy((struct wl_proxy*)wl_keyboard);
+        }
+
+        int
+        output_add_listener(struct wl_output* wl_output, const struct wl_output_listener* listener, void* data) const
+        {
+            return this->proxy_add_listener((struct wl_proxy*)wl_output, (void (**)(void))listener, data);
         }
 
         int pointer_add_listener(struct wl_pointer*                wl_pointer,
@@ -204,6 +211,18 @@ class WaylandLoader
         void shell_surface_set_toplevel(struct wl_shell_surface* wl_shell_surface) const
         {
             this->proxy_marshal((struct wl_proxy*)wl_shell_surface, WL_SHELL_SURFACE_SET_TOPLEVEL);
+        }
+
+        int surface_add_listener(struct wl_surface*                wl_surface,
+                                 const struct wl_surface_listener* listener,
+                                 void*                             data) const
+        {
+            return this->proxy_add_listener((struct wl_proxy*)wl_surface, (void (**)(void))listener, data);
+        }
+
+        void surface_set_buffer_scale(struct wl_surface* wl_surface, int32_t scale) const
+        {
+            this->proxy_marshal((struct wl_proxy*)wl_surface, WL_SURFACE_SET_BUFFER_SCALE, scale);
         }
 
         void surface_destroy(struct wl_surface* wl_surface) const
