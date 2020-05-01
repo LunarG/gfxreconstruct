@@ -61,7 +61,7 @@ def parse_args():
         '--layer-path', dest='layer_path', type=str, default=default_bin_path,
         help='Folder path containing the GFXReconstruct layers')
     arg_parser.add_argument(
-        '--src-path', nargs='+', dest='src_path_list', default=["\\bender\xcaptan_depot\GoldenTraces\gfxrec\Samples_Win"],
+        '--src-path', nargs='+', dest='src_path_list', default=["\\\\bender\\xcaptan_depot\\GoldenTraces\\gfxrec\\Samples_Win"],
         help='Folder path(s) containing the test app executables and/or golden trace files to be downloaded to the user specified dst-path or \"TestApp\" folder by default')
     arg_parser.add_argument(
         '--dst-path', dest='dst_path', type=str, default=LOCAL_TEST_DST_PATH,
