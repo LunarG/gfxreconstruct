@@ -196,13 +196,13 @@ class GFXTestSuite(unittest.TestCase):
             # start app for test
             command = ''
             if platform.system().lower() == "windows":
-                app = '{0}\\{1}.exe'.format(local_dst_path, exe)
-                command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
-                    set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
-                    set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
-                    set VK_SCREENSHOT_FRAMES={1}&&\
-                    set GFXRECON_CAPTURE_FILE={2}\\{3}.gfxr&&\
-                    set GFXRECON_LOG_LEVEL=warning&&\
+                app = os.path.join(local_dst_path,(exe + ".exe"))
+                command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin &&\
+                    set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; &&\
+                    set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; &&\
+                    set VK_SCREENSHOT_FRAMES={1} &&\
+                    set GFXRECON_CAPTURE_FILE={2}\\{3}.gfxr &&\
+                    set GFXRECON_LOG_LEVEL=warning &&\
                     start {4}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe, app)
             elif platform.system().lower() == "linux":
                 app = '{0}/{1}'.format(local_dst_path, exe)
