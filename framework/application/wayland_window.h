@@ -74,13 +74,18 @@ class WaylandWindow : public decode::Window
 
     static void HandlePopupDone(void* data, wl_shell_surface* shell_surface);
 
+    void UpdateWindowSize();
+
   private:
     static struct wl_surface_listener       surface_listener_;
     static struct wl_shell_surface_listener shell_surface_listener_;
     WaylandApplication*                     wayland_application_;
     struct wl_surface*                      surface_;
     struct wl_shell_surface*                shell_surface_;
+    uint32_t                                width_;
+    uint32_t                                height_;
     int32_t                                 scale_;
+    struct wl_output*                       output_;
 };
 
 class WaylandWindowFactory : public decode::WindowFactory
