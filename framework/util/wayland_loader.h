@@ -203,6 +203,14 @@ class WaylandLoader
             this->proxy_marshal((struct wl_proxy*)wl_shell_surface, WL_SHELL_SURFACE_PONG, serial);
         }
 
+        void shell_surface_set_fullscreen(struct wl_shell_surface* wl_shell_surface,
+                                          uint32_t                 method,
+                                          uint32_t                 framerate,
+                                          struct wl_output*        output) const
+        {
+            this->proxy_marshal((struct wl_proxy*)wl_shell_surface, WL_SHELL_SURFACE_SET_FULLSCREEN);
+        }
+
         void shell_surface_set_title(struct wl_shell_surface* wl_shell_surface, const char* title) const
         {
             this->proxy_marshal((struct wl_proxy*)wl_shell_surface, WL_SHELL_SURFACE_SET_TITLE, title);
