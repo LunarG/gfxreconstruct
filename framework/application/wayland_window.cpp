@@ -29,7 +29,8 @@ struct wl_surface_listener       WaylandWindow::surface_listener_;
 struct wl_shell_surface_listener WaylandWindow::shell_surface_listener_;
 
 WaylandWindow::WaylandWindow(WaylandApplication* application) :
-    wayland_application_(application), surface_(nullptr), shell_surface_(nullptr), scale_(1)
+    wayland_application_(application), surface_(nullptr), shell_surface_(nullptr), width_(0), height_(0), scale_(1),
+    output_(nullptr)
 {
     assert(application != nullptr);
 
@@ -61,8 +62,6 @@ bool WaylandWindow::Create(
 {
     GFXRECON_UNREFERENCED_PARAMETER(x);
     GFXRECON_UNREFERENCED_PARAMETER(y);
-    GFXRECON_UNREFERENCED_PARAMETER(width);
-    GFXRECON_UNREFERENCED_PARAMETER(height);
 
     auto& wl = wayland_application_->GetWaylandFunctionTable();
     surface_ = wl.compositor_create_surface(wayland_application_->GetCompositor());
@@ -85,7 +84,10 @@ bool WaylandWindow::Create(
     wl.surface_add_listener(surface_, &WaylandWindow::surface_listener_, this);
     wl.shell_surface_add_listener(shell_surface_, &WaylandWindow::shell_surface_listener_, this);
     wl.shell_surface_set_title(shell_surface_, title.c_str());
-    wl.shell_surface_set_toplevel(shell_surface_);
+
+    width_  = width;
+    height_ = height;
+    UpdateWindowSize();
 
     return true;
 }
@@ -125,9 +127,12 @@ void WaylandWindow::SetPosition(const int32_t x, const int32_t y)
 
 void WaylandWindow::SetSize(const uint32_t width, const uint32_t height)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(width);
-    GFXRECON_UNREFERENCED_PARAMETER(height);
-    // The shell surface should be automatically configured to match the VkSurface dimensions.
+    if (width != width_ || height != height_)
+    {
+        width_  = width;
+        height_ = height;
+        UpdateWindowSize();
+    }
 }
 
 void WaylandWindow::SetVisibility(bool show)
@@ -165,16 +170,40 @@ VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
     return table->CreateWaylandSurfaceKHR(instance, &create_info, nullptr, pSurface);
 }
 
+void WaylandWindow::UpdateWindowSize()
+{
+    auto& wl = wayland_application_->GetWaylandFunctionTable();
+    if (output_)
+    {
+        auto& output_info = wayland_application_->GetOutputInfo(output_);
+
+        if (output_info.scale > 0 && output_info.scale != scale_)
+        {
+            wl.surface_set_buffer_scale(surface_, output_info.scale);
+            scale_ = output_info.scale;
+        }
+
+        if (output_info.width == width_ && output_info.height == height_)
+        {
+            wl.shell_surface_set_fullscreen(shell_surface_, WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, output_);
+        }
+        else
+        {
+            wl.shell_surface_set_toplevel(shell_surface_);
+        }
+    }
+    else
+    {
+        wl.shell_surface_set_toplevel(shell_surface_);
+    }
+}
+
 void WaylandWindow::HandleSurfaceEnter(void* data, struct wl_surface* surface, struct wl_output* output)
 {
-    auto  window      = reinterpret_cast<WaylandWindow*>(data);
-    auto& wl          = window->wayland_application_->GetWaylandFunctionTable();
-    auto& output_info = window->wayland_application_->GetOutputInfo(output);
-    if (output_info.scale > 0 && output_info.scale != window->scale_)
-    {
-        wl.surface_set_buffer_scale(surface, output_info.scale);
-        window->scale_ = output_info.scale;
-    }
+    auto window     = reinterpret_cast<WaylandWindow*>(data);
+    window->output_ = output;
+
+    window->UpdateWindowSize();
 }
 
 void WaylandWindow::HandleSurfaceLeave(void* data, struct wl_surface* surface, struct wl_output* output) {}
