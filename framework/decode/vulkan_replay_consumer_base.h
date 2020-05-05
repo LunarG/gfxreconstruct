@@ -366,16 +366,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkResult OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysicalDevices          func,
                                               VkResult                                original_result,
-                                              const InstanceInfo*                     instance_info,
+                                              InstanceInfo*                           instance_info,
                                               PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
                                               HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices);
 
     void OverrideGetPhysicalDeviceProperties(PFN_vkGetPhysicalDeviceProperties func,
-                                             const PhysicalDeviceInfo*         physical_device_info,
+                                             PhysicalDeviceInfo*               physical_device_info,
                                              StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties);
 
     void OverrideGetPhysicalDeviceProperties2(PFN_vkGetPhysicalDeviceProperties2 func,
-                                              const PhysicalDeviceInfo*          physical_device_info,
+                                              PhysicalDeviceInfo*                physical_device_info,
                                               StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties);
 
     void OverrideGetPhysicalDeviceMemoryProperties(
@@ -668,11 +668,23 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     PFN_vkCreateDevice GetCreateDeviceProc(VkPhysicalDevice physical_device);
 
-    void ProcessPhysicalDeviceProperties(VkPhysicalDevice                  physical_device,
-                                         const VkPhysicalDeviceProperties* capture_properties,
-                                         const VkPhysicalDeviceProperties* replay_properties);
+    void SetPhysicalDeviceProperties(PhysicalDeviceInfo*               physical_device_info,
+                                     const VkPhysicalDeviceProperties* capture_properties,
+                                     const VkPhysicalDeviceProperties* replay_properties);
 
-    void OverridePhysicalDevice(VkPhysicalDevice* physical_device);
+    void SetPhysicalDeviceMemoryProperties(PhysicalDeviceInfo*                     physical_device_info,
+                                           const VkPhysicalDeviceMemoryProperties* capture_properties,
+                                           const VkPhysicalDeviceMemoryProperties* replay_properties);
+
+    // Can override PhysicalDeviceInfo::handle and PhysicalDeviceInfo::replay_device_info based on comparison between
+    // capture and replay physical device properties or GPU override settings.
+    void SelectPhysicalDevice(PhysicalDeviceInfo* physical_device_info);
+
+    bool GetOverrideDevice(InstanceInfo* instance_info, PhysicalDeviceInfo* physical_device_info);
+
+    void GetMatchingDevice(InstanceInfo* instance_info, PhysicalDeviceInfo* physical_device_info);
+
+    void CheckPhysicalDeviceCompatibility(PhysicalDeviceInfo* physical_device_info);
 
     bool CheckTrimDeviceExtensions(VkPhysicalDevice physical_device, std::vector<std::string>* extensions);
 
@@ -707,21 +719,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info);
 
   private:
-    struct InstanceDevices
-    {
-        std::vector<format::HandleId> capture_devices;
-        std::vector<VkPhysicalDevice> replay_devices;
-    };
-
-    struct PhysicalDeviceProperties
-    {
-        VkPhysicalDeviceProperties capture_properties;
-        VkPhysicalDeviceProperties replay_properties;
-    };
-
-    typedef std::unordered_set<Window*>                                    ActiveWindows;
-    typedef std::unordered_map<VkInstance, InstanceDevices>                InstanceDeviceMap;
-    typedef std::unordered_map<VkPhysicalDevice, PhysicalDeviceProperties> PhysicalDevicePropertiesMap;
+    typedef std::unordered_set<Window*> ActiveWindows;
 
     struct HardwareBufferInfo
     {
@@ -761,8 +759,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     ActiveWindows                                                    active_windows_;
     ReplayOptions                                                    options_;
     bool                                                             loading_trim_state_;
-    InstanceDeviceMap                                                instance_devices_;
-    PhysicalDevicePropertiesMap                                      device_properties_;
     SwapchainImageTracker                                            swapchain_image_tracker_;
     HardwareBufferMap                                                hardware_buffers_;
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
