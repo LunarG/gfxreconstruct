@@ -34,6 +34,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+//
+// Enumerations defining index values for tables to track array counts reported by Vulkan API calls with variable length
+// array parameters.
+//
 enum InstanceArrayIndices : uint32_t
 {
     kInstanceArrayEnumeratePhysicalDevices      = 0,
@@ -121,6 +125,16 @@ enum ValidationCacheEXTArrayIndices : uint32_t
     kValidationCacheEXTArrayGetValidationCacheDataEXT = 0
 };
 
+//
+// Structures for storing Vulkan object info.
+//
+
+struct ReplayDeviceInfo
+{
+    std::unique_ptr<VkPhysicalDeviceProperties>       properties;
+    std::unique_ptr<VkPhysicalDeviceMemoryProperties> memory_properties;
+};
+
 template <typename T>
 struct VulkanObjectInfo
 {
@@ -168,36 +182,40 @@ struct InstanceInfo : public VulkanObjectInfo<VkInstance>
 {
     uint32_t                             api_version{ 0 };
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    // Capture and replay devices sorted in the order that they were originally retrieved from
+    // vkEnumeratePhysicalDevices.
+    std::vector<format::HandleId> capture_devices;
+    std::vector<VkPhysicalDevice> replay_devices;
+
+    std::unordered_map<VkPhysicalDevice, ReplayDeviceInfo> replay_device_info;
 };
 
 struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 {
-    VkInstance parent{ VK_NULL_HANDLE };
-    uint32_t   parent_api_version{ 0 };
+    VkInstance                           parent{ VK_NULL_HANDLE };
+    format::HandleId                     parent_id{ 0 };
+    uint32_t                             parent_api_version{ 0 };
+    std::unordered_map<uint32_t, size_t> array_counts;
 
     // Capture device properties.
-    uint32_t    capture_api_version;
-    uint32_t    capture_driver_version;
-    uint32_t    capture_vendor_id;
-    uint32_t    capture_device_id;
-    uint32_t    capture_device_type;
-    uint8_t     capture_pipeline_cache_uuid[16];
-    std::string capture_device_name;
-
-    VkPhysicalDeviceProperties replay_properties{};
-
+    uint32_t                         capture_api_version{ 0 };
+    uint32_t                         capture_driver_version{ 0 };
+    uint32_t                         capture_vendor_id{ 0 };
+    uint32_t                         capture_device_id{ 0 };
+    uint32_t                         capture_device_type{ 0 };
+    uint8_t                          capture_pipeline_cache_uuid[format::kUuidSize]{};
+    std::string                      capture_device_name;
     VkPhysicalDeviceMemoryProperties capture_memory_properties{};
-    VkPhysicalDeviceMemoryProperties replay_memory_properties{};
 
-    std::unordered_map<uint32_t, size_t> array_counts;
+    // Closest matching replay device.
+    ReplayDeviceInfo* replay_device_info{ nullptr };
 };
 
 struct DeviceInfo : public VulkanObjectInfo<VkDevice>
 {
     VkPhysicalDevice                         parent{ VK_NULL_HANDLE };
     std::unique_ptr<VulkanResourceAllocator> allocator;
-    const VkPhysicalDeviceMemoryProperties*  capture_memory_properties{ nullptr };
-    const VkPhysicalDeviceMemoryProperties*  replay_memory_properties{ nullptr };
     std::unordered_map<uint32_t, size_t>     array_counts;
 
     // The following values are only used when loading the initial state for trimmed files.
