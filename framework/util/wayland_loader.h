@@ -63,59 +63,65 @@ class WaylandLoader
         {
             struct wl_proxy* id;
 
-            id = this->proxy_marshal_constructor(
-                (struct wl_proxy*)wl_compositor, WL_COMPOSITOR_CREATE_SURFACE, this->surface_interface, NULL);
+            id = this->proxy_marshal_constructor(reinterpret_cast<struct wl_proxy*>(wl_compositor),
+                                                 WL_COMPOSITOR_CREATE_SURFACE,
+                                                 this->surface_interface,
+                                                 NULL);
 
-            return (struct wl_surface*)id;
+            return reinterpret_cast<struct wl_surface*>(id);
         }
 
         void compositor_destroy(struct wl_compositor* wl_compositor) const
         {
-            this->proxy_destroy((struct wl_proxy*)wl_compositor);
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_compositor));
         }
 
         struct wl_registry* display_get_registry(struct wl_display* wl_display) const
         {
             struct wl_proxy* registry;
 
-            registry = this->proxy_marshal_constructor(
-                (struct wl_proxy*)wl_display, WL_DISPLAY_GET_REGISTRY, this->registry_interface, NULL);
+            registry = this->proxy_marshal_constructor(reinterpret_cast<struct wl_proxy*>(wl_display),
+                                                       WL_DISPLAY_GET_REGISTRY,
+                                                       this->registry_interface,
+                                                       NULL);
 
-            return (struct wl_registry*)registry;
+            return reinterpret_cast<struct wl_registry*>(registry);
         }
 
-        int keyboard_add_listener(struct wl_keyboard*                wl_keyboard,
-                                  const struct wl_keyboard_listener* listener,
-                                  void*                              data) const
+        int
+        keyboard_add_listener(struct wl_keyboard* wl_keyboard, struct wl_keyboard_listener* listener, void* data) const
         {
-            return this->proxy_add_listener((struct wl_proxy*)wl_keyboard, (void (**)(void))listener, data);
+            return this->proxy_add_listener(
+                reinterpret_cast<struct wl_proxy*>(wl_keyboard), reinterpret_cast<void (**)(void)>(listener), data);
         }
 
         void keyboard_destroy(struct wl_keyboard* wl_keyboard) const
         {
-            this->proxy_destroy((struct wl_proxy*)wl_keyboard);
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_keyboard));
+        }
+
+        int output_add_listener(struct wl_output* wl_output, struct wl_output_listener* listener, void* data) const
+        {
+            return this->proxy_add_listener(
+                reinterpret_cast<struct wl_proxy*>(wl_output), reinterpret_cast<void (**)(void)>(listener), data);
+        }
+
+        int pointer_add_listener(struct wl_pointer* wl_pointer, wl_pointer_listener* listener, void* data) const
+        {
+            return this->proxy_add_listener(
+                reinterpret_cast<struct wl_proxy*>(wl_pointer), reinterpret_cast<void (**)(void)>(listener), data);
+        }
+
+        void pointer_destroy(struct wl_pointer* wl_pointer) const
+        {
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_pointer));
         }
 
         int
-        output_add_listener(struct wl_output* wl_output, const struct wl_output_listener* listener, void* data) const
+        registry_add_listener(struct wl_registry* wl_registry, struct wl_registry_listener* listener, void* data) const
         {
-            return this->proxy_add_listener((struct wl_proxy*)wl_output, (void (**)(void))listener, data);
-        }
-
-        int pointer_add_listener(struct wl_pointer*                wl_pointer,
-                                 const struct wl_pointer_listener* listener,
-                                 void*                             data) const
-        {
-            return this->proxy_add_listener((struct wl_proxy*)wl_pointer, (void (**)(void))listener, data);
-        }
-
-        void pointer_destroy(struct wl_pointer* wl_pointer) const { this->proxy_destroy((struct wl_proxy*)wl_pointer); }
-
-        int registry_add_listener(struct wl_registry*                wl_registry,
-                                  const struct wl_registry_listener* listener,
-                                  void*                              data) const
-        {
-            return this->proxy_add_listener((struct wl_proxy*)wl_registry, (void (**)(void))listener, data);
+            return this->proxy_add_listener(
+                reinterpret_cast<struct wl_proxy*>(wl_registry), reinterpret_cast<void (**)(void)>(listener), data);
         }
 
         void* registry_bind(struct wl_registry*        wl_registry,
@@ -125,7 +131,7 @@ class WaylandLoader
         {
             struct wl_proxy* id;
 
-            id = this->proxy_marshal_constructor_versioned((struct wl_proxy*)wl_registry,
+            id = this->proxy_marshal_constructor_versioned(reinterpret_cast<struct wl_proxy*>(wl_registry),
                                                            WL_REGISTRY_BIND,
                                                            interface,
                                                            version,
@@ -139,24 +145,28 @@ class WaylandLoader
 
         void registry_destroy(struct wl_registry* wl_registry) const
         {
-            this->proxy_destroy((struct wl_proxy*)wl_registry);
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_registry));
         }
 
-        int seat_add_listener(struct wl_seat* wl_seat, const struct wl_seat_listener* listener, void* data) const
+        int seat_add_listener(struct wl_seat* wl_seat, struct wl_seat_listener* listener, void* data) const
         {
-            return proxy_add_listener((struct wl_proxy*)wl_seat, (void (**)(void))listener, data);
+            return proxy_add_listener(
+                reinterpret_cast<struct wl_proxy*>(wl_seat), reinterpret_cast<void (**)(void)>(listener), data);
         }
 
-        void seat_destroy(struct wl_seat* wl_seat) const { this->proxy_destroy((struct wl_proxy*)wl_seat); }
+        void seat_destroy(struct wl_seat* wl_seat) const
+        {
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_seat));
+        }
 
         struct wl_keyboard* seat_get_keyboard(struct wl_seat* wl_seat) const
         {
             struct wl_proxy* id;
 
             id = this->proxy_marshal_constructor(
-                (struct wl_proxy*)wl_seat, WL_SEAT_GET_KEYBOARD, this->keyboard_interface, NULL);
+                reinterpret_cast<struct wl_proxy*>(wl_seat), WL_SEAT_GET_KEYBOARD, this->keyboard_interface, NULL);
 
-            return (struct wl_keyboard*)id;
+            return reinterpret_cast<struct wl_keyboard*>(id);
         }
 
         struct wl_pointer* seat_get_pointer(struct wl_seat* wl_seat) const
@@ -164,43 +174,52 @@ class WaylandLoader
             struct wl_proxy* id;
 
             id = this->proxy_marshal_constructor(
-                (struct wl_proxy*)wl_seat, WL_SEAT_GET_POINTER, this->pointer_interface, NULL);
+                reinterpret_cast<struct wl_proxy*>(wl_seat), WL_SEAT_GET_POINTER, this->pointer_interface, NULL);
 
-            return (struct wl_pointer*)id;
+            return reinterpret_cast<struct wl_pointer*>(id);
         }
 
-        void shell_destroy(struct wl_shell* wl_shell) const { this->proxy_destroy((struct wl_proxy*)wl_shell); }
+        void shell_destroy(struct wl_shell* wl_shell) const
+        {
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_shell));
+        }
 
         struct wl_shell_surface* shell_get_shell_surface(struct wl_shell* wl_shell, struct wl_surface* surface) const
         {
             struct wl_proxy* id;
 
-            id = this->proxy_marshal_constructor(
-                (struct wl_proxy*)wl_shell, WL_SHELL_GET_SHELL_SURFACE, this->shell_surface_interface, NULL, surface);
+            id = this->proxy_marshal_constructor(reinterpret_cast<struct wl_proxy*>(wl_shell),
+                                                 WL_SHELL_GET_SHELL_SURFACE,
+                                                 this->shell_surface_interface,
+                                                 NULL,
+                                                 surface);
 
-            return (struct wl_shell_surface*)id;
+            return reinterpret_cast<struct wl_shell_surface*>(id);
         }
 
-        int shell_surface_add_listener(struct wl_shell_surface*                wl_shell_surface,
-                                       const struct wl_shell_surface_listener* listener,
-                                       void*                                   data) const
+        int shell_surface_add_listener(struct wl_shell_surface*          wl_shell_surface,
+                                       struct wl_shell_surface_listener* listener,
+                                       void*                             data) const
         {
-            return this->proxy_add_listener((struct wl_proxy*)wl_shell_surface, (void (**)(void))listener, data);
+            return this->proxy_add_listener(reinterpret_cast<struct wl_proxy*>(wl_shell_surface),
+                                            reinterpret_cast<void (**)(void)>(listener),
+                                            data);
         }
 
         void shell_surface_destroy(struct wl_shell_surface* wl_shell_surface) const
         {
-            this->proxy_destroy((struct wl_proxy*)wl_shell_surface);
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_shell_surface));
         }
 
         void shell_surface_move(struct wl_shell_surface* wl_shell_surface, struct wl_seat* seat, uint32_t serial) const
         {
-            this->proxy_marshal((struct wl_proxy*)wl_shell_surface, WL_SHELL_SURFACE_MOVE, seat, serial);
+            this->proxy_marshal(
+                reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_MOVE, seat, serial);
         }
 
         void shell_surface_pong(struct wl_shell_surface* wl_shell_surface, uint32_t serial) const
         {
-            this->proxy_marshal((struct wl_proxy*)wl_shell_surface, WL_SHELL_SURFACE_PONG, serial);
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_PONG, serial);
         }
 
         void shell_surface_set_fullscreen(struct wl_shell_surface* wl_shell_surface,
@@ -208,36 +227,36 @@ class WaylandLoader
                                           uint32_t                 framerate,
                                           struct wl_output*        output) const
         {
-            this->proxy_marshal((struct wl_proxy*)wl_shell_surface, WL_SHELL_SURFACE_SET_FULLSCREEN);
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_SET_FULLSCREEN);
         }
 
         void shell_surface_set_title(struct wl_shell_surface* wl_shell_surface, const char* title) const
         {
-            this->proxy_marshal((struct wl_proxy*)wl_shell_surface, WL_SHELL_SURFACE_SET_TITLE, title);
+            this->proxy_marshal(
+                reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_SET_TITLE, title);
         }
 
         void shell_surface_set_toplevel(struct wl_shell_surface* wl_shell_surface) const
         {
-            this->proxy_marshal((struct wl_proxy*)wl_shell_surface, WL_SHELL_SURFACE_SET_TOPLEVEL);
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_shell_surface), WL_SHELL_SURFACE_SET_TOPLEVEL);
         }
 
-        int surface_add_listener(struct wl_surface*                wl_surface,
-                                 const struct wl_surface_listener* listener,
-                                 void*                             data) const
+        int surface_add_listener(struct wl_surface* wl_surface, struct wl_surface_listener* listener, void* data) const
         {
-            return this->proxy_add_listener((struct wl_proxy*)wl_surface, (void (**)(void))listener, data);
+            return this->proxy_add_listener(
+                reinterpret_cast<struct wl_proxy*>(wl_surface), reinterpret_cast<void (**)(void)>(listener), data);
         }
 
         void surface_set_buffer_scale(struct wl_surface* wl_surface, int32_t scale) const
         {
-            this->proxy_marshal((struct wl_proxy*)wl_surface, WL_SURFACE_SET_BUFFER_SCALE, scale);
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_surface), WL_SURFACE_SET_BUFFER_SCALE, scale);
         }
 
         void surface_destroy(struct wl_surface* wl_surface) const
         {
-            this->proxy_marshal((struct wl_proxy*)wl_surface, WL_SURFACE_DESTROY);
+            this->proxy_marshal(reinterpret_cast<struct wl_proxy*>(wl_surface), WL_SURFACE_DESTROY);
 
-            this->proxy_destroy((struct wl_proxy*)wl_surface);
+            this->proxy_destroy(reinterpret_cast<struct wl_proxy*>(wl_surface));
         }
     };
 
