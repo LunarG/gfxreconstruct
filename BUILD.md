@@ -72,21 +72,22 @@ Submodules will need to be updated when the repository status (e.g.
 after a repository update (e.g. `git pull`).
 
 ## Common build instructions
-- There is a Python-3 build.py script at the repo root that can be used to update
+- There is a Python-3 `build.py` script at the repo root that can be used to update
   all dependencies, and build the project on both Windows and Linux.
-  Run the script with the -h option to get help on how to run the build using
+  Run the script with the `-h` option to get help on how to run the build using
   the script.  
   The script requires Python 3.5 and above.
-- There is an optional pre-build step for every target to run clang-format
+- There is an optional pre-build step for every target to run `clang-format`
   to apply the GFXReconstruct code style on the code.  
-  This requires clang-format to be installed on the system.
+  This requires `clang-format` to be installed on the system.
+  (`clang-format` version 9 is recommended.)
   Use the `-DAPPLY_CPP_CODE_STYLE=ON` option to enable this pre-build step.
-  Use the --code-style option if building with the build script.
+  Use the `--code-style` option if building with the build script.
   Code style is not applied to generated files.
 - It is recommended to run static analysis on the code before submission.
-  Use the -DRUN_STATIC_ANALYSIS=ON to run a post-build static analysis using
-  clang-tidy.
-  Use the --static-analysis option if building with the build script.
+  Use the `-DRUN_STATIC_ANALYSIS=ON` to run a post-build static analysis using
+  `clang-tidy`.
+  Use the `--static-analysis` option if building with the build script.
 
 ## Building for Windows
 ### Windows Development Environment Requirements
@@ -103,8 +104,10 @@ after a repository update (e.g. `git pull`).
   - Some IDEs (e.g., [Visual Studio](https://www.visualstudio.com/),
     [GitHub Desktop](https://desktop.github.com/)) have integrated
     Git client support
-- Clang-format and Clang-tidy can be installed by installing the Windows Clang
-  package from http://llvm.org/builds/
+- Clang-format and Clang-tidy can be installed by installing the Windows Clang 9
+  package from https://releases.llvm.org/download.html; you can install either
+  the [32-bit package](https://releases.llvm.org/9.0.0/LLVM-9.0.0-win32.exe)
+  or the [64-bit package](https://releases.llvm.org/9.0.0/LLVM-9.0.0-win64.exe)
 
 ### Windows Build - Microsoft Visual Studio
 The general approach is to run CMake to generate the Visual Studio project
@@ -165,17 +168,38 @@ Building on Linux requires the installation of the following packages:
 * Git
 * CMake
 * X11 + XCB and/or Wayland development libraries
-* clang-format package
+* `clang-format-9` package
 
 The following optional packages are also recommended:
-* clang-tidy package
+* `clang-tidy-9` package
 
 ##### Ubuntu
-On Ubuntu, the required packages can be installed with the following
-command:
+On Ubuntu 20, `clang-format-9` is the default chosen by the installer.
+On earlier versions of Ubuntu, install the correct `clang-format` from the
+[LLVM toolchain repository](https://apt.llvm.org), either using the processes
+described there, or the summary here:
+- Ubuntu 18 (Bionic)
 ```
+echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main" | sudo tee /etc/apt/sources.list.d/llvm.list
+wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+```
+- Ubuntu 16 (Xenial)
+```
+echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main" | sudo tee /etc/apt/sources.list.d/llvm.list
+wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+```
+
+On any version of Ubuntu, continue with:
+```
+sudo apt update
 sudo apt-get install git cmake build-essential libx11-xcb-dev libxcb-keysyms1-dev \
-        libwayland-dev libxrandr-dev liblz4-dev libzstd-dev clang-format clang-tidy
+        libwayland-dev libxrandr-dev liblz4-dev libzstd-dev clang-format-9 clang-tidy-9
+```
+
+Configure `clang-format` and `clang-tidy` so that the new version is used by default:
+```
+sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-9 900
+sudo update-alternatives --install /usr/bin/clang-tidy clang-tidy /usr/bin/clang-tidy-9 900
 ```
 
 ##### Fedora Core
@@ -216,7 +240,7 @@ For build systems that support ccache, enable it with the CMake
 `-DUSE_CCACHE=On` option.
 
 ## Android
-### Android Develpment Requirements
+### Android Development Requirements
  * The latest version of [Android Studio](https://developer.android.com/studio/) with additional items:
    * The [Android Platform tools](https://developer.android.com/studio/releases/platform-tools) for your specific platform
    * The [Android NDK](https://developer.android.com/ndk/guides/)
