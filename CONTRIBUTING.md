@@ -15,7 +15,7 @@ While there are often active and organized development efforts underway to
 improve the functionality
 and coverage of this layer, there are always opportunities for anyone to help
 by contributing.
-The easiest method for contribuiting is to examine the
+The easiest method for contributing is to examine the
 [issues list](https://github.com/LunarG/gfxreconstruct/issues) in this repository
 and look for issues that are of interest
 
@@ -50,7 +50,7 @@ GitHub under Issues and Pull Requests.
 
 #### **Coding Conventions and Formatting**
 * The coding style is a custom clang-format style defined in the .clang-format
-  file at the base of the repo tree.
+  file at the base of the repo tree, and using **clang-format-9**.
 * Run **clang-format** on your changes to maintain consistent formatting
     * There are `.clang-format files` present in the repository to define
       clang-format settings which are found and used automatically by clang-format.
