@@ -774,9 +774,10 @@ VkResult VulkanRebindAllocator::WriteMappedMemoryRange(MemoryData     allocator_
             // Update the reconstructed memory, which is written to memory allocations created at resource bind to
             // ensure they contain the correct data.
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
-            size_t copy_size = static_cast<size_t>(size);
+            size_t   copy_size = static_cast<size_t>(size);
+            uint8_t* copy_dst  = memory_alloc_info->original_content.get() + memory_alloc_info->mapped_offset + offset;
 
-            util::platform::MemoryCopy(memory_alloc_info->original_content.get() + offset, copy_size, data, copy_size);
+            util::platform::MemoryCopy(copy_dst, copy_size, data, copy_size);
 
             VkDeviceSize write_start = memory_alloc_info->mapped_offset + offset;
             VkDeviceSize write_end   = write_start + size;
