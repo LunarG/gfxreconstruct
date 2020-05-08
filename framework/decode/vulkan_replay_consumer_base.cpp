@@ -132,9 +132,13 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 }
 #endif
 
-VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options) :
-    loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
-    window_factory_(window_factory), options_(options), loading_trim_state_(false)
+VulkanReplayConsumerBase::VulkanReplayConsumerBase(
+    WindowFactory*                                         window_factory,
+    const std::shared_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
+    const ReplayOptions&                                   options) :
+    loader_handle_(nullptr),
+    get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), window_factory_(window_factory),
+    resource_tracking_consumer_(resource_tracking_consumer), options_(options), loading_trim_state_(false)
 {
     assert(window_factory != nullptr);
     assert(options.create_resource_allocator != nullptr);

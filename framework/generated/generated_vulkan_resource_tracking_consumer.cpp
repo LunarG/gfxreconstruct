@@ -33,14 +33,14 @@ void VulkanResourceTrackingConsumer::Process_vkCreateInstance(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkInstance>*           pInstance)
 {
-    //printf("%s\n", "vkCreateInstance");
+    OverrideCreateInstance(pCreateInfo, pAllocator, pInstance);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkDestroyInstance(
     format::HandleId                            instance,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    //printf("%s\n", "vkDestroyInstance");
+    OverrideDestroyInstance(instance, pAllocator);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkEnumeratePhysicalDevices(
@@ -49,7 +49,7 @@ void VulkanResourceTrackingConsumer::Process_vkEnumeratePhysicalDevices(
     PointerDecoder<uint32_t>*                   pPhysicalDeviceCount,
     HandlePointerDecoder<VkPhysicalDevice>*     pPhysicalDevices)
 {
-    //printf("%s\n", "vkEnumeratePhysicalDevices");
+    OverrideEnumeratePhysicalDevices(instance, pPhysicalDeviceCount, pPhysicalDevices);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkGetPhysicalDeviceFeatures(
@@ -109,14 +109,14 @@ void VulkanResourceTrackingConsumer::Process_vkCreateDevice(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDevice>*             pDevice)
 {
-    //printf("%s\n", "vkCreateDevice");
+    OverrideCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkDestroyDevice(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    //printf("%s\n", "vkDestroyDevice");
+    OverrideDestroyDevice(device, pAllocator);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkGetDeviceQueue(
@@ -240,7 +240,7 @@ void VulkanResourceTrackingConsumer::Process_vkGetBufferMemoryRequirements(
     format::HandleId                            buffer,
     StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements)
 {
-    //printf("%s\n", "vkGetBufferMemoryRequirements");
+    OverrideGetBufferMemoryRequirements(device, buffer, pMemoryRequirements);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkGetImageMemoryRequirements(
@@ -248,7 +248,7 @@ void VulkanResourceTrackingConsumer::Process_vkGetImageMemoryRequirements(
     format::HandleId                            image,
     StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements)
 {
-    //printf("%s\n", "vkGetImageMemoryRequirements");
+    OverrideGetImageMemoryRequirements(device, image, pMemoryRequirements);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkGetImageSparseMemoryRequirements(
@@ -436,7 +436,7 @@ void VulkanResourceTrackingConsumer::Process_vkDestroyBuffer(
     format::HandleId                            buffer,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    //printf("%s\n", "vkDestroyBuffer");
+    OverrideDestroyBuffer(device, buffer, pAllocator);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkCreateBufferView(
@@ -472,7 +472,7 @@ void VulkanResourceTrackingConsumer::Process_vkDestroyImage(
     format::HandleId                            image,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    //printf("%s\n", "vkDestroyImage");
+    OverrideDestroyImage(device, image, pAllocator);
 }
 
 void VulkanResourceTrackingConsumer::Process_vkGetImageSubresourceLayout(

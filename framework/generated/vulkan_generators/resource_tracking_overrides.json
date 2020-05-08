@@ -1,10 +1,19 @@
 {
   "functions": {
+    "vkCreateInstance": "OverrideCreateInstance",
+    "vkCreateDevice": "OverrideCreateDevice",
+    "vkEnumeratePhysicalDevices": "OverrideEnumeratePhysicalDevices",
     "vkCreateBuffer": "OverrideCreateBuffer",
     "vkCreateImage": "OverrideCreateImage",
     "vkAllocateMemory": "OverrideAllocateMemory",
     "vkBindBufferMemory": "OverrideBindBufferMemory",
     "vkBindImageMemory": "OverrideBindImageMemory",
-    "vkMapMemory": "OverrideMapMemory"
+    "vkMapMemory": "OverrideMapMemory",
+    "vkGetBufferMemoryRequirements": "OverrideGetBufferMemoryRequirements",
+    "vkGetImageMemoryRequirements": "OverrideGetImageMemoryRequirements",
+    "vkDestroyInstance": "OverrideDestroyInstance",
+    "vkDestroyDevice": "OverrideDestroyDevice",
+    "vkDestroyBuffer": "OverrideDestroyBuffer",
+    "vkDestroyImage": "OverrideDestroyImage"
   }
 }

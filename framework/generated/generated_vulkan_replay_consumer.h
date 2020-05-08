@@ -34,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumer : public VulkanReplayConsumerBase
 {
   public:
-    VulkanReplayConsumer(WindowFactory* window_factory, const ReplayOptions& options) : VulkanReplayConsumerBase(window_factory, options) { }
+    VulkanReplayConsumer(WindowFactory* window_factory, const std::shared_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer, const ReplayOptions& options) : VulkanReplayConsumerBase(window_factory, resource_tracking_consumer, options) { }
 
     virtual ~VulkanReplayConsumer() override { }
 

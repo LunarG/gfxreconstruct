@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include "format/format.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+#include "generated/generated_vulkan_resource_tracking_consumer.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
@@ -104,8 +105,34 @@ void android_main(struct android_app* app)
                 else
                 {
                     gfxrecon::decode::VulkanDecoder        decoder;
-                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get(),
-                                                                           GetReplayOptions(arg_parser));
+
+                    // TODO(gfxrec-28): add user option to enable multipass replay for memory portability
+                    // first pass of replay to generate resource tracking information
+                    bool                                                              enable_multipass = false;
+                    std::shared_ptr<gfxrecon::decode::VulkanResourceTrackingConsumer> resource_tracking_consumer;
+
+                    if (enable_multipass)
+                    {
+                        gfxrecon::decode::FileProcessor file_processor_resource_tracking;
+
+                        resource_tracking_consumer = std::make_shared<gfxrecon::decode::VulkanResourceTrackingConsumer>(
+                            GetReplayOptions(arg_parser));
+
+                        if (file_processor_resource_tracking.Initialize(filename))
+                        {
+                            decoder.AddConsumer(resource_tracking_consumer.get());
+
+                            file_processor_resource_tracking.AddDecoder(&decoder);
+                            file_processor_resource_tracking.ProcessAllFrames();
+
+                            file_processor_resource_tracking.RemoveDecoder(&decoder);
+                            decoder.RemoveConsumer(resource_tracking_consumer.get());
+                        }
+                    }
+
+                    // replay trace
+                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(
+                        window_factory.get(), resource_tracking_consumer, GetReplayOptions(arg_parser));
 
                     replay_consumer.SetFatalErrorHandler(
                         [](const char* message) { throw std::runtime_error(message); });

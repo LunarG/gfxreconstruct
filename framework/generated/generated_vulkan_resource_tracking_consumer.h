@@ -32,7 +32,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanResourceTrackingConsumer : public VulkanResourceTrackingConsumerBase
 {
   public:
-    VulkanResourceTrackingConsumer(VulkanReplayConsumer* replay_consumer, const ReplayOptions& options) : VulkanResourceTrackingConsumerBase(replay_consumer, options) { }
+    VulkanResourceTrackingConsumer(const ReplayOptions& options) : VulkanResourceTrackingConsumerBase(options) { }
 
     virtual ~VulkanResourceTrackingConsumer() override { }
 
