@@ -22,6 +22,8 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/logging.h"
 
+#include <cassert>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -95,6 +97,8 @@ VkResult VulkanRemapAllocator::AllocateMemory(const VkMemoryAllocateInfo*  alloc
 
     if ((allocate_info != nullptr) && (allocator_data != nullptr))
     {
+        assert(allocate_info->memoryTypeIndex < index_map_.size());
+
         VkMemoryAllocateInfo replay_allocate_info = *allocate_info;
 
         replay_allocate_info.memoryTypeIndex = index_map_[allocate_info->memoryTypeIndex];
