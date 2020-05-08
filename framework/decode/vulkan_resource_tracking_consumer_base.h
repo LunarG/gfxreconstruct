@@ -11,12 +11,11 @@
 #ifndef GFXRECON_DECODE_VULKAN_RESOURCE_TRACKING_CONSUMER_BASE_H
 #define GFXRECON_DECODE_VULKAN_RESOURCE_TRACKING_CONSUMER_BASE_H
 
-#include "decode/vulkan_object_info.h"
-#include "decode/vulkan_object_info_table.h"
+#include "decode/vulkan_tracked_object_info.h"
+#include "decode/vulkan_tracked_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_consumer.h"
-#include "generated/generated_vulkan_replay_consumer.h"
 
 #include "util/defines.h"
 
@@ -31,17 +30,22 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanResourceTrackingConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanResourceTrackingConsumerBase(VulkanReplayConsumer* replay_consumer, const ReplayOptions& options);
+    VulkanResourceTrackingConsumerBase(const ReplayOptions& options);
 
     virtual ~VulkanResourceTrackingConsumerBase() override;
 
-    bool Initialize(const std::string& filename);
+    void OverrideCreateInstance(const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo,
+                                StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+                                HandlePointerDecoder<VkInstance>*                         pInstance);
 
-    void Destroy();
+    void OverrideCreateDevice(format::HandleId                                        physicalDevice,
+                              const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* pCreateInfo,
+                              StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
+                              HandlePointerDecoder<VkDevice>*                         pDevice);
 
-    bool IsValid() const { return (file_ != nullptr); }
-
-    const std::string& GetFilename() const { return filename_; }
+    void OverrideEnumeratePhysicalDevices(format::HandleId                        instance,
+                                          PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
+                                          HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices);
 
     void OverrideCreateBuffer(format::HandleId                                           device,
                               const StructPointerDecoder<Decoded_VkBufferCreateInfo>*    create_info,
@@ -75,6 +79,28 @@ class VulkanResourceTrackingConsumerBase : public VulkanConsumer
                            VkMemoryMapFlags                 flags,
                            PointerDecoder<uint64_t, void*>* data_pointer);
 
+    void OverrideGetBufferMemoryRequirements(format::HandleId                                    device,
+                                             format::HandleId                                    buffer,
+                                             StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements);
+
+    void OverrideGetImageMemoryRequirements(format::HandleId                                    device,
+                                            format::HandleId                                    image,
+                                            StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements);
+
+    void OverrideDestroyInstance(format::HandleId                                     instance,
+                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideDestroyDevice(format::HandleId                                     device,
+                               StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideDestroyBuffer(format::HandleId                                     device,
+                               format::HandleId                                     buffer,
+                               StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideDestroyImage(format::HandleId                                     device,
+                              format::HandleId                                     image,
+                              StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
     void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
     void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
@@ -93,14 +119,24 @@ class VulkanResourceTrackingConsumerBase : public VulkanConsumer
                                                       format::HandleId                 descriptor_update_template,
                                                       DescriptorUpdateTemplateDecoder* data) override;
 
-  protected:
-    FILE* GetFile() const { return file_; }
+    VulkanTrackedObjectInfoTable& GetTrackedObjectInfoTable() { return tracked_object_info_table_; }
 
   private:
-    FILE*                 file_;
-    std::string           filename_;
-    ReplayOptions         options_;
-    VulkanReplayConsumer* replay_consumer_;
+    // funtion pointers to the API calls that will be made during the first pass of replay
+    PFN_vkCreateInstance              create_instance_function_;
+    PFN_vkEnumeratePhysicalDevices    enumerate_physical_devices_function_;
+    PFN_vkCreateDevice                create_device_function_;
+    PFN_vkCreateBuffer                create_buffer_function_;
+    PFN_vkCreateImage                 create_image_function_;
+    PFN_vkGetBufferMemoryRequirements get_buffer_memory_requirement_function_;
+    PFN_vkGetImageMemoryRequirements  get_image_memory_requirement_function_;
+    PFN_vkDestroyBuffer               destroy_buffer_function_;
+    PFN_vkDestroyImage                destroy_image_function_;
+    PFN_vkDestroyDevice               destroy_device_function_;
+    PFN_vkDestroyInstance             destroy_instance_function_;
+
+    ReplayOptions                options_;
+    VulkanTrackedObjectInfoTable tracked_object_info_table_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

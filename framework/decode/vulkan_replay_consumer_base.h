@@ -32,6 +32,7 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
+#include "generated/generated_vulkan_resource_tracking_consumer.h"
 #include "util/defines.h"
 #include "util/logging.h"
 
@@ -57,7 +58,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options);
+    VulkanReplayConsumerBase(WindowFactory*                                         window_factory,
+                             const std::shared_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
+                             const ReplayOptions&                                   options);
 
     virtual ~VulkanReplayConsumerBase() override;
 
@@ -718,6 +721,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
     std::unordered_set<format::HandleId>                             active_instance_ids_;
     std::unordered_set<format::HandleId>                             active_device_ids_;
+    std::shared_ptr<VulkanResourceTrackingConsumer>                  resource_tracking_consumer_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

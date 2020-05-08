@@ -44,8 +44,14 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_rebind_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_remap_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_remap_allocator.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_tracked_object_info_table.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_tracking_consumer_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_tracking_consumer_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_options.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_initializer.h
@@ -58,6 +64,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_resource_tracking_consumer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_resource_tracking_consumer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders_forward.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_decoders.cpp
