@@ -207,14 +207,12 @@ void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& m
     GFXRECON_LOG_INFO("Trace Message: %s", message.c_str());
 }
 
-void VulkanReplayConsumerBase::UpdateResourcesData(
+VkResult VulkanReplayConsumerBase::UpdateResourcesData(
     const std::unique_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
+    const DeviceMemoryInfo*                                memory_info,
     uint64_t                                               memory_id,
     uint64_t                                               offset,
     uint64_t                                               size,
-    uint64_t&                                              mapped_memory_offset,
-    uint64_t&                                              data_offset,
-    uint64_t&                                              copy_size,
     const uint8_t*                                         data)
 {
     // find the corresponding resources offset and update fill memory to new offset
@@ -222,7 +220,11 @@ void VulkanReplayConsumerBase::UpdateResourcesData(
         resource_tracking_consumer->GetTrackedObjectInfoTable().GetTrackedDeviceMemoryInfo(memory_id);
 
     std::vector<TrackedResourceInfo*>* tracked_bound_resources = tracked_memory_info->GetBoundResourcesList();
+    VkDeviceSize                       mapped_memory_offset    = offset;
+    VkDeviceSize                       data_offset             = 0;
+    uint64_t                           copy_size               = 0;
     bool                               is_image                = false;
+    VkResult                           result                  = VK_ERROR_INITIALIZATION_FAILED;
 
     // loop through all the bound resources in the memory objects and update the
     // updated mapped memory offset, data offset and data size
@@ -290,13 +292,24 @@ void VulkanReplayConsumerBase::UpdateResourcesData(
             {
                 GFXRECON_LOG_FATAL("Fill memory offset translation failed!");
             }
+
+            auto allocator = memory_info->allocator;
+
+            if (allocator != nullptr)
+            {
+                result = allocator->WriteMappedMemoryRange(
+                    memory_info->allocator_data, mapped_memory_offset, copy_size, data_offset, data);
+            }
         }
         else
         {
             // TODO: handle copy image subresources?
             is_image = true;
+            result   = VK_SUCCESS;
         }
     }
+
+    return result;
 }
 
 void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
@@ -311,28 +324,24 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 
     if (memory_info != nullptr)
     {
-        uint64_t mapped_offset = offset;
-        uint64_t data_offset   = 0;
-        uint64_t copy_size     = size;
-
         if (resource_tracking_consumer_ != nullptr)
         {
-            UpdateResourcesData(
-                resource_tracking_consumer_, memory_id, offset, size, mapped_offset, data_offset, copy_size, data);
-        }
-
-        auto allocator = memory_info->allocator;
-
-        if (allocator != nullptr)
-        {
-            result = allocator->WriteMappedMemoryRange(
-                memory_info->allocator_data, mapped_offset, copy_size, data_offset, data);
+            result = UpdateResourcesData(resource_tracking_consumer_, memory_info, memory_id, offset, size, data);
         }
         else
         {
-            GFXRECON_LOG_WARNING("Skipping memory fill for VkDeviceMemory object (ID = %" PRIu64
-                                 ") that is not associated with a resource allocator",
-                                 memory_id);
+            auto allocator = memory_info->allocator;
+
+            if (allocator != nullptr)
+            {
+                result = allocator->WriteMappedMemoryRange(memory_info->allocator_data, offset, size, 0, data);
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("Skipping memory fill for VkDeviceMemory object (ID = %" PRIu64
+                                     ") that is not associated with a resource allocator",
+                                     memory_id);
+            }
         }
     }
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
@@ -2191,13 +2200,9 @@ void VulkanReplayConsumerBase::FindMatchResourcesOffsets(TrackedDeviceMemoryInfo
     std::vector<TrackedResourceInfo*>* tracked_bound_resources = tracked_memory_info->GetBoundResourcesList();
     for (size_t i = 0; i < (*tracked_bound_resources).size(); i++)
     {
-        if ((*tracked_bound_resources)[i]->GetTraceBindOffset() == offset)
-        {
-            offset = (*tracked_bound_resources)[i]->GetReplayBindOffset();
-        }
-        else if ((offset > (*tracked_bound_resources)[i]->GetTraceBindOffset()) &&
-                 (offset <= ((*tracked_bound_resources)[i]->GetTraceBindOffset() +
-                             (*tracked_bound_resources)[i]->GetReplayResourceSize())))
+        if ((offset > (*tracked_bound_resources)[i]->GetTraceBindOffset()) &&
+            (offset <= ((*tracked_bound_resources)[i]->GetTraceBindOffset() +
+                        (*tracked_bound_resources)[i]->GetReplayResourceSize())))
         {
             int64_t offset_diff = (*tracked_bound_resources)[i]->GetReplayBindOffset() -
                                   (*tracked_bound_resources)[i]->GetTraceBindOffset();

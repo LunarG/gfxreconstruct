@@ -49,14 +49,14 @@ class VulkanResourceTrackingConsumerBase : public VulkanConsumer
 
     const encode::DeviceTable* GetDeviceTable(const void* handle) const;
 
-    void OverrideCreateInstance(const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo,
-                                StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
-                                HandlePointerDecoder<VkInstance>*                         pInstance);
+    void OverrideCreateInstance(const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
+                                const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                HandlePointerDecoder<VkInstance>*                          pInstance);
 
-    void OverrideCreateDevice(format::HandleId                                        physicalDevice,
-                              const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* pCreateInfo,
-                              StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
-                              HandlePointerDecoder<VkDevice>*                         pDevice);
+    void OverrideCreateDevice(format::HandleId                                           physicalDevice,
+                              const StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
+                              const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                              HandlePointerDecoder<VkDevice>*                            pDevice);
 
     void OverrideEnumeratePhysicalDevices(format::HandleId                        instance,
                                           PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
@@ -110,37 +110,21 @@ class VulkanResourceTrackingConsumerBase : public VulkanConsumer
                                             format::HandleId                                    image,
                                             StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements);
 
-    void OverrideDestroyInstance(format::HandleId                                     instance,
-                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+    void OverrideDestroyInstance(format::HandleId                                           instance,
+                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
-    void OverrideDestroyDevice(format::HandleId                                     device,
-                               StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+    void OverrideDestroyDevice(format::HandleId                                           device,
+                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
-    void OverrideDestroyBuffer(format::HandleId                                     device,
-                               format::HandleId                                     buffer,
-                               StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+    void OverrideDestroyBuffer(format::HandleId                                           device,
+                               format::HandleId                                           buffer,
+                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
-    void OverrideDestroyImage(format::HandleId                                     device,
-                              format::HandleId                                     image,
-                              StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+    void OverrideDestroyImage(format::HandleId                                           device,
+                              format::HandleId                                           image,
+                              const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
-
-    void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
-                                                   format::HandleId                 descriptor_set,
-                                                   format::HandleId                 descriptor_update_template,
-                                                   DescriptorUpdateTemplateDecoder* data) override;
-
-    void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId                 command_buffer,
-                                                       format::HandleId                 descriptor_update_template,
-                                                       format::HandleId                 layout,
-                                                       uint32_t                         set,
-                                                       DescriptorUpdateTemplateDecoder* data) override;
-
-    void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
-                                                      format::HandleId                 descriptor_set,
-                                                      format::HandleId                 descriptor_update_template,
-                                                      DescriptorUpdateTemplateDecoder* data) override;
 
     VulkanTrackedObjectInfoTable& GetTrackedObjectInfoTable() { return tracked_object_info_table_; }
 
