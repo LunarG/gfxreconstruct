@@ -201,6 +201,42 @@ VkDeviceSize TrackedResourceInfo::GetReplayBindOffset()
     return replay_bind_offset_;
 }
 
+void TrackedResourceInfo::SetTraceResourceSize(VkDeviceSize size)
+{
+    if (size > 0)
+    {
+        trace_size_ = size;
+    }
+}
+
+VkDeviceSize TrackedResourceInfo::GetTraceResourceSize()
+{
+    return trace_size_;
+}
+
+void TrackedResourceInfo::SetTraceResourceAlignment(VkDeviceSize alignment)
+{
+    if (alignment > 0)
+    {
+        trace_alignment_ = alignment;
+    }
+}
+
+VkDeviceSize TrackedResourceInfo::GetTraceResourceAlignment()
+{
+    return trace_alignment_;
+}
+
+void TrackedResourceInfo::SetTraceResourceMemoryTypeBits(uint32_t memory_type_bits)
+{
+    trace_memory_type_bits_ = memory_type_bits;
+}
+
+uint32_t TrackedResourceInfo::GetTraceResourceMemoryTypeBits()
+{
+    return trace_memory_type_bits_;
+}
+
 void TrackedResourceInfo::SetReplayResourceSize(VkDeviceSize size)
 {
     if (size > 0)

@@ -679,14 +679,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void FindMatchResourcesOffsets(TrackedDeviceMemoryInfo* tracked_memory_info, VkDeviceSize& offset);
 
     // Util function to update the resource data (memcpy to mapped memory)
-    void UpdateResourcesData(const std::unique_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
-                             uint64_t                                               memory_id,
-                             uint64_t                                               offset,
-                             uint64_t                                               size,
-                             uint64_t&                                              mapped_memory_offset,
-                             uint64_t&                                              data_offset,
-                             uint64_t&                                              copy_size,
-                             const uint8_t*                                         data);
+    VkResult UpdateResourcesData(const std::unique_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
+                                 const DeviceMemoryInfo*                                memory_info,
+                                 uint64_t                                               memory_id,
+                                 uint64_t                                               offset,
+                                 uint64_t                                               size,
+                                 const uint8_t*                                         data);
 
   private:
     typedef std::unordered_set<Window*> ActiveWindows;

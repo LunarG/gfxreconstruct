@@ -191,6 +191,24 @@ class TrackedResourceInfo
     // Get required memory type bit of the resource in the replay device
     uint32_t GetReplayResourceMemoryTypeBits();
 
+    // Set required size of the resource in the trace device
+    void SetTraceResourceSize(VkDeviceSize size);
+
+    // Get required size of the resource in the trace device
+    VkDeviceSize GetTraceResourceSize();
+
+    // Set required alignment of the resource in the trace device
+    void SetTraceResourceAlignment(VkDeviceSize alignment);
+
+    // Get required alignment of the resource in the trace device
+    VkDeviceSize GetTraceResourceAlignment();
+
+    // Set required memory type bit of the resource in the trace device
+    void SetTraceResourceMemoryTypeBits(uint32_t memory_type_bits);
+
+    // Get required memory type bit of the resource in the trace device
+    uint32_t GetTraceResourceMemoryTypeBits();
+
     // Set buffer's queue family index
     void SetQueueFamilyIndex(uint32_t queue_family_index);
 
@@ -238,6 +256,11 @@ class TrackedResourceInfo
     // binding offsets
     VkDeviceSize trace_bind_offset_{ 0 };
     VkDeviceSize replay_bind_offset_{ 0 };
+
+    // Trace memory requirement
+    VkDeviceSize trace_size_{ 0 };
+    VkDeviceSize trace_alignment_{ 0 };
+    uint32_t     trace_memory_type_bits_{ 0 };
 
     // Replay memory requirement
     VkDeviceSize replay_size_{ 0 };
