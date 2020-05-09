@@ -32,6 +32,7 @@ VkResult VulkanRemapAllocator::Initialize(uint32_t                              
                                           VkPhysicalDevice                        physical_device,
                                           VkDevice                                device,
                                           const std::vector<std::string>&         enabled_device_extensions,
+                                          VkPhysicalDeviceType                    capture_device_type,
                                           const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
                                           const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
                                           const Functions&                        functions)
@@ -43,6 +44,7 @@ VkResult VulkanRemapAllocator::Initialize(uint32_t                              
                                        physical_device,
                                        device,
                                        enabled_device_extensions,
+                                       capture_device_type,
                                        capture_memory_properties,
                                        replay_memory_properties,
                                        functions);

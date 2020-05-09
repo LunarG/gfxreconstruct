@@ -76,6 +76,7 @@ class VulkanResourceAllocator
                                 VkPhysicalDevice                        physical_device,
                                 VkDevice                                device,
                                 const std::vector<std::string>&         enabled_device_extensions,
+                                VkPhysicalDeviceType                    capture_device_type,
                                 const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
                                 const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
                                 const Functions&                        functions) = 0;
