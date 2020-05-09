@@ -40,7 +40,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 const format::HandleId kPlaceholderHandleId = static_cast<format::HandleId>(~0);
 const uintptr_t        kPlaceholderAddress  = static_cast<uintptr_t>(~0);
 
-VulkanRebindAllocator::VulkanRebindAllocator() : device_(VK_NULL_HANDLE), allocator_(VK_NULL_HANDLE) {}
+VulkanRebindAllocator::VulkanRebindAllocator() :
+    device_(VK_NULL_HANDLE), allocator_(VK_NULL_HANDLE), capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER)
+{}
 
 VulkanRebindAllocator::~VulkanRebindAllocator() {}
 
@@ -49,6 +51,7 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
                                            VkPhysicalDevice                        physical_device,
                                            VkDevice                                device,
                                            const std::vector<std::string>&         enabled_device_extensions,
+                                           VkPhysicalDeviceType                    capture_device_type,
                                            const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
                                            const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
                                            const Functions&                        functions)
@@ -64,6 +67,7 @@ VkResult VulkanRebindAllocator::Initialize(uint32_t                             
     {
         device_                    = device;
         functions_                 = functions;
+        capture_device_type_       = capture_device_type;
         capture_memory_properties_ = capture_memory_properties;
         replay_memory_properties_  = replay_memory_properties;
 
@@ -1105,14 +1109,14 @@ VmaMemoryUsage VulkanRebindAllocator::GetBufferMemoryUsage(VkBufferUsageFlags   
         // For exclusive TRANSFER_DST usage, assume GPU_TO_CPU for read back.
         memory_usage = VMA_MEMORY_USAGE_GPU_TO_CPU;
     }
-    else if (((buffer_usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT) == VK_BUFFER_USAGE_TRANSFER_DST_BIT) &&
+    else if ((capture_device_type_ == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) &&
+             ((buffer_usage & VK_BUFFER_USAGE_TRANSFER_DST_BIT) == VK_BUFFER_USAGE_TRANSFER_DST_BIT) &&
              (((buffer_usage & VK_BUFFER_USAGE_TRANSFER_SRC_BIT) != VK_BUFFER_USAGE_TRANSFER_SRC_BIT) &&
               ((buffer_usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) != VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)))
     {
-        // When TRANSFER_DST is combined with non-transfer usage, prefer DEVICE_LOCAL memory when adjusting usage based
-        // on capture memory property flags when there is a DEVICE_LOCAL|HOST_VISIBLE combination. UNIFORM_BUFFER usage
-        // is excluded for cases such as the AMD DEVICE_LOCAL|HOST_VISIBLE memory type, which could be the target of
-        // frequent CPU writes.
+        // When TRANSFER_DST is combined with non-transfer usage on an integrated GPU, prefer DEVICE_LOCAL memory when
+        // adjusting usage based on capture memory property flags when there is a DEVICE_LOCAL|HOST_VISIBLE combination.
+        // UNIFORM_BUFFER usage is excluded due to the potential for frequent CPU writes.
         prefer_device_local = true;
     }
 
@@ -1139,7 +1143,7 @@ VmaMemoryUsage VulkanRebindAllocator::GetBufferMemoryUsage(VkBufferUsageFlags   
         {
             // If the resource was bound to memory the was a combination of DEVICE_LOCAL and HOST_VISIBLE, make it
             // GPU_ONLY if the usage flags indicated a preference for DEVICE_LOCAL memory (eg. resource was created
-            // with TRANSFER_DST usage).
+            // with TRANSFER_DST usage on an integrated GPU).
             memory_usage = VMA_MEMORY_USAGE_GPU_ONLY;
         }
     }

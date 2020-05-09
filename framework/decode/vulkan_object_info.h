@@ -203,7 +203,7 @@ struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
     uint32_t                         capture_driver_version{ 0 };
     uint32_t                         capture_vendor_id{ 0 };
     uint32_t                         capture_device_id{ 0 };
-    uint32_t                         capture_device_type{ 0 };
+    VkPhysicalDeviceType             capture_device_type{ VK_PHYSICAL_DEVICE_TYPE_OTHER };
     uint8_t                          capture_pipeline_cache_uuid[format::kUuidSize]{};
     std::string                      capture_device_name;
     VkPhysicalDeviceMemoryProperties capture_memory_properties{};

@@ -492,7 +492,7 @@ void VulkanReplayConsumerBase::ProcessSetDevicePropertiesCommand(format::HandleI
         physical_device_info->capture_driver_version = driver_version;
         physical_device_info->capture_vendor_id      = vendor_id;
         physical_device_info->capture_device_id      = device_id;
-        physical_device_info->capture_device_type    = device_type;
+        physical_device_info->capture_device_type    = static_cast<VkPhysicalDeviceType>(device_type);
         physical_device_info->capture_device_name    = device_name;
 
         util::platform::MemoryCopy(physical_device_info->capture_pipeline_cache_uuid,
@@ -1892,6 +1892,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
                                             physical_device_info->handle,
                                             device,
                                             enabled_device_extensions,
+                                            physical_device_info->capture_device_type,
                                             physical_device_info->capture_memory_properties,
                                             *replay_device_info->memory_properties,
                                             functions);
