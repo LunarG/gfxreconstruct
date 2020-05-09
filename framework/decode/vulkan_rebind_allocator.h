@@ -43,6 +43,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                 VkPhysicalDevice                        physical_device,
                                 VkDevice                                device,
                                 const std::vector<std::string>&         enabled_device_extensions,
+                                VkPhysicalDeviceType                    capture_device_type,
                                 const VkPhysicalDeviceMemoryProperties& capture_memory_properties,
                                 const VkPhysicalDeviceMemoryProperties& replay_memory_properties,
                                 const Functions&                        functions) override;
@@ -243,6 +244,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     VmaAllocator                     allocator_;
     Functions                        functions_;
     VmaVulkanFunctions               vma_functions_;
+    VkPhysicalDeviceType             capture_device_type_;
     VkPhysicalDeviceMemoryProperties capture_memory_properties_;
     VkPhysicalDeviceMemoryProperties replay_memory_properties_;
 };
