@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -813,16 +813,19 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportK
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 
-#if !defined(VK_USE_PLATFORM_XLIB_KHR)
-#define VK_KHR_XLIB_SURFACE_EXTENSION_NAME "VK_KHR_xlib_surface"
-
-typedef VkFlags VkXlibSurfaceCreateFlagsKHR;
-
+// Xlib type definitions common to both XLIB_KHR and XLIB_XRANDR_KHR
+#if !defined(VK_USE_PLATFORM_XLIB_KHR) && !defined(VK_USE_PLATFORM_XLIB_XRANDR_EXT)
 typedef size_t XID;
 typedef size_t VisualID;
 typedef XID    Window;
 
 struct Display;
+#endif // VK_USE_PLATFORM_XLIB_KHR && VK_USE_PLATFORM_XLIB_XRANDR_EXT
+
+#if !defined(VK_USE_PLATFORM_XLIB_KHR)
+#define VK_KHR_XLIB_SURFACE_EXTENSION_NAME "VK_KHR_xlib_surface"
+
+typedef VkFlags VkXlibSurfaceCreateFlagsKHR;
 
 struct VkXlibSurfaceCreateInfoKHR
 {
