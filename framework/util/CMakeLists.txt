@@ -48,6 +48,7 @@ target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS})
 
 if (UNIX AND NOT APPLE)
     # Check for clock_gettime in libc
+    include(CheckLibraryExists)
     check_library_exists(c clock_gettime "" HAVE_GETTIME)
     if (NOT HAVE_GETTIME)
         # If not in libc, check librt
