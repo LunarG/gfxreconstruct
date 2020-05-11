@@ -44,7 +44,7 @@ const std::vector<std::string> kLoaderLibNames = {
 #if defined(WIN32)
     "vulkan-1.dll"
 #else
-    "libvulkan.so", "libvulkan.so.1"
+    "libvulkan.so.1", "libvulkan.so"
 #endif
 };
 
