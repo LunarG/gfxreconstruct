@@ -21,6 +21,7 @@
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/swapchain_image_tracker.h"
+#include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
@@ -171,15 +172,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typename T::HandleType MapHandle(format::HandleId id,
                                      const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
-        typename T::HandleType handle = VK_NULL_HANDLE;
-        const T*               info   = (object_info_table_.*MapFunc)(id);
-
-        if (info != nullptr)
-        {
-            handle = info->handle;
-        }
-
-        return handle;
+        return handle_mapping::MapHandle(id, object_info_table_, MapFunc);
     }
 
     template <typename T>
@@ -187,35 +180,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                        size_t                                        handles_len,
                                        const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
-        assert(handle_pointer != nullptr);
+        // This parameter is only referenced by debug builds.
+        GFXRECON_UNREFERENCED_PARAMETER(handles_len);
 
         typename T::HandleType* handles = nullptr;
 
-        if (!handle_pointer->IsNull())
+        if ((handle_pointer != nullptr) && !handle_pointer->IsNull())
         {
-            size_t                  ids_len = handle_pointer->GetLength();
-            const format::HandleId* ids     = handle_pointer->GetPointer();
+            // The handle and ID array sizes are expected to be the same for mapping operations.
+            assert(handles_len == handle_pointer->GetLength());
 
-            // The array sizes are expected to be the same for mapping operations.
-            assert(ids_len == handles_len);
-
-            handle_pointer->SetHandleLength(handles_len);
-
-            handles = handle_pointer->GetHandlePointer();
-
-            for (size_t i = 0; i < handles_len; ++i)
-            {
-                const T* info = (object_info_table_.*MapFunc)(ids[i]);
-
-                if (info != nullptr)
-                {
-                    handles[i] = info->handle;
-                }
-                else
-                {
-                    handles[i] = VK_NULL_HANDLE;
-                }
-            }
+            handles = handle_mapping::MapHandleArray(handle_pointer, object_info_table_, MapFunc);
         }
 
         return handles;
@@ -229,9 +204,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     {
         if ((id != nullptr) && (handle != nullptr))
         {
-            initial_info.handle     = *handle;
-            initial_info.capture_id = *id;
-            (object_info_table_.*AddFunc)(std::forward<T>(initial_info));
+            handle_mapping::AddHandle(*id, *handle, std::forward<T>(initial_info), &object_info_table_, AddFunc);
         }
     }
 
@@ -242,10 +215,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     {
         if ((id != nullptr) && (handle != nullptr))
         {
-            T info;
-            info.handle     = (*handle);
-            info.capture_id = (*id);
-            (object_info_table_.*AddFunc)(std::move(info));
+            handle_mapping::AddHandle(*id, *handle, &object_info_table_, AddFunc);
         }
     }
 
@@ -257,20 +227,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     std::vector<T>&&              initial_infos,
                     void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
-        if ((ids != nullptr) && (handles != nullptr))
-        {
-            size_t len = std::min(ids_len, handles_len);
-
-            assert(len <= initial_infos.size());
-
-            for (size_t i = 0; i < len; ++i)
-            {
-                auto info_iter        = std::next(initial_infos.begin(), i);
-                info_iter->handle     = handles[i];
-                info_iter->capture_id = ids[i];
-                (object_info_table_.*AddFunc)(std::move(*info_iter));
-            }
-        }
+        handle_mapping::AddHandleArray(
+            ids, ids_len, handles, handles_len, std::move(initial_infos), &object_info_table_, AddFunc);
     }
 
     template <typename T>
@@ -280,17 +238,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     size_t                        handles_len,
                     void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
-        if ((ids != nullptr) && (handles != nullptr))
-        {
-            size_t len = std::min(ids_len, handles_len);
-            for (size_t i = 0; i < len; ++i)
-            {
-                T info;
-                info.handle     = handles[i];
-                info.capture_id = ids[i];
-                (object_info_table_.*AddFunc)(std::move(info));
-            }
-        }
+        handle_mapping::AddHandleArray(ids, ids_len, handles, handles_len, &object_info_table_, AddFunc);
     }
 
     template <typename HandleInfoT>

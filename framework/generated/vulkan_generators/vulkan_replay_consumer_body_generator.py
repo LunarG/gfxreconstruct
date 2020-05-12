@@ -352,14 +352,14 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                 if value.baseType in self.structsWithHandles:
                                     if value.baseType in self.structsWithHandlePtrs:
                                         preexpr.append('SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'.format(value.baseType, paramname=value.name))
-                                    postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {}, {}, GetObjectInfoTable());'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
+                                    postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {}, {}, &GetObjectInfoTable());'.format(argName, lengthName, paramname=value.name, basetype=value.baseType))
                             else:
                                 expr += 'if (!{paramname}->IsNull()) {{ {paramname}->{} }}'.format(allocExpr, paramname=value.name)
                                 # If this is a struct with handles, we need to add replay mappings for the embedded handles.
                                 if value.baseType in self.structsWithHandles:
                                     if value.baseType in self.structsWithHandlePtrs:
                                         preexpr.append('SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'.format(value.baseType, paramname=value.name))
-                                    postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {paramname}->GetOutputPointer(), {}, GetObjectInfoTable());'.format(lengthName, paramname=value.name, basetype=value.baseType))
+                                    postexpr.append('AddStructArrayHandles<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {paramname}->GetOutputPointer(), {}, &GetObjectInfoTable());'.format(lengthName, paramname=value.name, basetype=value.baseType))
                         else:
                             if needTempValue:
                                 expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData({});'.format(lengthName, paramname=value.name)
@@ -407,11 +407,11 @@ class VulkanReplayConsumerBodyGenerator(BaseGenerator):
                                     if needTempValue:
                                         if value.baseType in self.structsWithHandlePtrs:
                                             preexpr.append('SetStructHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'.format(value.baseType, paramname=value.name))
-                                        postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {}, GetObjectInfoTable());'.format(argName, name=value.name, basetype=value.baseType))
+                                        postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {}, &GetObjectInfoTable());'.format(argName, name=value.name, basetype=value.baseType))
                                     else:
                                         if value.baseType in self.structsWithHandlePtrs:
                                             preexpr.append('SetStructHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'.format(value.baseType, paramname=value.name))
-                                        postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {name}->GetOutputPointer(), GetObjectTable());'.format(name=value.name, basetype=value.baseType))
+                                        postexpr.append('AddStructHandles<Decoded_{basetype}>({name}->GetMetaStructPointer(), {name}->GetOutputPointer(), &GetObjectInfoTable());'.format(name=value.name, basetype=value.baseType))
                             else:
                                 expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, static_cast<{}>(0));'.format(value.baseType, paramname=value.name)
                 if expr:

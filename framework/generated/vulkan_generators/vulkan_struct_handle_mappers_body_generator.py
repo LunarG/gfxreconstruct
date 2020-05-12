@@ -62,6 +62,7 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         self.newline()
         write('#include "decode/custom_vulkan_struct_decoders.h"', file=self.outFile)
         write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
+        write('#include "decode/vulkan_handle_mapping_util.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_decoders.h"', file=self.outFile)
         self.newline()
         write('#include <algorithm>', file=self.outFile)
@@ -69,93 +70,6 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-
-        # Implement a utility function to be used for mapping a single handle.
-        self.newline()
-        write('template <typename T>', file=self.outFile)
-        write('static typename T::HandleType MapHandle(format::HandleId             id,', file=self.outFile)
-        write('                                        const VulkanObjectInfoTable& object_info_table,', file=self.outFile)
-        write('                                        const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const)', file=self.outFile)
-        write('{', file=self.outFile)
-        write('    typename T::HandleType handle = VK_NULL_HANDLE;', file=self.outFile)
-        write('    const T*               info   = (object_info_table.*MapFunc)(id);', file=self.outFile)
-        write('    if (info != nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        handle = info->handle;', file=self.outFile)
-        write('    }', file=self.outFile)
-        write('    return handle;', file=self.outFile)
-        write('}', file=self.outFile)
-
-        # Implement a utility function to be used for mapping arrays of handles.
-        self.newline()
-        write('template <typename T>', file=self.outFile)
-        write('static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::HandleType>* handle_pointer,', file=self.outFile)
-        write('                                              const VulkanObjectInfoTable&                  object_info_table,', file=self.outFile)
-        write('                                              const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const)', file=self.outFile)
-        write('{', file=self.outFile)
-        write('    assert(handle_pointer != nullptr);', file=self.outFile)
-        self.newline()
-        write('    typename T::HandleType* handles = nullptr;', file=self.outFile)
-        self.newline()
-        write('    if (!handle_pointer->IsNull())', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        size_t                  len = handle_pointer->GetLength();', file=self.outFile)
-        write('        const format::HandleId* ids = handle_pointer->GetPointer();', file=self.outFile)
-        self.newline()
-        write('        handle_pointer->SetHandleLength(len);', file=self.outFile)
-        self.newline()
-        write('        handles = handle_pointer->GetHandlePointer();', file=self.outFile)
-        self.newline()
-        write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
-        write('        {', file=self.outFile)
-        write('            const T* info = (object_info_table.*MapFunc)(ids[i]);', file=self.outFile)
-        write('            if (info != nullptr)', file=self.outFile)
-        write('            {', file=self.outFile)
-        write('                handles[i] = info->handle;', file=self.outFile)
-        write('            }', file=self.outFile)
-        write('        }', file=self.outFile)
-        write('    }', file=self.outFile)
-        self.newline()
-        write('        return handles;', file=self.outFile)
-        write('}', file=self.outFile)
-
-        # Implement a utility function to be used for adding a single handle.
-        self.newline()
-        write('template <typename T>', file=self.outFile)
-        write('static void AddHandle(format::HandleId       id,', file=self.outFile)
-        write('                      typename T::HandleType handle,', file=self.outFile)
-        write('                      VulkanObjectInfoTable& object_info_table,', file=self.outFile)
-        write('                      void (VulkanObjectInfoTable::*AddFunc)(T&&))', file=self.outFile)
-        write('{', file=self.outFile)
-        write('    T info;', file=self.outFile)
-        write('    info.handle = handle;', file=self.outFile)
-        write('    info.capture_id = id;', file=self.outFile)
-        write('    (object_info_table.*AddFunc)(std::move(info));', file=self.outFile)
-        write('}', file=self.outFile)
-
-        # Implement a utility function to be used for adding arrays of handles.
-        self.newline()
-        write('template <typename T>', file=self.outFile)
-        write('static void AddHandleArray(const format::HandleId*       ids,', file=self.outFile)
-        write('                           size_t                        ids_len,', file=self.outFile)
-        write('                           const typename T::HandleType* handles,', file=self.outFile)
-        write('                           size_t                        handles_len,', file=self.outFile)
-        write('                           VulkanObjectInfoTable&        object_info_table,', file=self.outFile)
-        write('                           void (VulkanObjectInfoTable::*AddFunc)(T&&))', file=self.outFile)
-        write('{', file=self.outFile)
-        write('    if ((ids != nullptr) && (handles != nullptr))', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        // TODO: Improved handling of array size mismatch.', file=self.outFile)
-        write('        size_t len = std::min(ids_len, handles_len);', file=self.outFile)
-        write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
-        write('        {', file=self.outFile)
-        write('            T info;', file=self.outFile)
-        write('            info.handle = handles[i];', file=self.outFile)
-        write('            info.capture_id = ids[i];', file=self.outFile)
-        write('            (object_info_table.*AddFunc)(std::move(info));', file=self.outFile)
-        write('        }', file=self.outFile)
-        write('    }', file=self.outFile)
-        write('}', file=self.outFile)
 
     # Method override
     def endFile(self):
@@ -291,18 +205,18 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                 # If it is an array or pointer, map with the utility function.
                 if (member.isArray or member.isPointer):
                     if member.isDynamic or member.isPointer:
-                        body += '        value->{name} = MapHandleArray<{type}Info>(&wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
+                        body += '        value->{name} = handle_mapping::MapHandleArray<{type}Info>(&wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
                     else:
-                        body += '        MapHandleArray<{type}Info>(&wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
+                        body += '        handle_mapping::MapHandleArray<{type}Info>(&wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
                 else:
-                    body += '        value->{name} = MapHandle<{type}Info>(wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
+                    body += '        value->{name} = handle_mapping::MapHandle<{type}Info>(wrapper->{name}, object_info_table, &VulkanObjectInfoTable::Get{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
 
         return body
 
     #
     # Generating expressions for adding mappings for handles created at replay that are embedded in structs
     def makeStructHandleAdditions(self, name, members):
-        body = 'void AddStructHandles(const Decoded_{name}* id_wrapper, const {name}* handle_struct, VulkanObjectInfoTable& object_info_table)\n'.format(name=name)
+        body = 'void AddStructHandles(const Decoded_{name}* id_wrapper, const {name}* handle_struct, VulkanObjectInfoTable* object_info_table)\n'.format(name=name)
         body +='{\n'
         body +='    if (id_wrapper != nullptr)\n'
         body +='    {\n'
@@ -326,11 +240,11 @@ class VulkanStructHandleMappersBodyGenerator(BaseGenerator):
                 # If it is an array or pointer, add with the utility function.
                 if (member.isArray or member.isPointer):
                     if member.isArray:
-                        body += '        AddHandleArray<{type}Info>(id_wrapper->{name}.GetPointer(), id_wrapper->{name}.GetLength(), handle_struct->{name}, handle_struct->{length}, object_info_table, &VulkanObjectInfoTable::Add{type}Info);\n'.format(type=member.baseType[2:], name=member.name, length=member.arrayLength)
+                        body += '        handle_mapping::AddHandleArray<{type}Info>(id_wrapper->{name}.GetPointer(), id_wrapper->{name}.GetLength(), handle_struct->{name}, handle_struct->{length}, object_info_table, &VulkanObjectInfoTable::Add{type}Info);\n'.format(type=member.baseType[2:], name=member.name, length=member.arrayLength)
                     else:
-                        body += '        AddHandleArray<{type}Info>(id_wrapper->{name}.GetPointer(), 1, handle_struct->{name}, 1, object_info_table, &VulkanObjectInfoTable::Add{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
+                        body += '        handle_mapping::AddHandleArray<{type}Info>(id_wrapper->{name}.GetPointer(), 1, handle_struct->{name}, 1, object_info_table, &VulkanObjectInfoTable::Add{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
                 else:
-                    body += '        AddHandle<{type}Info>(id_wrapper->{name}, handle_struct->{name}, object_info_table, &VulkanObjectInfoTable::Add{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
+                    body += '        handle_mapping::AddHandle<{type}Info>(id_wrapper->{name}, handle_struct->{name}, object_info_table, &VulkanObjectInfoTable::Add{type}Info);\n'.format(type=member.baseType[2:], name=member.name)
 
         body += '    }\n'
         body += '}'

@@ -38,6 +38,7 @@ target_sources(gfxrecon_decode
                    vulkan_default_allocator.h
                    vulkan_default_allocator.cpp
                    vulkan_enum_util.h
+                   vulkan_handle_mapping_util.h
                    vulkan_object_info.h
                    vulkan_object_info_table.h
                    vulkan_rebind_allocator.h
