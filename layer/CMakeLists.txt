@@ -2,11 +2,11 @@ add_library(VkLayer_gfxreconstruct SHARED "")
 
 target_sources(VkLayer_gfxreconstruct
                PRIVATE
-                   dll_main.cpp
-                   trace_layer.h
-                   trace_layer.cpp
-                   ${CMAKE_SOURCE_DIR}/framework/generated/generated_layer_func_table.h
-                   $<$<BOOL:WIN32>:trace_layer.def>
+                    ${CMAKE_CURRENT_LIST_DIR}/dll_main.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/trace_layer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/trace_layer.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_layer_func_table.h
+                    $<$<BOOL:WIN32>:${CMAKE_CURRENT_LIST_DIR}/trace_layer.def>
               )
 
 target_include_directories(VkLayer_gfxreconstruct
@@ -28,8 +28,9 @@ common_build_directives(VkLayer_gfxreconstruct)
 
 add_executable(VkLayer_gfxreconstruct_test "")
 
-target_sources(VkLayer_gfxreconstruct_test PRIVATE
-        test/main.cpp)
+target_sources(VkLayer_gfxreconstruct_test
+    PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
 
 common_build_directives(VkLayer_gfxreconstruct_test)
 common_test_directives(VkLayer_gfxreconstruct_test)

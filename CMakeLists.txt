@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.4.1)
 project(GFXReconstruct)
 
 set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
@@ -55,7 +55,7 @@ configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/p
 # Code checks
 include("CodeStyle")
 include("Test")
-include("StaticAnalysis")
+include("Lint")
 include("FindVulkanVersion")
 
 # Apply misc build directives to the given target
@@ -64,7 +64,7 @@ macro(common_build_directives TARGET)
         target_compile_options(${TARGET} PRIVATE $<$<CONFIG:Debug>:/MTd> $<$<CONFIG:Release>:/MT>)
     endif(MSVC)
     target_code_style_build_directives(${TARGET})
-    target_static_analysis_build_directives(${TARGET})
+    target_lint_build_directives(${TARGET})
     add_target_to_test_package(${TARGET})
 endmacro()
 
