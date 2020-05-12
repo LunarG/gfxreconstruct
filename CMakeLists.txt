@@ -3,6 +3,8 @@ project(GFXReconstruct)
 
 set_property(GLOBAL PROPERTY TEST_SCRIPT ${CMAKE_ROOT})
 
+include(GNUInstallDirs)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/external/cmake-modules")
