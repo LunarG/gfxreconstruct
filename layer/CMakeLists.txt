@@ -16,15 +16,38 @@ target_include_directories(VkLayer_gfxreconstruct
 
 target_link_libraries(VkLayer_gfxreconstruct gfxrecon_encode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
 
-# Generate the JSON file for this library
-include("GenerateLayerJson")
-GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
-                         $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
-                         ${CMAKE_CURRENT_SOURCE_DIR}/json/VK_LAYER_LUNARG_gfxreconstruct.json.in
-                         $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VK_LAYER_LUNARG_gfxreconstruct.json
-                        )
-
 common_build_directives(VkLayer_gfxreconstruct)
+
+# The json output file needs Unix "/" separators or Windows "\" separators
+# On top of that, Windows separators actually need to be doubled because the json format uses backslash escapes
+file(TO_NATIVE_PATH "./" RELATIVE_PATH_PREFIX)
+string(REPLACE "\\" "\\\\" RELATIVE_PATH_PREFIX "${RELATIVE_PATH_PREFIX}")
+include("GenerateLayerJson")
+# Generate the JSON file that will be generated into the build directory
+GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
+        "${RELATIVE_PATH_PREFIX}"
+        $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
+        ${CMAKE_CURRENT_SOURCE_DIR}/json/VK_LAYER_LUNARG_gfxreconstruct.json.in
+        $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VK_LAYER_LUNARG_gfxreconstruct.json
+        )
+
+if(UNIX)
+        # Generate a JSON file that can be installed into system directories (w/o the "./" prefix in the library_path)
+        set(RELATIVE_PATH_PREFIX "")
+        GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json-staging
+                "${RELATIVE_PATH_PREFIX}"
+                $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
+                ${CMAKE_CURRENT_SOURCE_DIR}/json/VK_LAYER_LUNARG_gfxreconstruct.json.in
+                $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VK_LAYER_LUNARG_gfxreconstruct.json
+                )
+endif()
+
+install(TARGETS VkLayer_gfxreconstruct RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if (UNIX)
+    install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VK_LAYER_LUNARG_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/vulkan/explicit_layer.d)
+else()
+    install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VK_LAYER_LUNARG_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
 if (${RUN_TESTS})
     add_executable(VkLayer_gfxreconstruct_test "")
