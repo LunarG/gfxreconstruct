@@ -130,31 +130,36 @@ UnwrapStructArrayHandles(const VkObjectTableEntryNVX* const* values, size_t len,
             {
                 switch (entry->type)
                 {
-                    case VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX: {
+                    case VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX:
+                    {
                         auto unwrapped_struct = UnwrapStructPtrHandles(
                             reinterpret_cast<const VkObjectTableDescriptorSetEntryNVX*>(entry), unwrap_memory);
                         unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
                         break;
                     }
-                    case VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX: {
+                    case VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX:
+                    {
                         auto unwrapped_struct = UnwrapStructPtrHandles(
                             reinterpret_cast<const VkObjectTablePipelineEntryNVX*>(entry), unwrap_memory);
                         unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
                         break;
                     }
-                    case VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX: {
+                    case VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX:
+                    {
                         auto unwrapped_struct = UnwrapStructPtrHandles(
                             reinterpret_cast<const VkObjectTableIndexBufferEntryNVX*>(entry), unwrap_memory);
                         unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
                         break;
                     }
-                    case VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX: {
+                    case VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX:
+                    {
                         auto unwrapped_struct = UnwrapStructPtrHandles(
                             reinterpret_cast<const VkObjectTableVertexBufferEntryNVX*>(entry), unwrap_memory);
                         unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);
                         break;
                     }
-                    case VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX: {
+                    case VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX:
+                    {
                         auto unwrapped_struct = UnwrapStructPtrHandles(
                             reinterpret_cast<const VkObjectTablePushConstantEntryNVX*>(entry), unwrap_memory);
                         unwrapped_table[i] = reinterpret_cast<const VkObjectTableEntryNVX*>(unwrapped_struct);

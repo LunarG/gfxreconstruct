@@ -55,7 +55,6 @@ LayerTable                                             TraceManager::layer_table
 std::atomic<format::ThreadId>                          TraceManager::unique_id_counter_{ 0 };
 bool                                                   TraceManager::previous_hotkey_trigger = false;
 
-
 TraceManager::ThreadData::ThreadData() : thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
 {
     parameter_buffer_  = std::make_unique<util::MemoryOutputStream>();
