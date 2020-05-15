@@ -269,16 +269,10 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
-    std::vector<CreateDependencyInfo> shader_modules;
-
-    format::HandleId  render_pass_id{ 0 };
-    format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };
-    CreateParameters  render_pass_create_parameters;
-
-    format::HandleId                            layout_id{ 0 };
-    format::ApiCallId                           layout_create_call_id{ format::ApiCallId::ApiCall_Unknown };
-    CreateParameters                            layout_create_parameters;
-    std::shared_ptr<PipelineLayoutDependencies> layout_dependencies;
+    std::vector<CreateDependencyInfo>           shader_module_dependencies;
+    CreateDependencyInfo                        render_pass_dependency;
+    CreateDependencyInfo                        layout_dependency;
+    std::shared_ptr<PipelineLayoutDependencies> layout_dependencies; // Shared with PipelineLayoutWrapper
 
     // TODO: Base pipeline
     // TODO: Pipeline cache
@@ -308,6 +302,10 @@ struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
 
     // Map for descriptor binding index to array of descriptor info.
     std::unordered_map<uint32_t, DescriptorInfo> bindings;
+
+    // Creation info for objects used to allocate the descriptor set, which may have been destroyed after descriptor set
+    // allocation.
+    CreateDependencyInfo set_layout_dependency;
 };
 
 struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>

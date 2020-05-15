@@ -489,18 +489,18 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
             }
 
             // Check for graphics-specific creation dependencies that no longer exist.
-            auto render_pass_wrapper = state_table.GetRenderPassWrapper(wrapper->render_pass_id);
+            auto render_pass_wrapper = state_table.GetRenderPassWrapper(wrapper->render_pass_dependency.handle_id);
             if (render_pass_wrapper == nullptr)
             {
                 // The object no longer exists, so a temporary object must be created.
-                auto        create_parameters = wrapper->render_pass_create_parameters.get();
-                const auto& inserted =
-                    temp_render_passes.insert(std::make_pair(wrapper->render_pass_id, create_parameters));
+                auto        create_parameters = wrapper->render_pass_dependency.create_parameters.get();
+                const auto& inserted          = temp_render_passes.insert(
+                    std::make_pair(wrapper->render_pass_dependency.handle_id, create_parameters));
 
                 // Create a temporary object on first encounter.
                 if (inserted.second)
                 {
-                    WriteFunctionCall(wrapper->render_pass_create_call_id, create_parameters);
+                    WriteFunctionCall(wrapper->render_pass_dependency.create_call_id, create_parameters);
                 }
             }
         }
@@ -523,7 +523,7 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
         }
 
         // Check for creation dependencies that no longer exist.
-        for (const auto& entry : wrapper->shader_modules)
+        for (const auto& entry : wrapper->shader_module_dependencies)
         {
             auto shader_wrapper = state_table.GetShaderModuleWrapper(entry.handle_id);
             if (shader_wrapper == nullptr)
@@ -540,12 +540,13 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
             }
         }
 
-        auto layout_wrapper = state_table.GetPipelineLayoutWrapper(wrapper->layout_id);
+        auto layout_wrapper = state_table.GetPipelineLayoutWrapper(wrapper->layout_dependency.handle_id);
         if (layout_wrapper == nullptr)
         {
             // The object no longer exists, so a temporary object must be created.
-            auto        create_parameters = wrapper->layout_create_parameters.get();
-            const auto& inserted          = temp_layouts.insert(std::make_pair(wrapper->layout_id, create_parameters));
+            auto        create_parameters = wrapper->layout_dependency.create_parameters.get();
+            const auto& inserted =
+                temp_layouts.insert(std::make_pair(wrapper->layout_dependency.handle_id, create_parameters));
 
             // Create a temporary object on first encounter.
             if (inserted.second)
@@ -570,7 +571,7 @@ void VulkanStateWriter::WritePipelineState(const VulkanStateTable& state_table)
                     }
                 }
 
-                WriteFunctionCall(wrapper->layout_create_call_id, create_parameters);
+                WriteFunctionCall(wrapper->layout_dependency.create_call_id, create_parameters);
             }
         }
     });
@@ -617,6 +618,28 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
 {
     std::set<util::MemoryOutputStream*> processed;
     DescriptorSetWrapper                encode_wrapper;
+
+    std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
+
+    // First pass over descriptor set table to determine which dependencies need to be created temporarily.
+    state_table.VisitWrappers([&](const DescriptorSetWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        auto ds_layout_wrapper = state_table.GetDescriptorSetLayoutWrapper(wrapper->set_layout_dependency.handle_id);
+        if (ds_layout_wrapper == nullptr)
+        {
+            // The object no longer exists, so a temporary object must be created.
+            auto        dep_create_parameters = wrapper->set_layout_dependency.create_parameters.get();
+            const auto& dep_inserted =
+                temp_ds_layouts.insert(std::make_pair(wrapper->set_layout_dependency.handle_id, dep_create_parameters));
+
+            // Create a temporary object on first encounter.
+            if (dep_inserted.second)
+            {
+                WriteFunctionCall(wrapper->set_layout_dependency.create_call_id, dep_create_parameters);
+            }
+        }
+    });
 
     state_table.VisitWrappers([&](const DescriptorSetWrapper* wrapper) {
         assert(wrapper != nullptr);
@@ -676,6 +699,12 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             }
         }
     });
+
+    // Temporary object destruction.
+    for (const auto& entry : temp_ds_layouts)
+    {
+        DestroyTemporaryDeviceObject(format::ApiCall_vkDestroyDescriptorSetLayout, entry.first, entry.second);
+    }
 }
 
 void VulkanStateWriter::WriteQueryPoolState(const VulkanStateTable& state_table)
