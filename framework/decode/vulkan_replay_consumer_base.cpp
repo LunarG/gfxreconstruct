@@ -2692,12 +2692,21 @@ void VulkanReplayConsumerBase::OverrideFreeMemory(PFN_vkFreeMemory  func,
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
 
-    assert((device_info != nullptr) && (memory_info != nullptr));
+    assert(device_info != nullptr);
 
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    allocator->FreeMemory(memory_info->handle, GetAllocationCallbacks(pAllocator), memory_info->allocator_data);
+    VkDeviceMemory                        memory         = VK_NULL_HANDLE;
+    VulkanResourceAllocator::ResourceData allocator_data = 0;
+
+    if (memory_info != nullptr)
+    {
+        memory         = memory_info->handle;
+        allocator_data = memory_info->allocator_data;
+    }
+
+    allocator->FreeMemory(memory, GetAllocationCallbacks(pAllocator), allocator_data);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemory func,
@@ -2992,12 +3001,21 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
 
-    assert((device_info != nullptr) && (buffer_info != nullptr));
+    assert(device_info != nullptr);
 
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    allocator->DestroyBuffer(buffer_info->handle, GetAllocationCallbacks(pAllocator), buffer_info->allocator_data);
+    VkBuffer                              buffer         = VK_NULL_HANDLE;
+    VulkanResourceAllocator::ResourceData allocator_data = 0;
+
+    if (buffer_info != nullptr)
+    {
+        buffer         = buffer_info->handle;
+        allocator_data = buffer_info->allocator_data;
+    }
+
+    allocator->DestroyBuffer(buffer, GetAllocationCallbacks(pAllocator), allocator_data);
 }
 
 VkResult
@@ -3062,12 +3080,21 @@ void VulkanReplayConsumerBase::OverrideDestroyImage(
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
 
-    assert((device_info != nullptr) && (image_info != nullptr));
+    assert(device_info != nullptr);
 
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
-    allocator->DestroyImage(image_info->handle, GetAllocationCallbacks(pAllocator), image_info->allocator_data);
+    VkImage                               image          = VK_NULL_HANDLE;
+    VulkanResourceAllocator::ResourceData allocator_data = 0;
+
+    if (image_info != nullptr)
+    {
+        image          = image_info->handle;
+        allocator_data = image_info->allocator_data;
+    }
+
+    allocator->DestroyImage(image, GetAllocationCallbacks(pAllocator), allocator_data);
 }
 
 void VulkanReplayConsumerBase::OverrideGetImageSubresourceLayout(
