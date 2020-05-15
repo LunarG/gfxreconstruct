@@ -39,7 +39,7 @@ def check_code_style(file_list, style_script=None, style_config_dir=None):
         # Use the script directory's parent directory as the .clang-format file location
         style_config_dir = os.path.join(os.path.dirname(style_script), os.pardir)
     diff_cmd = ["git", "diff", "-U0", str(git_branch, 'utf-8'), "--"] + file_list
-    style_cmd = ["python", style_script,"-p1","-style=file"]
+    style_cmd = [sys.executable, style_script,"-p1","-style=file"]
     try:
         diff_process = subprocess.Popen(diff_cmd, stdout=subprocess.PIPE)
         style_output = subprocess.check_output(style_cmd, stdin=diff_process.stdout, cwd=style_config_dir)
