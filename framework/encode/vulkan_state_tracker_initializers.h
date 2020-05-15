@@ -133,7 +133,7 @@ inline void InitializeState<VkDevice, PipelineLayoutWrapper, VkPipelineLayoutCre
         info.create_call_id    = layout_wrapper->create_call_id;
         info.create_parameters = layout_wrapper->create_parameters;
 
-        layout_dependencies->layouts.emplace_back(info);
+        layout_dependencies->layouts.emplace_back(std::move(info));
     }
 
     wrapper->layout_dependencies = layout_dependencies;
@@ -330,23 +330,23 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
         info.create_call_id    = shader_wrapper->create_call_id;
         info.create_parameters = shader_wrapper->create_parameters;
 
-        wrapper->shader_modules.emplace_back(info);
+        wrapper->shader_module_dependencies.emplace_back(std::move(info));
     }
 
     auto render_pass_wrapper = reinterpret_cast<RenderPassWrapper*>(create_info->renderPass);
     assert(render_pass_wrapper != nullptr);
 
-    wrapper->render_pass_id                = render_pass_wrapper->handle_id;
-    wrapper->render_pass_create_call_id    = render_pass_wrapper->create_call_id;
-    wrapper->render_pass_create_parameters = render_pass_wrapper->create_parameters;
+    wrapper->render_pass_dependency.handle_id         = render_pass_wrapper->handle_id;
+    wrapper->render_pass_dependency.create_call_id    = render_pass_wrapper->create_call_id;
+    wrapper->render_pass_dependency.create_parameters = render_pass_wrapper->create_parameters;
 
     auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
-    wrapper->layout_id                = layout_wrapper->handle_id;
-    wrapper->layout_create_call_id    = layout_wrapper->create_call_id;
-    wrapper->layout_create_parameters = layout_wrapper->create_parameters;
-    wrapper->layout_dependencies      = layout_wrapper->layout_dependencies;
+    wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
+    wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+    wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
+    wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
 }
 
 template <>
@@ -378,15 +378,15 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
     info.create_call_id    = shader_wrapper->create_call_id;
     info.create_parameters = shader_wrapper->create_parameters;
 
-    wrapper->shader_modules.emplace_back(info);
+    wrapper->shader_module_dependencies.emplace_back(std::move(info));
 
     auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
-    wrapper->layout_id                = layout_wrapper->handle_id;
-    wrapper->layout_create_call_id    = layout_wrapper->create_call_id;
-    wrapper->layout_create_parameters = layout_wrapper->create_parameters;
-    wrapper->layout_dependencies      = layout_wrapper->layout_dependencies;
+    wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
+    wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+    wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
+    wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
 }
 
 template <>
@@ -420,16 +420,16 @@ inline void InitializeGroupObjectState<VkDevice, VkPipelineCache, PipelineWrappe
         info.create_call_id    = shader_wrapper->create_call_id;
         info.create_parameters = shader_wrapper->create_parameters;
 
-        wrapper->shader_modules.emplace_back(info);
+        wrapper->shader_module_dependencies.emplace_back(std::move(info));
     }
 
     auto layout_wrapper = reinterpret_cast<PipelineLayoutWrapper*>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
-    wrapper->layout_id                = layout_wrapper->handle_id;
-    wrapper->layout_create_call_id    = layout_wrapper->create_call_id;
-    wrapper->layout_create_parameters = layout_wrapper->create_parameters;
-    wrapper->layout_dependencies      = layout_wrapper->layout_dependencies;
+    wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
+    wrapper->layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+    wrapper->layout_dependency.create_parameters = layout_wrapper->create_parameters;
+    wrapper->layout_dependencies                 = layout_wrapper->layout_dependencies;
 }
 
 template <>
@@ -642,7 +642,7 @@ inline void InitializeState<VkDevice, DescriptorSetLayoutWrapper, VkDescriptorSe
             binding_info.count         = binding->descriptorCount;
             binding_info.type          = binding->descriptorType;
 
-            wrapper->binding_info.emplace_back(binding_info);
+            wrapper->binding_info.emplace_back(std::move(binding_info));
         }
     }
 }
@@ -731,6 +731,11 @@ inline void InitializePoolObjectState(VkDevice                           parent_
 
         wrapper->bindings.emplace(binding_info.binding_index, std::move(descriptor_info));
     }
+
+    // Track descriptor set layout dependency.
+    wrapper->set_layout_dependency.handle_id         = layout_wrapper->handle_id;
+    wrapper->set_layout_dependency.create_call_id    = layout_wrapper->create_call_id;
+    wrapper->set_layout_dependency.create_parameters = layout_wrapper->create_parameters;
 }
 
 GFXRECON_END_NAMESPACE(vulkan_state_tracker)
