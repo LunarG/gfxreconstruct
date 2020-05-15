@@ -18,6 +18,7 @@
 
 #include "util/keyboard.h"
 
+#include "util/logging.h"
 #include "util/platform.h"
 
 #if defined(VK_USE_PLATFORM_XCB_KHR)
