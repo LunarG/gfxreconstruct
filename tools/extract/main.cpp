@@ -56,16 +56,17 @@ class VulkanExtractConsumer : public gfxrecon::decode::VulkanConsumer
     VulkanExtractConsumer(std::string& extract_dir) : extract_dir_(extract_dir) {}
 
     virtual void Process_vkCreateShaderModule(
-        VkResult                                                                                          returnValue,
-        gfxrecon::format::HandleId                                                                        shaderModule,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkShaderModuleCreateInfo>& pCreateInfo,
-        const gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>&,
-        gfxrecon::decode::HandlePointerDecoder<VkShaderModule>* pShaderModule)
+        VkResult                                                                                    returnValue,
+        gfxrecon::format::HandleId                                                                  shaderModule,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
+        gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
+        gfxrecon::decode::HandlePointerDecoder<VkShaderModule>* pShaderModule) override
     {
-        if (returnValue >= 0)
+        if ((returnValue >= 0) && (pCreateInfo != nullptr) && !pCreateInfo->IsNull() && (pShaderModule != nullptr) &&
+            !pShaderModule->IsNull())
         {
-            const uint32_t* orig_code = pCreateInfo.GetPointer()->pCode;
-            size_t          orig_size = pCreateInfo.GetPointer()->codeSize;
+            const uint32_t* orig_code = pCreateInfo->GetPointer()->pCode;
+            size_t          orig_size = pCreateInfo->GetPointer()->codeSize;
             uint64_t        handle_id = *pShaderModule->GetPointer();
             std::string     file_name = "sh" + std::to_string(handle_id);
             std::string     file_path = gfxrecon::util::filepath::Join(extract_dir_, file_name);
