@@ -1624,10 +1624,8 @@ void VulkanReplayConsumerBase::SelectPhysicalDevice(PhysicalDeviceInfo* physical
 
 bool VulkanReplayConsumerBase::GetOverrideDevice(InstanceInfo* instance_info, PhysicalDeviceInfo* physical_device_info)
 {
-    const auto& replay_devices = instance_info->replay_devices;
-
-    GFXRECON_CHECK_CONVERSION_DATA_LOSS(int32_t, replay_devices.size());
-    int32_t replay_devices_size = static_cast<int32_t>(replay_devices.size());
+    const auto& replay_devices      = instance_info->replay_devices;
+    int32_t     replay_devices_size = static_cast<int32_t>(replay_devices.size());
 
     // Check for a valid override device index.
     if (options_.override_gpu_index >= replay_devices_size)
