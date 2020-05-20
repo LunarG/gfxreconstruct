@@ -178,20 +178,31 @@ sudo dnf install git cmake libxcb-devel libX11-devel xcb-util-keysyms-devel \
 ```
 
 ### Linux Build
-The general approach is to run CMake to generate make files. Then either run
+The general approach is to run CMake to generate makefiles. Then either run
 CMake with the `--build` option or `make` to build from the command line.
 
-#### Use CMake to Create the Make Files
+#### Use CMake to Create the Makefiles
 Change your current directory to the top level directory for the cloned
 GFXReconstruct repository, create a build folder, and generate the make
 files.
+
+The following example demonstrates makefile generation for a 64-bit Debug build:
 ```
 cd gfxreconstruct
 mkdir build
 cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug
 ```
 
-Use `-DCMAKE_BUILD_TYPE` to specify a `Debug` or `Release` build profile.
+The following commands can be used to generate makefiles for different
+variations of Debug and Release 32-bit and 64-bit build configurations,
+where `-DCMAKE_BUILD_TYPE` is used to specify `Debug` or `Release` build
+profiles:
+ * 64-bit Release: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
+ * 32-bit Debug: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_SHARED_LINKER_FLAGS=-m32
+ * 32-bit Release: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_SHARED_LINKER_FLAGS=-m32
+
+For 32-bit builds, the 32-bit versions of the required packages specified above
+must be installed.
 
 #### Build the Project
 Run either the `make` or `cmake --build .` command from the build directory
