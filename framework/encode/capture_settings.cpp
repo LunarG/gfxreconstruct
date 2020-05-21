@@ -85,10 +85,11 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 // clang-format on
 
 #if defined(__ANDROID__)
-const char CaptureSettings::kDefaultCaptureFileName[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
-
 // Android Properties
 #define GFXRECON_ENV_VAR_PREFIX "debug.gfxrecon."
+
+const char CaptureSettings::kDefaultCaptureFileName[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
+
 const char kCaptureCompressionTypeEnvVar[]    = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_LOWER;
 const char kCaptureFileFlushEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_LOWER;
 const char kCaptureFileNameEnvVar[]           = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_LOWER;
@@ -115,10 +116,11 @@ const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
 
 #else
-const char CaptureSettings::kDefaultCaptureFileName[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
-
 // Desktop environment settings
 #define GFXRECON_ENV_VAR_PREFIX "GFXRECON_"
+
+const char CaptureSettings::kDefaultCaptureFileName[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
+
 const char kCaptureCompressionTypeEnvVar[]    = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_UPPER;
 const char kCaptureFileFlushEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_UPPER;
 const char kCaptureFileNameEnvVar[]           = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
@@ -140,7 +142,7 @@ const char kPageGuardCopyOnMapEnvVar[]        = GFXRECON_ENV_VAR_PREFIX PAGE_GUA
 const char kPageGuardSeparateReadEnvVar[]     = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_UPPER;
 const char kPageGuardPersistentMemoryEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_PERSISTENT_MEMORY_UPPER;
 const char kPageGuardAlignBufferSizesEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_ALIGN_BUFFER_SIZES_UPPER;
-const char kPageGuardTrackAhbMemoryEnvVar[]           = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_UPPER;
+const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_UPPER;
 const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
 const char kCaptureTriggerEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_UPPER;
 #endif
@@ -173,13 +175,13 @@ const std::string kOptionKeyPageGuardPersistentMemory = std::string(kSettingsFil
 const std::string kOptionKeyPageGuardAlignBufferSizes = std::string(kSettingsFilter) + std::string(PAGE_GUARD_ALIGN_BUFFER_SIZES_LOWER);
 const std::string kOptionKeyPageGuardTrackAhbMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_TRACK_AHB_MEMORY_LOWER);
 const std::string kOptionKeyPageGuardExternalMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_EXTERNAL_MEMORY_LOWER);
-// clang-format on
 
 #if defined(ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
 #else
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kNone;
 #endif
+// clang-format on
 
 CaptureSettings::CaptureSettings() {}
 

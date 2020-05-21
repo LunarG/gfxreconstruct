@@ -128,7 +128,7 @@ on various platforms.
 
 #### **Visual Studio**
 * Visual Studio 2019 has built-in support for ClangFormat version 9.
-* Visual Studio 2017 has built-in support for ClangFormat version 7,
+* Visual Studio 2017 has built-in support for an older version of ClangFormat,
   but can be changed to use a separately installed ClangFormat version 9
   by following the instructions described here:
     * Under **Tools->Options...**, expand **Text Editor > C/C++ > Formatting**.
