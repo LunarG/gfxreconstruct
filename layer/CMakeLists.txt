@@ -27,8 +27,8 @@ include("GenerateLayerJson")
 GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json
         "${RELATIVE_PATH_PREFIX}"
         $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
-        ${CMAKE_CURRENT_SOURCE_DIR}/json/VK_LAYER_LUNARG_gfxreconstruct.json.in
-        $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VK_LAYER_LUNARG_gfxreconstruct.json
+        ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
+        $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json
         )
 
 if(UNIX)
@@ -37,16 +37,16 @@ if(UNIX)
         GENERATE_LAYER_JSON_FILE(VkLayer_gfxreconstruct_json-staging
                 "${RELATIVE_PATH_PREFIX}"
                 $<TARGET_FILE_NAME:VkLayer_gfxreconstruct>
-                ${CMAKE_CURRENT_SOURCE_DIR}/json/VK_LAYER_LUNARG_gfxreconstruct.json.in
-                $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VK_LAYER_LUNARG_gfxreconstruct.json
+                ${CMAKE_CURRENT_SOURCE_DIR}/json/VkLayer_gfxreconstruct.json.in
+                $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json
                 )
 endif()
 
 install(TARGETS VkLayer_gfxreconstruct RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 if (UNIX)
-    install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VK_LAYER_LUNARG_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/vulkan/explicit_layer.d)
+    install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/staging-json/VkLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/vulkan/explicit_layer.d)
 else()
-    install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VK_LAYER_LUNARG_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(FILES $<TARGET_FILE_DIR:VkLayer_gfxreconstruct>/VkLayer_gfxreconstruct.json DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if (${RUN_TESTS})
