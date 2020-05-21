@@ -1,7 +1,7 @@
 # Using the GFXReconstruct Layer on the Desktop
 
 ## Enabling the GFXReconstruct Capture Layer
-The path to the layer's `VK_LAYER_LUNARG_gfxreconstruct.json` file and
+The path to the layer's `VkLayer_gfxreconstruct.json` file and
 corresponding `VkLayer_gfxreconstruct` library must be added to
 `VK_LAYER_PATH` environment variable for the Vulkan loader to find the layer.
 
