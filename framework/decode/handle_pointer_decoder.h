@@ -101,7 +101,7 @@ class HandlePointerDecoder
         {
             if (consumer_data_ == nullptr)
             {
-                consumer_data_ = std::make_unique<void* []>(handle_data_len_);
+                consumer_data_ = std::make_unique<void*[]>(handle_data_len_);
             }
 
             consumer_data_[index] = consumer_data;
@@ -114,7 +114,7 @@ class HandlePointerDecoder
     size_t                              handle_data_len_;
     size_t                              capacity_;
     bool                                is_memory_external_;
-    std::unique_ptr<void* []>           consumer_data_;
+    std::unique_ptr<void*[]>            consumer_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

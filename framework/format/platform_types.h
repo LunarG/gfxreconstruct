@@ -158,38 +158,40 @@ struct VkExternalFormatANDROID
     uint64_t        externalFormat;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateAndroidSurfaceKHR)(VkInstance                           instance,
-                                                           const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
-                                                           const VkAllocationCallbacks*         pAllocator,
-                                                           VkSurfaceKHR*                        pSurface);
-typedef VkResult(VKAPI_PTR* PFN_vkGetAndroidHardwareBufferPropertiesANDROID)(
-    VkDevice device, const struct AHardwareBuffer* buffer, VkAndroidHardwareBufferPropertiesANDROID* pProperties);
-typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryAndroidHardwareBufferANDROID)(
-    VkDevice device, const VkMemoryGetAndroidHardwareBufferInfoANDROID* pInfo, struct AHardwareBuffer** pBuffer);
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateAndroidSurfaceKHR(VkInstance,
-                                                                const VkAndroidSurfaceCreateInfoKHR*,
-                                                                const VkAllocationCallbacks*,
-                                                                VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateAndroidSurfaceKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateAndroidSurfaceKHR)(VkInstance                           instance,
+                                                               const VkAndroidSurfaceCreateInfoKHR* pCreateInfo,
+                                                               const VkAllocationCallbacks*         pAllocator,
+                                                               VkSurfaceKHR*                        pSurface);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetAndroidHardwareBufferPropertiesANDROID)(
+        VkDevice device, const struct AHardwareBuffer* buffer, VkAndroidHardwareBufferPropertiesANDROID* pProperties);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryAndroidHardwareBufferANDROID)(
+        VkDevice device, const VkMemoryGetAndroidHardwareBufferInfoANDROID* pInfo, struct AHardwareBuffer** pBuffer);
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkGetAndroidHardwareBufferPropertiesANDROID(
-    VkDevice, const struct AHardwareBuffer*, VkAndroidHardwareBufferPropertiesANDROID*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetAndroidHardwareBufferPropertiesANDROID");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateAndroidSurfaceKHR(VkInstance,
+                                                                    const VkAndroidSurfaceCreateInfoKHR*,
+                                                                    const VkAllocationCallbacks*,
+                                                                    VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateAndroidSurfaceKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(
-    VkDevice, const VkMemoryGetAndroidHardwareBufferInfoANDROID*, struct AHardwareBuffer**)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryAndroidHardwareBufferANDROID");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetAndroidHardwareBufferPropertiesANDROID(
+        VkDevice, const struct AHardwareBuffer*, VkAndroidHardwareBufferPropertiesANDROID*)
+    {
+        GFXRECON_LOG_ERROR(
+            "Calling unsupported platform extension function vkGetAndroidHardwareBufferPropertiesANDROID");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryAndroidHardwareBufferANDROID(
+        VkDevice, const VkMemoryGetAndroidHardwareBufferInfoANDROID*, struct AHardwareBuffer**)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryAndroidHardwareBufferANDROID");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 }
 #endif // VK_USE_PLATFORM_ANDROID_KHR
 
@@ -208,20 +210,22 @@ struct VkImagePipeSurfaceCreateInfoFUCHSIA
     zx_handle_t                          imagePipeHandle;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateImagePipeSurfaceFUCHSIA)(VkInstance                                 instance,
-                                                                 const VkImagePipeSurfaceCreateInfoFUCHSIA* pCreateInfo,
-                                                                 const VkAllocationCallbacks*               pAllocator,
-                                                                 VkSurfaceKHR*                              pSurface);
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(VkInstance,
-                                                                      const VkImagePipeSurfaceCreateInfoFUCHSIA*,
-                                                                      const VkAllocationCallbacks*,
-                                                                      VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateImagePipeSurfaceFUCHSIA");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateImagePipeSurfaceFUCHSIA)(
+        VkInstance                                 instance,
+        const VkImagePipeSurfaceCreateInfoFUCHSIA* pCreateInfo,
+        const VkAllocationCallbacks*               pAllocator,
+        VkSurfaceKHR*                              pSurface);
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateImagePipeSurfaceFUCHSIA(VkInstance,
+                                                                          const VkImagePipeSurfaceCreateInfoFUCHSIA*,
+                                                                          const VkAllocationCallbacks*,
+                                                                          VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateImagePipeSurfaceFUCHSIA");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 }
 #endif // defined VK_USE_PLATFORM_FUCHSIA
 
@@ -238,20 +242,21 @@ struct VkIOSSurfaceCreateInfoMVK
     const void*                pView;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateIOSSurfaceMVK)(VkInstance                       instance,
-                                                       const VkIOSSurfaceCreateInfoMVK* pCreateInfo,
-                                                       const VkAllocationCallbacks*     pAllocator,
-                                                       VkSurfaceKHR*                    pSurface);
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateIOSSurfaceMVK(VkInstance,
-                                                            const VkIOSSurfaceCreateInfoMVK*,
-                                                            const VkAllocationCallbacks*,
-                                                            VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateIOSSurfaceMVK");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateIOSSurfaceMVK)(VkInstance                       instance,
+                                                           const VkIOSSurfaceCreateInfoMVK* pCreateInfo,
+                                                           const VkAllocationCallbacks*     pAllocator,
+                                                           VkSurfaceKHR*                    pSurface);
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateIOSSurfaceMVK(VkInstance,
+                                                                const VkIOSSurfaceCreateInfoMVK*,
+                                                                const VkAllocationCallbacks*,
+                                                                VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateIOSSurfaceMVK");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 }
 #endif // VK_USE_PLATFORM_IOS_MVK
 
@@ -268,20 +273,21 @@ struct VkMacOSSurfaceCreateInfoMVK
     const void*                  pView;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateMacOSSurfaceMVK)(VkInstance                         instance,
-                                                         const VkMacOSSurfaceCreateInfoMVK* pCreateInfo,
-                                                         const VkAllocationCallbacks*       pAllocator,
-                                                         VkSurfaceKHR*                      pSurface);
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMacOSSurfaceMVK(VkInstance,
-                                                              const VkMacOSSurfaceCreateInfoMVK*,
-                                                              const VkAllocationCallbacks*,
-                                                              VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateMacOSSurfaceMVK");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateMacOSSurfaceMVK)(VkInstance                         instance,
+                                                             const VkMacOSSurfaceCreateInfoMVK* pCreateInfo,
+                                                             const VkAllocationCallbacks*       pAllocator,
+                                                             VkSurfaceKHR*                      pSurface);
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMacOSSurfaceMVK(VkInstance,
+                                                                  const VkMacOSSurfaceCreateInfoMVK*,
+                                                                  const VkAllocationCallbacks*,
+                                                                  VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateMacOSSurfaceMVK");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 }
 #endif // VK_USE_PLATFORM_MACOS_MVK
 
@@ -300,20 +306,21 @@ struct VkMetalSurfaceCreateInfoEXT
     const CAMetalLayer*          pLayer;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateMetalSurfaceEXT)(VkInstance                         instance,
-                                                         const VkMetalSurfaceCreateInfoEXT* pCreateInfo,
-                                                         const VkAllocationCallbacks*       pAllocator,
-                                                         VkSurfaceKHR*                      pSurface);
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMetalSurfaceEXT(VkInstance,
-                                                              const VkMetalSurfaceCreateInfoEXT*,
-                                                              const VkAllocationCallbacks*,
-                                                              VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateMetalSurfaceEXT");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateMetalSurfaceEXT)(VkInstance                         instance,
+                                                             const VkMetalSurfaceCreateInfoEXT* pCreateInfo,
+                                                             const VkAllocationCallbacks*       pAllocator,
+                                                             VkSurfaceKHR*                      pSurface);
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMetalSurfaceEXT(VkInstance,
+                                                                  const VkMetalSurfaceCreateInfoEXT*,
+                                                                  const VkAllocationCallbacks*,
+                                                                  VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateMetalSurfaceEXT");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 }
 #endif // VK_USE_PLATFORM_METAL_EXT
 
@@ -334,31 +341,33 @@ struct VkMirSurfaceCreateInfoKHR
     MirSurface*                mirSurface;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateMirSurfaceKHR)(VkInstance                       instance,
-                                                       const VkMirSurfaceCreateInfoKHR* pCreateInfo,
-                                                       const VkAllocationCallbacks*     pAllocator,
-                                                       VkSurfaceKHR*                    pSurface);
-typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceMirPresentationSupportKHR)(VkPhysicalDevice physicalDevice,
-                                                                              uint32_t         queueFamilyIndex,
-                                                                              MirConnection*   connection);
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMirSurfaceKHR(VkInstance,
-                                                            const VkMirSurfaceCreateInfoKHR*,
-                                                            const VkAllocationCallbacks*,
-                                                            VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateMirSurfaceKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateMirSurfaceKHR)(VkInstance                       instance,
+                                                           const VkMirSurfaceCreateInfoKHR* pCreateInfo,
+                                                           const VkAllocationCallbacks*     pAllocator,
+                                                           VkSurfaceKHR*                    pSurface);
+    typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceMirPresentationSupportKHR)(VkPhysicalDevice physicalDevice,
+                                                                                  uint32_t         queueFamilyIndex,
+                                                                                  MirConnection*   connection);
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceMirPresentationSupportKHR(VkPhysicalDevice,
-                                                                                   uint32_t,
-                                                                                   MirConnection*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceMirPresentationSupportKHR");
-    return VK_FALSE;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateMirSurfaceKHR(VkInstance,
+                                                                const VkMirSurfaceCreateInfoKHR*,
+                                                                const VkAllocationCallbacks*,
+                                                                VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateMirSurfaceKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceMirPresentationSupportKHR(VkPhysicalDevice,
+                                                                                       uint32_t,
+                                                                                       MirConnection*)
+    {
+        GFXRECON_LOG_ERROR(
+            "Calling unsupported platform extension function vkGetPhysicalDeviceMirPresentationSupportKHR");
+        return VK_FALSE;
+    }
 }
 #endif // VK_USE_PLATFORM_MIR_KHR
 
@@ -375,20 +384,21 @@ struct VkViSurfaceCreateInfoNN
     void*                    window;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateViSurfaceNN)(VkInstance                     instance,
-                                                     const VkViSurfaceCreateInfoNN* pCreateInfo,
-                                                     const VkAllocationCallbacks*   pAllocator,
-                                                     VkSurfaceKHR*                  pSurface);
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateViSurfaceNN(VkInstance,
-                                                          const VkViSurfaceCreateInfoNN*,
-                                                          const VkAllocationCallbacks*,
-                                                          VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateViSurfaceNN");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateViSurfaceNN)(VkInstance                     instance,
+                                                         const VkViSurfaceCreateInfoNN* pCreateInfo,
+                                                         const VkAllocationCallbacks*   pAllocator,
+                                                         VkSurfaceKHR*                  pSurface);
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateViSurfaceNN(VkInstance,
+                                                              const VkViSurfaceCreateInfoNN*,
+                                                              const VkAllocationCallbacks*,
+                                                              VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateViSurfaceNN");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 }
 #endif // VK_USE_PLATFORM_VI_NN
 
@@ -409,31 +419,32 @@ struct VkWaylandSurfaceCreateInfoKHR
     struct wl_surface*             surface;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateWaylandSurfaceKHR)(VkInstance                           instance,
-                                                           const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
-                                                           const VkAllocationCallbacks*         pAllocator,
-                                                           VkSurfaceKHR*                        pSurface);
-typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR)(VkPhysicalDevice   physicalDevice,
-                                                                                  uint32_t           queueFamilyIndex,
-                                                                                  struct wl_display* display);
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateWaylandSurfaceKHR(VkInstance,
-                                                                const VkWaylandSurfaceCreateInfoKHR*,
-                                                                const VkAllocationCallbacks*,
-                                                                VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateWaylandSurfaceKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateWaylandSurfaceKHR)(VkInstance                           instance,
+                                                               const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
+                                                               const VkAllocationCallbacks*         pAllocator,
+                                                               VkSurfaceKHR*                        pSurface);
+    typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR)(VkPhysicalDevice physicalDevice,
+                                                                                      uint32_t         queueFamilyIndex,
+                                                                                      struct wl_display* display);
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateWaylandSurfaceKHR(VkInstance,
+                                                                    const VkWaylandSurfaceCreateInfoKHR*,
+                                                                    const VkAllocationCallbacks*,
+                                                                    VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateWaylandSurfaceKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice,
-                                                                                       uint32_t,
-                                                                                       struct wl_display*)
-{
-    GFXRECON_LOG_ERROR(
-        "Calling unsupported platform extension function vkGetPhysicalDeviceWaylandPresentationSupportKHR");
-    return VK_FALSE;
-}
+    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWaylandPresentationSupportKHR(VkPhysicalDevice,
+                                                                                           uint32_t,
+                                                                                           struct wl_display*)
+    {
+        GFXRECON_LOG_ERROR(
+            "Calling unsupported platform extension function vkGetPhysicalDeviceWaylandPresentationSupportKHR");
+        return VK_FALSE;
+    }
 }
 #endif // VK_USE_PLATFORM_WAYLAND_KHR
 
@@ -626,141 +637,144 @@ struct VkWin32KeyedMutexAcquireReleaseInfoNV
     const uint64_t*       pReleaseKeys;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateWin32SurfaceKHR)(VkInstance                         instance,
-                                                         const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
-                                                         const VkAllocationCallbacks*       pAllocator,
-                                                         VkSurfaceKHR*                      pSurface);
-typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice,
-                                                                                uint32_t         queueFamilyIndex);
-typedef VkResult(VKAPI_PTR* PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT)(
-    VkPhysicalDevice                       physicalDevice,
-    const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
-    uint32_t*                              pPresentModeCount,
-    VkPresentModeKHR*                      pPresentModes);
-typedef VkResult(VKAPI_PTR* PFN_vkAcquireFullScreenExclusiveModeEXT)(VkDevice device, VkSwapchainKHR swapchain);
-typedef VkResult(VKAPI_PTR* PFN_vkReleaseFullScreenExclusiveModeEXT)(VkDevice device, VkSwapchainKHR swapchain);
-typedef VkResult(VKAPI_PTR* PFN_vkGetDeviceGroupSurfacePresentModes2EXT)(
-    VkDevice device, const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo, VkDeviceGroupPresentModeFlagsKHR* pModes);
-typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandleKHR)(VkDevice                             device,
-                                                           const VkMemoryGetWin32HandleInfoKHR* pGetWin32HandleInfo,
-                                                           HANDLE*                              pHandle);
-typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandlePropertiesKHR)(
-    VkDevice                           device,
-    VkExternalMemoryHandleTypeFlagBits handleType,
-    HANDLE                             handle,
-    VkMemoryWin32HandlePropertiesKHR*  pMemoryWin32HandleProperties);
-typedef VkResult(VKAPI_PTR* PFN_vkImportSemaphoreWin32HandleKHR)(
-    VkDevice device, const VkImportSemaphoreWin32HandleInfoKHR* pImportSemaphoreWin32HandleInfo);
-typedef VkResult(VKAPI_PTR* PFN_vkGetSemaphoreWin32HandleKHR)(
-    VkDevice device, const VkSemaphoreGetWin32HandleInfoKHR* pGetWin32HandleInfo, HANDLE* pHandle);
-typedef VkResult(VKAPI_PTR* PFN_vkImportFenceWin32HandleKHR)(
-    VkDevice device, const VkImportFenceWin32HandleInfoKHR* pImportFenceWin32HandleInfo);
-typedef VkResult(VKAPI_PTR* PFN_vkGetFenceWin32HandleKHR)(VkDevice                            device,
-                                                          const VkFenceGetWin32HandleInfoKHR* pGetWin32HandleInfo,
-                                                          HANDLE*                             pHandle);
-typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandleNV)(VkDevice                          device,
-                                                          VkDeviceMemory                    memory,
-                                                          VkExternalMemoryHandleTypeFlagsNV handleType,
-                                                          HANDLE*                           pHandle);
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance,
-                                                              const VkWin32SurfaceCreateInfoKHR*,
-                                                              const VkAllocationCallbacks*,
-                                                              VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateWin32SurfaceKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateWin32SurfaceKHR)(VkInstance                         instance,
+                                                             const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
+                                                             const VkAllocationCallbacks*       pAllocator,
+                                                             VkSurfaceKHR*                      pSurface);
+    typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice,
+                                                                                    uint32_t         queueFamilyIndex);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT)(
+        VkPhysicalDevice                       physicalDevice,
+        const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo,
+        uint32_t*                              pPresentModeCount,
+        VkPresentModeKHR*                      pPresentModes);
+    typedef VkResult(VKAPI_PTR* PFN_vkAcquireFullScreenExclusiveModeEXT)(VkDevice device, VkSwapchainKHR swapchain);
+    typedef VkResult(VKAPI_PTR* PFN_vkReleaseFullScreenExclusiveModeEXT)(VkDevice device, VkSwapchainKHR swapchain);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetDeviceGroupSurfacePresentModes2EXT)(
+        VkDevice device, const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo, VkDeviceGroupPresentModeFlagsKHR* pModes);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandleKHR)(VkDevice                             device,
+                                                               const VkMemoryGetWin32HandleInfoKHR* pGetWin32HandleInfo,
+                                                               HANDLE*                              pHandle);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandlePropertiesKHR)(
+        VkDevice                           device,
+        VkExternalMemoryHandleTypeFlagBits handleType,
+        HANDLE                             handle,
+        VkMemoryWin32HandlePropertiesKHR*  pMemoryWin32HandleProperties);
+    typedef VkResult(VKAPI_PTR* PFN_vkImportSemaphoreWin32HandleKHR)(
+        VkDevice device, const VkImportSemaphoreWin32HandleInfoKHR* pImportSemaphoreWin32HandleInfo);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetSemaphoreWin32HandleKHR)(
+        VkDevice device, const VkSemaphoreGetWin32HandleInfoKHR* pGetWin32HandleInfo, HANDLE* pHandle);
+    typedef VkResult(VKAPI_PTR* PFN_vkImportFenceWin32HandleKHR)(
+        VkDevice device, const VkImportFenceWin32HandleInfoKHR* pImportFenceWin32HandleInfo);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetFenceWin32HandleKHR)(VkDevice                            device,
+                                                              const VkFenceGetWin32HandleInfoKHR* pGetWin32HandleInfo,
+                                                              HANDLE*                             pHandle);
+    typedef VkResult(VKAPI_PTR* PFN_vkGetMemoryWin32HandleNV)(VkDevice                          device,
+                                                              VkDeviceMemory                    memory,
+                                                              VkExternalMemoryHandleTypeFlagsNV handleType,
+                                                              HANDLE*                           pHandle);
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice, uint32_t)
-{
-    GFXRECON_LOG_ERROR(
-        "Calling unsupported platform extension function vkGetPhysicalDeviceWin32PresentationSupportKHR");
-    return VK_FALSE;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateWin32SurfaceKHR(VkInstance,
+                                                                  const VkWin32SurfaceCreateInfoKHR*,
+                                                                  const VkAllocationCallbacks*,
+                                                                  VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateWin32SurfaceKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModes2EXT(VkPhysicalDevice,
-                                                                                 const VkPhysicalDeviceSurfaceInfo2KHR*,
-                                                                                 uint32_t*,
-                                                                                 VkPresentModeKHR*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceSurfacePresentModes2EXT");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceWin32PresentationSupportKHR(VkPhysicalDevice, uint32_t)
+    {
+        GFXRECON_LOG_ERROR(
+            "Calling unsupported platform extension function vkGetPhysicalDeviceWin32PresentationSupportKHR");
+        return VK_FALSE;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkAcquireFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR)
-{
-    // Convert full screen exclusive calls to no-op functions that report success on non-WIN32 platforms.
-    GFXRECON_LOG_INFO("Ignoring WIN32 platform-specific extension function vkAcquireFullScreenExclusiveModeEXT");
-    return VK_SUCCESS;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetPhysicalDeviceSurfacePresentModes2EXT(
+        VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, uint32_t*, VkPresentModeKHR*)
+    {
+        GFXRECON_LOG_ERROR(
+            "Calling unsupported platform extension function vkGetPhysicalDeviceSurfacePresentModes2EXT");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkReleaseFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR)
-{
-    // Convert full screen exclusive calls to no-op functions that report success on non-WIN32 platforms.
-    GFXRECON_LOG_INFO("Ignoring WIN32 platform-specific extension function vkReleaseFullScreenExclusiveModeEXT");
-    return VK_SUCCESS;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkAcquireFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR)
+    {
+        // Convert full screen exclusive calls to no-op functions that report success on non-WIN32 platforms.
+        GFXRECON_LOG_INFO("Ignoring WIN32 platform-specific extension function vkAcquireFullScreenExclusiveModeEXT");
+        return VK_SUCCESS;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModes2EXT(VkDevice,
-                                                                              const VkPhysicalDeviceSurfaceInfo2KHR*,
-                                                                              VkDeviceGroupPresentModeFlagsKHR*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetDeviceGroupSurfacePresentModes2EXT");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkReleaseFullScreenExclusiveModeEXT(VkDevice, VkSwapchainKHR)
+    {
+        // Convert full screen exclusive calls to no-op functions that report success on non-WIN32 platforms.
+        GFXRECON_LOG_INFO("Ignoring WIN32 platform-specific extension function vkReleaseFullScreenExclusiveModeEXT");
+        return VK_SUCCESS;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(VkDevice, const VkMemoryGetWin32HandleInfoKHR*, HANDLE*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetDeviceGroupSurfacePresentModes2EXT(
+        VkDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkDeviceGroupPresentModeFlagsKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetDeviceGroupSurfacePresentModes2EXT");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandlePropertiesKHR(VkDevice,
-                                                                          VkExternalMemoryHandleTypeFlagBits,
-                                                                          HANDLE,
-                                                                          VkMemoryWin32HandlePropertiesKHR*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandlePropertiesKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleKHR(VkDevice,
+                                                                    const VkMemoryGetWin32HandleInfoKHR*,
+                                                                    HANDLE*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreWin32HandleKHR(VkDevice,
-                                                                      const VkImportSemaphoreWin32HandleInfoKHR*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkImportSemaphoreWin32HandleKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandlePropertiesKHR(VkDevice,
+                                                                              VkExternalMemoryHandleTypeFlagBits,
+                                                                              HANDLE,
+                                                                              VkMemoryWin32HandlePropertiesKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandlePropertiesKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreWin32HandleKHR(VkDevice,
-                                                                   const VkSemaphoreGetWin32HandleInfoKHR*,
+    static VKAPI_ATTR VkResult VKAPI_CALL vkImportSemaphoreWin32HandleKHR(VkDevice,
+                                                                          const VkImportSemaphoreWin32HandleInfoKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkImportSemaphoreWin32HandleKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetSemaphoreWin32HandleKHR(VkDevice,
+                                                                       const VkSemaphoreGetWin32HandleInfoKHR*,
+                                                                       HANDLE*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetSemaphoreWin32HandleKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceWin32HandleKHR(VkDevice, const VkImportFenceWin32HandleInfoKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkImportFenceWin32HandleKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceWin32HandleKHR(VkDevice,
+                                                                   const VkFenceGetWin32HandleInfoKHR*,
                                                                    HANDLE*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetSemaphoreWin32HandleKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetFenceWin32HandleKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkImportFenceWin32HandleKHR(VkDevice, const VkImportFenceWin32HandleInfoKHR*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkImportFenceWin32HandleKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkGetFenceWin32HandleKHR(VkDevice, const VkFenceGetWin32HandleInfoKHR*, HANDLE*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetFenceWin32HandleKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleNV(VkDevice,
-                                                               VkDeviceMemory,
-                                                               VkExternalMemoryHandleTypeFlagsNV,
-                                                               HANDLE*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleNV");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetMemoryWin32HandleNV(VkDevice,
+                                                                   VkDeviceMemory,
+                                                                   VkExternalMemoryHandleTypeFlagsNV,
+                                                                   HANDLE*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetMemoryWin32HandleNV");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 }
 #endif // VK_USE_PLATFORM_WIN32_KHR
 
@@ -783,33 +797,35 @@ struct VkXcbSurfaceCreateInfoKHR
     xcb_window_t               window;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateXcbSurfaceKHR)(VkInstance                       instance,
-                                                       const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
-                                                       const VkAllocationCallbacks*     pAllocator,
-                                                       VkSurfaceKHR*                    pSurface);
-typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)(VkPhysicalDevice  physicalDevice,
-                                                                              uint32_t          queueFamilyIndex,
-                                                                              xcb_connection_t* connection,
-                                                                              xcb_visualid_t    visual_id);
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(VkInstance,
-                                                            const VkXcbSurfaceCreateInfoKHR*,
-                                                            const VkAllocationCallbacks*,
-                                                            VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateXcbSurfaceKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateXcbSurfaceKHR)(VkInstance                       instance,
+                                                           const VkXcbSurfaceCreateInfoKHR* pCreateInfo,
+                                                           const VkAllocationCallbacks*     pAllocator,
+                                                           VkSurfaceKHR*                    pSurface);
+    typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)(VkPhysicalDevice  physicalDevice,
+                                                                                  uint32_t          queueFamilyIndex,
+                                                                                  xcb_connection_t* connection,
+                                                                                  xcb_visualid_t    visual_id);
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice,
-                                                                                   uint32_t,
-                                                                                   xcb_connection_t*,
-                                                                                   xcb_visualid_t)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceXcbPresentationSupportKHR");
-    return VK_FALSE;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateXcbSurfaceKHR(VkInstance,
+                                                                const VkXcbSurfaceCreateInfoKHR*,
+                                                                const VkAllocationCallbacks*,
+                                                                VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateXcbSurfaceKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXcbPresentationSupportKHR(VkPhysicalDevice,
+                                                                                       uint32_t,
+                                                                                       xcb_connection_t*,
+                                                                                       xcb_visualid_t)
+    {
+        GFXRECON_LOG_ERROR(
+            "Calling unsupported platform extension function vkGetPhysicalDeviceXcbPresentationSupportKHR");
+        return VK_FALSE;
+    }
 }
 #endif // VK_USE_PLATFORM_XCB_KHR
 
@@ -836,33 +852,35 @@ struct VkXlibSurfaceCreateInfoKHR
     Window                      window;
 };
 
-extern "C" {
-typedef VkResult(VKAPI_PTR* PFN_vkCreateXlibSurfaceKHR)(VkInstance                        instance,
-                                                        const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
-                                                        const VkAllocationCallbacks*      pAllocator,
-                                                        VkSurfaceKHR*                     pSurface);
-typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR)(VkPhysicalDevice physicalDevice,
-                                                                               uint32_t         queueFamilyIndex,
-                                                                               Display*         dpy,
-                                                                               VisualID         visualID);
-
-static VKAPI_ATTR VkResult VKAPI_CALL vkCreateXlibSurfaceKHR(VkInstance,
-                                                             const VkXlibSurfaceCreateInfoKHR*,
-                                                             const VkAllocationCallbacks*,
-                                                             VkSurfaceKHR*)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateXlibSurfaceKHR");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    typedef VkResult(VKAPI_PTR* PFN_vkCreateXlibSurfaceKHR)(VkInstance                        instance,
+                                                            const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
+                                                            const VkAllocationCallbacks*      pAllocator,
+                                                            VkSurfaceKHR*                     pSurface);
+    typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR)(VkPhysicalDevice physicalDevice,
+                                                                                   uint32_t         queueFamilyIndex,
+                                                                                   Display*         dpy,
+                                                                                   VisualID         visualID);
 
-static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice,
-                                                                                    uint32_t,
-                                                                                    Display*,
-                                                                                    VisualID)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetPhysicalDeviceXlibPresentationSupportKHR");
-    return VK_FALSE;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateXlibSurfaceKHR(VkInstance,
+                                                                 const VkXlibSurfaceCreateInfoKHR*,
+                                                                 const VkAllocationCallbacks*,
+                                                                 VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateXlibSurfaceKHR");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice,
+                                                                                        uint32_t,
+                                                                                        Display*,
+                                                                                        VisualID)
+    {
+        GFXRECON_LOG_ERROR(
+            "Calling unsupported platform extension function vkGetPhysicalDeviceXlibPresentationSupportKHR");
+        return VK_FALSE;
+    }
 }
 #endif // VK_USE_PLATFORM_XLIB_KHR
 
@@ -877,18 +895,22 @@ typedef VkResult(VKAPI_PTR* PFN_vkGetRandROutputDisplayEXT)(VkPhysicalDevice phy
                                                             RROutput         rrOutput,
                                                             VkDisplayKHR*    pDisplay);
 
-extern "C" {
-static VKAPI_ATTR VkResult VKAPI_CALL vkAcquireXlibDisplayEXT(VkPhysicalDevice, Display*, VkDisplayKHR)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkAcquireXlibDisplayEXT");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkAcquireXlibDisplayEXT(VkPhysicalDevice, Display*, VkDisplayKHR)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkAcquireXlibDisplayEXT");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 
-static VKAPI_ATTR VkResult VKAPI_CALL vkGetRandROutputDisplayEXT(VkPhysicalDevice, Display*, RROutput, VkDisplayKHR*)
-{
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetRandROutputDisplayEXT");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL vkGetRandROutputDisplayEXT(VkPhysicalDevice,
+                                                                     Display*,
+                                                                     RROutput,
+                                                                     VkDisplayKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkGetRandROutputDisplayEXT");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 }
 #endif // VK_USE_PLATFORM_XLIB_XRANDR_EXT
 
@@ -922,16 +944,17 @@ typedef VkResult(VKAPI_PTR* PFN_vkCreateStreamDescriptorSurfaceGGP)(
     const VkAllocationCallbacks*                  pAllocator,
     VkSurfaceKHR*                                 pSurface);
 
-extern "C" {
-static VKAPI_ATTR VkResult VKAPI_CALL
-                           vkCreateStreamDescriptorSurfaceGGP(VkInstance                                    instance,
-                                                              const VkStreamDescriptorSurfaceCreateInfoGGP* pCreateInfo,
-                                                              const VkAllocationCallbacks*                  pAllocator,
-                                                              VkSurfaceKHR*                                 pSurface)
+extern "C"
 {
-    GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateStreamDescriptorSurfaceGGP");
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
+    static VKAPI_ATTR VkResult VKAPI_CALL
+                               vkCreateStreamDescriptorSurfaceGGP(VkInstance                                    instance,
+                                                                  const VkStreamDescriptorSurfaceCreateInfoGGP* pCreateInfo,
+                                                                  const VkAllocationCallbacks*                  pAllocator,
+                                                                  VkSurfaceKHR*                                 pSurface)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateStreamDescriptorSurfaceGGP");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
 }
 
 #endif // VK_USE_PLATFORM_GGP

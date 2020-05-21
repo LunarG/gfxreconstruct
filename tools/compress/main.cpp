@@ -108,9 +108,9 @@ static std::string GetCompressionTypeName(uint32_t type)
 int main(int argc, const char** argv)
 {
     gfxrecon::decode::FileProcessor   file_processor;
-    gfxrecon::format::CompressionType compression_type       = gfxrecon::format::kNone;
-    bool                              print_usage            = false;
-    int                               return_code            = 0;
+    gfxrecon::format::CompressionType compression_type = gfxrecon::format::kNone;
+    bool                              print_usage      = false;
+    int                               return_code      = 0;
     std::string                       input_filename;
     std::string                       output_filename;
 
