@@ -435,9 +435,9 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
 bool TraceManager::IsTrimHotkeyPressed()
 {
     // Return true when GetKeyState() transitions from false to true
-    bool        hotkey_state          = keyboard_.GetKeyState(trim_key_);
-    bool        hotkey_pressed        = hotkey_state && !previous_hotkey_state_;
-    previous_hotkey_state_            = hotkey_state;
+    bool hotkey_state      = keyboard_.GetKeyState(trim_key_);
+    bool hotkey_pressed    = hotkey_state && !previous_hotkey_state_;
+    previous_hotkey_state_ = hotkey_state;
     return hotkey_pressed;
 }
 

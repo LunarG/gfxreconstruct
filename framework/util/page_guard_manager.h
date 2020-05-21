@@ -128,7 +128,7 @@ class PageGuardManager
 #if defined(WIN32)
             if (shadow_memory == nullptr)
             {
-                modified_addresses = std::make_unique<void* []>(total_pages);
+                modified_addresses = std::make_unique<void*[]>(total_pages);
             }
 #endif
         }
@@ -153,7 +153,7 @@ class PageGuardManager
 
 #if defined(WIN32)
         // Memory for retrieving modified pages with GetWriteWatch.
-        std::unique_ptr<void* []> modified_addresses;
+        std::unique_ptr<void*[]> modified_addresses;
 #endif
     };
 
@@ -170,7 +170,7 @@ class PageGuardManager
         std::vector<bool> page_loaded;       // Tracks which pages have been loaded.
     };
 
-    typedef std::unordered_map<uint64_t, MemoryInfo>       MemoryInfoMap;
+    typedef std::unordered_map<uint64_t, MemoryInfo> MemoryInfoMap;
 
   private:
     size_t GetSystemPageSize() const;

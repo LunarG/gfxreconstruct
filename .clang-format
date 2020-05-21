@@ -16,11 +16,11 @@ BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBraces: Custom
 BraceWrapping:
+  AfterCaseLabel: true
   AfterClass: true
   AfterControlStatement: true
   AfterEnum: true
-  # Not currently supported by the VS2017 built in clang-format v5
-  #AfterExternBlock: true
+  AfterExternBlock: true
   AfterFunction: true
   AfterNamespace: true
   AfterStruct: true
