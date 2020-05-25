@@ -34,7 +34,7 @@ size_t ZstdCompressor::Compress(const size_t          uncompressed_size,
         return 0;
     }
 
-    size_t zstd_compressed_size = ZSTD_COMPRESSBOUND(uncompressed_size);
+    size_t zstd_compressed_size = ZSTD_compressBound(uncompressed_size);
 
     if (zstd_compressed_size > compressed_data->size())
     {
