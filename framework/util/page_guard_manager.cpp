@@ -102,6 +102,9 @@ const uint32_t kGuardReadOnlyProtect  = PROT_READ;
 const uint32_t kGuardNoProtect        = PROT_READ | PROT_WRITE;
 
 static struct sigaction s_old_sigaction = {};
+static stack_t          s_old_stack     = {};
+
+static uint8_t s_alt_stack[SIGSTKSZ];
 
 static void PageGuardExceptionHandler(int id, siginfo_t* info, void* data)
 {
@@ -344,6 +347,15 @@ void PageGuardManager::AddExceptionHandler()
 
             if ((s_old_sigaction.sa_flags & SA_ONSTACK) == SA_ONSTACK)
             {
+                // Replace the current alternate signal stack with one that is guatanteed to be valid for the page guard
+                // signal handler.
+                stack_t new_stack;
+                new_stack.ss_sp    = s_alt_stack;
+                new_stack.ss_flags = 0;
+                new_stack.ss_size  = sizeof(s_alt_stack);
+
+                sigaltstack(&new_stack, &s_old_stack);
+
                 sa.sa_flags |= SA_ONSTACK;
             }
 
@@ -392,18 +404,16 @@ void PageGuardManager::ClearExceptionHandler(void* exception_handler)
                            GetLastError());
     }
 #else
-    struct sigaction current_sa;
-    if (sigaction(SIGSEGV, &s_old_sigaction, &current_sa) == -1)
+    if ((s_old_sigaction.sa_flags & SA_ONSTACK) == SA_ONSTACK)
+    {
+        // Restore the alternate signal stack.
+        sigaltstack(&s_old_stack, nullptr);
+    }
+
+    // Restore the old signal handler.
+    if (sigaction(SIGSEGV, &s_old_sigaction, nullptr) == -1)
     {
         GFXRECON_LOG_ERROR("PageGuardManager failed to remove exception handler (errno= %d)", errno);
-    }
-    else
-    {
-        if (current_sa.sa_sigaction != exception_handler)
-        {
-            GFXRECON_LOG_WARNING("PageGuardManager's signal handler has been replaced by the application and may have "
-                                 "caused the application to think it has crashed");
-        }
     }
 #endif
 }
