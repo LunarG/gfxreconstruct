@@ -28,7 +28,6 @@ import os
 import sys
 import shlex
 import subprocess
-from inspect import currentframe, getframeinfo
 from pathlib import Path
 
 argv = sys.argv
@@ -77,40 +76,44 @@ def GetExecutable(cmd):
 
     # Search for cmdexe in current dir
     if IsExe(cmdexe):
-        return ['./' + cmdexe]
+        return [os.path.join('.', cmdexe)]
 
     # Search for cmdexe in PATH
     for path in os.environ['PATH'].split(os.pathsep):
-        if IsExe(path + '/' + cmdexe):
-            return [path + '/' + cmdexe]
+        c = os.path.join(path, cmdexe)
+        if IsExe(c):
+            return [c]
 
     # Windows: Search for cmdexe in <scriptdir>/../cmd/*
     # (<scriptdir> is the dir that this script is located in.)
     scriptdir = os.path.dirname(os.path.realpath(__file__))
     if IsWindows():
        for buildtype in ['Debug', 'Release', 'RelWithDebInfo', 'MinSizeRel']:
-            if IsExe(scriptdir + '/../' + cmd + '/' + buildtype + '/' + cmdexe):
-                return [scriptdir + '/../' + cmd + '/' + buildtype + '/' + cmdexe]
+            c = os.path.join(scriptdir, '..', cmd, buildtype, cmdexe)
+            if IsExe(c):
+                return [c]
     else:
         # Linux: Search for cmdexe in <scriptdir>/../cmd
-        if IsExe(scriptdir + '/../' + cmd + '/' + cmdexe):
-            return [scriptdir + '/../' + cmd + '/' + cmdexe]
+        c = os.path.join(scriptdir, '..', cmd, cmdexe)
+        if IsExe(c):
+            return [c]
 
     cmdpy = 'gfxrecon-' + cmd + '.py'
 
     # Search for cmdpy in current dir
-    filename = getframeinfo(currentframe()).filename
     if os.path.isfile(cmdpy):
         return [sys.executable, cmdpy]
 
     # Search for cmdpy in PATH
     for path in os.environ['PATH'].split(os.pathsep):
-        if os.path.isfile(path + cmdpy):
-            return [sys.executable, path + '/' + cmdpy]
+        c=os.path.join(path, cmdpy)
+        if os.path.isfile(c):
+            return [sys.executable, c]
 
     # Search for cmdpy <scriptdir>/../cmd
-    if os.path.isfile(scriptdir + '/../' + cmd + '/' + cmdpy):
-        return [sys.executable, scriptdir + '/../' + cmd + '/' + cmdpy]
+    c = os.path.join(scriptdir, '..', cmd, cmdpy)
+    if os.path.isfile(c):
+        return [sys.executable, c]
 
     # Didn't find the executable or py command, error out
     print('Error: Cannot find ' + cmdexe + ' or ' + cmdpy + ' to execute')
