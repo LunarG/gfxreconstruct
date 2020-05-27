@@ -108,6 +108,7 @@ void VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t
     StandardCreateWrite<DebugUtilsMessengerEXTWrapper>(state_table);
     StandardCreateWrite<ValidationCacheEXTWrapper>(state_table);
     StandardCreateWrite<DeferredOperationKHRWrapper>(state_table);
+    StandardCreateWrite<PrivateDataSlotEXTWrapper>(state_table);
 
     // Synchronization primitive creation.
     WriteFenceState(state_table);

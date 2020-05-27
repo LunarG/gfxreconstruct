@@ -2616,6 +2616,15 @@ void VulkanAsciiConsumer::Process_vkGetImageViewHandleNVX(
     fprintf(GetFile(), "%s\n", "vkGetImageViewHandleNVX");
 }
 
+void VulkanAsciiConsumer::Process_vkGetImageViewAddressNVX(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            imageView,
+    StructPointerDecoder<Decoded_VkImageViewAddressPropertiesNVX>* pProperties)
+{
+    fprintf(GetFile(), "%s\n", "vkGetImageViewAddressNVX");
+}
+
 void VulkanAsciiConsumer::Process_vkCmdDrawIndirectCountAMD(
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
@@ -3551,6 +3560,45 @@ void VulkanAsciiConsumer::Process_vkDestroyIndirectCommandsLayoutNV(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     fprintf(GetFile(), "%s\n", "vkDestroyIndirectCommandsLayoutNV");
+}
+
+void VulkanAsciiConsumer::Process_vkCreatePrivateDataSlotEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkPrivateDataSlotCreateInfoEXT>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkPrivateDataSlotEXT>* pPrivateDataSlot)
+{
+    fprintf(GetFile(), "%s\n", "vkCreatePrivateDataSlotEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkDestroyPrivateDataSlotEXT(
+    format::HandleId                            device,
+    format::HandleId                            privateDataSlot,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    fprintf(GetFile(), "%s\n", "vkDestroyPrivateDataSlotEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkSetPrivateDataEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    VkObjectType                                objectType,
+    uint64_t                                    objectHandle,
+    format::HandleId                            privateDataSlot,
+    uint64_t                                    data)
+{
+    fprintf(GetFile(), "%s\n", "vkSetPrivateDataEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPrivateDataEXT(
+    format::HandleId                            device,
+    VkObjectType                                objectType,
+    uint64_t                                    objectHandle,
+    format::HandleId                            privateDataSlot,
+    PointerDecoder<uint64_t>*                   pData)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPrivateDataEXT");
 }
 
 void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureKHR(

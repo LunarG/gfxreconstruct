@@ -713,8 +713,10 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineRasterizationStateStreamCreateInfoEXT* wrapper);
 
 struct Decoded_VkImageViewHandleInfoNVX;
+struct Decoded_VkImageViewAddressPropertiesNVX;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImageViewHandleInfoNVX* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkImageViewAddressPropertiesNVX* wrapper);
 
 struct Decoded_VkTextureLODGatherFormatPropertiesAMD;
 
@@ -852,16 +854,16 @@ struct Decoded_VkMacOSSurfaceCreateInfoMVK;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkMacOSSurfaceCreateInfoMVK* wrapper);
 
-struct Decoded_VkDebugUtilsObjectNameInfoEXT;
-struct Decoded_VkDebugUtilsObjectTagInfoEXT;
 struct Decoded_VkDebugUtilsLabelEXT;
+struct Decoded_VkDebugUtilsObjectNameInfoEXT;
 struct Decoded_VkDebugUtilsMessengerCallbackDataEXT;
+struct Decoded_VkDebugUtilsObjectTagInfoEXT;
 struct Decoded_VkDebugUtilsMessengerCreateInfoEXT;
 
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDebugUtilsObjectNameInfoEXT* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDebugUtilsObjectTagInfoEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDebugUtilsLabelEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDebugUtilsObjectNameInfoEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDebugUtilsMessengerCallbackDataEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDebugUtilsObjectTagInfoEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDebugUtilsMessengerCreateInfoEXT* wrapper);
 
 struct Decoded_VkAndroidHardwareBufferUsageANDROID;
@@ -1267,6 +1269,28 @@ struct Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkRenderPassTransformBeginInfoQCOM* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM* wrapper);
+
+struct Decoded_VkPhysicalDeviceRobustness2FeaturesEXT;
+struct Decoded_VkPhysicalDeviceRobustness2PropertiesEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceRobustness2FeaturesEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceRobustness2PropertiesEXT* wrapper);
+
+struct Decoded_VkSamplerCustomBorderColorCreateInfoEXT;
+struct Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT;
+struct Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSamplerCustomBorderColorCreateInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT* wrapper);
+
+struct Decoded_VkPhysicalDevicePrivateDataFeaturesEXT;
+struct Decoded_VkDevicePrivateDataCreateInfoEXT;
+struct Decoded_VkPrivateDataSlotCreateInfoEXT;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePrivateDataFeaturesEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDevicePrivateDataCreateInfoEXT* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPrivateDataSlotCreateInfoEXT* wrapper);
 
 struct Decoded_VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT;
 

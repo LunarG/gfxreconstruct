@@ -77,6 +77,7 @@ class VulkanStateTable
     bool InsertWrapper(format::HandleId id, AccelerationStructureNVWrapper* wrapper)       { return InsertEntry(id, wrapper, acceleration_structure_nv_map_); }
     bool InsertWrapper(format::HandleId id, PerformanceConfigurationINTELWrapper* wrapper) { return InsertEntry(id, wrapper, performance_configuration_intel_map_); }
     bool InsertWrapper(format::HandleId id, DeferredOperationKHRWrapper* wrapper)          { return InsertEntry(id, wrapper, deferred_operation_khr_map_); }
+    bool InsertWrapper(format::HandleId id, PrivateDataSlotEXTWrapper* wrapper)            { return InsertEntry(id, wrapper, private_data_slot_ext_map_); }
 
     bool RemoveWrapper(const InstanceWrapper* wrapper)                      { return RemoveEntry(wrapper, instance_map_); }
     bool RemoveWrapper(const PhysicalDeviceWrapper* wrapper)                { return RemoveEntry(wrapper, physical_device_map_); }
@@ -117,6 +118,7 @@ class VulkanStateTable
     bool RemoveWrapper(const AccelerationStructureNVWrapper* wrapper)       { return RemoveEntry(wrapper, acceleration_structure_nv_map_); }
     bool RemoveWrapper(const PerformanceConfigurationINTELWrapper* wrapper) { return RemoveEntry(wrapper, performance_configuration_intel_map_); }
     bool RemoveWrapper(const DeferredOperationKHRWrapper* wrapper)          { return RemoveEntry(wrapper, deferred_operation_khr_map_); }
+    bool RemoveWrapper(const PrivateDataSlotEXTWrapper* wrapper)            { return RemoveEntry(wrapper, private_data_slot_ext_map_); }
 
     void VisitWrappers(std::function<void(const InstanceWrapper*)> visitor) const                      { for (auto entry : instance_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const PhysicalDeviceWrapper*)> visitor) const                { for (auto entry : physical_device_map_) { visitor(entry.second); } }
@@ -157,6 +159,7 @@ class VulkanStateTable
     void VisitWrappers(std::function<void(const AccelerationStructureNVWrapper*)> visitor) const       { for (auto entry : acceleration_structure_nv_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const PerformanceConfigurationINTELWrapper*)> visitor) const { for (auto entry : performance_configuration_intel_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const DeferredOperationKHRWrapper*)> visitor) const          { for (auto entry : deferred_operation_khr_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const PrivateDataSlotEXTWrapper*)> visitor) const            { for (auto entry : private_data_slot_ext_map_) { visitor(entry.second); } }
     // clang-format on
 
     //
@@ -318,6 +321,7 @@ class VulkanStateTable
     std::map<format::HandleId, AccelerationStructureNVWrapper*>       acceleration_structure_nv_map_;
     std::map<format::HandleId, PerformanceConfigurationINTELWrapper*> performance_configuration_intel_map_;
     std::map<format::HandleId, DeferredOperationKHRWrapper*>          deferred_operation_khr_map_;
+    std::map<format::HandleId, PrivateDataSlotEXTWrapper*>            private_data_slot_ext_map_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

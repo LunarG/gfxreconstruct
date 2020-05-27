@@ -475,6 +475,10 @@ enum ApiCallId : uint32_t
     ApiCall_vkCreateIndirectCommandsLayoutNV                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1208),
     ApiCall_vkDestroyIndirectCommandsLayoutNV                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x1209),
     ApiCall_vkGetImageViewAddressNVX                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x120a),
+    ApiCall_vkCreatePrivateDataSlotEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x120b),
+    ApiCall_vkDestroyPrivateDataSlotEXT                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x120c),
+    ApiCall_vkSetPrivateDataEXT                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x120d),
+    ApiCall_vkGetPrivateDataEXT                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x120e),
 
     ApiCall_VulkanLast
     // clang-format on

@@ -156,6 +156,7 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.apientryp       = apientryp                 # NOTE: While not used in this file, apientry is expected to be defined here by the OutputGenerator base class.
         self.indentFuncProto = indentFuncProto
         self.alignFuncParam  = alignFuncParam
+        self.codeGenerator   = True
 
 
 # BaseGenerator - subclass of OutputGenerator.

@@ -75,6 +75,7 @@ class VulkanObjectInfoTable
     void AddAccelerationStructureNVInfo(AccelerationStructureNVInfo&& info)             { AddObjectInfo(std::move(info), &acceleration_structure_nv_map_); }
     void AddPerformanceConfigurationINTELInfo(PerformanceConfigurationINTELInfo&& info) { AddObjectInfo(std::move(info), &performance_configuration_intel_map_); }
     void AddDeferredOperationKHRInfo(DeferredOperationKHRInfo&& info)                   { AddObjectInfo(std::move(info), &deferred_operation_khr_map_); }
+    void AddPrivateDataSlotEXTInfo(PrivateDataSlotEXTInfo&& info)                       { AddObjectInfo(std::move(info), &private_data_slot_ext_map_); }
 
     const InstanceInfo*                      GetInstanceInfo(format::HandleId id) const                       { return GetObjectInfo<InstanceInfo>(id, &instance_map_); }
     const PhysicalDeviceInfo*                GetPhysicalDeviceInfo(format::HandleId id) const                 { return GetObjectInfo<PhysicalDeviceInfo>(id, &physical_device_map_); }
@@ -116,6 +117,7 @@ class VulkanObjectInfoTable
     const AccelerationStructureNVInfo*       GetAccelerationStructureNVInfo(format::HandleId id) const        { return GetObjectInfo<AccelerationStructureNVInfo>(id, &acceleration_structure_nv_map_); }
     const PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id) const  { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performance_configuration_intel_map_); }
     const DeferredOperationKHRInfo*          GetDeferredOperationKHRInfo(format::HandleId id) const           { return GetObjectInfo<DeferredOperationKHRInfo>(id, &deferred_operation_khr_map_); }
+    const PrivateDataSlotEXTInfo*            GetPrivateDataSlotEXTInfo(format::HandleId id) const             { return GetObjectInfo<PrivateDataSlotEXTInfo>(id, &private_data_slot_ext_map_); }
 
     InstanceInfo*                      GetInstanceInfo(format::HandleId id)                       { return GetObjectInfo<InstanceInfo>(id, &instance_map_); }
     PhysicalDeviceInfo*                GetPhysicalDeviceInfo(format::HandleId id)                 { return GetObjectInfo<PhysicalDeviceInfo>(id, &physical_device_map_); }
@@ -157,6 +159,7 @@ class VulkanObjectInfoTable
     AccelerationStructureNVInfo*       GetAccelerationStructureNVInfo(format::HandleId id)        { return GetObjectInfo<AccelerationStructureNVInfo>(id, &acceleration_structure_nv_map_); }
     PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id)  { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performance_configuration_intel_map_); }
     DeferredOperationKHRInfo*          GetDeferredOperationKHRInfo(format::HandleId id)           { return GetObjectInfo<DeferredOperationKHRInfo>(id, &deferred_operation_khr_map_); }
+    PrivateDataSlotEXTInfo*            GetPrivateDataSlotEXTInfo(format::HandleId id)             { return GetObjectInfo<PrivateDataSlotEXTInfo>(id, &private_data_slot_ext_map_); }
     // clang-format on
 
     void ReplaceSemaphore(VkSemaphore target, VkSemaphore replacement)
@@ -301,6 +304,7 @@ class VulkanObjectInfoTable
     std::unordered_map<format::HandleId, AccelerationStructureNVInfo>       acceleration_structure_nv_map_;
     std::unordered_map<format::HandleId, PerformanceConfigurationINTELInfo> performance_configuration_intel_map_;
     std::unordered_map<format::HandleId, DeferredOperationKHRInfo>          deferred_operation_khr_map_;
+    std::unordered_map<format::HandleId, PrivateDataSlotEXTInfo>            private_data_slot_ext_map_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

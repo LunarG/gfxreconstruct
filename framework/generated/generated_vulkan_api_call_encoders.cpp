@@ -8445,6 +8445,39 @@ VKAPI_ATTR uint32_t VKAPI_CALL GetImageViewHandleNVX(
     return result;
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL GetImageViewAddressNVX(
+    VkDevice                                    device,
+    VkImageView                                 imageView,
+    VkImageViewAddressPropertiesNVX*            pProperties)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetImageViewAddressNVX>::Dispatch(TraceManager::Get(), device, imageView, pProperties);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkImageView imageView_unwrapped = GetWrappedHandle<VkImageView>(imageView);
+
+    VkResult result = GetDeviceTable(device)->GetImageViewAddressNVX(device_unwrapped, imageView_unwrapped, pProperties);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetImageViewAddressNVX);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(imageView);
+        EncodeStructPtr(encoder, pProperties, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetImageViewAddressNVX>::Dispatch(TraceManager::Get(), result, device, imageView, pProperties);
+
+    return result;
+}
+
 VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(
     VkCommandBuffer                             commandBuffer,
     VkBuffer                                    buffer,
@@ -11501,6 +11534,130 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutNV>::Dispatch(TraceManager::Get(), device, indirectCommandsLayout, pAllocator);
 
     DestroyWrappedHandle<IndirectCommandsLayoutNVWrapper>(indirectCommandsLayout);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(
+    VkDevice                                    device,
+    const VkPrivateDataSlotCreateInfoEXT*       pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkPrivateDataSlotEXT*                       pPrivateDataSlot)
+{
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT>::Dispatch(TraceManager::Get(), device, pCreateInfo, pAllocator, pPrivateDataSlot);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+
+    VkResult result = GetDeviceTable(device)->CreatePrivateDataSlotEXT(device_unwrapped, pCreateInfo, pAllocator, pPrivateDataSlot);
+
+    if (result >= 0)
+    {
+        CreateWrappedHandle<DeviceWrapper, NoParentWrapper, PrivateDataSlotEXTWrapper>(device, NoParentWrapper::kHandleValue, pPrivateDataSlot, TraceManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        EncodeStructPtr(encoder, pCreateInfo);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeHandlePtr(pPrivateDataSlot, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndCreateApiCallTrace<VkDevice, PrivateDataSlotEXTWrapper, VkPrivateDataSlotCreateInfoEXT>(result, device, pPrivateDataSlot, pCreateInfo, encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreatePrivateDataSlotEXT>::Dispatch(TraceManager::Get(), result, device, pCreateInfo, pAllocator, pPrivateDataSlot);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(
+    VkDevice                                    device,
+    VkPrivateDataSlotEXT                        privateDataSlot,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT>::Dispatch(TraceManager::Get(), device, privateDataSlot, pAllocator);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeHandleValue(privateDataSlot);
+        EncodeStructPtr(encoder, pAllocator);
+        TraceManager::Get()->EndDestroyApiCallTrace<PrivateDataSlotEXTWrapper>(privateDataSlot, encoder);
+    }
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkPrivateDataSlotEXT privateDataSlot_unwrapped = GetWrappedHandle<VkPrivateDataSlotEXT>(privateDataSlot);
+
+    GetDeviceTable(device)->DestroyPrivateDataSlotEXT(device_unwrapped, privateDataSlot_unwrapped, pAllocator);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyPrivateDataSlotEXT>::Dispatch(TraceManager::Get(), device, privateDataSlot, pAllocator);
+
+    DestroyWrappedHandle<PrivateDataSlotEXTWrapper>(privateDataSlot);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(
+    VkDevice                                    device,
+    VkObjectType                                objectType,
+    uint64_t                                    objectHandle,
+    VkPrivateDataSlotEXT                        privateDataSlot,
+    uint64_t                                    data)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkSetPrivateDataEXT>::Dispatch(TraceManager::Get(), device, objectType, objectHandle, privateDataSlot, data);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkPrivateDataSlotEXT privateDataSlot_unwrapped = GetWrappedHandle<VkPrivateDataSlotEXT>(privateDataSlot);
+
+    VkResult result = GetDeviceTable(device)->SetPrivateDataEXT(device_unwrapped, objectType, objectHandle, privateDataSlot_unwrapped, data);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkSetPrivateDataEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeEnumValue(objectType);
+        encoder->EncodeUInt64Value(objectHandle);
+        encoder->EncodeHandleValue(privateDataSlot);
+        encoder->EncodeUInt64Value(data);
+        encoder->EncodeEnumValue(result);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSetPrivateDataEXT>::Dispatch(TraceManager::Get(), result, device, objectType, objectHandle, privateDataSlot, data);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(
+    VkDevice                                    device,
+    VkObjectType                                objectType,
+    uint64_t                                    objectHandle,
+    VkPrivateDataSlotEXT                        privateDataSlot,
+    uint64_t*                                   pData)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPrivateDataEXT>::Dispatch(TraceManager::Get(), device, objectType, objectHandle, privateDataSlot, pData);
+
+    VkDevice device_unwrapped = GetWrappedHandle<VkDevice>(device);
+    VkPrivateDataSlotEXT privateDataSlot_unwrapped = GetWrappedHandle<VkPrivateDataSlotEXT>(privateDataSlot);
+
+    GetDeviceTable(device)->GetPrivateDataEXT(device_unwrapped, objectType, objectHandle, privateDataSlot_unwrapped, pData);
+
+    auto encoder = TraceManager::Get()->BeginApiCallTrace(format::ApiCallId::ApiCall_vkGetPrivateDataEXT);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(device);
+        encoder->EncodeEnumValue(objectType);
+        encoder->EncodeUInt64Value(objectHandle);
+        encoder->EncodeHandleValue(privateDataSlot);
+        encoder->EncodeUInt64Ptr(pData);
+        TraceManager::Get()->EndApiCallTrace(encoder);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPrivateDataEXT>::Dispatch(TraceManager::Get(), device, objectType, objectHandle, privateDataSlot, pData);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(

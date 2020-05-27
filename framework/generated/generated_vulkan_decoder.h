@@ -614,6 +614,8 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetImageViewHandleNVX(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkGetImageViewAddressNVX(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCmdDrawIndirectCountAMD(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdDrawIndexedIndirectCountAMD(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -817,6 +819,14 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkCreateIndirectCommandsLayoutNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkDestroyIndirectCommandsLayoutNV(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreatePrivateDataSlotEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkDestroyPrivateDataSlotEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkSetPrivateDataEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPrivateDataEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
