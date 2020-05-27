@@ -202,8 +202,7 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else
                 {
-                    GFXRECON_LOG_ERROR("Failed to read function call block header");
-                    error_state_ = kErrorReadingBlockHeader;
+                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
                 }
             }
             else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
@@ -218,8 +217,7 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else
                 {
-                    GFXRECON_LOG_ERROR("Failed to read meta-data block header");
-                    error_state_ = kErrorReadingBlockHeader;
+                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read meta-data block header");
                 }
             }
             else if (block_header.type == format::BlockType::kStateMarkerBlock)
@@ -235,8 +233,7 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else
                 {
-                    GFXRECON_LOG_ERROR("Failed to read state marker header");
-                    error_state_ = kErrorReadingBlockHeader;
+                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker header");
                 }
             }
             else
@@ -249,11 +246,7 @@ bool FileProcessor::ProcessBlocks()
         }
         else
         {
-            if (!feof(file_descriptor_))
-            {
-                GFXRECON_LOG_ERROR("Failed to read block header");
-                error_state_ = kErrorReadingBlockHeader;
-            }
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read block header");
         }
     }
 
