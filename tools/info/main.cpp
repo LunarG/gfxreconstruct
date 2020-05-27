@@ -125,17 +125,23 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         gfxrecon::decode::StructPointerDecoder<gfxrecon::decode::Decoded_VkAllocationCallbacks>*,
         gfxrecon::decode::HandlePointerDecoder<VkInstance>*) override
     {
-        assert(pCreateInfo != nullptr);
-
-        if ((returnValue >= 0) && !pCreateInfo->IsNull())
+        if ((pCreateInfo != nullptr) && (returnValue >= 0) && !pCreateInfo->IsNull())
         {
             auto create_info = pCreateInfo->GetPointer();
             auto app_info    = create_info->pApplicationInfo;
             if (app_info != nullptr)
             {
-                app_name_       = app_info->pApplicationName;
+                if (app_info->pApplicationName != nullptr)
+                {
+                    app_name_ = app_info->pApplicationName;
+                }
+
+                if (app_info->pEngineName != nullptr)
+                {
+                    engine_name_ = app_info->pEngineName;
+                }
+
                 app_version_    = app_info->applicationVersion;
-                engine_name_    = app_info->pEngineName;
                 engine_version_ = app_info->engineVersion;
                 api_version_    = app_info->apiVersion;
             }
