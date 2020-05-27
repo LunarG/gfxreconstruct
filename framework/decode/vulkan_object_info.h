@@ -174,6 +174,7 @@ typedef VulkanObjectInfo<VkAccelerationStructureKHR>      AccelerationStructureK
 typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureNVInfo;
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
 typedef VulkanObjectInfo<VkDeferredOperationKHR>          DeferredOperationKHRInfo;
+typedef VulkanObjectInfo<VkPrivateDataSlotEXT>            PrivateDataSlotEXTInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.

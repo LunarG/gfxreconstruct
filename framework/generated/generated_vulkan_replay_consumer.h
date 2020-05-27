@@ -1770,6 +1770,12 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkImageViewHandleInfoNVX>* pInfo) override;
 
+    virtual void Process_vkGetImageViewAddressNVX(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        format::HandleId                            imageView,
+        StructPointerDecoder<Decoded_VkImageViewAddressPropertiesNVX>* pProperties) override;
+
     virtual void Process_vkCmdDrawIndirectCountAMD(
         format::HandleId                            commandBuffer,
         format::HandleId                            buffer,
@@ -2400,6 +2406,33 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         format::HandleId                            device,
         format::HandleId                            indirectCommandsLayout,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    virtual void Process_vkCreatePrivateDataSlotEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkPrivateDataSlotCreateInfoEXT>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkPrivateDataSlotEXT>* pPrivateDataSlot) override;
+
+    virtual void Process_vkDestroyPrivateDataSlotEXT(
+        format::HandleId                            device,
+        format::HandleId                            privateDataSlot,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    virtual void Process_vkSetPrivateDataEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        VkObjectType                                objectType,
+        uint64_t                                    objectHandle,
+        format::HandleId                            privateDataSlot,
+        uint64_t                                    data) override;
+
+    virtual void Process_vkGetPrivateDataEXT(
+        format::HandleId                            device,
+        VkObjectType                                objectType,
+        uint64_t                                    objectHandle,
+        format::HandleId                            privateDataSlot,
+        PointerDecoder<uint64_t>*                   pData) override;
 
     virtual void Process_vkCreateAccelerationStructureKHR(
         VkResult                                    returnValue,

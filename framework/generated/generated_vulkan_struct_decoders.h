@@ -3231,6 +3231,15 @@ struct Decoded_VkImageViewHandleInfoNVX
     format::HandleId sampler{ 0 };
 };
 
+struct Decoded_VkImageViewAddressPropertiesNVX
+{
+    using struct_type = VkImageViewAddressPropertiesNVX;
+
+    VkImageViewAddressPropertiesNVX* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 struct Decoded_VkTextureLODGatherFormatPropertiesAMD
 {
     using struct_type = VkTextureLODGatherFormatPropertiesAMD;
@@ -3628,26 +3637,6 @@ struct Decoded_VkMacOSSurfaceCreateInfoMVK
     uint64_t pView{ 0 };
 };
 
-struct Decoded_VkDebugUtilsObjectNameInfoEXT
-{
-    using struct_type = VkDebugUtilsObjectNameInfoEXT;
-
-    VkDebugUtilsObjectNameInfoEXT* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-    StringDecoder pObjectName;
-};
-
-struct Decoded_VkDebugUtilsObjectTagInfoEXT
-{
-    using struct_type = VkDebugUtilsObjectTagInfoEXT;
-
-    VkDebugUtilsObjectTagInfoEXT* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<uint8_t> pTag;
-};
-
 struct Decoded_VkDebugUtilsLabelEXT
 {
     using struct_type = VkDebugUtilsLabelEXT;
@@ -3657,6 +3646,16 @@ struct Decoded_VkDebugUtilsLabelEXT
     std::unique_ptr<PNextNode> pNext;
     StringDecoder pLabelName;
     PointerDecoder<float> color;
+};
+
+struct Decoded_VkDebugUtilsObjectNameInfoEXT
+{
+    using struct_type = VkDebugUtilsObjectNameInfoEXT;
+
+    VkDebugUtilsObjectNameInfoEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    StringDecoder pObjectName;
 };
 
 struct Decoded_VkDebugUtilsMessengerCallbackDataEXT
@@ -3671,6 +3670,16 @@ struct Decoded_VkDebugUtilsMessengerCallbackDataEXT
     std::unique_ptr<StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>> pQueueLabels;
     std::unique_ptr<StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>> pCmdBufLabels;
     std::unique_ptr<StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>> pObjects;
+};
+
+struct Decoded_VkDebugUtilsObjectTagInfoEXT
+{
+    using struct_type = VkDebugUtilsObjectTagInfoEXT;
+
+    VkDebugUtilsObjectTagInfoEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    PointerDecoder<uint8_t> pTag;
 };
 
 struct Decoded_VkDebugUtilsMessengerCreateInfoEXT
@@ -5090,6 +5099,79 @@ struct Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM
 
     std::unique_ptr<PNextNode> pNext;
     std::unique_ptr<Decoded_VkRect2D> renderArea;
+};
+
+struct Decoded_VkPhysicalDeviceRobustness2FeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceRobustness2FeaturesEXT;
+
+    VkPhysicalDeviceRobustness2FeaturesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDeviceRobustness2PropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceRobustness2PropertiesEXT;
+
+    VkPhysicalDeviceRobustness2PropertiesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkSamplerCustomBorderColorCreateInfoEXT
+{
+    using struct_type = VkSamplerCustomBorderColorCreateInfoEXT;
+
+    VkSamplerCustomBorderColorCreateInfoEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    std::unique_ptr<Decoded_VkClearColorValue> customBorderColor;
+};
+
+struct Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceCustomBorderColorPropertiesEXT;
+
+    VkPhysicalDeviceCustomBorderColorPropertiesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceCustomBorderColorFeaturesEXT;
+
+    VkPhysicalDeviceCustomBorderColorFeaturesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDevicePrivateDataFeaturesEXT
+{
+    using struct_type = VkPhysicalDevicePrivateDataFeaturesEXT;
+
+    VkPhysicalDevicePrivateDataFeaturesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkDevicePrivateDataCreateInfoEXT
+{
+    using struct_type = VkDevicePrivateDataCreateInfoEXT;
+
+    VkDevicePrivateDataCreateInfoEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPrivateDataSlotCreateInfoEXT
+{
+    using struct_type = VkPrivateDataSlotCreateInfoEXT;
+
+    VkPrivateDataSlotCreateInfoEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
 };
 
 struct Decoded_VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT

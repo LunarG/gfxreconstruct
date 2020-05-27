@@ -4096,6 +4096,20 @@ void VulkanReplayConsumer::Process_vkGetImageViewHandleNVX(
     GetDeviceTable(in_device)->GetImageViewHandleNVX(in_device, in_pInfo);
 }
 
+void VulkanReplayConsumer::Process_vkGetImageViewAddressNVX(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    format::HandleId                            imageView,
+    StructPointerDecoder<Decoded_VkImageViewAddressPropertiesNVX>* pProperties)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkImageView in_imageView = MapHandle<ImageViewInfo>(imageView, &VulkanObjectInfoTable::GetImageViewInfo);
+    VkImageViewAddressPropertiesNVX* out_pProperties = pProperties->IsNull() ? nullptr : pProperties->AllocateOutputData(1, { VK_STRUCTURE_TYPE_IMAGE_VIEW_ADDRESS_PROPERTIES_NVX, nullptr });
+
+    VkResult replay_result = GetDeviceTable(in_device)->GetImageViewAddressNVX(in_device, in_imageView, out_pProperties);
+    CheckResult("vkGetImageViewAddressNVX", returnValue, replay_result);
+}
+
 void VulkanReplayConsumer::Process_vkCmdDrawIndirectCountAMD(
     format::HandleId                            commandBuffer,
     format::HandleId                            buffer,
@@ -5554,6 +5568,66 @@ void VulkanReplayConsumer::Process_vkDestroyIndirectCommandsLayoutNV(
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
     GetDeviceTable(in_device)->DestroyIndirectCommandsLayoutNV(in_device, in_indirectCommandsLayout, in_pAllocator);
+}
+
+void VulkanReplayConsumer::Process_vkCreatePrivateDataSlotEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkPrivateDataSlotCreateInfoEXT>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkPrivateDataSlotEXT>* pPrivateDataSlot)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    const VkPrivateDataSlotCreateInfoEXT* in_pCreateInfo = pCreateInfo->GetPointer();
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    if (!pPrivateDataSlot->IsNull()) { pPrivateDataSlot->SetHandleLength(1); }
+    VkPrivateDataSlotEXT* out_pPrivateDataSlot = pPrivateDataSlot->GetHandlePointer();
+
+    VkResult replay_result = GetDeviceTable(in_device)->CreatePrivateDataSlotEXT(in_device, in_pCreateInfo, in_pAllocator, out_pPrivateDataSlot);
+    CheckResult("vkCreatePrivateDataSlotEXT", returnValue, replay_result);
+
+    AddHandle<PrivateDataSlotEXTInfo>(pPrivateDataSlot->GetPointer(), out_pPrivateDataSlot, &VulkanObjectInfoTable::AddPrivateDataSlotEXTInfo);
+}
+
+void VulkanReplayConsumer::Process_vkDestroyPrivateDataSlotEXT(
+    format::HandleId                            device,
+    format::HandleId                            privateDataSlot,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkPrivateDataSlotEXT in_privateDataSlot = MapHandle<PrivateDataSlotEXTInfo>(privateDataSlot, &VulkanObjectInfoTable::GetPrivateDataSlotEXTInfo);
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+
+    GetDeviceTable(in_device)->DestroyPrivateDataSlotEXT(in_device, in_privateDataSlot, in_pAllocator);
+}
+
+void VulkanReplayConsumer::Process_vkSetPrivateDataEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    VkObjectType                                objectType,
+    uint64_t                                    objectHandle,
+    format::HandleId                            privateDataSlot,
+    uint64_t                                    data)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkPrivateDataSlotEXT in_privateDataSlot = MapHandle<PrivateDataSlotEXTInfo>(privateDataSlot, &VulkanObjectInfoTable::GetPrivateDataSlotEXTInfo);
+
+    VkResult replay_result = GetDeviceTable(in_device)->SetPrivateDataEXT(in_device, objectType, objectHandle, in_privateDataSlot, data);
+    CheckResult("vkSetPrivateDataEXT", returnValue, replay_result);
+}
+
+void VulkanReplayConsumer::Process_vkGetPrivateDataEXT(
+    format::HandleId                            device,
+    VkObjectType                                objectType,
+    uint64_t                                    objectHandle,
+    format::HandleId                            privateDataSlot,
+    PointerDecoder<uint64_t>*                   pData)
+{
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkPrivateDataSlotEXT in_privateDataSlot = MapHandle<PrivateDataSlotEXTInfo>(privateDataSlot, &VulkanObjectInfoTable::GetPrivateDataSlotEXTInfo);
+    uint64_t* out_pData = pData->IsNull() ? nullptr : pData->AllocateOutputData(1, static_cast<uint64_t>(0));
+
+    GetDeviceTable(in_device)->GetPrivateDataEXT(in_device, objectType, objectHandle, in_privateDataSlot, out_pData);
 }
 
 void VulkanReplayConsumer::Process_vkCreateAccelerationStructureKHR(

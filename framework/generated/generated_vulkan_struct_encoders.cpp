@@ -3073,6 +3073,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageViewHandleInfoNVX& val
     encoder->EncodeHandleValue(value.sampler);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkImageViewAddressPropertiesNVX& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+    encoder->EncodeVkDeviceSizeValue(value.size);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkTextureLODGatherFormatPropertiesAMD& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -3431,6 +3439,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMacOSSurfaceCreateInfoMVK& 
     encoder->EncodeVoidPtr(value.pView);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeString(value.pLabelName);
+    encoder->EncodeFloatArray(value.color, 4);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -3438,25 +3454,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT
     encoder->EncodeEnumValue(value.objectType);
     encoder->EncodeUInt64Value(value.objectHandle);
     encoder->EncodeString(value.pObjectName);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.objectType);
-    encoder->EncodeUInt64Value(value.objectHandle);
-    encoder->EncodeUInt64Value(value.tagName);
-    encoder->EncodeSizeTValue(value.tagSize);
-    encoder->EncodeVoidArray(value.pTag, value.tagSize);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeString(value.pLabelName);
-    encoder->EncodeFloatArray(value.color, 4);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT& value)
@@ -3473,6 +3470,17 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallback
     EncodeStructArray(encoder, value.pCmdBufLabels, value.cmdBufLabelCount);
     encoder->EncodeUInt32Value(value.objectCount);
     EncodeStructArray(encoder, value.pObjects, value.objectCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.objectType);
+    encoder->EncodeUInt64Value(value.objectHandle);
+    encoder->EncodeUInt64Value(value.tagName);
+    encoder->EncodeSizeTValue(value.tagSize);
+    encoder->EncodeVoidArray(value.pTag, value.tagSize);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateInfoEXT& value)
@@ -4731,6 +4739,67 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceRen
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeEnumValue(value.transform);
     EncodeStruct(encoder, value.renderArea);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRobustness2FeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.robustBufferAccess2);
+    encoder->EncodeVkBool32Value(value.robustImageAccess2);
+    encoder->EncodeVkBool32Value(value.nullDescriptor);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRobustness2PropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkDeviceSizeValue(value.robustStorageBufferAccessSizeAlignment);
+    encoder->EncodeVkDeviceSizeValue(value.robustUniformBufferAccessSizeAlignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSamplerCustomBorderColorCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.customBorderColor);
+    encoder->EncodeEnumValue(value.format);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCustomBorderColorPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxCustomBorderColorSamplers);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCustomBorderColorFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.customBorderColors);
+    encoder->EncodeVkBool32Value(value.customBorderColorWithoutFormat);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrivateDataFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.privateData);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDevicePrivateDataCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.privateDataSlotRequestCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPrivateDataSlotCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT& value)
