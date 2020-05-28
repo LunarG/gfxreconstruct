@@ -179,59 +179,74 @@ int main(int argc, const char** argv)
             {
                 gfxrecon::decode::VulkanDecoder decoder;
 
-                // get user replay option and check if multi-pass replay is enabled for memory portability
-                const gfxrecon::decode::ReplayOptions             replay_options = GetReplayOptions(arg_parser);
-                gfxrecon::decode::VulkanResourceTrackingConsumer* resource_tracking_consumer = nullptr;
+                // get user replay option
+                const gfxrecon::decode::ReplayOptions replay_options = GetReplayOptions(arg_parser);
 
-                // run first pass of resouce tracking in replay for memory portability if enabled by user
-                run_first_pass_replay_portability(
-                    replay_options, decoder, arg_parser, &resource_tracking_consumer, filename);
-
-                // replay trace
-                gfxrecon::decode::VulkanReplayConsumer replay_consumer(
-                    window_factory.get(), resource_tracking_consumer, replay_options);
-
-                replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
-
-                decoder.AddConsumer(&replay_consumer);
-                file_processor.AddDecoder(&decoder);
-                application->SetPauseFrame(GetPauseFrame(arg_parser));
-
-                // Warn if the capture layer is active.
-                CheckActiveLayers(kLayerEnvVar);
-
-                // Grab the start frame/time information for the FPS result.
-                uint32_t start_frame = 1;
-                int64_t  start_time  = gfxrecon::util::datetime::GetTimestamp();
-
-                application->Run();
-
-                if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                // -m <remap or rebind> and --empr usage should be mutually exclusive, check for the user replay option
+                // and stop replay if both are enabled at the same time.
+                if ((replay_options.create_resource_allocator != CreateDefaultAllocator) &&
+                    (replay_options.enable_multipass_replay_portability == true))
                 {
-                    // Grab the end frame/time information and calculate FPS.
-                    int64_t end_time      = gfxrecon::util::datetime::GetTimestamp();
-                    double  diff_time_sec = gfxrecon::util::datetime::ConvertTimestampToSeconds(
-                        gfxrecon::util::datetime::DiffTimestamps(start_time, end_time));
-                    uint32_t end_frame    = file_processor.GetCurrentFrameNumber();
-                    uint32_t total_frames = (end_frame - start_frame) + 1;
-                    double   fps          = static_cast<double>(total_frames) / diff_time_sec;
-                    GFXRECON_WRITE_CONSOLE("%f fps, %f seconds, %u frame%s, 1 loop, framerange %u-%u",
-                                           fps,
-                                           diff_time_sec,
-                                           total_frames,
-                                           total_frames > 1 ? "s" : "",
-                                           start_frame,
-                                           end_frame);
-                }
-                else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
-                {
-                    GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
+                    GFXRECON_LOG_FATAL(
+                        "Multipass (2 pass) replay argument \'--emrp\' cannot be used with single pass memory "
+                        "translation argument \'-m\'. Please choose either one of the argument for replay.");
                     return_code = -1;
                 }
                 else
                 {
-                    GFXRECON_WRITE_CONSOLE("File did not contain any frames");
+                    gfxrecon::decode::VulkanResourceTrackingConsumer* resource_tracking_consumer = nullptr;
+
+                    // run first pass of resource tracking in replay for memory portability if enabled by user
+                    run_first_pass_replay_portability(
+                        replay_options, decoder, arg_parser, &resource_tracking_consumer, filename);
+
+                    // replay trace
+                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(
+                        window_factory.get(), resource_tracking_consumer, replay_options);
+
+                    replay_consumer.SetFatalErrorHandler(
+                        [](const char* message) { throw std::runtime_error(message); });
+
+                    decoder.AddConsumer(&replay_consumer);
+                    file_processor.AddDecoder(&decoder);
+                    application->SetPauseFrame(GetPauseFrame(arg_parser));
+
+                    // Warn if the capture layer is active.
+                    CheckActiveLayers(kLayerEnvVar);
+
+                    // Grab the start frame/time information for the FPS result.
+                    uint32_t start_frame = 1;
+                    int64_t  start_time  = gfxrecon::util::datetime::GetTimestamp();
+
+                    application->Run();
+
+                    if ((file_processor.GetCurrentFrameNumber() > 0) &&
+                        (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                    {
+                        // Grab the end frame/time information and calculate FPS.
+                        int64_t end_time      = gfxrecon::util::datetime::GetTimestamp();
+                        double  diff_time_sec = gfxrecon::util::datetime::ConvertTimestampToSeconds(
+                            gfxrecon::util::datetime::DiffTimestamps(start_time, end_time));
+                        uint32_t end_frame    = file_processor.GetCurrentFrameNumber();
+                        uint32_t total_frames = (end_frame - start_frame) + 1;
+                        double   fps          = static_cast<double>(total_frames) / diff_time_sec;
+                        GFXRECON_WRITE_CONSOLE("%f fps, %f seconds, %u frame%s, 1 loop, framerange %u-%u",
+                                               fps,
+                                               diff_time_sec,
+                                               total_frames,
+                                               total_frames > 1 ? "s" : "",
+                                               start_frame,
+                                               end_frame);
+                    }
+                    else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+                    {
+                        GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
+                        return_code = -1;
+                    }
+                    else
+                    {
+                        GFXRECON_WRITE_CONSOLE("File did not contain any frames");
+                    }
                 }
             }
         }

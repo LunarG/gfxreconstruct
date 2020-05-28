@@ -28,7 +28,6 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"
 
-
 #include "vulkan/vulkan.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

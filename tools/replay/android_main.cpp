@@ -141,34 +141,47 @@ void android_main(struct android_app* app)
                 {
                     gfxrecon::decode::VulkanDecoder        decoder;
 
-                    // get user replay option and check if multi-pass replay is enabled for memory portability
-                    const gfxrecon::decode::ReplayOptions             replay_options = GetReplayOptions(arg_parser);
-                    gfxrecon::decode::VulkanResourceTrackingConsumer* resource_tracking_consumer = nullptr;
+                    // get user replay option
+                    const gfxrecon::decode::ReplayOptions replay_options = GetReplayOptions(arg_parser);
 
-                    // run first pass of resouce tracking in replay for memory portability if enabled by user
-                    run_first_pass_replay_portability(
-                        replay_options, decoder, arg_parser, &resource_tracking_consumer, filename);
+                    // -m <remap or rebind> and --empr usage should be mutually exclusive, check for the user replay
+                    // option and stop replay if both are enabled at the same time.
+                    if ((replay_options.create_resource_allocator != CreateDefaultAllocator) &&
+                        (replay_options.enable_multipass_replay_portability == true))
+                    {
+                        GFXRECON_LOG_FATAL(
+                            "Multipass (2 pass) replay argument \'--emrp\' cannot be used with single pass memory "
+                            "translation argument \'-m\'. Please choose either one of the argument for replay.");
+                    }
+                    else
+                    {
+                        gfxrecon::decode::VulkanResourceTrackingConsumer* resource_tracking_consumer = nullptr;
 
-                    // replay trace
-                    gfxrecon::decode::VulkanReplayConsumer replay_consumer(
-                        window_factory.get(), resource_tracking_consumer, replay_options);
+                        // run first pass of resource tracking in replay for memory portability if enabled by user
+                        run_first_pass_replay_portability(
+                            replay_options, decoder, arg_parser, &resource_tracking_consumer, filename);
 
-                    replay_consumer.SetFatalErrorHandler(
-                        [](const char* message) { throw std::runtime_error(message); });
+                        // replay trace
+                        gfxrecon::decode::VulkanReplayConsumer replay_consumer(
+                            window_factory.get(), resource_tracking_consumer, replay_options);
 
-                    decoder.AddConsumer(&replay_consumer);
-                    file_processor.AddDecoder(&decoder);
-                    application->SetPauseFrame(GetPauseFrame(arg_parser));
+                        replay_consumer.SetFatalErrorHandler(
+                            [](const char* message) { throw std::runtime_error(message); });
 
-                    // Warn if the capture layer is active.
-                    CheckActiveLayers(kLayerProperty);
+                        decoder.AddConsumer(&replay_consumer);
+                        file_processor.AddDecoder(&decoder);
+                        application->SetPauseFrame(GetPauseFrame(arg_parser));
 
-                    // Start the application in the paused state, preventing replay from starting before the app gained
-                    // focus event is received.
-                    application->SetPaused(true);
+                        // Warn if the capture layer is active.
+                        CheckActiveLayers(kLayerProperty);
 
-                    app->userData = application.get();
-                    application->Run();
+                        // Start the application in the paused state, preventing replay from starting before the app
+                        // gained focus event is received.
+                        application->SetPaused(true);
+
+                        app->userData = application.get();
+                        application->Run();
+                    }
                 }
             }
         }
