@@ -22,13 +22,10 @@
 #
 #         args is a command-specific argument list
 
-import platform
 import argparse
 import os
 import sys
-import shlex
 import subprocess
-from pathlib import Path
 
 argv = sys.argv
 argc = len(sys.argv)
