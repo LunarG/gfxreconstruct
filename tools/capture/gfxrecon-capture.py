@@ -21,9 +21,7 @@
 import argparse
 import os
 import sys
-import platform
 import subprocess
-import shutil
 
 
 ######################
