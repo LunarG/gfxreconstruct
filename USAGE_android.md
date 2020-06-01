@@ -1,8 +1,4 @@
-# API Capture and Replay on Android with GFXReconstruct
-
-This document describes the GFXReconstruct software for capturing and replaying
-Vulkan API calls on Android devices.
-
+<!-- markdownlint-disable MD041 -->
 [![LunarG][1]][2]
 
 [1]: https://vulkan.lunarg.com/img/LunarGLogo.png "www.LunarG.com"
@@ -14,6 +10,13 @@ Vulkan API calls on Android devices.
 [4]: https://creativecommons.org/licenses/by-nd/4.0/
 
 Copyright &copy; 2018-2020 LunarG, Inc.
+
+# GFXReconstruct API Capture and Replay
+
+## **Android Version**
+
+This document describes the GFXReconstruct software for capturing and replaying
+Vulkan API calls on Android devices.
 
 ## Index
 
