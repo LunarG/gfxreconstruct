@@ -246,7 +246,15 @@ bool FileProcessor::ProcessBlocks()
         }
         else
         {
-            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read block header");
+            if (!feof(file_descriptor_))
+            {
+                // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
+                // assumes that the block header has been successfully read and will print an incomplete block at end
+                // of file warning when the file is at EOF without an error. For this case (the normal EOF case) we
+                // print nothing at EOF, or print an error message and set the error code directly when not at EOF.
+                GFXRECON_LOG_ERROR("Failed to read block header");
+                error_state_ = kErrorReadingBlockHeader;
+            }
         }
     }
 
