@@ -26,6 +26,7 @@ import argparse
 import os
 import sys
 import subprocess
+import platform
 
 argv = sys.argv
 argc = len(sys.argv)
@@ -123,6 +124,12 @@ def CreateCommandParser():
     return parser
 
 if __name__ == '__main__':
+
+    # We don't support running under Cygwin Python
+    if sys.platform == 'cygwin':
+        print(os.path.basename(__file__) + ' error: Cygwin Python not supported')
+        sys.exit(1)
+
     command_parser = CreateCommandParser()
     command = command_parser.parse_args()
     extras = sys.argv[2::]

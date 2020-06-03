@@ -62,7 +62,7 @@ class SmartFormatter(argparse.HelpFormatter):
 ######################
 # Print error message and exit with non-zero status
 def PrintErrorAndExit(msg):
-    print('gfxcapture.py: error: ' + msg)
+    print(os.path.basename(__file__) + ' error: ' + msg)
     sys.exit(1)
 
 
@@ -262,6 +262,10 @@ def PrintLayerEnv():
 
 
 if __name__ == '__main__':
+
+    # We don't support running under Cygwin Python
+    if sys.platform == 'cygwin':
+        PrintErrorAndExit("Cygwin Python not supported")
 
     # Get and validate args
     parser = ParseArgs()
