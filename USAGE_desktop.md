@@ -284,14 +284,17 @@ manually before running `gfxrecon-capture.py` and they will be detected by the
 capture layer.
 
 The `gfxrecon-capture.py` tool is a Python3 script. In order to use it, a
-Python3 interpreter must be available. It can be invoked as:
+Python3 interpreter must first be installed. Once Python3 is installed, you should
+be able to invoke `gfxrecon-capture.py` by simply typing:
 
 ```bash
-python gfxrecon-capture.py -o vkcube.gfxr vkcube
+gfxrecon-capture.py -o vkcube.gfxr vkcube
 ```
 
-Depending on the Python3 installation, it may be necessary specify `python3`
-instead of `python` when invoking the interpreter.
+On Windows, after installing Python3, be sure to associate the `.py` file extension with
+the Python3 interpreter before you run the script.
+
+
 
 ## Replaying API Calls
 
@@ -447,12 +450,13 @@ optional arguments:
   -h, --help  show this help message and exit
 ```
 
-The `gfxrecon.py` tool is a Python3 script. In order to use it, the Python3
-interpreter must be available.  It can be invoked as:
+The `gfxrecon.py` tool is a Python3 script. In order to use it, a
+Python3 interpreter must first be installed. Once Python3 is installed, you should
+be able to invoke `gfxrecon.py` by simply typing:
 
 ```bash
-python gfxrecon.py capture -o vkcube.gfxr vkcube
+gfxrecon.py capture -o vkcube.gfxr vkcube
 ```
 
-Depending on the Python3 installation, it may be necessary specify `python3`
-instead of `python` when invoking the interpreter.
+On Windows, after installing Python3, be sure to associate the `.py` file extension with
+the Python3 interpreter before you run the script.
