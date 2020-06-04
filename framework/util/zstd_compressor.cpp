@@ -41,11 +41,11 @@ size_t ZstdCompressor::Compress(const size_t          uncompressed_size,
         compressed_data->resize(zstd_compressed_size);
     }
 
-    int compressed_size_generated = ZSTD_compress(reinterpret_cast<char*>(compressed_data->data()),
-                                                  static_cast<int32_t>(zstd_compressed_size),
-                                                  reinterpret_cast<const char*>(uncompressed_data),
-                                                  static_cast<const int32_t>(uncompressed_size),
-                                                  1);
+    size_t compressed_size_generated = ZSTD_compress(reinterpret_cast<char*>(compressed_data->data()),
+                                                     static_cast<int32_t>(zstd_compressed_size),
+                                                     reinterpret_cast<const char*>(uncompressed_data),
+                                                     static_cast<const int32_t>(uncompressed_size),
+                                                     1);
 
     if (compressed_size_generated > 0)
     {
@@ -67,10 +67,10 @@ size_t ZstdCompressor::Decompress(const size_t                compressed_size,
         return 0;
     }
 
-    int uncompressed_size_generated = ZSTD_decompress(reinterpret_cast<char*>(uncompressed_data->data()),
-                                                      static_cast<int32_t>(expected_uncompressed_size),
-                                                      reinterpret_cast<const char*>(compressed_data.data()),
-                                                      static_cast<int32_t>(compressed_size));
+    size_t uncompressed_size_generated = ZSTD_decompress(reinterpret_cast<char*>(uncompressed_data->data()),
+                                                         static_cast<int32_t>(expected_uncompressed_size),
+                                                         reinterpret_cast<const char*>(compressed_data.data()),
+                                                         static_cast<int32_t>(compressed_size));
 
     if (uncompressed_size_generated > 0)
     {
