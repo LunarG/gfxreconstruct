@@ -35,12 +35,30 @@ TEST_RESULT_FOLDER = os.path.normpath(os.path.join(SCRIPT_ROOT, "..", "TestResul
 LOCAL_TEST_DST_PATH = "TestApp"
 TEST_SRC_PATH = "TestSrc"
 APPS_SCREENSHOT_FRAMES = "100,150,200,250,300"
-RECAP_SCREENSHOT_FRAMES = "4000,4050,4100,4150,4200"
+#RECAP_SCREENSHOT_FRAMES = "4000,4050,4100,4150,4200"
 SCREENSHOT_COUNT = 5
 TOLERANCE = 0.03
-TRIM_RANGE = "3800-4300"
 TRIM_PLAYBACK_SCREENSHOT = "200,250,300,350,400"
 
+TRIM__TOTAL_FRAME = 500
+# Default golden traces configuration, these values will be updated
+# according to the golden trace playback.
+# The configuration is in format:
+# {"game title":[trim frame range, screenshot frames, use external memory?("1": yes; "0": no)]}
+GOLDEN_TRACES_CONFIG = {
+        "DetroitBecomeHuman": ["2900-3400", "3100,3150,3200,3250,3300", "1" ],
+        "doom": ["3800-4300", "4000,4050,4100,4150,4200", "0" ],
+        "dota2": ["4000-4500", "4200,4250,4300,4350,4400", "0" ],
+        "GFXBenchAztec": ["3800-4300", "4000,4050,4100,4150,4200", "0" ],
+        "GRB": ["3800-4300", "4000,4050,4100,4150,4200", "0" ],
+        "Rage2": ["3800-4300", "4000,4050,4100,4150,4200", "0" ],
+        "Rainbow6": ["3800-4300", "4000,4050,4100,4150,4200", "1" ],
+        "SB": ["3800-4300", "4000,4050,4100,4150,4200", "0" ],
+        "Talos": ["1900-2400", "2100,2150,2200,2250,2300", "0" ],
+        "W2": ["1900-2400", "2100,2150,2200,2250,2300", "0" ],
+        "WolfYoung": ["1900-2400", "2100,2150,2200,2250,2300", "0" ],
+        "wwz": ["1900-2400", "2100,2150,2200,2250,2300", "1" ]
+        }
 
 def parse_args():
     '''
@@ -188,10 +206,21 @@ def is_local_newer(localpath, remotepath):
     return remotedate < localdate
 
 
+def find_game_in_golden_configuration(trace_filename):
+    '''
+    compare trace file name with the GOLDEN_TRACES_CONFIG key.
+    return matched key else return "None"
+    '''
+    for key in GOLDEN_TRACES_CONFIG:
+        if key in trace_filename:
+            return key
+    return "None"
+
+
 class GFXTestSuite(unittest.TestCase):
     def test_capture(self):
         '''
-        recapture from golden trace test
+        capture from Vulkan Sample application test
         '''
         try:
             # start app for test
@@ -248,6 +277,9 @@ class GFXTestSuite(unittest.TestCase):
             # start golden trace playaback for recapture test
             command = ''
             tracefile = get_latest_gfxrfile(local_dst_path, exe)
+            game = find_game_in_golden_configuration(exe)
+            if game == "None":
+                raise Exception("Configuration of this game " + exe + "is not found in GOLDEN_TRACES_CONFIG. Please update GOLDEN_TRACES_CONFIG in this script.")
             if platform.system().lower() == "windows":
                 command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
                     set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
@@ -255,10 +287,11 @@ class GFXTestSuite(unittest.TestCase):
                     set VK_SCREENSHOT_FRAMES={1}&&\
                     set GFXRECON_CAPTURE_FILE={2}\\{3}.gfxr&&\
                     set GFXRECON_LOG_LEVEL=warning&&\
-                    {4}\\gfxrecon-replay.exe {5}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recap", args.binary_path, tracefile)
+                    set GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY={4}&&\
+                    {5}\\gfxrecon-replay.exe {6}'.format(args.layer_path, GOLDEN_TRACES_CONFIG[game][1], TEST_RESULT_FOLDER, exe+"_recap", GOLDEN_TRACES_CONFIG[game][2], args.binary_path, tracefile)
             elif platform.system().lower() == "linux":
-                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; {4}/gfxrecon-replay {5}'.format(
-                    args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recap", args.binary_path, tracefile)
+                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; export GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY={4}; {5}/gfxrecon-replay {6}'.format(
+                    args.layer_path, GOLDEN_TRACES_CONFIG[game][1], TEST_RESULT_FOLDER, exe+"_recap", GOLDEN_TRACES_CONFIG[game][2], args.binary_path, tracefile)
             print(command)
             ret = os.system(command)
         except Exception as error:
@@ -273,6 +306,9 @@ class GFXTestSuite(unittest.TestCase):
             # start golden trace playaback for recapture trim test
             command = ''
             tracefile = get_latest_gfxrfile(local_dst_path, exe)
+            game = find_game_in_golden_configuration(exe)
+            if game == "None":
+                raise Exception("Configuration of this game " + exe + "is not found in GOLDEN_TRACES_CONFIG. Please update GOLDEN_TRACES_CONFIG in this script.")
             if platform.system().lower() == "windows":
                 command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
                     set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
@@ -281,10 +317,10 @@ class GFXTestSuite(unittest.TestCase):
                     set GFXRECON_CAPTURE_FILE={2}\\{3}.gfxr&&\
                     set GFXRECON_LOG_LEVEL=warning&&\
                     set GFXRECON_CAPTURE_FRAMES={4}&&\
-                    {5}\\gfxrecon-replay.exe {6}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recaptrim", TRIM_RANGE, args.binary_path, tracefile)
+                    set GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY={5}&&\
+                    {6}\\gfxrecon-replay.exe {7}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recaptrim", GOLDEN_TRACES_CONFIG[game][0], GOLDEN_TRACES_CONFIG[game][2], args.binary_path, tracefile)
             elif platform.system().lower() == "linux":
-                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; export GFXRECON_CAPTURE_FRAMES={4}&&\
-                    {5}/gfxrecon-replay {6}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recaptrim", TRIM_RANGE, args.binary_path, tracefile)
+                command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; export GFXRECON_CAPTURE_FRAMES={4}; export GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY={5}; {6}/gfxrecon-replay {7}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recaptrim", GOLDEN_TRACES_CONFIG[game][0], GOLDEN_TRACES_CONFIG[game][2], args.binary_path, tracefile)
             print(command)
             ret = os.system(command)
         except Exception as error:
@@ -315,6 +351,48 @@ class GFXTestSuite(unittest.TestCase):
             print(output)
             if not("frames," in output):
                 raise Exception("0 frame during playback.")
+        except Exception as error:
+            print('Error', *(error.args))
+            sys.exit(1)
+
+    def golden_trace_playback(self):
+        '''
+        Playback golden trace file to generate golden trace configuration settings
+        '''
+        try:
+            if not ".gfxr" in gfxrfile:
+                raise Exception(
+                    "Failed to retrieve tracefile for golden playback to generate configuration.")
+
+            if platform.system().lower() == "windows":
+                command = '{0}\\gfxrecon-replay.exe {1}'.format( args.binary_path, gfxrfile)
+                print(command)
+            elif platform.system().lower() == "linux":
+                command = '{0}/gfxrecon-replay {1}'.format(args.binary_path, gfxrfile)
+
+            output = os.popen(command).read()
+            print("-----playback output-----")
+            print(output)
+            if not("frames," in output):
+                raise Exception("0 frame during playback.")
+            else:
+                string_split = output.split("-")
+                frame_number = string_split[len(string_split)-1]
+                print("Trace playback detect frame number:" + frame_number)
+                if int(frame_number) < TRIM__TOTAL_FRAME:
+                    raise Exception("Please provide a golden trace file: " + gfxrfile + " with frame at least 500.")
+                for key in GOLDEN_TRACES_CONFIG:
+                    if key in gfxrfile:
+                        trim_end_frame = int(frame_number) - 100
+                        trim_start_frame = trim_end_frame - TRIM__TOTAL_FRAME
+                        GOLDEN_TRACES_CONFIG[key][0] = str(trim_start_frame)+"-"+str(trim_end_frame)
+                        screenshot_end_frame = trim_end_frame - 100
+                        screenshot_string = str(screenshot_end_frame)
+                        for i in range(1,5):
+                            screenshot_string = str(screenshot_end_frame-i*50)+","+screenshot_string
+                        GOLDEN_TRACES_CONFIG[key][1] = screenshot_string
+                        print("---------New golden trace config---------")
+                        print(GOLDEN_TRACES_CONFIG)
 
         except Exception as error:
             print('Error', *(error.args))
@@ -504,7 +582,7 @@ if '__main__' == __name__:
                             remove_screenshots(backup_ppm_folder)
 
                         # running tests
-                        # (playback gold, recapture, playback_recap, recap_trim, playback_recap_trim, snaoshot_compare)
+                        # (generate configuration by golden trace playback then test playback gold, recapture, playback_recap, recap_trim, playback_recap_trim, snapshot_compare)
                         # on golden GFXRec trace files
                         if not args.skip_test_game and test_file_path.endswith('.gfxr'):
                             if not gpu in test_file_path:
@@ -514,11 +592,17 @@ if '__main__' == __name__:
                             if gpu == "UNKNOWN":
                                 raise Exception("Failed to get system GPU name.")
                             exe = file.split('.')[0]
-                            screenshot_frames = RECAP_SCREENSHOT_FRAMES
+                            game = find_game_in_golden_configuration(exe)
+                            if game == "None":
+                                raise Exception("Configuration of this game " + exe + "is not found in GOLDEN_TRACES_CONFIG. Please update GOLDEN_TRACES_CONFIG in this script.")
+                            screenshot_frames = GOLDEN_TRACES_CONFIG[game][1]
                             print("\n")
                             print(''.join(['=========================== ', 'TEST ',
                                         exe, ' ===========================']))
                             gfxrfile = get_latest_gfxrfile(local_dst_path, exe)
+                            suite = get_test(exe+"PlaybackGoldConfig", "golden_trace_playback")
+                            test_result = xmlrunner.XMLTestRunner(
+                                verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
                             suite = get_test(exe+"PlaybackGold", "test_playback")
                             test_result = xmlrunner.XMLTestRunner(
                                 verbosity=2, output=TEST_RESULT_FOLDER).run(suite)
