@@ -68,6 +68,7 @@ target_sources(gfxrecon_decode
 
 if (MSVC AND (MSVC_VERSION LESS 1910))
     # This file fails to compile with VS2015, requiring the default section limit of 2^16 to be increased.
+    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_replay_consumer.cpp PROPERTIES COMPILE_FLAGS /bigobj)
     set_source_files_properties(vulkan_replay_consumer_base.cpp PROPERTIES COMPILE_FLAGS /bigobj)
 endif()
 

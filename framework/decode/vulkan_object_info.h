@@ -29,6 +29,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -191,6 +192,10 @@ struct InstanceInfo : public VulkanObjectInfo<VkInstance>
     std::vector<VkPhysicalDevice> replay_devices;
 
     std::unordered_map<VkPhysicalDevice, ReplayDeviceInfo> replay_device_info;
+
+    // Ensure swapchains and surfaces are cleaned up on exit to avoid issues encountered when calling xcb_disconnect
+    // with active xcb surfaces.
+    std::unordered_set<VkSurfaceKHR> active_surfaces;
 };
 
 struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
@@ -223,6 +228,10 @@ struct DeviceInfo : public VulkanObjectInfo<VkDevice>
     // The following values are only used when loading the initial state for trimmed files.
     std::vector<std::string>                   extensions;
     std::unique_ptr<VulkanResourceInitializer> resource_initializer;
+
+    // Ensure swapchains and surfaces are cleaned up on exit to avoid issues encountered when calling xcb_disconnect
+    // with active xcb surfaces.
+    std::unordered_set<VkSwapchainKHR> active_swapchains;
 };
 
 struct QueueInfo : public VulkanObjectInfo<VkQueue>

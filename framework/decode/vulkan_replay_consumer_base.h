@@ -41,9 +41,9 @@
 #include <cassert>
 #include <functional>
 #include <memory>
-#include <unordered_set>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 // Types provided by this file are defined by format/platform_types.h when VK_USE_PLATFORM_ANDROID_KHR is not set.
@@ -299,11 +299,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                     HandlePointerDecoder<VkInstance>*                          pInstance);
 
+    void OverrideDestroyInstance(PFN_vkDestroyInstance                                      func,
+                                 const InstanceInfo*                                        instance_info,
+                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
     VkResult OverrideCreateDevice(VkResult                                                   original_result,
                                   PhysicalDeviceInfo*                                        physical_device_info,
                                   const StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
                                   const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
                                   HandlePointerDecoder<VkDevice>*                            pDevice);
+
+    void OverrideDestroyDevice(PFN_vkDestroyDevice                                        func,
+                               const DeviceInfo*                                          device_info,
+                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     VkResult OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysicalDevices          func,
                                               VkResult                                original_result,
@@ -509,10 +517,15 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkResult OverrideCreateSwapchainKHR(PFN_vkCreateSwapchainKHR                                      func,
                                         VkResult                                                      original_result,
-                                        const DeviceInfo*                                             device_info,
+                                        DeviceInfo*                                                   device_info,
                                         const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
                                         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
                                         HandlePointerDecoder<VkSwapchainKHR>*                         pSwapchain);
+
+    void OverrideDestroySwapchainKHR(PFN_vkDestroySwapchainKHR                                  func,
+                                     DeviceInfo*                                                device_info,
+                                     const SwapchainKHRInfo*                                    swapchain_info,
+                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     VkResult OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
                                          VkResult                  original_result,
@@ -534,14 +547,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VkResult
     OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR                                      func,
                                     VkResult                                                           original_result,
-                                    const InstanceInfo*                                                instance_info,
+                                    InstanceInfo*                                                      instance_info,
                                     const StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>* pCreateInfo,
                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
                                     HandlePointerDecoder<VkSurfaceKHR>*                                pSurface);
 
     VkResult OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR func,
                                            VkResult                    original_result,
-                                           const InstanceInfo*         instance_info,
+                                           InstanceInfo*               instance_info,
                                            const StructPointerDecoder<Decoded_VkWin32SurfaceCreateInfoKHR>* pCreateInfo,
                                            const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
                                            HandlePointerDecoder<VkSurfaceKHR>*                              pSurface);
@@ -553,7 +566,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkResult OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR                                      func,
                                          VkResult                                                       original_result,
-                                         const InstanceInfo*                                            instance_info,
+                                         InstanceInfo*                                                  instance_info,
                                          const StructPointerDecoder<Decoded_VkXcbSurfaceCreateInfoKHR>* pCreateInfo,
                                          const StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
                                          HandlePointerDecoder<VkSurfaceKHR>*                            pSurface);
@@ -566,7 +579,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkResult OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR func,
                                           VkResult                   original_result,
-                                          const InstanceInfo*        instance_info,
+                                          InstanceInfo*              instance_info,
                                           const StructPointerDecoder<Decoded_VkXlibSurfaceCreateInfoKHR>* pCreateInfo,
                                           const StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
                                           HandlePointerDecoder<VkSurfaceKHR>*                             pSurface);
@@ -580,7 +593,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     VkResult
     OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR                                      func,
                                     VkResult                                                           original_result,
-                                    const InstanceInfo*                                                instance_info,
+                                    InstanceInfo*                                                      instance_info,
                                     const StructPointerDecoder<Decoded_VkWaylandSurfaceCreateInfoKHR>* pCreateInfo,
                                     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
                                     HandlePointerDecoder<VkSurfaceKHR>*                                pSurface);
@@ -592,7 +605,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                            struct wl_display*        display);
 
     void OverrideDestroySurfaceKHR(PFN_vkDestroySurfaceKHR                                    func,
-                                   const InstanceInfo*                                        instance_info,
+                                   InstanceInfo*                                              instance_info,
                                    const SurfaceKHRInfo*                                      surface_info,
                                    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
@@ -634,7 +647,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      const std::vector<std::string>& enabled_device_extensions,
                                      VulkanResourceAllocator*        allocator);
 
-    VkResult CreateSurface(VkInstance instance, VkFlags flags, HandlePointerDecoder<VkSurfaceKHR>* surface);
+    VkResult CreateSurface(InstanceInfo* instance_info, VkFlags flags, HandlePointerDecoder<VkSurfaceKHR>* surface);
 
     void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateInfo* update_template_info,
                                             DescriptorUpdateTemplateDecoder*    decoder);
@@ -703,6 +716,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     SwapchainImageTracker                                            swapchain_image_tracker_;
     HardwareBufferMap                                                hardware_buffers_;
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
+    std::unordered_set<format::HandleId>                             active_instance_ids_;
+    std::unordered_set<format::HandleId>                             active_device_ids_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -1,7 +1,9 @@
 {
   "functions": {
     "vkCreateInstance": "OverrideCreateInstance",
+    "vkDestroyInstance" : "OverrideDestroyInstance",
     "vkCreateDevice": "OverrideCreateDevice",
+    "vkDestroyDevice" : "OverrideDestroyDevice",
     "vkEnumeratePhysicalDevices": "OverrideEnumeratePhysicalDevices",
     "vkGetPhysicalDeviceProperties": "OverrideGetPhysicalDeviceProperties",
     "vkGetPhysicalDeviceProperties2": "OverrideGetPhysicalDeviceProperties2",
@@ -41,6 +43,7 @@
     "vkCreateDebugReportCallbackEXT": "OverrideCreateDebugReportCallbackEXT",
     "vkCreateDebugUtilsMessengerEXT": "OverrideCreateDebugUtilsMessengerEXT",
     "vkCreateSwapchainKHR": "OverrideCreateSwapchainKHR",
+    "vkDestroySwapchainKHR": "OverrideDestroySwapchainKHR",
     "vkAcquireNextImageKHR": "OverrideAcquireNextImageKHR",
     "vkAcquireNextImage2KHR": "OverrideAcquireNextImage2KHR",
     "vkCreateAndroidSurfaceKHR": "OverrideCreateAndroidSurfaceKHR",
