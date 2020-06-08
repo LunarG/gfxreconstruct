@@ -793,7 +793,7 @@ void TraceManager::WriteCreateHardwareBufferCmd(format::HandleId                
         else
         {
             create_buffer_cmd.planes = static_cast<uint32_t>(plane_info.size());
-            // Update size of packet with compressed or uncompressed data size.
+            // Update size of packet with size of plane info.
             planes_size = sizeof(plane_info[0]) * plane_info.size();
             create_buffer_cmd.meta_header.block_header.size += planes_size;
         }

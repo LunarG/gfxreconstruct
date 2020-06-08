@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -255,6 +255,133 @@ void CompressionConverter::DispatchResizeWindowCommand(format::ThreadId thread_i
     resize_cmd.height                     = height;
 
     bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+}
+
+void CompressionConverter::DispatchCreateHardwareBufferCommand(
+    format::ThreadId                                    thread_id,
+    format::HandleId                                    memory_id,
+    uint64_t                                            buffer_id,
+    uint32_t                                            format,
+    uint32_t                                            width,
+    uint32_t                                            height,
+    uint32_t                                            stride,
+    uint32_t                                            usage,
+    uint32_t                                            layers,
+    const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
+{
+    format::CreateHardwareBufferCommandHeader create_buffer_cmd;
+    create_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    create_buffer_cmd.meta_header.block_header.size =
+        sizeof(create_buffer_cmd) - sizeof(create_buffer_cmd.meta_header.block_header);
+    create_buffer_cmd.meta_header.meta_data_type = format::MetaDataType::kCreateHardwareBufferCommand;
+    create_buffer_cmd.thread_id                  = thread_id;
+    create_buffer_cmd.memory_id                  = memory_id;
+    create_buffer_cmd.buffer_id                  = buffer_id;
+    create_buffer_cmd.format                     = format;
+    create_buffer_cmd.width                      = width;
+    create_buffer_cmd.height                     = height;
+    create_buffer_cmd.stride                     = stride;
+    create_buffer_cmd.usage                      = usage;
+    create_buffer_cmd.layers                     = layers;
+
+    size_t planes_size = 0;
+
+    if (plane_info.empty())
+    {
+        create_buffer_cmd.planes = 0;
+    }
+    else
+    {
+        create_buffer_cmd.planes = static_cast<uint32_t>(plane_info.size());
+        // Update size of packet with size of plane info.
+        planes_size = sizeof(plane_info[0]) * plane_info.size();
+        create_buffer_cmd.meta_header.block_header.size += planes_size;
+    }
+
+    bytes_written_ += file_stream_->Write(&create_buffer_cmd, sizeof(create_buffer_cmd));
+
+    if (planes_size > 0)
+    {
+        bytes_written_ += file_stream_->Write(plane_info.data(), planes_size);
+    }
+}
+
+void CompressionConverter::DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id)
+{
+    format::DestroyHardwareBufferCommand destroy_buffer_cmd;
+    destroy_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    destroy_buffer_cmd.meta_header.block_header.size =
+        sizeof(destroy_buffer_cmd) - sizeof(destroy_buffer_cmd.meta_header.block_header);
+    destroy_buffer_cmd.meta_header.meta_data_type = format::MetaDataType::kDestroyHardwareBufferCommand;
+    destroy_buffer_cmd.thread_id                  = thread_id;
+    destroy_buffer_cmd.buffer_id                  = buffer_id;
+
+    bytes_written_ += file_stream_->Write(&destroy_buffer_cmd, sizeof(destroy_buffer_cmd));
+}
+
+void CompressionConverter::DispatchSetDevicePropertiesCommand(format::ThreadId   thread_id,
+                                                              format::HandleId   physical_device_id,
+                                                              uint32_t           api_version,
+                                                              uint32_t           driver_version,
+                                                              uint32_t           vendor_id,
+                                                              uint32_t           device_id,
+                                                              uint32_t           device_type,
+                                                              const uint8_t      pipeline_cache_uuid[format::kUuidSize],
+                                                              const std::string& device_name)
+{
+    uint32_t device_name_len = static_cast<uint32_t>(device_name.length());
+
+    format::SetDevicePropertiesCommand properties_cmd;
+    properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    properties_cmd.meta_header.block_header.size =
+        (sizeof(properties_cmd) - sizeof(properties_cmd.meta_header.block_header)) + device_name_len;
+    properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDevicePropertiesCommand;
+    properties_cmd.thread_id                  = thread_id;
+    properties_cmd.physical_device_id         = physical_device_id;
+    properties_cmd.api_version                = api_version;
+    properties_cmd.driver_version             = driver_version;
+    properties_cmd.vendor_id                  = vendor_id;
+    properties_cmd.device_id                  = device_id;
+    properties_cmd.device_type                = device_type;
+    util::platform::MemoryCopy(
+        properties_cmd.pipeline_cache_uuid, format::kUuidSize, pipeline_cache_uuid, VK_UUID_SIZE);
+    properties_cmd.device_name_len = device_name_len;
+
+    bytes_written_ += file_stream_->Write(&properties_cmd, sizeof(properties_cmd));
+    bytes_written_ += file_stream_->Write(device_name.c_str(), properties_cmd.device_name_len);
+}
+
+void CompressionConverter::DispatchSetDeviceMemoryPropertiesCommand(
+    format::ThreadId                             thread_id,
+    format::HandleId                             physical_device_id,
+    const std::vector<format::DeviceMemoryType>& memory_types,
+    const std::vector<format::DeviceMemoryHeap>& memory_heaps)
+{
+    uint32_t memory_type_count = static_cast<uint32_t>(memory_types.size());
+    uint32_t memory_heap_count = static_cast<uint32_t>(memory_heaps.size());
+
+    format::SetDeviceMemoryPropertiesCommand memory_properties_cmd;
+    memory_properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    memory_properties_cmd.meta_header.block_header.size =
+        (sizeof(memory_properties_cmd) - sizeof(memory_properties_cmd.meta_header.block_header)) +
+        (sizeof(format::DeviceMemoryType) * memory_type_count) + (sizeof(format::DeviceMemoryHeap) * memory_heap_count);
+    memory_properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDeviceMemoryPropertiesCommand;
+    memory_properties_cmd.thread_id                  = thread_id;
+    memory_properties_cmd.physical_device_id         = physical_device_id;
+    memory_properties_cmd.memory_type_count          = memory_type_count;
+    memory_properties_cmd.memory_heap_count          = memory_heap_count;
+
+    bytes_written_ += file_stream_->Write(&memory_properties_cmd, sizeof(memory_properties_cmd));
+
+    for (const auto& memory_type : memory_types)
+    {
+        bytes_written_ += file_stream_->Write(&memory_type, sizeof(memory_type));
+    }
+
+    for (const auto& memory_heap : memory_heaps)
+    {
+        bytes_written_ += file_stream_->Write(&memory_heap, sizeof(memory_heap));
+    }
 }
 
 void CompressionConverter::DispatchSetSwapchainImageStateCommand(
