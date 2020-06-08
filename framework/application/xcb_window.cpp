@@ -397,14 +397,20 @@ XcbWindow::CreateSurface(const encode::InstanceTable* table, VkInstance instance
     return table->CreateXcbSurfaceKHR(instance, &create_info, nullptr, pSurface);
 }
 
-xcb_atom_t XcbWindow::GetAtom(const char* name, uint8_t only_if_exists) const
+xcb_intern_atom_cookie_t
+XcbWindow::SendAtomRequest(xcb_connection_t* connection, const char* name, uint8_t only_if_exists) const
 {
-    auto&                    xcb        = xcb_application_->GetXcbFunctionTable();
-    xcb_connection_t*        connection = xcb_application_->GetConnection();
-    xcb_atom_t               atom       = 0;
-    xcb_generic_error_t*     error      = nullptr;
-    xcb_intern_atom_cookie_t cookie     = xcb.intern_atom(connection, only_if_exists, strlen(name), name);
-    xcb_intern_atom_reply_t* reply      = xcb.intern_atom_reply(connection, cookie, &error);
+    auto& xcb = xcb_application_->GetXcbFunctionTable();
+    return xcb.intern_atom(connection, only_if_exists, strlen(name), name);
+}
+
+xcb_atom_t
+XcbWindow::GetAtomReply(xcb_connection_t* connection, const char* name, xcb_intern_atom_cookie_t cookie) const
+{
+    auto&                    xcb   = xcb_application_->GetXcbFunctionTable();
+    xcb_atom_t               atom  = 0;
+    xcb_generic_error_t*     error = nullptr;
+    xcb_intern_atom_reply_t* reply = xcb.intern_atom_reply(connection, cookie, &error);
 
     if (reply != nullptr)
     {
@@ -421,12 +427,21 @@ xcb_atom_t XcbWindow::GetAtom(const char* name, uint8_t only_if_exists) const
 
 void XcbWindow::InitializeAtoms()
 {
-    protocol_atom_      = GetAtom(kProtocolName, 1);
-    delete_window_atom_ = GetAtom(kDeleteWindowName, 0);
+    xcb_connection_t* connection = xcb_application_->GetConnection();
 
-    state_atom_             = GetAtom(kStateName, 1);
-    state_fullscreen_atom_  = GetAtom(kStateFullscreenName, 0);
-    bypass_compositor_atom_ = GetAtom(kBypassCompositorName, 0);
+    // Send requests.
+    xcb_intern_atom_cookie_t protocol_atom_cookie          = SendAtomRequest(connection, kProtocolName, 1);
+    xcb_intern_atom_cookie_t delete_window_atom_cookie     = SendAtomRequest(connection, kDeleteWindowName, 0);
+    xcb_intern_atom_cookie_t state_atom_cookie             = SendAtomRequest(connection, kStateName, 1);
+    xcb_intern_atom_cookie_t state_fullscreen_atom_cookie  = SendAtomRequest(connection, kStateFullscreenName, 0);
+    xcb_intern_atom_cookie_t bypass_compositor_atom_cookie = SendAtomRequest(connection, kBypassCompositorName, 0);
+
+    // Get replies.
+    protocol_atom_          = GetAtomReply(connection, kProtocolName, protocol_atom_cookie);
+    delete_window_atom_     = GetAtomReply(connection, kDeleteWindowName, delete_window_atom_cookie);
+    state_atom_             = GetAtomReply(connection, kStateName, state_atom_cookie);
+    state_fullscreen_atom_  = GetAtomReply(connection, kStateFullscreenName, state_fullscreen_atom_cookie);
+    bypass_compositor_atom_ = GetAtomReply(connection, kBypassCompositorName, bypass_compositor_atom_cookie);
 }
 
 void XcbWindow::CheckEventStatus(uint32_t sequence, uint32_t type)
