@@ -1,4 +1,5 @@
 # Project Goals
+
 The primary goal for the GFXReconstruct project is to create an improved
 version of LunarG's [vktrace](https://github.com/LunarG/VulkanTools)
 software for capture and replay of Vulkan API calls. As development
@@ -16,6 +17,7 @@ for capture files (currently available) and support for multi-threaded replay
 (to be added in the future).
 
 ## Stability
+
 The GFXReconstruct project is currently Beta quality software.  The primary
 consideration for stability is the capture file format.  While this format
 does not change regularly, it is not yet finalized and may change in ways
@@ -26,6 +28,7 @@ are implemented and considered stable, the file format will be assigned a
 GFXReconstruct versions.
 
 # Project Components
+
 The GFXReconstruct project provides tools for the capture and replay of Vulkan
 API calls, allowing the graphics commands executed by a Vulkan application to
 be recorded to a file that may later be replayed to reconstruct the
@@ -37,17 +40,24 @@ additional graphics APIs is possible.
 
 The GFXReconstruct components currently provided with this repository are:
 
- * The `VK_LAYER_LUNARG_gfxreconstruct` Vulkan Layer that is used to capture
+* The `VK_LAYER_LUNARG_gfxreconstruct` Vulkan layer for capturing
    Vulkan application commands.
- * The `gfxrecon-replay` tool which can replay GFXReconstruct capture files.
- * The `gfxrecon-compress` tool which can change the compression of
-   GFXReconstruct capture files.
-   * **NOTE:** The gfxrecon-compress tool requires LZ4 and/or zlib,
-     which are currently optional build dependencies.
- * The `gfxrecon-toascii` tool to output the contents of the commands in a
-   GFXReconstruct capture file.
+* The `gfxrecon-replay` tool to replay GFXReconstruct capture files.
+* The `gfxrecon-info` tool to print information describing GFXReconstruct
+  capture files.
+* The `gfxrecon-compress` tool to compress/decompress GFXReconstruct
+  capture files.
+  * **NOTE:** The gfxrecon-compress tool requires LZ4, Zstandard, and/or
+    zlib, which are currently optional build dependencies.
+* The `gfxrecon-extract` tool to extract SPIR-V binaries from
+  GFXReconstruct capture files.
+* The `gfxrecon-toascii` tool to convert GFXReconstruct capture files to
+  an ASCII listing of API calls.
+
+
 
 ## Contributing
+
 If you intend to contribute, the preferred work flow is for you to develop
 your contribution in a fork of this repo in your GitHub account and then
 submit a pull request.
@@ -55,16 +65,19 @@ Please see the [CONTRIBUTING](CONTRIBUTING.md) file in this repository for
 more details
 
 ## Building
+
 Instructions for building the contents of this repository can be found in
 the [BUILD.md](BUILD.md) documentation.
 
 ## Usage
-Information for using the various components of the GFXReconstruct project
-can be found in the following places:
 
-* [Using the Vulkan Layer](layer/README.md)
-* [Using the GFXReconstruct Replay tool](tools/replay/README.md)
+Instructions for using the GFXReconstruct capture and replay tools can be
+found at the following locations:
+
+* [Desktop Usage](USAGE_desktop.md)
+* [Android Usage](USAGE_android.md)
 
 ## License
+
 This work is licensed under the Apache License, Version 2.0; see
 [LICENSE](LICENSE.txt) for more information.
