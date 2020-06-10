@@ -97,9 +97,9 @@ def parse_args():
         action='store_true', default=False,
         help='Skip checking C++ code style before compiling')
     arg_parser.add_argument(
-        '--static-analysis', dest='static_analysis',
+        '--lint', dest='lint',
         action='store_true', default=False,
-        help='Run static analysis on the code')
+        help='Run static analysis lint tests on code')
     return arg_parser.parse_args()
 
 
@@ -145,7 +145,6 @@ def cmake_generate_options(args):
     generate_options = []
     if args.clean or args.clobber:
         generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
-        generate_options.append('-DRUN_STATIC_ANALYSIS=OFF')
         generate_options.append('-DRUN_TESTS=OFF')
         generate_options.append('-DGENERATE_TEST_ARCHIVE=OFF')
     else:
@@ -161,8 +160,8 @@ def cmake_generate_options(args):
             '-DGENERATE_TEST_ARCHIVE={}'.format(
                 'ON' if args.test_archive else 'OFF'))
         generate_options.append(
-            '-DRUN_STATIC_ANALYSIS={}'.format(
-                'ON' if args.static_analysis else 'OFF'))
+            '-DCMAKE_CXX_CLANG_TIDY=clang-tidy;--format-style=file' if args.lint
+            else '-UCMAKE_CXX_CLANG_TIDY')
     return generate_options
 
 
