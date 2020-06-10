@@ -2,8 +2,8 @@ add_executable(gfxrecon-compress "")
 
 target_sources(gfxrecon-compress
                PRIVATE
-                   main.cpp
-              )
+                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+)
 
 target_include_directories(gfxrecon-compress PUBLIC ${CMAKE_BINARY_DIR})
 

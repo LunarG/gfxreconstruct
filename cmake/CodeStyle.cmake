@@ -17,7 +17,7 @@
 # Description: CMake code style build directives
 ###############################################################################
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.4.1)
 
 option(APPLY_CPP_CODE_STYLE "Apply C++ code style using clang format" OFF)
 option(CHECK_CPP_CODE_STYLE "Check C++ code style using clang format" OFF)

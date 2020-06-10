@@ -2,7 +2,7 @@ add_executable(gfxrecon-toascii "")
 
 target_sources(gfxrecon-toascii
                PRIVATE
-                   main.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
               )
 
 target_include_directories(gfxrecon-toascii PUBLIC ${CMAKE_BINARY_DIR})
