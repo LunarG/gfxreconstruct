@@ -1,44 +1,67 @@
+###############################################################################
+# Copyright (c) 2019 LunarG, Inc.
+# Copyright (c) 2019 Advanced Micro Devices, Inc.
+# All rights reserved
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: LunarG Team
+# Author: AMD Developer Tools Team
+# Description: CMake script for framework util target
+###############################################################################
+
+include(CheckLibraryExists)
 add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
-                   argument_parser.h
-                   argument_parser.cpp
-                   compressor.h
-                   date_time.h
-                   defines.h
-                   file_output_stream.h
-                   file_output_stream.cpp
-                   file_path.h
-                   file_path.cpp
-                   hash.h
-                   hash.cpp
-                   keyboard.h
-                   keyboard.cpp
-                   logging.h
-                   logging.cpp
-                   lz4_compressor.h
-                   lz4_compressor.cpp
-                   zlib_compressor.h
-                   zlib_compressor.cpp
-                   zstd_compressor.h
-                   zstd_compressor.cpp
-                   memory_output_stream.h
-                   memory_output_stream.cpp
-                   output_stream.h
-                   page_guard_manager.h
-                   page_guard_manager.cpp
-                   page_status_tracker.h
-                   platform.h
-                   settings_loader.h
-                   settings_loader.cpp
-                   $<$<BOOL:${XCB_FOUND}>:xcb_loader.h>
-                   $<$<BOOL:${XCB_FOUND}>:xcb_loader.cpp>
-                   $<$<BOOL:${XCB_FOUND}>:xcb_keysyms_loader.h>
-                   $<$<BOOL:${XCB_FOUND}>:xcb_keysyms_loader.cpp>
-                   $<$<BOOL:${WAYLAND_FOUND}>:wayland_loader.h>
-                   $<$<BOOL:${WAYLAND_FOUND}>:wayland_loader.cpp>
-              )
+                    ${CMAKE_CURRENT_LIST_DIR}/argument_parser.h
+                    ${CMAKE_CURRENT_LIST_DIR}/argument_parser.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/compressor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/date_time.h
+                    ${CMAKE_CURRENT_LIST_DIR}/defines.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/file_path.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_path.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/hash.h
+                    ${CMAKE_CURRENT_LIST_DIR}/hash.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/keyboard.h
+                    ${CMAKE_CURRENT_LIST_DIR}/keyboard.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/logging.h
+                    ${CMAKE_CURRENT_LIST_DIR}/logging.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/zlib_compressor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/zlib_compressor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/zstd_compressor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/zstd_compressor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/memory_output_stream.h
+                    ${CMAKE_CURRENT_LIST_DIR}/memory_output_stream.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/output_stream.h
+                    ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.h
+                    ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/page_status_tracker.h
+                    ${CMAKE_CURRENT_LIST_DIR}/platform.h
+                    ${CMAKE_CURRENT_LIST_DIR}/settings_loader.h
+                    ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
+                    $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.h>
+                    $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
+                    $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>
+                    $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.cpp>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.h>
+                    $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
+)
 
 target_include_directories(gfxrecon_util
                            PUBLIC
@@ -83,10 +106,8 @@ common_build_directives(gfxrecon_util)
 
 if (${RUN_TESTS})
     add_executable(gfxrecon_util_test "")
-
     target_sources(gfxrecon_util_test PRIVATE
-            test/main.cpp)
-
+            ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
     common_build_directives(gfxrecon_util_test)
     common_test_directives(gfxrecon_util_test)
 endif()
