@@ -18,6 +18,10 @@ const char Arguments::kSkipFailedAllocationShortOption[]  = "--sfa";
 const char Arguments::kSkipFailedAllocationLongOption[]   = "--skip-failed-allocations";
 const char Arguments::kOmitPipelineCacheDataShortOption[] = "--opcd";
 const char Arguments::kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
+const char Arguments::kWsiArgument[]                      = "--wsi";
+const char Arguments::kMemoryPortabilityShortOption[]     = "-m";
+const char Arguments::kMemoryPortabilityLongOption[]      = "--memory-translation";
+const char Arguments::kShaderReplaceArgument[]            = "--replace-shaders";
 
 const char Arguments::kIPAddArgument[]     = "--ip-address";
 const char Arguments::kPortArgument[]      = "--port";
@@ -27,4 +31,5 @@ const char Arguments::kWinHeightArgument[] = "--win-height";
 // TODO: Make this a vector of strings.
 const char Arguments::kOptions[] =
     "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
-const char Arguments::kArguments[] = "--pause-frame,--ip-address,--port,--win-width,--win-height";
+const char Arguments::kArguments[] =
+    "--gpu,--pause-frame,--wsi,-m|--memory-translation,--replace-shaders,--ip-address,--port,--win-width,--win-height";

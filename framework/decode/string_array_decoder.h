@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -38,13 +38,13 @@ class BasicStringArrayDecoder : public PointerDecoderBase
 
     ~BasicStringArrayDecoder() { DestroyStrings(); }
 
-    uint32_t* GetStringAttributes() const { return string_attributes_.get(); }
+    const uint32_t* GetStringAttributes() const { return string_attributes_.get(); }
 
-    uint64_t* GetStringAddresses() const { return string_addresses_.get(); }
+    const uint64_t* GetStringAddresses() const { return string_addresses_.get(); }
 
-    size_t* GetStringLengths() const { return string_lengths_.get(); }
+    const size_t* GetStringLengths() const { return string_lengths_.get(); }
 
-    CharT** GetPointer() const { return strings_.get(); }
+    const CharT* const* GetPointer() const { return strings_.get(); }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size)
     {

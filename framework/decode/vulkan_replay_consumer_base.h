@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -21,8 +21,11 @@
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/swapchain_image_tracker.h"
-#include "decode/vulkan_object_mapper.h"
+#include "decode/vulkan_handle_mapping_util.h"
+#include "decode/vulkan_object_info.h"
+#include "decode/vulkan_object_info_table.h"
 #include "decode/vulkan_replay_options.h"
+#include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_initializer.h"
 #include "decode/window.h"
 #include "format/api_call_id.h"
@@ -30,6 +33,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
 
@@ -37,9 +41,15 @@
 #include <cassert>
 #include <functional>
 #include <memory>
+#include <unordered_set>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+// Types provided by this file are defined by format/platform_types.h when VK_USE_PLATFORM_ANDROID_KHR is not set.
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+#include <android/hardware_buffer.h>
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -63,6 +73,33 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
+
+    virtual void
+    ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
+                                       uint64_t                                            buffer_id,
+                                       uint32_t                                            format,
+                                       uint32_t                                            width,
+                                       uint32_t                                            height,
+                                       uint32_t                                            stride,
+                                       uint32_t                                            usage,
+                                       uint32_t                                            layers,
+                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info) override;
+
+    virtual void ProcessDestroyHardwareBufferCommand(uint64_t buffer_id) override;
+
+    virtual void ProcessSetDevicePropertiesCommand(format::HandleId   physical_device_id,
+                                                   uint32_t           api_version,
+                                                   uint32_t           driver_version,
+                                                   uint32_t           vendor_id,
+                                                   uint32_t           device_id,
+                                                   uint32_t           device_type,
+                                                   const uint8_t      pipeline_cache_uuid[format::kUuidSize],
+                                                   const std::string& device_name) override;
+
+    virtual void
+    ProcessSetDeviceMemoryPropertiesCommand(format::HandleId                             physical_device_id,
+                                            const std::vector<format::DeviceMemoryType>& memory_types,
+                                            const std::vector<format::DeviceMemoryHeap>& memory_heaps) override;
 
     virtual void
     ProcessSetSwapchainImageStateCommand(format::HandleId                                    device_id,
@@ -89,34 +126,26 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                          const std::vector<uint64_t>& level_sizes,
                                          const uint8_t*               data) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId device,
-                                                           format::HandleId descriptorSet,
-                                                           format::HandleId descriptorUpdateTemplate,
-                                                           const DescriptorUpdateTemplateDecoder& pData) override;
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(format::HandleId                 device,
+                                                           format::HandleId                 descriptorSet,
+                                                           format::HandleId                 descriptorUpdateTemplate,
+                                                           DescriptorUpdateTemplateDecoder* pData) override;
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(format::HandleId commandBuffer,
                                                                format::HandleId descriptorUpdateTemplate,
                                                                format::HandleId layout,
                                                                uint32_t         set,
-                                                               const DescriptorUpdateTemplateDecoder& pData) override;
+                                                               DescriptorUpdateTemplateDecoder* pData) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId device,
-                                                              format::HandleId descriptorSet,
-                                                              format::HandleId descriptorUpdateTemplate,
-                                                              const DescriptorUpdateTemplateDecoder& pData) override;
-
-    virtual void
-    Process_vkRegisterObjectsNVX(VkResult                                                   returnValue,
-                                 format::HandleId                                           device,
-                                 format::HandleId                                           objectTable,
-                                 uint32_t                                                   objectCount,
-                                 const StructPointerDecoder<Decoded_VkObjectTableEntryNVX>& ppObjectTableEntries,
-                                 const PointerDecoder<uint32_t>&                            pObjectIndices) override;
+    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(format::HandleId                 device,
+                                                              format::HandleId                 descriptorSet,
+                                                              format::HandleId                 descriptorUpdateTemplate,
+                                                              DescriptorUpdateTemplateDecoder* pData) override;
 
   protected:
-    const VulkanObjectMapper& GetObjectMapper() const { return object_mapper_; }
+    const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
-    VulkanObjectMapper& GetObjectMapper() { return object_mapper_; }
+    VulkanObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
 
     const encode::InstanceTable* GetInstanceTable(const void* handle) const;
 
@@ -124,365 +153,448 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
-    void PostProcessExternalObject(const PointerDecoder<uint64_t>& object_id,
-                                   void*                           object,
-                                   format::ApiCallId               call_id,
-                                   const char*                     call_name);
+    void PostProcessExternalObject(
+        VkResult replay_reslt, uint64_t object_id, void* object, format::ApiCallId call_id, const char* call_name);
 
     const VkAllocationCallbacks*
-    GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>& original_callbacks);
+    GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>* original_callbacks);
 
     void CheckResult(const char* func_name, VkResult original, VkResult replay);
 
     template <typename T>
-    T* AllocateArray(size_t len) const
+    typename T::HandleType MapHandle(format::HandleId id,
+                                     const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
-        return new T[len];
+        return handle_mapping::MapHandle(id, object_info_table_, MapFunc);
     }
 
     template <typename T>
-    T* AllocateArray(size_t len, const T& init) const
+    typename T::HandleType* MapHandles(HandlePointerDecoder<typename T::HandleType>* handle_pointer,
+                                       size_t                                        handles_len,
+                                       const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
-        T* data = new T[len];
+        // This parameter is only referenced by debug builds.
+        GFXRECON_UNREFERENCED_PARAMETER(handles_len);
 
-        for (size_t i = 0; i < len; ++i)
+        typename T::HandleType* handles = nullptr;
+
+        if ((handle_pointer != nullptr) && !handle_pointer->IsNull())
         {
-            data[i] = init;
+            // The handle and ID array sizes are expected to be the same for mapping operations.
+            assert(handles_len == handle_pointer->GetLength());
+
+            handles = handle_mapping::MapHandleArray(handle_pointer, object_info_table_, MapFunc);
         }
 
-        return data;
+        return handles;
     }
 
     template <typename T>
-    void FreeArray(T** arr) const
+    void AddHandle(const format::HandleId*       id,
+                   const typename T::HandleType* handle,
+                   T&&                           initial_info,
+                   void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
-        if ((*arr) != nullptr)
+        if ((id != nullptr) && (handle != nullptr))
         {
-            delete[](*arr);
-            *arr = nullptr;
+            handle_mapping::AddHandle(*id, *handle, std::forward<T>(initial_info), &object_info_table_, AddFunc);
         }
     }
 
     template <typename T>
-    void MapHandles(const format::HandleId* ids,
-                    size_t                  ids_len,
-                    T*                      handles,
-                    size_t                  handles_len,
-                    T (VulkanObjectMapper::*MapFunc)(format::HandleId) const) const
+    void AddHandle(const format::HandleId*       id,
+                   const typename T::HandleType* handle,
+                   void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
-        if ((ids != nullptr) && (handles != nullptr))
+        if ((id != nullptr) && (handle != nullptr))
         {
-            // The array sizes are expected to be the same for mapping operations.
-            assert(ids_len == handles_len);
-            for (size_t i = 0; i < handles_len; ++i)
+            handle_mapping::AddHandle(*id, *handle, &object_info_table_, AddFunc);
+        }
+    }
+
+    template <typename T>
+    void AddHandles(const format::HandleId*       ids,
+                    size_t                        ids_len,
+                    const typename T::HandleType* handles,
+                    size_t                        handles_len,
+                    std::vector<T>&&              initial_infos,
+                    void (VulkanObjectInfoTable::*AddFunc)(T&&))
+    {
+        handle_mapping::AddHandleArray(
+            ids, ids_len, handles, handles_len, std::move(initial_infos), &object_info_table_, AddFunc);
+    }
+
+    template <typename T>
+    void AddHandles(const format::HandleId*       ids,
+                    size_t                        ids_len,
+                    const typename T::HandleType* handles,
+                    size_t                        handles_len,
+                    void (VulkanObjectInfoTable::*AddFunc)(T&&))
+    {
+        handle_mapping::AddHandleArray(ids, ids_len, handles, handles_len, &object_info_table_, AddFunc);
+    }
+
+    template <typename HandleInfoT>
+    void SetOutputArrayCount(format::HandleId handle_id,
+                             uint32_t         index,
+                             size_t           count,
+                             HandleInfoT* (VulkanObjectInfoTable::*HandleInfoFunc)(format::HandleId))
+    {
+        HandleInfoT* info = (object_info_table_.*HandleInfoFunc)(handle_id);
+        if (info != nullptr)
+        {
+            info->array_counts[index] = static_cast<size_t>(count);
+        }
+    }
+
+    template <typename CountT, typename HandleInfoT, typename ArrayT>
+    CountT GetOutputArrayCount(const char*                   func_name,
+                               VkResult                      original_result,
+                               format::HandleId              handle_id,
+                               uint32_t                      index,
+                               const PointerDecoder<CountT>* original_count,
+                               const ArrayT*                 original_array,
+                               const HandleInfoT* (VulkanObjectInfoTable::*HandleInfoFunc)(format::HandleId) const)
+    {
+        assert((original_count != nullptr) && (original_array != nullptr));
+
+        CountT replay_count = 0;
+
+        if (!original_count->IsNull() && !original_array->IsNull())
+        {
+            // When the array parameter is not null, start with array count set equal to the capture count and then
+            // adjust if the replay count is different.
+            replay_count = (*original_count->GetPointer());
+
+            // Only adjust the replay array count if the call succeeded on capture so that errors generated at capture,
+            // such as VK_INCOMPLETE, continue to be generated at replay.
+            if (original_result == VK_SUCCESS)
             {
-                handles[i] = (object_mapper_.*MapFunc)(ids[i]);
+                const HandleInfoT* info = (object_info_table_.*HandleInfoFunc)(handle_id);
+                if (info != nullptr)
+                {
+                    auto entry = info->array_counts.find(index);
+                    if ((entry != info->array_counts.end()) && (entry->second != replay_count))
+                    {
+                        GFXRECON_LOG_INFO("Replay adjusted the %s array count: capture count = %" PRIuPTR
+                                          ", replay count = %" PRIuPTR,
+                                          func_name,
+                                          static_cast<size_t>(replay_count),
+                                          entry->second);
+                        replay_count = static_cast<CountT>(entry->second);
+                    }
+                }
             }
         }
-    }
 
-    template <typename T>
-    void AddHandles(const format::HandleId* ids,
-                    size_t                  ids_len,
-                    const T*                handles,
-                    size_t                  handles_len,
-                    void (VulkanObjectMapper::*AddFunc)(format::HandleId, T))
-    {
-        if ((ids != nullptr) && (handles != nullptr))
-        {
-            // TODO: Improved handling of array size mismatch.
-            size_t len = std::min(ids_len, handles_len);
-            for (size_t i = 0; i < len; ++i)
-            {
-                (object_mapper_.*AddFunc)(ids[i], handles[i]);
-            }
-        }
+        return replay_count;
     }
 
     //
     // Replay function overrides provided to the replay consumer code generator with replay_overrides.json
     //
 
-    VkResult OverrideCreateInstance(VkResult                                original_result,
-                                    const VkInstanceCreateInfo*             pCreateInfo,
-                                    const VkAllocationCallbacks*            pAllocator,
-                                    const HandlePointerDecoder<VkInstance>& original_instance,
-                                    VkInstance*                             pInstance);
+    VkResult OverrideCreateInstance(VkResult                                                   original_result,
+                                    const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
+                                    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                    HandlePointerDecoder<VkInstance>*                          pInstance);
 
-    VkResult OverrideCreateDevice(VkResult                              original_result,
-                                  VkPhysicalDevice                      physicalDevice,
-                                  const VkDeviceCreateInfo*             pCreateInfo,
-                                  const VkAllocationCallbacks*          pAllocator,
-                                  const HandlePointerDecoder<VkDevice>& original_device,
-                                  VkDevice*                             pDevice);
+    VkResult OverrideCreateDevice(VkResult                                                   original_result,
+                                  PhysicalDeviceInfo*                                        physical_device_info,
+                                  const StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
+                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                  HandlePointerDecoder<VkDevice>*                            pDevice);
 
-    VkResult OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysicalDevices                func,
-                                              VkResult                                      returnValue,
-                                              VkInstance                                    instance,
-                                              const PointerDecoder<uint32_t>&               original_device_count,
-                                              uint32_t*                                     pPhysicalDeviceCount,
-                                              const HandlePointerDecoder<VkPhysicalDevice>& original_devices,
-                                              VkPhysicalDevice*                             pPhysicalDevices);
+    VkResult OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysicalDevices          func,
+                                              VkResult                                original_result,
+                                              InstanceInfo*                           instance_info,
+                                              PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
+                                              HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices);
 
-    void OverrideGetPhysicalDeviceProperties(
-        PFN_vkGetPhysicalDeviceProperties                               func,
-        VkPhysicalDevice                                                physicalDevice,
-        const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>& original_properties,
-        VkPhysicalDeviceProperties*                                     pProperties);
+    void OverrideGetPhysicalDeviceProperties(PFN_vkGetPhysicalDeviceProperties func,
+                                             PhysicalDeviceInfo*               physical_device_info,
+                                             StructPointerDecoder<Decoded_VkPhysicalDeviceProperties>* pProperties);
 
-    void OverrideGetPhysicalDeviceProperties2(
-        PFN_vkGetPhysicalDeviceProperties2                               func,
-        VkPhysicalDevice                                                 physicalDevice,
-        const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>& original_properties,
-        VkPhysicalDeviceProperties2*                                     pProperties);
+    void OverrideGetPhysicalDeviceProperties2(PFN_vkGetPhysicalDeviceProperties2 func,
+                                              PhysicalDeviceInfo*                physical_device_info,
+                                              StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2>* pProperties);
 
-    void OverrideGetPhysicalDeviceProperties2KHR(
-        PFN_vkGetPhysicalDeviceProperties2KHR                               func,
-        VkPhysicalDevice                                                    physicalDevice,
-        const StructPointerDecoder<Decoded_VkPhysicalDeviceProperties2KHR>& original_properties,
-        VkPhysicalDeviceProperties2KHR*                                     pProperties);
+    void OverrideGetPhysicalDeviceMemoryProperties(
+        PFN_vkGetPhysicalDeviceMemoryProperties                         func,
+        PhysicalDeviceInfo*                                             physical_device_info,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties>* pMemoryProperties);
 
-    VkResult OverrideWaitForFences(PFN_vkWaitForFences func,
-                                   VkResult            original_result,
-                                   VkDevice            device,
-                                   uint32_t            fenceCount,
-                                   const VkFence*      pFences,
-                                   VkBool32            waitAll,
-                                   uint64_t            timeout);
+    void OverrideGetPhysicalDeviceMemoryProperties2(
+        PFN_vkGetPhysicalDeviceMemoryProperties2                         func,
+        PhysicalDeviceInfo*                                              physical_device_info,
+        StructPointerDecoder<Decoded_VkPhysicalDeviceMemoryProperties2>* pMemoryProperties);
+
+    VkResult OverrideWaitForFences(PFN_vkWaitForFences                  func,
+                                   VkResult                             original_result,
+                                   const DeviceInfo*                    device_info,
+                                   uint32_t                             fenceCount,
+                                   const HandlePointerDecoder<VkFence>* pFences,
+                                   VkBool32                             waitAll,
+                                   uint64_t                             timeout);
+
+    VkResult OverrideGetFenceStatus(PFN_vkGetFenceStatus func,
+                                    VkResult             original_result,
+                                    const DeviceInfo*    device_info,
+                                    const FenceInfo*     fence_info);
+
+    VkResult OverrideGetEventStatus(PFN_vkGetEventStatus func,
+                                    VkResult             original_result,
+                                    const DeviceInfo*    device_info,
+                                    const EventInfo*     event_info);
+
+    VkResult OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults func,
+                                         VkResult                  original_result,
+                                         const DeviceInfo*         device_info,
+                                         const QueryPoolInfo*      query_pool_info,
+                                         uint32_t                  firstQuery,
+                                         uint32_t                  queryCount,
+                                         size_t                    dataSize,
+                                         PointerDecoder<uint8_t>*  pData,
+                                         VkDeviceSize              stride,
+                                         VkQueryResultFlags        flags);
 
     VkResult
-    OverrideGetFenceStatus(PFN_vkGetFenceStatus func, VkResult original_result, VkDevice device, VkFence fence);
+    OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers                                     func,
+                                   VkResult                                                         original_result,
+                                   const DeviceInfo*                                                device_info,
+                                   const StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
+                                   HandlePointerDecoder<VkCommandBuffer>*                           pCommandBuffers);
 
     VkResult
-    OverrideGetEventStatus(PFN_vkGetEventStatus func, VkResult original_result, VkDevice device, VkEvent event);
+    OverrideAllocateDescriptorSets(PFN_vkAllocateDescriptorSets                                     func,
+                                   VkResult                                                         original_result,
+                                   const DeviceInfo*                                                device_info,
+                                   const StructPointerDecoder<Decoded_VkDescriptorSetAllocateInfo>* pAllocateInfo,
+                                   HandlePointerDecoder<VkDescriptorSet>*                           pDescriptorSets);
 
-    VkResult OverrideGetQueryPoolResults(PFN_vkGetQueryPoolResults      func,
-                                         VkResult                       original_result,
-                                         VkDevice                       device,
-                                         VkQueryPool                    queryPool,
-                                         uint32_t                       firstQuery,
-                                         uint32_t                       queryCount,
-                                         size_t                         dataSize,
-                                         const PointerDecoder<uint8_t>& original_data,
-                                         void*                          pData,
-                                         VkDeviceSize                   stride,
-                                         VkQueryResultFlags             flags);
+    VkResult OverrideAllocateMemory(PFN_vkAllocateMemory                                       func,
+                                    VkResult                                                   original_result,
+                                    const DeviceInfo*                                          device_info,
+                                    const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>*  pAllocateInfo,
+                                    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                    HandlePointerDecoder<VkDeviceMemory>*                      pMemory);
 
-    VkResult OverrideAllocateCommandBuffers(PFN_vkAllocateCommandBuffers                 func,
-                                            VkResult                                     original_result,
-                                            VkDevice                                     device,
-                                            const VkCommandBufferAllocateInfo*           pAllocateInfo,
-                                            const HandlePointerDecoder<VkCommandBuffer>& original_command_buffers,
-                                            VkCommandBuffer*                             pCommandBuffers);
+    VkResult OverrideMapMemory(PFN_vkMapMemory   func,
+                               VkResult          original_result,
+                               const DeviceInfo* device_info,
+                               DeviceMemoryInfo* memory_info,
+                               VkDeviceSize      offset,
+                               VkDeviceSize      size,
+                               VkMemoryMapFlags  flags,
+                               void**            ppData);
 
-    VkResult OverrideAllocateDescriptorSets(PFN_vkAllocateDescriptorSets                 func,
-                                            VkResult                                     original_result,
-                                            VkDevice                                     device,
-                                            const VkDescriptorSetAllocateInfo*           pAllocateInfo,
-                                            const HandlePointerDecoder<VkDescriptorSet>& original_descriptor_sets,
-                                            VkDescriptorSet*                             pDescriptorSets);
+    void OverrideUnmapMemory(PFN_vkUnmapMemory func, const DeviceInfo* device_info, DeviceMemoryInfo* memory_info);
 
-    VkResult OverrideAllocateMemory(PFN_vkAllocateMemory                        func,
-                                    VkResult                                    original_result,
-                                    VkDevice                                    device,
-                                    const VkMemoryAllocateInfo*                 pAllocateInfo,
-                                    const VkAllocationCallbacks*                pAllocator,
-                                    const HandlePointerDecoder<VkDeviceMemory>& original_memory,
-                                    VkDeviceMemory*                             pMemory);
+    VkResult OverrideFlushMappedMemoryRanges(PFN_vkFlushMappedMemoryRanges                            func,
+                                             VkResult                                                 original_result,
+                                             const DeviceInfo*                                        device_info,
+                                             uint32_t                                                 memoryRangeCount,
+                                             const StructPointerDecoder<Decoded_VkMappedMemoryRange>* pMemoryRanges);
 
-    VkResult OverrideMapMemory(PFN_vkMapMemory                 func,
-                               VkResult                        original_result,
-                               VkDevice                        device,
-                               VkDeviceMemory                  memory,
-                               VkDeviceSize                    offset,
-                               VkDeviceSize                    size,
-                               VkMemoryMapFlags                flags,
-                               const PointerDecoder<uint64_t>& original_data,
-                               void**                          ppData);
+    VkResult
+    OverrideInvalidateMappedMemoryRanges(PFN_vkInvalidateMappedMemoryRanges                       func,
+                                         VkResult                                                 original_result,
+                                         const DeviceInfo*                                        device_info,
+                                         uint32_t                                                 memoryRangeCount,
+                                         const StructPointerDecoder<Decoded_VkMappedMemoryRange>* pMemoryRanges);
 
-    void OverrideUnmapMemory(PFN_vkUnmapMemory func, VkDevice device, VkDeviceMemory memory);
-
-    void OverrideFreeMemory(PFN_vkFreeMemory             func,
-                            VkDevice                     device,
-                            VkDeviceMemory               memory,
-                            const VkAllocationCallbacks* pAllocator);
+    void OverrideFreeMemory(PFN_vkFreeMemory                                           func,
+                            const DeviceInfo*                                          device_info,
+                            DeviceMemoryInfo*                                          memory_info,
+                            const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     VkResult OverrideBindBufferMemory(PFN_vkBindBufferMemory func,
                                       VkResult               original_result,
-                                      VkDevice               device,
-                                      VkBuffer               buffer,
-                                      VkDeviceMemory         memory,
+                                      const DeviceInfo*      device_info,
+                                      BufferInfo*            buffer_info,
+                                      DeviceMemoryInfo*      memory_info,
                                       VkDeviceSize           memoryOffset);
 
-    VkResult OverrideBindBufferMemory2(PFN_vkBindBufferMemory2       func,
-                                       VkResult                      original_result,
-                                       VkDevice                      device,
-                                       uint32_t                      bindInfoCount,
-                                       const VkBindBufferMemoryInfo* pBindInfos);
+    VkResult OverrideBindBufferMemory2(PFN_vkBindBufferMemory2                                     func,
+                                       VkResult                                                    original_result,
+                                       const DeviceInfo*                                           device_info,
+                                       uint32_t                                                    bindInfoCount,
+                                       const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos);
 
     VkResult OverrideBindImageMemory(PFN_vkBindImageMemory func,
                                      VkResult              original_result,
-                                     VkDevice              device,
-                                     VkImage               image,
-                                     VkDeviceMemory        memory,
+                                     const DeviceInfo*     device_info,
+                                     ImageInfo*            image_info,
+                                     DeviceMemoryInfo*     memory_info,
                                      VkDeviceSize          memoryOffset);
 
-    VkResult OverrideBindImageMemory2(PFN_vkBindImageMemory2       func,
-                                      VkResult                     original_result,
-                                      VkDevice                     device,
-                                      uint32_t                     bindInfoCount,
-                                      const VkBindImageMemoryInfo* pBindInfos);
+    VkResult OverrideBindImageMemory2(PFN_vkBindImageMemory2                                     func,
+                                      VkResult                                                   original_result,
+                                      const DeviceInfo*                                          device_info,
+                                      uint32_t                                                   bindInfoCount,
+                                      const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos);
 
-    VkResult OverrideCreateBuffer(PFN_vkCreateBuffer                    func,
-                                  VkResult                              original_result,
-                                  VkDevice                              device,
-                                  const VkBufferCreateInfo*             pCreateInfo,
-                                  const VkAllocationCallbacks*          pAllocator,
-                                  const HandlePointerDecoder<VkBuffer>& original_image,
-                                  VkBuffer*                             pBuffer);
+    VkResult OverrideCreateBuffer(PFN_vkCreateBuffer                                         func,
+                                  VkResult                                                   original_result,
+                                  const DeviceInfo*                                          device_info,
+                                  const StructPointerDecoder<Decoded_VkBufferCreateInfo>*    pCreateInfo,
+                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                  HandlePointerDecoder<VkBuffer>*                            pBuffer);
 
-    VkResult OverrideCreateImage(PFN_vkCreateImage                    func,
-                                 VkResult                             original_result,
-                                 VkDevice                             device,
-                                 const VkImageCreateInfo*             pCreateInfo,
-                                 const VkAllocationCallbacks*         pAllocator,
-                                 const HandlePointerDecoder<VkImage>& original_image,
-                                 VkImage*                             pImage);
+    void OverrideDestroyBuffer(PFN_vkDestroyBuffer                                        func,
+                               const DeviceInfo*                                          device_info,
+                               BufferInfo*                                                buffer_info,
+                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    VkResult OverrideCreateImage(PFN_vkCreateImage                                          func,
+                                 VkResult                                                   original_result,
+                                 const DeviceInfo*                                          device_info,
+                                 const StructPointerDecoder<Decoded_VkImageCreateInfo>*     pCreateInfo,
+                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                 HandlePointerDecoder<VkImage>*                             pImage);
+
+    void OverrideDestroyImage(PFN_vkDestroyImage                                         func,
+                              const DeviceInfo*                                          device_info,
+                              ImageInfo*                                                 image_info,
+                              const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideGetImageSubresourceLayout(PFN_vkGetImageSubresourceLayout                         func,
+                                           const DeviceInfo*                                       device_info,
+                                           const ImageInfo*                                        image_info,
+                                           const StructPointerDecoder<Decoded_VkImageSubresource>* pSubresource,
+                                           StructPointerDecoder<Decoded_VkSubresourceLayout>*      pLayout);
 
     VkResult OverrideCreateDescriptorUpdateTemplate(
-        PFN_vkCreateDescriptorUpdateTemplate                    func,
-        VkResult                                                original_result,
-        VkDevice                                                device,
-        const VkDescriptorUpdateTemplateCreateInfo*             pCreateInfo,
-        const VkAllocationCallbacks*                            pAllocator,
-        const HandlePointerDecoder<VkDescriptorUpdateTemplate>& original_update_template,
-        VkDescriptorUpdateTemplate*                             pDescriptorUpdateTemplate);
+        PFN_vkCreateDescriptorUpdateTemplate                                      func,
+        VkResult                                                                  original_result,
+        const DeviceInfo*                                                         device_info,
+        const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
+        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                         pDescriptorUpdateTemplate);
 
     void OverrideDestroyDescriptorUpdateTemplate(PFN_vkDestroyDescriptorUpdateTemplate func,
-                                                 VkDevice                              device,
-                                                 VkDescriptorUpdateTemplate            descriptorUpdateTemplate,
-                                                 const VkAllocationCallbacks*          pAllocator);
+                                                 const DeviceInfo*                     device_info,
+                                                 const DescriptorUpdateTemplateInfo*   descriptor_update_template_info,
+                                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
-    VkResult OverrideCreatePipelineCache(PFN_vkCreatePipelineCache                    func,
-                                         VkResult                                     original_result,
-                                         VkDevice                                     device,
-                                         const VkPipelineCacheCreateInfo*             pCreateInfo,
-                                         const VkAllocationCallbacks*                 pAllocator,
-                                         const HandlePointerDecoder<VkPipelineCache>& original_pipeline_cache,
-                                         VkPipelineCache*                             pPipelineCache);
+    VkResult OverrideCreateShaderModule(PFN_vkCreateShaderModule                                      func,
+                                        VkResult                                                      original_result,
+                                        const DeviceInfo*                                             device_info,
+                                        const StructPointerDecoder<Decoded_VkShaderModuleCreateInfo>* pCreateInfo,
+                                        const StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
+                                        HandlePointerDecoder<VkShaderModule>*                         pShaderModule);
 
-    VkResult
-    OverrideCreateDebugReportCallbackEXT(PFN_vkCreateDebugReportCallbackEXT                    func,
-                                         VkResult                                              original_result,
-                                         VkInstance                                            instance,
-                                         const VkDebugReportCallbackCreateInfoEXT*             pCreateInfo,
-                                         const VkAllocationCallbacks*                          pAllocator,
-                                         const HandlePointerDecoder<VkDebugReportCallbackEXT>& original_callback,
-                                         VkDebugReportCallbackEXT*                             pCallback);
+    VkResult OverrideCreatePipelineCache(PFN_vkCreatePipelineCache                                      func,
+                                         VkResult                                                       original_result,
+                                         const DeviceInfo*                                              device_info,
+                                         const StructPointerDecoder<Decoded_VkPipelineCacheCreateInfo>* pCreateInfo,
+                                         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
+                                         HandlePointerDecoder<VkPipelineCache>*                         pPipelineCache);
 
-    VkResult
-    OverrideCreateDebugUtilsMessengerEXT(PFN_vkCreateDebugUtilsMessengerEXT                    func,
-                                         VkResult                                              original_result,
-                                         VkInstance                                            instance,
-                                         const VkDebugUtilsMessengerCreateInfoEXT*             pCreateInfo,
-                                         const VkAllocationCallbacks*                          pAllocator,
-                                         const HandlePointerDecoder<VkDebugUtilsMessengerEXT>& original_messenger,
-                                         VkDebugUtilsMessengerEXT*                             pMessenger);
+    VkResult OverrideCreateDebugReportCallbackEXT(
+        PFN_vkCreateDebugReportCallbackEXT                                      func,
+        VkResult                                                                original_result,
+        const InstanceInfo*                                                     instance_info,
+        const StructPointerDecoder<Decoded_VkDebugReportCallbackCreateInfoEXT>* pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>*              pAllocator,
+        HandlePointerDecoder<VkDebugReportCallbackEXT>*                         pCallback);
 
-    VkResult OverrideCreateSwapchainKHR(PFN_vkCreateSwapchainKHR                    func,
-                                        VkResult                                    original_result,
-                                        VkDevice                                    device,
-                                        const VkSwapchainCreateInfoKHR*             pCreateInfo,
-                                        const VkAllocationCallbacks*                pAllocator,
-                                        const HandlePointerDecoder<VkSwapchainKHR>& original_swapchain,
-                                        VkSwapchainKHR*                             pSwapchain);
+    VkResult OverrideCreateDebugUtilsMessengerEXT(
+        PFN_vkCreateDebugUtilsMessengerEXT                                      func,
+        VkResult                                                                original_result,
+        const InstanceInfo*                                                     instance_info,
+        const StructPointerDecoder<Decoded_VkDebugUtilsMessengerCreateInfoEXT>* pCreateInfo,
+        const StructPointerDecoder<Decoded_VkAllocationCallbacks>*              pAllocator,
+        HandlePointerDecoder<VkDebugUtilsMessengerEXT>*                         pMessenger);
 
-    VkResult OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR       func,
-                                         VkResult                        original_result,
-                                         VkDevice                        device,
-                                         VkSwapchainKHR                  swapchain,
-                                         uint64_t                        timeout,
-                                         VkSemaphore                     semaphore,
-                                         VkFence                         fence,
-                                         const PointerDecoder<uint32_t>& original_index,
-                                         uint32_t*                       pImageIndex);
+    VkResult OverrideCreateSwapchainKHR(PFN_vkCreateSwapchainKHR                                      func,
+                                        VkResult                                                      original_result,
+                                        const DeviceInfo*                                             device_info,
+                                        const StructPointerDecoder<Decoded_VkSwapchainCreateInfoKHR>* pCreateInfo,
+                                        const StructPointerDecoder<Decoded_VkAllocationCallbacks>*    pAllocator,
+                                        HandlePointerDecoder<VkSwapchainKHR>*                         pSwapchain);
 
-    VkResult OverrideAcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR       func,
-                                          VkResult                         original_result,
-                                          VkDevice                         device,
-                                          const VkAcquireNextImageInfoKHR* pAcquireInfo,
-                                          const PointerDecoder<uint32_t>&  original_index,
-                                          uint32_t*                        pImageIndex);
+    VkResult OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
+                                         VkResult                  original_result,
+                                         const DeviceInfo*         device_info,
+                                         const SwapchainKHRInfo*   swapchain_info,
+                                         uint64_t                  timeout,
+                                         const SemaphoreInfo*      semaphore_info,
+                                         const FenceInfo*          fence_info,
+                                         PointerDecoder<uint32_t>* pImageIndex);
+
+    VkResult OverrideAcquireNextImage2KHR(PFN_vkAcquireNextImage2KHR func,
+                                          VkResult                   original_result,
+                                          const DeviceInfo*          device_info,
+                                          const StructPointerDecoder<Decoded_VkAcquireNextImageInfoKHR>* pAcquireInfo,
+                                          PointerDecoder<uint32_t>*                                      pImageIndex);
 
     // Window/Surface related overrides, which can transform the window/surface type from the platform
     // specific type found in the trace file to the platform specific type used for replay.
-    VkResult OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR             func,
-                                             VkResult                                  original_result,
-                                             VkInstance                                instance,
-                                             const VkAndroidSurfaceCreateInfoKHR*      pCreateInfo,
-                                             const VkAllocationCallbacks*              pAllocator,
-                                             const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
-                                             VkSurfaceKHR*                             pSurface);
+    VkResult
+    OverrideCreateAndroidSurfaceKHR(PFN_vkCreateAndroidSurfaceKHR                                      func,
+                                    VkResult                                                           original_result,
+                                    const InstanceInfo*                                                instance_info,
+                                    const StructPointerDecoder<Decoded_VkAndroidSurfaceCreateInfoKHR>* pCreateInfo,
+                                    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
+                                    HandlePointerDecoder<VkSurfaceKHR>*                                pSurface);
 
-    VkResult OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR               func,
-                                           VkResult                                  original_result,
-                                           VkInstance                                instance,
-                                           const VkWin32SurfaceCreateInfoKHR*        pCreateInfo,
-                                           const VkAllocationCallbacks*              pAllocator,
-                                           const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
-                                           VkSurfaceKHR*                             pSurface);
+    VkResult OverrideCreateWin32SurfaceKHR(PFN_vkCreateWin32SurfaceKHR func,
+                                           VkResult                    original_result,
+                                           const InstanceInfo*         instance_info,
+                                           const StructPointerDecoder<Decoded_VkWin32SurfaceCreateInfoKHR>* pCreateInfo,
+                                           const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                           HandlePointerDecoder<VkSurfaceKHR>*                              pSurface);
 
     VkBool32
     OverrideGetPhysicalDeviceWin32PresentationSupportKHR(PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR func,
-                                                         VkPhysicalDevice physicalDevice,
-                                                         uint32_t         queueFamilyIndex);
+                                                         const PhysicalDeviceInfo* physical_device_info,
+                                                         uint32_t                  queueFamilyIndex);
 
-    VkResult OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR                 func,
-                                         VkResult                                  original_result,
-                                         VkInstance                                instance,
-                                         const VkXcbSurfaceCreateInfoKHR*          pCreateInfo,
-                                         const VkAllocationCallbacks*              pAllocator,
-                                         const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
-                                         VkSurfaceKHR*                             pSurface);
+    VkResult OverrideCreateXcbSurfaceKHR(PFN_vkCreateXcbSurfaceKHR                                      func,
+                                         VkResult                                                       original_result,
+                                         const InstanceInfo*                                            instance_info,
+                                         const StructPointerDecoder<Decoded_VkXcbSurfaceCreateInfoKHR>* pCreateInfo,
+                                         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*     pAllocator,
+                                         HandlePointerDecoder<VkSurfaceKHR>*                            pSurface);
 
     VkBool32 OverrideGetPhysicalDeviceXcbPresentationSupportKHR(PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR func,
-                                                                VkPhysicalDevice  physicalDevice,
-                                                                uint32_t          queueFamilyIndex,
-                                                                xcb_connection_t* connection,
-                                                                xcb_visualid_t    visual_id);
+                                                                const PhysicalDeviceInfo* physical_device_info,
+                                                                uint32_t                  queueFamilyIndex,
+                                                                xcb_connection_t*         connection,
+                                                                xcb_visualid_t            visual_id);
 
-    VkResult OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR                func,
-                                          VkResult                                  original_result,
-                                          VkInstance                                instance,
-                                          const VkXlibSurfaceCreateInfoKHR*         pCreateInfo,
-                                          const VkAllocationCallbacks*              pAllocator,
-                                          const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
-                                          VkSurfaceKHR*                             pSurface);
+    VkResult OverrideCreateXlibSurfaceKHR(PFN_vkCreateXlibSurfaceKHR func,
+                                          VkResult                   original_result,
+                                          const InstanceInfo*        instance_info,
+                                          const StructPointerDecoder<Decoded_VkXlibSurfaceCreateInfoKHR>* pCreateInfo,
+                                          const StructPointerDecoder<Decoded_VkAllocationCallbacks>*      pAllocator,
+                                          HandlePointerDecoder<VkSurfaceKHR>*                             pSurface);
 
     VkBool32 OverrideGetPhysicalDeviceXlibPresentationSupportKHR(PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR func,
-                                                                 VkPhysicalDevice physicalDevice,
-                                                                 uint32_t         queueFamilyIndex,
-                                                                 Display*         dpy,
-                                                                 VisualID         visualID);
+                                                                 const PhysicalDeviceInfo* physical_device_info,
+                                                                 uint32_t                  queueFamilyIndex,
+                                                                 Display*                  dpy,
+                                                                 VisualID                  visualID);
 
-    VkResult OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR             func,
-                                             VkResult                                  original_result,
-                                             VkInstance                                instance,
-                                             const VkWaylandSurfaceCreateInfoKHR*      pCreateInfo,
-                                             const VkAllocationCallbacks*              pAllocator,
-                                             const HandlePointerDecoder<VkSurfaceKHR>& original_surface,
-                                             VkSurfaceKHR*                             pSurface);
+    VkResult
+    OverrideCreateWaylandSurfaceKHR(PFN_vkCreateWaylandSurfaceKHR                                      func,
+                                    VkResult                                                           original_result,
+                                    const InstanceInfo*                                                instance_info,
+                                    const StructPointerDecoder<Decoded_VkWaylandSurfaceCreateInfoKHR>* pCreateInfo,
+                                    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*         pAllocator,
+                                    HandlePointerDecoder<VkSurfaceKHR>*                                pSurface);
 
     VkBool32
     OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR func,
-                                                           VkPhysicalDevice   physicalDevice,
-                                                           uint32_t           queueFamilyIndex,
-                                                           struct wl_display* display);
+                                                           const PhysicalDeviceInfo* physical_device_info,
+                                                           uint32_t                  queueFamilyIndex,
+                                                           struct wl_display*        display);
 
-    void OverrideDestroySurfaceKHR(PFN_vkDestroySurfaceKHR      func,
-                                   VkInstance                   instance,
-                                   VkSurfaceKHR                 surface,
-                                   const VkAllocationCallbacks* pAllocator);
+    void OverrideDestroySurfaceKHR(PFN_vkDestroySurfaceKHR                                    func,
+                                   const InstanceInfo*                                        instance_info,
+                                   const SurfaceKHRInfo*                                      surface_info,
+                                   const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
   private:
     void RaiseFatalError(const char* message) const;
@@ -497,23 +609,41 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     PFN_vkCreateDevice GetCreateDeviceProc(VkPhysicalDevice physical_device);
 
-    void ProcessPhysicalDeviceProperties(VkPhysicalDevice                  physical_device,
-                                         const VkPhysicalDeviceProperties* capture_properties,
-                                         const VkPhysicalDeviceProperties* replay_properties);
+    void SetPhysicalDeviceProperties(PhysicalDeviceInfo*               physical_device_info,
+                                     const VkPhysicalDeviceProperties* capture_properties,
+                                     const VkPhysicalDeviceProperties* replay_properties);
 
-    void OverridePhysicalDevice(VkPhysicalDevice* physical_device);
+    void SetPhysicalDeviceMemoryProperties(PhysicalDeviceInfo*                     physical_device_info,
+                                           const VkPhysicalDeviceMemoryProperties* capture_properties,
+                                           const VkPhysicalDeviceMemoryProperties* replay_properties);
 
-    bool CheckTrimDeviceExtensions(VkPhysicalDevice physical_device, std::vector<std::string>** extensions);
+    // Can override PhysicalDeviceInfo::handle and PhysicalDeviceInfo::replay_device_info based on comparison between
+    // capture and replay physical device properties or GPU override settings.
+    void SelectPhysicalDevice(PhysicalDeviceInfo* physical_device_info);
 
-    VkResult CreateSurface(VkInstance instance, VkFlags flags, VkSurfaceKHR* surface);
+    bool GetOverrideDevice(InstanceInfo* instance_info, PhysicalDeviceInfo* physical_device_info);
 
-    void MapDescriptorUpdateTemplateHandles(VkDescriptorUpdateTemplate             update_template,
-                                            const DescriptorUpdateTemplateDecoder& decoder);
+    void GetMatchingDevice(InstanceInfo* instance_info, PhysicalDeviceInfo* physical_device_info);
+
+    void CheckPhysicalDeviceCompatibility(PhysicalDeviceInfo* physical_device_info);
+
+    bool CheckTrimDeviceExtensions(VkPhysicalDevice physical_device, std::vector<std::string>* extensions);
+
+    void InitializeResourceAllocator(const PhysicalDeviceInfo*       physical_device_info,
+                                     VkDevice                        device,
+                                     const std::vector<std::string>& enabled_device_extensions,
+                                     VulkanResourceAllocator*        allocator);
+
+    VkResult CreateSurface(VkInstance instance, VkFlags flags, HandlePointerDecoder<VkSurfaceKHR>* surface);
+
+    void MapDescriptorUpdateTemplateHandles(const DescriptorUpdateTemplateInfo* update_template_info,
+                                            DescriptorUpdateTemplateDecoder*    decoder);
 
     // When processing swapchain image state for the trimming state setup, acquire all swapchain images to transition to
     // the expected layout and keep them acquired until first use.
     void ProcessSetSwapchainImageStatePreAcquire(VkDevice                                            device,
                                                  VkSwapchainKHR                                      swapchain,
+                                                 uint32_t                                            queue_family_index,
                                                  const std::vector<format::SwapchainImageStateInfo>& image_info);
 
     // When processing swapchain image state for the trimming state setup, acquire an image, transition it to
@@ -521,66 +651,40 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     // no more than one image is acquired at a time.
     void ProcessSetSwapchainImageStateQueueSubmit(VkDevice       device,
                                                   VkSwapchainKHR swapchain,
+                                                  uint32_t       queue_family_index,
                                                   uint32_t       last_presented_image,
                                                   const std::vector<format::SwapchainImageStateInfo>& image_info);
 
+    void ProcessSwapchainFullScreenExclusiveInfo(const Decoded_VkSwapchainCreateInfoKHR* swapchain_info);
+
+    void ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info);
+
   private:
-    struct InstanceDevices
+    typedef std::unordered_set<Window*> ActiveWindows;
+
+    struct HardwareBufferInfo
     {
-        std::vector<format::HandleId> capture_devices;
-        std::vector<VkPhysicalDevice> replay_devices;
+        format::HandleId memory_id;
+        AHardwareBuffer* hardware_buffer;
     };
 
-    struct PhysicalDeviceProperties
+    struct HardwareBufferPlaneInfo
     {
-        VkPhysicalDeviceProperties capture_properties;
-        VkPhysicalDeviceProperties replay_properties;
+        uint64_t capture_offset;
+        uint64_t replay_offset;
+        uint32_t capture_row_pitch;
+        uint32_t replay_row_pitch;
     };
 
-    typedef std::unordered_map<VkSurfaceKHR, Window*>                      WindowMap;
-    typedef std::unordered_map<VkDeviceMemory, void*>                      MappedMemoryMap;
-    typedef std::unordered_map<VkInstance, InstanceDevices>                InstanceDeviceMap;
-    typedef std::unordered_map<VkPhysicalDevice, PhysicalDeviceProperties> PhysicalDevicePropertiesMap;
-
-    // Map the descriptor update template handle ID read from the capture file to an array of descriptor image types.
-    typedef std::vector<VkDescriptorType>                                        DescriptorImageTypes;
-    typedef std::unordered_map<VkDescriptorUpdateTemplate, DescriptorImageTypes> DescriptorUpdateTemplateImageTypes;
-
-    struct BufferInfo
+    struct HardwareBufferMemoryInfo
     {
-        VkDeviceMemory        memory;
-        VkMemoryPropertyFlags memory_property_flags;
-        VkDeviceSize          bind_offset;
-        VkBufferUsageFlags    usage;
-        uint32_t              queue_family_index;
+        AHardwareBuffer*                     hardware_buffer;
+        bool                                 compatible_strides;
+        std::vector<HardwareBufferPlaneInfo> plane_info;
     };
 
-    struct ImageInfo
-    {
-        VkDeviceMemory        memory;
-        VkMemoryPropertyFlags memory_property_flags;
-        VkDeviceSize          bind_offset;
-        VkImageUsageFlags     usage;
-        VkImageType           type;
-        VkFormat              format;
-        VkExtent3D            extent;
-        VkImageTiling         tiling;
-        VkSampleCountFlagBits sample_count;
-        VkImageLayout         initial_layout;
-        uint32_t              layer_count;
-        uint32_t              level_count;
-        uint32_t              queue_family_index;
-    };
-
-    // TODO: Put this info in a struct with the handle, to be stored by the object mapper.
-    typedef std::unordered_map<VkDevice, VkPhysicalDevice>                           DeviceParentMap;
-    typedef std::unordered_map<VkDevice, std::unique_ptr<VulkanResourceInitializer>> ResourceInitializerMap;
-    typedef std::unordered_map<VkSwapchainKHR, uint32_t>                             SwapchainQueueFamilyIndexMap;
-    typedef std::unordered_map<VkSwapchainKHR, VkSurfaceKHR>                         SwapchainSurfaceMap;
-    typedef std::unordered_map<VkDeviceMemory, VkMemoryPropertyFlags>                MemoryPropertyMap;
-    typedef std::unordered_map<VkBuffer, BufferInfo>                                 BufferInfoMap;
-    typedef std::unordered_map<VkImage, ImageInfo>                                   ImageInfoMap;
-    typedef std::unordered_map<VkPhysicalDevice, std::vector<std::string>>           AvailableTrimDeviceExtensionMap;
+    typedef std::unordered_map<uint64_t, HardwareBufferInfo>               HardwareBufferMap;
+    typedef std::unordered_map<format::HandleId, HardwareBufferMemoryInfo> HardwareBufferMemoryMap;
 
   private:
     util::platform::LibraryHandle                                    loader_handle_;
@@ -592,23 +696,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<encode::DispatchKey, encode::DeviceTable>     device_tables_;
     std::function<void(const char*)>                                 fatal_error_handler_;
     WindowFactory*                                                   window_factory_;
-    VulkanObjectMapper                                               object_mapper_;
-    WindowMap                                                        window_map_;
-    MappedMemoryMap                                                  memory_map_;
+    VulkanObjectInfoTable                                            object_info_table_;
+    ActiveWindows                                                    active_windows_;
     ReplayOptions                                                    options_;
     bool                                                             loading_trim_state_;
-    InstanceDeviceMap                                                instance_devices_;
-    PhysicalDevicePropertiesMap                                      device_properties_;
-    DescriptorUpdateTemplateImageTypes                               descriptor_update_template_image_types_;
     SwapchainImageTracker                                            swapchain_image_tracker_;
-    DeviceParentMap                                                  device_parents_;
-    ResourceInitializerMap                                           resource_initializers_;
-    SwapchainQueueFamilyIndexMap                                     swapchain_queue_families_;
-    SwapchainSurfaceMap                                              swapchain_surfaces_;
-    MemoryPropertyMap                                                memory_properties_;
-    BufferInfoMap                                                    buffer_info_;
-    ImageInfoMap                                                     image_info_;
-    AvailableTrimDeviceExtensionMap                                  trim_device_extensions_;
+    HardwareBufferMap                                                hardware_buffers_;
+    HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -71,6 +71,76 @@ void VulkanDecoderBase::DispatchResizeWindowCommand(format::ThreadId thread_id,
     for (auto consumer : consumers_)
     {
         consumer->ProcessResizeWindowCommand(surface_id, width, height);
+    }
+}
+
+void VulkanDecoderBase::DispatchCreateHardwareBufferCommand(
+    format::ThreadId                                    thread_id,
+    format::HandleId                                    memory_id,
+    uint64_t                                            buffer_id,
+    uint32_t                                            format,
+    uint32_t                                            width,
+    uint32_t                                            height,
+    uint32_t                                            stride,
+    uint32_t                                            usage,
+    uint32_t                                            layers,
+    const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessCreateHardwareBufferCommand(
+            memory_id, buffer_id, format, width, height, stride, usage, layers, plane_info);
+    }
+}
+
+void VulkanDecoderBase::DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessDestroyHardwareBufferCommand(buffer_id);
+    }
+}
+
+void VulkanDecoderBase::DispatchSetDevicePropertiesCommand(format::ThreadId   thread_id,
+                                                           format::HandleId   physical_device_id,
+                                                           uint32_t           api_version,
+                                                           uint32_t           driver_version,
+                                                           uint32_t           vendor_id,
+                                                           uint32_t           device_id,
+                                                           uint32_t           device_type,
+                                                           const uint8_t      pipeline_cache_uuid[format::kUuidSize],
+                                                           const std::string& device_name)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetDevicePropertiesCommand(physical_device_id,
+                                                    api_version,
+                                                    driver_version,
+                                                    vendor_id,
+                                                    device_id,
+                                                    device_type,
+                                                    pipeline_cache_uuid,
+                                                    device_name);
+    }
+}
+
+void VulkanDecoderBase::DispatchSetDeviceMemoryPropertiesCommand(
+    format::ThreadId                             thread_id,
+    format::HandleId                             physical_device_id,
+    const std::vector<format::DeviceMemoryType>& memory_types,
+    const std::vector<format::DeviceMemoryHeap>& memory_heaps)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetDeviceMemoryPropertiesCommand(physical_device_id, memory_types, memory_heaps);
     }
 }
 
@@ -162,7 +232,7 @@ size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplate(const uint8_t
 
     for (auto consumer : consumers_)
     {
-        consumer->Process_vkUpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, pData);
+        consumer->Process_vkUpdateDescriptorSetWithTemplate(device, descriptorSet, descriptorUpdateTemplate, &pData);
     }
 
     return bytes_read;
@@ -191,7 +261,7 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const uin
     for (auto consumer : consumers_)
     {
         consumer->Process_vkCmdPushDescriptorSetWithTemplateKHR(
-            commandBuffer, descriptorUpdateTemplate, layout, set, pData);
+            commandBuffer, descriptorUpdateTemplate, layout, set, &pData);
     }
 
     return bytes_read;
@@ -217,38 +287,7 @@ size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplateKHR(const uint
 
     for (auto consumer : consumers_)
     {
-        consumer->Process_vkUpdateDescriptorSetWithTemplateKHR(device, descriptorSet, descriptorUpdateTemplate, pData);
-    }
-
-    return bytes_read;
-}
-
-size_t VulkanDecoderBase::Decode_vkRegisterObjectsNVX(const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId                                    device;
-    format::HandleId                                    objectTable;
-    uint32_t                                            objectCount;
-    StructPointerDecoder<Decoded_VkObjectTableEntryNVX> ppObjectTableEntries;
-    PointerDecoder<uint32_t>                            pObjectIndices;
-    VkResult                                            return_value;
-
-    bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
-    bytes_read +=
-        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectTable);
-    bytes_read +=
-        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &objectCount);
-    bytes_read += ppObjectTableEntries.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += pObjectIndices.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read +=
-        ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : consumers_)
-    {
-        consumer->Process_vkRegisterObjectsNVX(
-            return_value, device, objectTable, objectCount, ppObjectTableEntries, pObjectIndices);
+        consumer->Process_vkUpdateDescriptorSetWithTemplateKHR(device, descriptorSet, descriptorUpdateTemplate, &pData);
     }
 
     return bytes_read;
@@ -271,9 +310,6 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
             break;
         case format::ApiCallId::ApiCall_vkUpdateDescriptorSetWithTemplateKHR:
             Decode_vkUpdateDescriptorSetWithTemplateKHR(parameter_buffer, buffer_size);
-            break;
-        case format::ApiCallId::ApiCall_vkRegisterObjectsNVX:
-            Decode_vkRegisterObjectsNVX(parameter_buffer, buffer_size);
             break;
         default:
             break;

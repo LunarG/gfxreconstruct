@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018,2020 Valve Corporation
+** Copyright (c) 2018,2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,37 +30,28 @@ size_t Lz4Compressor::Compress(const size_t          uncompressed_size,
 {
     size_t copy_size = 0;
 
-    try
+    if (nullptr == compressed_data)
     {
-        if (nullptr == compressed_data)
-        {
-            return 0;
-        }
-
-        LZ4_stream_t lz4_stream;
-        LZ4_resetStream(&lz4_stream);
-        size_t lz4_compressed_size = LZ4_COMPRESSBOUND(uncompressed_size);
-
-        if (lz4_compressed_size > compressed_data->size())
-        {
-            compressed_data->resize(lz4_compressed_size);
-        }
-
-        const size_t compressed_size_generated =
-            LZ4_compress_fast_continue(&lz4_stream,
-                                       reinterpret_cast<const char*>(uncompressed_data),
-                                       reinterpret_cast<char*>(compressed_data->data()),
-                                       static_cast<const int32_t>(uncompressed_size),
-                                       static_cast<int32_t>(lz4_compressed_size),
-                                       1);
-
-        if (compressed_size_generated > 0)
-        {
-            copy_size = compressed_size_generated;
-        }
+        return 0;
     }
-    catch (...)
-    {}
+
+    size_t lz4_compressed_size = LZ4_COMPRESSBOUND(uncompressed_size);
+
+    if (lz4_compressed_size > compressed_data->size())
+    {
+        compressed_data->resize(lz4_compressed_size);
+    }
+
+    int compressed_size_generated = LZ4_compress_fast(reinterpret_cast<const char*>(uncompressed_data),
+                                                      reinterpret_cast<char*>(compressed_data->data()),
+                                                      static_cast<const int32_t>(uncompressed_size),
+                                                      static_cast<int32_t>(lz4_compressed_size),
+                                                      1);
+
+    if (compressed_size_generated > 0)
+    {
+        copy_size = compressed_size_generated;
+    }
 
     return copy_size;
 }
@@ -72,29 +63,20 @@ size_t Lz4Compressor::Decompress(const size_t                compressed_size,
 {
     size_t copy_size = 0;
 
-    try
+    if (nullptr == uncompressed_data)
     {
-        if (nullptr == uncompressed_data)
-        {
-            return 0;
-        }
-
-        LZ4_streamDecode_t lz4_stream_decode;
-        LZ4_setStreamDecode(&lz4_stream_decode, NULL, 0);
-        const int uncompressed_size_generated =
-            LZ4_decompress_safe_continue(&lz4_stream_decode,
-                                         reinterpret_cast<const char*>(compressed_data.data()),
-                                         reinterpret_cast<char*>(uncompressed_data->data()),
-                                         static_cast<int32_t>(compressed_size),
-                                         static_cast<int32_t>(expected_uncompressed_size));
-
-        if (uncompressed_size_generated > 0)
-        {
-            copy_size = uncompressed_size_generated;
-        }
+        return 0;
     }
-    catch (...)
-    {}
+
+    int uncompressed_size_generated = LZ4_decompress_safe(reinterpret_cast<const char*>(compressed_data.data()),
+                                                          reinterpret_cast<char*>(uncompressed_data->data()),
+                                                          static_cast<int32_t>(compressed_size),
+                                                          static_cast<int32_t>(expected_uncompressed_size));
+
+    if (uncompressed_size_generated > 0)
+    {
+        copy_size = uncompressed_size_generated;
+    }
 
     return copy_size;
 }

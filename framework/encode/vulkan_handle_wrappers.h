@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
+#include "util/page_guard_manager.h"
 
 #include "vulkan/vulkan.h"
 
@@ -67,8 +68,10 @@ struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbc
 struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
 struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
 struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
-struct IndirectCommandsLayoutNVXWrapper     : public HandleWrapper<VkIndirectCommandsLayoutNVX> {};
+struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
 struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
+struct DeferredOperationKHRWrapper          : public HandleWrapper<VkDeferredOperationKHR> {};
+struct PrivateDataSlotEXTWrapper            : public HandleWrapper<VkPrivateDataSlotEXT> {};
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
@@ -95,7 +98,7 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
     std::vector<DisplayKHRWrapper*> child_displays;
 
     // Track memory types for use when creating snapshots of buffer and image resource memory content.
-    std::vector<VkMemoryType> memory_types;
+    VkPhysicalDeviceMemoryProperties memory_properties{};
 
     // Track queue family properties retrieval call data to write to state snapshot after physical device creation.
     // The queue family data is only written to the state snapshot if the application made the API call to retrieve it.
@@ -110,6 +113,7 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 {
     InstanceTable                       layer_table;
     std::vector<PhysicalDeviceWrapper*> child_physical_devices;
+    bool                                have_device_properties{ false };
 };
 
 struct QueueWrapper : public HandleWrapper<VkQueue>
@@ -147,6 +151,9 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     VkDeviceSize     mapped_size{ 0 };
     VkMemoryMapFlags mapped_flags{ 0 };
     void*            external_allocation{ nullptr };
+    uintptr_t        shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
+    AHardwareBuffer* hardware_buffer{ nullptr };
+    format::HandleId hardware_buffer_memory_id{ 0 };
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
@@ -264,16 +271,10 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
-    std::vector<CreateDependencyInfo> shader_modules;
-
-    format::HandleId  render_pass_id{ 0 };
-    format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };
-    CreateParameters  render_pass_create_parameters;
-
-    format::HandleId                            layout_id{ 0 };
-    format::ApiCallId                           layout_create_call_id{ format::ApiCallId::ApiCall_Unknown };
-    CreateParameters                            layout_create_parameters;
-    std::shared_ptr<PipelineLayoutDependencies> layout_dependencies;
+    std::vector<CreateDependencyInfo>           shader_module_dependencies;
+    CreateDependencyInfo                        render_pass_dependency;
+    CreateDependencyInfo                        layout_dependency;
+    std::shared_ptr<PipelineLayoutDependencies> layout_dependencies; // Shared with PipelineLayoutWrapper
 
     // TODO: Base pipeline
     // TODO: Pipeline cache
@@ -303,6 +304,10 @@ struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
 
     // Map for descriptor binding index to array of descriptor info.
     std::unordered_map<uint32_t, DescriptorInfo> bindings;
+
+    // Creation info for objects used to allocate the descriptor set, which may have been destroyed after descriptor set
+    // allocation.
+    CreateDependencyInfo set_layout_dependency;
 };
 
 struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
@@ -349,7 +354,7 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     std::vector<ImageAcquiredInfo> image_acquired_info;
 };
 
-struct ObjectTableNVXWrapper : public HandleWrapper<VkObjectTableNVX>
+struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
 {
     // TODO: Determine what additional state tracking is needed.
 };
@@ -360,8 +365,8 @@ struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStruc
 };
 
 // Handle alias types for extension handle types that have been promoted to core types.
-typedef VkSamplerYcbcrConversionKHR   SamplerYcbcrConversionKHRWrapper;
-typedef VkDescriptorUpdateTemplateKHR DescriptorUpdateTemplateKHRWrapper;
+typedef SamplerYcbcrConversionWrapper   SamplerYcbcrConversionKHRWrapper;
+typedef DescriptorUpdateTemplateWrapper DescriptorUpdateTemplateKHRWrapper;
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

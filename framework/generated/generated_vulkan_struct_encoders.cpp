@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -1732,6 +1732,614 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderDrawPar
     encoder->EncodeVkBool32Value(value.shaderDrawParameters);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVulkan11Features& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.storageBuffer16BitAccess);
+    encoder->EncodeVkBool32Value(value.uniformAndStorageBuffer16BitAccess);
+    encoder->EncodeVkBool32Value(value.storagePushConstant16);
+    encoder->EncodeVkBool32Value(value.storageInputOutput16);
+    encoder->EncodeVkBool32Value(value.multiview);
+    encoder->EncodeVkBool32Value(value.multiviewGeometryShader);
+    encoder->EncodeVkBool32Value(value.multiviewTessellationShader);
+    encoder->EncodeVkBool32Value(value.variablePointersStorageBuffer);
+    encoder->EncodeVkBool32Value(value.variablePointers);
+    encoder->EncodeVkBool32Value(value.protectedMemory);
+    encoder->EncodeVkBool32Value(value.samplerYcbcrConversion);
+    encoder->EncodeVkBool32Value(value.shaderDrawParameters);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVulkan11Properties& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt8Array(value.deviceUUID, VK_UUID_SIZE);
+    encoder->EncodeUInt8Array(value.driverUUID, VK_UUID_SIZE);
+    encoder->EncodeUInt8Array(value.deviceLUID, VK_LUID_SIZE);
+    encoder->EncodeUInt32Value(value.deviceNodeMask);
+    encoder->EncodeVkBool32Value(value.deviceLUIDValid);
+    encoder->EncodeUInt32Value(value.subgroupSize);
+    encoder->EncodeFlagsValue(value.subgroupSupportedStages);
+    encoder->EncodeFlagsValue(value.subgroupSupportedOperations);
+    encoder->EncodeVkBool32Value(value.subgroupQuadOperationsInAllStages);
+    encoder->EncodeEnumValue(value.pointClippingBehavior);
+    encoder->EncodeUInt32Value(value.maxMultiviewViewCount);
+    encoder->EncodeUInt32Value(value.maxMultiviewInstanceIndex);
+    encoder->EncodeVkBool32Value(value.protectedNoFault);
+    encoder->EncodeUInt32Value(value.maxPerSetDescriptors);
+    encoder->EncodeVkDeviceSizeValue(value.maxMemoryAllocationSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVulkan12Features& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.samplerMirrorClampToEdge);
+    encoder->EncodeVkBool32Value(value.drawIndirectCount);
+    encoder->EncodeVkBool32Value(value.storageBuffer8BitAccess);
+    encoder->EncodeVkBool32Value(value.uniformAndStorageBuffer8BitAccess);
+    encoder->EncodeVkBool32Value(value.storagePushConstant8);
+    encoder->EncodeVkBool32Value(value.shaderBufferInt64Atomics);
+    encoder->EncodeVkBool32Value(value.shaderSharedInt64Atomics);
+    encoder->EncodeVkBool32Value(value.shaderFloat16);
+    encoder->EncodeVkBool32Value(value.shaderInt8);
+    encoder->EncodeVkBool32Value(value.descriptorIndexing);
+    encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayDynamicIndexing);
+    encoder->EncodeVkBool32Value(value.shaderUniformTexelBufferArrayDynamicIndexing);
+    encoder->EncodeVkBool32Value(value.shaderStorageTexelBufferArrayDynamicIndexing);
+    encoder->EncodeVkBool32Value(value.shaderUniformBufferArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderSampledImageArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderStorageBufferArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderStorageImageArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderUniformTexelBufferArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderStorageTexelBufferArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.descriptorBindingUniformBufferUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingSampledImageUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingStorageImageUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingStorageBufferUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingUniformTexelBufferUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingStorageTexelBufferUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingUpdateUnusedWhilePending);
+    encoder->EncodeVkBool32Value(value.descriptorBindingPartiallyBound);
+    encoder->EncodeVkBool32Value(value.descriptorBindingVariableDescriptorCount);
+    encoder->EncodeVkBool32Value(value.runtimeDescriptorArray);
+    encoder->EncodeVkBool32Value(value.samplerFilterMinmax);
+    encoder->EncodeVkBool32Value(value.scalarBlockLayout);
+    encoder->EncodeVkBool32Value(value.imagelessFramebuffer);
+    encoder->EncodeVkBool32Value(value.uniformBufferStandardLayout);
+    encoder->EncodeVkBool32Value(value.shaderSubgroupExtendedTypes);
+    encoder->EncodeVkBool32Value(value.separateDepthStencilLayouts);
+    encoder->EncodeVkBool32Value(value.hostQueryReset);
+    encoder->EncodeVkBool32Value(value.timelineSemaphore);
+    encoder->EncodeVkBool32Value(value.bufferDeviceAddress);
+    encoder->EncodeVkBool32Value(value.bufferDeviceAddressCaptureReplay);
+    encoder->EncodeVkBool32Value(value.bufferDeviceAddressMultiDevice);
+    encoder->EncodeVkBool32Value(value.vulkanMemoryModel);
+    encoder->EncodeVkBool32Value(value.vulkanMemoryModelDeviceScope);
+    encoder->EncodeVkBool32Value(value.vulkanMemoryModelAvailabilityVisibilityChains);
+    encoder->EncodeVkBool32Value(value.shaderOutputViewportIndex);
+    encoder->EncodeVkBool32Value(value.shaderOutputLayer);
+    encoder->EncodeVkBool32Value(value.subgroupBroadcastDynamicId);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkConformanceVersion& value)
+{
+    encoder->EncodeUInt8Value(value.major);
+    encoder->EncodeUInt8Value(value.minor);
+    encoder->EncodeUInt8Value(value.subminor);
+    encoder->EncodeUInt8Value(value.patch);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVulkan12Properties& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.driverID);
+    encoder->EncodeString(value.driverName);
+    encoder->EncodeString(value.driverInfo);
+    EncodeStruct(encoder, value.conformanceVersion);
+    encoder->EncodeEnumValue(value.denormBehaviorIndependence);
+    encoder->EncodeEnumValue(value.roundingModeIndependence);
+    encoder->EncodeVkBool32Value(value.shaderSignedZeroInfNanPreserveFloat16);
+    encoder->EncodeVkBool32Value(value.shaderSignedZeroInfNanPreserveFloat32);
+    encoder->EncodeVkBool32Value(value.shaderSignedZeroInfNanPreserveFloat64);
+    encoder->EncodeVkBool32Value(value.shaderDenormPreserveFloat16);
+    encoder->EncodeVkBool32Value(value.shaderDenormPreserveFloat32);
+    encoder->EncodeVkBool32Value(value.shaderDenormPreserveFloat64);
+    encoder->EncodeVkBool32Value(value.shaderDenormFlushToZeroFloat16);
+    encoder->EncodeVkBool32Value(value.shaderDenormFlushToZeroFloat32);
+    encoder->EncodeVkBool32Value(value.shaderDenormFlushToZeroFloat64);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTEFloat16);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTEFloat32);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTEFloat64);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTZFloat16);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTZFloat32);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTZFloat64);
+    encoder->EncodeUInt32Value(value.maxUpdateAfterBindDescriptorsInAllPools);
+    encoder->EncodeVkBool32Value(value.shaderUniformBufferArrayNonUniformIndexingNative);
+    encoder->EncodeVkBool32Value(value.shaderSampledImageArrayNonUniformIndexingNative);
+    encoder->EncodeVkBool32Value(value.shaderStorageBufferArrayNonUniformIndexingNative);
+    encoder->EncodeVkBool32Value(value.shaderStorageImageArrayNonUniformIndexingNative);
+    encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayNonUniformIndexingNative);
+    encoder->EncodeVkBool32Value(value.robustBufferAccessUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.quadDivergentImplicitLod);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindSamplers);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindUniformBuffers);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindStorageBuffers);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindSampledImages);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindStorageImages);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindInputAttachments);
+    encoder->EncodeUInt32Value(value.maxPerStageUpdateAfterBindResources);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindSamplers);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindUniformBuffers);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindUniformBuffersDynamic);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageBuffers);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageBuffersDynamic);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindSampledImages);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageImages);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindInputAttachments);
+    encoder->EncodeFlagsValue(value.supportedDepthResolveModes);
+    encoder->EncodeFlagsValue(value.supportedStencilResolveModes);
+    encoder->EncodeVkBool32Value(value.independentResolveNone);
+    encoder->EncodeVkBool32Value(value.independentResolve);
+    encoder->EncodeVkBool32Value(value.filterMinmaxSingleComponentFormats);
+    encoder->EncodeVkBool32Value(value.filterMinmaxImageComponentMapping);
+    encoder->EncodeUInt64Value(value.maxTimelineSemaphoreValueDifference);
+    encoder->EncodeFlagsValue(value.framebufferIntegerColorSampleCounts);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageFormatListCreateInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.viewFormatCount);
+    encoder->EncodeEnumArray(value.pViewFormats, value.viewFormatCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentDescription2& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeEnumValue(value.format);
+    encoder->EncodeEnumValue(value.samples);
+    encoder->EncodeEnumValue(value.loadOp);
+    encoder->EncodeEnumValue(value.storeOp);
+    encoder->EncodeEnumValue(value.stencilLoadOp);
+    encoder->EncodeEnumValue(value.stencilStoreOp);
+    encoder->EncodeEnumValue(value.initialLayout);
+    encoder->EncodeEnumValue(value.finalLayout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentReference2& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.attachment);
+    encoder->EncodeEnumValue(value.layout);
+    encoder->EncodeFlagsValue(value.aspectMask);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDescription2& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeEnumValue(value.pipelineBindPoint);
+    encoder->EncodeUInt32Value(value.viewMask);
+    encoder->EncodeUInt32Value(value.inputAttachmentCount);
+    EncodeStructArray(encoder, value.pInputAttachments, value.inputAttachmentCount);
+    encoder->EncodeUInt32Value(value.colorAttachmentCount);
+    EncodeStructArray(encoder, value.pColorAttachments, value.colorAttachmentCount);
+    EncodeStructArray(encoder, value.pResolveAttachments, value.colorAttachmentCount);
+    EncodeStructPtr(encoder, value.pDepthStencilAttachment);
+    encoder->EncodeUInt32Value(value.preserveAttachmentCount);
+    encoder->EncodeUInt32Array(value.pPreserveAttachments, value.preserveAttachmentCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDependency2& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.srcSubpass);
+    encoder->EncodeUInt32Value(value.dstSubpass);
+    encoder->EncodeFlagsValue(value.srcStageMask);
+    encoder->EncodeFlagsValue(value.dstStageMask);
+    encoder->EncodeFlagsValue(value.srcAccessMask);
+    encoder->EncodeFlagsValue(value.dstAccessMask);
+    encoder->EncodeFlagsValue(value.dependencyFlags);
+    encoder->EncodeInt32Value(value.viewOffset);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreateInfo2& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt32Value(value.attachmentCount);
+    EncodeStructArray(encoder, value.pAttachments, value.attachmentCount);
+    encoder->EncodeUInt32Value(value.subpassCount);
+    EncodeStructArray(encoder, value.pSubpasses, value.subpassCount);
+    encoder->EncodeUInt32Value(value.dependencyCount);
+    EncodeStructArray(encoder, value.pDependencies, value.dependencyCount);
+    encoder->EncodeUInt32Value(value.correlatedViewMaskCount);
+    encoder->EncodeUInt32Array(value.pCorrelatedViewMasks, value.correlatedViewMaskCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSubpassBeginInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.contents);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSubpassEndInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevice8BitStorageFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.storageBuffer8BitAccess);
+    encoder->EncodeVkBool32Value(value.uniformAndStorageBuffer8BitAccess);
+    encoder->EncodeVkBool32Value(value.storagePushConstant8);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDriverProperties& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.driverID);
+    encoder->EncodeString(value.driverName);
+    encoder->EncodeString(value.driverInfo);
+    EncodeStruct(encoder, value.conformanceVersion);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicInt64Features& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderBufferInt64Atomics);
+    encoder->EncodeVkBool32Value(value.shaderSharedInt64Atomics);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderFloat16Int8Features& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderFloat16);
+    encoder->EncodeVkBool32Value(value.shaderInt8);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFloatControlsProperties& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.denormBehaviorIndependence);
+    encoder->EncodeEnumValue(value.roundingModeIndependence);
+    encoder->EncodeVkBool32Value(value.shaderSignedZeroInfNanPreserveFloat16);
+    encoder->EncodeVkBool32Value(value.shaderSignedZeroInfNanPreserveFloat32);
+    encoder->EncodeVkBool32Value(value.shaderSignedZeroInfNanPreserveFloat64);
+    encoder->EncodeVkBool32Value(value.shaderDenormPreserveFloat16);
+    encoder->EncodeVkBool32Value(value.shaderDenormPreserveFloat32);
+    encoder->EncodeVkBool32Value(value.shaderDenormPreserveFloat64);
+    encoder->EncodeVkBool32Value(value.shaderDenormFlushToZeroFloat16);
+    encoder->EncodeVkBool32Value(value.shaderDenormFlushToZeroFloat32);
+    encoder->EncodeVkBool32Value(value.shaderDenormFlushToZeroFloat64);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTEFloat16);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTEFloat32);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTEFloat64);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTZFloat16);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTZFloat32);
+    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTZFloat64);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutBindingFlagsCreateInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.bindingCount);
+    encoder->EncodeFlagsArray(value.pBindingFlags, value.bindingCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIndexingFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayDynamicIndexing);
+    encoder->EncodeVkBool32Value(value.shaderUniformTexelBufferArrayDynamicIndexing);
+    encoder->EncodeVkBool32Value(value.shaderStorageTexelBufferArrayDynamicIndexing);
+    encoder->EncodeVkBool32Value(value.shaderUniformBufferArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderSampledImageArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderStorageBufferArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderStorageImageArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderUniformTexelBufferArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.shaderStorageTexelBufferArrayNonUniformIndexing);
+    encoder->EncodeVkBool32Value(value.descriptorBindingUniformBufferUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingSampledImageUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingStorageImageUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingStorageBufferUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingUniformTexelBufferUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingStorageTexelBufferUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.descriptorBindingUpdateUnusedWhilePending);
+    encoder->EncodeVkBool32Value(value.descriptorBindingPartiallyBound);
+    encoder->EncodeVkBool32Value(value.descriptorBindingVariableDescriptorCount);
+    encoder->EncodeVkBool32Value(value.runtimeDescriptorArray);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIndexingProperties& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxUpdateAfterBindDescriptorsInAllPools);
+    encoder->EncodeVkBool32Value(value.shaderUniformBufferArrayNonUniformIndexingNative);
+    encoder->EncodeVkBool32Value(value.shaderSampledImageArrayNonUniformIndexingNative);
+    encoder->EncodeVkBool32Value(value.shaderStorageBufferArrayNonUniformIndexingNative);
+    encoder->EncodeVkBool32Value(value.shaderStorageImageArrayNonUniformIndexingNative);
+    encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayNonUniformIndexingNative);
+    encoder->EncodeVkBool32Value(value.robustBufferAccessUpdateAfterBind);
+    encoder->EncodeVkBool32Value(value.quadDivergentImplicitLod);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindSamplers);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindUniformBuffers);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindStorageBuffers);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindSampledImages);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindStorageImages);
+    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindInputAttachments);
+    encoder->EncodeUInt32Value(value.maxPerStageUpdateAfterBindResources);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindSamplers);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindUniformBuffers);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindUniformBuffersDynamic);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageBuffers);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageBuffersDynamic);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindSampledImages);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageImages);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindInputAttachments);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountAllocateInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.descriptorSetCount);
+    encoder->EncodeUInt32Array(value.pDescriptorCounts, value.descriptorSetCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountLayoutSupport& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxVariableDescriptorCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDescriptionDepthStencilResolve& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.depthResolveMode);
+    encoder->EncodeEnumValue(value.stencilResolveMode);
+    EncodeStructPtr(encoder, value.pDepthStencilResolveAttachment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthStencilResolveProperties& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.supportedDepthResolveModes);
+    encoder->EncodeFlagsValue(value.supportedStencilResolveModes);
+    encoder->EncodeVkBool32Value(value.independentResolveNone);
+    encoder->EncodeVkBool32Value(value.independentResolve);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceScalarBlockLayoutFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.scalarBlockLayout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageStencilUsageCreateInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.stencilUsage);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSamplerReductionModeCreateInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.reductionMode);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSamplerFilterMinmaxProperties& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.filterMinmaxSingleComponentFormats);
+    encoder->EncodeVkBool32Value(value.filterMinmaxImageComponentMapping);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVulkanMemoryModelFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.vulkanMemoryModel);
+    encoder->EncodeVkBool32Value(value.vulkanMemoryModelDeviceScope);
+    encoder->EncodeVkBool32Value(value.vulkanMemoryModelAvailabilityVisibilityChains);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImagelessFramebufferFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.imagelessFramebuffer);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkFramebufferAttachmentImageInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeFlagsValue(value.usage);
+    encoder->EncodeUInt32Value(value.width);
+    encoder->EncodeUInt32Value(value.height);
+    encoder->EncodeUInt32Value(value.layerCount);
+    encoder->EncodeUInt32Value(value.viewFormatCount);
+    encoder->EncodeEnumArray(value.pViewFormats, value.viewFormatCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkFramebufferAttachmentsCreateInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.attachmentImageInfoCount);
+    EncodeStructArray(encoder, value.pAttachmentImageInfos, value.attachmentImageInfoCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassAttachmentBeginInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.attachmentCount);
+    encoder->EncodeHandleArray(value.pAttachments, value.attachmentCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceUniformBufferStandardLayoutFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.uniformBufferStandardLayout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderSubgroupExtendedTypes);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.separateDepthStencilLayouts);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentReferenceStencilLayout& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.stencilLayout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentDescriptionStencilLayout& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.stencilInitialLayout);
+    encoder->EncodeEnumValue(value.stencilFinalLayout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostQueryResetFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.hostQueryReset);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTimelineSemaphoreFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.timelineSemaphore);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTimelineSemaphoreProperties& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.maxTimelineSemaphoreValueDifference);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreTypeCreateInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.semaphoreType);
+    encoder->EncodeUInt64Value(value.initialValue);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkTimelineSemaphoreSubmitInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.waitSemaphoreValueCount);
+    encoder->EncodeUInt64Array(value.pWaitSemaphoreValues, value.waitSemaphoreValueCount);
+    encoder->EncodeUInt32Value(value.signalSemaphoreValueCount);
+    encoder->EncodeUInt64Array(value.pSignalSemaphoreValues, value.signalSemaphoreValueCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreWaitInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt32Value(value.semaphoreCount);
+    encoder->EncodeHandleArray(value.pSemaphores, value.semaphoreCount);
+    encoder->EncodeUInt64Array(value.pValues, value.semaphoreCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreSignalInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.semaphore);
+    encoder->EncodeUInt64Value(value.value);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferDeviceAddressFeatures& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.bufferDeviceAddress);
+    encoder->EncodeVkBool32Value(value.bufferDeviceAddressCaptureReplay);
+    encoder->EncodeVkBool32Value(value.bufferDeviceAddressMultiDevice);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.buffer);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferOpaqueCaptureAddressCreateInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.opaqueCaptureAddress);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryOpaqueCaptureAddressAllocateInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt64Value(value.opaqueCaptureAddress);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDeviceMemoryOpaqueCaptureAddressInfo& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.memory);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceCapabilitiesKHR& value)
 {
     encoder->EncodeUInt32Value(value.minImageCount);
@@ -2085,14 +2693,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePushDescripto
     encoder->EncodeUInt32Value(value.maxPushDescriptors);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderFloat16Int8FeaturesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.shaderFloat16);
-    encoder->EncodeVkBool32Value(value.shaderInt8);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkRectLayerKHR& value)
 {
     EncodeStruct(encoder, value.offset);
@@ -2112,125 +2712,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPresentRegionsKHR& value)
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.swapchainCount);
     EncodeStructArray(encoder, value.pRegions, value.swapchainCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImagelessFramebufferFeaturesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.imagelessFramebuffer);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkFramebufferAttachmentImageInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeFlagsValue(value.usage);
-    encoder->EncodeUInt32Value(value.width);
-    encoder->EncodeUInt32Value(value.height);
-    encoder->EncodeUInt32Value(value.layerCount);
-    encoder->EncodeUInt32Value(value.viewFormatCount);
-    encoder->EncodeEnumArray(value.pViewFormats, value.viewFormatCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkFramebufferAttachmentsCreateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.attachmentImageInfoCount);
-    EncodeStructArray(encoder, value.pAttachmentImageInfos, value.attachmentImageInfoCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassAttachmentBeginInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.attachmentCount);
-    encoder->EncodeHandleArray(value.pAttachments, value.attachmentCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentDescription2KHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeEnumValue(value.format);
-    encoder->EncodeEnumValue(value.samples);
-    encoder->EncodeEnumValue(value.loadOp);
-    encoder->EncodeEnumValue(value.storeOp);
-    encoder->EncodeEnumValue(value.stencilLoadOp);
-    encoder->EncodeEnumValue(value.stencilStoreOp);
-    encoder->EncodeEnumValue(value.initialLayout);
-    encoder->EncodeEnumValue(value.finalLayout);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentReference2KHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.attachment);
-    encoder->EncodeEnumValue(value.layout);
-    encoder->EncodeFlagsValue(value.aspectMask);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDescription2KHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeEnumValue(value.pipelineBindPoint);
-    encoder->EncodeUInt32Value(value.viewMask);
-    encoder->EncodeUInt32Value(value.inputAttachmentCount);
-    EncodeStructArray(encoder, value.pInputAttachments, value.inputAttachmentCount);
-    encoder->EncodeUInt32Value(value.colorAttachmentCount);
-    EncodeStructArray(encoder, value.pColorAttachments, value.colorAttachmentCount);
-    EncodeStructArray(encoder, value.pResolveAttachments, value.colorAttachmentCount);
-    EncodeStructPtr(encoder, value.pDepthStencilAttachment);
-    encoder->EncodeUInt32Value(value.preserveAttachmentCount);
-    encoder->EncodeUInt32Array(value.pPreserveAttachments, value.preserveAttachmentCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDependency2KHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.srcSubpass);
-    encoder->EncodeUInt32Value(value.dstSubpass);
-    encoder->EncodeFlagsValue(value.srcStageMask);
-    encoder->EncodeFlagsValue(value.dstStageMask);
-    encoder->EncodeFlagsValue(value.srcAccessMask);
-    encoder->EncodeFlagsValue(value.dstAccessMask);
-    encoder->EncodeFlagsValue(value.dependencyFlags);
-    encoder->EncodeInt32Value(value.viewOffset);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreateInfo2KHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeUInt32Value(value.attachmentCount);
-    EncodeStructArray(encoder, value.pAttachments, value.attachmentCount);
-    encoder->EncodeUInt32Value(value.subpassCount);
-    EncodeStructArray(encoder, value.pSubpasses, value.subpassCount);
-    encoder->EncodeUInt32Value(value.dependencyCount);
-    EncodeStructArray(encoder, value.pDependencies, value.dependencyCount);
-    encoder->EncodeUInt32Value(value.correlatedViewMaskCount);
-    encoder->EncodeUInt32Array(value.pCorrelatedViewMasks, value.correlatedViewMaskCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSubpassBeginInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.contents);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSubpassEndInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSharedPresentSurfaceCapabilitiesKHR& value)
@@ -2284,6 +2765,65 @@ void EncodeStruct(ParameterEncoder* encoder, const VkFenceGetFdInfoKHR& value)
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeHandleValue(value.fence);
     encoder->EncodeEnumValue(value.handleType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePerformanceQueryFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.performanceCounterQueryPools);
+    encoder->EncodeVkBool32Value(value.performanceCounterMultipleQueryPools);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePerformanceQueryPropertiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.allowCommandBufferQueryCopies);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceCounterKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.unit);
+    encoder->EncodeEnumValue(value.scope);
+    encoder->EncodeEnumValue(value.storage);
+    encoder->EncodeUInt8Array(value.uuid, VK_UUID_SIZE);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceCounterDescriptionKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeString(value.name);
+    encoder->EncodeString(value.category);
+    encoder->EncodeString(value.description);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolPerformanceCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.queueFamilyIndex);
+    encoder->EncodeUInt32Value(value.counterIndexCount);
+    encoder->EncodeUInt32Array(value.pCounterIndices, value.counterIndexCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAcquireProfilingLockInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt64Value(value.timeout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceQuerySubmitInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.counterPassIndex);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSurfaceInfo2KHR& value)
@@ -2343,163 +2883,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPlaneCapabilities2KH
     EncodeStruct(encoder, value.capabilities);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkImageFormatListCreateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.viewFormatCount);
-    encoder->EncodeEnumArray(value.pViewFormats, value.viewFormatCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderSubgroupExtendedTypesFeaturesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.shaderSubgroupExtendedTypes);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevice8BitStorageFeaturesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.storageBuffer8BitAccess);
-    encoder->EncodeVkBool32Value(value.uniformAndStorageBuffer8BitAccess);
-    encoder->EncodeVkBool32Value(value.storagePushConstant8);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicInt64FeaturesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.shaderBufferInt64Atomics);
-    encoder->EncodeVkBool32Value(value.shaderSharedInt64Atomics);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderClockFeaturesKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVkBool32Value(value.shaderSubgroupClock);
     encoder->EncodeVkBool32Value(value.shaderDeviceClock);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkConformanceVersionKHR& value)
-{
-    encoder->EncodeUInt8Value(value.major);
-    encoder->EncodeUInt8Value(value.minor);
-    encoder->EncodeUInt8Value(value.subminor);
-    encoder->EncodeUInt8Value(value.patch);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDriverPropertiesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.driverID);
-    encoder->EncodeString(value.driverName);
-    encoder->EncodeString(value.driverInfo);
-    EncodeStruct(encoder, value.conformanceVersion);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFloatControlsPropertiesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.denormBehaviorIndependence);
-    encoder->EncodeEnumValue(value.roundingModeIndependence);
-    encoder->EncodeVkBool32Value(value.shaderSignedZeroInfNanPreserveFloat16);
-    encoder->EncodeVkBool32Value(value.shaderSignedZeroInfNanPreserveFloat32);
-    encoder->EncodeVkBool32Value(value.shaderSignedZeroInfNanPreserveFloat64);
-    encoder->EncodeVkBool32Value(value.shaderDenormPreserveFloat16);
-    encoder->EncodeVkBool32Value(value.shaderDenormPreserveFloat32);
-    encoder->EncodeVkBool32Value(value.shaderDenormPreserveFloat64);
-    encoder->EncodeVkBool32Value(value.shaderDenormFlushToZeroFloat16);
-    encoder->EncodeVkBool32Value(value.shaderDenormFlushToZeroFloat32);
-    encoder->EncodeVkBool32Value(value.shaderDenormFlushToZeroFloat64);
-    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTEFloat16);
-    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTEFloat32);
-    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTEFloat64);
-    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTZFloat16);
-    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTZFloat32);
-    encoder->EncodeVkBool32Value(value.shaderRoundingModeRTZFloat64);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDescriptionDepthStencilResolveKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.depthResolveMode);
-    encoder->EncodeEnumValue(value.stencilResolveMode);
-    EncodeStructPtr(encoder, value.pDepthStencilResolveAttachment);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthStencilResolvePropertiesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.supportedDepthResolveModes);
-    encoder->EncodeFlagsValue(value.supportedStencilResolveModes);
-    encoder->EncodeVkBool32Value(value.independentResolveNone);
-    encoder->EncodeVkBool32Value(value.independentResolve);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTimelineSemaphoreFeaturesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.timelineSemaphore);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTimelineSemaphorePropertiesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt64Value(value.maxTimelineSemaphoreValueDifference);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreTypeCreateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.semaphoreType);
-    encoder->EncodeUInt64Value(value.initialValue);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkTimelineSemaphoreSubmitInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.waitSemaphoreValueCount);
-    encoder->EncodeUInt64Array(value.pWaitSemaphoreValues, value.waitSemaphoreValueCount);
-    encoder->EncodeUInt32Value(value.signalSemaphoreValueCount);
-    encoder->EncodeUInt64Array(value.pSignalSemaphoreValues, value.signalSemaphoreValueCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreWaitInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeUInt32Value(value.semaphoreCount);
-    encoder->EncodeHandleArray(value.pSemaphores, value.semaphoreCount);
-    encoder->EncodeUInt64Array(value.pValues, value.semaphoreCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreSignalInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue(value.semaphore);
-    encoder->EncodeUInt64Value(value.value);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceVulkanMemoryModelFeaturesKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.vulkanMemoryModel);
-    encoder->EncodeVkBool32Value(value.vulkanMemoryModelDeviceScope);
-    encoder->EncodeVkBool32Value(value.vulkanMemoryModelAvailabilityVisibilityChains);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceProtectedCapabilitiesKHR& value)
@@ -2509,11 +2898,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceProtectedCapabilitie
     encoder->EncodeVkBool32Value(value.supportsProtected);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceUniformBufferStandardLayoutFeaturesKHR& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkDeferredOperationInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.uniformBufferStandardLayout);
+    encoder->EncodeHandleValue(value.operationHandle);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR& value)
@@ -2567,6 +2956,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableInternalR
     encoder->EncodeVkBool32Value(value.isText);
     encoder->EncodeSizeTValue(value.dataSize);
     encoder->EncodeVoidArray(value.pData, value.dataSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLibraryCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.libraryCount);
+    encoder->EncodeHandleArray(value.pLibraries, value.libraryCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value)
@@ -2674,6 +3071,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageViewHandleInfoNVX& val
     encoder->EncodeHandleValue(value.imageView);
     encoder->EncodeEnumValue(value.descriptorType);
     encoder->EncodeHandleValue(value.sampler);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkImageViewAddressPropertiesNVX& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+    encoder->EncodeVkDeviceSizeValue(value.size);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkTextureLODGatherFormatPropertiesAMD& value)
@@ -2828,127 +3233,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceCon
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVkBool32Value(value.conditionalRenderingEnable);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDeviceGeneratedCommandsFeaturesNVX& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.computeBindingPointSupport);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDeviceGeneratedCommandsLimitsNVX& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.maxIndirectCommandsLayoutTokenCount);
-    encoder->EncodeUInt32Value(value.maxObjectEntryCounts);
-    encoder->EncodeUInt32Value(value.minSequenceCountBufferOffsetAlignment);
-    encoder->EncodeUInt32Value(value.minSequenceIndexBufferOffsetAlignment);
-    encoder->EncodeUInt32Value(value.minCommandsTokenBufferOffsetAlignment);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsTokenNVX& value)
-{
-    encoder->EncodeEnumValue(value.tokenType);
-    encoder->EncodeHandleValue(value.buffer);
-    encoder->EncodeVkDeviceSizeValue(value.offset);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenNVX& value)
-{
-    encoder->EncodeEnumValue(value.tokenType);
-    encoder->EncodeUInt32Value(value.bindingUnit);
-    encoder->EncodeUInt32Value(value.dynamicCount);
-    encoder->EncodeUInt32Value(value.divisor);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutCreateInfoNVX& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.pipelineBindPoint);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeUInt32Value(value.tokenCount);
-    EncodeStructArray(encoder, value.pTokens, value.tokenCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkCmdProcessCommandsInfoNVX& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue(value.objectTable);
-    encoder->EncodeHandleValue(value.indirectCommandsLayout);
-    encoder->EncodeUInt32Value(value.indirectCommandsTokenCount);
-    EncodeStructArray(encoder, value.pIndirectCommandsTokens, value.indirectCommandsTokenCount);
-    encoder->EncodeUInt32Value(value.maxSequencesCount);
-    encoder->EncodeHandleValue(value.targetCommandBuffer);
-    encoder->EncodeHandleValue(value.sequencesCountBuffer);
-    encoder->EncodeVkDeviceSizeValue(value.sequencesCountOffset);
-    encoder->EncodeHandleValue(value.sequencesIndexBuffer);
-    encoder->EncodeVkDeviceSizeValue(value.sequencesIndexOffset);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkCmdReserveSpaceForCommandsInfoNVX& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue(value.objectTable);
-    encoder->EncodeHandleValue(value.indirectCommandsLayout);
-    encoder->EncodeUInt32Value(value.maxSequencesCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableCreateInfoNVX& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.objectCount);
-    encoder->EncodeEnumArray(value.pObjectEntryTypes, value.objectCount);
-    encoder->EncodeUInt32Array(value.pObjectEntryCounts, value.objectCount);
-    encoder->EncodeFlagsArray(value.pObjectEntryUsageFlags, value.objectCount);
-    encoder->EncodeUInt32Value(value.maxUniformBuffersPerDescriptor);
-    encoder->EncodeUInt32Value(value.maxStorageBuffersPerDescriptor);
-    encoder->EncodeUInt32Value(value.maxStorageImagesPerDescriptor);
-    encoder->EncodeUInt32Value(value.maxSampledImagesPerDescriptor);
-    encoder->EncodeUInt32Value(value.maxPipelineLayouts);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkObjectTablePipelineEntryNVX& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue(value.pipeline);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableDescriptorSetEntryNVX& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue(value.pipelineLayout);
-    encoder->EncodeHandleValue(value.descriptorSet);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableVertexBufferEntryNVX& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue(value.buffer);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkObjectTableIndexBufferEntryNVX& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue(value.buffer);
-    encoder->EncodeEnumValue(value.indexType);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkObjectTablePushConstantEntryNVX& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    encoder->EncodeFlagsValue(value.flags);
-    encoder->EncodeHandleValue(value.pipelineLayout);
-    encoder->EncodeFlagsValue(value.stageFlags);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkViewportWScalingNV& value)
@@ -3155,6 +3439,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMacOSSurfaceCreateInfoMVK& 
     encoder->EncodeVoidPtr(value.pView);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeString(value.pLabelName);
+    encoder->EncodeFloatArray(value.color, 4);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -3162,25 +3454,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT
     encoder->EncodeEnumValue(value.objectType);
     encoder->EncodeUInt64Value(value.objectHandle);
     encoder->EncodeString(value.pObjectName);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.objectType);
-    encoder->EncodeUInt64Value(value.objectHandle);
-    encoder->EncodeUInt64Value(value.tagName);
-    encoder->EncodeSizeTValue(value.tagSize);
-    encoder->EncodeVoidArray(value.pTag, value.tagSize);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeString(value.pLabelName);
-    encoder->EncodeFloatArray(value.color, 4);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT& value)
@@ -3197,6 +3470,17 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallback
     EncodeStructArray(encoder, value.pCmdBufLabels, value.cmdBufLabelCount);
     encoder->EncodeUInt32Value(value.objectCount);
     EncodeStructArray(encoder, value.pObjects, value.objectCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.objectType);
+    encoder->EncodeUInt64Value(value.objectHandle);
+    encoder->EncodeUInt64Value(value.tagName);
+    encoder->EncodeSizeTValue(value.tagSize);
+    encoder->EncodeVoidArray(value.pTag, value.tagSize);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateInfoEXT& value)
@@ -3258,21 +3542,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkExternalFormatANDROID& valu
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt64Value(value.externalFormat);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkSamplerReductionModeCreateInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.reductionMode);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.filterMinmaxSingleComponentFormats);
-    encoder->EncodeVkBool32Value(value.filterMinmaxImageComponentMapping);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceInlineUniformBlockFeaturesEXT& value)
@@ -3501,84 +3770,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkShaderModuleValidationCache
     encoder->EncodeHandleValue(value.validationCache);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutBindingFlagsCreateInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.bindingCount);
-    encoder->EncodeFlagsArray(value.pBindingFlags, value.bindingCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIndexingFeaturesEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayDynamicIndexing);
-    encoder->EncodeVkBool32Value(value.shaderUniformTexelBufferArrayDynamicIndexing);
-    encoder->EncodeVkBool32Value(value.shaderStorageTexelBufferArrayDynamicIndexing);
-    encoder->EncodeVkBool32Value(value.shaderUniformBufferArrayNonUniformIndexing);
-    encoder->EncodeVkBool32Value(value.shaderSampledImageArrayNonUniformIndexing);
-    encoder->EncodeVkBool32Value(value.shaderStorageBufferArrayNonUniformIndexing);
-    encoder->EncodeVkBool32Value(value.shaderStorageImageArrayNonUniformIndexing);
-    encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayNonUniformIndexing);
-    encoder->EncodeVkBool32Value(value.shaderUniformTexelBufferArrayNonUniformIndexing);
-    encoder->EncodeVkBool32Value(value.shaderStorageTexelBufferArrayNonUniformIndexing);
-    encoder->EncodeVkBool32Value(value.descriptorBindingUniformBufferUpdateAfterBind);
-    encoder->EncodeVkBool32Value(value.descriptorBindingSampledImageUpdateAfterBind);
-    encoder->EncodeVkBool32Value(value.descriptorBindingStorageImageUpdateAfterBind);
-    encoder->EncodeVkBool32Value(value.descriptorBindingStorageBufferUpdateAfterBind);
-    encoder->EncodeVkBool32Value(value.descriptorBindingUniformTexelBufferUpdateAfterBind);
-    encoder->EncodeVkBool32Value(value.descriptorBindingStorageTexelBufferUpdateAfterBind);
-    encoder->EncodeVkBool32Value(value.descriptorBindingUpdateUnusedWhilePending);
-    encoder->EncodeVkBool32Value(value.descriptorBindingPartiallyBound);
-    encoder->EncodeVkBool32Value(value.descriptorBindingVariableDescriptorCount);
-    encoder->EncodeVkBool32Value(value.runtimeDescriptorArray);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorIndexingPropertiesEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.maxUpdateAfterBindDescriptorsInAllPools);
-    encoder->EncodeVkBool32Value(value.shaderUniformBufferArrayNonUniformIndexingNative);
-    encoder->EncodeVkBool32Value(value.shaderSampledImageArrayNonUniformIndexingNative);
-    encoder->EncodeVkBool32Value(value.shaderStorageBufferArrayNonUniformIndexingNative);
-    encoder->EncodeVkBool32Value(value.shaderStorageImageArrayNonUniformIndexingNative);
-    encoder->EncodeVkBool32Value(value.shaderInputAttachmentArrayNonUniformIndexingNative);
-    encoder->EncodeVkBool32Value(value.robustBufferAccessUpdateAfterBind);
-    encoder->EncodeVkBool32Value(value.quadDivergentImplicitLod);
-    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindSamplers);
-    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindUniformBuffers);
-    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindStorageBuffers);
-    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindSampledImages);
-    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindStorageImages);
-    encoder->EncodeUInt32Value(value.maxPerStageDescriptorUpdateAfterBindInputAttachments);
-    encoder->EncodeUInt32Value(value.maxPerStageUpdateAfterBindResources);
-    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindSamplers);
-    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindUniformBuffers);
-    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindUniformBuffersDynamic);
-    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageBuffers);
-    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageBuffersDynamic);
-    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindSampledImages);
-    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindStorageImages);
-    encoder->EncodeUInt32Value(value.maxDescriptorSetUpdateAfterBindInputAttachments);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountAllocateInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.descriptorSetCount);
-    encoder->EncodeUInt32Array(value.pDescriptorCounts, value.descriptorSetCount);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetVariableDescriptorCountLayoutSupportEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeUInt32Value(value.maxVariableDescriptorCount);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkShadingRatePaletteNV& value)
 {
     encoder->EncodeUInt32Value(value.shadingRatePaletteEntryCount);
@@ -3722,7 +3913,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureCreate
     EncodeStruct(encoder, value.info);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkBindAccelerationStructureMemoryInfoNV& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkBindAccelerationStructureMemoryInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
@@ -3733,7 +3924,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindAccelerationStructureMe
     encoder->EncodeUInt32Array(value.pDeviceIndices, value.deviceIndexCount);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSetAccelerationStructureNV& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSetAccelerationStructureKHR& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
@@ -3761,6 +3952,31 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPro
     encoder->EncodeUInt64Value(value.maxInstanceCount);
     encoder->EncodeUInt64Value(value.maxTriangleCount);
     encoder->EncodeUInt32Value(value.maxDescriptorSetAccelerationStructures);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkTransformMatrixKHR& value)
+{
+    encoder->EncodeFloat2DMatrix(value.matrix, 3, 4);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAabbPositionsKHR& value)
+{
+    encoder->EncodeFloatValue(value.minX);
+    encoder->EncodeFloatValue(value.minY);
+    encoder->EncodeFloatValue(value.minZ);
+    encoder->EncodeFloatValue(value.maxX);
+    encoder->EncodeFloatValue(value.maxY);
+    encoder->EncodeFloatValue(value.maxZ);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureInstanceKHR& value)
+{
+    EncodeStruct(encoder, value.transform);
+    encoder->EncodeUInt32Value(value.instanceCustomIndex);
+    encoder->EncodeUInt32Value(value.mask);
+    encoder->EncodeUInt32Value(value.instanceShaderBindingTableRecordOffset);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt64Value(value.accelerationStructureReference);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV& value)
@@ -4012,7 +4228,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkInitializePerformanceApiInf
     encoder->EncodeVoidPtr(value.pUserData);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolCreateInfoINTEL& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkQueryPoolPerformanceQueryCreateInfoINTEL& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
@@ -4114,13 +4330,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassFragmentDensityMa
     EncodeStruct(encoder, value.fragmentDensityMapAttachment);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceScalarBlockLayoutFeaturesEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.scalarBlockLayout);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSubgroupSizeControlFeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -4199,13 +4408,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceBufferDeviceA
     encoder->EncodeVkBool32Value(value.bufferDeviceAddressMultiDevice);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue(value.buffer);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressCreateInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -4213,11 +4415,15 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferDeviceAddressCreateIn
     encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkImageStencilUsageCreateInfoEXT& value)
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceToolPropertiesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeFlagsValue(value.stencilUsage);
+    encoder->EncodeString(value.name);
+    encoder->EncodeString(value.version);
+    encoder->EncodeFlagsValue(value.purposes);
+    encoder->EncodeString(value.description);
+    encoder->EncodeString(value.layer);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkValidationFeaturesEXT& value)
@@ -4357,13 +4563,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationLineSt
     encoder->EncodeUInt16Value(value.lineStipplePattern);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceHostQueryResetFeaturesEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVkBool32Value(value.hostQueryReset);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceIndexTypeUint8FeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -4376,6 +4575,138 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderDemoteT
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeVkBool32Value(value.shaderDemoteToHelperInvocation);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxGraphicsShaderGroupCount);
+    encoder->EncodeUInt32Value(value.maxIndirectSequenceCount);
+    encoder->EncodeUInt32Value(value.maxIndirectCommandsTokenCount);
+    encoder->EncodeUInt32Value(value.maxIndirectCommandsStreamCount);
+    encoder->EncodeUInt32Value(value.maxIndirectCommandsTokenOffset);
+    encoder->EncodeUInt32Value(value.maxIndirectCommandsStreamStride);
+    encoder->EncodeUInt32Value(value.minSequencesCountBufferOffsetAlignment);
+    encoder->EncodeUInt32Value(value.minSequencesIndexBufferOffsetAlignment);
+    encoder->EncodeUInt32Value(value.minIndirectCommandsBufferOffsetAlignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.deviceGeneratedCommands);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGraphicsShaderGroupCreateInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.stageCount);
+    EncodeStructArray(encoder, value.pStages, value.stageCount);
+    EncodeStructPtr(encoder, value.pVertexInputState);
+    EncodeStructPtr(encoder, value.pTessellationState);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGraphicsPipelineShaderGroupsCreateInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.groupCount);
+    EncodeStructArray(encoder, value.pGroups, value.groupCount);
+    encoder->EncodeUInt32Value(value.pipelineCount);
+    encoder->EncodeHandleArray(value.pPipelines, value.pipelineCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBindShaderGroupIndirectCommandNV& value)
+{
+    encoder->EncodeUInt32Value(value.groupIndex);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBindIndexBufferIndirectCommandNV& value)
+{
+    encoder->EncodeVkDeviceAddressValue(value.bufferAddress);
+    encoder->EncodeUInt32Value(value.size);
+    encoder->EncodeEnumValue(value.indexType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBindVertexBufferIndirectCommandNV& value)
+{
+    encoder->EncodeVkDeviceAddressValue(value.bufferAddress);
+    encoder->EncodeUInt32Value(value.size);
+    encoder->EncodeUInt32Value(value.stride);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSetStateFlagsIndirectCommandNV& value)
+{
+    encoder->EncodeUInt32Value(value.data);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsStreamNV& value)
+{
+    encoder->EncodeHandleValue(value.buffer);
+    encoder->EncodeVkDeviceSizeValue(value.offset);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.tokenType);
+    encoder->EncodeUInt32Value(value.stream);
+    encoder->EncodeUInt32Value(value.offset);
+    encoder->EncodeUInt32Value(value.vertexBindingUnit);
+    encoder->EncodeVkBool32Value(value.vertexDynamicStride);
+    encoder->EncodeHandleValue(value.pushconstantPipelineLayout);
+    encoder->EncodeFlagsValue(value.pushconstantShaderStageFlags);
+    encoder->EncodeUInt32Value(value.pushconstantOffset);
+    encoder->EncodeUInt32Value(value.pushconstantSize);
+    encoder->EncodeFlagsValue(value.indirectStateFlags);
+    encoder->EncodeUInt32Value(value.indexTypeCount);
+    encoder->EncodeEnumArray(value.pIndexTypes, value.indexTypeCount);
+    encoder->EncodeUInt32Array(value.pIndexTypeValues, value.indexTypeCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutCreateInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeEnumValue(value.pipelineBindPoint);
+    encoder->EncodeUInt32Value(value.tokenCount);
+    EncodeStructArray(encoder, value.pTokens, value.tokenCount);
+    encoder->EncodeUInt32Value(value.streamCount);
+    encoder->EncodeUInt32Array(value.pStreamStrides, value.streamCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.pipelineBindPoint);
+    encoder->EncodeHandleValue(value.pipeline);
+    encoder->EncodeHandleValue(value.indirectCommandsLayout);
+    encoder->EncodeUInt32Value(value.streamCount);
+    EncodeStructArray(encoder, value.pStreams, value.streamCount);
+    encoder->EncodeUInt32Value(value.sequencesCount);
+    encoder->EncodeHandleValue(value.preprocessBuffer);
+    encoder->EncodeVkDeviceSizeValue(value.preprocessOffset);
+    encoder->EncodeVkDeviceSizeValue(value.preprocessSize);
+    encoder->EncodeHandleValue(value.sequencesCountBuffer);
+    encoder->EncodeVkDeviceSizeValue(value.sequencesCountOffset);
+    encoder->EncodeHandleValue(value.sequencesIndexBuffer);
+    encoder->EncodeVkDeviceSizeValue(value.sequencesIndexOffset);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsMemoryRequirementsInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.pipelineBindPoint);
+    encoder->EncodeHandleValue(value.pipeline);
+    encoder->EncodeHandleValue(value.indirectCommandsLayout);
+    encoder->EncodeUInt32Value(value.maxSequencesCount);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT& value)
@@ -4393,6 +4724,305 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTexelBufferAl
     encoder->EncodeVkBool32Value(value.storageTexelBufferOffsetSingleTexelAlignment);
     encoder->EncodeVkDeviceSizeValue(value.uniformTexelBufferOffsetAlignmentBytes);
     encoder->EncodeVkBool32Value(value.uniformTexelBufferOffsetSingleTexelAlignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassTransformBeginInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.transform);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceRenderPassTransformInfoQCOM& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.transform);
+    EncodeStruct(encoder, value.renderArea);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRobustness2FeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.robustBufferAccess2);
+    encoder->EncodeVkBool32Value(value.robustImageAccess2);
+    encoder->EncodeVkBool32Value(value.nullDescriptor);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRobustness2PropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkDeviceSizeValue(value.robustStorageBufferAccessSizeAlignment);
+    encoder->EncodeVkDeviceSizeValue(value.robustUniformBufferAccessSizeAlignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkSamplerCustomBorderColorCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.customBorderColor);
+    encoder->EncodeEnumValue(value.format);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCustomBorderColorPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxCustomBorderColorSamplers);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceCustomBorderColorFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.customBorderColors);
+    encoder->EncodeVkBool32Value(value.customBorderColorWithoutFormat);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePrivateDataFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.privateData);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDevicePrivateDataCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.privateDataSlotRequestCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPrivateDataSlotCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.pipelineCreationCacheControl);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDiagnosticsConfigFeaturesNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.diagnosticsConfig);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDeviceDiagnosticsConfigCreateInfoNV& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildOffsetInfoKHR& value)
+{
+    encoder->EncodeUInt32Value(value.primitiveCount);
+    encoder->EncodeUInt32Value(value.primitiveOffset);
+    encoder->EncodeUInt32Value(value.firstVertex);
+    encoder->EncodeUInt32Value(value.transformOffset);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRayTracingShaderGroupCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    encoder->EncodeUInt32Value(value.generalShader);
+    encoder->EncodeUInt32Value(value.closestHitShader);
+    encoder->EncodeUInt32Value(value.anyHitShader);
+    encoder->EncodeUInt32Value(value.intersectionShader);
+    encoder->EncodeVoidPtr(value.pShaderGroupCaptureReplayHandle);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRayTracingPipelineInterfaceCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxPayloadSize);
+    encoder->EncodeUInt32Value(value.maxAttributeSize);
+    encoder->EncodeUInt32Value(value.maxCallableSize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkRayTracingPipelineCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt32Value(value.stageCount);
+    EncodeStructArray(encoder, value.pStages, value.stageCount);
+    encoder->EncodeUInt32Value(value.groupCount);
+    EncodeStructArray(encoder, value.pGroups, value.groupCount);
+    encoder->EncodeUInt32Value(value.maxRecursionDepth);
+    EncodeStruct(encoder, value.libraries);
+    EncodeStructPtr(encoder, value.pLibraryInterface);
+    encoder->EncodeHandleValue(value.layout);
+    encoder->EncodeHandleValue(value.basePipelineHandle);
+    encoder->EncodeInt32Value(value.basePipelineIndex);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.vertexFormat);
+    EncodeStruct(encoder, value.vertexData);
+    encoder->EncodeVkDeviceSizeValue(value.vertexStride);
+    encoder->EncodeEnumValue(value.indexType);
+    EncodeStruct(encoder, value.indexData);
+    EncodeStruct(encoder, value.transformData);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryAabbsDataKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.data);
+    encoder->EncodeVkDeviceSizeValue(value.stride);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryInstancesDataKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.arrayOfPointers);
+    EncodeStruct(encoder, value.data);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.geometryType);
+    EncodeStruct(encoder, value.geometry);
+    encoder->EncodeFlagsValue(value.flags);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureCreateGeometryTypeInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.geometryType);
+    encoder->EncodeUInt32Value(value.maxPrimitiveCount);
+    encoder->EncodeEnumValue(value.indexType);
+    encoder->EncodeUInt32Value(value.maxVertexCount);
+    encoder->EncodeEnumValue(value.vertexFormat);
+    encoder->EncodeVkBool32Value(value.allowsTransforms);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureCreateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkDeviceSizeValue(value.compactedSize);
+    encoder->EncodeEnumValue(value.type);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeUInt32Value(value.maxGeometryCount);
+    EncodeStructArray(encoder, value.pGeometryInfos, value.maxGeometryCount);
+    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMemoryRequirementsInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    encoder->EncodeEnumValue(value.buildType);
+    encoder->EncodeHandleValue(value.accelerationStructure);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingFeaturesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.rayTracing);
+    encoder->EncodeVkBool32Value(value.rayTracingShaderGroupHandleCaptureReplay);
+    encoder->EncodeVkBool32Value(value.rayTracingShaderGroupHandleCaptureReplayMixed);
+    encoder->EncodeVkBool32Value(value.rayTracingAccelerationStructureCaptureReplay);
+    encoder->EncodeVkBool32Value(value.rayTracingIndirectTraceRays);
+    encoder->EncodeVkBool32Value(value.rayTracingIndirectAccelerationStructureBuild);
+    encoder->EncodeVkBool32Value(value.rayTracingHostAccelerationStructureCommands);
+    encoder->EncodeVkBool32Value(value.rayQuery);
+    encoder->EncodeVkBool32Value(value.rayTracingPrimitiveCulling);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingPropertiesKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.shaderGroupHandleSize);
+    encoder->EncodeUInt32Value(value.maxRecursionDepth);
+    encoder->EncodeUInt32Value(value.maxShaderGroupStride);
+    encoder->EncodeUInt32Value(value.shaderGroupBaseAlignment);
+    encoder->EncodeUInt64Value(value.maxGeometryCount);
+    encoder->EncodeUInt64Value(value.maxInstanceCount);
+    encoder->EncodeUInt64Value(value.maxPrimitiveCount);
+    encoder->EncodeUInt32Value(value.maxDescriptorSetAccelerationStructures);
+    encoder->EncodeUInt32Value(value.shaderGroupHandleCaptureReplaySize);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureDeviceAddressInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.accelerationStructure);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureVersionKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt8Array(value.versionData, 2*VK_UUID_SIZE);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkStridedBufferRegionKHR& value)
+{
+    encoder->EncodeHandleValue(value.buffer);
+    encoder->EncodeVkDeviceSizeValue(value.offset);
+    encoder->EncodeVkDeviceSizeValue(value.stride);
+    encoder->EncodeVkDeviceSizeValue(value.size);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkTraceRaysIndirectCommandKHR& value)
+{
+    encoder->EncodeUInt32Value(value.width);
+    encoder->EncodeUInt32Value(value.height);
+    encoder->EncodeUInt32Value(value.depth);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyAccelerationStructureToMemoryInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.src);
+    EncodeStruct(encoder, value.dst);
+    encoder->EncodeEnumValue(value.mode);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyMemoryToAccelerationStructureInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    EncodeStruct(encoder, value.src);
+    encoder->EncodeHandleValue(value.dst);
+    encoder->EncodeEnumValue(value.mode);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyAccelerationStructureInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeHandleValue(value.src);
+    encoder->EncodeHandleValue(value.dst);
+    encoder->EncodeEnumValue(value.mode);
 }
 
 GFXRECON_END_NAMESPACE(encode)

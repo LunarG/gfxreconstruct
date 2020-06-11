@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_table.h"
 #include "format/format.h"
+#include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/compressor.h"
 #include "util/defines.h"
@@ -118,6 +119,11 @@ class VulkanStateWriter
 
     void WriteSwapchainKhrState(const VulkanStateTable& state_table);
 
+    void WriteDeviceMemoryState(const VulkanStateTable& state_table);
+
+    void
+    ProcessHardwareBuffer(format::HandleId memory_id, AHardwareBuffer* hardware_buffer, VkDeviceSize allocation_size);
+
     void ProcessBufferMemory(const DeviceWrapper*                   device_wrapper,
                              const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
                              uint32_t                               queue_family_index,
@@ -147,11 +153,15 @@ class VulkanStateWriter
                                VkDeviceSize*           max_resource_size,
                                VkDeviceSize*           max_staging_copy_size);
 
+    void WriteImageSubresourceLayouts(const ImageWrapper* image_wrapper, VkImageAspectFlags aspect_flags);
+
     void WriteResourceMemoryState(const VulkanStateTable& state_table);
 
     void WriteMappedMemoryState(const VulkanStateTable& state_table);
 
     void WriteSwapchainImageState(const VulkanStateTable& state_table);
+
+    void WritePhysicalDevicePropertiesMetaData(const PhysicalDeviceWrapper* physical_device_wrapper);
 
     template <typename T>
     void WriteGetPhysicalDeviceQueueFamilyProperties(format::ApiCallId call_id,
@@ -234,6 +244,16 @@ class VulkanStateWriter
 
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
 
+    void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
+                                      AHardwareBuffer*                                    hardware_buffer,
+                                      const std::vector<format::HardwareBufferPlaneInfo>& plane_info);
+
+    void WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
+                                         const VkPhysicalDeviceProperties& properties);
+
+    void WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
+                                               const VkPhysicalDeviceMemoryProperties& memory_properties);
+
     template <typename Wrapper>
     void StandardCreateWrite(const VulkanStateTable& state_table)
     {
@@ -292,7 +312,7 @@ class VulkanStateWriter
 
     VkImageAspectFlags GetFormatAspectMask(VkFormat format);
 
-    void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects);
+    void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects, bool* combined_depth_stencil);
 
     VkFormat GetImageAspectFormat(VkFormat format, VkImageAspectFlagBits aspect);
 

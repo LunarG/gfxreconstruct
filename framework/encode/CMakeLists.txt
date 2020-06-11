@@ -44,6 +44,7 @@ endif()
 
 target_include_directories(gfxrecon_encode
                            PUBLIC
+                               ${CMAKE_BINARY_DIR}
                                ${CMAKE_SOURCE_DIR}/framework)
 
 # include xcb libs for keypress trigegr in Linux

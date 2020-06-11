@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include "decode/value_decoder.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <cassert>
 
@@ -65,6 +66,41 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelin
     bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->u64));
 
     return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceOrHostAddressKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                    bytes_read = 0;
+    VkDeviceOrHostAddressKHR* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceAddress));
+    wrapper->hostAddress = value->deviceAddress;
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceOrHostAddressConstKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                         bytes_read = 0;
+    VkDeviceOrHostAddressConstKHR* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceAddress));
+    wrapper->hostAddress = value->deviceAddress;
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryDataKHR* wrapper)
+{
+    // TODO
+    GFXRECON_LOG_ERROR("VkAccelerationStructureGeometryDataKHR is not supported");
+    return 0;
 }
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper)
@@ -147,6 +183,15 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPerform
     }
 
     return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t*                                       parameter_buffer,
+                    size_t                                               buffer_size,
+                    Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper)
+{
+    // TODO
+    GFXRECON_LOG_ERROR("VkAccelerationStructureBuildGeometryInfoKHR is not supported");
+    return 0;
 }
 
 // The WIN32 SID structure has a variable size, so was encoded as an array of bytes instead of a struct.

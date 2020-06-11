@@ -87,10 +87,7 @@ void VulkanStateTracker::TrackPhysicalDeviceMemoryProperties(VkPhysicalDevice   
 
     auto wrapper = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
 
-    for (uint32_t i = 0; i < properties->memoryTypeCount; ++i)
-    {
-        wrapper->memory_types.push_back(properties->memoryTypes[i]);
-    }
+    wrapper->memory_properties = *properties;
 }
 
 void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice               physical_device,
@@ -932,11 +929,11 @@ void VulkanStateTracker::TrackSemaphoreSignalState(uint32_t           wait_count
 void VulkanStateTracker::TrackAcquireImage(
     uint32_t image_index, VkSwapchainKHR swapchain, VkSemaphore semaphore, VkFence fence, uint32_t deviceMask)
 {
-    assert(swapchain != VK_NULL_HANDLE);
-
     std::unique_lock<std::mutex> lock(mutex_);
 
     auto wrapper = reinterpret_cast<SwapchainKHRWrapper*>(swapchain);
+
+    assert((wrapper != nullptr) && (image_index < wrapper->image_acquired_info.size()));
 
     wrapper->image_acquired_info[image_index].is_acquired           = true;
     wrapper->image_acquired_info[image_index].acquired_device_mask  = deviceMask;
@@ -955,10 +952,11 @@ void VulkanStateTracker::TrackPresentedImages(uint32_t              count,
 
     for (uint32_t i = 0; i < count; ++i)
     {
-        auto wrapper = reinterpret_cast<SwapchainKHRWrapper*>(swapchains[i]);
-        assert(wrapper != nullptr);
+        auto     wrapper     = reinterpret_cast<SwapchainKHRWrapper*>(swapchains[i]);
+        uint32_t image_index = image_indices[i];
 
-        uint32_t image_index                                           = image_indices[i];
+        assert((wrapper != nullptr) && (image_index < wrapper->image_acquired_info.size()));
+
         wrapper->last_presented_image                                  = image_index;
         wrapper->image_acquired_info[image_index].is_acquired          = false;
         wrapper->image_acquired_info[image_index].last_presented_queue = queue;

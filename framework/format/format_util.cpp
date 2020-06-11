@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include "util/logging.h"
 #include "util/lz4_compressor.h"
 #include "util/zlib_compressor.h"
+#include "util/zstd_compressor.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(format)
@@ -60,6 +61,14 @@ util::Compressor* CreateCompressor(CompressionType type)
             GFXRECON_LOG_ERROR("Failed to initialize compression module: zlib compression is disabled.");
             assert(false);
 #endif // ENABLE_ZLIB_COMPRESSION
+            break;
+        case kZstd:
+#ifdef ENABLE_ZSTD_COMPRESSION
+            compressor = new util::ZstdCompressor();
+#else
+            GFXRECON_LOG_ERROR("Failed to initialize compression module: Zstandard compression is disabled.");
+            assert(false);
+#endif // ENABLE_ZSTD_COMPRESSION
             break;
         case kNone:
             // Nothing to do here.

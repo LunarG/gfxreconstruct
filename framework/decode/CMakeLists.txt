@@ -20,10 +20,13 @@ target_sources(gfxrecon_decode
                    pnext_typed_node.h
                    pointer_decoder_base.h
                    pointer_decoder.h
+                   portability.h
+                   portability.cpp
+                   resource_util.h
+                   resource_util.cpp
                    string_array_decoder.h
                    string_decoder.h
                    struct_pointer_decoder.h
-                   struct_pointer_decoder_nvx.h
                    swapchain_image_tracker.h
                    value_decoder.h
                    vulkan_ascii_consumer_base.h
@@ -31,11 +34,20 @@ target_sources(gfxrecon_decode
                    vulkan_consumer_base.h
                    vulkan_decoder_base.h
                    vulkan_decoder_base.cpp
+                   vulkan_default_allocator.h
+                   vulkan_default_allocator.cpp
                    vulkan_enum_util.h
-                   vulkan_object_mapper.h
+                   vulkan_handle_mapping_util.h
+                   vulkan_object_info.h
+                   vulkan_object_info_table.h
+                   vulkan_rebind_allocator.h
+                   vulkan_rebind_allocator.cpp
+                   vulkan_remap_allocator.h
+                   vulkan_remap_allocator.cpp
                    vulkan_replay_consumer_base.h
                    vulkan_replay_consumer_base.cpp
                    vulkan_replay_options.h
+                   vulkan_resource_allocator.h
                    vulkan_resource_initializer.h
                    vulkan_resource_initializer.cpp
                    window.h
@@ -63,7 +75,7 @@ target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry platform_specific gfxrecon_tcp_client)
+target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific gfxrecon_tcp_client)
 
 common_build_directives(gfxrecon_decode)
 

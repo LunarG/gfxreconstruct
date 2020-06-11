@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -37,9 +37,13 @@ class PNextNode
 
     virtual uint64_t GetAddress() const = 0;
 
-    virtual void* GetPointer() const = 0;
+    virtual void* GetPointer() = 0;
 
-    virtual void* GetMetaStructPointer() const = 0;
+    virtual const void* GetPointer() const = 0;
+
+    virtual void* GetMetaStructPointer() = 0;
+
+    virtual const void* GetMetaStructPointer() const = 0;
 
     virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) = 0;
 };

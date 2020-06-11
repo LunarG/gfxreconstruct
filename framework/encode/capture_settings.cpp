@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -68,108 +68,120 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define MEMORY_TRACKING_MODE_UPPER          "MEMORY_TRACKING_MODE"
 #define CAPTURE_FRAMES_LOWER                "capture_frames"
 #define CAPTURE_FRAMES_UPPER                "CAPTURE_FRAMES"
-#define TRIM_TRIGGER_LOWER                  "trim_trigger"
-#define TRIM_TRIGGER_UPPER                  "TRIM_TRIGGER"
+#define CAPTURE_TRIGGER_LOWER               "capture_trigger"
+#define CAPTURE_TRIGGER_UPPER               "CAPTURE_TRIGGER"
 #define PAGE_GUARD_COPY_ON_MAP_LOWER        "page_guard_copy_on_map"
 #define PAGE_GUARD_COPY_ON_MAP_UPPER        "PAGE_GUARD_COPY_ON_MAP"
-#define PAGE_GUARD_LAZY_COPY_LOWER          "page_guard_lazy_copy"
-#define PAGE_GUARD_LAZY_COPY_UPPER          "PAGE_GUARD_LAZY_COPY"
 #define PAGE_GUARD_SEPARATE_READ_LOWER      "page_guard_separate_read"
 #define PAGE_GUARD_SEPARATE_READ_UPPER      "PAGE_GUARD_SEPARATE_READ"
+#define PAGE_GUARD_PERSISTENT_MEMORY_LOWER  "page_guard_persistent_memory"
+#define PAGE_GUARD_PERSISTENT_MEMORY_UPPER  "PAGE_GUARD_PERSISTENT_MEMORY"
+#define PAGE_GUARD_ALIGN_BUFFER_SIZES_LOWER "page_guard_align_buffer_sizes"
+#define PAGE_GUARD_ALIGN_BUFFER_SIZES_UPPER "PAGE_GUARD_ALIGN_BUFFER_SIZES"
+#define PAGE_GUARD_TRACK_AHB_MEMORY_LOWER   "page_guard_track_ahb_memory"
+#define PAGE_GUARD_TRACK_AHB_MEMORY_UPPER   "PAGE_GUARD_TRACK_AHB_MEMORY"
 #define PAGE_GUARD_EXTERNAL_MEMORY_LOWER    "page_guard_external_memory"
 #define PAGE_GUARD_EXTERNAL_MEMORY_UPPER    "PAGE_GUARD_EXTERNAL_MEMORY"
 // clang-format on
 
 #if defined(__ANDROID__)
-const char CaptureSettings::kDefaultCaptureFileName[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
-
 // Android Properties
 #define GFXRECON_ENV_VAR_PREFIX "debug.gfxrecon."
-const char kCaptureCompressionTypeEnvVar[]   = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_LOWER;
-const char kCaptureFileFlushEnvVar[]         = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_LOWER;
-const char kCaptureFileNameEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_LOWER;
-const char kCaptureFileUseTimestampEnvVar[]  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_LOWER;
-const char kLogAllowIndentsEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_LOWER;
-const char kLogBreakOnErrorEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_LOWER;
-const char kLogDetailedEnvVar[]              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_LOWER;
-const char kLogErrorsToStderrEnvVar[]        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_LOWER;
-const char kLogFileNameEnvVar[]              = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_LOWER;
-const char kLogFileCreateNewEnvVar[]         = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_LOWER;
-const char kLogFileFlushAfterWriteEnvVar[]   = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_LOWER;
-const char kLogFileKeepFileOpenEnvVar[]      = GFXRECON_ENV_VAR_PREFIX LOG_FILE_KEEP_OPEN_LOWER;
-const char kLogLevelEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL_LOWER;
-const char kLogOutputToConsoleEnvVar[]       = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_LOWER;
-const char kLogOutputToOsDebugStringEnvVar[] = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER;
-const char kMemoryTrackingModeEnvVar[]       = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_LOWER;
-const char kCaptureFramesEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
-const char kTrimTriggerEnvVar[]              = GFXRECON_ENV_VAR_PREFIX TRIM_TRIGGER_LOWER;
-const char kPageGuardCopyOnMapEnvVar[]       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_LOWER;
-const char kPageGuardLazyCopyEnvVar[]        = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_LAZY_COPY_LOWER;
-const char kPageGuardSeparateReadEnvVar[]    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_LOWER;
-const char kPageGuardExternalMemoryEnvVar[]  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
+
+const char CaptureSettings::kDefaultCaptureFileName[] = "/sdcard/gfxrecon_capture" GFXRECON_FILE_EXTENSION;
+
+const char kCaptureCompressionTypeEnvVar[]    = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_LOWER;
+const char kCaptureFileFlushEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_LOWER;
+const char kCaptureFileNameEnvVar[]           = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_LOWER;
+const char kCaptureFileUseTimestampEnvVar[]   = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_LOWER;
+const char kLogAllowIndentsEnvVar[]           = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_LOWER;
+const char kLogBreakOnErrorEnvVar[]           = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_LOWER;
+const char kLogDetailedEnvVar[]               = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_LOWER;
+const char kLogErrorsToStderrEnvVar[]         = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_LOWER;
+const char kLogFileNameEnvVar[]               = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_LOWER;
+const char kLogFileCreateNewEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_LOWER;
+const char kLogFileFlushAfterWriteEnvVar[]    = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_LOWER;
+const char kLogFileKeepFileOpenEnvVar[]       = GFXRECON_ENV_VAR_PREFIX LOG_FILE_KEEP_OPEN_LOWER;
+const char kLogLevelEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL_LOWER;
+const char kLogOutputToConsoleEnvVar[]        = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_LOWER;
+const char kLogOutputToOsDebugStringEnvVar[]  = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER;
+const char kMemoryTrackingModeEnvVar[]        = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_LOWER;
+const char kCaptureFramesEnvVar[]             = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
+const char kCaptureTriggerEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_LOWER;
+const char kPageGuardCopyOnMapEnvVar[]        = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_LOWER;
+const char kPageGuardSeparateReadEnvVar[]     = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_LOWER;
+const char kPageGuardPersistentMemoryEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_PERSISTENT_MEMORY_LOWER;
+const char kPageGuardAlignBufferSizesEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_ALIGN_BUFFER_SIZES_LOWER;
+const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_LOWER;
+const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_LOWER;
 
 #else
-const char CaptureSettings::kDefaultCaptureFileName[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
-
 // Desktop environment settings
 #define GFXRECON_ENV_VAR_PREFIX "GFXRECON_"
-const char kCaptureCompressionTypeEnvVar[]   = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_UPPER;
-const char kCaptureFileFlushEnvVar[]         = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_UPPER;
-const char kCaptureFileNameEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
-const char kCaptureFileUseTimestampEnvVar[]  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_UPPER;
-const char kLogAllowIndentsEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
-const char kLogBreakOnErrorEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
-const char kLogDetailedEnvVar[]              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
-const char kLogErrorsToStderrEnvVar[]        = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_UPPER;
-const char kLogFileNameEnvVar[]              = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_UPPER;
-const char kLogFileCreateNewEnvVar[]         = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_UPPER;
-const char kLogFileFlushAfterWriteEnvVar[]   = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_UPPER;
-const char kLogFileKeepFileOpenEnvVar[]      = GFXRECON_ENV_VAR_PREFIX LOG_FILE_KEEP_OPEN_UPPER;
-const char kLogLevelEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL_UPPER;
-const char kLogOutputToConsoleEnvVar[]       = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_UPPER;
-const char kLogOutputToOsDebugStringEnvVar[] = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER;
-const char kMemoryTrackingModeEnvVar[]       = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_UPPER;
-const char kCaptureFramesEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_UPPER;
-const char kTrimTriggerEnvVar[]              = GFXRECON_ENV_VAR_PREFIX TRIM_TRIGGER_UPPER;
-const char kPageGuardCopyOnMapEnvVar[]       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_UPPER;
-const char kPageGuardLazyCopyEnvVar[]        = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_LAZY_COPY_UPPER;
-const char kPageGuardSeparateReadEnvVar[]    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_UPPER;
-const char kPageGuardExternalMemoryEnvVar[]  = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
+
+const char CaptureSettings::kDefaultCaptureFileName[] = "gfxrecon_capture" GFXRECON_FILE_EXTENSION;
+
+const char kCaptureCompressionTypeEnvVar[]    = GFXRECON_ENV_VAR_PREFIX CAPTURE_COMPRESSION_TYPE_UPPER;
+const char kCaptureFileFlushEnvVar[]          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_FLUSH_UPPER;
+const char kCaptureFileNameEnvVar[]           = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
+const char kCaptureFileUseTimestampEnvVar[]   = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_UPPER;
+const char kLogAllowIndentsEnvVar[]           = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
+const char kLogBreakOnErrorEnvVar[]           = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
+const char kLogDetailedEnvVar[]               = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
+const char kLogErrorsToStderrEnvVar[]         = GFXRECON_ENV_VAR_PREFIX LOG_ERRORS_TO_STDERR_UPPER;
+const char kLogFileNameEnvVar[]               = GFXRECON_ENV_VAR_PREFIX LOG_FILE_NAME_UPPER;
+const char kLogFileCreateNewEnvVar[]          = GFXRECON_ENV_VAR_PREFIX LOG_FILE_CREATE_NEW_UPPER;
+const char kLogFileFlushAfterWriteEnvVar[]    = GFXRECON_ENV_VAR_PREFIX LOG_FILE_FLUSH_AFTER_WRITE_UPPER;
+const char kLogFileKeepFileOpenEnvVar[]       = GFXRECON_ENV_VAR_PREFIX LOG_FILE_KEEP_OPEN_UPPER;
+const char kLogLevelEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX LOG_LEVEL_UPPER;
+const char kLogOutputToConsoleEnvVar[]        = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_CONSOLE_UPPER;
+const char kLogOutputToOsDebugStringEnvVar[]  = GFXRECON_ENV_VAR_PREFIX LOG_OUTPUT_TO_OS_DEBUG_STRING_UPPER;
+const char kMemoryTrackingModeEnvVar[]        = GFXRECON_ENV_VAR_PREFIX MEMORY_TRACKING_MODE_UPPER;
+const char kCaptureFramesEnvVar[]             = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_UPPER;
+const char kPageGuardCopyOnMapEnvVar[]        = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_UPPER;
+const char kPageGuardSeparateReadEnvVar[]     = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_UPPER;
+const char kPageGuardPersistentMemoryEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_PERSISTENT_MEMORY_UPPER;
+const char kPageGuardAlignBufferSizesEnvVar[] = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_ALIGN_BUFFER_SIZES_UPPER;
+const char kPageGuardTrackAhbMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_TRACK_AHB_MEMORY_UPPER;
+const char kPageGuardExternalMemoryEnvVar[]   = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_EXTERNAL_MEMORY_UPPER;
+const char kCaptureTriggerEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_UPPER;
 #endif
 
 // Capture options for settings file.
 // clang-format off
 const char kSettingsFilter[] = "lunarg_gfxrecon.";
 
-const std::string kOptionKeyCaptureCompressionType   = std::string(kSettingsFilter) + std::string(CAPTURE_COMPRESSION_TYPE_LOWER);
-const std::string kOptionKeyCaptureFile              = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_NAME_LOWER);
-const std::string kOptionKeyCaptureFileForceFlush    = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_FLUSH_LOWER);
-const std::string kOptionKeyCaptureFileUseTimestamp  = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_USE_TIMESTAMP_LOWER);
-const std::string kOptionKeyLogAllowIndents          = std::string(kSettingsFilter) + std::string(LOG_ALLOW_INDENTS_LOWER);
-const std::string kOptionKeyLogBreakOnError          = std::string(kSettingsFilter) + std::string(LOG_BREAK_ON_ERROR_LOWER);
-const std::string kOptionKeyLogDetailed              = std::string(kSettingsFilter) + std::string(LOG_DETAILED_LOWER);
-const std::string kOptionKeyLogErrorsToStderr        = std::string(kSettingsFilter) + std::string(LOG_ERRORS_TO_STDERR_LOWER);
-const std::string kOptionKeyLogFile                  = std::string(kSettingsFilter) + std::string(LOG_FILE_NAME_LOWER);
-const std::string kOptionKeyLogFileCreateNew         = std::string(kSettingsFilter) + std::string(LOG_FILE_CREATE_NEW_LOWER);
-const std::string kOptionKeyLogFileFlushAfterWrite   = std::string(kSettingsFilter) + std::string(LOG_FILE_FLUSH_AFTER_WRITE_LOWER);
-const std::string kOptionKeyLogFileKeepOpen          = std::string(kSettingsFilter) + std::string(LOG_FILE_KEEP_OPEN_LOWER);
-const std::string kOptionKeyLogLevel                 = std::string(kSettingsFilter) + std::string(LOG_LEVEL_LOWER);
-const std::string kOptionKeyLogOutputToConsole       = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_CONSOLE_LOWER);
-const std::string kOptionKeyLogOutputToOsDebugString = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER);
-const std::string kOptionKeyMemoryTrackingMode       = std::string(kSettingsFilter) + std::string(MEMORY_TRACKING_MODE_LOWER);
-const std::string kOptionKeyCaptureFrames            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
-const std::string kOptionKeyTrimTrigger              = std::string(kSettingsFilter) + std::string(TRIM_TRIGGER_LOWER);
-const std::string kOptionKeyPageGuardCopyOnMap       = std::string(kSettingsFilter) + std::string(PAGE_GUARD_COPY_ON_MAP_LOWER);
-const std::string kOptionKeyPageGuardLazyCopy        = std::string(kSettingsFilter) + std::string(PAGE_GUARD_LAZY_COPY_LOWER);
-const std::string kOptionKeyPageGuardSeparateRead    = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SEPARATE_READ_LOWER);
-const std::string kOptionKeyPageGuardExternalMemory  = std::string(kSettingsFilter) + std::string(PAGE_GUARD_EXTERNAL_MEMORY_LOWER);
-// clang-format on
+const std::string kOptionKeyCaptureCompressionType    = std::string(kSettingsFilter) + std::string(CAPTURE_COMPRESSION_TYPE_LOWER);
+const std::string kOptionKeyCaptureFile               = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_NAME_LOWER);
+const std::string kOptionKeyCaptureFileForceFlush     = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_FLUSH_LOWER);
+const std::string kOptionKeyCaptureFileUseTimestamp   = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_USE_TIMESTAMP_LOWER);
+const std::string kOptionKeyLogAllowIndents           = std::string(kSettingsFilter) + std::string(LOG_ALLOW_INDENTS_LOWER);
+const std::string kOptionKeyLogBreakOnError           = std::string(kSettingsFilter) + std::string(LOG_BREAK_ON_ERROR_LOWER);
+const std::string kOptionKeyLogDetailed               = std::string(kSettingsFilter) + std::string(LOG_DETAILED_LOWER);
+const std::string kOptionKeyLogErrorsToStderr         = std::string(kSettingsFilter) + std::string(LOG_ERRORS_TO_STDERR_LOWER);
+const std::string kOptionKeyLogFile                   = std::string(kSettingsFilter) + std::string(LOG_FILE_NAME_LOWER);
+const std::string kOptionKeyLogFileCreateNew          = std::string(kSettingsFilter) + std::string(LOG_FILE_CREATE_NEW_LOWER);
+const std::string kOptionKeyLogFileFlushAfterWrite    = std::string(kSettingsFilter) + std::string(LOG_FILE_FLUSH_AFTER_WRITE_LOWER);
+const std::string kOptionKeyLogFileKeepOpen           = std::string(kSettingsFilter) + std::string(LOG_FILE_KEEP_OPEN_LOWER);
+const std::string kOptionKeyLogLevel                  = std::string(kSettingsFilter) + std::string(LOG_LEVEL_LOWER);
+const std::string kOptionKeyLogOutputToConsole        = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_CONSOLE_LOWER);
+const std::string kOptionKeyLogOutputToOsDebugString  = std::string(kSettingsFilter) + std::string(LOG_OUTPUT_TO_OS_DEBUG_STRING_LOWER);
+const std::string kOptionKeyMemoryTrackingMode        = std::string(kSettingsFilter) + std::string(MEMORY_TRACKING_MODE_LOWER);
+const std::string kOptionKeyCaptureFrames             = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
+const std::string kOptionKeyCaptureTrigger            = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_LOWER);
+const std::string kOptionKeyPageGuardCopyOnMap        = std::string(kSettingsFilter) + std::string(PAGE_GUARD_COPY_ON_MAP_LOWER);
+const std::string kOptionKeyPageGuardSeparateRead     = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SEPARATE_READ_LOWER);
+const std::string kOptionKeyPageGuardPersistentMemory = std::string(kSettingsFilter) + std::string(PAGE_GUARD_PERSISTENT_MEMORY_LOWER);
+const std::string kOptionKeyPageGuardAlignBufferSizes = std::string(kSettingsFilter) + std::string(PAGE_GUARD_ALIGN_BUFFER_SIZES_LOWER);
+const std::string kOptionKeyPageGuardTrackAhbMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_TRACK_AHB_MEMORY_LOWER);
+const std::string kOptionKeyPageGuardExternalMemory   = std::string(kSettingsFilter) + std::string(PAGE_GUARD_EXTERNAL_MEMORY_LOWER);
 
 #if defined(ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
 #else
-const format::CompressionType                             kDefaultCompressionType = format::CompressionType::kNone;
+const format::CompressionType kDefaultCompressionType = format::CompressionType::kNone;
 #endif
+// clang-format on
 
 CaptureSettings::CaptureSettings() {}
 
@@ -241,12 +253,14 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     // Trimming environment variables
     LoadSingleOptionEnvVar(options, kCaptureFramesEnvVar, kOptionKeyCaptureFrames);
-    LoadSingleOptionEnvVar(options, kTrimTriggerEnvVar, kOptionKeyTrimTrigger);
+    LoadSingleOptionEnvVar(options, kCaptureTriggerEnvVar, kOptionKeyCaptureTrigger);
 
     // Page guard environment variables
     LoadSingleOptionEnvVar(options, kPageGuardCopyOnMapEnvVar, kOptionKeyPageGuardCopyOnMap);
-    LoadSingleOptionEnvVar(options, kPageGuardLazyCopyEnvVar, kOptionKeyPageGuardLazyCopy);
     LoadSingleOptionEnvVar(options, kPageGuardSeparateReadEnvVar, kOptionKeyPageGuardSeparateRead);
+    LoadSingleOptionEnvVar(options, kPageGuardPersistentMemoryEnvVar, kOptionKeyPageGuardPersistentMemory);
+    LoadSingleOptionEnvVar(options, kPageGuardAlignBufferSizesEnvVar, kOptionKeyPageGuardAlignBufferSizes);
+    LoadSingleOptionEnvVar(options, kPageGuardTrackAhbMemoryEnvVar, kOptionKeyPageGuardTrackAhbMemory);
     LoadSingleOptionEnvVar(options, kPageGuardExternalMemoryEnvVar, kOptionKeyPageGuardExternalMemory);
 }
 
@@ -296,7 +310,7 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // with trim key will be parsed only
     // if trim ranges is empty, else it will be ignored
     ParseTrimRangeString(FindOption(options, kOptionKeyCaptureFrames), &settings->trace_settings_.trim_ranges);
-    std::string trim_key_option = FindOption(options, kOptionKeyTrimTrigger);
+    std::string trim_key_option = FindOption(options, kOptionKeyCaptureTrigger);
     if (!trim_key_option.empty())
     {
         if (settings->trace_settings_.trim_ranges.empty())
@@ -312,10 +326,16 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     // Page guard environment variables
     settings->trace_settings_.page_guard_copy_on_map = ParseBoolString(
         FindOption(options, kOptionKeyPageGuardCopyOnMap), settings->trace_settings_.page_guard_copy_on_map);
-    settings->trace_settings_.page_guard_lazy_copy = ParseBoolString(FindOption(options, kOptionKeyPageGuardLazyCopy),
-                                                                     settings->trace_settings_.page_guard_lazy_copy);
     settings->trace_settings_.page_guard_separate_read = ParseBoolString(
         FindOption(options, kOptionKeyPageGuardSeparateRead), settings->trace_settings_.page_guard_separate_read);
+    settings->trace_settings_.page_guard_persistent_memory =
+        ParseBoolString(FindOption(options, kOptionKeyPageGuardPersistentMemory),
+                        settings->trace_settings_.page_guard_persistent_memory);
+    settings->trace_settings_.page_guard_align_buffer_sizes =
+        ParseBoolString(FindOption(options, kOptionKeyPageGuardAlignBufferSizes),
+                        settings->trace_settings_.page_guard_align_buffer_sizes);
+    settings->trace_settings_.page_guard_track_ahb_memory = ParseBoolString(
+        FindOption(options, kOptionKeyPageGuardTrackAhbMemory), settings->trace_settings_.page_guard_track_ahb_memory);
     settings->trace_settings_.page_guard_external_memory = ParseBoolString(
         FindOption(options, kOptionKeyPageGuardExternalMemory), settings->trace_settings_.page_guard_external_memory);
 
@@ -434,6 +454,10 @@ format::CompressionType CaptureSettings::ParseCompressionTypeString(const std::s
     else if (util::platform::StringCompareNoCase("zlib", value_string.c_str()) == 0)
     {
         result = format::CompressionType::kZlib;
+    }
+    else if (util::platform::StringCompareNoCase("zstd", value_string.c_str()) == 0)
+    {
+        result = format::CompressionType::kZstd;
     }
     else
     {
@@ -613,7 +637,7 @@ void CaptureSettings::ParseTrimRangeString(const std::string&                   
 
 std::string CaptureSettings::ParseTrimKeyString(const std::string& value_string)
 {
-    std::string trim_key = "";
+    std::string trim_key;
     if (!value_string.empty())
     {
         trim_key = value_string;

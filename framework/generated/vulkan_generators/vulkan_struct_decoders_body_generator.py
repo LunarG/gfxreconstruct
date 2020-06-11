@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2020 Valve Corporation
+# Copyright (c) 2018-2020 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -160,7 +160,7 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
                 if not isStaticArray:
                     if isHandle:
                         # Point the real struct's member pointer to the handle pointer decoder's handle memory.
-                        body += '    value->{name} = wrapper->{name}.GetHandlePointer();\n'.format(name=value.name)
+                        body += '    value->{} = nullptr;\n'.format(value.name)
                     else:
                         # Point the real struct's member pointer to the pointer decoder's memory.
                         body += '    value->{name} = wrapper->{name}{}GetPointer();\n'.format(accessOp, name=value.name)
@@ -175,6 +175,12 @@ class VulkanStructDecodersBodyGenerator(BaseGenerator):
             elif isHandle:
                 body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(bufferArgs, value.name)
                 body += '    value->{} = VK_NULL_HANDLE;\n'.format(value.name)
+            elif value.bitfieldWidth:
+                # Bit fields need to be read into a tempoaray and then assigned to the struct member.
+                tempParamName = 'temp_{}'.format(value.name)
+                body += '    {} {};\n'.format(value.baseType, tempParamName)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(typeName, bufferArgs, tempParamName)
+                body += '    value->{} = {};\n'.format(value.name, tempParamName)
             else:
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(typeName, bufferArgs, value.name)
 

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -52,9 +52,39 @@ class StructPointerDecoder : public PointerDecoderBase
         }
     }
 
-    T* GetMetaStructPointer() const { return decoded_structs_; }
+    T* GetMetaStructPointer() { return decoded_structs_; }
 
-    typename T::struct_type* GetPointer() const { return struct_memory_; }
+    const T* GetMetaStructPointer() const { return decoded_structs_; }
+
+    typename T::struct_type* GetPointer() { return struct_memory_; }
+
+    const typename T::struct_type* GetPointer() const { return struct_memory_; }
+
+    size_t GetOutputLength() const { return output_len_; }
+
+    typename T::struct_type* GetOutputPointer() { return output_data_.get(); }
+
+    const typename T::struct_type* GetOutputPointer() const { return output_data_.get(); }
+
+    typename T::struct_type* AllocateOutputData(size_t len)
+    {
+        output_len_  = len;
+        output_data_ = std::make_unique<typename T::struct_type[]>(len);
+        return output_data_.get();
+    }
+
+    typename T::struct_type* AllocateOutputData(size_t len, const typename T::struct_type& init)
+    {
+        output_len_  = len;
+        output_data_ = std::make_unique<typename T::struct_type[]>(len);
+
+        for (size_t i = 0; i < len; ++i)
+        {
+            output_data_[i] = init;
+        }
+
+        return output_data_.get();
+    }
 
     void SetExternalMemory(typename T::struct_type* data, size_t capacity)
     {
@@ -127,10 +157,18 @@ class StructPointerDecoder : public PointerDecoderBase
     }
 
   private:
+    /// Memory to hold decoded data. Points to an internal allocation when #is_memory_external_ is false and
+    /// to an externally provided allocation when #is_memory_external_ is true.
     T*                       decoded_structs_;
-    typename T::struct_type* struct_memory_;
-    size_t                   capacity_;
-    bool                     is_memory_external_;
+    typename T::struct_type* struct_memory_; ///< Decoded Vulkan structures.
+    size_t capacity_; ///< Size of external memory allocation referenced by #data_ when #is_memory_external_ is true.
+    bool   is_memory_external_; ///< Indicates that the memory referenced by #data_ is an external allocation.
+
+    /// Optional memory allocated for output pramaters when retrieving data from a function call. Allows both the data
+    /// read from the file and the data retrieved from an API call to exist simultaneously, allowing the values to be
+    /// compared.
+    std::unique_ptr<typename T::struct_type[]> output_data_;
+    size_t                                     output_len_; ///< Size of #output_data_.
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -39,11 +39,15 @@ typedef uint64_t HandleEncodeType;
 typedef uint64_t DeviceSizeEncodeType;
 typedef uint64_t SizeTEncodeType;
 typedef uint64_t AddressEncodeType;
+typedef uint8_t  CharEncodeType;  // Encoding type for UTF-8 strings.
+typedef uint16_t WCharEncodeType; // Encoding type for LPCWSTR (UTF-16) strings.
 
 typedef HandleEncodeType HandleId;
 typedef uint64_t         ThreadId;
 
-const uint32_t kCompressedBlockTypeBit = 0x80000000;
+const uint32_t kCompressedBlockTypeBit    = 0x80000000;
+const size_t   kUuidSize                  = 16;
+const size_t   kMaxPhysicalDeviceNameSize = 256;
 
 constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
 {
@@ -71,33 +75,34 @@ enum MarkerType : uint32_t
 
 enum MetaDataType : uint32_t
 {
-    kUnknownMetaDataType = 0,
-
-    // Platform independent metadata commands.
-    kDisplayMessageCommand = 1,
-    kFillMemoryCommand     = 2,
-    kResizeWindowCommand   = 3,
-
-    // Commands for trimmed frame state setup.
-    kSetSwapchainImageStateCommand = 4,
-    kBeginResourceInitCommand      = 5,
-    kEndResourceInitCommand        = 6,
-    kInitBufferCommand             = 7,
-    kInitImageCommand              = 8
+    kUnknownMetaDataType                = 0,
+    kDisplayMessageCommand              = 1,
+    kFillMemoryCommand                  = 2,
+    kResizeWindowCommand                = 3,
+    kSetSwapchainImageStateCommand      = 4,
+    kBeginResourceInitCommand           = 5,
+    kEndResourceInitCommand             = 6,
+    kInitBufferCommand                  = 7,
+    kInitImageCommand                   = 8,
+    kCreateHardwareBufferCommand        = 9,
+    kDestroyHardwareBufferCommand       = 10,
+    kSetDevicePropertiesCommand         = 11,
+    kSetDeviceMemoryPropertiesCommand   = 12
 };
 
 enum CompressionType : uint32_t
 {
     kNone = 0,
     kLz4  = 1,
-    kZlib = 2
+    kZlib = 2,
+    kZstd = 3
 };
 
 enum FileOption : uint32_t
 {
-    kUnknownFileOption     = 0,
-    kCompressionType       = 1, // One of the CompressionType values defining the compression algorithm used with parameter
-                                // encoding. Default = CompressionType::kNone.
+    kUnknownFileOption = 0,
+    kCompressionType   = 1, // One of the CompressionType values defining the compression algorithm used with parameter
+                            // encoding. Default = CompressionType::kNone.
 };
 
 enum PointerAttributes : uint32_t
@@ -109,8 +114,8 @@ enum PointerAttributes : uint32_t
     kIsArray        = 0x04, // Pointer to an array of values (can be combined with kIsString or kIsStruct).
 
     // Type modifiers for pointers to aggregate data types
-    kIsString       = 0x08, // Pointer to a string.
-    kIsWString      = 0x10, // Pointer to a wide character string.
+    kIsString       = 0x08, // Pointer to a UTF-8 string.
+    kIsWString      = 0x10, // Pointer to a UTF-16 string.
     kIsStruct       = 0x20, // Pointer to a struct.
 
     // What was encoded
@@ -215,6 +220,38 @@ struct ResizeWindowCommand
     uint32_t         height;
 };
 
+struct CreateHardwareBufferCommandHeader
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    HandleId       memory_id; // Globally unique ID assigned to the buffer for tracking memory modifications.
+    uint64_t       buffer_id; // Address of the buffer object.
+    uint32_t       format;
+    uint32_t       width;
+    uint32_t       height;
+    uint32_t       stride; // Size of a row in pixels.
+    uint32_t       usage;
+    uint32_t       layers;
+    uint32_t       planes; // When additional multi-plane data is available, header is followed by 'planes' count
+                           // HardwareBufferLayerInfo records.  When unavailable, 'planes' is zero.
+};
+
+struct HardwareBufferPlaneInfo
+{
+    uint64_t offset;       // Offset from the start of the memory allocation in bytes.
+    uint32_t pixel_stride; // Bytes between pixels.
+    uint32_t row_pitch;    // Size of a row in bytes.
+};
+
+// Not a header because this command does not include a variable length data payload.
+// All of the command data is present in the struct.
+struct DestroyHardwareBufferCommand
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    uint64_t       buffer_id;
+};
+
 struct SetSwapchainImageStateCommandHeader
 {
     MetaDataHeader   meta_header;
@@ -272,6 +309,41 @@ struct InitImageCommandHeader
     uint32_t         aspect;
     uint32_t         layout;
     uint32_t         level_count;
+};
+
+struct SetDeviceMemoryPropertiesCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId physical_device_id;
+    uint32_t         memory_type_count;
+    uint32_t         memory_heap_count;
+};
+
+struct DeviceMemoryType
+{
+    uint32_t property_flags;
+    uint32_t heap_index;
+};
+
+struct DeviceMemoryHeap
+{
+    uint64_t size;
+    uint32_t flags;
+};
+
+struct SetDevicePropertiesCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId physical_device_id;
+    uint32_t         api_version;
+    uint32_t         driver_version;
+    uint32_t         vendor_id;
+    uint32_t         device_id;
+    uint32_t         device_type;
+    uint8_t          pipeline_cache_uuid[kUuidSize];
+    uint32_t         device_name_len;
 };
 
 #pragma pack(pop)

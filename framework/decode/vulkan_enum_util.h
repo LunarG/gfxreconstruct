@@ -26,7 +26,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(enumutil)
 
-const char* GetResultValueString(VkResult result)
+static const char* GetResultValueString(VkResult result)
 {
     // clang-format off
     switch (result)
@@ -74,7 +74,7 @@ const char* GetResultValueString(VkResult result)
  * @param value VkResult code to process.
  * @return String describing the specified VkResult code.
  */
-const char* GetResultDescription(VkResult result)
+static const char* GetResultDescription(VkResult result)
 {
     // clang-format off
     switch (result)

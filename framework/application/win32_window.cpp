@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018,2020 Valve Corporation
+** Copyright (c) 2018,2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -231,15 +231,15 @@ void Win32Window::SetForeground()
     SetForegroundWindow(hwnd_);
 }
 
-bool Win32Window::GetNativeHandle(uint32_t id, void** handle)
+bool Win32Window::GetNativeHandle(HandleType type, void** handle)
 {
     assert(handle != nullptr);
-    switch (id)
+    switch (type)
     {
-        case Win32Window::kHInstance:
+        case Window::kWin32HInstance:
             *handle = reinterpret_cast<void*>(hinstance_);
             return true;
-        case Win32Window::kHWnd:
+        case Window::kWin32HWnd:
             *handle = reinterpret_cast<void*>(hwnd_);
             return true;
         default:

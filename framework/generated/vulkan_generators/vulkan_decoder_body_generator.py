@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2018 Valve Corporation
-# Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2018-2020 Valve Corporation
+# Copyright (c) 2018-2020 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -117,11 +117,17 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
     # Generate C++ code for the decoder method body.
     def makeCmdBody(self, returnType, name, values):
         body = ''
+        argNames = []
 
         # Declarations for decoded types.
         for value in values:
             decodeType = self.makeDecodedParamType(value)
             body += '    {} {};\n'.format(decodeType, value.name)
+            if 'Decoder' in decodeType:
+                argNames.append('&{}'.format(value.name))
+            else:
+                argNames.append(value.name)
+
         if returnType and returnType != 'void':
             body += '    {} return_value;\n'.format(returnType)
 
@@ -140,7 +146,7 @@ class VulkanDecoderBodyGenerator(BaseGenerator):
             body += '\n'
 
         # Make the argument list for the API call
-        arglist = self.makeArgList(values)
+        arglist = ', '.join([argName for argName in argNames])
         if returnType and returnType != 'void':
             arglist = ', '.join(['return_value', arglist])
 

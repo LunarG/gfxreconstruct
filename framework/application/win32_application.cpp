@@ -41,11 +41,13 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
 {
     switch (msg)
     {
-        case WM_KEYUP: {
+        case WM_KEYUP:
+        {
             switch (wp)
             {
                 case VK_SPACE:
-                case 'P': {
+                case 'P':
+                {
                     auto app = reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
                     app->SetPaused(!app->GetPaused());
                     break;
@@ -54,16 +56,18 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
                     PostQuitMessage(0);
                     break;
                 default:
-                    break;
+                    return DefWindowProc(window, msg, wp, lp);
             }
             break;
         }
-        case WM_KEYDOWN: {
+        case WM_KEYDOWN:
+        {
             switch (wp)
             {
                 // Using WM_KEYDOWN for repeat when key is held down.
                 case VK_RIGHT:
-                case 'N': {
+                case 'N':
+                {
                     auto app = reinterpret_cast<Win32Application*>(GetWindowLongPtr(window, GWLP_USERDATA));
                     if (app->GetPaused())
                     {
@@ -72,7 +76,20 @@ LRESULT WINAPI Win32Application::WindowProc(HWND window, unsigned int msg, WPARA
                     break;
                 }
                 default:
+                    return DefWindowProc(window, msg, wp, lp);
+            }
+            break;
+        }
+        case WM_SYSKEYUP:
+        {
+            switch (wp)
+            {
+                // Override the default F10 behavior for menu bar activation, which effectively suspends replay until
+                // F10 is pushed a second time or the user interacts with the window.
+                case VK_F10:
                     break;
+                default:
+                    return DefWindowProc(window, msg, wp, lp);
             }
             break;
         }

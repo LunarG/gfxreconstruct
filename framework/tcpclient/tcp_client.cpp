@@ -17,7 +17,11 @@ TcpClient::Create(char* addr, uint32_t port, addrinfo* addr_info, char* file_nam
 {
     std::unique_ptr<TcpClient> instance =
         std::unique_ptr<TcpClient>(new TcpClient(port, addr_info, file_name, data_send));
-    strcpy(instance->ip_str_, addr);
+#ifdef _WIN32
+    strcpy_s(instance->ip_str_, kIpAddressStringSize, addr);
+#else
+    strncpy(instance->ip_str_, addr, kIpAddressStringSize);
+#endif
     return instance;
 }
 
@@ -134,9 +138,9 @@ void TcpClient::TcpSendFilePos(int64_t file_len, int64_t bytes_sent, char* file_
         {
             double file_len_f                   = file_len;
             double position_cur                 = file_position;
-            double position_last_sent           = last_position_sent;
-            double diff_from_last_position_sent = (position_cur - position_last_sent);
-            double diff_min                     = (file_len_f * 0.001f);
+            double position_last_sent           = static_cast<double>(last_position_sent);
+            double diff_from_last_position_sent = static_cast<double>(position_cur - position_last_sent);
+            double diff_min                     = static_cast<double>(file_len_f * 0.001f);
 
             if (diff_from_last_position_sent >= diff_min)
             {

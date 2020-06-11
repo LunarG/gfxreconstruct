@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,8 @@
 ** limitations under the License.
 */
 
+#include "project_version.h"
+
 #include "encode/trace_manager.h"
 
 #include "encode/vulkan_handle_wrapper_util.h"
@@ -30,8 +32,14 @@
 
 #include <cassert>
 
-#if defined(__linux__)
+#if defined(__linux__) && !defined(__ANDROID__)
+#if defined(VK_USE_PLATFORM_XCB_KHR)
 #include <xcb/xcb_keysyms.h>
+#endif
+#endif
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+#include <android/hardware_buffer.h>
 #endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -53,8 +61,6 @@ std::mutex                                             TraceManager::instance_lo
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 LayerTable                                             TraceManager::layer_table_;
 std::atomic<format::ThreadId>                          TraceManager::unique_id_counter_{ 0 };
-bool                                                   TraceManager::previous_hotkey_trigger = false;
-
 
 TraceManager::ThreadData::ThreadData() : thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
 {
@@ -85,8 +91,9 @@ format::ThreadId TraceManager::ThreadData::GetThreadId()
 
 TraceManager::TraceManager() :
     force_file_flush_(false), bytes_written_(0), timestamp_filename_(true),
-    memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_external_memory_(false),
-    trim_enabled_(false), trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite)
+    memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
+    page_guard_track_ahb_memory_(false), page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
+    trim_current_range_(0), current_frame_(kFirstFrame), capture_mode_(kModeWrite), previous_hotkey_state_(false)
 {}
 
 TraceManager::~TraceManager()
@@ -210,23 +217,42 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
 
     if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
     {
-#if defined(WIN32)
-        page_guard_external_memory_ = trace_settings.page_guard_external_memory;
-#else
-        page_guard_external_memory_ = false;
-        if (trace_settings.page_guard_external_memory)
+        page_guard_align_buffer_sizes_ = trace_settings.page_guard_align_buffer_sizes;
+        page_guard_track_ahb_memory_   = trace_settings.page_guard_track_ahb_memory;
+
+        bool use_external_memory = trace_settings.page_guard_external_memory;
+
+#if !defined(WIN32)
+        if (use_external_memory)
         {
+            use_external_memory = false;
             GFXRECON_LOG_WARNING("Ignoring page guard external memory option on unsupported platform (Only Windows is "
                                  "currently supported)")
         }
 #endif
+
+        // External memory takes precedence over shadow memory modes.
+        if (use_external_memory)
+        {
+            page_guard_memory_mode_ = kMemoryModeExternal;
+        }
+        else if (trace_settings.page_guard_persistent_memory)
+        {
+            page_guard_memory_mode_ = kMemoryModeShadowPersistent;
+        }
+        else
+        {
+            page_guard_memory_mode_ = kMemoryModeShadowInternal;
+        }
     }
     else
     {
-        page_guard_external_memory_ = false;
+        page_guard_align_buffer_sizes_ = false;
+        page_guard_track_ahb_memory_   = false;
+        page_guard_memory_mode_        = kMemoryModeDisabled;
     }
 
-    if (trace_settings.trim_ranges.empty() && trace_settings.trim_key == "")
+    if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty())
     {
         // Use default kModeWrite capture mode.
         success = CreateCaptureFile(base_filename_);
@@ -258,12 +284,12 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
             }
         }
         // Check if trim is enabled by hot-key trigger at the first frame
-        else if (trace_settings.trim_key != "")
+        else if (!trace_settings.trim_key.empty())
         {
             trim_key_ = trace_settings.trim_key;
 
             // Enable state tracking when hotkey pressed
-            if (IsTrimHotkeyPressed() == true)
+            if (IsTrimHotkeyPressed())
             {
                 capture_mode_ = kModeWriteAndTrack;
 
@@ -293,9 +319,7 @@ bool TraceManager::Initialize(std::string base_filename, const CaptureSettings::
     {
         if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
         {
-            util::PageGuardManager::Create(!page_guard_external_memory_,
-                                           trace_settings.page_guard_copy_on_map,
-                                           trace_settings.page_guard_lazy_copy,
+            util::PageGuardManager::Create(trace_settings.page_guard_copy_on_map,
                                            trace_settings.page_guard_separate_read,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage);
         }
@@ -408,122 +432,13 @@ void TraceManager::EndApiCallTrace(ParameterEncoder* encoder)
     }
 }
 
-#if defined(__linux__)
-static xcb_connection_t* keyboard_connection = nullptr;
-
-// On Linux platform, xcb calls need Connection which is connected to target
-// server, because hotkey process is supposed to insert into target application,
-// so we need to capture the connection that target app use. the function is
-// used to insert into Vulkan call to capture and save the connection.
-// TODO(xooi@amd.com) insert this function into Vulkan vkCreateXcbSurfaceKHR call.
-void SetKeyboardConnection(xcb_connection_t* connection)
-{
-    keyboard_connection = connection;
-}
-
-// Get connection which is used by target application.
-xcb_connection_t* GetKeyboardConnection()
-{
-    return keyboard_connection;
-}
-
-// Get specified key's real time state: it's released (0) or pressed (1) now.
-// the function is platform specific.
-int GetAsyncKeyState(int key_code)
-{
-    int                key_state      = 0;
-    xcb_connection_t*  connection     = GetKeyboardConnection();
-    xcb_key_symbols_t* hot_key_symbol = xcb_key_symbols_alloc(connection);
-    if (hot_key_symbol != nullptr)
-    {
-        xcb_keycode_t* xcb_key_code = xcb_key_symbols_get_keycode(hot_key_symbol, key_code);
-        if (xcb_key_code != nullptr)
-        {
-            xcb_query_keymap_cookie_t cookie       = xcb_query_keymap(connection);
-            xcb_query_keymap_reply_t* keys_bit_map = xcb_query_keymap_reply(connection, cookie, NULL);
-            if ((keys_bit_map->keys[(*xcb_key_code / 8)] & (1 << (*xcb_key_code % 8))) != 0)
-            {
-                key_state = 1;
-            }
-            free(keys_bit_map);
-            free(xcb_key_code);
-        }
-        xcb_key_symbols_free(hot_key_symbol);
-    }
-
-    return key_state;
-}
-#elif defined(__ANDROID__)
-// TODO(xooi@amd.com) implement GetAsyncKeyState for Android
-// return 0 if hotkey not pressed
-// return 1 if hotkey pressed
-int GetAsyncKeyState(int key_code)
-{
-    GFXRECON_LOG_ERROR("Hotkey trigger is not supported in Android yet.");
-    return 0;
-}
-#endif
-
-// Return true if specific key has been pressed, else false.
-// This function is "semi"cross-platform: the interface is cross-platform, the
-// implementation is platform specific.
 bool TraceManager::IsTrimHotkeyPressed()
 {
-#ifdef _WIN32
-    static std::unordered_map<std::string, int> key_code_map = {
-        { "F1", VK_F1 },   { "F2", VK_F2 },   { "F3", VK_F3 },   { "F4", VK_F4 },          { "F5", VK_F5 },
-        { "F6", VK_F6 },   { "F7", VK_F7 },   { "F8", VK_F8 },   { "F9", VK_F9 },          { "F10", VK_F10 },
-        { "F11", VK_F11 }, { "F12", VK_F12 }, { "TAB", VK_TAB }, { "CONTROL", VK_CONTROL }
-    };
-#elif defined(__linux__)
-    static std::unordered_map<std::string, int> key_code_map = { { "F1", XK_F1 },
-                                                                 { "F2", XK_F2 },
-                                                                 { "F3", XK_F3 },
-                                                                 { "F4", XK_F4 },
-                                                                 { "F5", XK_F5 },
-                                                                 { "F6", XK_F6 },
-                                                                 { "F7", XK_F7 },
-                                                                 { "F8", XK_F8 },
-                                                                 { "F9", XK_F9 },
-                                                                 { "F10", XK_F10 },
-                                                                 { "F11", XK_F11 },
-                                                                 { "F12", XK_F12 },
-                                                                 { "Tab", XK_Tab },
-                                                                 { "ControlLeft", XK_Control_L },
-                                                                 { "ControlRight", XK_Control_R } };
-
-#elif defined(__ANDROID__)
-    // TODO(xooi@amd.com) implement key_code_map for Android
-    static std::unordered_map<std::string, int> key_code_map = {};
-#endif
-
-    bool                                           hotkey_triggered  = false;
-    std::unordered_map<std::string, int>::iterator iterator_key_code = key_code_map.find(trim_key_);
-    if (iterator_key_code != key_code_map.end())
-    {
-        int key_code = iterator_key_code->second;
-        if (GetAsyncKeyState(key_code) != 0)
-        {
-            // the key is down or was down
-            // after the previous call to
-            // GetAsyncKeyState
-            hotkey_triggered = true;
-
-            // detect only the transition of the keypress event
-            // in case of oversampling issue
-            if (previous_hotkey_trigger == hotkey_triggered)
-            {
-                hotkey_triggered = false;
-            }
-            previous_hotkey_trigger = true;
-        }
-        else
-        {
-            previous_hotkey_trigger = false;
-        }
-    }
-
-    return hotkey_triggered;
+    // Return true when GetKeyState() transitions from false to true
+    bool hotkey_state      = keyboard_.GetKeyState(trim_key_);
+    bool hotkey_pressed    = hotkey_state && !previous_hotkey_state_;
+    previous_hotkey_state_ = hotkey_state;
+    return hotkey_pressed;
 }
 
 void TraceManager::CheckContinueCaptureForWriteMode()
@@ -567,17 +482,12 @@ void TraceManager::CheckContinueCaptureForWriteMode()
             }
         }
     }
-    else if (IsTrimHotkeyPressed() == true)
+    else if (IsTrimHotkeyPressed())
     {
         // Stop recording and close file.
         capture_mode_ &= ~kModeWrite;
         file_stream_ = nullptr;
         GFXRECON_LOG_INFO("Finished recording graphics API capture");
-        // Capture can be disabled and resources can be released.
-        trim_enabled_  = false;
-        capture_mode_  = kModeDisabled;
-        state_tracker_ = nullptr;
-        compressor_    = nullptr;
     }
 }
 
@@ -601,7 +511,7 @@ void TraceManager::CheckStartCaptureForTrackMode()
             }
         }
     }
-    else if (IsTrimHotkeyPressed() == true)
+    else if (IsTrimHotkeyPressed())
     {
         bool success = CreateCaptureFile(util::filepath::InsertFilenamePostfix(base_filename_, "_trim_trigger"));
         if (success)
@@ -689,6 +599,8 @@ bool TraceManager::CreateCaptureFile(const std::string& base_filename)
 
 void TraceManager::ActivateTrimming()
 {
+    std::lock_guard<std::mutex> lock(file_lock_);
+
     capture_mode_ |= kModeWrite;
 
     auto thread_data = GetThreadData();
@@ -795,18 +707,18 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
         const uint8_t*                  write_address = (static_cast<const uint8_t*>(data) + offset);
         size_t                          write_size    = static_cast<size_t>(size);
 
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
         fill_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         fill_cmd.meta_header.meta_data_type    = format::MetaDataType::kFillMemoryCommand;
-        fill_cmd.thread_id                     = GetThreadData()->thread_id_;
+        fill_cmd.thread_id                     = thread_data->thread_id_;
         fill_cmd.memory_id                     = memory_id;
         fill_cmd.memory_offset                 = offset;
         fill_cmd.memory_size                   = size;
 
         if (compressor_ != nullptr)
         {
-            auto thread_data = GetThreadData();
-            assert(thread_data != nullptr);
-
             size_t compressed_size = compressor_->Compress(write_size, write_address, &thread_data->compressed_buffer_);
 
             if ((compressed_size > 0) && (compressed_size < write_size))
@@ -830,6 +742,206 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
 
             bytes_written_ += file_stream_->Write(&fill_cmd, sizeof(fill_cmd));
             bytes_written_ += file_stream_->Write(write_address, write_size);
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+    }
+}
+
+void TraceManager::WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
+                                                AHardwareBuffer*                                    buffer,
+                                                const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        assert(buffer != nullptr);
+
+        format::CreateHardwareBufferCommandHeader create_buffer_cmd;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        create_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        create_buffer_cmd.meta_header.block_header.size =
+            sizeof(create_buffer_cmd) - sizeof(create_buffer_cmd.meta_header.block_header);
+        create_buffer_cmd.meta_header.meta_data_type = format::MetaDataType::kCreateHardwareBufferCommand;
+        create_buffer_cmd.thread_id                  = thread_data->thread_id_;
+        create_buffer_cmd.memory_id                  = memory_id;
+        create_buffer_cmd.buffer_id                  = reinterpret_cast<uint64_t>(buffer);
+
+        // Get AHB description data.
+        AHardwareBuffer_Desc ahb_desc = {};
+        AHardwareBuffer_describe(buffer, &ahb_desc);
+
+        create_buffer_cmd.format = ahb_desc.format;
+        create_buffer_cmd.width  = ahb_desc.width;
+        create_buffer_cmd.height = ahb_desc.height;
+        create_buffer_cmd.stride = ahb_desc.stride;
+        create_buffer_cmd.usage  = ahb_desc.usage;
+        create_buffer_cmd.layers = ahb_desc.layers;
+
+        size_t planes_size = 0;
+
+        if (plane_info.empty())
+        {
+            create_buffer_cmd.planes = 0;
+        }
+        else
+        {
+            create_buffer_cmd.planes = static_cast<uint32_t>(plane_info.size());
+            // Update size of packet with compressed or uncompressed data size.
+            planes_size = sizeof(plane_info[0]) * plane_info.size();
+            create_buffer_cmd.meta_header.block_header.size += planes_size;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&create_buffer_cmd, sizeof(create_buffer_cmd));
+
+            if (planes_size > 0)
+            {
+                bytes_written_ += file_stream_->Write(plane_info.data(), planes_size);
+            }
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+#else
+        GFXRECON_UNREFERENCED_PARAMETER(memory_id);
+        GFXRECON_UNREFERENCED_PARAMETER(buffer);
+        GFXRECON_UNREFERENCED_PARAMETER(plane_info);
+
+        GFXRECON_LOG_ERROR("Skipping create AHardwareBuffer command write for unsupported platform");
+#endif
+    }
+}
+
+void TraceManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        assert(buffer != nullptr);
+
+        format::DestroyHardwareBufferCommand destroy_buffer_cmd;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        destroy_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        destroy_buffer_cmd.meta_header.block_header.size =
+            sizeof(destroy_buffer_cmd) - sizeof(destroy_buffer_cmd.meta_header.block_header);
+        destroy_buffer_cmd.meta_header.meta_data_type = format::MetaDataType::kDestroyHardwareBufferCommand;
+        destroy_buffer_cmd.thread_id                  = thread_data->thread_id_;
+        destroy_buffer_cmd.buffer_id                  = reinterpret_cast<uint64_t>(buffer);
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&destroy_buffer_cmd, sizeof(destroy_buffer_cmd));
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+#else
+        GFXRECON_LOG_ERROR("Skipping destroy AHardwareBuffer command write for unsupported platform");
+#endif
+    }
+}
+
+void TraceManager::WriteSetDevicePropertiesCommand(format::HandleId                  physical_device_id,
+                                                   const VkPhysicalDeviceProperties& properties)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        format::SetDevicePropertiesCommand properties_cmd;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        uint32_t device_name_len = static_cast<uint32_t>(util::platform::StringLength(properties.deviceName));
+
+        properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        properties_cmd.meta_header.block_header.size =
+            (sizeof(properties_cmd) - sizeof(properties_cmd.meta_header.block_header)) + device_name_len;
+        properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDevicePropertiesCommand;
+        properties_cmd.thread_id                  = thread_data->thread_id_;
+        properties_cmd.physical_device_id         = physical_device_id;
+        properties_cmd.api_version                = properties.apiVersion;
+        properties_cmd.driver_version             = properties.driverVersion;
+        properties_cmd.vendor_id                  = properties.vendorID;
+        properties_cmd.device_id                  = properties.deviceID;
+        properties_cmd.device_type                = properties.deviceType;
+        util::platform::MemoryCopy(
+            properties_cmd.pipeline_cache_uuid, format::kUuidSize, properties.pipelineCacheUUID, VK_UUID_SIZE);
+        properties_cmd.device_name_len = device_name_len;
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&properties_cmd, sizeof(properties_cmd));
+            bytes_written_ += file_stream_->Write(properties.deviceName, properties_cmd.device_name_len);
+
+            if (force_file_flush_)
+            {
+                file_stream_->Flush();
+            }
+        }
+    }
+}
+
+void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId                        physical_device_id,
+                                                         const VkPhysicalDeviceMemoryProperties& memory_properties)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        format::SetDeviceMemoryPropertiesCommand memory_properties_cmd;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        memory_properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        memory_properties_cmd.meta_header.block_header.size =
+            (sizeof(memory_properties_cmd) - sizeof(memory_properties_cmd.meta_header.block_header)) +
+            (sizeof(format::DeviceMemoryType) * memory_properties.memoryTypeCount) +
+            (sizeof(format::DeviceMemoryHeap) * memory_properties.memoryHeapCount);
+        memory_properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDeviceMemoryPropertiesCommand;
+        memory_properties_cmd.thread_id                  = thread_data->thread_id_;
+        memory_properties_cmd.physical_device_id         = physical_device_id;
+        memory_properties_cmd.memory_type_count          = memory_properties.memoryTypeCount;
+        memory_properties_cmd.memory_heap_count          = memory_properties.memoryHeapCount;
+
+        {
+            std::lock_guard<std::mutex> lock(file_lock_);
+
+            bytes_written_ += file_stream_->Write(&memory_properties_cmd, sizeof(memory_properties_cmd));
+
+            format::DeviceMemoryType type;
+            for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+            {
+                type.property_flags = memory_properties.memoryTypes[i].propertyFlags;
+                type.heap_index     = memory_properties.memoryTypes[i].heapIndex;
+
+                bytes_written_ += file_stream_->Write(&type, sizeof(type));
+            }
+
+            format::DeviceMemoryHeap heap;
+            for (uint32_t i = 0; i < memory_properties.memoryHeapCount; ++i)
+            {
+                heap.size  = memory_properties.memoryHeaps[i].size;
+                heap.flags = memory_properties.memoryHeaps[i].flags;
+
+                bytes_written_ += file_stream_->Write(&heap, sizeof(heap));
+            }
 
             if (force_file_flush_)
             {
@@ -965,7 +1077,7 @@ VkResult TraceManager::OverrideCreateInstance(const VkInstanceCreateInfo*  pCrea
 
     if (CreateInstance())
     {
-        if (instance_->page_guard_external_memory_)
+        if (instance_->page_guard_memory_mode_ == kMemoryModeExternal)
         {
             assert(pCreateInfo != nullptr);
 
@@ -1019,7 +1131,7 @@ VkResult TraceManager::OverrideCreateDevice(VkPhysicalDevice             physica
     VkDeviceCreateInfo* pCreateInfo_unwrapped =
         const_cast<VkDeviceCreateInfo*>(UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory));
 
-    if (page_guard_external_memory_)
+    if (page_guard_memory_mode_ == kMemoryModeExternal)
     {
         assert(pCreateInfo_unwrapped != nullptr);
 
@@ -1105,15 +1217,20 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
     VkMemoryAllocateInfo* pAllocateInfo_unwrapped =
         const_cast<VkMemoryAllocateInfo*>(UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory));
 
-    if (page_guard_external_memory_)
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    const VkImportAndroidHardwareBufferInfoANDROID* import_ahb_info =
+        FindAllocateMemoryExtensions(pAllocateInfo_unwrapped);
+#endif
+
+    if (page_guard_memory_mode_ == kMemoryModeExternal)
     {
         auto                  device_wrapper = reinterpret_cast<DeviceWrapper*>(device);
         VkMemoryPropertyFlags properties     = GetMemoryProperties(device_wrapper, pAllocateInfo->memoryTypeIndex);
 
         if ((properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
         {
-            // Use the external memory extension to provide a memory allocation that can be watched directly by the page
-            // guard implementation.
+            // Use the external memory extension to provide a memory allocation that can be watched directly by the
+            // page guard implementation.
             assert(pAllocateInfo_unwrapped != nullptr);
 
             util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -1121,12 +1238,12 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
 
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, pAllocateInfo_unwrapped->allocationSize);
 
-            // TODO: This should be aligned to minImportedHostPointerAlignment, but there is a currently a loader bug
-            // that prevents the layer from querying for that value when a 1.0 application does not explicitly enable
-            // physical_device_properties2.  For now we align to system page size.
+            // TODO: This should be aligned to minImportedHostPointerAlignment, but there is a currently a loader
+            // bug that prevents the layer from querying for that value when a 1.0 application does not explicitly
+            // enable physical_device_properties2.  For now we align to system page size.
             size_t external_memory_size =
                 manager->GetAlignedSize(static_cast<size_t>(pAllocateInfo_unwrapped->allocationSize));
-            external_memory = manager->AllocateMemory(external_memory_size);
+            external_memory = manager->AllocateMemory(external_memory_size, true);
 
             if (external_memory != nullptr)
             {
@@ -1165,9 +1282,15 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
         {
             // The state tracker will set this value when it is enabled. When state tracking is disabled it is set
             // here to ensure it is available for mapped memory tracking.
-            auto wrapper             = reinterpret_cast<DeviceMemoryWrapper*>(*pMemory);
-            wrapper->allocation_size = pAllocateInfo->allocationSize;
+            memory_wrapper->allocation_size = pAllocateInfo->allocationSize;
         }
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        if ((import_ahb_info != nullptr) && (import_ahb_info->buffer != nullptr))
+        {
+            ProcessImportAndroidHardwareBuffer(device, *pMemory, import_ahb_info->buffer);
+        }
+#endif
     }
     else if (external_memory != nullptr)
     {
@@ -1181,41 +1304,315 @@ VkResult TraceManager::OverrideAllocateMemory(VkDevice                     devic
     return result;
 }
 
-VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index)
+VkResult TraceManager::OverrideGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice                   physicalDevice,
+                                                                  uint32_t*                          pToolCount,
+                                                                  VkPhysicalDeviceToolPropertiesEXT* pToolProperties)
 {
-    VkMemoryPropertyFlags  flags                   = 0;
-    PhysicalDeviceWrapper* physical_device_wrapper = device_wrapper->physical_device;
-
-    if (memory_type_index >= physical_device_wrapper->memory_types.size())
+    auto original_pToolProperties = pToolProperties;
+    if (pToolProperties != nullptr)
     {
-        // When trimming is enabled, the state tracker would populate this list when the application queried for
-        // available memory types.  If state tracking is not enabled, or the application didn't make the appropriate
-        // query, the query is made here.
-        InstanceTable* instance_table = physical_device_wrapper->layer_table_ref;
-        assert(instance_table != nullptr);
+        pToolProperties->sType    = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT;
+        pToolProperties->pNext    = nullptr;
+        pToolProperties->purposes = VK_TOOL_PURPOSE_TRACING_BIT_EXT;
 
-        VkPhysicalDeviceMemoryProperties memory_properties;
-        instance_table->GetPhysicalDeviceMemoryProperties(physical_device_wrapper->handle, &memory_properties);
+        util::platform::StringCopy(pToolProperties->name,
+                                   VK_MAX_EXTENSION_NAME_SIZE,
+                                   GFXRECON_PROJECT_NAME,
+                                   util::platform::StringLength(GFXRECON_PROJECT_NAME));
 
-        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        util::platform::StringCopy(pToolProperties->version,
+                                   VK_MAX_EXTENSION_NAME_SIZE,
+                                   GFXRECON_PROJECT_VERSION_STRING,
+                                   util::platform::StringLength(GFXRECON_PROJECT_VERSION_STRING));
+
+        util::platform::StringCopy(pToolProperties->description,
+                                   VK_MAX_DESCRIPTION_SIZE,
+                                   GFXRECON_PROJECT_DESCRIPTION,
+                                   util::platform::StringLength(GFXRECON_PROJECT_DESCRIPTION));
+
+        util::platform::StringCopy(pToolProperties->layer,
+                                   VK_MAX_EXTENSION_NAME_SIZE,
+                                   GFXRECON_PROJECT_LAYER_NAME,
+                                   util::platform::StringLength(GFXRECON_PROJECT_LAYER_NAME));
+
+        if (pToolCount != nullptr)
         {
-            assert(state_tracker_ != nullptr);
-            state_tracker_->TrackPhysicalDeviceMemoryProperties(
-                reinterpret_cast<VkPhysicalDevice>(physical_device_wrapper), &memory_properties);
-            assert(memory_type_index < physical_device_wrapper->memory_types.size());
-        }
-        else
-        {
-            for (size_t i = 0; i < memory_properties.memoryTypeCount; ++i)
-            {
-                physical_device_wrapper->memory_types.push_back(memory_properties.memoryTypes[i]);
-            }
+            pToolProperties = ((*pToolCount > 1) ? &pToolProperties[1] : nullptr);
+            --(*pToolCount);
         }
     }
 
-    assert(memory_type_index < physical_device_wrapper->memory_types.size());
+    VkResult result = GetInstanceTable(physicalDevice)
+                          ->GetPhysicalDeviceToolPropertiesEXT(physicalDevice, pToolCount, pToolProperties);
 
-    return flags = physical_device_wrapper->memory_types[memory_type_index].propertyFlags;
+    if (original_pToolProperties != nullptr)
+    {
+        pToolProperties = original_pToolProperties;
+    }
+
+    if (pToolCount != nullptr)
+    {
+        ++(*pToolCount);
+    }
+
+    return result;
+}
+
+VkMemoryPropertyFlags TraceManager::GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index)
+{
+    PhysicalDeviceWrapper*                  physical_device_wrapper = device_wrapper->physical_device;
+    const VkPhysicalDeviceMemoryProperties* memory_properties       = &physical_device_wrapper->memory_properties;
+
+    assert(memory_type_index < memory_properties->memoryTypeCount);
+
+    return memory_properties->memoryTypes[memory_type_index].propertyFlags;
+}
+
+const VkImportAndroidHardwareBufferInfoANDROID*
+TraceManager::FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_info)
+{
+    const VkImportAndroidHardwareBufferInfoANDROID* import_ahb_info = nullptr;
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    assert(allocate_info != nullptr);
+
+    const VkBaseInStructure* pnext = reinterpret_cast<const VkBaseInStructure*>(allocate_info->pNext);
+    while (pnext != nullptr)
+    {
+        if (pnext->sType == VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID)
+        {
+            import_ahb_info = reinterpret_cast<const VkImportAndroidHardwareBufferInfoANDROID*>(pnext);
+            break;
+        }
+
+        pnext = pnext->pNext;
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(allocate_info);
+#endif
+
+    return import_ahb_info;
+}
+
+void TraceManager::ProcessImportAndroidHardwareBuffer(VkDevice         device,
+                                                      VkDeviceMemory   memory,
+                                                      AHardwareBuffer* hardware_buffer)
+{
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    auto memory_wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+    assert((memory_wrapper != nullptr) && (hardware_buffer != nullptr));
+
+    auto entry = hardware_buffers_.find(hardware_buffer);
+    if (entry != hardware_buffers_.end())
+    {
+        ++entry->second.reference_count;
+        memory_wrapper->hardware_buffer = hardware_buffer;
+    }
+    else
+    {
+        // If this is the first device memory object to reference the hardware buffer, write a buffer creation
+        // command to the capture file and setup memory tracking.
+        void* data   = nullptr;
+        int   result = -1;
+
+        std::vector<format::HardwareBufferPlaneInfo> plane_info;
+
+        // The multi-plane functions are declared for API 26, but are only available to link with API 29.  So, this
+        // could be turned into a run-time check dependent on dlsym returning a valid pointer for
+        // AHardwareBuffer_lockPlanes.
+#if __ANDROID_API__ >= 29
+        AHardwareBuffer_Planes ahb_planes;
+        result =
+            AHardwareBuffer_lockPlanes(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &ahb_planes);
+        if (result == 0)
+        {
+            data = ahb_planes.planes[0].data;
+
+            for (uint32_t i = 0; i < ahb_planes.planeCount; ++i)
+            {
+                format::HardwareBufferPlaneInfo ahb_plane_info;
+                ahb_plane_info.offset =
+                    reinterpret_cast<uint8_t*>(ahb_planes.planes[i].data) - reinterpret_cast<uint8_t*>(data);
+                ahb_plane_info.pixel_stride = ahb_planes.planes[i].pixelStride;
+                ahb_plane_info.row_pitch    = ahb_planes.planes[i].rowStride;
+                plane_info.emplace_back(std::move(ahb_plane_info));
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("AHardwareBuffer_lockPlanes failed: AHardwareBuffer_lock will be used instead");
+        }
+#endif
+
+        if (result != 0)
+        {
+            result = AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
+        }
+
+        if (result == 0)
+        {
+            assert(data != nullptr);
+
+            // Only store buffer IDs and reference count if a creation command is written to the capture file.
+            format::HandleId memory_id = GetUniqueId();
+
+            HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
+            ahb_info.memory_id           = memory_id;
+            ahb_info.reference_count     = 1;
+
+            memory_wrapper->hardware_buffer           = hardware_buffer;
+            memory_wrapper->hardware_buffer_memory_id = memory_id;
+
+            WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+            WriteFillMemoryCmd(memory_id, 0, memory_wrapper->allocation_size, data);
+
+            if ((memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+                page_guard_track_ahb_memory_)
+            {
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, memory_wrapper->allocation_size);
+
+                util::PageGuardManager* manager = util::PageGuardManager::Get();
+                assert(manager != nullptr);
+
+                manager->AddTrackedMemory(
+                    memory_id,
+                    data,
+                    0,
+                    static_cast<size_t>(memory_wrapper->allocation_size),
+                    util::PageGuardManager::kNullShadowHandle,
+                    false,  // No shadow memory for the imported AHB memory; Track directly with mprotect().
+                    false); // Write watch is not supported for this case.
+            }
+
+            result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
+            if (result != 0)
+            {
+                GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed");
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR(
+                "AHardwareBuffer_lock failed: hardware buffer data will be omitted from the capture file");
+        }
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(memory);
+    GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
+#endif
+}
+
+void TraceManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer)
+{
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    assert(hardware_buffer != nullptr);
+
+    auto entry = hardware_buffers_.find(hardware_buffer);
+    if ((entry != hardware_buffers_.end()) && (--entry->second.reference_count == 0))
+    {
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            manager->RemoveTrackedMemory(entry->second.memory_id);
+        }
+
+        // There are no more references to the buffer, so we can submit a destroy buffer command.
+        WriteDestroyHardwareBufferCmd(entry->first);
+        hardware_buffers_.erase(entry);
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
+#endif
+}
+
+void TraceManager::PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
+                                                          VkInstance        instance,
+                                                          uint32_t*         pPhysicalDeviceCount,
+                                                          VkPhysicalDevice* pPhysicalDevices)
+{
+    if ((result >= 0) && (pPhysicalDeviceCount != nullptr) && (pPhysicalDevices != nullptr))
+    {
+        auto     instance_wrapper = reinterpret_cast<InstanceWrapper*>(instance);
+        uint32_t count            = *pPhysicalDeviceCount;
+
+        // Write meta-data describing physical device properties on first call to vkEnumeratePhysicalDevices.
+        if (!instance_wrapper->have_device_properties)
+        {
+            // Only filter duplicate checks when we have a complete list of physical devices.
+            if (result != VK_INCOMPLETE)
+            {
+                instance_wrapper->have_device_properties = true;
+            }
+
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                VkPhysicalDevice physical_device = pPhysicalDevices[i];
+
+                if (physical_device != VK_NULL_HANDLE)
+                {
+                    const InstanceTable* instance_table = GetInstanceTable(physical_device);
+                    assert(instance_table != nullptr);
+
+                    auto physical_device_wrapper            = reinterpret_cast<PhysicalDeviceWrapper*>(physical_device);
+                    format::HandleId physical_device_id     = physical_device_wrapper->handle_id;
+                    VkPhysicalDevice physical_device_handle = physical_device_wrapper->handle;
+                    uint32_t         count                  = 0;
+
+                    VkPhysicalDeviceProperties       properties;
+                    VkPhysicalDeviceMemoryProperties memory_properties;
+
+                    instance_table->GetPhysicalDeviceProperties(physical_device_handle, &properties);
+                    instance_table->GetPhysicalDeviceMemoryProperties(physical_device_handle, &memory_properties);
+
+                    if ((capture_mode_ & kModeTrack) == kModeTrack)
+                    {
+                        // Let the state tracker process the memory properties.
+                        assert(state_tracker_ != nullptr);
+                        state_tracker_->TrackPhysicalDeviceMemoryProperties(physical_device, &memory_properties);
+                    }
+                    else
+                    {
+                        // When not tracking state, set the memory types directly.
+                        physical_device_wrapper->memory_properties = std::move(memory_properties);
+                    }
+
+                    WriteSetDevicePropertiesCommand(physical_device_id, properties);
+                    WriteSetDeviceMemoryPropertiesCommand(physical_device_id,
+                                                          physical_device_wrapper->memory_properties);
+                }
+            }
+        }
+    }
+}
+
+void TraceManager::PreProcess_vkCreateXlibSurfaceKHR(VkInstance                        instance,
+                                                     const VkXlibSurfaceCreateInfoKHR* pCreateInfo,
+                                                     const VkAllocationCallbacks*      pAllocator,
+                                                     VkSurfaceKHR*                     pSurface)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pSurface);
+
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+    assert(pCreateInfo != nullptr);
+    if (pCreateInfo && !trim_key_.empty())
+    {
+        if (!keyboard_.Initialize(pCreateInfo->dpy))
+        {
+            GFXRECON_LOG_ERROR("Failed to initialize Xlib keyboard capture trigger");
+        }
+    }
+#else
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
+    if (!trim_key_.empty())
+    {
+        GFXRECON_LOG_WARNING("Xlib keyboard capture trigger is not enabled on this system");
+    }
+#endif
 }
 
 void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                       instance,
@@ -1227,15 +1624,37 @@ void TraceManager::PreProcess_vkCreateXcbSurfaceKHR(VkInstance                  
     GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
     GFXRECON_UNREFERENCED_PARAMETER(pSurface);
 
-#if defined(__linux__)
+#if defined(VK_USE_PLATFORM_XCB_KHR)
     assert(pCreateInfo != nullptr);
-    if (pCreateInfo)
+    if (pCreateInfo && !trim_key_.empty())
     {
-        gfxrecon::encode::SetKeyboardConnection(pCreateInfo->connection);
+        if (!keyboard_.Initialize(pCreateInfo->connection))
+        {
+            GFXRECON_LOG_ERROR("Failed to initialize XCB keyboard capture trigger");
+        }
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
+    if (!trim_key_.empty())
+    {
+        GFXRECON_LOG_WARNING("Xcb keyboard capture trigger is not enabled on this system");
+    }
 #endif
+}
+
+void TraceManager::PreProcess_vkCreateWaylandSurfaceKHR(VkInstance                           instance,
+                                                        const VkWaylandSurfaceCreateInfoKHR* pCreateInfo,
+                                                        const VkAllocationCallbacks*         pAllocator,
+                                                        VkSurfaceKHR*                        pSurface)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(instance);
+    GFXRECON_UNREFERENCED_PARAMETER(pCreateInfo);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pSurface);
+    if (!trim_key_.empty())
+    {
+        GFXRECON_LOG_WARNING("Wayland keyboard capture trigger is not implemented");
+    }
 }
 
 void TraceManager::PreProcess_vkCreateSwapchain(VkDevice                        device,
@@ -1278,30 +1697,58 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
             }
             else
             {
-                // Perform subset of the state tracking performed by VulkanStateTracker::TrackMappedMemory, only storing
-                // values needed for non-tracking capture.
+                // Perform subset of the state tracking performed by VulkanStateTracker::TrackMappedMemory, only
+                // storing values needed for non-tracking capture.
                 wrapper->mapped_data   = (*ppData);
                 wrapper->mapped_offset = offset;
                 wrapper->mapped_size   = size;
             }
 
-            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+            if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+                // Hardware buffer memory is tracked separately, so VkDeviceMemory mappings should be ignored to
+                // avoid duplicate memory tracking entries.
+                && (wrapper->hardware_buffer == nullptr)
+#endif
+            )
             {
                 if (size == VK_WHOLE_SIZE)
                 {
-                    size = wrapper->allocation_size;
+                    assert(offset <= wrapper->allocation_size);
+                    size = wrapper->allocation_size - offset;
                 }
 
                 if (size > 0)
                 {
+                    GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, offset);
                     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
                     util::PageGuardManager* manager = util::PageGuardManager::Get();
                     assert(manager != nullptr);
 
-                    // Return the pointer provided by the pageguard manager, which may be a pointer to shadow memory,
-                    // not the mapped memory.
-                    (*ppData) = manager->AddMemory(wrapper->handle_id, (*ppData), static_cast<size_t>(size));
+                    bool use_shadow_memory = true;
+                    bool use_write_watch   = false;
+
+                    if (page_guard_memory_mode_ == kMemoryModeExternal)
+                    {
+                        use_shadow_memory = false;
+                        use_write_watch   = true;
+                    }
+                    else if ((page_guard_memory_mode_ == kMemoryModeShadowPersistent) &&
+                             (wrapper->shadow_allocation == util::PageGuardManager::kNullShadowHandle))
+                    {
+                        wrapper->shadow_allocation = manager->AllocatePersistentShadowMemory(static_cast<size_t>(size));
+                    }
+
+                    // Return the pointer provided by the pageguard manager, which may be a pointer to shadow
+                    // memory, not the mapped memory.
+                    (*ppData) = manager->AddTrackedMemory(wrapper->handle_id,
+                                                          (*ppData),
+                                                          static_cast<size_t>(offset),
+                                                          static_cast<size_t>(size),
+                                                          wrapper->shadow_allocation,
+                                                          use_shadow_memory,
+                                                          use_write_watch);
                 }
             }
             else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
@@ -1327,7 +1774,7 @@ void TraceManager::PostProcess_vkMapMemory(VkResult         result,
                 util::PageGuardManager* manager = util::PageGuardManager::Get();
                 assert(manager != nullptr);
 
-                if (!manager->GetMemory(wrapper->handle_id, ppData))
+                if (!manager->GetTrackedMemory(wrapper->handle_id, ppData))
                 {
                     GFXRECON_LOG_ERROR("Modifications to the VkDeviceMemory object that has been mapped more than once "
                                        "are not being track by PageGuardManager");
@@ -1355,8 +1802,8 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
             {
                 auto next_memory_wrapper = reinterpret_cast<const DeviceMemoryWrapper*>(pMemoryRanges[i].memory);
 
-                // Currently processing all dirty pages for the mapped memory, so filter multiple ranges from the same
-                // object.
+                // Currently processing all dirty pages for the mapped memory, so filter multiple ranges from the
+                // same object.
                 if (next_memory_wrapper != current_memory_wrapper)
                 {
                     current_memory_wrapper = next_memory_wrapper;
@@ -1389,12 +1836,13 @@ void TraceManager::PreProcess_vkFlushMappedMemoryRanges(VkDevice                
                     assert(pMemoryRanges[i].offset >= current_memory_wrapper->mapped_offset);
 
                     // The mapped pointer already includes the mapped offset.  Because the memory range
-                    // offset is realtive to the start of the memory object, we need to adjust it to be
-                    // realitve to the start of the mapped pointer.
+                    // offset is relative to the start of the memory object, we need to adjust it to be
+                    // relative to the start of the mapped pointer.
                     VkDeviceSize relative_offset = pMemoryRanges[i].offset - current_memory_wrapper->mapped_offset;
                     VkDeviceSize size            = pMemoryRanges[i].size;
                     if (size == VK_WHOLE_SIZE)
                     {
+                        assert(pMemoryRanges[i].offset <= current_memory_wrapper->allocation_size);
                         size = current_memory_wrapper->allocation_size - pMemoryRanges[i].offset;
                     }
 
@@ -1413,6 +1861,37 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
 
     if (wrapper->mapped_data != nullptr)
     {
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            manager->ProcessMemoryEntry(wrapper->handle_id,
+                                        [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                                            WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                        });
+
+            manager->RemoveTrackedMemory(wrapper->handle_id);
+        }
+        else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
+        {
+            VkDeviceSize size = wrapper->mapped_size;
+            if (size == VK_WHOLE_SIZE)
+            {
+                assert(wrapper->mapped_offset <= wrapper->allocation_size);
+                size = wrapper->allocation_size - wrapper->mapped_offset;
+            }
+
+            // Write the entire mapped region.
+            // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
+            WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
+
+            {
+                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+                mapped_memory_.erase(wrapper);
+            }
+        }
+
         if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
@@ -1425,36 +1904,6 @@ void TraceManager::PreProcess_vkUnmapMemory(VkDevice device, VkDeviceMemory memo
             wrapper->mapped_data   = nullptr;
             wrapper->mapped_offset = 0;
             wrapper->mapped_size   = 0;
-        }
-
-        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
-        {
-            util::PageGuardManager* manager = util::PageGuardManager::Get();
-            assert(manager != nullptr);
-
-            manager->ProcessMemoryEntry(wrapper->handle_id,
-                                        [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                                            WriteFillMemoryCmd(memory_id, offset, size, start_address);
-                                        });
-
-            manager->RemoveMemory(wrapper->handle_id);
-        }
-        else if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUnassisted)
-        {
-            // Write the entire mapped region.
-            // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-            VkDeviceSize size = wrapper->mapped_size;
-            if (size == VK_WHOLE_SIZE)
-            {
-                size = wrapper->allocation_size;
-            }
-
-            WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
-
-            {
-                std::lock_guard<std::mutex> lock(mapped_memory_lock_);
-                mapped_memory_.erase(wrapper);
-            }
         }
     }
     else
@@ -1481,14 +1930,47 @@ void TraceManager::PreProcess_vkFreeMemory(VkDevice                     device,
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
 
-            manager->RemoveMemory(wrapper->handle_id);
+            // Remove memory tracking.
+            manager->RemoveTrackedMemory(wrapper->handle_id);
+        }
+    }
+}
 
-            if (page_guard_external_memory_)
+void TraceManager::PostProcess_vkFreeMemory(VkDevice                     device,
+                                            VkDeviceMemory               memory,
+                                            const VkAllocationCallbacks* pAllocator)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+
+    if (memory != VK_NULL_HANDLE)
+    {
+        // Destroy external resources.
+        auto wrapper = reinterpret_cast<DeviceMemoryWrapper*>(memory);
+
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            if ((page_guard_memory_mode_ == kMemoryModeExternal) && (wrapper->external_allocation != nullptr))
             {
                 size_t external_memory_size = manager->GetAlignedSize(static_cast<size_t>(wrapper->allocation_size));
                 manager->FreeMemory(wrapper->external_allocation, external_memory_size);
             }
+            else if ((page_guard_memory_mode_ == kMemoryModeShadowPersistent) &&
+                     (wrapper->shadow_allocation != util::PageGuardManager::kNullShadowHandle))
+            {
+                manager->FreePersistentShadowMemory(wrapper->shadow_allocation);
+            }
         }
+
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        if (wrapper->hardware_buffer != nullptr)
+        {
+            ReleaseAndroidHardwareBuffer(wrapper->hardware_buffer);
+        }
+#endif
     }
 }
 
@@ -1517,9 +1999,16 @@ void TraceManager::PreProcess_vkQueueSubmit(VkQueue             queue,
 
         for (auto wrapper : mapped_memory_)
         {
+            VkDeviceSize size = wrapper->mapped_size;
+            if (size == VK_WHOLE_SIZE)
+            {
+                assert(wrapper->mapped_offset <= wrapper->allocation_size);
+                size = wrapper->allocation_size - wrapper->mapped_offset;
+            }
+
             // If the memory is mapped, write the entire mapped region.
             // We set offset to 0, because the pointer returned by vkMapMemory already includes the offset.
-            WriteFillMemoryCmd(wrapper->handle_id, 0, wrapper->mapped_size, wrapper->mapped_data);
+            WriteFillMemoryCmd(wrapper->handle_id, 0, size, wrapper->mapped_data);
         }
     }
 }

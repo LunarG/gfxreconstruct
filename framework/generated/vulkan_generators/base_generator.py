@@ -1,8 +1,8 @@
 #!/usr/bin/python3 -i
 #
 # Copyright (c) 2013-2016 The Khronos Group Inc.
-# Copyright (c) 2018-2019 Valve Corporation
-# Copyright (c) 2018-2019 LunarG, Inc.
+# Copyright (c) 2018-2020 Valve Corporation
+# Copyright (c) 2018-2020 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -70,7 +70,8 @@ class ValueInfo():
                  altArrayLength = None,
                  arrayCapacity = None,
                  platformBaseType = None,
-                 platformFullType = None):
+                 platformFullType = None,
+                 bitfieldWidth = None):
         self.name = name
         self.baseType = baseType
         self.fullType = fullType
@@ -80,6 +81,7 @@ class ValueInfo():
         self.arrayCapacity = arrayCapacity
         self.platformBaseType = platformBaseType
         self.platformFullType = platformFullType
+        self.bitfieldWidth = bitfieldWidth
 
         self.isPointer = True if pointerCount > 0 else False
         self.isArray = True if arrayLength else False
@@ -154,6 +156,7 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.apientryp       = apientryp                 # NOTE: While not used in this file, apientry is expected to be defined here by the OutputGenerator base class.
         self.indentFuncProto = indentFuncProto
         self.alignFuncParam  = alignFuncParam
+        self.codeGenerator   = True
 
 
 # BaseGenerator - subclass of OutputGenerator.
@@ -206,6 +209,8 @@ class BaseGenerator(OutputGenerator):
         if self.processStructs:
             self.featureStructMembers = dict()            # Map of struct names to lists of per-member ValueInfo
             self.featureStructAliases = dict()            # Map of struct names to aliases
+            self.extensionStructsWithHandles = dict()     # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
+            self.extensionStructsWithHandlePtrs = dict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.processCmds:
             self.featureCmdParams = dict()                # Map of cmd names to lists of per-parameter ValueInfo
 
@@ -368,7 +373,8 @@ class BaseGenerator(OutputGenerator):
         for param in params:
             # Get name
             elem = param.find('name')
-            name = noneStr(elem.text) #+ noneStr(elem.tail)
+            name = noneStr(elem.text)
+            nameTail = noneStr(elem.tail)
 
             # Get type info
             elem = param.find('type')
@@ -393,6 +399,11 @@ class BaseGenerator(OutputGenerator):
                 arrayCapacity = arrayLength
                 arrayLength = self.getStaticArrayLen(name, params, arrayCapacity)
 
+            # Get bitfield width
+            bitfieldWidth = None
+            if ':' in nameTail:
+                bitfieldWidth = nameTail
+
             values.append(ValueInfo(
                 name = name,
                 baseType = baseType,
@@ -402,7 +413,8 @@ class BaseGenerator(OutputGenerator):
                 altArrayLength = altArrayLength,
                 arrayCapacity = arrayCapacity,
                 platformBaseType = platformBaseType,
-                platformFullType = platformFullType))
+                platformFullType = platformFullType,
+                bitfieldWidth = bitfieldWidth))
 
         return values
 
@@ -506,7 +518,11 @@ class BaseGenerator(OutputGenerator):
                 if paramenumsize is not None:
                     result = paramenumsize.text
                 else:
-                    result = paramname.tail[1:-1]
+                    paramsizes = paramname.tail[1:-1].split('][')
+                    sizetokens = []
+                    for paramsize in paramsizes:
+                        sizetokens.append(paramsize)
+                    result = ', '.join(sizetokens)
         return result
 
     #
@@ -558,38 +574,76 @@ class BaseGenerator(OutputGenerator):
     #
     # Determines if the specified struct type can reference pNext extension structs that contain handles.
     def checkStructPNextHandles(self, typename):
+        foundHandles = False
+        foundHandlePtrs = False
         validExtensionStructs = self.registry.validextensionstructs.get(typename)
         if validExtensionStructs:
             # Need to search the XML tree for pNext structures that have not been processed yet.
             for structName in validExtensionStructs:
-                typeInfo = self.registry.lookupElementInfo(structName, self.registry.typedict)
-                if typeInfo:
-                    memberTypes = [member.text for member in typeInfo.elem.findall('.//member/type')]
-                    if memberTypes:
-                        for memberType in memberTypes:
-                            found = self.registry.tree.find("types/type/[name='" + memberType + "'][@category='handle']")
-                            if found:
-                                return True
-        return False
+                # Check for cached results from a previous check for this struct
+                if structName in self.extensionStructsWithHandles:
+                    if self.extensionStructsWithHandles[structName]:
+                        foundHandles = True
+                    if self.extensionStructsWithHandlePtrs[structName]:
+                        foundHandlePtrs = True
+                else:
+                    # If a pre-existing result was not found, check the XML registry for the struct
+                    hasHandles = False
+                    hasHandlePtrs = False
+                    typeInfo = self.registry.lookupElementInfo(structName, self.registry.typedict)
+                    if typeInfo:
+                        memberInfos = [member for member in typeInfo.elem.findall('.//member/type')]
+                        if memberInfos:
+                            for memberInfo in memberInfos:
+                                found = self.registry.tree.find("types/type/[name='" + memberInfo.text + "'][@category='handle']")
+                                if found:
+                                    hasHandles = True
+                                    self.extensionStructsWithHandles[structName] = True
+                                    if memberInfo.tail and ('*' in memberInfo.tail):
+                                        self.extensionStructsWithHandlePtrs[structName] = True
+                                        hasHandlePtrs = True
+                                    else:
+                                        self.extensionStructsWithHandlePtrs[structName] = False
+
+                    if hasHandles:
+                        foundHandles = True
+                        if hasHandlePtrs:
+                            fountHandlePtrs = True
+                    else:
+                        self.extensionStructsWithHandles[structName] = False
+                        self.extensionStructsWithHandlePtrs[structName] = False
+
+        return foundHandles, foundHandlePtrs
 
     #
     # Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
-    # Structs with member handles are added to a dictionary, where the key is teh structure type and the value is a list of the handle members.
-    def checkStructMemberHandles(self, typename, structsWithHandles):
+    # Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
+    # An optional list of structure types that contain handle members with pointer types may also be generated.
+    def checkStructMemberHandles(self, typename, structsWithHandles, structsWithHandlePtrs = None):
         handles = []
+        hasHandlePointer = False
         for value in self.featureStructMembers[typename]:
             if self.isHandle(value.baseType):
                 # The member is a handle.
                 handles.append(value)
+                if (not structsWithHandlePtrs is None) and (value.isPointer or value.isArray):
+                    hasHandlePointer = True
             elif self.isStruct(value.baseType) and (value.baseType in structsWithHandles):
                 # The member is a struct that contains a handle.
                 handles.append(value)
+                if (not structsWithHandlePtrs is None)  and (value.name in structsWithHandlePtrs):
+                    hasHandlePointer = True
             elif 'pNext' in value.name:
                 # The pNext chain may include a struct with handles.
-                if self.checkStructPNextHandles(typename):
+                hasPNextHandles, hasPNextHandlePtrs = self.checkStructPNextHandles(typename)
+                if hasPNextHandles:
                     handles.append(value)
+                    if (not structsWithHandlePtrs is None) and hasPNextHandlePtrs:
+                        hasHandlePointer = True
         if handles:
             structsWithHandles[typename] = handles
+            if (not structsWithHandlePtrs is None) and hasHandlePointer:
+                structsWithHandlePtrs.append(typename)
             return True
         return False
 
@@ -703,7 +757,8 @@ class BaseGenerator(OutputGenerator):
                     typeName = 'PointerDecoder<uint8_t>'
                 elif count > 1:
                     # If this was a pointer to a pointer to an unknown object (void**), it was encoded as a pointer to a 64-bit address value.
-                    typeName = 'PointerDecoder<uint64_t>'
+                    # So, we specify uint64_t as the decode type and void* as the type to be used for Vulkan API call output parameters.
+                    typeName = 'PointerDecoder<uint64_t, void*>'
                 else:
                     # If this was a pointer to an unknown object (void*), it was encoded as a 64-bit address value.
                     typeName = 'uint64_t'
@@ -736,9 +791,8 @@ class BaseGenerator(OutputGenerator):
         for value in values:
             paramType = self.makeDecodedParamType(value)
 
-            # Pass pointer and struct wrappers by const reference
-            if 'Decoder' in paramType or 'Decoded_' in paramType:
-                paramType = 'const {}&'.format(paramType)
+            if 'Decoder' in paramType:
+                paramType = '{}*'.format(paramType)
 
             paramDecl = self.makeAlignedParamDecl(paramType, value.name, self.INDENT_SIZE, self.genOpts.alignFuncParam)
             paramDecls.append(paramDecl)
@@ -803,7 +857,10 @@ class BaseGenerator(OutputGenerator):
                 lengthName = self.parseLateXMath(value.arrayLength)
                 lengthExpr = value.altArrayLength
 
-            methodCall += 'Array'
+            if ',' in lengthName:
+                methodCall += '{}DMatrix'.format(lengthName.count(',') + 1)
+            else:
+                methodCall += 'Array'
 
             # Build a list of parameter names and search for the array length value.
             lengthValue = None
@@ -818,7 +875,10 @@ class BaseGenerator(OutputGenerator):
             if lengthValue and lengthValue.isPointer:
                 args.append('({name} != nullptr) ? (*{name}) : 0'.format(name=prefixedName))
             elif lengthName in paramNames:
-                args.append(prefixedName)
+                if lengthValue and (lengthValue.baseType == 'VkDeviceSize'):
+                    args.append('static_cast<size_t>({})'.format(prefixedName))
+                else:
+                    args.append(prefixedName)
             else:
                 args.append(lengthExpr)     # Length is a constant value, not a parameter
         elif isStruct:

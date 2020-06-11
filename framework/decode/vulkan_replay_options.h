@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2019 Valve Corporation
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 Valve Corporation
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -18,16 +18,23 @@
 #ifndef GFXRECON_DECODE_VULKAN_REPLAY_OPTIONS_H
 #define GFXRECON_DECODE_VULKAN_REPLAY_OPTIONS_H
 
+#include "decode/vulkan_resource_allocator.h"
 #include "util/defines.h"
+
+#include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+typedef VulkanResourceAllocator* (*CreateResourceAllocator)();
+
 struct ReplayOptions
 {
-    bool    skip_failed_allocations{ false };
-    bool    omit_pipeline_cache_data{ false };
-    int32_t override_gpu_index{ -1 };
+    bool                    skip_failed_allocations{ false };
+    bool                    omit_pipeline_cache_data{ false };
+    int32_t                 override_gpu_index{ -1 };
+    CreateResourceAllocator create_resource_allocator{ nullptr };
+    std::string             replace_dir{};
 };
 
 GFXRECON_END_NAMESPACE(decode)

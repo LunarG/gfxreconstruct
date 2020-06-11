@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -15,12 +15,15 @@
 ** limitations under the License.
 */
 
+#include "project_version.h"
+
 #include "layer/trace_layer.h"
 
 #include "encode/trace_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "generated/generated_layer_func_table.h"
 #include "generated/generated_vulkan_api_call_encoders.h"
+#include "util/platform.h"
 
 #include "vulkan/vk_layer.h"
 
@@ -28,15 +31,21 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-static const VkLayerProperties LayerProps = {
-    "VK_LAYER_LUNARG_gfxreconstruct",
-    VK_MAKE_VERSION(1, 0, VK_HEADER_VERSION),
-    1,
-    "GFXReconstruct Capture Layer",
+const VkLayerProperties kLayerProps = {
+    GFXRECON_PROJECT_LAYER_NAME,
+    VK_HEADER_VERSION_COMPLETE,
+    VK_MAKE_VERSION(GFXRECON_PROJECT_VERSION_MAJOR, GFXRECON_PROJECT_VERSION_MINOR, GFXRECON_PROJECT_VERSION_PATCH),
+    GFXRECON_PROJECT_DESCRIPTION
+    " Version " GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_MAJOR) "." GFXRECON_VERSION_STR(
+        GFXRECON_PROJECT_VERSION_MINOR) "." GFXRECON_VERSION_STR(GFXRECON_PROJECT_VERSION_PATCH)
+        GFXRECON_PROJECT_VERSION_DESIGNATION
 };
+
+const std::vector<VkExtensionProperties> kDeviceExtensionProps = { VkExtensionProperties{ "VK_EXT_tooling_info", 1 } };
 
 static const VkLayerInstanceCreateInfo* get_instance_chain_info(const VkInstanceCreateInfo* pCreateInfo,
                                                                 VkLayerFunction             func)
@@ -233,12 +242,33 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
 {
     VkResult result = VK_SUCCESS;
 
-    // This layer has no properties to export.
-    if ((pLayerName != nullptr) && (strcmp(pLayerName, LayerProps.layerName) == 0))
+    if ((pLayerName != nullptr) && (util::platform::StringCompare(pLayerName, kLayerProps.layerName) == 0))
     {
         if (pPropertyCount != nullptr)
         {
-            *pPropertyCount = 0;
+            uint32_t extension_count = static_cast<uint32_t>(kDeviceExtensionProps.size());
+
+            if (pProperties == nullptr)
+            {
+                *pPropertyCount = extension_count;
+            }
+            else
+            {
+                if ((*pPropertyCount) < extension_count)
+                {
+                    result          = VK_INCOMPLETE;
+                    extension_count = *pPropertyCount;
+                }
+                else if ((*pPropertyCount) > extension_count)
+                {
+                    *pPropertyCount = extension_count;
+                }
+
+                for (uint32_t i = 0; i < extension_count; ++i)
+                {
+                    pProperties[i] = kDeviceExtensionProps[i];
+                }
+            }
         }
     }
     else
@@ -259,7 +289,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(const char* 
 {
     VkResult result = VK_SUCCESS;
 
-    if (pLayerName && (strcmp(pLayerName, LayerProps.layerName) == 0))
+    if (pLayerName && (util::platform::StringCompare(pLayerName, kLayerProps.layerName) == 0))
     {
         if (pPropertyCount != nullptr)
         {
@@ -290,7 +320,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(uint32_t*       
     {
         if ((pPropertyCount != nullptr) && (*pPropertyCount >= 1))
         {
-            memcpy(pProperties, &LayerProps, sizeof(LayerProps));
+            util::platform::MemoryCopy(pProperties, sizeof(*pProperties), &kLayerProps, sizeof(kLayerProps));
             *pPropertyCount = 1;
         }
         else
@@ -314,71 +344,74 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 // To be safe, we extern "C" these items to remove name mangling for all the items we want to export for Android and old
 // loaders to find.
-extern "C" {
-
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
-                                    vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct)
+extern "C"
 {
-    assert(pVersionStruct != NULL);
-    assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
 
-    // Fill in the function pointers if our version is at least capable of having the structure contain them.
-    if (pVersionStruct->loaderLayerInterfaceVersion >= 2)
+    VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+    vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct)
     {
-        pVersionStruct->pfnGetInstanceProcAddr       = gfxrecon::GetInstanceProcAddr;
-        pVersionStruct->pfnGetDeviceProcAddr         = gfxrecon::GetDeviceProcAddr;
-        pVersionStruct->pfnGetPhysicalDeviceProcAddr = nullptr;
+        assert(pVersionStruct != NULL);
+        assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
+
+        // Fill in the function pointers if our version is at least capable of having the structure contain them.
+        if (pVersionStruct->loaderLayerInterfaceVersion >= 2)
+        {
+            pVersionStruct->pfnGetInstanceProcAddr       = gfxrecon::GetInstanceProcAddr;
+            pVersionStruct->pfnGetDeviceProcAddr         = gfxrecon::GetDeviceProcAddr;
+            pVersionStruct->pfnGetPhysicalDeviceProcAddr = nullptr;
+        }
+
+        if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION)
+        {
+            pVersionStruct->loaderLayerInterfaceVersion = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+        }
+
+        return VK_SUCCESS;
     }
 
-    if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION)
+    // The following three functions are not directly invoked by the desktop loader, which instead uses the function
+    // pointers returned by the negotiate function.
+    VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance  instance,
+                                                                                   const char* pName)
     {
-        pVersionStruct->loaderLayerInterfaceVersion = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+        return gfxrecon::GetInstanceProcAddr(instance, pName);
     }
 
-    return VK_SUCCESS;
-}
+    VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
+    {
+        return gfxrecon::GetDeviceProcAddr(device, pName);
+    }
 
-// The following three functions are not directly invoked by the desktop loader, which instead uses the function
-// pointers returned by the negotiate function.
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(VkInstance instance, const char* pName)
-{
-    return gfxrecon::GetInstanceProcAddr(instance, pName);
-}
+    // The following four functions are not invoked by the desktop loader, which retrieves the layer specific properties
+    // and extensions from both the layer's JSON file and during the negotiation process.
+    VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL
+    vkEnumerateDeviceExtensionProperties(VkPhysicalDevice       physicalDevice,
+                                         const char*            pLayerName,
+                                         uint32_t*              pPropertyCount,
+                                         VkExtensionProperties* pProperties)
+    {
+        assert(physicalDevice == VK_NULL_HANDLE);
+        return gfxrecon::EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pPropertyCount, pProperties);
+    }
 
-VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device, const char* pName)
-{
-    return gfxrecon::GetDeviceProcAddr(device, pName);
-}
+    VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(
+        const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
+    {
+        return gfxrecon::EnumerateInstanceExtensionProperties(pLayerName, pPropertyCount, pProperties);
+    }
 
-// The following four functions are not invoked by the desktop loader, which retrieves the layer specific properties and
-// extensions from both the layer's JSON file and during the negotiation process.
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice,
-                                                                                    const char*      pLayerName,
-                                                                                    uint32_t*        pPropertyCount,
-                                                                                    VkExtensionProperties* pProperties)
-{
-    assert(physicalDevice == VK_NULL_HANDLE);
-    return gfxrecon::EnumerateDeviceExtensionProperties(physicalDevice, pLayerName, pPropertyCount, pProperties);
-}
+    VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
+                                                                                      VkLayerProperties* pProperties)
+    {
+        return gfxrecon::EnumerateInstanceLayerProperties(pPropertyCount, pProperties);
+    }
 
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionProperties(
-    const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties)
-{
-    return gfxrecon::EnumerateInstanceExtensionProperties(pLayerName, pPropertyCount, pProperties);
-}
-
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t*          pPropertyCount,
-                                                                                  VkLayerProperties* pProperties)
-{
-    return gfxrecon::EnumerateInstanceLayerProperties(pPropertyCount, pProperties);
-}
-
-VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
-                                                                                uint32_t*          pPropertyCount,
-                                                                                VkLayerProperties* pProperties)
-{
-    assert(physicalDevice == VK_NULL_HANDLE);
-    return gfxrecon::EnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
-}
+    VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceLayerProperties(VkPhysicalDevice   physicalDevice,
+                                                                                    uint32_t*          pPropertyCount,
+                                                                                    VkLayerProperties* pProperties)
+    {
+        assert(physicalDevice == VK_NULL_HANDLE);
+        return gfxrecon::EnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
+    }
 
 } // extern "C"

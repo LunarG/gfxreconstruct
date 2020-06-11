@@ -19,6 +19,7 @@ target_sources(VkLayer_gfxreconstruct
 
 target_include_directories(VkLayer_gfxreconstruct
                            PUBLIC
+                               ${CMAKE_BINARY_DIR}
                                ${GFXRECON_SOURCE_DIR})
 
 target_link_libraries(VkLayer_gfxreconstruct
@@ -27,4 +28,5 @@ target_link_libraries(VkLayer_gfxreconstruct
                       gfxrecon_util
                       vulkan_registry
                       platform_specific
+                      android
                       log)

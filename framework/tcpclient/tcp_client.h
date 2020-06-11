@@ -33,9 +33,10 @@ using namespace std;
 
 namespace
 {
-static constexpr uint32_t kStrLen     = 4096;
-static constexpr uint32_t kPortStrLen = 128;
-static constexpr char*    kDriverName = "amdvlk64.dll";
+static constexpr uint32_t kStrLen              = 4096;
+static constexpr uint32_t kPortStrLen          = 128;
+static const char*        kDriverName          = "amdvlk64.dll";
+static constexpr uint32_t kIpAddressStringSize = 32;
 } // namespace
 
 // Used for sending messages over TCP

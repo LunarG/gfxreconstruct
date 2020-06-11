@@ -49,6 +49,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
+        self.pNextStructs = dict()    # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
+        self.commandInfo = dict()     # Map of Vulkan commands to parameter info
 
     # Method override
     def beginFile(self, genOpts):
@@ -64,6 +66,26 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
     # Method override
     def endFile(self):
+        for cmd, info in self.commandInfo.items():
+            params = info[2]
+            if params and params[0].baseType == 'VkCommandBuffer':
+                # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
+                handles = self.getParamListHandles(params[1:])
+
+                if (handles):
+                    # Generate a function to build a list of handle types and values.
+                    cmddef = '\n'
+                    cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {})\n'.format(cmd[2:], self.getArgList(handles))
+                    cmddef += '{\n'
+                    indent = self.INDENT_SIZE * ' '
+                    cmddef += indent + 'assert(wrapper != nullptr);\n'
+                    cmddef += '\n'
+                    for index, handle in enumerate(handles):
+                        cmddef += self.insertCommandHandle(index, handle, indent=indent)
+                    cmddef += '}'
+
+                    write(cmddef, file=self.outFile)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -79,6 +101,13 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         if not alias:
             self.checkStructMemberHandles(typename, self.structsWithHandles)
 
+            # Track this struct if it can be present in a pNext chain, for generating the MapPNextStructHandles code.
+            parentStructs = typeinfo.elem.get('structextends')
+            if parentStructs:
+                sType = self.makeStructureTypeEnum(typeinfo, typename)
+                if sType:
+                    self.pNextStructs[typename] = sType
+
     #
     # Indicates that the current feature has C++ code to generate.
     def needFeatureGeneration(self):
@@ -90,25 +119,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generateFeature(self):
         for cmd in self.getFilteredCmdNames():
-            info = self.featureCmdParams[cmd]
-            returnType = info[0]
-            values = info[2]
-
-            if values and (len(values) > 1) and (values[0].baseType == 'VkCommandBuffer'):
-                # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
-                handles = self.getParamListHandles(values[1:])
-
-                if (handles):
-                    # Generate a function to build a list of handle types and values.
-                    cmddef = '\n'
-                    cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {})\n'.format(cmd[2:], self.getArgList(handles))
-                    cmddef += '{\n'
-                    cmddef += '    assert(wrapper != nullptr);\n'
-                    cmddef += '\n'
-                    cmddef += self.makeGetHandleValuesBody(handles)
-                    cmddef += '}'
-
-                    write(cmddef, file=self.outFile)
+            self.commandInfo[cmd] = self.featureCmdParams[cmd]
 
     #
     # Create list of parameters that have handle types or are structs that contain handles.
@@ -133,49 +144,76 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
     #
     #
-    def makeGetHandleValuesBody(self, values):
+    def insertCommandHandle(self, index, value, valuePrefix='', indent=''):
         body = ''
-        first = True
-        for value in values:
-            indent = ' ' * self.INDENT_SIZE
-            valueName = value.name
+        tail = ''
+        indexName = None
+        if (value.isPointer or value.isArray) and value.name != 'pnext_value':
+            if index > 0:
+                body += '\n'
+            body += indent + 'if ({}{} != nullptr)\n'.format(valuePrefix, value.name)
+            body += indent + '{\n'
+            tail = indent + '}\n' + tail
+            indent += ' ' * self.INDENT_SIZE
 
-            if value.isPointer or value.isArray:
-                if not first:
-                    body += '\n'
-                body += indent + 'if ({} != nullptr)\n'.format(value.name)
+            if value.isArray:
+                indexName = '{}_index'.format(value.name)
+                body += indent + 'for (uint32_t {i} = 0; {i} < {}{}; ++{i})\n'.format(valuePrefix, value.arrayLength, i=indexName)
                 body += indent + '{\n'
+                tail = indent + '}\n' + tail
                 indent += ' ' * self.INDENT_SIZE
 
-                if value.isArray:
-                    body += indent + 'for (uint32_t i = 0; i < {}; ++i)\n'.format(value.arrayLength)
-                    body += indent + '{\n'
-                    indent += ' ' * self.INDENT_SIZE
-                    valueName = '{}[i]'.format(valueName)
+        if self.isHandle(value.baseType):
+            typeEnumValue = '{}Handle'.format(value.baseType[2:])
+            valueName = valuePrefix + value.name
+            if value.isArray:
+                valueName = '{}[{}]'.format(valueName, indexName)
+            elif value.isPointer:
+                valueName = '(*{})'.format(valueName)
+
+            body += indent + 'wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId({}));\n'.format(typeEnumValue, valueName)
+
+        elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
+            if value.isArray:
+                accessOperator = '[{}].'.format(indexName)
+            elif value.isPointer:
+                accessOperator = '->'
+            else:
+                accessOperator = '.'
+
+            for index, entry in enumerate(self.structsWithHandles[value.baseType]):
+                if entry.name == 'pNext':
+                    extStructsWithHandles = [extStruct for extStruct in self.registry.validextensionstructs[value.baseType] if extStruct in self.structsWithHandles]
+                    if extStructsWithHandles:
+                        body += indent + 'auto pnext_header = reinterpret_cast<const VkBaseInStructure*>({}{}->pNext);\n'.format(valuePrefix, value.name)
+                        body += indent + 'while (pnext_header)\n'
+                        body += indent + '{\n'
+                        indent += ' ' * self.INDENT_SIZE
+                        body += indent + 'switch (pnext_header->sType)\n'
+                        body += indent + '{\n'
+                        indent += ' ' * self.INDENT_SIZE
+                        body += indent + 'default:\n'
+                        indent += ' ' * self.INDENT_SIZE
+                        body += indent + 'break;\n'
+                        indent = indent[:-self.INDENT_SIZE]
+                        for extStruct in extStructsWithHandles:
+                            body += indent + 'case {}:\n'.format(self.pNextStructs[extStruct])
+                            body += indent + '{\n'
+                            indent += ' ' * self.INDENT_SIZE
+                            body += indent + 'auto pnext_value = reinterpret_cast<const {}*>(pnext_header);\n'.format(extStruct)
+                            body += self.insertCommandHandle(index, ValueInfo('pnext_value', extStruct, 'const {} *'.format(extStruct), 1), '', indent=indent)
+                            body += indent + 'break;\n'
+                            indent = indent[:-self.INDENT_SIZE]
+                            body += indent + '}\n'
+                        indent = indent[:-self.INDENT_SIZE]
+                        body += indent + '}\n'
+                        body += indent + 'pnext_header = pnext_header->pNext;\n'
+                        indent = indent[:-self.INDENT_SIZE]
+                        body += indent + '}\n'
                 else:
-                    valueName = '(*{})'.format(valueName)
+                    body += self.insertCommandHandle(index, entry, valuePrefix + value.name + accessOperator, indent)
 
-            if self.isHandle(value.baseType):
-                typeEnumValue = '{}Handle'.format(value.baseType[2:])
-                body += indent + 'wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId({}));\n'.format(typeEnumValue, valueName)
+        return body + tail
 
-            elif self.isStruct(value.baseType) and (value.baseType in self.structsWithHandles):
-                for entry in self.structsWithHandles[value.baseType]:
-                    if self.isHandle(entry.baseType) and not (entry.isPointer or entry.isArray):
-                        typeEnumValue = '{}Handle'.format(entry.baseType[2:])
-                        body += indent + 'wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId({}.{}));\n'.format(typeEnumValue, valueName, entry.name)
 
-                    else:
-                        # TODO - process handles in structs
-                        body += indent + '// TODO: Process handles from parameter "{}" with type "{}"\n'.format(entry.name, entry.fullType)
 
-            if value.isPointer or value.isArray:
-                indent = indent[0:-self.INDENT_SIZE]
-                body += indent + '}\n'
-                if value.isArray:
-                    indent = indent[0:-self.INDENT_SIZE]
-                    body += indent + '}\n'
-
-            first = False
-
-        return body

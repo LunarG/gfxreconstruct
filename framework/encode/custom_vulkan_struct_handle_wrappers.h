@@ -30,8 +30,7 @@ void UnwrapStructHandles(VkDescriptorType type, VkDescriptorImageInfo* value, Ha
 
 void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap_memory);
 
-const VkObjectTableEntryNVX* const*
-UnwrapStructArrayHandles(const VkObjectTableEntryNVX* const* values, size_t len, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018,2020 Valve Corporation
+** Copyright (c) 2018,2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,13 +30,6 @@ GFXRECON_BEGIN_NAMESPACE(application)
 class WaylandWindow : public decode::Window
 {
   public:
-    enum HandleId : uint32_t
-    {
-        kDisplay = 0,
-        kSurface = 1
-    };
-
-  public:
     WaylandWindow(WaylandApplication* application);
 
     virtual ~WaylandWindow() override;
@@ -63,7 +56,7 @@ class WaylandWindow : public decode::Window
 
     virtual void SetForeground() override;
 
-    virtual bool GetNativeHandle(uint32_t id, void** handle) override;
+    virtual bool GetNativeHandle(HandleType type, void** handle) override;
 
     virtual VkResult CreateSurface(const encode::InstanceTable* table,
                                    VkInstance                   instance,
@@ -71,6 +64,9 @@ class WaylandWindow : public decode::Window
                                    VkSurfaceKHR*                pSurface) override;
 
   private:
+    static void HandleSurfaceEnter(void* data, struct wl_surface* surface, struct wl_output* output);
+    static void HandleSurfaceLeave(void* data, struct wl_surface* surface, struct wl_output* output);
+
     static void HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial);
 
     static void
@@ -78,11 +74,18 @@ class WaylandWindow : public decode::Window
 
     static void HandlePopupDone(void* data, wl_shell_surface* shell_surface);
 
+    void UpdateWindowSize();
+
   private:
+    static struct wl_surface_listener       surface_listener_;
     static struct wl_shell_surface_listener shell_surface_listener_;
     WaylandApplication*                     wayland_application_;
     struct wl_surface*                      surface_;
     struct wl_shell_surface*                shell_surface_;
+    uint32_t                                width_;
+    uint32_t                                height_;
+    int32_t                                 scale_;
+    struct wl_output*                       output_;
 };
 
 class WaylandWindowFactory : public decode::WindowFactory

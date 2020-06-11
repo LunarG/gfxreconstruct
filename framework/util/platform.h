@@ -33,10 +33,12 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
+#include <direct.h>
 #else // WIN32
 #include <dlfcn.h>
 #include <errno.h>
 #include <pthread.h>
+#include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -195,6 +197,11 @@ inline int32_t LocalTime(tm* local_time, const time_t* timer)
 inline int32_t GMTime(tm* gm_time, const time_t* timer)
 {
     return static_cast<int32_t>(gmtime_s(gm_time, timer));
+}
+
+inline int32_t MakeDirectory(const char* filename)
+{
+    return _mkdir(filename);
 }
 
 #else // !defined(WIN32)
@@ -434,6 +441,11 @@ inline int32_t GMTime(tm* gm_time, const time_t* timer)
         return errno;
     }
 #endif
+}
+
+inline int32_t MakeDirectory(const char* filename)
+{
+    return mkdir(filename, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
 
 #endif // WIN32

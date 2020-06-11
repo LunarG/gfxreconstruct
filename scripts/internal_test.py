@@ -227,12 +227,12 @@ class GFXTestSuite(unittest.TestCase):
             command = ''
             if platform.system().lower() == "windows":
                 app = os.path.join(local_dst_path,(exe + ".exe"))
-                command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin &&\
-                    set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; &&\
-                    set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; &&\
-                    set VK_SCREENSHOT_FRAMES={1} &&\
-                    set GFXRECON_CAPTURE_FILE={2}\\{3}.gfxr &&\
-                    set GFXRECON_LOG_LEVEL=warning &&\
+                command = 'set VK_LAYER_PATH={0};%VULKAN_SDK%\\Bin&&\
+                    set VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
+                    set VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot;&&\
+                    set VK_SCREENSHOT_FRAMES={1}&&\
+                    set GFXRECON_CAPTURE_FILE={2}\\{3}.gfxr&&\
+                    set GFXRECON_LOG_LEVEL=warning&&\
                     start {4}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe, app)
             elif platform.system().lower() == "linux":
                 app = '{0}/{1}'.format(local_dst_path, exe)
@@ -288,7 +288,7 @@ class GFXTestSuite(unittest.TestCase):
                     set GFXRECON_CAPTURE_FILE={2}\\{3}.gfxr&&\
                     set GFXRECON_LOG_LEVEL=warning&&\
                     set GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY={4}&&\
-                    {5}\\gfxrecon-replay.exe {6}'.format(args.layer_path, GOLDEN_TRACES_CONFIG[game][1], TEST_RESULT_FOLDER, exe+"_recap", GOLDEN_TRACES_CONFIG[game][2], args.binary_path, tracefile)
+                    {5}\\gfxrecon-replay.exe {6}'.format(args.layer_path, screenshot_frames, TEST_RESULT_FOLDER, exe+"_recap", GOLDEN_TRACES_CONFIG[game][2], args.binary_path, tracefile)
             elif platform.system().lower() == "linux":
                 command = 'export VK_LAYER_PATH={0};$VULKAN_SDK/etc/vulkan/explicit_layer.d; export VK_DEVICE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_INSTANCE_LAYERS=VK_LAYER_LUNARG_gfxreconstruct;VK_LAYER_LUNARG_screenshot; export VK_SCREENSHOT_FRAMES={1}; export GFXRECON_CAPTURE_FILE={2}/{3}.gfxr; export GFXRECON_LOG_LEVEL=warning; export GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY={4}; {5}/gfxrecon-replay {6}'.format(
                     args.layer_path, GOLDEN_TRACES_CONFIG[game][1], TEST_RESULT_FOLDER, exe+"_recap", GOLDEN_TRACES_CONFIG[game][2], args.binary_path, tracefile)

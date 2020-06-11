@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 FileProcessor::FileProcessor() :
-    file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0), error_state_(kErrorInvalidFileDescriptor),
-    compressor_(nullptr)
+    file_header_{}, file_descriptor_(nullptr), current_frame_number_(0), bytes_read_(0),
+    error_state_(kErrorInvalidFileDescriptor), compressor_(nullptr)
 {}
 
 FileProcessor::~FileProcessor()
@@ -232,8 +232,7 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else
                 {
-                    GFXRECON_LOG_ERROR("Failed to read function call block header");
-                    error_state_ = kErrorReadingBlockHeader;
+                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
                 }
             }
             else if (format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock)
@@ -248,8 +247,7 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else
                 {
-                    GFXRECON_LOG_ERROR("Failed to read meta-data block header");
-                    error_state_ = kErrorReadingBlockHeader;
+                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read meta-data block header");
                 }
             }
             else if (block_header.type == format::BlockType::kStateMarkerBlock)
@@ -265,8 +263,7 @@ bool FileProcessor::ProcessBlocks()
                 }
                 else
                 {
-                    GFXRECON_LOG_ERROR("Failed to read state marker header");
-                    error_state_ = kErrorReadingBlockHeader;
+                    HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read state marker header");
                 }
             }
             else
@@ -281,6 +278,10 @@ bool FileProcessor::ProcessBlocks()
         {
             if (!feof(file_descriptor_))
             {
+                // No data has been read for the current block, so we don't use 'HandleBlockReadError' here, as it
+                // assumes that the block header has been successfully read and will print an incomplete block at end
+                // of file warning when the file is at EOF without an error. For this case (the normal EOF case) we
+                // print nothing at EOF, or print an error message and set the error code directly when not at EOF.
                 GFXRECON_LOG_ERROR("Failed to read block header");
                 error_state_ = kErrorReadingBlockHeader;
             }
@@ -665,6 +666,210 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read display message meta-data block header");
         }
     }
+    else if (meta_type == format::MetaDataType::kCreateHardwareBufferCommand)
+    {
+        format::CreateHardwareBufferCommandHeader header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.memory_id, sizeof(header.memory_id));
+        success = success && ReadBytes(&header.buffer_id, sizeof(header.buffer_id));
+        success = success && ReadBytes(&header.format, sizeof(header.format));
+        success = success && ReadBytes(&header.width, sizeof(header.width));
+        success = success && ReadBytes(&header.height, sizeof(header.height));
+        success = success && ReadBytes(&header.stride, sizeof(header.stride));
+        success = success && ReadBytes(&header.usage, sizeof(header.usage));
+        success = success && ReadBytes(&header.layers, sizeof(header.layers));
+        success = success && ReadBytes(&header.planes, sizeof(header.planes));
+
+        if (success)
+        {
+            std::vector<format::HardwareBufferPlaneInfo> entries;
+
+            for (uint64_t i = 0; i < header.planes; ++i)
+            {
+                format::HardwareBufferPlaneInfo entry;
+
+                if (!ReadBytes(&entry, sizeof(entry)))
+                {
+                    success = false;
+                    break;
+                }
+
+                entries.emplace_back(std::move(entry));
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchCreateHardwareBufferCommand(header.thread_id,
+                                                                 header.memory_id,
+                                                                 header.buffer_id,
+                                                                 header.format,
+                                                                 header.width,
+                                                                 header.height,
+                                                                 header.stride,
+                                                                 header.usage,
+                                                                 header.layers,
+                                                                 entries);
+                }
+            }
+            else
+            {
+                if (format::IsBlockCompressed(block_header.type))
+                {
+                    HandleBlockReadError(kErrorReadingCompressedBlockData,
+                                         "Failed to read create hardware buffer meta-data block");
+                }
+                else
+                {
+                    HandleBlockReadError(kErrorReadingBlockData,
+                                         "Failed to read create hardware buffer meta-data block");
+                }
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read create hardware buffer meta-data block header");
+        }
+    }
+    else if (meta_type == format::MetaDataType::kDestroyHardwareBufferCommand)
+    {
+        format::DestroyHardwareBufferCommand command;
+
+        success = ReadBytes(&command.thread_id, sizeof(command.thread_id));
+        success = success && ReadBytes(&command.buffer_id, sizeof(command.buffer_id));
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                decoder->DispatchDestroyHardwareBufferCommand(command.thread_id, command.buffer_id);
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read destroy hardware buffer meta-data block");
+        }
+    }
+    else if (meta_type == format::MetaDataType::kSetDevicePropertiesCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetDevicePropertiesCommand header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.physical_device_id, sizeof(header.physical_device_id));
+        success = success && ReadBytes(&header.api_version, sizeof(header.api_version));
+        success = success && ReadBytes(&header.driver_version, sizeof(header.driver_version));
+        success = success && ReadBytes(&header.vendor_id, sizeof(header.vendor_id));
+        success = success && ReadBytes(&header.device_id, sizeof(header.device_id));
+        success = success && ReadBytes(&header.device_type, sizeof(header.device_type));
+        success = success && ReadBytes(&header.pipeline_cache_uuid, format::kUuidSize);
+        success = success && ReadBytes(&header.device_name_len, sizeof(header.device_name_len));
+
+        if (success)
+        {
+            char device_name[format::kMaxPhysicalDeviceNameSize];
+
+            if (header.device_name_len < format::kMaxPhysicalDeviceNameSize)
+            {
+                success                             = success && ReadBytes(&device_name, header.device_name_len);
+                device_name[header.device_name_len] = '\0';
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchSetDevicePropertiesCommand(header.thread_id,
+                                                                header.physical_device_id,
+                                                                header.api_version,
+                                                                header.driver_version,
+                                                                header.vendor_id,
+                                                                header.device_id,
+                                                                header.device_type,
+                                                                header.pipeline_cache_uuid,
+                                                                device_name);
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockData,
+                                     "Failed to read set device memory properties meta-data block");
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read set device memory properties meta-data block header");
+        }
+    }
+    else if (meta_type == format::MetaDataType::kSetDeviceMemoryPropertiesCommand)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::SetDeviceMemoryPropertiesCommand header;
+
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.physical_device_id, sizeof(header.physical_device_id));
+        success = success && ReadBytes(&header.memory_type_count, sizeof(header.memory_type_count));
+        success = success && ReadBytes(&header.memory_heap_count, sizeof(header.memory_heap_count));
+
+        if (success)
+        {
+            std::vector<format::DeviceMemoryType> types;
+            std::vector<format::DeviceMemoryHeap> heaps;
+
+            for (uint32_t i = 0; i < header.memory_type_count; ++i)
+            {
+                format::DeviceMemoryType type;
+
+                if (!ReadBytes(&type, sizeof(type)))
+                {
+                    success = false;
+                    break;
+                }
+
+                types.emplace_back(std::move(type));
+            }
+
+            for (uint32_t i = 0; i < header.memory_heap_count; ++i)
+            {
+                format::DeviceMemoryHeap heap;
+
+                if (!ReadBytes(&heap, sizeof(heap)))
+                {
+                    success = false;
+                    break;
+                }
+
+                heaps.emplace_back(std::move(heap));
+            }
+
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchSetDeviceMemoryPropertiesCommand(
+                        header.thread_id, header.physical_device_id, types, heaps);
+                }
+            }
+            else
+            {
+                HandleBlockReadError(kErrorReadingBlockData,
+                                     "Failed to read set device memory properties meta-data block");
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader,
+                                 "Failed to read set device memory properties meta-data block header");
+        }
+    }
     else if (meta_type == format::MetaDataType::kSetSwapchainImageStateCommand)
     {
         // This command does not support compression.
@@ -682,7 +887,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             std::vector<format::SwapchainImageStateInfo> entries;
 
-            for (uint64_t i = 0; i < header.image_info_count; ++i)
+            for (uint32_t i = 0; i < header.image_info_count; ++i)
             {
                 format::SwapchainImageStateInfo entry;
 
@@ -692,7 +897,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                     break;
                 }
 
-                entries.emplace_back(entry);
+                entries.emplace_back(std::move(entry));
             }
 
             if (success)

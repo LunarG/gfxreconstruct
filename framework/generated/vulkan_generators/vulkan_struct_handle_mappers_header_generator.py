@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -i
 #
-# Copyright (c) 2019 Valve Corporation
-# Copyright (c) 2019 LunarG, Inc.
+# Copyright (c) 2019-2020 Valve Corporation
+# Copyright (c) 2019-2020 LunarG, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structsWithHandles = dict()
+        self.structsWithHandlePtrs = []
         # List of structs containing handles that are also used as output parameters for a command
         self.outputStructsWithHandles = []
 
@@ -57,7 +58,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, genOpts)
 
         write('#include "decode/pnext_node.h"', file=self.outFile)
-        write('#include "decode/vulkan_object_mapper.h"', file=self.outFile)
+        write('#include "decode/vulkan_object_info_table.h"', file=self.outFile)
         write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "generated/generated_vulkan_struct_decoders_forward.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
@@ -70,27 +71,27 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
     # Method override
     def endFile(self):
         self.newline()
-        write('void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectMapper& object_mapper);', file=self.outFile)
+        write('void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectInfoTable& object_info_table);', file=self.outFile)
         self.newline()
         write('template <typename T>', file=self.outFile)
-        write('void MapStructArrayHandles(T* structs, size_t len, const VulkanObjectMapper& object_mapper)', file=self.outFile)
+        write('void MapStructArrayHandles(T* structs, size_t len, const VulkanObjectInfoTable& object_info_table)', file=self.outFile)
         write('{', file=self.outFile)
         write('    if (structs != nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
         write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
         write('        {', file=self.outFile)
-        write('            MapStructHandles(&structs[i], object_mapper);', file=self.outFile)
+        write('            MapStructHandles(&structs[i], object_info_table);', file=self.outFile)
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
         self.newline()
 
         for struct in self.outputStructsWithHandles:
-            write('void AddStructHandles(const Decoded_{type}* id_wrapper, const {type}* handle_struct, VulkanObjectMapper& object_mapper);'.format(type=struct), file=self.outFile)
+            write('void AddStructHandles(const Decoded_{type}* id_wrapper, const {type}* handle_struct, VulkanObjectInfoTable* object_info_table);'.format(type=struct), file=self.outFile)
             self.newline()
 
         write('template <typename T>', file=self.outFile)
-        write('void AddStructArrayHandles(const T* id_wrappers, size_t id_len, const typename T::struct_type* handle_structs, size_t handle_len, VulkanObjectMapper& object_mapper)', file=self.outFile)
+        write('void AddStructArrayHandles(const T* id_wrappers, size_t id_len, const typename T::struct_type* handle_structs, size_t handle_len, VulkanObjectInfoTable* object_info_table)', file=self.outFile)
         write('{', file=self.outFile)
         write('    if (id_wrappers != nullptr && handle_structs != nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
@@ -98,11 +99,30 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         write('        size_t len = std::min(id_len, handle_len);', file=self.outFile)
         write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
         write('        {', file=self.outFile)
-        write('            AddStructHandles(&id_wrappers[i], &handle_structs[i], object_mapper);', file=self.outFile)
+        write('            AddStructHandles(&id_wrappers[i], &handle_structs[i], object_info_table);', file=self.outFile)
         write('        }', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
         self.newline()
+
+        for struct in self.outputStructsWithHandles:
+            if struct in self.structsWithHandlePtrs:
+                write('void SetStructHandleLengths(Decoded_{type}* wrapper);'.format(type=struct), file=self.outFile)
+                self.newline()
+
+        write('template <typename T>', file=self.outFile)
+        write('void SetStructArrayHandleLengths(T* wrappers, size_t len)', file=self.outFile)
+        write('{', file=self.outFile)
+        write('    if (wrappers != nullptr)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
+        write('        {', file=self.outFile)
+        write('            SetStructHandleLengths(&wrappers[i]);', file=self.outFile)
+        write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
+        self.newline()
+
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -115,7 +135,7 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
         if not alias:
-            self.checkStructMemberHandles(typename, self.structsWithHandles)
+            self.checkStructMemberHandles(typename, self.structsWithHandles, self.structsWithHandlePtrs)
 
     #
     # Method override
@@ -144,5 +164,5 @@ class VulkanStructHandleMappersHeaderGenerator(BaseGenerator):
         for struct in self.getFilteredStructNames():
             if struct in self.structsWithHandles:
                 body = '\n'
-                body += 'void MapStructHandles(Decoded_{}* wrapper, const VulkanObjectMapper& object_mapper);'.format(struct)
+                body += 'void MapStructHandles(Decoded_{}* wrapper, const VulkanObjectInfoTable& object_info_table);'.format(struct)
                 write(body, file=self.outFile)

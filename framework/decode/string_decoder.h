@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-template <typename CharT, format::PointerAttributes DecodeAttrib>
+template <typename CharT, typename EncodeT, format::PointerAttributes DecodeAttrib>
 class BasicStringDecoder : public PointerDecoderBase
 {
   public:
@@ -43,7 +43,7 @@ class BasicStringDecoder : public PointerDecoderBase
         }
     }
 
-    CharT* GetPointer() const { return data_; }
+    const CharT* GetPointer() const { return data_; }
 
     void SetExternalMemory(CharT* data, size_t capacity)
     {
@@ -78,8 +78,8 @@ class BasicStringDecoder : public PointerDecoderBase
 
                 data_     = new CharT[alloc_len];
                 capacity_ = alloc_len;
-                bytes_read +=
-                    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
+                bytes_read += ValueDecoder::DecodeArrayFrom<EncodeT>(
+                    (buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
                 data_[string_len] = '\0';
             }
             else
@@ -88,14 +88,16 @@ class BasicStringDecoder : public PointerDecoderBase
 
                 if (alloc_len <= capacity_)
                 {
-                    ValueDecoder::DecodeVoidArray((buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
+                    ValueDecoder::DecodeArrayFrom<EncodeT>(
+                        (buffer + bytes_read), (buffer_size - bytes_read), data_, string_len);
                     data_[string_len] = '\0';
                 }
                 else
                 {
-                    ValueDecoder::DecodeVoidArray(
-                        (buffer + bytes_read), (buffer_size - bytes_read), data_, (capacity_ - 1));
-                    data_[capacity_] = '\0';
+                    size_t truncate_len = capacity_ - 1;
+                    ValueDecoder::DecodeArrayFrom<EncodeT>(
+                        (buffer + bytes_read), (buffer_size - bytes_read), data_, truncate_len);
+                    data_[truncate_len] = '\0';
 
                     GFXRECON_LOG_WARNING("String decoder's external memory capacity (%" PRIuPTR
                                          ") is smaller than the decoded string size (%" PRIuPTR
@@ -106,7 +108,7 @@ class BasicStringDecoder : public PointerDecoderBase
 
                 // We always need to advance the position within the buffer by the amount of data that was expected to
                 // be decoded, not the actual amount of data decoded if capacity is too small to hold all of the data.
-                bytes_read += string_len;
+                bytes_read += string_len * sizeof(EncodeT);
             }
         }
 
@@ -119,8 +121,8 @@ class BasicStringDecoder : public PointerDecoderBase
     bool   is_memory_external_;
 };
 
-typedef BasicStringDecoder<char, format::PointerAttributes::kIsString>     StringDecoder;
-typedef BasicStringDecoder<wchar_t, format::PointerAttributes::kIsWString> WStringDecoder;
+typedef BasicStringDecoder<char, format::CharEncodeType, format::PointerAttributes::kIsString>      StringDecoder;
+typedef BasicStringDecoder<wchar_t, format::WCharEncodeType, format::PointerAttributes::kIsWString> WStringDecoder;
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

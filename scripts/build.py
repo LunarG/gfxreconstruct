@@ -192,10 +192,6 @@ def cmake_generate_build_files(args):
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
         else:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
-        if (shutil.which('clang') is not None) and\
-                (shutil.which('clang++') is not None):
-            cmake_generate_env['CC'] = 'clang'
-            cmake_generate_env['CXX'] = 'clang++'
     for config, dir in BUILD_CONFIGS.items():
         for output in [('ARCHIVE', 'lib'), ('LIBRARY', 'bin'), ('RUNTIME', 'bin')]:
             cmake_generate_args.append(

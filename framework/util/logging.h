@@ -42,64 +42,102 @@ class Log
     struct Settings
     {
         // General settings
-        Severity    min_severity;             // Any severity >= to this value will print
-        bool        output_detailed_log_info; // Output detailed log messages
-        bool        flush_after_write;        // Flush the file/console after every log write
-        bool        use_indent;               // Write out messages using indenting
-        uint32_t    indent;                   // Number of indents to shift this message
-        std::string indent_spaces;            // String of spaces used for each indent
-        bool        break_on_error;           // If an error occurs, force a break
+        Severity    min_severity{ kInfoSeverity };     // Any severity >= to this value will print
+        bool        output_detailed_log_info{ false }; // Output detailed log messages
+        bool        flush_after_write{ false };        // Flush the file/console after every log write
+        bool        use_indent{ false };               // Write out messages using indenting
+        uint32_t    indent{ 0 };                       // Number of indents to shift this message
+        std::string indent_spaces{ "    " };           // String of spaces used for each indent
+        bool        break_on_error{ false };           // If an error occurs, force a break
 
         // File settings
-        bool        write_to_file;   // Write info to a file
-        bool        create_new;      // Overwrite any previous version of the file every Init call.
-        bool        leave_file_open; // When we write, keep the file open for more efficient writing
-        std::string file_name;       // Name of the file (including path)
-        FILE*       file_pointer;    // Pointer to opened file
+        bool        write_to_file{ false };  // Write info to a file
+        bool        create_new{ true };      // Overwrite any previous version of the file every Init call.
+        bool        leave_file_open{ true }; // When we write, keep the file open for more efficient writing
+        std::string file_name;               // Name of the file (including path)
+        FILE*       file_pointer{ nullptr }; // Pointer to opened file
 
         // Console settings
-        bool write_to_console;          // Write info out to the console
-        bool output_errors_to_stderr;   // Output errors to stderr versus stdout
-        bool output_to_os_debug_string; // Windows-specific output messages to OutputDebugString
-
-        // Constructor used for default initialization
-        Settings() :
-            min_severity(kInfoSeverity), output_detailed_log_info(false), flush_after_write(false), use_indent(false),
-            indent(0), indent_spaces(std::string("   ")), break_on_error(false), write_to_file(false), create_new(true),
-            leave_file_open(true), file_name(std::string("")), file_pointer(nullptr), write_to_console(true),
-            output_errors_to_stderr(true), output_to_os_debug_string(false)
-        {}
+        bool write_to_console{ true };           // Write info out to the console
+        bool output_errors_to_stderr{ true };    // Output errors to stderr versus stdout
+        bool output_to_os_debug_string{ false }; // Windows-specific output messages to OutputDebugString
     };
 
-    static inline std::string SeverityToString(Severity severity);
-    static void               Init(const util::Log::Settings& settings);
-    static void               Init(Severity    min_severity              = kInfoSeverity,
-                                   const char* log_file_name             = nullptr,
-                                   bool        leave_file_open           = true,
-                                   bool        create_new_file_on_open   = true,
-                                   bool        flush_after_write         = false,
-                                   bool        break_on_error            = false,
-                                   bool        output_detailed_log_info  = false,
-                                   bool        write_to_console          = true,
-                                   bool        errors_to_stderr          = true,
-                                   bool        output_to_os_debug_string = false,
-                                   bool        use_indent                = false);
-    static void               Release();
-    static inline bool        WillOutputMessage(Severity severity);
+    static void Init(Severity    min_severity              = kInfoSeverity,
+                     const char* log_file_name             = nullptr,
+                     bool        leave_file_open           = true,
+                     bool        create_new_file_on_open   = true,
+                     bool        flush_after_write         = false,
+                     bool        break_on_error            = false,
+                     bool        output_detailed_log_info  = false,
+                     bool        write_to_console          = true,
+                     bool        errors_to_stderr          = true,
+                     bool        output_to_os_debug_string = false,
+                     bool        use_indent                = false);
+
+    static void Init(const Settings& settings);
+
+    static void Release();
+
     static void
-                       LogMessage(Severity severity, const char* file, const char* function, const char* line, const char* message, ...);
-    static inline void IncreaseIndent()
+    LogMessage(Severity severity, const char* file, const char* function, const char* line, const char* message, ...);
+
+    static void IncreaseIndent()
     {
         if (settings_.use_indent)
         {
             settings_.indent++;
         }
     }
-    static inline void DecreaseIndent()
+
+    static void DecreaseIndent()
     {
         if (settings_.use_indent)
         {
             settings_.indent--;
+        }
+    }
+
+    static bool WillOutputMessage(Severity severity)
+    {
+        // We're always going to output something at "kAlwaysOutputSeverity", so check other cases.
+        if (severity < kAlwaysOutputSeverity)
+        {
+            Severity min_acceptable = settings_.min_severity;
+            // If we're to output errors to the console, we'll also accept errors
+            if (settings_.output_errors_to_stderr && settings_.write_to_console && min_acceptable > kErrorSeverity)
+            {
+                min_acceptable = kErrorSeverity;
+            }
+            if (severity < min_acceptable)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static std::string SeverityToString(Severity severity)
+    {
+        switch (severity)
+        {
+            case kCommandSeverity:
+                return "COMMAND";
+            case kDebugSeverity:
+                return "DEBUG";
+            case kInfoSeverity:
+                return "INFO";
+            case kWarningSeverity:
+                return "WARNING";
+            case kErrorSeverity:
+                return "ERROR";
+            case kFatalSeverity:
+                return "FATAL";
+            case kAlwaysOutputSeverity:
+                // Don't write any severity string for "Always"
+                return "";
+            default:
+                return "UNKNOWN";
         }
     }
 
@@ -108,49 +146,6 @@ class Log
 
     static Settings settings_;
 };
-
-bool Log::WillOutputMessage(Log::Severity severity)
-{
-    // We're always going to output something at "kAlwaysOutputSeverity", so check other cases.
-    if (severity < kAlwaysOutputSeverity)
-    {
-        Severity min_acceptable = settings_.min_severity;
-        // If we're to output errors to the console, we'll also accept errors
-        if (settings_.output_errors_to_stderr && settings_.write_to_console && min_acceptable > kErrorSeverity)
-        {
-            min_acceptable = kErrorSeverity;
-        }
-        if (severity < min_acceptable)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-std::string Log::SeverityToString(Log::Severity severity)
-{
-    switch (severity)
-    {
-        case kCommandSeverity:
-            return "COMMAND";
-        case kDebugSeverity:
-            return "DEBUG";
-        case kInfoSeverity:
-            return "INFO";
-        case kWarningSeverity:
-            return "WARNING";
-        case kErrorSeverity:
-            return "ERROR";
-        case kFatalSeverity:
-            return "FATAL";
-        case kAlwaysOutputSeverity:
-            // Don't write any severity string for "Always"
-            return "";
-        default:
-            return "UNKNOWN";
-    }
-}
 
 #ifdef GFXRECON_ENABLE_COMMAND_TRACE
 

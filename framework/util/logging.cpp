@@ -29,7 +29,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-Log::Settings Log::settings_ = {};
+Log::Settings Log::settings_;
 
 std::string Log::ConvertFormatVaListToString(const std::string& format_string, va_list& var_args)
 {
@@ -67,15 +67,17 @@ void Log::Init(Severity    min_severity,
                bool        use_indent)
 {
     settings_.min_severity = min_severity;
-    if (NULL != log_file_name && strlen(log_file_name) > 0)
+    if ((log_file_name != nullptr) && (strlen(log_file_name) > 0))
     {
         // Erase any previous contents
-        char file_modifiers[8] = "w";
+        std::string file_modifiers = "w";
         if (!create_new_file_on_open)
         {
-            file_modifiers[0] = 'a';
+            file_modifiers = "a";
         }
-        if (!platform::FileOpen(&settings_.file_pointer, log_file_name, &file_modifiers[0]))
+
+        int32_t result = platform::FileOpen(&settings_.file_pointer, log_file_name, file_modifiers.c_str());
+        if (result == 0)
         {
             settings_.write_to_file   = true;
             settings_.leave_file_open = leave_file_open;
@@ -94,10 +96,6 @@ void Log::Init(Severity    min_severity,
     settings_.output_errors_to_stderr   = errors_to_stderr;
     settings_.output_to_os_debug_string = output_to_os_debug_string;
     settings_.use_indent                = use_indent;
-    if (use_indent)
-    {
-        settings_.indent_spaces = 4;
-    }
 }
 
 void Log::Init(const util::Log::Settings& settings)
@@ -106,12 +104,15 @@ void Log::Init(const util::Log::Settings& settings)
     if (!settings.file_name.empty())
     {
         // Erase any previous contents
-        char file_modifiers[8] = "w";
+        std::string file_modifiers = "w";
         if (!settings.create_new)
         {
-            file_modifiers[0] = 'a';
+            file_modifiers = "a";
         }
-        if (!platform::FileOpen(&settings_.file_pointer, settings.file_name.c_str(), &file_modifiers[0]))
+
+        int32_t result =
+            platform::FileOpen(&settings_.file_pointer, settings.file_name.c_str(), file_modifiers.c_str());
+        if (result == 0)
         {
             settings_.write_to_file = true;
             if (!settings_.leave_file_open)
@@ -119,10 +120,6 @@ void Log::Init(const util::Log::Settings& settings)
                 platform::FileClose(settings_.file_pointer);
             }
         }
-    }
-    if (settings_.use_indent)
-    {
-        settings_.indent_spaces = 4;
     }
 }
 
@@ -140,14 +137,14 @@ void Log::LogMessage(
     Log::Severity severity, const char* file, const char* function, const char* line, const char* message, ...)
 {
     bool  opened_file      = false;
-    bool  write_indent     = settings_.use_indent && settings_.indent > 0;
+    bool  write_indent     = settings_.use_indent && (settings_.indent > 0);
     bool  message_written  = false;
     bool  output_to_stderr = false;
     FILE* log_file_ptr;
 
     // Log message prefix
     const char  process_tag[] = "gfxrecon";
-    std::string prefix        = "";
+    std::string prefix;
 
     if (severity != kAlwaysOutputSeverity)
     {
@@ -225,7 +222,8 @@ void Log::LogMessage(
                 }
                 else if (severity >= settings_.min_severity)
                 {
-                    if (!platform::FileOpen(&log_file_ptr, settings_.file_name.c_str(), "a"))
+                    int32_t result = platform::FileOpen(&log_file_ptr, settings_.file_name.c_str(), "a");
+                    if (result == 0)
                     {
                         opened_file = true;
                     }

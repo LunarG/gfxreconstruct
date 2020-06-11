@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018,2020 Valve Corporation
+** Copyright (c) 2018,2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -31,6 +31,20 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Window
 {
   public:
+    enum HandleType
+    {
+        kAndroidNativeWindow,
+        kXcbConnection,
+        kXcbWindow,
+        kXlibDisplay,
+        kXlibWindow,
+        kWaylandDisplay,
+        kWaylandSurface,
+        kWin32HInstance,
+        kWin32HWnd
+    };
+
+  public:
     Window() {}
 
     virtual ~Window() {}
@@ -53,7 +67,7 @@ class Window
 
     virtual void SetForeground() = 0;
 
-    virtual bool GetNativeHandle(uint32_t id, void** handle) = 0;
+    virtual bool GetNativeHandle(HandleType type, void** handle) = 0;
 
     virtual VkResult
     CreateSurface(const encode::InstanceTable* table, VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) = 0;

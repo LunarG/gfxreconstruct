@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2019 Valve Corporation
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 Valve Corporation
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 #include "decode/pointer_decoder.h"
 
+#include <cassert>
+#include <memory>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -27,15 +30,9 @@ template <typename T>
 class HandlePointerDecoder
 {
   public:
-    HandlePointerDecoder() : handle_data_(nullptr), capacity_(0), is_memory_external_(false) {}
+    HandlePointerDecoder() : handle_data_(nullptr), handle_data_len_(0), capacity_(0), is_memory_external_(false) {}
 
-    ~HandlePointerDecoder()
-    {
-        if ((handle_data_ != nullptr) && !is_memory_external_)
-        {
-            delete[] handle_data_;
-        }
-    }
+    ~HandlePointerDecoder() {}
 
     bool IsNull() const { return decoder_.IsNull(); }
 
@@ -49,7 +46,7 @@ class HandlePointerDecoder
 
     size_t GetLength() const { return decoder_.GetLength(); }
 
-    format::HandleId* GetPointer() const { return decoder_.GetPointer(); }
+    const format::HandleId* GetPointer() const { return decoder_.GetPointer(); }
 
     void SetExternalMemory(T* data, size_t capacity)
     {
@@ -67,28 +64,57 @@ class HandlePointerDecoder
         }
     }
 
-    T* GetHandlePointer() const { return handle_data_; }
-
-    size_t Decode(const uint8_t* buffer, size_t buffer_size)
+    void SetHandleLength(size_t len)
     {
-        size_t result = decoder_.DecodeHandleId(buffer, buffer_size);
+        handle_data_len_ = len;
 
-        if (!IsNull() && !is_memory_external_)
+        if (!is_memory_external_)
         {
-            assert(handle_data_ == nullptr);
+            handle_data_ = decoder_.AllocateOutputData(len);
+        }
+    }
 
-            size_t len   = GetLength();
-            handle_data_ = new T[len];
+    size_t GetHandleLength() const { return handle_data_len_; }
+
+    T* GetHandlePointer() { return handle_data_; }
+
+    const T* GetHandlePointer() const { return handle_data_; }
+
+    size_t Decode(const uint8_t* buffer, size_t buffer_size) { return decoder_.DecodeHandleId(buffer, buffer_size); }
+
+    // The value returned is only guaranteed to be valid if the current consumer has called SetConsumerData.
+    void* GetConsumerData(size_t index) const
+    {
+        void* consumer_data = nullptr;
+
+        if ((consumer_data_ != nullptr) && (index < handle_data_len_))
+        {
+            consumer_data = consumer_data_[index];
         }
 
-        return result;
+        return consumer_data;
+    }
+
+    void SetConsumerData(size_t index, void* consumer_data)
+    {
+        if (index < handle_data_len_)
+        {
+            if (consumer_data_ == nullptr)
+            {
+                consumer_data_ = std::make_unique<void*[]>(handle_data_len_);
+            }
+
+            consumer_data_[index] = consumer_data;
+        }
     }
 
   private:
-    PointerDecoder<format::HandleId> decoder_;
-    T*                               handle_data_;
-    size_t                           capacity_;
-    bool                             is_memory_external_;
+    PointerDecoder<format::HandleId, T> decoder_;
+    T*                                  handle_data_;
+    size_t                              handle_data_len_;
+    size_t                              capacity_;
+    bool                                is_memory_external_;
+    std::unique_ptr<void*[]>            consumer_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -42,13 +42,24 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     size_t GetBufferInfoCount() const { return buffer_info_count_; }
     size_t GetTexelBufferViewCount() const { return texel_buffer_view_count_; }
 
-    Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() const { return decoded_image_info_.get(); }
-    Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() const { return decoded_buffer_info_.get(); }
-    format::HandleId* GetTexelBufferViewHandleIdsPointer() const { return decoded_texel_buffer_view_handle_ids_.get(); }
+    Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() { return decoded_image_info_.get(); }
+    Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() { return decoded_buffer_info_.get(); }
+    format::HandleId* GetTexelBufferViewHandleIdsPointer() { return decoded_texel_buffer_view_handle_ids_.get(); }
 
-    VkDescriptorImageInfo*  GetImageInfoPointer() const { return image_info_; }
-    VkDescriptorBufferInfo* GetBufferInfoPointer() const { return buffer_info_; }
-    VkBufferView*           GetTexelBufferViewPointer() const { return texel_buffer_views_; }
+    const Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() const { return decoded_image_info_.get(); }
+    const Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() const { return decoded_buffer_info_.get(); }
+    const format::HandleId*               GetTexelBufferViewHandleIdsPointer() const
+    {
+        return decoded_texel_buffer_view_handle_ids_.get();
+    }
+
+    VkDescriptorImageInfo*  GetImageInfoPointer() { return image_info_; }
+    VkDescriptorBufferInfo* GetBufferInfoPointer() { return buffer_info_; }
+    VkBufferView*           GetTexelBufferViewPointer() { return texel_buffer_views_; }
+
+    const VkDescriptorImageInfo*  GetImageInfoPointer() const { return image_info_; }
+    const VkDescriptorBufferInfo* GetBufferInfoPointer() const { return buffer_info_; }
+    const VkBufferView*           GetTexelBufferViewPointer() const { return texel_buffer_views_; }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size);
 

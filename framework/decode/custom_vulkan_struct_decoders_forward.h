@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -28,21 +28,30 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 struct Decoded_VkClearColorValue;
 struct Decoded_VkClearValue;
 struct Decoded_VkPipelineExecutableStatisticValueKHR;
+struct Decoded_VkDeviceOrHostAddressKHR;
+struct Decoded_VkDeviceOrHostAddressConstKHR;
+struct Decoded_VkAccelerationStructureGeometryDataKHR;
 struct Decoded_VkPerformanceValueDataINTEL;
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPipelineExecutableStatisticValueKHR* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceOrHostAddressKHR* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceOrHostAddressConstKHR* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryDataKHR* wrapper);
 
 // Decoded struct wrappers for Vulkan structures that require special processing.
 struct Decoded_VkDescriptorImageInfo;
 struct Decoded_VkWriteDescriptorSet;
 struct Decoded_VkPerformanceValueINTEL;
-struct Decoded_VkObjectTableEntryNVX;
+struct Decoded_VkAccelerationStructureBuildGeometryInfoKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWriteDescriptorSet* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerformanceValueINTEL* wrapper);
+size_t DecodeStruct(const uint8_t*                                       parameter_buffer,
+                    size_t                                               buffer_size,
+                    Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper);
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
 struct Decoded_ACL;

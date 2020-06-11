@@ -70,12 +70,14 @@ class VulkanStateTable
     bool InsertWrapper(format::HandleId id, DisplayKHRWrapper* wrapper)                    { return InsertEntry(id, wrapper, display_khr_map_); }
     bool InsertWrapper(format::HandleId id, DisplayModeKHRWrapper* wrapper)                { return InsertEntry(id, wrapper, display_mode_khr_map_); }
     bool InsertWrapper(format::HandleId id, DebugReportCallbackEXTWrapper* wrapper)        { return InsertEntry(id, wrapper, debug_report_callback_ext_map_); }
-    bool InsertWrapper(format::HandleId id, ObjectTableNVXWrapper* wrapper)                { return InsertEntry(id, wrapper, object_table_nvx_map_); }
-    bool InsertWrapper(format::HandleId id, IndirectCommandsLayoutNVXWrapper* wrapper)     { return InsertEntry(id, wrapper, indirect_commands_layout_nvx_map_); }
+    bool InsertWrapper(format::HandleId id, IndirectCommandsLayoutNVWrapper* wrapper)      { return InsertEntry(id, wrapper, indirect_commands_layout_nv_map_); }
     bool InsertWrapper(format::HandleId id, DebugUtilsMessengerEXTWrapper* wrapper)        { return InsertEntry(id, wrapper, debug_utils_messenger_ext_map_); }
     bool InsertWrapper(format::HandleId id, ValidationCacheEXTWrapper* wrapper)            { return InsertEntry(id, wrapper, validation_cache_ext_map_); }
+    bool InsertWrapper(format::HandleId id, AccelerationStructureKHRWrapper* wrapper)      { return InsertEntry(id, wrapper, acceleration_structure_khr_map_); }
     bool InsertWrapper(format::HandleId id, AccelerationStructureNVWrapper* wrapper)       { return InsertEntry(id, wrapper, acceleration_structure_nv_map_); }
     bool InsertWrapper(format::HandleId id, PerformanceConfigurationINTELWrapper* wrapper) { return InsertEntry(id, wrapper, performance_configuration_intel_map_); }
+    bool InsertWrapper(format::HandleId id, DeferredOperationKHRWrapper* wrapper)          { return InsertEntry(id, wrapper, deferred_operation_khr_map_); }
+    bool InsertWrapper(format::HandleId id, PrivateDataSlotEXTWrapper* wrapper)            { return InsertEntry(id, wrapper, private_data_slot_ext_map_); }
 
     bool RemoveWrapper(const InstanceWrapper* wrapper)                      { return RemoveEntry(wrapper, instance_map_); }
     bool RemoveWrapper(const PhysicalDeviceWrapper* wrapper)                { return RemoveEntry(wrapper, physical_device_map_); }
@@ -109,12 +111,14 @@ class VulkanStateTable
     bool RemoveWrapper(const DisplayKHRWrapper* wrapper)                    { return RemoveEntry(wrapper, display_khr_map_); }
     bool RemoveWrapper(const DisplayModeKHRWrapper* wrapper)                { return RemoveEntry(wrapper, display_mode_khr_map_); }
     bool RemoveWrapper(const DebugReportCallbackEXTWrapper* wrapper)        { return RemoveEntry(wrapper, debug_report_callback_ext_map_); }
-    bool RemoveWrapper(const ObjectTableNVXWrapper* wrapper)                { return RemoveEntry(wrapper, object_table_nvx_map_); }
-    bool RemoveWrapper(const IndirectCommandsLayoutNVXWrapper* wrapper)     { return RemoveEntry(wrapper, indirect_commands_layout_nvx_map_); }
+    bool RemoveWrapper(const IndirectCommandsLayoutNVWrapper* wrapper)      { return RemoveEntry(wrapper, indirect_commands_layout_nv_map_); }
     bool RemoveWrapper(const DebugUtilsMessengerEXTWrapper* wrapper)        { return RemoveEntry(wrapper, debug_utils_messenger_ext_map_); }
     bool RemoveWrapper(const ValidationCacheEXTWrapper* wrapper)            { return RemoveEntry(wrapper, validation_cache_ext_map_); }
+    bool RemoveWrapper(const AccelerationStructureKHRWrapper* wrapper)      { return RemoveEntry(wrapper, acceleration_structure_khr_map_); }
     bool RemoveWrapper(const AccelerationStructureNVWrapper* wrapper)       { return RemoveEntry(wrapper, acceleration_structure_nv_map_); }
     bool RemoveWrapper(const PerformanceConfigurationINTELWrapper* wrapper) { return RemoveEntry(wrapper, performance_configuration_intel_map_); }
+    bool RemoveWrapper(const DeferredOperationKHRWrapper* wrapper)          { return RemoveEntry(wrapper, deferred_operation_khr_map_); }
+    bool RemoveWrapper(const PrivateDataSlotEXTWrapper* wrapper)            { return RemoveEntry(wrapper, private_data_slot_ext_map_); }
 
     void VisitWrappers(std::function<void(const InstanceWrapper*)> visitor) const                      { for (auto entry : instance_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const PhysicalDeviceWrapper*)> visitor) const                { for (auto entry : physical_device_map_) { visitor(entry.second); } }
@@ -148,12 +152,14 @@ class VulkanStateTable
     void VisitWrappers(std::function<void(const DisplayKHRWrapper*)> visitor) const                    { for (auto entry : display_khr_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const DisplayModeKHRWrapper*)> visitor) const                { for (auto entry : display_mode_khr_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const DebugReportCallbackEXTWrapper*)> visitor) const        { for (auto entry : debug_report_callback_ext_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const ObjectTableNVXWrapper*)> visitor) const                { for (auto entry : object_table_nvx_map_) { visitor(entry.second); } }
-    void VisitWrappers(std::function<void(const IndirectCommandsLayoutNVXWrapper*)> visitor) const     { for (auto entry : indirect_commands_layout_nvx_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const IndirectCommandsLayoutNVWrapper*)> visitor) const      { for (auto entry : indirect_commands_layout_nv_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const DebugUtilsMessengerEXTWrapper*)> visitor) const        { for (auto entry : debug_utils_messenger_ext_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const ValidationCacheEXTWrapper*)> visitor) const            { for (auto entry : validation_cache_ext_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const AccelerationStructureKHRWrapper*)> visitor) const      { for (auto entry : acceleration_structure_khr_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const AccelerationStructureNVWrapper*)> visitor) const       { for (auto entry : acceleration_structure_nv_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(const PerformanceConfigurationINTELWrapper*)> visitor) const { for (auto entry : performance_configuration_intel_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const DeferredOperationKHRWrapper*)> visitor) const          { for (auto entry : deferred_operation_khr_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(const PrivateDataSlotEXTWrapper*)> visitor) const            { for (auto entry : private_data_slot_ext_map_) { visitor(entry.second); } }
     // clang-format on
 
     //
@@ -233,14 +239,17 @@ class VulkanStateTable
     SwapchainKHRWrapper*       GetSwapchainKHRWrapper(format::HandleId id)       { return GetWrapper<SwapchainKHRWrapper>(id, swapchain_khr_map_); }
     const SwapchainKHRWrapper* GetSwapchainKHRWrapper(format::HandleId id) const { return GetWrapper<SwapchainKHRWrapper>(id, swapchain_khr_map_); }
 
+    AccelerationStructureKHRWrapper*       GetAccelerationStructureKHRWrapper(format::HandleId id)       { return GetWrapper<AccelerationStructureKHRWrapper>(id, acceleration_structure_khr_map_); }
+    const AccelerationStructureKHRWrapper* GetAccelerationStructureKHRWrapper(format::HandleId id) const { return GetWrapper<AccelerationStructureKHRWrapper>(id, acceleration_structure_khr_map_); }
+
     AccelerationStructureNVWrapper*       GetAccelerationStructureNVWrapper(format::HandleId id)       { return GetWrapper<AccelerationStructureNVWrapper>(id, acceleration_structure_nv_map_); }
     const AccelerationStructureNVWrapper* GetAccelerationStructureNVWrapper(format::HandleId id) const { return GetWrapper<AccelerationStructureNVWrapper>(id, acceleration_structure_nv_map_); }
 
-    IndirectCommandsLayoutNVXWrapper*       GetIndirectCommandsLayoutNVXWrapper(format::HandleId id)       { return GetWrapper<IndirectCommandsLayoutNVXWrapper>(id, indirect_commands_layout_nvx_map_); }
-    const IndirectCommandsLayoutNVXWrapper* GetIndirectCommandsLayoutNVXWrapper(format::HandleId id) const { return GetWrapper<IndirectCommandsLayoutNVXWrapper>(id, indirect_commands_layout_nvx_map_); }
+    IndirectCommandsLayoutNVWrapper*       GetIndirectCommandsLayoutNVWrapper(format::HandleId id)       { return GetWrapper<IndirectCommandsLayoutNVWrapper>(id, indirect_commands_layout_nv_map_); }
+    const IndirectCommandsLayoutNVWrapper* GetIndirectCommandsLayoutNVWrapper(format::HandleId id) const { return GetWrapper<IndirectCommandsLayoutNVWrapper>(id, indirect_commands_layout_nv_map_); }
 
-    ObjectTableNVXWrapper*       GetObjectTableNVXWrapper(format::HandleId id)       { return GetWrapper<ObjectTableNVXWrapper>(id, object_table_nvx_map_); }
-    const ObjectTableNVXWrapper* GetObjectTableNVXWrapper(format::HandleId id) const { return GetWrapper<ObjectTableNVXWrapper>(id, object_table_nvx_map_); }
+    DeferredOperationKHRWrapper*       GetDeferredOperationKHRWrapper(format::HandleId id)       { return GetWrapper<DeferredOperationKHRWrapper>(id, deferred_operation_khr_map_); }
+    const DeferredOperationKHRWrapper* GetDeferredOperationKHRWrapper(format::HandleId id) const { return GetWrapper<DeferredOperationKHRWrapper>(id, deferred_operation_khr_map_); }
     // clang-format off
 
   private:
@@ -305,12 +314,14 @@ class VulkanStateTable
     std::map<format::HandleId, DisplayKHRWrapper*>                    display_khr_map_;
     std::map<format::HandleId, DisplayModeKHRWrapper*>                display_mode_khr_map_;
     std::map<format::HandleId, DebugReportCallbackEXTWrapper*>        debug_report_callback_ext_map_;
-    std::map<format::HandleId, ObjectTableNVXWrapper*>                object_table_nvx_map_;
-    std::map<format::HandleId, IndirectCommandsLayoutNVXWrapper*>     indirect_commands_layout_nvx_map_;
+    std::map<format::HandleId, IndirectCommandsLayoutNVWrapper*>      indirect_commands_layout_nv_map_;
     std::map<format::HandleId, DebugUtilsMessengerEXTWrapper*>        debug_utils_messenger_ext_map_;
     std::map<format::HandleId, ValidationCacheEXTWrapper*>            validation_cache_ext_map_;
+    std::map<format::HandleId, AccelerationStructureKHRWrapper*>      acceleration_structure_khr_map_;
     std::map<format::HandleId, AccelerationStructureNVWrapper*>       acceleration_structure_nv_map_;
     std::map<format::HandleId, PerformanceConfigurationINTELWrapper*> performance_configuration_intel_map_;
+    std::map<format::HandleId, DeferredOperationKHRWrapper*>          deferred_operation_khr_map_;
+    std::map<format::HandleId, PrivateDataSlotEXTWrapper*>            private_data_slot_ext_map_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

@@ -1,4 +1,5 @@
-{ "functions": [
+{
+  "functions": [
     "vkGetInstanceProcAddr",
     "vkGetDeviceProcAddr",
     "vkEnumerateInstanceLayerProperties",
@@ -9,7 +10,8 @@
     "vkUpdateDescriptorSetWithTemplate",
     "vkUpdateDescriptorSetWithTemplateKHR",
     "vkCmdPushDescriptorSetWithTemplateKHR",
-    "vkRegisterObjectsNVX"
+    "vkBuildAccelerationStructureKHR",
+    "vkCmdBuildAccelerationStructureKHR"
   ],
   "structures": [
     "VkBaseOutStructure",
@@ -17,6 +19,6 @@
     "VkDescriptorImageInfo",
     "VkWriteDescriptorSet",
     "VkPerformanceValueINTEL",
-    "VkObjectTableEntryNVX"
+    "VkAccelerationStructureBuildGeometryInfoKHR"
   ]
 }

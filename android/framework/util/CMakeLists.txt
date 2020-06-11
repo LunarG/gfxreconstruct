@@ -11,6 +11,10 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_output_stream.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_path.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/file_path.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/hash.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/hash.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/keyboard.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/keyboard.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/logging.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/logging.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/lz4_compressor.h

@@ -34,12 +34,18 @@ target_sources(gfxrecon_util
                    file_output_stream.cpp
                    file_path.h
                    file_path.cpp
+                   hash.h
+                   hash.cpp
+                   keyboard.h
+                   keyboard.cpp
                    logging.h
                    logging.cpp
                    lz4_compressor.h
                    lz4_compressor.cpp
                    zlib_compressor.h
                    zlib_compressor.cpp
+                   zstd_compressor.h
+                   zstd_compressor.cpp
                    memory_output_stream.h
                    memory_output_stream.cpp
                    output_stream.h
@@ -49,6 +55,12 @@ target_sources(gfxrecon_util
                    platform.h
                    settings_loader.h
                    settings_loader.cpp
+                   $<$<BOOL:${XCB_FOUND}>:xcb_loader.h>
+                   $<$<BOOL:${XCB_FOUND}>:xcb_loader.cpp>
+                   $<$<BOOL:${XCB_FOUND}>:xcb_keysyms_loader.h>
+                   $<$<BOOL:${XCB_FOUND}>:xcb_keysyms_loader.cpp>
+                   $<$<BOOL:${WAYLAND_FOUND}>:wayland_loader.h>
+                   $<$<BOOL:${WAYLAND_FOUND}>:wayland_loader.cpp>
                    asic_info_amdext_loader.h
                    asic_info_amdext_loader.cpp
               )
@@ -61,6 +73,7 @@ target_link_libraries(gfxrecon_util platform_specific ${CMAKE_DL_LIBS} $<$<BOOL:
 
 if (UNIX AND NOT APPLE)
     # Check for clock_gettime in libc
+    include(CheckLibraryExists)
     check_library_exists(c clock_gettime "" HAVE_GETTIME)
     if (NOT HAVE_GETTIME)
         # If not in libc, check librt
@@ -84,6 +97,11 @@ if (TARGET ZLIB::ZLIB)
                                    ENABLE_ZLIB_COMPRESSION
                                    $<$<BOOL:${WIN32}>:ZLIB_WINAPI>)
     target_link_libraries(gfxrecon_util ZLIB::ZLIB)
+endif()
+
+if (TARGET ZSTD::ZSTD)
+    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_ZSTD_COMPRESSION)
+    target_link_libraries(gfxrecon_util ZSTD::ZSTD)
 endif()
 
 common_build_directives(gfxrecon_util)

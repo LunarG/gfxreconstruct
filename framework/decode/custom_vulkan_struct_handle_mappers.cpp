@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2019 LunarG, Inc.
+** Copyright (c) 2019-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -14,39 +14,21 @@
 ** limitations under the License.
 */
 
-/*
-** This file is generated from the Khronos Vulkan XML API Registry.
-**
-*/
-
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 
 #include "decode/custom_vulkan_struct_decoders.h"
+#include "decode/vulkan_handle_mapping_util.h"
+#include "decode/vulkan_object_info.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
+#include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-template <typename T>
-static void MapHandleArray(const format::HandleId*   ids,
-                           T*                        handles,
-                           size_t                    len,
-                           const VulkanObjectMapper& object_mapper,
-                           T (VulkanObjectMapper::*MapFunc)(format::HandleId) const)
-{
-    if ((ids != nullptr) && (handles != nullptr))
-    {
-        for (size_t i = 0; i < len; ++i)
-        {
-            handles[i] = (object_mapper.*MapFunc)(ids[i]);
-        }
-    }
-}
-
 void MapStructHandles(VkDescriptorType               type,
                       Decoded_VkDescriptorImageInfo* wrapper,
-                      const VulkanObjectMapper&      object_mapper)
+                      const VulkanObjectInfoTable&   object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -55,17 +37,19 @@ void MapStructHandles(VkDescriptorType               type,
         if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
         {
             // TODO: This should be ignored if the descriptor set layout was created with an immutable sampler.
-            value->sampler = object_mapper.MapVkSampler(wrapper->sampler);
+            value->sampler = handle_mapping::MapHandle<SamplerInfo>(
+                wrapper->sampler, object_info_table, &VulkanObjectInfoTable::GetSamplerInfo);
         }
 
         if (type != VK_DESCRIPTOR_TYPE_SAMPLER)
         {
-            value->imageView = object_mapper.MapVkImageView(wrapper->imageView);
+            value->imageView = handle_mapping::MapHandle<ImageViewInfo>(
+                wrapper->imageView, object_info_table, &VulkanObjectInfoTable::GetImageViewInfo);
         }
     }
 }
 
-void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectMapper& object_mapper)
+void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectInfoTable& object_mapper)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
@@ -76,7 +60,8 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectM
             MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_mapper);
         }
 
-        value->dstSet = object_mapper.MapVkDescriptorSet(wrapper->dstSet);
+        value->dstSet = handle_mapping::MapHandle<DescriptorSetInfo>(
+            wrapper->dstSet, object_mapper, &VulkanObjectInfoTable::GetDescriptorSetInfo);
 
         switch (value->descriptorType)
         {
@@ -104,11 +89,8 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectM
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                MapHandleArray<VkBufferView>(wrapper->pTexelBufferView.GetPointer(),
-                                             wrapper->pTexelBufferView.GetHandlePointer(),
-                                             wrapper->pTexelBufferView.GetLength(),
-                                             object_mapper,
-                                             &VulkanObjectMapper::MapVkBufferView);
+                value->pTexelBufferView = handle_mapping::MapHandleArray<BufferViewInfo>(
+                    &wrapper->pTexelBufferView, object_mapper, &VulkanObjectInfoTable::GetBufferViewInfo);
                 break;
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
                 // TODO
@@ -121,6 +103,13 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectM
                 break;
         }
     }
+}
+
+void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper,
+                      const VulkanObjectInfoTable&                         object_info_table)
+{
+    // TODO
+    GFXRECON_LOG_ERROR("VkAccelerationStructureBuildGeometryInfoKHR handle mapping is not supported");
 }
 
 GFXRECON_END_NAMESPACE(decode)

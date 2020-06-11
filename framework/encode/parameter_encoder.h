@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -119,10 +119,13 @@ class ParameterEncoder
     template<typename T>
     void EncodeFlagsArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                   { EncodeArrayConverted<format::FlagsEncodeType>(arr, len, omit_data, omit_addr); }
 
-    void EncodeString(const char* str, bool omit_data = false, bool omit_addr = false)                                { EncodeBasicString<char, format::PointerAttributes::kIsString>(str, omit_data, omit_addr); }
-    void EncodeWString(const wchar_t* str, bool omit_data = false, bool omit_addr = false)                            { EncodeBasicString<wchar_t, format::PointerAttributes::kIsWString>(str, omit_data, omit_addr); }
-    void EncodeStringArray(const char* const* str, size_t len, bool omit_data = false, bool omit_addr = false)        { EncodeBasicStringArray<char, format::PointerAttributes::kIsString>(str, len, omit_data, omit_addr); }
-    void EncodeWStringArray(const wchar_t* const* str, size_t len, bool omit_data = false, bool omit_addr = false)    { EncodeBasicStringArray<wchar_t, format::PointerAttributes::kIsWString>(str, len, omit_data, omit_addr); }
+    void EncodeString(const char* str, bool omit_data = false, bool omit_addr = false)                                { EncodeBasicString<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, omit_data, omit_addr); }
+    void EncodeWString(const wchar_t* str, bool omit_data = false, bool omit_addr = false)                            { EncodeBasicString<wchar_t, format::WCharEncodeType, format::PointerAttributes::kIsWString>(str, omit_data, omit_addr); }
+    void EncodeStringArray(const char* const* str, size_t len, bool omit_data = false, bool omit_addr = false)        { EncodeBasicStringArray<char, format::CharEncodeType, format::PointerAttributes::kIsString>(str, len, omit_data, omit_addr); }
+    void EncodeWStringArray(const wchar_t* const* str, size_t len, bool omit_data = false, bool omit_addr = false)    { EncodeBasicStringArray<wchar_t, format::WCharEncodeType, format::PointerAttributes::kIsWString>(str, len, omit_data, omit_addr); }
+
+    template <size_t N, size_t M>
+    void EncodeFloat2DMatrix(const float (&arr)[N][M], size_t n, size_t m, bool omit_data = false, bool omit_addr = false) { assert((N == n) && (M == m)); EncodeArray(reinterpret_cast<const float*>(arr), n * m, omit_data, omit_addr); }
 
     // clang-format on
 
@@ -364,7 +367,25 @@ class ParameterEncoder
         }
     }
 
-    template <typename CharT, format::PointerAttributes EncodeAttrib>
+    template <typename CharT, typename EncodeT>
+    typename std::enable_if<sizeof(CharT) == sizeof(EncodeT), void>::type EncodeBasicStringConverted(const CharT* str,
+                                                                                                     size_t       len)
+    {
+        output_stream_->Write(str, len * sizeof(CharT));
+    }
+
+    template <typename CharT, typename EncodeT>
+    typename std::enable_if<sizeof(CharT) != sizeof(EncodeT), void>::type EncodeBasicStringConverted(const CharT* str,
+                                                                                                     size_t       len)
+    {
+        for (size_t i = 0; i < len; ++i)
+        {
+            EncodeT converted = TypeCast<EncodeT>(str[i]);
+            output_stream_->Write(&converted, sizeof(EncodeT));
+        }
+    }
+
+    template <typename CharT, typename EncodeT, format::PointerAttributes EncodeAttrib>
     void EncodeBasicString(const CharT* str, bool omit_data, bool omit_addr)
     {
         uint32_t pointer_attrib =
@@ -386,12 +407,12 @@ class ParameterEncoder
 
             if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
             {
-                output_stream_->Write(str, len);
+                EncodeBasicStringConverted<CharT, EncodeT>(str, len);
             }
         }
     }
 
-    template <typename CharT, format::PointerAttributes EncodeAttrib>
+    template <typename CharT, typename EncodeT, format::PointerAttributes EncodeAttrib>
     void EncodeBasicStringArray(const CharT* const* str, size_t len, bool omit_data, bool omit_addr)
     {
         uint32_t pointer_attrib =
@@ -413,7 +434,7 @@ class ParameterEncoder
             {
                 for (size_t i = 0; i < len; ++i)
                 {
-                    EncodeBasicString<CharT, EncodeAttrib>(str[i], omit_data, omit_addr);
+                    EncodeBasicString<CharT, EncodeT, EncodeAttrib>(str[i], omit_data, omit_addr);
                 }
             }
         }

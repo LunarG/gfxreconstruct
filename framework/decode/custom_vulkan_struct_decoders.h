@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -35,6 +35,19 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// TODO: This is currently used when mapping external object IDs to object handles that are created on replay. This
+// functionality could instead be provided through the replay consumer's PreProcessExternalObject and
+// PostProcessExternalObject methods if they were moved to the VulkanObjectInfo table, which would make them available
+// to the struct decoders.
+struct Decoded_VkBaseOutStructure
+{
+    using struct_type = VkBaseOutStructure;
+
+    VkBaseOutStructure* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 // Decoded union wrappers.
 struct Decoded_VkClearColorValue
 {
@@ -54,6 +67,26 @@ struct Decoded_VkPipelineExecutableStatisticValueKHR
 {
     using struct_type = VkPipelineExecutableStatisticValueKHR;
     VkPipelineExecutableStatisticValueKHR* decoded_value{ nullptr };
+};
+
+struct Decoded_VkDeviceOrHostAddressKHR
+{
+    using struct_type = VkDeviceOrHostAddressKHR;
+    VkDeviceOrHostAddressKHR* decoded_value{ nullptr };
+    uint64_t                  hostAddress{ 0 };
+};
+
+struct Decoded_VkDeviceOrHostAddressConstKHR
+{
+    using struct_type = VkDeviceOrHostAddressConstKHR;
+    VkDeviceOrHostAddressConstKHR* decoded_value{ nullptr };
+    uint64_t                       hostAddress{ 0 };
+};
+
+struct Decoded_VkAccelerationStructureGeometryDataKHR
+{
+    using struct_type = VkAccelerationStructureGeometryDataKHR;
+    VkAccelerationStructureGeometryDataKHR* decoded_value{ nullptr };
 };
 
 // This union wrapper does not have a DecodeStruct function.  It is decoded by the Decoded_VkPerformanceValueINTEL
@@ -100,9 +133,11 @@ struct Decoded_VkPerformanceValueINTEL
     std::unique_ptr<Decoded_VkPerformanceValueDataINTEL> data;
 };
 
-struct Decoded_VkObjectTableEntryNVX
+struct Decoded_VkAccelerationStructureBuildGeometryInfoKHR
 {
-    VkObjectTableEntryNVX* decoded_value{ nullptr };
+    using struct_type = VkAccelerationStructureBuildGeometryInfoKHR;
+    VkAccelerationStructureBuildGeometryInfoKHR* decoded_value{ nullptr };
+    // TODO
 };
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.

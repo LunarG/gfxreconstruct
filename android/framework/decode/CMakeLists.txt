@@ -20,10 +20,13 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_typed_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/portability.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/portability.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/resource_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/resource_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/string_array_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/string_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/struct_pointer_decoder.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/struct_pointer_decoder_nvx.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/swapchain_image_tracker.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/value_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_ascii_consumer_base.h
@@ -31,11 +34,20 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_allocator.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_default_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_enum_util.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_mapper.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_handle_mapping_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_rebind_allocator.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_rebind_allocator.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_remap_allocator.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_remap_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_consumer_base.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_replay_options.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_initializer.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_resource_initializer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/window.h
@@ -58,4 +70,4 @@ target_include_directories(gfxrecon_decode
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/framework)
 
-target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry platform_specific)
+target_link_libraries(gfxrecon_decode gfxrecon_format gfxrecon_util vulkan_registry vulkan_memory_allocator platform_specific)

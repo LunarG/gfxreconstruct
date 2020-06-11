@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 ** Copyright (c) 2019 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,32 +69,12 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyInstance>
 };
 
 template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkEnumeratePhysicalDevices>
 {
     template <typename... Args>
-    static void Dispatch(TraceManager* manager, Args... args)
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
     {
-        manager->PostProcess_vkGetPhysicalDeviceMemoryProperties(args...);
-    }
-};
-
-template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2>
-{
-    template <typename... Args>
-    static void Dispatch(TraceManager* manager, Args... args)
-    {
-        manager->PostProcess_vkGetPhysicalDeviceMemoryProperties2(args...);
-    }
-};
-
-template <>
-struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceMemoryProperties2KHR>
-{
-    template <typename... Args>
-    static void Dispatch(TraceManager* manager, Args... args)
-    {
-        manager->PostProcess_vkGetPhysicalDeviceMemoryProperties2(args...);
+        manager->PostProcess_vkEnumeratePhysicalDevices(result, args...);
     }
 };
 
@@ -170,6 +150,17 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfa
     }
 };
 
+// Dispatch custom command to set xcb keyboard connection during create xlib surface
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXlibSurfaceKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkCreateXlibSurfaceKHR(args...);
+    }
+};
+
 // Dispatch custom command to set xcb keyboard connection during create xcb surface
 template <>
 struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>
@@ -178,6 +169,17 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateXcbSurfaceKHR>
     static void Dispatch(TraceManager* manager, Args... args)
     {
         manager->PreProcess_vkCreateXcbSurfaceKHR(args...);
+    }
+};
+
+// Dispatch custom command to give implementation warning during create wayland surface
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateWaylandSurfaceKHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PreProcess_vkCreateWaylandSurfaceKHR(args...);
     }
 };
 
@@ -223,12 +225,62 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetBufferMemoryRequirements(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetBufferMemoryRequirements2(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferMemoryRequirements2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkGetBufferMemoryRequirements2(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, VkResult result, Args... args)
     {
         manager->PostProcess_vkBindBufferMemory(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBindBufferMemory2(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindBufferMemory2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBindBufferMemory2(result, args...);
     }
 };
 
@@ -243,6 +295,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBindImageMemory2(result, args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkBindImageMemory2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, VkResult result, Args... args)
+    {
+        manager->PostProcess_vkBindImageMemory2(result, args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>
 {
     template <typename... Args>
@@ -253,12 +325,22 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdBeginRenderPass2(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBeginRenderPass2KHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
     {
-        manager->PostProcess_vkCmdBeginRenderPass2KHR(args...);
+        manager->PostProcess_vkCmdBeginRenderPass2(args...);
     }
 };
 
@@ -273,12 +355,22 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdEndRenderPass2(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdEndRenderPass2KHR>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
     {
-        manager->PostProcess_vkCmdEndRenderPass2KHR(args...);
+        manager->PostProcess_vkCmdEndRenderPass2(args...);
     }
 };
 
@@ -349,6 +441,16 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkFreeMemory>
     static void Dispatch(TraceManager* manager, Args... args)
     {
         manager->PreProcess_vkFreeMemory(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFreeMemory>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkFreeMemory(args...);
     }
 };
 
@@ -513,12 +615,22 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResetQueryPool>
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPool>
+{
+    template <typename... Args>
+    static void Dispatch(TraceManager* manager, Args... args)
+    {
+        manager->PostProcess_vkResetQueryPool(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>
 {
     template <typename... Args>
     static void Dispatch(TraceManager* manager, Args... args)
     {
-        manager->PostProcess_vkResetQueryPoolEXT(args...);
+        manager->PostProcess_vkResetQueryPool(args...);
     }
 };
 

@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -60,6 +60,37 @@ class ApiDecoder
                                              format::HandleId surface_id,
                                              uint32_t         width,
                                              uint32_t         height)
+    {}
+
+    virtual void DispatchCreateHardwareBufferCommand(format::ThreadId                                    thread_id,
+                                                     format::HandleId                                    memory_id,
+                                                     uint64_t                                            buffer_id,
+                                                     uint32_t                                            format,
+                                                     uint32_t                                            width,
+                                                     uint32_t                                            height,
+                                                     uint32_t                                            stride,
+                                                     uint32_t                                            usage,
+                                                     uint32_t                                            layers,
+                                                     const std::vector<format::HardwareBufferPlaneInfo>& plane_info)
+    {}
+
+    virtual void DispatchDestroyHardwareBufferCommand(format::ThreadId thread_id, uint64_t buffer_id) {}
+
+    virtual void DispatchSetDevicePropertiesCommand(format::ThreadId   thread_id,
+                                                    format::HandleId   physical_device_id,
+                                                    uint32_t           api_version,
+                                                    uint32_t           driver_version,
+                                                    uint32_t           vendor_id,
+                                                    uint32_t           device_id,
+                                                    uint32_t           device_type,
+                                                    const uint8_t      pipeline_cache_uuid[format::kUuidSize],
+                                                    const std::string& device_name)
+    {}
+
+    virtual void DispatchSetDeviceMemoryPropertiesCommand(format::ThreadId thread_id,
+                                                          format::HandleId physical_device_id,
+                                                          const std::vector<format::DeviceMemoryType>& memory_types,
+                                                          const std::vector<format::DeviceMemoryHeap>& memory_heaps)
     {}
 
     virtual void DispatchSetSwapchainImageStateCommand(format::ThreadId thread_id,

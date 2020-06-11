@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018-2019 Valve Corporation
-** Copyright (c) 2018-2019 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -30,6 +30,12 @@
 
 const char kVersionOption[] = "--version";
 
+const char kArgNone[]    = "NONE";
+const char kArgLz4[]     = "LZ4";
+const char kArgZlib[]    = "ZLIB";
+const char kArgZstd[]    = "ZSTD";
+const char kArgUnknown[] = "<Unknown>";
+
 static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kVersionOption))
@@ -44,7 +50,10 @@ static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentPar
 
         GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
         GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
-        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version 1.1.%u", VK_HEADER_VERSION);
+        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
+                               VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
+                               VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
+                               VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
 
         return true;
     }
@@ -68,20 +77,40 @@ void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  <output_file>\t\tPath to the output file to generate.");
     GFXRECON_WRITE_CONSOLE("  <compression_format>\tCompression format to apply to the output file.");
     GFXRECON_WRITE_CONSOLE("                      \tOptions are: ");
-    GFXRECON_WRITE_CONSOLE("                      \t  LZ4  - To output using LZ4 compression.");
-    GFXRECON_WRITE_CONSOLE("                      \t  ZLIB - To output using Zlib compression.");
-    GFXRECON_WRITE_CONSOLE("                      \t  NONE - To output without using compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  LZ4  - Use LZ4 compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  ZLIB - Use zlib compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  ZSTD - Use Zstandard compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  NONE - Remove compression.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit");
+}
+
+static std::string GetCompressionTypeName(uint32_t type)
+{
+    switch (type)
+    {
+        case gfxrecon::format::CompressionType::kNone:
+            return kArgNone;
+        case gfxrecon::format::CompressionType::kLz4:
+            return kArgLz4;
+        case gfxrecon::format::CompressionType::kZlib:
+            return kArgZlib;
+        case gfxrecon::format::CompressionType::kZstd:
+            return kArgZstd;
+        default:
+            assert(false);
+            break;
+    }
+
+    return kArgUnknown;
 }
 
 int main(int argc, const char** argv)
 {
     gfxrecon::decode::FileProcessor   file_processor;
-    gfxrecon::format::CompressionType compression_type       = gfxrecon::format::kNone;
-    std::string                       dst_compression_string = "NONE";
-    bool                              print_usage            = false;
-    int                               return_code            = 0;
+    gfxrecon::format::CompressionType compression_type = gfxrecon::format::kNone;
+    bool                              print_usage      = false;
+    int                               return_code      = 0;
     std::string                       input_filename;
     std::string                       output_filename;
 
@@ -99,25 +128,29 @@ int main(int argc, const char** argv)
     }
     else
     {
-        const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
+        const std::vector<std::string>& positional_arguments   = arg_parser.GetPositionalArguments();
+        std::string                     dst_compression_string = positional_arguments[2];
 
-        input_filename         = positional_arguments[0];
-        output_filename        = positional_arguments[1];
-        dst_compression_string = positional_arguments[2];
+        input_filename  = positional_arguments[0];
+        output_filename = positional_arguments[1];
 
-        if (dst_compression_string != "NONE")
+        if (gfxrecon::util::platform::StringCompareNoCase(kArgNone, dst_compression_string.c_str()) != 0)
         {
-            if (dst_compression_string == "LZ4")
+            if (gfxrecon::util::platform::StringCompareNoCase(kArgLz4, dst_compression_string.c_str()) == 0)
             {
                 compression_type = gfxrecon::format::CompressionType::kLz4;
             }
-            else if (dst_compression_string == "ZLIB")
+            else if (gfxrecon::util::platform::StringCompareNoCase(kArgZlib, dst_compression_string.c_str()) == 0)
             {
                 compression_type = gfxrecon::format::CompressionType::kZlib;
             }
+            else if (gfxrecon::util::platform::StringCompareNoCase(kArgZstd, dst_compression_string.c_str()) == 0)
+            {
+                compression_type = gfxrecon::format::CompressionType::kZstd;
+            }
             else
             {
-                GFXRECON_LOG_ERROR("Unsupported compression format \'%s\'", positional_arguments[2].c_str());
+                GFXRECON_LOG_ERROR("Unsupported compression format \'%s\'", dst_compression_string.c_str());
                 print_usage = true;
             }
         }
@@ -137,47 +170,39 @@ int main(int argc, const char** argv)
         if (decoder.Initialize(
                 output_filename, file_processor.GetFileHeader(), file_processor.GetFileOptions(), compression_type))
         {
-            std::string src_compression = "NONE";
             file_processor.AddDecoder(&decoder);
             bool succeeded = file_processor.ProcessAllFrames();
 
             if (succeeded)
             {
+                std::string src_compression = kArgNone;
+
                 for (const auto& option : file_processor.GetFileOptions())
                 {
                     if (option.key == gfxrecon::format::kCompressionType)
                     {
-                        switch (option.value)
+                        src_compression = GetCompressionTypeName(option.value);
+
+                        if (src_compression == kArgUnknown)
                         {
-                            case gfxrecon::format::CompressionType::kNone:
-                                // Nothing to do
-                                break;
-                            case gfxrecon::format::CompressionType::kLz4:
-                                src_compression = "LZ4";
-                                break;
-                            case gfxrecon::format::CompressionType::kZlib:
-                                src_compression = "ZLIB";
-                                break;
-                            default:
-                                GFXRECON_LOG_ERROR("Unknown source compression type %d", option.value);
-                                assert(false);
-                                break;
+                            GFXRECON_LOG_ERROR("Unrecognized source compression type %u", option.value);
                         }
                     }
                 }
 
                 if (gfxrecon::format::CompressionType::kNone != compression_type)
                 {
-                    uint64_t bytes_read    = file_processor.GetNumBytesRead();
-                    uint64_t bytes_written = decoder.NumBytesWritten();
-                    float    percent_reduction =
+                    std::string dst_compression = GetCompressionTypeName(compression_type);
+                    uint64_t    bytes_read      = file_processor.GetNumBytesRead();
+                    uint64_t    bytes_written   = decoder.NumBytesWritten();
+                    float       percent_reduction =
                         100.f * (1.f - (static_cast<float>(bytes_written) / static_cast<float>(bytes_read)));
                     GFXRECON_WRITE_CONSOLE("Compression Results:");
                     GFXRECON_WRITE_CONSOLE("  Original Size   [Compression: %5s] = %" PRIu64 " bytes",
                                            src_compression.c_str(),
                                            bytes_read);
                     GFXRECON_WRITE_CONSOLE("  Compressed Size [Compression: %5s] = %" PRIu64 " bytes",
-                                           dst_compression_string.c_str(),
+                                           dst_compression.c_str(),
                                            bytes_written);
                     GFXRECON_WRITE_CONSOLE("  Percent Reduction                    = %.2f%%", percent_reduction);
                 }
@@ -187,7 +212,7 @@ int main(int argc, const char** argv)
                     uint64_t bytes_written = decoder.NumBytesWritten();
                     float    percent_increase =
                         100.f * ((static_cast<float>(bytes_written) / static_cast<float>(bytes_read)) - 1.f);
-                    GFXRECON_WRITE_CONSOLE("Uncompression Results:");
+                    GFXRECON_WRITE_CONSOLE("Decompression Results:");
                     GFXRECON_WRITE_CONSOLE("  Original Size   [Compression: %5s] = %" PRIu64 " bytes",
                                            src_compression.c_str(),
                                            bytes_read);

@@ -69,7 +69,8 @@ class PointerDecoderBase
             }
 
             if (((attrib_ & format::PointerAttributes::kIsArray) == format::PointerAttributes::kIsArray) ||
-                ((attrib_ & format::PointerAttributes::kIsString) == format::PointerAttributes::kIsString))
+                ((attrib_ & format::PointerAttributes::kIsString) == format::PointerAttributes::kIsString) ||
+                ((attrib_ & format::PointerAttributes::kIsWString) == format::PointerAttributes::kIsWString))
             {
                 bytes_read += ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &len_);
             }

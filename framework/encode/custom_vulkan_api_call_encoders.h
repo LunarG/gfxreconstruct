@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -41,11 +41,17 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(VkDevice          
                                                               VkDescriptorUpdateTemplate descriptorUpdateTemplate,
                                                               const void*                pData);
 
-VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(VkDevice                            device,
-                                                  VkObjectTableNVX                    objectTable,
-                                                  uint32_t                            objectCount,
-                                                  const VkObjectTableEntryNVX* const* ppObjectTableEntries,
-                                                  const uint32_t*                     pObjectIndices);
+VKAPI_ATTR void VKAPI_CALL
+CmdBuildAccelerationStructureKHR(VkCommandBuffer                                         commandBuffer,
+                                 uint32_t                                                infoCount,
+                                 const VkAccelerationStructureBuildGeometryInfoKHR*      pInfos,
+                                 const VkAccelerationStructureBuildOffsetInfoKHR* const* ppOffsetInfos);
+
+VKAPI_ATTR VkResult VKAPI_CALL
+BuildAccelerationStructureKHR(VkDevice                                                device,
+                              uint32_t                                                infoCount,
+                              const VkAccelerationStructureBuildGeometryInfoKHR*      pInfos,
+                              const VkAccelerationStructureBuildOffsetInfoKHR* const* ppOffsetInfos);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
