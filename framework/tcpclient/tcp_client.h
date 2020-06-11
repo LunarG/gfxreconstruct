@@ -31,13 +31,6 @@ typedef int  SOCKET;
 
 using namespace std;
 
-namespace
-{
-static constexpr uint32_t kStrLen     = 4096;
-static constexpr uint32_t kPortStrLen = 128;
-static constexpr char*    kDriverName = "amdvlk64.dll";
-} // namespace
-
 // Used for sending messages over TCP
 // (currently only implemented for Windows)
 class TcpClient
@@ -60,9 +53,9 @@ class TcpClient
 #ifdef _WIN32
         char  str[kStrLen];
         char* va_str = str;
+        int   result = 0;
 
-        int result = 0;
-        result     = snprintf(va_str, kStrLen, data, args...);
+        result = snprintf(va_str, kStrLen, data, args...);
         if (result < 0)
         {
             GFXRECON_LOG_WARNING("No data\n");
@@ -167,6 +160,8 @@ class TcpClient
     char* GetIPAddress();
 
   private:
+    static constexpr uint32_t kStrLen = 4096;
+
     // Private constructor called by Create function
     TcpClient(uint32_t port, addrinfo* addr_info, char* file_name, bool data_send);
 

@@ -25,32 +25,32 @@ add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
                PRIVATE
-                   argument_parser.h
-                   argument_parser.cpp
-                   compressor.h
-                   date_time.h
-                   defines.h
-                   file_output_stream.h
-                   file_output_stream.cpp
-                   file_path.h
-                   file_path.cpp
-                   logging.h
-                   logging.cpp
-                   lz4_compressor.h
-                   lz4_compressor.cpp
-                   zlib_compressor.h
-                   zlib_compressor.cpp
-                   memory_output_stream.h
-                   memory_output_stream.cpp
-                   output_stream.h
-                   page_guard_manager.h
-                   page_guard_manager.cpp
-                   page_status_tracker.h
-                   platform.h
-                   settings_loader.h
-                   settings_loader.cpp
-                   asic_info_amdext_loader.h
-                   asic_info_amdext_loader.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/argument_parser.h
+                    ${CMAKE_CURRENT_LIST_DIR}/argument_parser.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/compressor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/date_time.h
+                    ${CMAKE_CURRENT_LIST_DIR}/defines.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_output_stream.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/file_path.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_path.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/logging.h
+                    ${CMAKE_CURRENT_LIST_DIR}/logging.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/lz4_compressor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/zlib_compressor.h
+                    ${CMAKE_CURRENT_LIST_DIR}/zlib_compressor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/memory_output_stream.h
+                    ${CMAKE_CURRENT_LIST_DIR}/memory_output_stream.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/output_stream.h
+                    ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.h
+                    ${CMAKE_CURRENT_LIST_DIR}/page_guard_manager.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/page_status_tracker.h
+                    ${CMAKE_CURRENT_LIST_DIR}/platform.h
+                    ${CMAKE_CURRENT_LIST_DIR}/settings_loader.h
+                    ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/asic_info_amdext_loader.h
+                    ${CMAKE_CURRENT_LIST_DIR}/asic_info_amdext_loader.cpp
               )
 
 target_include_directories(gfxrecon_util
@@ -90,8 +90,9 @@ common_build_directives(gfxrecon_util)
 
 add_executable(gfxrecon_util_test "")
 
-target_sources(gfxrecon_util_test PRIVATE
-        test/main.cpp)
+target_sources(gfxrecon_util_test
+    PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
 
 common_build_directives(gfxrecon_util_test)
 common_test_directives(gfxrecon_util_test)

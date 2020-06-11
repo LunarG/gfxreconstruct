@@ -99,11 +99,10 @@ def parse_args():
     arg_parser.add_argument('--test-archive', dest='test_archive',
                             action='store_true', default=False,
                             help='Generate a test archive package')
-    if not is_windows():
-        arg_parser.add_argument(
-            '--static-analysis', dest='static_analysis',
-            action='store_true', default=False,
-            help='Run static analysis on the code. Only supported in Linux for now.')
+    arg_parser.add_argument(
+        '--lint', dest='lint',
+        action='store_true', default=False,
+        help='Run static analysis lint tests on code')
     return arg_parser.parse_args()
 
 
@@ -149,7 +148,6 @@ def cmake_generate_options(args):
     generate_options = []
     if args.clean or args.clobber:
         generate_options.append('-DAPPLY_CPP_CODE_STYLE=OFF')
-        generate_options.append('-DRUN_STATIC_ANALYSIS=OFF')
         generate_options.append('-DRUN_TESTS=OFF')
         generate_options.append('-DGENERATE_TEST_ARCHIVE=OFF')
     else:
@@ -164,14 +162,11 @@ def cmake_generate_options(args):
         generate_options.append(
             '-DGENERATE_TEST_ARCHIVE={}'.format(
                 'ON' if args.test_archive else 'OFF'))
-
-        if not is_windows():
+        if args.lint:
             generate_options.append(
-            '-DRUN_STATIC_ANALYSIS={}'.format(
-                'ON' if args.static_analysis else 'OFF'))
-            generate_options.append(
-            '-DCMAKE_EXPORT_COMPILE_COMMANDS={}'.format(
-                'ON' if args.static_analysis else 'OFF'))
+                '-DCMAKE_CXX_CLANG_TIDY=clang-tidy;--format-style=file')
+        else:
+            generate_options.append('-UCMAKE_CXX_CLANG_TIDY')
     return generate_options
 
 
@@ -192,10 +187,6 @@ def cmake_generate_build_files(args):
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
         else:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
-        if (shutil.which('clang') is not None) and\
-                (shutil.which('clang++') is not None):
-            cmake_generate_env['CC'] = 'clang'
-            cmake_generate_env['CXX'] = 'clang++'
     for config, dir in BUILD_CONFIGS.items():
         for output in [('ARCHIVE', 'lib'), ('LIBRARY', 'bin'), ('RUNTIME', 'bin')]:
             cmake_generate_args.append(
