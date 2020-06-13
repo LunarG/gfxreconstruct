@@ -41,7 +41,8 @@ const format::HandleId kPlaceholderHandleId = static_cast<format::HandleId>(~0);
 const uintptr_t        kPlaceholderAddress  = static_cast<uintptr_t>(~0);
 
 VulkanRebindAllocator::VulkanRebindAllocator() :
-    device_(VK_NULL_HANDLE), allocator_(VK_NULL_HANDLE), capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER)
+    device_(VK_NULL_HANDLE), allocator_(VK_NULL_HANDLE), vma_functions_{},
+    capture_device_type_(VK_PHYSICAL_DEVICE_TYPE_OTHER), capture_memory_properties_{}, replay_memory_properties_{}
 {}
 
 VulkanRebindAllocator::~VulkanRebindAllocator() {}

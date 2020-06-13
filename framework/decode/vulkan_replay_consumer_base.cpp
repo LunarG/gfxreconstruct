@@ -2785,6 +2785,8 @@ void VulkanReplayConsumerBase::OverrideFreeMemory(PFN_vkFreeMemory  func,
     {
         memory         = memory_info->handle;
         allocator_data = memory_info->allocator_data;
+
+        memory_info->allocator_data = 0;
     }
 
     allocator->FreeMemory(memory, GetAllocationCallbacks(pAllocator), allocator_data);
@@ -3094,6 +3096,8 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
     {
         buffer         = buffer_info->handle;
         allocator_data = buffer_info->allocator_data;
+
+        buffer_info->allocator_data = 0;
     }
 
     allocator->DestroyBuffer(buffer, GetAllocationCallbacks(pAllocator), allocator_data);
@@ -3173,6 +3177,8 @@ void VulkanReplayConsumerBase::OverrideDestroyImage(
     {
         image          = image_info->handle;
         allocator_data = image_info->allocator_data;
+
+        image_info->allocator_data = 0;
     }
 
     allocator->DestroyImage(image, GetAllocationCallbacks(pAllocator), allocator_data);
