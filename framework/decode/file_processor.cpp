@@ -525,7 +525,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
             if (success)
             {
-                std::string message(parameter_buffer_.begin(), parameter_buffer_.end());
+                auto        message_start = parameter_buffer_.begin();
+                std::string message(message_start, std::next(message_start, static_cast<size_t>(message_size)));
 
                 for (auto decoder : decoders_)
                 {
