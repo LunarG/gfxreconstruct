@@ -1,13 +1,11 @@
+<!-- markdownlint-disable MD033 -->
 <!-- markdownlint-disable MD041 -->
-[![LunarG][1]][2]
+<p align="left"><img src="https://vulkan.lunarg.com/img/NewLunarGLogoBlack.png" alt="LunarG" width=263 height=113 /></p>
 
-[1]: https://vulkan.lunarg.com/img/LunarGLogo.png "www.LunarG.com"
-[2]: https://www.LunarG.com/
+[![Creative Commons][1]][2]
 
-[![Creative Commons][3]][4]
-
-[3]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
-[4]: https://creativecommons.org/licenses/by-nd/4.0/
+[1]: https://i.creativecommons.org/l/by-nd/4.0/88x31.png "Creative Commons License"
+[2]: https://creativecommons.org/licenses/by-nd/4.0/
 
 Copyright &copy; 2018-2020 LunarG, Inc.
 
