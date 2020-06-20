@@ -22,14 +22,14 @@ import sys
 import argparse
 import os
 
-def check_code_style(file_list, style_script=None, style_config_dir=None):
+def check_code_style(file_list, compare_base, style_script=None, style_config_dir=None):
     """
     Run clang format diff on the changed source file(s)
     against current branch. If branch retrieved failed, 
     fall back to diff against master branch.
     :raises Exception: when formatting errors found
     """
-    git_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip()
+    git_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", compare_base]).strip()
     if git_branch == b'':
         git_branch = "master"
     if not style_script:
@@ -56,6 +56,8 @@ if '__main__' == __name__:
     parser = argparse.ArgumentParser(prog='check_code_style',
                                      description='Checks if file match the code style specification')
     parser.add_argument('--sourcefile', nargs='+', dest='file_list', help="The source file(s)")
+    parser.add_argument('--base', dest='compare_base', metavar='BASE', action='store', default='HEAD',
+        help='Git branch name or commit ID to use as the base for C++ code style comparison')
     args = parser.parse_args()
-    check_code_style(args.file_list)
+    check_code_style(args.file_list, args.compare_base)
     sys.exit(0)
