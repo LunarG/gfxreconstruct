@@ -39,7 +39,14 @@ jobs:
         sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
     - name: Run build script
       run: |
-        python3 scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }}
+        if [ "${{ matrix.config.type }}" == "release" ]
+        then
+          clang-format --version # A check for version 9 should be added.
+          git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for code style check.
+          python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --check-code-style-base FETCH_HEAD
+        else
+          python3 scripts/build.py --skip-tests --config ${{ matrix.config.type }} --skip-check-code-style
+        fi
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/x64/bin/
