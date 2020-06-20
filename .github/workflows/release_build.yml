@@ -1,0 +1,237 @@
+name: Release Build
+
+# Perform optimized/release builds, create a release, and attach build
+# artifacts to the release when a version tag is pushed.
+#
+# The tag needs to be pushed by name, as `git push --tags` to push all
+# tags does not appear to trigger the action.
+#
+# The versioned release process is similar to the following:
+# 1. Add an annotated tag with the release version string.
+#        git tag -a v0.9.2
+# 2. Draft a message for the annotated tag that is similar to the
+#    following. The body of this message will serve as the body of the
+#    release message that is specified when the release is created.
+#        Release v0.9.2
+#
+#        Release Highlights
+#        - Brief description of new item 1.
+#        - Brief description of new item 2.
+# 3. Push the tag to GitHub.
+#        git push origin v0.9.2
+
+on:
+  push:
+    tags:       
+      - v*
+
+jobs:
+  linux:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Ubuntu GCC Release",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-ubuntu-gcc-release",
+            cc: "gcc", cxx: "g++"
+          }
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+    - name: Run build script
+      run: |
+        python3 scripts/build.py --skip-check-code-style --skip-tests
+    - name: Prepare artifacts
+      run: |
+        cp LICENSE.txt build/linux/x64/bin/
+        cp LICENSE_ThirdParty.txt build/linux/x64/bin/
+        cp USAGE_desktop.md build/linux/x64/bin/
+        rm -rf build/linux/x64/bin/staging-json
+        mv build/linux/x64/bin gfxreconstruct-dev
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: ./gfxreconstruct-dev
+  
+  windows:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Windows MSVC Release",
+            os: windows-latest,
+            artifact: "gfxreconstruct-windows-msvc-release",
+            cc: "cl", cxx: "cl"
+          }
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Run build script
+      run: |
+        python scripts\build.py --skip-check-code-style --skip-tests
+    - name: Prepare artifacts
+      run: |
+        copy LICENSE.txt build\windows\x64\bin\
+        copy LICENSE_ThirdParty.txt build\windows\x64\bin\
+        copy USAGE_desktop.md build\windows\x64\bin\
+        move build\windows\x64\bin gfxreconstruct-dev
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: .\gfxreconstruct-dev
+
+  android:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Android Release/Debug",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-android"
+          }
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Update submodules
+      run: |
+        git submodule update --init
+    - name: Gradle build
+      run: |
+        cd android
+        sh gradlew assembleRelease assembleDebug
+    - name: Prepare artifacts
+      run: |
+        mkdir gfxreconstruct-dev
+        mkdir gfxreconstruct-dev/layer
+        mkdir gfxreconstruct-dev/tools
+        cp LICENSE.txt gfxreconstruct-dev/
+        cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
+        cp USAGE_android.md gfxreconstruct-dev/
+        cp -r android/layer/build/intermediates/cmake/release/obj/arm64-v8a gfxreconstruct-dev/layer/
+        cp -r android/layer/build/intermediates/cmake/release/obj/armeabi-v7a gfxreconstruct-dev/layer/
+        cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
+        cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: ./gfxreconstruct-dev
+
+  release:
+    name: Create Release for Tag
+    runs-on: ubuntu-latest
+    needs: [ linux, windows, android ]
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Get tag body
+      id: get_tag_body
+      run: |
+        # Retrieve the body of the annotated tag's multi-line message and convert it to
+        # JSON, as an array of strings, with each line of the message as an array element.
+        tag_name=`echo "${{ github.ref }}" | cut -d "/" -f 3`
+        tag_body=`git tag -l --format='%(body)' "$tag_name"`
+        tag_body_json="["
+        while read -r line ; do tag_body_json+="\"${line}\"," ; done < <(echo "$tag_body")
+        tag_body_json="${tag_body_json::-1}]" # Replace the trailing ',' with ']'
+        echo "::set-output name=tag_body_json::$tag_body_json"
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: "${{ join(fromJson(steps.get_tag_body.outputs.tag_body_json), '\n') }}"
+        draft: false
+        prerelease: false
+    - name: Get release URL
+      run: |
+        echo "${{ steps.create_release.outputs.upload_url }}" > ./release_url
+    - name: Upload release URL
+      uses: actions/upload-artifact@v1
+      with:
+        name: release_url
+        path: ./release_url
+
+  publish:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    needs: release
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Upload Ubuntu Release Artifact",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-ubuntu-gcc-release",
+            command: "tar czf",
+            suffix: "ubuntu-gcc.tar.gz",
+            type: "application/x-gtar"
+          }
+        - {
+            name: "Upload Windows Release Artifact",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-windows-msvc-release",
+            command: "zip -r",
+            suffix: "windows-msvc.zip",
+            type: "application/zip"
+          }
+        - {
+            name: "Upload Android Release Artifact",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-android",
+            command: "zip -r",
+            suffix: "android.zip",
+            type: "application/zip"
+          }
+    steps:
+    - name: Get tag name
+      id: get_tag_name
+      run: |
+        tag_name=`echo "${{ github.ref }}" | cut -d "/" -f 3`
+        echo "::set-output name=tag_name::$tag_name"
+    - name: Download artifacts
+      uses: actions/download-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: ./gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}
+    - name: Make release artifacts
+      run: |
+        ${{ matrix.config.command }} gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}-${{ matrix.config.suffix }} gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}
+    - name: Download release URL
+      uses: actions/download-artifact@v1
+      with:
+        name: release_url
+        path: ./
+    - name: Set upload URL
+      id: set_upload_url
+      run: |
+        upload_url=`cat ./release_url`
+        echo "::set-output name=upload_url::$upload_url"
+    - name: Upload release artifacts
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
+        asset_name: gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}-${{ matrix.config.suffix }}
+        asset_path: ./gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}-${{ matrix.config.suffix }}
+        asset_content_type: ${{ matrix.config.type }}
