@@ -1,0 +1,133 @@
+name: CI Build
+
+# Perform CI builds for pull requests targeting the dev branches.
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  linux:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Ubuntu GCC Release",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-dev-ubuntu-gcc-release",
+            type: "release",
+            build_dir: "build",
+            cc: "gcc", cxx: "g++"
+          }
+        - {
+            name: "Ubuntu GCC Debug",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-dev-ubuntu-gcc-debug",
+            type: "debug",
+            build_dir: "dbuild",
+            cc: "gcc", cxx: "g++"
+          }
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Install build dependencies
+      run: |
+        sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+    - name: Run build script
+      run: |
+        python3 scripts/build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }}
+    - name: Prepare artifacts
+      run: |
+        cp LICENSE.txt ${{ matrix.config.build_dir }}/linux/x64/bin/
+        cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/linux/x64/bin/
+        cp USAGE_desktop.md ${{ matrix.config.build_dir }}/linux/x64/bin/
+        rm -rf ${{ matrix.config.build_dir }}/linux/x64/bin/staging-json
+        mv ${{ matrix.config.build_dir }}/linux/x64/bin gfxreconstruct-dev
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: ./gfxreconstruct-dev
+  
+  windows:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Windows MSVC Release",
+            os: windows-latest,
+            artifact: "gfxreconstruct-dev-windows-msvc-release",
+            type: "release",
+            cc: "cl", cxx: "cl"
+          }
+        - {
+            name: "Windows MSVC Debug",
+            os: windows-latest,
+            artifact: "gfxreconstruct-dev-windows-msvc-debug",
+            type: "debug",
+            cc: "cl", cxx: "cl"
+          }
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Run build script
+      run: |
+        python scripts\build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }}
+    - name: Prepare artifacts
+      run: |
+        copy LICENSE.txt build\windows\x64\bin\
+        copy LICENSE_ThirdParty.txt build\windows\x64\bin\
+        copy USAGE_desktop.md build\windows\x64\bin\
+        move build\windows\x64\bin gfxreconstruct-dev
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: .\gfxreconstruct-dev
+
+  android:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Android Release/Debug",
+            os: ubuntu-latest,
+            artifact: "gfxreconstruct-dev-android"
+          }
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v1
+    - name: Update submodules
+      run: |
+        git submodule update --init
+    - name: Gradle build
+      run: |
+        cd android
+        sh gradlew assembleRelease assembleDebug
+    - name: Prepare artifacts
+      run: |
+        mkdir gfxreconstruct-dev
+        mkdir gfxreconstruct-dev/layer
+        mkdir gfxreconstruct-dev/tools
+        cp LICENSE.txt gfxreconstruct-dev/
+        cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
+        cp USAGE_android.md gfxreconstruct-dev/
+        cp -r android/layer/build/intermediates/cmake/release/obj/arm64-v8a gfxreconstruct-dev/layer/
+        cp -r android/layer/build/intermediates/cmake/release/obj/armeabi-v7a gfxreconstruct-dev/layer/
+        cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
+        cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.config.artifact }}
+        path: ./gfxreconstruct-dev
