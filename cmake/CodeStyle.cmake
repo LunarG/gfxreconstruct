@@ -21,6 +21,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 option(APPLY_CPP_CODE_STYLE "Apply C++ code style using clang format" OFF)
 option(CHECK_CPP_CODE_STYLE "Check C++ code style using clang format" OFF)
+option(CHECK_CPP_CODE_STYLE_BASE "Git branch/commit for C++ code style comparison" "HEAD")
 
 if(${APPLY_CPP_CODE_STYLE} OR ${CHECK_CPP_CODE_STYLE})
     find_program(CLANG_FORMAT clang-format DOC "Clang format executable")
@@ -64,7 +65,7 @@ macro(target_code_style_build_directives TARGET)
         # Call the script to check formatting
         add_custom_target("${TARGET}CodeStyleCheck"
                 COMMAND "${PYTHON}" ${GFXReconstruct_SOURCE_DIR}/scripts/check_code_style.py
-                --sourcefile ${OUTPUT}
+                --sourcefile ${OUTPUT} --base ${CHECK_CPP_CODE_STYLE_BASE}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                 COMMENT "Check code style for ${TARGET}")
         add_dependencies(${TARGET} "${TARGET}CodeStyleCheck")
