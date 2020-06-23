@@ -149,7 +149,7 @@ const char kCaptureTriggerEnvVar[]            = GFXRECON_ENV_VAR_PREFIX CAPTURE_
 
 // Capture options for settings file.
 // clang-format off
-const char kSettingsFilter[] = "lunarg_gfxrecon.";
+const char kSettingsFilter[] = "lunarg_gfxreconstruct.";
 
 const std::string kOptionKeyCaptureCompressionType    = std::string(kSettingsFilter) + std::string(CAPTURE_COMPRESSION_TYPE_LOWER);
 const std::string kOptionKeyCaptureFile               = std::string(kSettingsFilter) + std::string(CAPTURE_FILE_NAME_LOWER);
