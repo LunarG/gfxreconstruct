@@ -28,7 +28,7 @@ TcpClient::Create(char* addr, uint32_t port, addrinfo* addr_info, char* file_nam
 TcpClient::TcpClient(uint32_t port, addrinfo* addr_info, char* file_name, bool data_send) :
     port_(port), address_info_(addr_info), file_name_(file_name), data_sent_(data_send), file_position(0)
 {
-    socket_    = NULL;
+    socket_    = static_cast<SOCKET>(NULL);
     tcp_valid_ = false;
     memset(ip_str_, 0, sizeof(ip_str_));
 }
@@ -136,8 +136,8 @@ void TcpClient::TcpSendFilePos(int64_t file_len, int64_t bytes_sent, char* file_
     {
         if (file_len > 0)
         {
-            double file_len_f                   = file_len;
-            double position_cur                 = file_position;
+            double file_len_f                   = static_cast<double>(file_len);
+            double position_cur                 = static_cast<double>(file_position);
             double position_last_sent           = static_cast<double>(last_position_sent);
             double diff_from_last_position_sent = static_cast<double>(position_cur - position_last_sent);
             double diff_min                     = static_cast<double>(file_len_f * 0.001f);

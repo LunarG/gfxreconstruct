@@ -2,55 +2,55 @@ add_library(gfxrecon_decode STATIC "")
 
 target_sources(gfxrecon_decode
                PRIVATE
-                   api_decoder.h
-                   copy_shaders.h
-                   custom_vulkan_struct_decoders.h
-                   custom_vulkan_struct_decoders.cpp
-                   custom_vulkan_struct_decoders_forward.h
-                   custom_vulkan_struct_handle_mappers.h
-                   custom_vulkan_struct_handle_mappers.cpp
-                   compression_converter.h
-                   compression_converter.cpp
-                   descriptor_update_template_decoder.h
-                   descriptor_update_template_decoder.cpp
-                   file_processor.h
-                   file_processor.cpp
-                   handle_pointer_decoder.h
-                   pnext_node.h
-                   pnext_typed_node.h
-                   pointer_decoder_base.h
-                   pointer_decoder.h
-                   portability.h
-                   portability.cpp
-                   resource_util.h
-                   resource_util.cpp
-                   string_array_decoder.h
-                   string_decoder.h
-                   struct_pointer_decoder.h
-                   swapchain_image_tracker.h
-                   value_decoder.h
-                   vulkan_ascii_consumer_base.h
-                   vulkan_ascii_consumer_base.cpp
-                   vulkan_consumer_base.h
-                   vulkan_decoder_base.h
-                   vulkan_decoder_base.cpp
-                   vulkan_default_allocator.h
-                   vulkan_default_allocator.cpp
-                   vulkan_enum_util.h
-                   vulkan_handle_mapping_util.h
-                   vulkan_object_info.h
-                   vulkan_object_info_table.h
-                   vulkan_rebind_allocator.h
-                   vulkan_rebind_allocator.cpp
-                   vulkan_remap_allocator.h
-                   vulkan_remap_allocator.cpp
-                   vulkan_replay_consumer_base.h
-                   vulkan_replay_consumer_base.cpp
-                   vulkan_replay_options.h
-                   vulkan_resource_allocator.h
-                   vulkan_resource_initializer.h
-                   vulkan_resource_initializer.cpp
-                   window.h
+                   ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
+                   ${CMAKE_CURRENT_LIST_DIR}/copy_shaders.h
+                   ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.h
+                   ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders_forward.h
+                   ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.h
+                   ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/compression_converter.h
+                   ${CMAKE_CURRENT_LIST_DIR}/compression_converter.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.h
+                   ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/file_processor.h
+                   ${CMAKE_CURRENT_LIST_DIR}/file_processor.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/handle_pointer_decoder.h
+                   ${CMAKE_CURRENT_LIST_DIR}/pnext_node.h
+                   ${CMAKE_CURRENT_LIST_DIR}/pnext_typed_node.h
+                   ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder_base.h
+                   ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder.h
+                   ${CMAKE_CURRENT_LIST_DIR}/portability.h
+                   ${CMAKE_CURRENT_LIST_DIR}/portability.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/resource_util.h
+                   ${CMAKE_CURRENT_LIST_DIR}/resource_util.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/string_array_decoder.h
+                   ${CMAKE_CURRENT_LIST_DIR}/string_decoder.h
+                   ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_decoder.h
+                   ${CMAKE_CURRENT_LIST_DIR}/swapchain_image_tracker.h
+                   ${CMAKE_CURRENT_LIST_DIR}/value_decoder.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_ascii_consumer_base.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_ascii_consumer_base.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_consumer_base.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_enum_util.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_mapping_util.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_object_info_table.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_rebind_allocator.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_rebind_allocator.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_remap_allocator.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_remap_allocator.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_consumer_base.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_replay_options.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_allocator.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/window.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp
                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
@@ -81,8 +81,9 @@ common_build_directives(gfxrecon_decode)
 
 add_executable(gfxrecon_decode_test "")
 
-target_sources(gfxrecon_decode_test PRIVATE
-        test/main.cpp)
+target_sources(gfxrecon_decode_test
+    PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/test/main.cpp)
 
 common_build_directives(gfxrecon_decode_test)
 common_test_directives(gfxrecon_decode_test)

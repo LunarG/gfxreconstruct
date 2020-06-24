@@ -61,9 +61,9 @@ class TcpClient
 #ifdef _WIN32
         char  str[kStrLen];
         char* va_str = str;
+        int   result = 0;
 
-        int result = 0;
-        result     = snprintf(va_str, kStrLen, data, args...);
+        result = snprintf(va_str, kStrLen, data, args...);
         if (result < 0)
         {
             GFXRECON_LOG_WARNING("No data\n");
