@@ -1,6 +1,6 @@
 ###############################################################################
-# Copyright (c) 2019 LunarG, Inc.
-# Copyright (c) 2019 Advanced Micro Devices, Inc.
+# Copyright (c) 2018-2020 LunarG, Inc.
+# Copyright (c) 2019-2020 Advanced Micro Devices, Inc.
 # All rights reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,6 @@
 # Description: CMake script for framework util target
 ###############################################################################
 
-include(CheckLibraryExists)
 add_library(gfxrecon_util STATIC "")
 
 target_sources(gfxrecon_util
