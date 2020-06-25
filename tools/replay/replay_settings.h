@@ -341,7 +341,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--paused] [--sfa | --skip-failed-allocations]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>] <file>\n");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--emrp | --enable-multipass-replay-portability] <file>\n");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
@@ -379,6 +380,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tto different allocations with different");
     GFXRECON_WRITE_CONSOLE("          \t\t         \toffsets.  Uses VMA to manage allocations");
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand suballocations.");
+    GFXRECON_WRITE_CONSOLE("  --emrp\t\tEnable multipass (2-pass) replay portability for replay");
+    GFXRECON_WRITE_CONSOLE("        \t\ton GPU with memory requirements that are different with");
+    GFXRECON_WRITE_CONSOLE("        \t\tcapture GPU (same as --enable-multipass-replay-portability).");
 }
 
 #endif // GFXRECON_REPLAY_SETTINGS_H
