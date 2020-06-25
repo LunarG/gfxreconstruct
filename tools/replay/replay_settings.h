@@ -48,6 +48,8 @@ struct Arguments
     static const char kMemoryPortabilityShortOption[];
     static const char kMemoryPortabilityLongOption[];
     static const char kShaderReplaceArgument[];
+    static const char kEnableMultipassReplayPortabilityLongOption[];
+    static const char kEnableMultipassReplayPortabilityShortOption[];
 
     static const char kIPAddArgument[];
     static const char kPortArgument[];
@@ -288,6 +290,12 @@ static gfxrecon::decode::ReplayOptions GetReplayOptions(const gfxrecon::util::Ar
 
     replay_options.create_resource_allocator = GetCreateResourceAllocatorFunc(arg_parser);
     replay_options.replace_dir               = arg_parser.GetArgumentValue(Arguments::kShaderReplaceArgument);
+
+    if (arg_parser.IsOptionSet(Arguments::kEnableMultipassReplayPortabilityLongOption) ||
+        arg_parser.IsOptionSet(Arguments::kEnableMultipassReplayPortabilityShortOption))
+    {
+        replay_options.enable_multipass_replay_portability = true;
+    }
 
     return replay_options;
 }

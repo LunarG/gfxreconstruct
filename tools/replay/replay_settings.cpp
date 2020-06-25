@@ -10,18 +10,20 @@
 const char Arguments::kApplicationName[] = "GFXReconstruct Replay";
 const char Arguments::kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 
-const char Arguments::kVersionOption[]                    = "--version";
-const char Arguments::kOverrideGpuArgument[]              = "--gpu";
-const char Arguments::kPausedOption[]                     = "--paused";
-const char Arguments::kPauseFrameArgument[]               = "--pause-frame";
-const char Arguments::kSkipFailedAllocationShortOption[]  = "--sfa";
-const char Arguments::kSkipFailedAllocationLongOption[]   = "--skip-failed-allocations";
-const char Arguments::kOmitPipelineCacheDataShortOption[] = "--opcd";
-const char Arguments::kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
-const char Arguments::kWsiArgument[]                      = "--wsi";
-const char Arguments::kMemoryPortabilityShortOption[]     = "-m";
-const char Arguments::kMemoryPortabilityLongOption[]      = "--memory-translation";
-const char Arguments::kShaderReplaceArgument[]            = "--replace-shaders";
+const char Arguments::kVersionOption[]                               = "--version";
+const char Arguments::kOverrideGpuArgument[]                         = "--gpu";
+const char Arguments::kPausedOption[]                                = "--paused";
+const char Arguments::kPauseFrameArgument[]                          = "--pause-frame";
+const char Arguments::kSkipFailedAllocationShortOption[]             = "--sfa";
+const char Arguments::kSkipFailedAllocationLongOption[]              = "--skip-failed-allocations";
+const char Arguments::kOmitPipelineCacheDataShortOption[]            = "--opcd";
+const char Arguments::kOmitPipelineCacheDataLongOption[]             = "--omit-pipeline-cache-data";
+const char Arguments::kWsiArgument[]                                 = "--wsi";
+const char Arguments::kMemoryPortabilityShortOption[]                = "-m";
+const char Arguments::kMemoryPortabilityLongOption[]                 = "--memory-translation";
+const char Arguments::kShaderReplaceArgument[]                       = "--replace-shaders";
+const char Arguments::kEnableMultipassReplayPortabilityLongOption[]  = "--enable-multipass-replay-portability";
+const char Arguments::kEnableMultipassReplayPortabilityShortOption[] = "--emrp";
 
 const char Arguments::kIPAddArgument[]     = "--ip-address";
 const char Arguments::kPortArgument[]      = "--port";
@@ -30,6 +32,7 @@ const char Arguments::kWinHeightArgument[] = "--win-height";
 
 // TODO: Make this a vector of strings.
 const char Arguments::kOptions[] =
-    "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
+    "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data,--emrp|--"
+    "enable-multipass-replay-portability";
 const char Arguments::kArguments[] =
     "--gpu,--pause-frame,--wsi,-m|--memory-translation,--replace-shaders,--ip-address,--port,--win-width,--win-height";

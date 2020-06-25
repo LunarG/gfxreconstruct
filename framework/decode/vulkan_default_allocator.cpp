@@ -306,10 +306,8 @@ VkResult VulkanDefaultAllocator::InvalidateMappedMemoryRanges(uint32_t          
     return functions_.invalidate_memory_ranges(device_, memory_range_count, memory_ranges);
 }
 
-VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator_data,
-                                                        uint64_t       offset,
-                                                        uint64_t       size,
-                                                        const uint8_t* data)
+VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(
+    MemoryData allocator_data, uint64_t offset, uint64_t size, uint64_t data_offset, const uint8_t* data)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
@@ -323,7 +321,8 @@ VkResult VulkanDefaultAllocator::WriteMappedMemoryRange(MemoryData     allocator
 
             size_t copy_size = static_cast<size_t>(size);
 
-            util::platform::MemoryCopy(memory_alloc_info->mapped_pointer + offset, copy_size, data, copy_size);
+            util::platform::MemoryCopy(
+                memory_alloc_info->mapped_pointer + offset, copy_size, data + data_offset, copy_size);
 
             result = VK_SUCCESS;
         }

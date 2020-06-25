@@ -132,9 +132,12 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 }
 #endif
 
-VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options) :
-    loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
-    window_factory_(window_factory), options_(options), loading_trim_state_(false)
+VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory*                  window_factory,
+                                                   VulkanResourceTrackingConsumer* resource_tracking_consumer,
+                                                   const ReplayOptions&            options) :
+    loader_handle_(nullptr),
+    get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), window_factory_(window_factory),
+    resource_tracking_consumer_(resource_tracking_consumer), options_(options), loading_trim_state_(false)
 {
     assert(window_factory != nullptr);
     assert(options.create_resource_allocator != nullptr);
@@ -171,6 +174,98 @@ void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& m
     GFXRECON_LOG_INFO("Trace Message: %s", message.c_str());
 }
 
+void VulkanReplayConsumerBase::UpdateResourcesData(
+    const std::unique_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
+    uint64_t                                               memory_id,
+    uint64_t                                               offset,
+    uint64_t                                               size,
+    uint64_t&                                              mapped_memory_offset,
+    uint64_t&                                              data_offset,
+    uint64_t&                                              copy_size,
+    const uint8_t*                                         data)
+{
+    // find the corresponding resources offset and update fill memory to new offset
+    auto tracked_memory_info =
+        resource_tracking_consumer->GetTrackedObjectInfoTable().GetTrackedDeviceMemoryInfo(memory_id);
+
+    std::vector<TrackedResourceInfo*>* tracked_bound_resources = tracked_memory_info->GetBoundResourcesList();
+    bool                               is_image                = false;
+
+    // loop through all the bound resources in the memory objects and update the
+    // updated mapped memory offset, data offset and data size
+    for (int i = 0; i < (*tracked_bound_resources).size(); i++)
+    {
+        if ((*tracked_bound_resources)[i]->GetImageFlag() == false)
+        {
+            VkDeviceSize resource_start = (*tracked_bound_resources)[i]->GetTraceBindOffset();
+            VkDeviceSize resource_end   = (*tracked_bound_resources)[i]->GetTraceBindOffset() +
+                                        (*tracked_bound_resources)[i]->GetReplayResourceSize();
+            uint64_t copy_data_start = offset;
+            uint64_t copy_data_end   = offset + size;
+
+            // ignore the resource that is outside the copy range
+            if ((copy_data_start >= resource_end) || (resource_start >= copy_data_end))
+
+            {
+                continue;
+            }
+
+            // below are the condition checks for resource is within the
+            // copy data range or overlap with the copy data range,
+            // if resource is within the copy data range,
+            // update the copy offset, data offset and data size
+            // which will be used later in memcpy
+            else if ((resource_start >= copy_data_start) && (resource_end <= copy_data_end))
+            {
+                mapped_memory_offset = (*tracked_bound_resources)[i]->GetReplayBindOffset();
+                data_offset          = resource_start - copy_data_start;
+                copy_size            = (*tracked_bound_resources)[i]->GetReplayResourceSize();
+            }
+            else if ((copy_data_start > resource_start) && (copy_data_end > resource_end))
+            {
+                copy_size = resource_end - copy_data_start;
+                mapped_memory_offset =
+                    (*tracked_bound_resources)[i]->GetReplayBindOffset() + (copy_data_start - resource_start);
+            }
+            else if ((resource_start > copy_data_start) && (resource_end > copy_data_end))
+            {
+                data_offset          = resource_start - copy_data_start;
+                copy_size            = (copy_data_end)-resource_start;
+                mapped_memory_offset = (*tracked_bound_resources)[i]->GetReplayBindOffset();
+            }
+            else if ((resource_start <= copy_data_start) && (resource_end >= copy_data_end))
+            {
+
+                copy_size = size;
+                mapped_memory_offset =
+                    (*tracked_bound_resources)[i]->GetReplayBindOffset() + (copy_data_start - resource_start);
+            }
+            else if ((copy_data_start < resource_start) && (copy_data_end < resource_end))
+            {
+                data_offset          = resource_start - resource_start;
+                copy_size            = resource_end - resource_start;
+                mapped_memory_offset = (*tracked_bound_resources)[i]->GetReplayBindOffset();
+            }
+            else if ((resource_start < copy_data_start) && (resource_end < copy_data_end))
+            {
+                copy_size = (resource_end)-copy_data_start;
+                mapped_memory_offset =
+                    (*tracked_bound_resources)[i]->GetReplayBindOffset() + (copy_data_start - resource_start);
+            }
+            // fail to interpret whether the resource is within the copy range
+            else
+            {
+                GFXRECON_LOG_FATAL("Fill memory offset translation failed!");
+            }
+        }
+        else
+        {
+            // TODO: handle copy image subresources?
+            is_image = true;
+        }
+    }
+}
+
 void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
                                                         uint64_t       offset,
                                                         uint64_t       size,
@@ -183,11 +278,22 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 
     if (memory_info != nullptr)
     {
+        uint64_t mapped_offset = offset;
+        uint64_t data_offset   = 0;
+        uint64_t copy_size     = size;
+
+        if (resource_tracking_consumer_ != nullptr)
+        {
+            UpdateResourcesData(
+                resource_tracking_consumer_, memory_id, offset, size, mapped_offset, data_offset, copy_size, data);
+        }
+
         auto allocator = memory_info->allocator;
 
         if (allocator != nullptr)
         {
-            result = allocator->WriteMappedMemoryRange(memory_info->allocator_data, offset, size, data);
+            result = allocator->WriteMappedMemoryRange(
+                memory_info->allocator_data, mapped_offset, copy_size, data_offset, data);
         }
         else
         {
@@ -2031,6 +2137,29 @@ void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(const Deco
     }
 }
 
+// Util function to find the matching offset with the resources offsets
+void VulkanReplayConsumerBase::FindMatchResourcesOffsets(TrackedDeviceMemoryInfo* tracked_memory_info,
+                                                         VkDeviceSize&            offset)
+{
+    // find the match offset for fill operation
+    std::vector<TrackedResourceInfo*>* tracked_bound_resources = tracked_memory_info->GetBoundResourcesList();
+    for (int i = 0; i < (*tracked_bound_resources).size(); i++)
+    {
+        if ((*tracked_bound_resources)[i]->GetTraceBindOffset() == offset)
+        {
+            offset = (*tracked_bound_resources)[i]->GetReplayBindOffset();
+        }
+        else if ((offset > (*tracked_bound_resources)[i]->GetTraceBindOffset()) &&
+                 (offset <= ((*tracked_bound_resources)[i]->GetTraceBindOffset() +
+                             (*tracked_bound_resources)[i]->GetReplayResourceSize())))
+        {
+            int64_t offset_diff = (*tracked_bound_resources)[i]->GetReplayBindOffset() -
+                                  (*tracked_bound_resources)[i]->GetTraceBindOffset();
+            offset += offset_diff;
+        }
+    }
+}
+
 VkResult
 VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                                                  const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
@@ -2557,10 +2686,20 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         auto                                replay_allocate_info = pAllocateInfo->GetPointer();
         auto                                replay_memory        = pMemory->GetHandlePointer();
 
+        // allocate new memory allocation size collected from first pass by resource tracking
+        VkMemoryAllocateInfo* modified_allocate_info = const_cast<VkMemoryAllocateInfo*>(replay_allocate_info);
+        if (resource_tracking_consumer_ != nullptr)
+        {
+            auto tracked_memory_info =
+                resource_tracking_consumer_->GetTrackedObjectInfoTable().GetTrackedDeviceMemoryInfo(
+                    *(pMemory->GetPointer()));
+            modified_allocate_info->allocationSize = tracked_memory_info->GetReplayMemoryAllocationSize();
+        }
+
         result = allocator->AllocateMemory(
             replay_allocate_info, GetAllocationCallbacks(pAllocator), replay_memory, &allocator_data);
 
-        if ((result == VK_SUCCESS) && (replay_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
+        if ((result == VK_SUCCESS) && (modified_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
         {
             auto memory_info = reinterpret_cast<DeviceMemoryInfo*>(pMemory->GetConsumerData(0));
             assert(memory_info != nullptr);
@@ -2600,6 +2739,33 @@ VkResult VulkanReplayConsumerBase::OverrideMapMemory(PFN_vkMapMemory   func,
 
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
+
+    // update map memory size to new allocated memory size
+    if (resource_tracking_consumer_ != nullptr)
+    {
+        auto tracked_memory_info = resource_tracking_consumer_->GetTrackedObjectInfoTable().GetTrackedDeviceMemoryInfo(
+            memory_info->capture_id);
+
+        // update map memory size
+        auto map_memories_sizes_list = tracked_memory_info->GetMappedMemorySizesList();
+        if (map_memories_sizes_list.size() == 1)
+        {
+            size = std::max(tracked_memory_info->GetReplayMemoryAllocationSize(), size);
+        }
+
+        // update map memory offset
+        VkDeviceSize ori_offset = offset;
+        FindMatchResourcesOffsets(tracked_memory_info, offset);
+
+        if (offset != ori_offset)
+        {
+            GFXRECON_LOG_INFO("INFO: map offset has been changed.");
+        }
+        if (offset > 0)
+        {
+            GFXRECON_LOG_INFO("INFO: map offset bigger than 0.");
+        }
+    }
 
     return allocator->MapMemory(memory_info->handle, offset, size, flags, ppData, memory_info->allocator_data);
 }
@@ -2722,6 +2888,15 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
+    // update buffer to new binding offset from first pass data collected from resource tracking
+    if (resource_tracking_consumer_ != nullptr)
+    {
+        auto tracked_buffer_info =
+            resource_tracking_consumer_->GetTrackedObjectInfoTable().GetTrackedResourceInfo(buffer_info->capture_id);
+
+        memoryOffset = tracked_buffer_info->GetReplayBindOffset();
+    }
+
     VkResult result = allocator->BindBufferMemory(buffer_info->handle,
                                                   memory_info->handle,
                                                   memoryOffset,
@@ -2841,6 +3016,15 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory(PFN_vkBindImageMemory
 
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
+
+    // update image to new binding offset from first pass data collected from resource tracking
+    if (resource_tracking_consumer_ != nullptr)
+    {
+        auto tracked_image_info =
+            resource_tracking_consumer_->GetTrackedObjectInfoTable().GetTrackedResourceInfo(image_info->capture_id);
+
+        memoryOffset = tracked_image_info->GetReplayBindOffset();
+    }
 
     VkResult result = allocator->BindImageMemory(image_info->handle,
                                                  memory_info->handle,

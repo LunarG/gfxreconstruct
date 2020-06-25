@@ -22,6 +22,7 @@
 #include "decode/vulkan_replay_options.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+#include "generated/generated_vulkan_resource_tracking_consumer.h"
 #include "util/argument_parser.h"
 #include "util/date_time.h"
 #include "util/logging.h"
@@ -50,6 +51,42 @@
 #endif
 
 const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
+
+void run_first_pass_replay_portability(const gfxrecon::decode::ReplayOptions replay_options,
+
+                                       gfxrecon::decode::VulkanDecoder                   decoder,
+                                       gfxrecon::util::ArgumentParser                    arg_parser,
+                                       gfxrecon::decode::VulkanResourceTrackingConsumer* resource_tracking_consumer,
+                                       std::string                                       filename)
+{
+    if (replay_options.enable_multipass_replay_portability == true)
+    {
+        // enable first pass of replay to generate resource tracking information
+        GFXRECON_WRITE_CONSOLE("First pass of replay resource tracking for memory portability. This may "
+                               "take some time. Please wait...");
+        gfxrecon::decode::FileProcessor file_processor_resource_tracking;
+        resource_tracking_consumer = new gfxrecon::decode::VulkanResourceTrackingConsumer(replay_options);
+
+        if (file_processor_resource_tracking.Initialize(filename))
+        {
+            decoder.AddConsumer(resource_tracking_consumer);
+
+            file_processor_resource_tracking.AddDecoder(&decoder);
+            file_processor_resource_tracking.ProcessAllFrames();
+
+            file_processor_resource_tracking.RemoveDecoder(&decoder);
+            decoder.RemoveConsumer(resource_tracking_consumer);
+        }
+
+        // sort the bound resources according to the binding offsets
+        resource_tracking_consumer->SortMemoriesBoundResourcesByOffset();
+
+        // calculate the replay binding offset of the bound resources and replay memory allocation size
+        resource_tracking_consumer->CalculateReplayBindingOffsetAndMemoryAllocationSize();
+
+        GFXRECON_WRITE_CONSOLE("First pass of replay resource tracking done.");
+    }
+}
 
 int main(int argc, const char** argv)
 {
@@ -148,9 +185,19 @@ int main(int argc, const char** argv)
             }
             else
             {
-                gfxrecon::decode::VulkanDecoder        decoder;
-                gfxrecon::decode::VulkanReplayConsumer replay_consumer(window_factory.get(),
-                                                                       GetReplayOptions(arg_parser));
+                gfxrecon::decode::VulkanDecoder decoder;
+
+                // get user replay option and check if multipass replay is enabled for memory portabiliy
+                const gfxrecon::decode::ReplayOptions             replay_options = GetReplayOptions(arg_parser);
+                gfxrecon::decode::VulkanResourceTrackingConsumer* resource_tracking_consumer = nullptr;
+
+                // run first pass of resouce tracking in replay for memory portability if enabled by user
+                run_first_pass_replay_portability(
+                    replay_options, decoder, arg_parser, resource_tracking_consumer, filename);
+
+                // replay trace
+                gfxrecon::decode::VulkanReplayConsumer replay_consumer(
+                    window_factory.get(), resource_tracking_consumer, replay_options);
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
 

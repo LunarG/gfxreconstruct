@@ -126,8 +126,8 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                                   const VkMappedMemoryRange* memory_ranges,
                                                   const MemoryData*          allocator_datas) override;
 
-    virtual VkResult
-    WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) override;
+    virtual VkResult WriteMappedMemoryRange(
+        MemoryData allocator_data, uint64_t offset, uint64_t size, uint64_t data_offset, const uint8_t* data) override;
 
     virtual void ReportAllocateMemoryIncompatibility(const VkMemoryAllocateInfo* allocate_info) override;
 
