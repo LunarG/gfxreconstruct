@@ -14,6 +14,8 @@
 ** limitations under the License.
 */
 
+#include "project_version.h"
+
 #include "decode/file_processor.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_consumer.h"
@@ -25,9 +27,40 @@
 
 #include "vulkan/vulkan.h"
 
+#include <cstdlib>
 #include <string>
 
+const char kVersionOption[]     = "--version";
 const char kDirectoryArgument[] = "--dir";
+const char kNoDebugPopup[]      = "--no-debug-popup";
+
+const char kOptions[]   = "--version,--no-debug-popup";
+const char kArguments[] = "--dir";
+
+static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kVersionOption))
+    {
+        std::string app_name     = exe_name;
+        size_t      dir_location = app_name.find_last_of("/\\");
+
+        if (dir_location >= 0)
+        {
+            app_name.replace(0, dir_location + 1, "");
+        }
+
+        GFXRECON_WRITE_CONSOLE("%s version info:", app_name.c_str());
+        GFXRECON_WRITE_CONSOLE("  GFXReconstruct Version %s", GFXRECON_PROJECT_VERSION_STRING);
+        GFXRECON_WRITE_CONSOLE("  Vulkan Header Version %u.%u.%u",
+                               VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
+                               VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
+                               VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+
+        return true;
+    }
+
+    return false;
+}
 
 static void PrintUsage(const char* exe_name)
 {
@@ -39,15 +72,20 @@ static void PrintUsage(const char* exe_name)
     }
     GFXRECON_WRITE_CONSOLE("\n%s - Extract shaders from a GFXReconstruct capture file.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [--dir <dir>] <file>\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("Optional arguments:");
-    GFXRECON_WRITE_CONSOLE("  --dir <dir>\tPlace extracted shaders into directory <dir>. Otherwise");
-    GFXRECON_WRITE_CONSOLE("             \tuse <file>.shaders in working directory. Create directory");
-    GFXRECON_WRITE_CONSOLE("             \tif necessary. Each shader is placed in individual file");
-    GFXRECON_WRITE_CONSOLE("             \tnamed sh<handle_id> where handle_id is handle id of the");
-    GFXRECON_WRITE_CONSOLE("             \tCreateShaderModule call. See gfxrecon-replay --replace-shaders.");
+    GFXRECON_WRITE_CONSOLE("  %s [--version] [--dir <dir>] <file>\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Required arguments:");
-    GFXRECON_WRITE_CONSOLE("  <file>\tThe GFXReconstruct capture file to be processed.");
+    GFXRECON_WRITE_CONSOLE("  <file>\t\tThe GFXReconstruct capture file to be processed.");
+    GFXRECON_WRITE_CONSOLE("Optional arguments:");
+    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+    GFXRECON_WRITE_CONSOLE("  --dir <dir>\t\tPlace extracted shaders into directory <dir>. Otherwise");
+    GFXRECON_WRITE_CONSOLE("             \t\tuse <file>.shaders in working directory. Create directory");
+    GFXRECON_WRITE_CONSOLE("             \t\tif necessary. Each shader is placed in individual file");
+    GFXRECON_WRITE_CONSOLE("             \t\tnamed sh<handle_id> where handle_id is handle id of the");
+    GFXRECON_WRITE_CONSOLE("             \t\tCreateShaderModule call. See gfxrecon-replay --replace-shaders.");
+#if defined(WIN32) && defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
+    GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
+#endif
 }
 
 class VulkanExtractConsumer : public gfxrecon::decode::VulkanConsumer
@@ -96,11 +134,15 @@ class VulkanExtractConsumer : public gfxrecon::decode::VulkanConsumer
 int main(int argc, const char** argv)
 {
     std::string                    input_filename;
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, "", "--dir");
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
     gfxrecon::util::Log::Init();
 
-    if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
+    if (PrintVersion(argv[0], arg_parser))
+    {
+        exit(0);
+    }
+    else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
     {
         PrintUsage(argv[0]);
         gfxrecon::util::Log::Release();
@@ -110,6 +152,13 @@ int main(int argc, const char** argv)
     {
         const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
         input_filename                                       = positional_arguments[0];
+
+#if defined(WIN32) && defined(_DEBUG)
+        if (arg_parser.IsOptionSet(kNoDebugPopup))
+        {
+            _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+        }
+#endif
     }
 
     gfxrecon::decode::FileProcessor file_processor;

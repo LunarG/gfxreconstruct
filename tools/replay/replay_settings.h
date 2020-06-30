@@ -26,6 +26,7 @@
 
 #include "vulkan/vulkan_core.h"
 
+#include <cstdlib>
 #include <string>
 
 #ifndef GFXRECON_REPLAY_SETTINGS_H
@@ -46,8 +47,10 @@ const char kWsiArgument[]                      = "--wsi";
 const char kMemoryPortabilityShortOption[]     = "-m";
 const char kMemoryPortabilityLongOption[]      = "--memory-translation";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
+const char kNoDebugPopup[]                     = "--no-debug-popup";
 
-const char kOptions[]   = "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data";
+const char kOptions[] =
+    "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data,--no-debug-popup";
 const char kArguments[] = "--gpu,--pause-frame,--wsi,-m|--memory-translation,--replace-shaders";
 
 enum class WsiPlatform
@@ -66,6 +69,16 @@ const char kWsiPlatformWayland[] = "wayland";
 const char kMemoryTranslationNone[]   = "none";
 const char kMemoryTranslationRemap[]  = "remap";
 const char kMemoryTranslationRebind[] = "rebind";
+
+static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+#if defined(WIN32) && defined(_DEBUG)
+    if (arg_parser.IsOptionSet(kNoDebugPopup))
+    {
+        _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+    }
+#endif
+}
 
 static void CheckActiveLayers(const char* env_var)
 {
@@ -270,6 +283,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--paused] [--sfa | --skip-failed-allocations]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
+#if defined(WIN32) && defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup]");
+#endif
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>] <file>\n");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay.");
@@ -294,6 +310,10 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("        \t\tvkCreatePipelineCache (same as --omit-pipeline-cache-data).");
     GFXRECON_WRITE_CONSOLE("  --wsi <platform>\tForce replay to use the specified wsi platform.");
     GFXRECON_WRITE_CONSOLE("                  \tAvailable platforms are: %s", GetWsiArgString().c_str());
+#if defined(WIN32) && defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tdisplayed when abort() is called (Windows debug only).");
+#endif
     GFXRECON_WRITE_CONSOLE("  -m <mode>\t\tEnable memory translation for replay on GPUs with memory");
     GFXRECON_WRITE_CONSOLE("          \t\ttypes that are not compatible with the capture GPU's");
     GFXRECON_WRITE_CONSOLE("          \t\tmemory types.  Available modes are:");

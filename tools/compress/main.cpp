@@ -27,8 +27,12 @@
 #include "vulkan/vulkan_core.h"
 
 #include <cassert>
+#include <cstdlib>
 
 const char kVersionOption[] = "--version";
+const char kNoDebugPopup[]  = "--no-debug-popup";
+
+const char kOptions[] = "--version,--no-debug-popup";
 
 const char kArgNone[]    = "NONE";
 const char kArgLz4[]     = "LZ4";
@@ -82,7 +86,11 @@ void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("                      \t  ZSTD - Use Zstandard compression.");
     GFXRECON_WRITE_CONSOLE("                      \t  NONE - Remove compression.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
-    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit");
+    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+#if defined(WIN32) && defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
+    GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
+#endif
 }
 
 static std::string GetCompressionTypeName(uint32_t type)
@@ -116,7 +124,7 @@ int main(int argc, const char** argv)
 
     gfxrecon::util::Log::Init();
 
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kVersionOption, "");
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
 
     if (PrintVersion(argv[0], arg_parser))
     {
@@ -154,6 +162,13 @@ int main(int argc, const char** argv)
                 print_usage = true;
             }
         }
+
+#if defined(WIN32) && defined(_DEBUG)
+        if (arg_parser.IsOptionSet(kNoDebugPopup))
+        {
+            _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+        }
+#endif
     }
 
     if (print_usage)
