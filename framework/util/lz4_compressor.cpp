@@ -19,6 +19,8 @@
 
 #include "util/lz4_compressor.h"
 
+#include "util/logging.h"
+
 #include "lz4.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -28,7 +30,7 @@ size_t Lz4Compressor::Compress(const size_t          uncompressed_size,
                                const uint8_t*        uncompressed_data,
                                std::vector<uint8_t>* compressed_data)
 {
-    size_t copy_size = 0;
+    size_t data_size = 0;
 
     if (nullptr == compressed_data)
     {
@@ -50,10 +52,10 @@ size_t Lz4Compressor::Compress(const size_t          uncompressed_size,
 
     if (compressed_size_generated > 0)
     {
-        copy_size = compressed_size_generated;
+        data_size = compressed_size_generated;
     }
 
-    return copy_size;
+    return data_size;
 }
 
 size_t Lz4Compressor::Decompress(const size_t                compressed_size,
@@ -61,7 +63,7 @@ size_t Lz4Compressor::Decompress(const size_t                compressed_size,
                                  const size_t                expected_uncompressed_size,
                                  std::vector<uint8_t>*       uncompressed_data)
 {
-    size_t copy_size = 0;
+    size_t data_size = 0;
 
     if (nullptr == uncompressed_data)
     {
@@ -75,10 +77,14 @@ size_t Lz4Compressor::Decompress(const size_t                compressed_size,
 
     if (uncompressed_size_generated > 0)
     {
-        copy_size = uncompressed_size_generated;
+        data_size = uncompressed_size_generated;
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("LZ4 decompression failed with error %d", uncompressed_size_generated);
     }
 
-    return copy_size;
+    return data_size;
 }
 
 GFXRECON_END_NAMESPACE(util)
