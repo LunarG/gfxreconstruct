@@ -1,6 +1,6 @@
 /*
-** Copyright (c) 2018 Valve Corporation
-** Copyright (c) 2018 LunarG, Inc.
+** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2020 LunarG, Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -26,7 +26,12 @@
 
 #include "vulkan/vulkan_core.h"
 
+#include <cstdlib>
+
 const char kVersionOption[] = "--version";
+const char kNoDebugPopup[]  = "--no-debug-popup";
+
+const char kOptions[] = "--version,--no-debug-popup";
 
 static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
@@ -68,14 +73,18 @@ void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the GFXReconstruct capture file to be converted");
     GFXRECON_WRITE_CONSOLE("        \t\tto text.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
-    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit");
+    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+#if defined(WIN32) && defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
+    GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
+#endif
 }
 
 int main(int argc, const char** argv)
 {
     std::string                     input_filename;
     gfxrecon::decode::FileProcessor file_processor;
-    gfxrecon::util::ArgumentParser  arg_parser(argc, argv, kVersionOption, "");
+    gfxrecon::util::ArgumentParser  arg_parser(argc, argv, kOptions, "");
 
     gfxrecon::util::Log::Init();
 
@@ -93,6 +102,13 @@ int main(int argc, const char** argv)
     {
         const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
         input_filename                                       = positional_arguments[0];
+
+#if defined(WIN32) && defined(_DEBUG)
+        if (arg_parser.IsOptionSet(kNoDebugPopup))
+        {
+            _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
+        }
+#endif
     }
 
     std::string output_filename = input_filename;

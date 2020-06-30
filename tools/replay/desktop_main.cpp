@@ -73,6 +73,7 @@ int main(int argc, const char** argv)
     {
         const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
         filename                                             = positional_arguments[0];
+        ProcessDisableDebugPopup(arg_parser);
     }
 
     auto wsi_platform = GetWsiPlatform(arg_parser);
