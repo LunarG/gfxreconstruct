@@ -30,14 +30,54 @@
 #include <cstdlib>
 #include <string>
 
+const char kHelpShortOption[]   = "-h";
+const char kHelpLongOption[]    = "--help";
 const char kVersionOption[]     = "--version";
 const char kDirectoryArgument[] = "--dir";
 const char kNoDebugPopup[]      = "--no-debug-popup";
 
-const char kOptions[]   = "--version,--no-debug-popup";
+const char kOptions[]   = "-h|--help,--version,--no-debug-popup";
 const char kArguments[] = "--dir";
 
-static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+static void PrintUsage(const char* exe_name)
+{
+    std::string app_name     = exe_name;
+    size_t      dir_location = app_name.find_last_of("/\\");
+    if (dir_location >= 0)
+    {
+        app_name.replace(0, dir_location + 1, "");
+    }
+    GFXRECON_WRITE_CONSOLE("\n%s - Extract shaders from a GFXReconstruct capture file.\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("Usage:");
+    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] [--dir <dir>] <file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("Required arguments:");
+    GFXRECON_WRITE_CONSOLE("  <file>\t\tThe GFXReconstruct capture file to be processed.");
+    GFXRECON_WRITE_CONSOLE("Optional arguments:");
+    GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
+    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+    GFXRECON_WRITE_CONSOLE("  --dir <dir>\t\tPlace extracted shaders into directory <dir>. Otherwise");
+    GFXRECON_WRITE_CONSOLE("             \t\tuse <file>.shaders in working directory. Create directory");
+    GFXRECON_WRITE_CONSOLE("             \t\tif necessary. Each shader is placed in individual file");
+    GFXRECON_WRITE_CONSOLE("             \t\tnamed sh<handle_id> where handle_id is handle id of the");
+    GFXRECON_WRITE_CONSOLE("             \t\tCreateShaderModule call. See gfxrecon-replay --replace-shaders.");
+#if defined(WIN32) && defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
+    GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
+#endif
+}
+
+static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
+    {
+        PrintUsage(exe_name);
+        return true;
+    }
+
+    return false;
+}
+
+static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kVersionOption))
     {
@@ -60,32 +100,6 @@ static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentPar
     }
 
     return false;
-}
-
-static void PrintUsage(const char* exe_name)
-{
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
-    GFXRECON_WRITE_CONSOLE("\n%s - Extract shaders from a GFXReconstruct capture file.\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [--version] [--dir <dir>] <file>\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("Required arguments:");
-    GFXRECON_WRITE_CONSOLE("  <file>\t\tThe GFXReconstruct capture file to be processed.");
-    GFXRECON_WRITE_CONSOLE("Optional arguments:");
-    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
-    GFXRECON_WRITE_CONSOLE("  --dir <dir>\t\tPlace extracted shaders into directory <dir>. Otherwise");
-    GFXRECON_WRITE_CONSOLE("             \t\tuse <file>.shaders in working directory. Create directory");
-    GFXRECON_WRITE_CONSOLE("             \t\tif necessary. Each shader is placed in individual file");
-    GFXRECON_WRITE_CONSOLE("             \t\tnamed sh<handle_id> where handle_id is handle id of the");
-    GFXRECON_WRITE_CONSOLE("             \t\tCreateShaderModule call. See gfxrecon-replay --replace-shaders.");
-#if defined(WIN32) && defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
-    GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
-#endif
 }
 
 class VulkanExtractConsumer : public gfxrecon::decode::VulkanConsumer
@@ -133,13 +147,13 @@ class VulkanExtractConsumer : public gfxrecon::decode::VulkanConsumer
 
 int main(int argc, const char** argv)
 {
-    std::string                    input_filename;
-    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
-
     gfxrecon::util::Log::Init();
 
-    if (PrintVersion(argv[0], arg_parser))
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
+
+    if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
+        gfxrecon::util::Log::Release();
         exit(0);
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
@@ -150,9 +164,6 @@ int main(int argc, const char** argv)
     }
     else
     {
-        const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
-        input_filename                                       = positional_arguments[0];
-
 #if defined(WIN32) && defined(_DEBUG)
         if (arg_parser.IsOptionSet(kNoDebugPopup))
         {
@@ -161,7 +172,10 @@ int main(int argc, const char** argv)
 #endif
     }
 
+    const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
+    std::string                     input_filename       = positional_arguments[0];
     gfxrecon::decode::FileProcessor file_processor;
+
     if (file_processor.Initialize(input_filename))
     {
         std::string extract_dir = arg_parser.GetArgumentValue(kDirectoryArgument);
@@ -208,6 +222,7 @@ int main(int argc, const char** argv)
         if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
         {
             GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
+            gfxrecon::util::Log::Release();
             exit(-1);
         }
         else if (file_processor.GetCurrentFrameNumber() == 0)

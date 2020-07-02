@@ -28,12 +28,48 @@
 
 #include <cstdlib>
 
-const char kVersionOption[] = "--version";
-const char kNoDebugPopup[]  = "--no-debug-popup";
+const char kHelpShortOption[] = "-h";
+const char kHelpLongOption[]  = "--help";
+const char kVersionOption[]   = "--version";
+const char kNoDebugPopup[]    = "--no-debug-popup";
 
-const char kOptions[] = "--version,--no-debug-popup";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup";
 
-static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+static void PrintUsage(const char* exe_name)
+{
+    std::string app_name     = exe_name;
+    size_t      dir_location = app_name.find_last_of("/\\");
+    if (dir_location >= 0)
+    {
+        app_name.replace(0, dir_location + 1, "");
+    }
+    GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert GFXReconstruct capture files to text.\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("Usage:");
+    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] <file>\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("Required arguments:");
+    GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the GFXReconstruct capture file to be converted");
+    GFXRECON_WRITE_CONSOLE("        \t\tto text.");
+    GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
+    GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
+    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+#if defined(WIN32) && defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
+    GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
+#endif
+}
+
+static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
+    {
+        PrintUsage(exe_name);
+        return true;
+    }
+
+    return false;
+}
+
+static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kVersionOption))
     {
@@ -58,38 +94,15 @@ static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentPar
     return false;
 }
 
-void PrintUsage(const char* exe_name)
-{
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
-    GFXRECON_WRITE_CONSOLE("\n%s - A tool to convert GFXReconstruct capture files to text.\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [--version] <file>\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("Required arguments:");
-    GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the GFXReconstruct capture file to be converted");
-    GFXRECON_WRITE_CONSOLE("        \t\tto text.");
-    GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
-    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
-#if defined(WIN32) && defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
-    GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
-#endif
-}
-
 int main(int argc, const char** argv)
 {
-    std::string                     input_filename;
-    gfxrecon::decode::FileProcessor file_processor;
-    gfxrecon::util::ArgumentParser  arg_parser(argc, argv, kOptions, "");
-
     gfxrecon::util::Log::Init();
 
-    if (PrintVersion(argv[0], arg_parser))
+    gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
+
+    if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
+        gfxrecon::util::Log::Release();
         exit(0);
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
@@ -100,9 +113,6 @@ int main(int argc, const char** argv)
     }
     else
     {
-        const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
-        input_filename                                       = positional_arguments[0];
-
 #if defined(WIN32) && defined(_DEBUG)
         if (arg_parser.IsOptionSet(kNoDebugPopup))
         {
@@ -111,8 +121,10 @@ int main(int argc, const char** argv)
 #endif
     }
 
-    std::string output_filename = input_filename;
-    size_t      suffix_pos      = output_filename.find(GFXRECON_FILE_EXTENSION);
+    const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
+    std::string                     input_filename       = positional_arguments[0];
+    std::string                     output_filename      = input_filename;
+    size_t                          suffix_pos           = output_filename.find(GFXRECON_FILE_EXTENSION);
     if (suffix_pos != std::string::npos)
     {
         output_filename = output_filename.substr(0, suffix_pos);
@@ -120,6 +132,7 @@ int main(int argc, const char** argv)
 
     output_filename += ".txt";
 
+    gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
     {
         gfxrecon::decode::VulkanDecoder       decoder;

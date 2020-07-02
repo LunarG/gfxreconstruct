@@ -35,6 +35,8 @@
 const char kApplicationName[] = "GFXReconstruct Replay";
 const char kCaptureLayer[]    = "VK_LAYER_LUNARG_gfxreconstruct";
 
+const char kHelpShortOption[]                  = "-h";
+const char kHelpLongOption[]                   = "--help";
 const char kVersionOption[]                    = "--version";
 const char kOverrideGpuArgument[]              = "--gpu";
 const char kPausedOption[]                     = "--paused";
@@ -50,7 +52,7 @@ const char kShaderReplaceArgument[]            = "--replace-shaders";
 const char kNoDebugPopup[]                     = "--no-debug-popup";
 
 const char kOptions[] =
-    "--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data,--no-debug-popup";
+    "-h|--help,--version,--paused,--sfa|--skip-failed-allocations,--opcd|--omit-pipeline-cache-data,--no-debug-popup";
 const char kArguments[] = "--gpu,--pause-frame,--wsi,-m|--memory-translation,--replace-shaders";
 
 enum class WsiPlatform
@@ -242,7 +244,7 @@ static gfxrecon::decode::ReplayOptions GetReplayOptions(const gfxrecon::util::Ar
     return replay_options;
 }
 
-static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kVersionOption))
     {
@@ -279,9 +281,9 @@ static void PrintUsage(const char* exe_name)
 
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to replay GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s\t[--version] [--gpu <index>] [--pause-frame <N>]", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--paused] [--sfa | --skip-failed-allocations]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--replace-shaders <dir>]");
+    GFXRECON_WRITE_CONSOLE("  %s\t[-h | --help] [--version] [--gpu <index>]", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--pause-frame <N>] [--paused]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--sfa | --skip-failed-allocations] [--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup]");
@@ -290,6 +292,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
+    GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
     GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for replay, where index");
     GFXRECON_WRITE_CONSOLE("          \t\tis the zero-based index to the array of physical devices");
@@ -328,6 +331,17 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tto different allocations with different");
     GFXRECON_WRITE_CONSOLE("          \t\t         \toffsets.  Uses VMA to manage allocations");
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand suballocations.");
+}
+
+static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
+    {
+        PrintUsage(exe_name);
+        return true;
+    }
+
+    return false;
 }
 
 #endif // GFXRECON_REPLAY_SETTINGS_H
