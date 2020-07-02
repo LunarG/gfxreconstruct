@@ -52,15 +52,15 @@ const char kLayerEnvVar[] = "VK_INSTANCE_LAYERS";
 
 int main(int argc, const char** argv)
 {
-    int         return_code = 0;
-    std::string filename;
+    int return_code = 0;
 
     gfxrecon::util::Log::Init();
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, kArguments);
 
-    if (PrintVersion(argv[0], arg_parser))
+    if (CheckOptionPrintVersion(argv[0], arg_parser) || CheckOptionPrintUsage(argv[0], arg_parser))
     {
+        gfxrecon::util::Log::Release();
         exit(0);
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 1))
@@ -71,15 +71,14 @@ int main(int argc, const char** argv)
     }
     else
     {
-        const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
-        filename                                             = positional_arguments[0];
         ProcessDisableDebugPopup(arg_parser);
     }
 
-    auto wsi_platform = GetWsiPlatform(arg_parser);
-
     try
     {
+        const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
+        std::string                     filename             = positional_arguments[0];
+
         gfxrecon::decode::FileProcessor                     file_processor;
         std::unique_ptr<gfxrecon::application::Application> application;
         std::unique_ptr<gfxrecon::decode::WindowFactory>    window_factory;
@@ -90,6 +89,8 @@ int main(int argc, const char** argv)
         }
         else
         {
+            auto wsi_platform = GetWsiPlatform(arg_parser);
+
             // Setup platform specific application and window factory.
 #if defined(WIN32)
 #if defined(VK_USE_PLATFORM_WIN32_KHR)

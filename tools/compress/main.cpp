@@ -29,10 +29,12 @@
 #include <cassert>
 #include <cstdlib>
 
-const char kVersionOption[] = "--version";
-const char kNoDebugPopup[]  = "--no-debug-popup";
+const char kHelpShortOption[] = "-h";
+const char kHelpLongOption[]  = "--help";
+const char kVersionOption[]   = "--version";
+const char kNoDebugPopup[]    = "--no-debug-popup";
 
-const char kOptions[] = "--version,--no-debug-popup";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup";
 
 const char kArgNone[]    = "NONE";
 const char kArgLz4[]     = "LZ4";
@@ -40,7 +42,48 @@ const char kArgZlib[]    = "ZLIB";
 const char kArgZstd[]    = "ZSTD";
 const char kArgUnknown[] = "<Unknown>";
 
-static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+static void PrintUsage(const char* exe_name)
+{
+    std::string app_name     = exe_name;
+    size_t      dir_location = app_name.find_last_of("/\\");
+    if (dir_location >= 0)
+    {
+        app_name.replace(0, dir_location + 1, "");
+    }
+    GFXRECON_WRITE_CONSOLE("\n%s - A tool to compress/decompress GFXReconstruct capture files.\n", app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("Usage:");
+    GFXRECON_WRITE_CONSOLE("  %s [-h | --help] [--version] <input_file> <output_file> <compression_format>\n",
+                           app_name.c_str());
+    GFXRECON_WRITE_CONSOLE("Required arguments:");
+    GFXRECON_WRITE_CONSOLE("  <input_file>\t\tPath to the input file to process.");
+    GFXRECON_WRITE_CONSOLE("  <output_file>\t\tPath to the output file to generate.");
+    GFXRECON_WRITE_CONSOLE("  <compression_format>\tCompression format to apply to the output file.");
+    GFXRECON_WRITE_CONSOLE("                      \tOptions are: ");
+    GFXRECON_WRITE_CONSOLE("                      \t  LZ4  - Use LZ4 compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  ZLIB - Use zlib compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  ZSTD - Use Zstandard compression.");
+    GFXRECON_WRITE_CONSOLE("                      \t  NONE - Remove compression.");
+    GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
+    GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
+    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
+#if defined(WIN32) && defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
+    GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
+#endif
+}
+
+static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    if (arg_parser.IsOptionSet(kHelpShortOption) || arg_parser.IsOptionSet(kHelpLongOption))
+    {
+        PrintUsage(exe_name);
+        return true;
+    }
+
+    return false;
+}
+
+static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kVersionOption))
     {
@@ -65,34 +108,6 @@ static bool PrintVersion(const char* exe_name, const gfxrecon::util::ArgumentPar
     return false;
 }
 
-void PrintUsage(const char* exe_name)
-{
-    std::string app_name     = exe_name;
-    size_t      dir_location = app_name.find_last_of("/\\");
-    if (dir_location >= 0)
-    {
-        app_name.replace(0, dir_location + 1, "");
-    }
-    GFXRECON_WRITE_CONSOLE("\n%s - A tool to compress/decompress GFXReconstruct capture files.\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("Usage:");
-    GFXRECON_WRITE_CONSOLE("  %s [--version] <input_file> <output_file> <compression_format>\n", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("Required arguments:");
-    GFXRECON_WRITE_CONSOLE("  <input_file>\t\tPath to the input file to process.");
-    GFXRECON_WRITE_CONSOLE("  <output_file>\t\tPath to the output file to generate.");
-    GFXRECON_WRITE_CONSOLE("  <compression_format>\tCompression format to apply to the output file.");
-    GFXRECON_WRITE_CONSOLE("                      \tOptions are: ");
-    GFXRECON_WRITE_CONSOLE("                      \t  LZ4  - Use LZ4 compression.");
-    GFXRECON_WRITE_CONSOLE("                      \t  ZLIB - Use zlib compression.");
-    GFXRECON_WRITE_CONSOLE("                      \t  ZSTD - Use Zstandard compression.");
-    GFXRECON_WRITE_CONSOLE("                      \t  NONE - Remove compression.");
-    GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
-    GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
-#if defined(WIN32) && defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
-    GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
-#endif
-}
-
 static std::string GetCompressionTypeName(uint32_t type)
 {
     switch (type)
@@ -115,54 +130,25 @@ static std::string GetCompressionTypeName(uint32_t type)
 
 int main(int argc, const char** argv)
 {
-    gfxrecon::decode::FileProcessor   file_processor;
-    gfxrecon::format::CompressionType compression_type = gfxrecon::format::kNone;
-    bool                              print_usage      = false;
-    int                               return_code      = 0;
-    std::string                       input_filename;
-    std::string                       output_filename;
+    int return_code = 0;
 
     gfxrecon::util::Log::Init();
 
     gfxrecon::util::ArgumentParser arg_parser(argc, argv, kOptions, "");
 
-    if (PrintVersion(argv[0], arg_parser))
+    if (CheckOptionPrintUsage(argv[0], arg_parser) || CheckOptionPrintVersion(argv[0], arg_parser))
     {
+        gfxrecon::util::Log::Release();
         exit(0);
     }
     else if (arg_parser.IsInvalid() || (arg_parser.GetPositionalArgumentsCount() != 3))
     {
-        print_usage = true;
+        PrintUsage(argv[0]);
+        gfxrecon::util::Log::Release();
+        exit(-1);
     }
     else
     {
-        const std::vector<std::string>& positional_arguments   = arg_parser.GetPositionalArguments();
-        std::string                     dst_compression_string = positional_arguments[2];
-
-        input_filename  = positional_arguments[0];
-        output_filename = positional_arguments[1];
-
-        if (gfxrecon::util::platform::StringCompareNoCase(kArgNone, dst_compression_string.c_str()) != 0)
-        {
-            if (gfxrecon::util::platform::StringCompareNoCase(kArgLz4, dst_compression_string.c_str()) == 0)
-            {
-                compression_type = gfxrecon::format::CompressionType::kLz4;
-            }
-            else if (gfxrecon::util::platform::StringCompareNoCase(kArgZlib, dst_compression_string.c_str()) == 0)
-            {
-                compression_type = gfxrecon::format::CompressionType::kZlib;
-            }
-            else if (gfxrecon::util::platform::StringCompareNoCase(kArgZstd, dst_compression_string.c_str()) == 0)
-            {
-                compression_type = gfxrecon::format::CompressionType::kZstd;
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR("Unsupported compression format \'%s\'", dst_compression_string.c_str());
-                print_usage = true;
-            }
-        }
-
 #if defined(WIN32) && defined(_DEBUG)
         if (arg_parser.IsOptionSet(kNoDebugPopup))
         {
@@ -171,12 +157,37 @@ int main(int argc, const char** argv)
 #endif
     }
 
-    if (print_usage)
+    const std::vector<std::string>& positional_arguments   = arg_parser.GetPositionalArguments();
+    std::string                     input_filename         = positional_arguments[0];
+    std::string                     output_filename        = positional_arguments[1];
+    std::string                     dst_compression_string = positional_arguments[2];
+
+    gfxrecon::format::CompressionType compression_type = gfxrecon::format::kNone;
+
+    if (gfxrecon::util::platform::StringCompareNoCase(kArgNone, dst_compression_string.c_str()) != 0)
     {
-        PrintUsage(argv[0]);
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        if (gfxrecon::util::platform::StringCompareNoCase(kArgLz4, dst_compression_string.c_str()) == 0)
+        {
+            compression_type = gfxrecon::format::CompressionType::kLz4;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kArgZlib, dst_compression_string.c_str()) == 0)
+        {
+            compression_type = gfxrecon::format::CompressionType::kZlib;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kArgZstd, dst_compression_string.c_str()) == 0)
+        {
+            compression_type = gfxrecon::format::CompressionType::kZstd;
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Unsupported compression format \'%s\'", dst_compression_string.c_str());
+            PrintUsage(argv[0]);
+            gfxrecon::util::Log::Release();
+            exit(-1);
+        }
     }
+
+    gfxrecon::decode::FileProcessor file_processor;
 
     if (file_processor.Initialize(input_filename))
     {
