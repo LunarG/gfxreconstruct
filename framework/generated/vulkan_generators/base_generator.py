@@ -141,10 +141,19 @@ class BaseGeneratorOptions(GeneratorOptions):
                  addExtensions = _addExtensionsPat,
                  removeExtensions = _removeExtensionsPat,
                  emitExtensions = _emitExtensionsPat):
-        GeneratorOptions.__init__(self, conventions, filename, directory, apiname, profile,
-                                  versions, emitversions, defaultExtensions,
-                                  addExtensions, removeExtensions,
-                                  emitExtensions, sortProcedure)
+        GeneratorOptions.__init__(self,
+                                  conventions=conventions,
+                                  filename=filename,
+                                  directory=directory,
+                                  apiname=apiname,
+                                  profile=profile,
+                                  versions=versions,
+                                  emitversions=emitversions,
+                                  defaultExtensions=defaultExtensions,
+                                  addExtensions=addExtensions,
+                                  removeExtensions=removeExtensions,
+                                  emitExtensions=emitExtensions,
+                                  sortProcedure=sortProcedure)
         self.blacklists = blacklists
         self.platformTypes = platformTypes
         # Khronos CGeneratorOptions
@@ -913,7 +922,8 @@ class BaseGenerator(OutputGenerator):
             'xcb' : 'VK_USE_PLATFORM_XCB_KHR',
             'xlib' : 'VK_USE_PLATFORM_XLIB_KHR',
             'xlib_xrandr' : 'VK_USE_PLATFORM_XLIB_XRANDR_EXT',
-            'ggp' : 'VK_USE_PLATFORM_GGP'
+            'ggp' : 'VK_USE_PLATFORM_GGP',
+            'directfb' : 'VK_USE_PLATFORM_DIRECTFB_EXT'
         }
 
         platform = interface.get('platform')

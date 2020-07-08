@@ -36,38 +36,48 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 void EncodePNextStruct(ParameterEncoder* encoder, const void* value);
 
-void EncodeStruct(ParameterEncoder* encoder, const VkApplicationInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkInstanceCreateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkAllocationCallbacks& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFeatures& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkFormatProperties& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkExtent2D& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExtent3D& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkOffset2D& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkOffset3D& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkRect2D& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryBarrier& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDispatchIndirectCommand& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDrawIndexedIndirectCommand& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDrawIndirectCommand& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresourceRange& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryBarrier& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrier& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkAllocationCallbacks& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkApplicationInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkFormatProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageFormatProperties& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkInstanceCreateInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryHeap& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryType& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFeatures& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLimits& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSparseProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkQueueFamilyProperties& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkMemoryType& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkMemoryHeap& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMemoryProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceQueueCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkExtensionProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkLayerProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubmitInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkMemoryAllocateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMappedMemoryRange& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkMemoryAllocateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMemoryRequirements& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageFormatProperties& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageMemoryRequirements& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSparseMemoryBind& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSparseBufferMemoryBindInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageOpaqueMemoryBindInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresource& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkOffset3D& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageMemoryBind& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageMemoryBindInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBindSparseInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageFormatProperties& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSparseImageMemoryRequirements& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkFenceCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSemaphoreCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkEventCreateInfo& value);
@@ -77,22 +87,19 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBufferViewCreateInfo& value
 void EncodeStruct(ParameterEncoder* encoder, const VkImageCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubresourceLayout& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkComponentMapping& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresourceRange& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageViewCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkShaderModuleCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineCacheCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSpecializationMapEntry& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSpecializationInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineShaderStageCreateInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkComputePipelineCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVertexInputBindingDescription& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkVertexInputAttributeDescription& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineVertexInputStateCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineInputAssemblyStateCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineTessellationStateCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkViewport& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkOffset2D& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkExtent2D& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkRect2D& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineViewportStateCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationStateCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineMultisampleStateCreateInfo& value);
@@ -102,20 +109,19 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineColorBlendAttachmen
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineColorBlendStateCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineDynamicStateCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkGraphicsPipelineCreateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkComputePipelineCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPushConstantRange& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLayoutCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSamplerCreateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutBinding& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutCreateInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyDescriptorSet& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorBufferInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorPoolSize& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorPoolCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetAllocateInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorBufferInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkCopyDescriptorSet& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkFramebufferCreateInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutBinding& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDescriptorSetLayoutCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentDescription& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAttachmentReference& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkFramebufferCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDescription& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSubpassDependency& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassCreateInfo& value);
@@ -125,20 +131,14 @@ void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferInheritanceInf
 void EncodeStruct(ParameterEncoder* encoder, const VkCommandBufferBeginInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferCopy& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageSubresourceLayers& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImageCopy& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImageBlit& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBufferImageCopy& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkClearDepthStencilValue& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkClearAttachment& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkClearRect& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageBlit& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageCopy& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkImageResolve& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkMemoryBarrier& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkBufferMemoryBarrier& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkImageMemoryBarrier& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRenderPassBeginInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDispatchIndirectCommand& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDrawIndexedIndirectCommand& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDrawIndirectCommand& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceSubgroupProperties& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBindBufferMemoryInfo& value);
@@ -273,12 +273,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDeviceGroupPresentCapabilit
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceGroupPresentInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceGroupSwapchainCreateInfoKHR& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplayModeParametersKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDisplayModePropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplayModeCreateInfoKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDisplayModePropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPlaneCapabilitiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPlanePropertiesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPropertiesKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplaySurfaceCreateInfoKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPresentInfoKHR& value);
@@ -450,8 +450,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkMacOSSurfaceCreateInfoMVK& 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsLabelEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectNameInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCallbackDataEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsMessengerCreateInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkDebugUtilsObjectTagInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAndroidHardwareBufferUsageANDROID& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAndroidHardwareBufferPropertiesANDROID& value);
@@ -633,6 +633,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationLineSt
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceIndexTypeUint8FeaturesEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV& value);
@@ -670,6 +672,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineCreat
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDiagnosticsConfigFeaturesNV& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceDiagnosticsConfigCreateInfoNV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDirectFBSurfaceCreateInfoEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildOffsetInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkRayTracingShaderGroupCreateInfoKHR& value);

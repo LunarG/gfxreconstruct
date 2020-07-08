@@ -808,6 +808,30 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkResetQueryPoolEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdSetCullModeEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetFrontFaceEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetPrimitiveTopologyEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetViewportWithCountEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetScissorWithCountEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBindVertexBuffers2EXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthTestEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthWriteEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthCompareOpEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetDepthBoundsTestEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetStencilTestEnableEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdSetStencilOpEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkGetGeneratedCommandsMemoryRequirementsNV(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdPreprocessGeneratedCommandsNV(const uint8_t* parameter_buffer, size_t buffer_size);
@@ -827,6 +851,10 @@ class VulkanDecoder : public VulkanDecoderBase
     size_t Decode_vkSetPrivateDataEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkGetPrivateDataEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCreateDirectFBSurfaceEXT(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCreateAccelerationStructureKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 

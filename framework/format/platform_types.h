@@ -959,4 +959,52 @@ extern "C"
 
 #endif // VK_USE_PLATFORM_GGP
 
+#if !defined(VK_USE_PLATFORM_DIRECTFB_EXT)
+#define VK_EXT_DIRECTFB_SURFACE_EXTENSION_NAME "VK_EXT_directfb_surface"
+
+typedef VkFlags VkDirectFBSurfaceCreateFlagsEXT;
+
+struct IDirectFB;
+struct IDirectFBSurface;
+
+struct VkDirectFBSurfaceCreateInfoEXT
+{
+    VkStructureType                 sType;
+    const void*                     pNext;
+    VkDirectFBSurfaceCreateFlagsEXT flags;
+    IDirectFB*                      dfb;
+    IDirectFBSurface*               surface;
+};
+
+typedef VkResult(VKAPI_PTR* PFN_vkCreateDirectFBSurfaceEXT)(VkInstance                            instance,
+                                                            const VkDirectFBSurfaceCreateInfoEXT* pCreateInfo,
+                                                            const VkAllocationCallbacks*          pAllocator,
+                                                            VkSurfaceKHR*                         pSurface);
+
+typedef VkBool32(VKAPI_PTR* PFN_vkGetPhysicalDeviceDirectFBPresentationSupportEXT)(VkPhysicalDevice physicalDevice,
+                                                                                   uint32_t         queueFamilyIndex,
+                                                                                   IDirectFB*       dfb);
+
+extern "C"
+{
+    static VKAPI_ATTR VkResult VKAPI_CALL vkCreateDirectFBSurfaceEXT(VkInstance,
+                                                                     const VkDirectFBSurfaceCreateInfoEXT*,
+                                                                     const VkAllocationCallbacks*,
+                                                                     VkSurfaceKHR*)
+    {
+        GFXRECON_LOG_ERROR("Calling unsupported platform extension function vkCreateDirectFBSurfaceEXT");
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL vkGetPhysicalDeviceDirectFBPresentationSupportEXT(VkPhysicalDevice,
+                                                                                            uint32_t,
+                                                                                            IDirectFB*)
+    {
+        GFXRECON_LOG_ERROR(
+            "Calling unsupported platform extension function vkGetPhysicalDeviceDirectFBPresentationSupportEXT");
+        return VK_FALSE;
+    }
+}
+#endif // VK_USE_PLATFORM_DIRECTFB_EXT
+
 #endif // GFXRECON_PLATFORM_TYPES_H

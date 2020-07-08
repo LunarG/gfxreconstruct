@@ -42,27 +42,100 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-struct Decoded_VkApplicationInfo
+struct Decoded_VkExtent2D
 {
-    using struct_type = VkApplicationInfo;
+    using struct_type = VkExtent2D;
 
-    VkApplicationInfo* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-    StringDecoder pApplicationName;
-    StringDecoder pEngineName;
+    VkExtent2D* decoded_value{ nullptr };
 };
 
-struct Decoded_VkInstanceCreateInfo
+struct Decoded_VkExtent3D
 {
-    using struct_type = VkInstanceCreateInfo;
+    using struct_type = VkExtent3D;
 
-    VkInstanceCreateInfo* decoded_value{ nullptr };
+    VkExtent3D* decoded_value{ nullptr };
+};
+
+struct Decoded_VkOffset2D
+{
+    using struct_type = VkOffset2D;
+
+    VkOffset2D* decoded_value{ nullptr };
+};
+
+struct Decoded_VkOffset3D
+{
+    using struct_type = VkOffset3D;
+
+    VkOffset3D* decoded_value{ nullptr };
+};
+
+struct Decoded_VkRect2D
+{
+    using struct_type = VkRect2D;
+
+    VkRect2D* decoded_value{ nullptr };
+
+    std::unique_ptr<Decoded_VkOffset2D> offset;
+    std::unique_ptr<Decoded_VkExtent2D> extent;
+};
+
+struct Decoded_VkBufferMemoryBarrier
+{
+    using struct_type = VkBufferMemoryBarrier;
+
+    VkBufferMemoryBarrier* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    std::unique_ptr<StructPointerDecoder<Decoded_VkApplicationInfo>> pApplicationInfo;
-    StringArrayDecoder ppEnabledLayerNames;
-    StringArrayDecoder ppEnabledExtensionNames;
+    format::HandleId buffer{ 0 };
+};
+
+struct Decoded_VkDispatchIndirectCommand
+{
+    using struct_type = VkDispatchIndirectCommand;
+
+    VkDispatchIndirectCommand* decoded_value{ nullptr };
+};
+
+struct Decoded_VkDrawIndexedIndirectCommand
+{
+    using struct_type = VkDrawIndexedIndirectCommand;
+
+    VkDrawIndexedIndirectCommand* decoded_value{ nullptr };
+};
+
+struct Decoded_VkDrawIndirectCommand
+{
+    using struct_type = VkDrawIndirectCommand;
+
+    VkDrawIndirectCommand* decoded_value{ nullptr };
+};
+
+struct Decoded_VkImageSubresourceRange
+{
+    using struct_type = VkImageSubresourceRange;
+
+    VkImageSubresourceRange* decoded_value{ nullptr };
+};
+
+struct Decoded_VkImageMemoryBarrier
+{
+    using struct_type = VkImageMemoryBarrier;
+
+    VkImageMemoryBarrier* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    format::HandleId image{ 0 };
+    std::unique_ptr<Decoded_VkImageSubresourceRange> subresourceRange;
+};
+
+struct Decoded_VkMemoryBarrier
+{
+    using struct_type = VkMemoryBarrier;
+
+    VkMemoryBarrier* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
 };
 
 struct Decoded_VkAllocationCallbacks
@@ -79,11 +152,15 @@ struct Decoded_VkAllocationCallbacks
     uint64_t pfnInternalFree{ 0 };
 };
 
-struct Decoded_VkPhysicalDeviceFeatures
+struct Decoded_VkApplicationInfo
 {
-    using struct_type = VkPhysicalDeviceFeatures;
+    using struct_type = VkApplicationInfo;
 
-    VkPhysicalDeviceFeatures* decoded_value{ nullptr };
+    VkApplicationInfo* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    StringDecoder pApplicationName;
+    StringDecoder pEngineName;
 };
 
 struct Decoded_VkFormatProperties
@@ -93,13 +170,6 @@ struct Decoded_VkFormatProperties
     VkFormatProperties* decoded_value{ nullptr };
 };
 
-struct Decoded_VkExtent3D
-{
-    using struct_type = VkExtent3D;
-
-    VkExtent3D* decoded_value{ nullptr };
-};
-
 struct Decoded_VkImageFormatProperties
 {
     using struct_type = VkImageFormatProperties;
@@ -107,6 +177,39 @@ struct Decoded_VkImageFormatProperties
     VkImageFormatProperties* decoded_value{ nullptr };
 
     std::unique_ptr<Decoded_VkExtent3D> maxExtent;
+};
+
+struct Decoded_VkInstanceCreateInfo
+{
+    using struct_type = VkInstanceCreateInfo;
+
+    VkInstanceCreateInfo* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    std::unique_ptr<StructPointerDecoder<Decoded_VkApplicationInfo>> pApplicationInfo;
+    StringArrayDecoder ppEnabledLayerNames;
+    StringArrayDecoder ppEnabledExtensionNames;
+};
+
+struct Decoded_VkMemoryHeap
+{
+    using struct_type = VkMemoryHeap;
+
+    VkMemoryHeap* decoded_value{ nullptr };
+};
+
+struct Decoded_VkMemoryType
+{
+    using struct_type = VkMemoryType;
+
+    VkMemoryType* decoded_value{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceFeatures
+{
+    using struct_type = VkPhysicalDeviceFeatures;
+
+    VkPhysicalDeviceFeatures* decoded_value{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceLimits
@@ -121,6 +224,16 @@ struct Decoded_VkPhysicalDeviceLimits
     PointerDecoder<float> viewportBoundsRange;
     PointerDecoder<float> pointSizeRange;
     PointerDecoder<float> lineWidthRange;
+};
+
+struct Decoded_VkPhysicalDeviceMemoryProperties
+{
+    using struct_type = VkPhysicalDeviceMemoryProperties;
+
+    VkPhysicalDeviceMemoryProperties* decoded_value{ nullptr };
+
+    std::unique_ptr<StructPointerDecoder<Decoded_VkMemoryType>> memoryTypes;
+    std::unique_ptr<StructPointerDecoder<Decoded_VkMemoryHeap>> memoryHeaps;
 };
 
 struct Decoded_VkPhysicalDeviceSparseProperties
@@ -149,30 +262,6 @@ struct Decoded_VkQueueFamilyProperties
     VkQueueFamilyProperties* decoded_value{ nullptr };
 
     std::unique_ptr<Decoded_VkExtent3D> minImageTransferGranularity;
-};
-
-struct Decoded_VkMemoryType
-{
-    using struct_type = VkMemoryType;
-
-    VkMemoryType* decoded_value{ nullptr };
-};
-
-struct Decoded_VkMemoryHeap
-{
-    using struct_type = VkMemoryHeap;
-
-    VkMemoryHeap* decoded_value{ nullptr };
-};
-
-struct Decoded_VkPhysicalDeviceMemoryProperties
-{
-    using struct_type = VkPhysicalDeviceMemoryProperties;
-
-    VkPhysicalDeviceMemoryProperties* decoded_value{ nullptr };
-
-    std::unique_ptr<StructPointerDecoder<Decoded_VkMemoryType>> memoryTypes;
-    std::unique_ptr<StructPointerDecoder<Decoded_VkMemoryHeap>> memoryHeaps;
 };
 
 struct Decoded_VkDeviceQueueCreateInfo
@@ -230,15 +319,6 @@ struct Decoded_VkSubmitInfo
     HandlePointerDecoder<VkSemaphore> pSignalSemaphores;
 };
 
-struct Decoded_VkMemoryAllocateInfo
-{
-    using struct_type = VkMemoryAllocateInfo;
-
-    VkMemoryAllocateInfo* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-};
-
 struct Decoded_VkMappedMemoryRange
 {
     using struct_type = VkMappedMemoryRange;
@@ -249,29 +329,20 @@ struct Decoded_VkMappedMemoryRange
     format::HandleId memory{ 0 };
 };
 
+struct Decoded_VkMemoryAllocateInfo
+{
+    using struct_type = VkMemoryAllocateInfo;
+
+    VkMemoryAllocateInfo* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 struct Decoded_VkMemoryRequirements
 {
     using struct_type = VkMemoryRequirements;
 
     VkMemoryRequirements* decoded_value{ nullptr };
-};
-
-struct Decoded_VkSparseImageFormatProperties
-{
-    using struct_type = VkSparseImageFormatProperties;
-
-    VkSparseImageFormatProperties* decoded_value{ nullptr };
-
-    std::unique_ptr<Decoded_VkExtent3D> imageGranularity;
-};
-
-struct Decoded_VkSparseImageMemoryRequirements
-{
-    using struct_type = VkSparseImageMemoryRequirements;
-
-    VkSparseImageMemoryRequirements* decoded_value{ nullptr };
-
-    std::unique_ptr<Decoded_VkSparseImageFormatProperties> formatProperties;
 };
 
 struct Decoded_VkSparseMemoryBind
@@ -310,13 +381,6 @@ struct Decoded_VkImageSubresource
     VkImageSubresource* decoded_value{ nullptr };
 };
 
-struct Decoded_VkOffset3D
-{
-    using struct_type = VkOffset3D;
-
-    VkOffset3D* decoded_value{ nullptr };
-};
-
 struct Decoded_VkSparseImageMemoryBind
 {
     using struct_type = VkSparseImageMemoryBind;
@@ -351,6 +415,24 @@ struct Decoded_VkBindSparseInfo
     std::unique_ptr<StructPointerDecoder<Decoded_VkSparseImageOpaqueMemoryBindInfo>> pImageOpaqueBinds;
     std::unique_ptr<StructPointerDecoder<Decoded_VkSparseImageMemoryBindInfo>> pImageBinds;
     HandlePointerDecoder<VkSemaphore> pSignalSemaphores;
+};
+
+struct Decoded_VkSparseImageFormatProperties
+{
+    using struct_type = VkSparseImageFormatProperties;
+
+    VkSparseImageFormatProperties* decoded_value{ nullptr };
+
+    std::unique_ptr<Decoded_VkExtent3D> imageGranularity;
+};
+
+struct Decoded_VkSparseImageMemoryRequirements
+{
+    using struct_type = VkSparseImageMemoryRequirements;
+
+    VkSparseImageMemoryRequirements* decoded_value{ nullptr };
+
+    std::unique_ptr<Decoded_VkSparseImageFormatProperties> formatProperties;
 };
 
 struct Decoded_VkFenceCreateInfo
@@ -434,13 +516,6 @@ struct Decoded_VkComponentMapping
     VkComponentMapping* decoded_value{ nullptr };
 };
 
-struct Decoded_VkImageSubresourceRange
-{
-    using struct_type = VkImageSubresourceRange;
-
-    VkImageSubresourceRange* decoded_value{ nullptr };
-};
-
 struct Decoded_VkImageViewCreateInfo
 {
     using struct_type = VkImageViewCreateInfo;
@@ -502,6 +577,18 @@ struct Decoded_VkPipelineShaderStageCreateInfo
     std::unique_ptr<StructPointerDecoder<Decoded_VkSpecializationInfo>> pSpecializationInfo;
 };
 
+struct Decoded_VkComputePipelineCreateInfo
+{
+    using struct_type = VkComputePipelineCreateInfo;
+
+    VkComputePipelineCreateInfo* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    std::unique_ptr<Decoded_VkPipelineShaderStageCreateInfo> stage;
+    format::HandleId layout{ 0 };
+    format::HandleId basePipelineHandle{ 0 };
+};
+
 struct Decoded_VkVertexInputBindingDescription
 {
     using struct_type = VkVertexInputBindingDescription;
@@ -550,30 +637,6 @@ struct Decoded_VkViewport
     using struct_type = VkViewport;
 
     VkViewport* decoded_value{ nullptr };
-};
-
-struct Decoded_VkOffset2D
-{
-    using struct_type = VkOffset2D;
-
-    VkOffset2D* decoded_value{ nullptr };
-};
-
-struct Decoded_VkExtent2D
-{
-    using struct_type = VkExtent2D;
-
-    VkExtent2D* decoded_value{ nullptr };
-};
-
-struct Decoded_VkRect2D
-{
-    using struct_type = VkRect2D;
-
-    VkRect2D* decoded_value{ nullptr };
-
-    std::unique_ptr<Decoded_VkOffset2D> offset;
-    std::unique_ptr<Decoded_VkExtent2D> extent;
 };
 
 struct Decoded_VkPipelineViewportStateCreateInfo
@@ -674,18 +737,6 @@ struct Decoded_VkGraphicsPipelineCreateInfo
     format::HandleId basePipelineHandle{ 0 };
 };
 
-struct Decoded_VkComputePipelineCreateInfo
-{
-    using struct_type = VkComputePipelineCreateInfo;
-
-    VkComputePipelineCreateInfo* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-    std::unique_ptr<Decoded_VkPipelineShaderStageCreateInfo> stage;
-    format::HandleId layout{ 0 };
-    format::HandleId basePipelineHandle{ 0 };
-};
-
 struct Decoded_VkPushConstantRange
 {
     using struct_type = VkPushConstantRange;
@@ -713,23 +764,24 @@ struct Decoded_VkSamplerCreateInfo
     std::unique_ptr<PNextNode> pNext;
 };
 
-struct Decoded_VkDescriptorSetLayoutBinding
+struct Decoded_VkCopyDescriptorSet
 {
-    using struct_type = VkDescriptorSetLayoutBinding;
+    using struct_type = VkCopyDescriptorSet;
 
-    VkDescriptorSetLayoutBinding* decoded_value{ nullptr };
-
-    HandlePointerDecoder<VkSampler> pImmutableSamplers;
-};
-
-struct Decoded_VkDescriptorSetLayoutCreateInfo
-{
-    using struct_type = VkDescriptorSetLayoutCreateInfo;
-
-    VkDescriptorSetLayoutCreateInfo* decoded_value{ nullptr };
+    VkCopyDescriptorSet* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorSetLayoutBinding>> pBindings;
+    format::HandleId srcSet{ 0 };
+    format::HandleId dstSet{ 0 };
+};
+
+struct Decoded_VkDescriptorBufferInfo
+{
+    using struct_type = VkDescriptorBufferInfo;
+
+    VkDescriptorBufferInfo* decoded_value{ nullptr };
+
+    format::HandleId buffer{ 0 };
 };
 
 struct Decoded_VkDescriptorPoolSize
@@ -760,35 +812,23 @@ struct Decoded_VkDescriptorSetAllocateInfo
     HandlePointerDecoder<VkDescriptorSetLayout> pSetLayouts;
 };
 
-struct Decoded_VkDescriptorBufferInfo
+struct Decoded_VkDescriptorSetLayoutBinding
 {
-    using struct_type = VkDescriptorBufferInfo;
+    using struct_type = VkDescriptorSetLayoutBinding;
 
-    VkDescriptorBufferInfo* decoded_value{ nullptr };
+    VkDescriptorSetLayoutBinding* decoded_value{ nullptr };
 
-    format::HandleId buffer{ 0 };
+    HandlePointerDecoder<VkSampler> pImmutableSamplers;
 };
 
-struct Decoded_VkCopyDescriptorSet
+struct Decoded_VkDescriptorSetLayoutCreateInfo
 {
-    using struct_type = VkCopyDescriptorSet;
+    using struct_type = VkDescriptorSetLayoutCreateInfo;
 
-    VkCopyDescriptorSet* decoded_value{ nullptr };
+    VkDescriptorSetLayoutCreateInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId srcSet{ 0 };
-    format::HandleId dstSet{ 0 };
-};
-
-struct Decoded_VkFramebufferCreateInfo
-{
-    using struct_type = VkFramebufferCreateInfo;
-
-    VkFramebufferCreateInfo* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-    format::HandleId renderPass{ 0 };
-    HandlePointerDecoder<VkImageView> pAttachments;
+    std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorSetLayoutBinding>> pBindings;
 };
 
 struct Decoded_VkAttachmentDescription
@@ -803,6 +843,17 @@ struct Decoded_VkAttachmentReference
     using struct_type = VkAttachmentReference;
 
     VkAttachmentReference* decoded_value{ nullptr };
+};
+
+struct Decoded_VkFramebufferCreateInfo
+{
+    using struct_type = VkFramebufferCreateInfo;
+
+    VkFramebufferCreateInfo* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    format::HandleId renderPass{ 0 };
+    HandlePointerDecoder<VkImageView> pAttachments;
 };
 
 struct Decoded_VkSubpassDescription
@@ -891,31 +942,6 @@ struct Decoded_VkImageSubresourceLayers
     VkImageSubresourceLayers* decoded_value{ nullptr };
 };
 
-struct Decoded_VkImageCopy
-{
-    using struct_type = VkImageCopy;
-
-    VkImageCopy* decoded_value{ nullptr };
-
-    std::unique_ptr<Decoded_VkImageSubresourceLayers> srcSubresource;
-    std::unique_ptr<Decoded_VkOffset3D> srcOffset;
-    std::unique_ptr<Decoded_VkImageSubresourceLayers> dstSubresource;
-    std::unique_ptr<Decoded_VkOffset3D> dstOffset;
-    std::unique_ptr<Decoded_VkExtent3D> extent;
-};
-
-struct Decoded_VkImageBlit
-{
-    using struct_type = VkImageBlit;
-
-    VkImageBlit* decoded_value{ nullptr };
-
-    std::unique_ptr<Decoded_VkImageSubresourceLayers> srcSubresource;
-    std::unique_ptr<StructPointerDecoder<Decoded_VkOffset3D>> srcOffsets;
-    std::unique_ptr<Decoded_VkImageSubresourceLayers> dstSubresource;
-    std::unique_ptr<StructPointerDecoder<Decoded_VkOffset3D>> dstOffsets;
-};
-
 struct Decoded_VkBufferImageCopy
 {
     using struct_type = VkBufferImageCopy;
@@ -952,6 +978,31 @@ struct Decoded_VkClearRect
     std::unique_ptr<Decoded_VkRect2D> rect;
 };
 
+struct Decoded_VkImageBlit
+{
+    using struct_type = VkImageBlit;
+
+    VkImageBlit* decoded_value{ nullptr };
+
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> srcSubresource;
+    std::unique_ptr<StructPointerDecoder<Decoded_VkOffset3D>> srcOffsets;
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> dstSubresource;
+    std::unique_ptr<StructPointerDecoder<Decoded_VkOffset3D>> dstOffsets;
+};
+
+struct Decoded_VkImageCopy
+{
+    using struct_type = VkImageCopy;
+
+    VkImageCopy* decoded_value{ nullptr };
+
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> srcSubresource;
+    std::unique_ptr<Decoded_VkOffset3D> srcOffset;
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> dstSubresource;
+    std::unique_ptr<Decoded_VkOffset3D> dstOffset;
+    std::unique_ptr<Decoded_VkExtent3D> extent;
+};
+
 struct Decoded_VkImageResolve
 {
     using struct_type = VkImageResolve;
@@ -965,36 +1016,6 @@ struct Decoded_VkImageResolve
     std::unique_ptr<Decoded_VkExtent3D> extent;
 };
 
-struct Decoded_VkMemoryBarrier
-{
-    using struct_type = VkMemoryBarrier;
-
-    VkMemoryBarrier* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-};
-
-struct Decoded_VkBufferMemoryBarrier
-{
-    using struct_type = VkBufferMemoryBarrier;
-
-    VkBufferMemoryBarrier* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-    format::HandleId buffer{ 0 };
-};
-
-struct Decoded_VkImageMemoryBarrier
-{
-    using struct_type = VkImageMemoryBarrier;
-
-    VkImageMemoryBarrier* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-    format::HandleId image{ 0 };
-    std::unique_ptr<Decoded_VkImageSubresourceRange> subresourceRange;
-};
-
 struct Decoded_VkRenderPassBeginInfo
 {
     using struct_type = VkRenderPassBeginInfo;
@@ -1006,27 +1027,6 @@ struct Decoded_VkRenderPassBeginInfo
     format::HandleId framebuffer{ 0 };
     std::unique_ptr<Decoded_VkRect2D> renderArea;
     std::unique_ptr<StructPointerDecoder<Decoded_VkClearValue>> pClearValues;
-};
-
-struct Decoded_VkDispatchIndirectCommand
-{
-    using struct_type = VkDispatchIndirectCommand;
-
-    VkDispatchIndirectCommand* decoded_value{ nullptr };
-};
-
-struct Decoded_VkDrawIndexedIndirectCommand
-{
-    using struct_type = VkDrawIndexedIndirectCommand;
-
-    VkDrawIndexedIndirectCommand* decoded_value{ nullptr };
-};
-
-struct Decoded_VkDrawIndirectCommand
-{
-    using struct_type = VkDrawIndirectCommand;
-
-    VkDrawIndirectCommand* decoded_value{ nullptr };
 };
 
 struct Decoded_VkPhysicalDeviceSubgroupProperties
@@ -1676,8 +1676,6 @@ struct Decoded_VkPhysicalDeviceShaderDrawParametersFeatures
     std::unique_ptr<PNextNode> pNext;
 };
 
-typedef Decoded_VkMemoryRequirements2 Decoded_VkMemoryRequirements2KHR;
-
 typedef Decoded_VkPhysicalDeviceVariablePointersFeatures Decoded_VkPhysicalDeviceVariablePointerFeatures;
 
 typedef Decoded_VkPhysicalDeviceShaderDrawParametersFeatures Decoded_VkPhysicalDeviceShaderDrawParameterFeatures;
@@ -2276,18 +2274,6 @@ struct Decoded_VkDeviceGroupSwapchainCreateInfoKHR
     std::unique_ptr<PNextNode> pNext;
 };
 
-struct Decoded_VkDisplayPropertiesKHR
-{
-    using struct_type = VkDisplayPropertiesKHR;
-
-    VkDisplayPropertiesKHR* decoded_value{ nullptr };
-
-    format::HandleId display{ 0 };
-    StringDecoder displayName;
-    std::unique_ptr<Decoded_VkExtent2D> physicalDimensions;
-    std::unique_ptr<Decoded_VkExtent2D> physicalResolution;
-};
-
 struct Decoded_VkDisplayModeParametersKHR
 {
     using struct_type = VkDisplayModeParametersKHR;
@@ -2297,16 +2283,6 @@ struct Decoded_VkDisplayModeParametersKHR
     std::unique_ptr<Decoded_VkExtent2D> visibleRegion;
 };
 
-struct Decoded_VkDisplayModePropertiesKHR
-{
-    using struct_type = VkDisplayModePropertiesKHR;
-
-    VkDisplayModePropertiesKHR* decoded_value{ nullptr };
-
-    format::HandleId displayMode{ 0 };
-    std::unique_ptr<Decoded_VkDisplayModeParametersKHR> parameters;
-};
-
 struct Decoded_VkDisplayModeCreateInfoKHR
 {
     using struct_type = VkDisplayModeCreateInfoKHR;
@@ -2314,6 +2290,16 @@ struct Decoded_VkDisplayModeCreateInfoKHR
     VkDisplayModeCreateInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
+    std::unique_ptr<Decoded_VkDisplayModeParametersKHR> parameters;
+};
+
+struct Decoded_VkDisplayModePropertiesKHR
+{
+    using struct_type = VkDisplayModePropertiesKHR;
+
+    VkDisplayModePropertiesKHR* decoded_value{ nullptr };
+
+    format::HandleId displayMode{ 0 };
     std::unique_ptr<Decoded_VkDisplayModeParametersKHR> parameters;
 };
 
@@ -2340,6 +2326,18 @@ struct Decoded_VkDisplayPlanePropertiesKHR
     VkDisplayPlanePropertiesKHR* decoded_value{ nullptr };
 
     format::HandleId currentDisplay{ 0 };
+};
+
+struct Decoded_VkDisplayPropertiesKHR
+{
+    using struct_type = VkDisplayPropertiesKHR;
+
+    VkDisplayPropertiesKHR* decoded_value{ nullptr };
+
+    format::HandleId display{ 0 };
+    StringDecoder displayName;
+    std::unique_ptr<Decoded_VkExtent2D> physicalDimensions;
+    std::unique_ptr<Decoded_VkExtent2D> physicalResolution;
 };
 
 struct Decoded_VkDisplaySurfaceCreateInfoKHR
@@ -2938,6 +2936,8 @@ typedef Decoded_VkBufferMemoryRequirementsInfo2 Decoded_VkBufferMemoryRequiremen
 typedef Decoded_VkImageMemoryRequirementsInfo2 Decoded_VkImageMemoryRequirementsInfo2KHR;
 
 typedef Decoded_VkImageSparseMemoryRequirementsInfo2 Decoded_VkImageSparseMemoryRequirementsInfo2KHR;
+
+typedef Decoded_VkMemoryRequirements2 Decoded_VkMemoryRequirements2KHR;
 
 typedef Decoded_VkSparseImageMemoryRequirements2 Decoded_VkSparseImageMemoryRequirements2KHR;
 
@@ -3672,16 +3672,6 @@ struct Decoded_VkDebugUtilsMessengerCallbackDataEXT
     std::unique_ptr<StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>> pObjects;
 };
 
-struct Decoded_VkDebugUtilsObjectTagInfoEXT
-{
-    using struct_type = VkDebugUtilsObjectTagInfoEXT;
-
-    VkDebugUtilsObjectTagInfoEXT* decoded_value{ nullptr };
-
-    std::unique_ptr<PNextNode> pNext;
-    PointerDecoder<uint8_t> pTag;
-};
-
 struct Decoded_VkDebugUtilsMessengerCreateInfoEXT
 {
     using struct_type = VkDebugUtilsMessengerCreateInfoEXT;
@@ -3691,6 +3681,16 @@ struct Decoded_VkDebugUtilsMessengerCreateInfoEXT
     std::unique_ptr<PNextNode> pNext;
     uint64_t pfnUserCallback{ 0 };
     uint64_t pUserData{ 0 };
+};
+
+struct Decoded_VkDebugUtilsObjectTagInfoEXT
+{
+    using struct_type = VkDebugUtilsObjectTagInfoEXT;
+
+    VkDebugUtilsObjectTagInfoEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    PointerDecoder<uint8_t> pTag;
 };
 
 struct Decoded_VkAndroidHardwareBufferUsageANDROID
@@ -4928,6 +4928,15 @@ struct Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesEXT
     std::unique_ptr<PNextNode> pNext;
 };
 
+struct Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceExtendedDynamicStateFeaturesEXT;
+
+    VkPhysicalDeviceExtendedDynamicStateFeaturesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 struct Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT
 {
     using struct_type = VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT;
@@ -5199,6 +5208,35 @@ struct Decoded_VkDeviceDiagnosticsConfigCreateInfoNV
     VkDeviceDiagnosticsConfigCreateInfoNV* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceFragmentDensityMap2FeaturesEXT;
+
+    VkPhysicalDeviceFragmentDensityMap2FeaturesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceFragmentDensityMap2PropertiesEXT;
+
+    VkPhysicalDeviceFragmentDensityMap2PropertiesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkDirectFBSurfaceCreateInfoEXT
+{
+    using struct_type = VkDirectFBSurfaceCreateInfoEXT;
+
+    VkDirectFBSurfaceCreateInfoEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    uint64_t dfb{ 0 };
+    uint64_t surface{ 0 };
 };
 
 struct Decoded_VkAccelerationStructureBuildOffsetInfoKHR

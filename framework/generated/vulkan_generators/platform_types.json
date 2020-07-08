@@ -52,5 +52,12 @@
       "GgpFrameToken"       : { "baseType" :  "uint64_t", "replaceWith" : "uint64_t"}
     },
     "structs": []
+  },
+  "directfb": {
+    "types": {
+      "IDirectFB"        : { "baseType" : "void", "replaceWith" : "void"},
+      "IDirectFBSurface" : { "baseType" : "void", "replaceWith" : "void"}
+    },
+    "structs": []
   }
 }

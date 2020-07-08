@@ -479,6 +479,20 @@ enum ApiCallId : uint32_t
     ApiCall_vkDestroyPrivateDataSlotEXT                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x120c),
     ApiCall_vkSetPrivateDataEXT                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x120d),
     ApiCall_vkGetPrivateDataEXT                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x120e),
+    ApiCall_vkCmdSetCullModeEXT                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x120f),
+    ApiCall_vkCmdSetFrontFaceEXT                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x1210),
+    ApiCall_vkCmdSetPrimitiveTopologyEXT                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1211),
+    ApiCall_vkCmdSetViewportWithCountEXT                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1212),
+    ApiCall_vkCmdSetScissorWithCountEXT                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1213),
+    ApiCall_vkCmdBindVertexBuffers2EXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1214),
+    ApiCall_vkCmdSetDepthTestEnableEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1215),
+    ApiCall_vkCmdSetDepthWriteEnableEXT                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x1216),
+    ApiCall_vkCmdSetDepthCompareOpEXT                                                             = MakeApiCallId(ApiFamily_Vulkan, 0x1217),
+    ApiCall_vkCmdSetDepthBoundsTestEnableEXT                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x1218),
+    ApiCall_vkCmdSetStencilTestEnableEXT                                                          = MakeApiCallId(ApiFamily_Vulkan, 0x1219),
+    ApiCall_vkCmdSetStencilOpEXT                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x121a),
+    ApiCall_vkCreateDirectFBSurfaceEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x121b),
+    ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT                                     = MakeApiCallId(ApiFamily_Vulkan, 0x121c),
 
     ApiCall_VulkanLast
     // clang-format on
