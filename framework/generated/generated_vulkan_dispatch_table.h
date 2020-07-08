@@ -140,6 +140,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixProperti
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(VkPhysicalDevice, uint32_t*, VkFramebufferMixedSamplesCombinationNV*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(VkPhysicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, uint32_t*, VkPresentModeKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(VkInstance, const VkHeadlessSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkResult VKAPI_CALL CreateDirectFBSurfaceEXT(VkInstance, const VkDirectFBSurfaceCreateInfoEXT*, const VkAllocationCallbacks*, VkSurfaceKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceDirectFBPresentationSupportEXT(VkPhysicalDevice, uint32_t, IDirectFB*) { return VK_TRUE; }
 static VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice, const char*) { return nullptr; }
 static VKAPI_ATTR void VKAPI_CALL DestroyDevice(VkDevice, const VkAllocationCallbacks*) {}
 static VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(VkDevice, uint32_t, uint32_t, VkQueue*) {}
@@ -439,6 +441,18 @@ static VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(VkDevice
 static VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(VkDevice, const VkPhysicalDeviceSurfaceInfo2KHR*, VkDeviceGroupPresentModeFlagsKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleEXT(VkCommandBuffer, uint32_t, uint16_t) {}
 static VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(VkDevice, VkQueryPool, uint32_t, uint32_t) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetCullModeEXT(VkCommandBuffer, VkCullModeFlags) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetFrontFaceEXT(VkCommandBuffer, VkFrontFace) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveTopologyEXT(VkCommandBuffer, VkPrimitiveTopology) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetViewportWithCountEXT(VkCommandBuffer, uint32_t, const VkViewport*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetScissorWithCountEXT(VkCommandBuffer, uint32_t, const VkRect2D*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers2EXT(VkCommandBuffer, uint32_t, uint32_t, const VkBuffer*, const VkDeviceSize*, const VkDeviceSize*, const VkDeviceSize*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthTestEnableEXT(VkCommandBuffer, VkBool32) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthWriteEnableEXT(VkCommandBuffer, VkBool32) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthCompareOpEXT(VkCommandBuffer, VkCompareOp) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetDepthBoundsTestEnableEXT(VkCommandBuffer, VkBool32) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetStencilTestEnableEXT(VkCommandBuffer, VkBool32) {}
+static VKAPI_ATTR void VKAPI_CALL CmdSetStencilOpEXT(VkCommandBuffer, VkStencilFaceFlags, VkStencilOp, VkStencilOp, VkStencilOp, VkCompareOp) {}
 static VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsNV(VkDevice, const VkGeneratedCommandsMemoryRequirementsInfoNV*, VkMemoryRequirements2*) {}
 static VKAPI_ATTR void VKAPI_CALL CmdPreprocessGeneratedCommandsNV(VkCommandBuffer, const VkGeneratedCommandsInfoNV*) {}
 static VKAPI_ATTR void VKAPI_CALL CmdExecuteGeneratedCommandsNV(VkCommandBuffer, VkBool32, const VkGeneratedCommandsInfoNV*) {}
@@ -566,6 +580,8 @@ struct InstanceTable
     PFN_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV{ noop::GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV };
     PFN_vkGetPhysicalDeviceSurfacePresentModes2EXT GetPhysicalDeviceSurfacePresentModes2EXT{ noop::GetPhysicalDeviceSurfacePresentModes2EXT };
     PFN_vkCreateHeadlessSurfaceEXT CreateHeadlessSurfaceEXT{ noop::CreateHeadlessSurfaceEXT };
+    PFN_vkCreateDirectFBSurfaceEXT CreateDirectFBSurfaceEXT{ noop::CreateDirectFBSurfaceEXT };
+    PFN_vkGetPhysicalDeviceDirectFBPresentationSupportEXT GetPhysicalDeviceDirectFBPresentationSupportEXT{ noop::GetPhysicalDeviceDirectFBPresentationSupportEXT };
 };
 
 struct DeviceTable
@@ -869,6 +885,18 @@ struct DeviceTable
     PFN_vkGetDeviceGroupSurfacePresentModes2EXT GetDeviceGroupSurfacePresentModes2EXT{ noop::GetDeviceGroupSurfacePresentModes2EXT };
     PFN_vkCmdSetLineStippleEXT CmdSetLineStippleEXT{ noop::CmdSetLineStippleEXT };
     PFN_vkResetQueryPoolEXT ResetQueryPoolEXT{ noop::ResetQueryPoolEXT };
+    PFN_vkCmdSetCullModeEXT CmdSetCullModeEXT{ noop::CmdSetCullModeEXT };
+    PFN_vkCmdSetFrontFaceEXT CmdSetFrontFaceEXT{ noop::CmdSetFrontFaceEXT };
+    PFN_vkCmdSetPrimitiveTopologyEXT CmdSetPrimitiveTopologyEXT{ noop::CmdSetPrimitiveTopologyEXT };
+    PFN_vkCmdSetViewportWithCountEXT CmdSetViewportWithCountEXT{ noop::CmdSetViewportWithCountEXT };
+    PFN_vkCmdSetScissorWithCountEXT CmdSetScissorWithCountEXT{ noop::CmdSetScissorWithCountEXT };
+    PFN_vkCmdBindVertexBuffers2EXT CmdBindVertexBuffers2EXT{ noop::CmdBindVertexBuffers2EXT };
+    PFN_vkCmdSetDepthTestEnableEXT CmdSetDepthTestEnableEXT{ noop::CmdSetDepthTestEnableEXT };
+    PFN_vkCmdSetDepthWriteEnableEXT CmdSetDepthWriteEnableEXT{ noop::CmdSetDepthWriteEnableEXT };
+    PFN_vkCmdSetDepthCompareOpEXT CmdSetDepthCompareOpEXT{ noop::CmdSetDepthCompareOpEXT };
+    PFN_vkCmdSetDepthBoundsTestEnableEXT CmdSetDepthBoundsTestEnableEXT{ noop::CmdSetDepthBoundsTestEnableEXT };
+    PFN_vkCmdSetStencilTestEnableEXT CmdSetStencilTestEnableEXT{ noop::CmdSetStencilTestEnableEXT };
+    PFN_vkCmdSetStencilOpEXT CmdSetStencilOpEXT{ noop::CmdSetStencilOpEXT };
     PFN_vkGetGeneratedCommandsMemoryRequirementsNV GetGeneratedCommandsMemoryRequirementsNV{ noop::GetGeneratedCommandsMemoryRequirementsNV };
     PFN_vkCmdPreprocessGeneratedCommandsNV CmdPreprocessGeneratedCommandsNV{ noop::CmdPreprocessGeneratedCommandsNV };
     PFN_vkCmdExecuteGeneratedCommandsNV CmdExecuteGeneratedCommandsNV{ noop::CmdExecuteGeneratedCommandsNV };
@@ -1001,6 +1029,8 @@ static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV", &table->GetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV);
     LoadFunction(gpa, instance, "vkGetPhysicalDeviceSurfacePresentModes2EXT", &table->GetPhysicalDeviceSurfacePresentModes2EXT);
     LoadFunction(gpa, instance, "vkCreateHeadlessSurfaceEXT", &table->CreateHeadlessSurfaceEXT);
+    LoadFunction(gpa, instance, "vkCreateDirectFBSurfaceEXT", &table->CreateDirectFBSurfaceEXT);
+    LoadFunction(gpa, instance, "vkGetPhysicalDeviceDirectFBPresentationSupportEXT", &table->GetPhysicalDeviceDirectFBPresentationSupportEXT);
 }
 
 static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)
@@ -1306,6 +1336,18 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetDeviceGroupSurfacePresentModes2EXT", &table->GetDeviceGroupSurfacePresentModes2EXT);
     LoadFunction(gpa, device, "vkCmdSetLineStippleEXT", &table->CmdSetLineStippleEXT);
     LoadFunction(gpa, device, "vkResetQueryPoolEXT", &table->ResetQueryPoolEXT);
+    LoadFunction(gpa, device, "vkCmdSetCullModeEXT", &table->CmdSetCullModeEXT);
+    LoadFunction(gpa, device, "vkCmdSetFrontFaceEXT", &table->CmdSetFrontFaceEXT);
+    LoadFunction(gpa, device, "vkCmdSetPrimitiveTopologyEXT", &table->CmdSetPrimitiveTopologyEXT);
+    LoadFunction(gpa, device, "vkCmdSetViewportWithCountEXT", &table->CmdSetViewportWithCountEXT);
+    LoadFunction(gpa, device, "vkCmdSetScissorWithCountEXT", &table->CmdSetScissorWithCountEXT);
+    LoadFunction(gpa, device, "vkCmdBindVertexBuffers2EXT", &table->CmdBindVertexBuffers2EXT);
+    LoadFunction(gpa, device, "vkCmdSetDepthTestEnableEXT", &table->CmdSetDepthTestEnableEXT);
+    LoadFunction(gpa, device, "vkCmdSetDepthWriteEnableEXT", &table->CmdSetDepthWriteEnableEXT);
+    LoadFunction(gpa, device, "vkCmdSetDepthCompareOpEXT", &table->CmdSetDepthCompareOpEXT);
+    LoadFunction(gpa, device, "vkCmdSetDepthBoundsTestEnableEXT", &table->CmdSetDepthBoundsTestEnableEXT);
+    LoadFunction(gpa, device, "vkCmdSetStencilTestEnableEXT", &table->CmdSetStencilTestEnableEXT);
+    LoadFunction(gpa, device, "vkCmdSetStencilOpEXT", &table->CmdSetStencilOpEXT);
     LoadFunction(gpa, device, "vkGetGeneratedCommandsMemoryRequirementsNV", &table->GetGeneratedCommandsMemoryRequirementsNV);
     LoadFunction(gpa, device, "vkCmdPreprocessGeneratedCommandsNV", &table->CmdPreprocessGeneratedCommandsNV);
     LoadFunction(gpa, device, "vkCmdExecuteGeneratedCommandsNV", &table->CmdExecuteGeneratedCommandsNV);

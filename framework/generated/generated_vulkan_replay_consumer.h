@@ -2375,6 +2375,65 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint32_t                                    firstQuery,
         uint32_t                                    queryCount) override;
 
+    virtual void Process_vkCmdSetCullModeEXT(
+        format::HandleId                            commandBuffer,
+        VkCullModeFlags                             cullMode) override;
+
+    virtual void Process_vkCmdSetFrontFaceEXT(
+        format::HandleId                            commandBuffer,
+        VkFrontFace                                 frontFace) override;
+
+    virtual void Process_vkCmdSetPrimitiveTopologyEXT(
+        format::HandleId                            commandBuffer,
+        VkPrimitiveTopology                         primitiveTopology) override;
+
+    virtual void Process_vkCmdSetViewportWithCountEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    viewportCount,
+        StructPointerDecoder<Decoded_VkViewport>*   pViewports) override;
+
+    virtual void Process_vkCmdSetScissorWithCountEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    scissorCount,
+        StructPointerDecoder<Decoded_VkRect2D>*     pScissors) override;
+
+    virtual void Process_vkCmdBindVertexBuffers2EXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstBinding,
+        uint32_t                                    bindingCount,
+        HandlePointerDecoder<VkBuffer>*             pBuffers,
+        PointerDecoder<VkDeviceSize>*               pOffsets,
+        PointerDecoder<VkDeviceSize>*               pSizes,
+        PointerDecoder<VkDeviceSize>*               pStrides) override;
+
+    virtual void Process_vkCmdSetDepthTestEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthTestEnable) override;
+
+    virtual void Process_vkCmdSetDepthWriteEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthWriteEnable) override;
+
+    virtual void Process_vkCmdSetDepthCompareOpEXT(
+        format::HandleId                            commandBuffer,
+        VkCompareOp                                 depthCompareOp) override;
+
+    virtual void Process_vkCmdSetDepthBoundsTestEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthBoundsTestEnable) override;
+
+    virtual void Process_vkCmdSetStencilTestEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    stencilTestEnable) override;
+
+    virtual void Process_vkCmdSetStencilOpEXT(
+        format::HandleId                            commandBuffer,
+        VkStencilFaceFlags                          faceMask,
+        VkStencilOp                                 failOp,
+        VkStencilOp                                 passOp,
+        VkStencilOp                                 depthFailOp,
+        VkCompareOp                                 compareOp) override;
+
     virtual void Process_vkGetGeneratedCommandsMemoryRequirementsNV(
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV>* pInfo,
@@ -2433,6 +2492,19 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         uint64_t                                    objectHandle,
         format::HandleId                            privateDataSlot,
         PointerDecoder<uint64_t>*                   pData) override;
+
+    virtual void Process_vkCreateDirectFBSurfaceEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            instance,
+        StructPointerDecoder<Decoded_VkDirectFBSurfaceCreateInfoEXT>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkSurfaceKHR>*         pSurface) override;
+
+    virtual void Process_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(
+        VkBool32                                    returnValue,
+        format::HandleId                            physicalDevice,
+        uint32_t                                    queueFamilyIndex,
+        uint64_t                                    dfb) override;
 
     virtual void Process_vkCreateAccelerationStructureKHR(
         VkResult                                    returnValue,

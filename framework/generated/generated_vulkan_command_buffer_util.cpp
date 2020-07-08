@@ -678,6 +678,19 @@ void TrackCmdDrawMeshTasksIndirectCountNVHandles(CommandBufferWrapper* wrapper, 
     wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(countBuffer));
 }
 
+void TrackCmdBindVertexBuffers2EXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers)
+{
+    assert(wrapper != nullptr);
+
+    if (pBuffers != nullptr)
+    {
+        for (uint32_t pBuffers_index = 0; pBuffers_index < bindingCount; ++pBuffers_index)
+        {
+            wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pBuffers[pBuffers_index]));
+        }
+    }
+}
+
 void TrackCmdPreprocessGeneratedCommandsNVHandles(CommandBufferWrapper* wrapper, const VkGeneratedCommandsInfoNV* pGeneratedCommandsInfo)
 {
     assert(wrapper != nullptr);

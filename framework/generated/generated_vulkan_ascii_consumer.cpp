@@ -3512,6 +3512,101 @@ void VulkanAsciiConsumer::Process_vkResetQueryPoolEXT(
     fprintf(GetFile(), "%s\n", "vkResetQueryPoolEXT");
 }
 
+void VulkanAsciiConsumer::Process_vkCmdSetCullModeEXT(
+    format::HandleId                            commandBuffer,
+    VkCullModeFlags                             cullMode)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetCullModeEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetFrontFaceEXT(
+    format::HandleId                            commandBuffer,
+    VkFrontFace                                 frontFace)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetFrontFaceEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetPrimitiveTopologyEXT(
+    format::HandleId                            commandBuffer,
+    VkPrimitiveTopology                         primitiveTopology)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetPrimitiveTopologyEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetViewportWithCountEXT(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    viewportCount,
+    StructPointerDecoder<Decoded_VkViewport>*   pViewports)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetViewportWithCountEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetScissorWithCountEXT(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    scissorCount,
+    StructPointerDecoder<Decoded_VkRect2D>*     pScissors)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetScissorWithCountEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdBindVertexBuffers2EXT(
+    format::HandleId                            commandBuffer,
+    uint32_t                                    firstBinding,
+    uint32_t                                    bindingCount,
+    HandlePointerDecoder<VkBuffer>*             pBuffers,
+    PointerDecoder<VkDeviceSize>*               pOffsets,
+    PointerDecoder<VkDeviceSize>*               pSizes,
+    PointerDecoder<VkDeviceSize>*               pStrides)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdBindVertexBuffers2EXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetDepthTestEnableEXT(
+    format::HandleId                            commandBuffer,
+    VkBool32                                    depthTestEnable)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetDepthTestEnableEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetDepthWriteEnableEXT(
+    format::HandleId                            commandBuffer,
+    VkBool32                                    depthWriteEnable)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetDepthWriteEnableEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetDepthCompareOpEXT(
+    format::HandleId                            commandBuffer,
+    VkCompareOp                                 depthCompareOp)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetDepthCompareOpEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetDepthBoundsTestEnableEXT(
+    format::HandleId                            commandBuffer,
+    VkBool32                                    depthBoundsTestEnable)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetDepthBoundsTestEnableEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetStencilTestEnableEXT(
+    format::HandleId                            commandBuffer,
+    VkBool32                                    stencilTestEnable)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetStencilTestEnableEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdSetStencilOpEXT(
+    format::HandleId                            commandBuffer,
+    VkStencilFaceFlags                          faceMask,
+    VkStencilOp                                 failOp,
+    VkStencilOp                                 passOp,
+    VkStencilOp                                 depthFailOp,
+    VkCompareOp                                 compareOp)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdSetStencilOpEXT");
+}
+
 void VulkanAsciiConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsNV(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV>* pInfo,
@@ -3599,6 +3694,25 @@ void VulkanAsciiConsumer::Process_vkGetPrivateDataEXT(
     PointerDecoder<uint64_t>*                   pData)
 {
     fprintf(GetFile(), "%s\n", "vkGetPrivateDataEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkCreateDirectFBSurfaceEXT(
+    VkResult                                    returnValue,
+    format::HandleId                            instance,
+    StructPointerDecoder<Decoded_VkDirectFBSurfaceCreateInfoEXT>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkSurfaceKHR>*         pSurface)
+{
+    fprintf(GetFile(), "%s\n", "vkCreateDirectFBSurfaceEXT");
+}
+
+void VulkanAsciiConsumer::Process_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(
+    VkBool32                                    returnValue,
+    format::HandleId                            physicalDevice,
+    uint32_t                                    queueFamilyIndex,
+    uint64_t                                    dfb)
+{
+    fprintf(GetFile(), "%s\n", "vkGetPhysicalDeviceDirectFBPresentationSupportEXT");
 }
 
 void VulkanAsciiConsumer::Process_vkCreateAccelerationStructureKHR(

@@ -27,6 +27,22 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+void UnwrapStructHandles(VkBufferMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
+    }
+}
+
+void UnwrapStructHandles(VkImageMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->image = GetWrappedHandle<VkImage>(value->image);
+    }
+}
+
 void UnwrapStructHandles(VkDeviceCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -55,6 +71,14 @@ void UnwrapStructHandles(VkSubmitInfo* value, HandleUnwrapMemory* unwrap_memory)
     }
 }
 
+void UnwrapStructHandles(VkMappedMemoryRange* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
+    }
+}
+
 void UnwrapStructHandles(VkMemoryAllocateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -63,14 +87,6 @@ void UnwrapStructHandles(VkMemoryAllocateInfo* value, HandleUnwrapMemory* unwrap
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-    }
-}
-
-void UnwrapStructHandles(VkMappedMemoryRange* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->memory = GetWrappedHandle<VkDeviceMemory>(value->memory);
     }
 }
 
@@ -187,6 +203,18 @@ void UnwrapStructHandles(VkPipelineShaderStageCreateInfo* value, HandleUnwrapMem
     }
 }
 
+void UnwrapStructHandles(VkComputePipelineCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapStructHandles(&value->stage, unwrap_memory);
+
+        value->layout = GetWrappedHandle<VkPipelineLayout>(value->layout);
+
+        value->basePipelineHandle = GetWrappedHandle<VkPipeline>(value->basePipelineHandle);
+    }
+}
+
 void UnwrapStructHandles(VkGraphicsPipelineCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -201,18 +229,6 @@ void UnwrapStructHandles(VkGraphicsPipelineCreateInfo* value, HandleUnwrapMemory
         value->layout = GetWrappedHandle<VkPipelineLayout>(value->layout);
 
         value->renderPass = GetWrappedHandle<VkRenderPass>(value->renderPass);
-
-        value->basePipelineHandle = GetWrappedHandle<VkPipeline>(value->basePipelineHandle);
-    }
-}
-
-void UnwrapStructHandles(VkComputePipelineCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        UnwrapStructHandles(&value->stage, unwrap_memory);
-
-        value->layout = GetWrappedHandle<VkPipelineLayout>(value->layout);
 
         value->basePipelineHandle = GetWrappedHandle<VkPipeline>(value->basePipelineHandle);
     }
@@ -237,19 +253,21 @@ void UnwrapStructHandles(VkSamplerCreateInfo* value, HandleUnwrapMemory* unwrap_
     }
 }
 
-void UnwrapStructHandles(VkDescriptorSetLayoutBinding* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapStructHandles(VkCopyDescriptorSet* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
-        value->pImmutableSamplers = UnwrapHandles<VkSampler>(value->pImmutableSamplers, value->descriptorCount, unwrap_memory);
+        value->srcSet = GetWrappedHandle<VkDescriptorSet>(value->srcSet);
+
+        value->dstSet = GetWrappedHandle<VkDescriptorSet>(value->dstSet);
     }
 }
 
-void UnwrapStructHandles(VkDescriptorSetLayoutCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapStructHandles(VkDescriptorBufferInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
-        value->pBindings = UnwrapStructArrayHandles(value->pBindings, value->bindingCount, unwrap_memory);
+        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
     }
 }
 
@@ -263,21 +281,19 @@ void UnwrapStructHandles(VkDescriptorSetAllocateInfo* value, HandleUnwrapMemory*
     }
 }
 
-void UnwrapStructHandles(VkDescriptorBufferInfo* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapStructHandles(VkDescriptorSetLayoutBinding* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
+        value->pImmutableSamplers = UnwrapHandles<VkSampler>(value->pImmutableSamplers, value->descriptorCount, unwrap_memory);
     }
 }
 
-void UnwrapStructHandles(VkCopyDescriptorSet* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapStructHandles(VkDescriptorSetLayoutCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
-        value->srcSet = GetWrappedHandle<VkDescriptorSet>(value->srcSet);
-
-        value->dstSet = GetWrappedHandle<VkDescriptorSet>(value->dstSet);
+        value->pBindings = UnwrapStructArrayHandles(value->pBindings, value->bindingCount, unwrap_memory);
     }
 }
 
@@ -314,22 +330,6 @@ void UnwrapStructHandles(VkCommandBufferBeginInfo* value, HandleUnwrapMemory* un
     if (value != nullptr)
     {
         value->pInheritanceInfo = UnwrapStructPtrHandles(value->pInheritanceInfo, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(VkBufferMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->buffer = GetWrappedHandle<VkBuffer>(value->buffer);
-    }
-}
-
-void UnwrapStructHandles(VkImageMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->image = GetWrappedHandle<VkImage>(value->image);
     }
 }
 
@@ -529,14 +529,6 @@ void UnwrapStructHandles(VkAcquireNextImageInfoKHR* value, HandleUnwrapMemory* u
     }
 }
 
-void UnwrapStructHandles(VkDisplayPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->display = GetWrappedHandle<VkDisplayKHR>(value->display);
-    }
-}
-
 void UnwrapStructHandles(VkDisplayModePropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -550,6 +542,14 @@ void UnwrapStructHandles(VkDisplayPlanePropertiesKHR* value, HandleUnwrapMemory*
     if (value != nullptr)
     {
         value->currentDisplay = GetWrappedHandle<VkDisplayKHR>(value->currentDisplay);
+    }
+}
+
+void UnwrapStructHandles(VkDisplayPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->display = GetWrappedHandle<VkDisplayKHR>(value->display);
     }
 }
 
@@ -1660,6 +1660,9 @@ static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleU
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceIndexTypeUint8FeaturesEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT*>(base), 1, unwrap_memory));
         break;
@@ -1696,6 +1699,12 @@ static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleU
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceCustomBorderColorFeaturesEXT*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePrivateDataFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDevicePrivateDataCreateInfoEXT*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT*>(base), 1, unwrap_memory));
         break;
@@ -1704,6 +1713,12 @@ static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleU
         break;
     case VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkDeviceDiagnosticsConfigCreateInfoNV*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMap2FeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceRayTracingFeaturesKHR*>(base), 1, unwrap_memory));

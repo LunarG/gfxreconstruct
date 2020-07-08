@@ -2375,6 +2375,65 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    firstQuery,
         uint32_t                                    queryCount) {}
 
+    virtual void Process_vkCmdSetCullModeEXT(
+        format::HandleId                            commandBuffer,
+        VkCullModeFlags                             cullMode) {}
+
+    virtual void Process_vkCmdSetFrontFaceEXT(
+        format::HandleId                            commandBuffer,
+        VkFrontFace                                 frontFace) {}
+
+    virtual void Process_vkCmdSetPrimitiveTopologyEXT(
+        format::HandleId                            commandBuffer,
+        VkPrimitiveTopology                         primitiveTopology) {}
+
+    virtual void Process_vkCmdSetViewportWithCountEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    viewportCount,
+        StructPointerDecoder<Decoded_VkViewport>*   pViewports) {}
+
+    virtual void Process_vkCmdSetScissorWithCountEXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    scissorCount,
+        StructPointerDecoder<Decoded_VkRect2D>*     pScissors) {}
+
+    virtual void Process_vkCmdBindVertexBuffers2EXT(
+        format::HandleId                            commandBuffer,
+        uint32_t                                    firstBinding,
+        uint32_t                                    bindingCount,
+        HandlePointerDecoder<VkBuffer>*             pBuffers,
+        PointerDecoder<VkDeviceSize>*               pOffsets,
+        PointerDecoder<VkDeviceSize>*               pSizes,
+        PointerDecoder<VkDeviceSize>*               pStrides) {}
+
+    virtual void Process_vkCmdSetDepthTestEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthTestEnable) {}
+
+    virtual void Process_vkCmdSetDepthWriteEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthWriteEnable) {}
+
+    virtual void Process_vkCmdSetDepthCompareOpEXT(
+        format::HandleId                            commandBuffer,
+        VkCompareOp                                 depthCompareOp) {}
+
+    virtual void Process_vkCmdSetDepthBoundsTestEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    depthBoundsTestEnable) {}
+
+    virtual void Process_vkCmdSetStencilTestEnableEXT(
+        format::HandleId                            commandBuffer,
+        VkBool32                                    stencilTestEnable) {}
+
+    virtual void Process_vkCmdSetStencilOpEXT(
+        format::HandleId                            commandBuffer,
+        VkStencilFaceFlags                          faceMask,
+        VkStencilOp                                 failOp,
+        VkStencilOp                                 passOp,
+        VkStencilOp                                 depthFailOp,
+        VkCompareOp                                 compareOp) {}
+
     virtual void Process_vkGetGeneratedCommandsMemoryRequirementsNV(
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV>* pInfo,
@@ -2433,6 +2492,19 @@ class VulkanConsumer : public VulkanConsumerBase
         uint64_t                                    objectHandle,
         format::HandleId                            privateDataSlot,
         PointerDecoder<uint64_t>*                   pData) {}
+
+    virtual void Process_vkCreateDirectFBSurfaceEXT(
+        VkResult                                    returnValue,
+        format::HandleId                            instance,
+        StructPointerDecoder<Decoded_VkDirectFBSurfaceCreateInfoEXT>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        HandlePointerDecoder<VkSurfaceKHR>*         pSurface) {}
+
+    virtual void Process_vkGetPhysicalDeviceDirectFBPresentationSupportEXT(
+        VkBool32                                    returnValue,
+        format::HandleId                            physicalDevice,
+        uint32_t                                    queueFamilyIndex,
+        uint64_t                                    dfb) {}
 
     virtual void Process_vkCreateAccelerationStructureKHR(
         VkResult                                    returnValue,
