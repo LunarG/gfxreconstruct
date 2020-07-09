@@ -126,6 +126,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                                   const VkMappedMemoryRange* memory_ranges,
                                                   const MemoryData*          allocator_datas) override;
 
+    // Write mapped data of allocator_data to data pointed memory block.
     virtual VkResult WriteMappedMemoryRange(
         MemoryData allocator_data, uint64_t offset, uint64_t size, uint64_t data_offset, const uint8_t* data) override;
 
