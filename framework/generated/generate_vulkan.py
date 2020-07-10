@@ -49,6 +49,8 @@ generate_targets = [
     'generated_vulkan_ascii_consumer.cpp',
     'generated_vulkan_replay_consumer.h',
     'generated_vulkan_replay_consumer.cpp',
+    'generated_vulkan_resource_tracking_consumer.h',
+    'generated_vulkan_resource_tracking_consumer.cpp',
     'generated_vulkan_struct_handle_mappers.h',
     'generated_vulkan_struct_handle_mappers.cpp'
 ]

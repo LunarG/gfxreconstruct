@@ -32,6 +32,7 @@
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
+#include "generated/generated_vulkan_resource_tracking_consumer.h"
 #include "util/defines.h"
 #include "util/logging.h"
 
@@ -57,7 +58,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReplayConsumerBase(WindowFactory* window_factory, const ReplayOptions& options);
+    VulkanReplayConsumerBase(WindowFactory*                  window_factory,
+                             VulkanResourceTrackingConsumer* resource_tracking_consumer,
+                             const ReplayOptions&            options);
 
     virtual ~VulkanReplayConsumerBase() override;
 
@@ -659,6 +662,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info);
 
+    // Util function to find the matching offset with the resources offsets
+    void FindMatchResourcesOffsets(TrackedDeviceMemoryInfo* tracked_memory_info, VkDeviceSize& offset);
+
+    // Util function to update the resource data (memcpy to mapped memory)
+    VkResult UpdateResourcesData(const std::unique_ptr<VulkanResourceTrackingConsumer>& resource_tracking_consumer,
+                                 const DeviceMemoryInfo*                                memory_info,
+                                 uint64_t                                               memory_id,
+                                 uint64_t                                               offset,
+                                 uint64_t                                               size,
+                                 const uint8_t*                                         data);
+
   private:
     typedef std::unordered_set<Window*> ActiveWindows;
 
@@ -703,6 +717,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     SwapchainImageTracker                                            swapchain_image_tracker_;
     HardwareBufferMap                                                hardware_buffers_;
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
+    std::unique_ptr<VulkanResourceTrackingConsumer>                  resource_tracking_consumer_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

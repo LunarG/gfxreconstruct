@@ -1,7 +1,5 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
-** Copyright (c) 2018-2020 LunarG, Inc.
-**
+** Copyright (c) 2020 Advanced Micro Devices, Inc. All rights reserved**
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
 ** You may obtain a copy of the License at
@@ -20,10 +18,10 @@
 **
 */
 
-#ifndef  GFXRECON_GENERATED_VULKAN_REPLAY_CONSUMER_H
-#define  GFXRECON_GENERATED_VULKAN_REPLAY_CONSUMER_H
+#ifndef  GFXRECON_GENERATED_VULKAN_RESOURCE_TRACKING_CONSUMER_H
+#define  GFXRECON_GENERATED_VULKAN_RESOURCE_TRACKING_CONSUMER_H
 
-#include "decode/vulkan_replay_consumer_base.h"
+#include "decode/vulkan_resource_tracking_consumer_base.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -31,12 +29,12 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanReplayConsumer : public VulkanReplayConsumerBase
+class VulkanResourceTrackingConsumer : public VulkanResourceTrackingConsumerBase
 {
   public:
-    VulkanReplayConsumer(WindowFactory* window_factory, VulkanResourceTrackingConsumer* resource_tracking_consumer, const ReplayOptions& options) : VulkanReplayConsumerBase(window_factory, resource_tracking_consumer, options) { }
+    VulkanResourceTrackingConsumer(const ReplayOptions& options) : VulkanResourceTrackingConsumerBase(options) { }
 
-    virtual ~VulkanReplayConsumer() override { }
+    virtual ~VulkanResourceTrackingConsumer() override { }
 
     virtual void Process_vkCreateInstance(
         VkResult                                    returnValue,
