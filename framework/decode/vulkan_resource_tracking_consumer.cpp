@@ -6,7 +6,7 @@
 ///         which is used to send messages over TCP
 //=============================================================================
 
-#include "decode/vulkan_resource_tracking_consumer_base.h"
+#include "decode/vulkan_resource_tracking_consumer.h"
 
 #include <unordered_set>
 #include <algorithm>
@@ -22,11 +22,11 @@ const std::vector<std::string> kLoaderLibNames = {
 #endif
 };
 
-VulkanResourceTrackingConsumerBase::VulkanResourceTrackingConsumerBase(const ReplayOptions& options) :
+VulkanResourceTrackingConsumer::VulkanResourceTrackingConsumer(const ReplayOptions& options) :
     options_(options), loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_function_(nullptr)
 {}
 
-VulkanResourceTrackingConsumerBase::~VulkanResourceTrackingConsumerBase()
+VulkanResourceTrackingConsumer::~VulkanResourceTrackingConsumer()
 {
     if (loader_handle_ != nullptr)
     {
@@ -34,7 +34,7 @@ VulkanResourceTrackingConsumerBase::~VulkanResourceTrackingConsumerBase()
     }
 }
 
-void VulkanResourceTrackingConsumerBase::InitializeLoader()
+void VulkanResourceTrackingConsumer::InitializeLoader()
 {
     for (auto name : kLoaderLibNames)
     {
@@ -61,7 +61,7 @@ void VulkanResourceTrackingConsumerBase::InitializeLoader()
     }
 }
 
-void VulkanResourceTrackingConsumerBase::AddInstanceTable(VkInstance instance)
+void VulkanResourceTrackingConsumer::AddInstanceTable(VkInstance instance)
 {
     encode::DispatchKey dispatch_key = encode::GetDispatchKey(instance);
 
@@ -74,41 +74,44 @@ void VulkanResourceTrackingConsumerBase::AddInstanceTable(VkInstance instance)
     encode::LoadInstanceTable(get_instance_proc_addr_, instance, &table);
 }
 
-void VulkanResourceTrackingConsumerBase::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
+void VulkanResourceTrackingConsumer::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
 {
     encode::DeviceTable& table = device_tables_[encode::GetDispatchKey(device)];
     encode::LoadDeviceTable(gpa, device, &table);
 }
 
-PFN_vkGetDeviceProcAddr VulkanResourceTrackingConsumerBase::GetDeviceAddrProc(VkPhysicalDevice physical_device)
+PFN_vkGetDeviceProcAddr VulkanResourceTrackingConsumer::GetDeviceAddrProc(VkPhysicalDevice physical_device)
 {
     return get_device_proc_addrs_[encode::GetDispatchKey(physical_device)];
 }
 
-PFN_vkCreateDevice VulkanResourceTrackingConsumerBase::GetCreateDeviceProc(VkPhysicalDevice physical_device)
+PFN_vkCreateDevice VulkanResourceTrackingConsumer::GetCreateDeviceProc(VkPhysicalDevice physical_device)
 {
     return create_device_procs_[encode::GetDispatchKey(physical_device)];
 }
 
-const encode::InstanceTable* VulkanResourceTrackingConsumerBase::GetInstanceTable(const void* handle) const
+const encode::InstanceTable* VulkanResourceTrackingConsumer::GetInstanceTable(const void* handle) const
 {
     auto table = instance_tables_.find(encode::GetDispatchKey(handle));
     assert(table != instance_tables_.end());
     return (table != instance_tables_.end()) ? &table->second : nullptr;
 }
 
-const encode::DeviceTable* VulkanResourceTrackingConsumerBase::GetDeviceTable(const void* handle) const
+const encode::DeviceTable* VulkanResourceTrackingConsumer::GetDeviceTable(const void* handle) const
 {
     auto table = device_tables_.find(encode::GetDispatchKey(handle));
     assert(table != device_tables_.end());
     return (table != device_tables_.end()) ? &table->second : nullptr;
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideCreateInstance(
-    const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkInstance>*                          pInstance)
+void VulkanResourceTrackingConsumer::Process_vkCreateInstance(
+    VkResult                                             returnValue,
+    StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkInstance>*                    pInstance)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+
     assert((pCreateInfo != nullptr) && (pInstance != nullptr));
 
     if (!pInstance->IsNull())
@@ -141,12 +144,15 @@ void VulkanResourceTrackingConsumerBase::OverrideCreateInstance(
     }
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideCreateDevice(
-    format::HandleId                                           physicalDevice,
-    const StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-    HandlePointerDecoder<VkDevice>*                            pDevice)
+void VulkanResourceTrackingConsumer::Process_vkCreateDevice(
+    VkResult                                             returnValue,
+    format::HandleId                                     physicalDevice,
+    StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkDevice>*                      pDevice)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+
     assert((pCreateInfo != nullptr) && (pDevice != nullptr));
 
     if (!pDevice->IsNull())
@@ -206,11 +212,14 @@ void VulkanResourceTrackingConsumerBase::OverrideCreateDevice(
     }
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideEnumeratePhysicalDevices(
+void VulkanResourceTrackingConsumer::Process_vkEnumeratePhysicalDevices(
+    VkResult                                returnValue,
     format::HandleId                        instance,
     PointerDecoder<uint32_t>*               pPhysicalDeviceCount,
     HandlePointerDecoder<VkPhysicalDevice>* pPhysicalDevices)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+
     auto instance_info = GetTrackedObjectInfoTable().GetTrackedInstanceInfo(instance);
     pPhysicalDeviceCount->AllocateOutputData(
         1, pPhysicalDeviceCount->IsNull() ? static_cast<uint32_t>(0) : (*pPhysicalDeviceCount->GetPointer()));
@@ -255,15 +264,16 @@ void VulkanResourceTrackingConsumerBase::OverrideEnumeratePhysicalDevices(
     }
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideCreateBuffer(
-    format::HandleId                                           device,
-    const StructPointerDecoder<Decoded_VkBufferCreateInfo>*    create_info,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator,
-    HandlePointerDecoder<VkBuffer>*                            buffer)
+void VulkanResourceTrackingConsumer::Process_vkCreateBuffer(
+    VkResult                                             returnValue,
+    format::HandleId                                     device,
+    StructPointerDecoder<Decoded_VkBufferCreateInfo>*    create_info,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator,
+    HandlePointerDecoder<VkBuffer>*                      buffer)
 {
-    assert((create_info != nullptr) && (buffer != nullptr));
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
 
-    TrackedResourceInfo buffer_info;
+    assert((create_info != nullptr) && (buffer != nullptr));
 
     if (!buffer->IsNull())
     {
@@ -281,6 +291,8 @@ void VulkanResourceTrackingConsumerBase::OverrideCreateBuffer(
 
     if ((result == VK_SUCCESS) && (buffer_create_info != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
     {
+        TrackedResourceInfo buffer_info;
+
         if ((buffer_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT) &&
             (buffer_create_info->queueFamilyIndexCount > 0) && (buffer_create_info->pQueueFamilyIndices != nullptr))
         {
@@ -298,13 +310,14 @@ void VulkanResourceTrackingConsumerBase::OverrideCreateBuffer(
     }
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideCreateImage(
-    format::HandleId                                           device,
-    const StructPointerDecoder<Decoded_VkImageCreateInfo>*     create_info,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator,
-    HandlePointerDecoder<VkImage>*                             image)
+void VulkanResourceTrackingConsumer::Process_vkCreateImage(
+    VkResult                                             returnValue,
+    format::HandleId                                     device,
+    StructPointerDecoder<Decoded_VkImageCreateInfo>*     create_info,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator,
+    HandlePointerDecoder<VkImage>*                       image)
 {
-    TrackedResourceInfo image_info;
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
 
     assert((create_info != nullptr) && (image != nullptr));
 
@@ -324,6 +337,8 @@ void VulkanResourceTrackingConsumerBase::OverrideCreateImage(
 
     if ((result == VK_SUCCESS) && (image_create_info != nullptr) && ((*replay_image) != VK_NULL_HANDLE))
     {
+        TrackedResourceInfo image_info;
+
         if ((image_create_info->sharingMode == VK_SHARING_MODE_CONCURRENT) &&
             (image_create_info->queueFamilyIndexCount > 0) && (image_create_info->pQueueFamilyIndices != nullptr))
         {
@@ -342,12 +357,15 @@ void VulkanResourceTrackingConsumerBase::OverrideCreateImage(
     }
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideAllocateMemory(
-    format::HandleId                                           device,
-    const StructPointerDecoder<Decoded_VkMemoryAllocateInfo>*  allocate_info,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator,
-    HandlePointerDecoder<VkDeviceMemory>*                      memory)
+void VulkanResourceTrackingConsumer::Process_vkAllocateMemory(
+    VkResult                                             returnValue,
+    format::HandleId                                     device,
+    StructPointerDecoder<Decoded_VkMemoryAllocateInfo>*  allocate_info,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* allocator,
+    HandlePointerDecoder<VkDeviceMemory>*                memory)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+
     auto                    device_info = GetTrackedObjectInfoTable().GetTrackedDeviceInfo(device);
     TrackedDeviceMemoryInfo memory_info;
 
@@ -384,11 +402,14 @@ void VulkanResourceTrackingConsumerBase::OverrideAllocateMemory(
     GetTrackedObjectInfoTable().AddTrackedDeviceMemoryInfo(std::move(memory_info));
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideBindBufferMemory(format::HandleId device,
-                                                                  format::HandleId buffer,
-                                                                  format::HandleId memory,
-                                                                  VkDeviceSize     memory_offset)
+void VulkanResourceTrackingConsumer::Process_vkBindBufferMemory(VkResult         returnValue,
+                                                                format::HandleId device,
+                                                                format::HandleId buffer,
+                                                                format::HandleId memory,
+                                                                VkDeviceSize     memory_offset)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+
     auto buffer_info = GetTrackedObjectInfoTable().GetTrackedResourceInfo(buffer);
     auto memory_info = GetTrackedObjectInfoTable().GetTrackedDeviceMemoryInfo(memory);
 
@@ -401,17 +422,20 @@ void VulkanResourceTrackingConsumerBase::OverrideBindBufferMemory(format::Handle
     // make the getbuffermemoryrequirement call to get the replay size.
     if (buffer_info->GetReplayResourceSize() == 0)
     {
-        OverrideGetBufferMemoryRequirements(device, buffer, nullptr);
+        Process_vkGetBufferMemoryRequirements(device, buffer, nullptr);
     }
 
     memory_info->InsertBoundResourcesList(buffer_info);
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideBindImageMemory(format::HandleId device,
-                                                                 format::HandleId image,
-                                                                 format::HandleId memory,
-                                                                 VkDeviceSize     memory_offset)
+void VulkanResourceTrackingConsumer::Process_vkBindImageMemory(VkResult         returnValue,
+                                                               format::HandleId device,
+                                                               format::HandleId image,
+                                                               format::HandleId memory,
+                                                               VkDeviceSize     memory_offset)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+
     auto image_info  = GetTrackedObjectInfoTable().GetTrackedResourceInfo(image);
     auto memory_info = GetTrackedObjectInfoTable().GetTrackedDeviceMemoryInfo(memory);
 
@@ -424,17 +448,20 @@ void VulkanResourceTrackingConsumerBase::OverrideBindImageMemory(format::HandleI
     // make the getimagememoryrequirement call to get the replay size.
     if (image_info->GetReplayResourceSize() == 0)
     {
-        OverrideGetImageMemoryRequirements(device, image, nullptr);
+        Process_vkGetImageMemoryRequirements(device, image, nullptr);
     }
 
     memory_info->InsertBoundResourcesList(image_info);
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideBindBufferMemory2(
-    format::HandleId                                            device,
-    uint32_t                                                    bindInfoCount,
-    const StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
+void VulkanResourceTrackingConsumer::Process_vkBindBufferMemory2(
+    VkResult                                              returnValue,
+    format::HandleId                                      device,
+    uint32_t                                              bindInfoCount,
+    StructPointerDecoder<Decoded_VkBindBufferMemoryInfo>* pBindInfos)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+
     auto tracked_device_info = GetTrackedObjectInfoTable().GetTrackedDeviceInfo(device);
 
     assert((pBindInfos != nullptr) && (tracked_device_info != nullptr));
@@ -459,18 +486,21 @@ void VulkanResourceTrackingConsumerBase::OverrideBindBufferMemory2(
         // make the getbuffermemoryrequirement call to get the replay size.
         if (buffer_info->GetReplayResourceSize() == 0)
         {
-            OverrideGetBufferMemoryRequirements(device, bind_meta_info->buffer, nullptr);
+            Process_vkGetBufferMemoryRequirements(device, bind_meta_info->buffer, nullptr);
         }
 
         memory_info->InsertBoundResourcesList(buffer_info);
     }
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideBindImageMemory2(
-    format::HandleId                                           device,
-    uint32_t                                                   bindInfoCount,
-    const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
+void VulkanResourceTrackingConsumer::Process_vkBindImageMemory2(
+    VkResult                                             returnValue,
+    format::HandleId                                     device,
+    uint32_t                                             bindInfoCount,
+    StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+
     auto tracked_device_info = GetTrackedObjectInfoTable().GetTrackedDeviceInfo(device);
 
     assert((pBindInfos != nullptr) && (tracked_device_info != nullptr));
@@ -495,20 +525,23 @@ void VulkanResourceTrackingConsumerBase::OverrideBindImageMemory2(
         // make the getimagememoryrequirement call to get the replay size.
         if (image_info->GetReplayResourceSize() == 0)
         {
-            OverrideGetImageMemoryRequirements(device, bind_meta_info->image, nullptr);
+            Process_vkGetImageMemoryRequirements(device, bind_meta_info->image, nullptr);
         }
 
         memory_info->InsertBoundResourcesList(image_info);
     }
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideMapMemory(format::HandleId                 device,
-                                                           format::HandleId                 memory,
-                                                           VkDeviceSize                     offset,
-                                                           VkDeviceSize                     size,
-                                                           VkMemoryMapFlags                 flags,
-                                                           PointerDecoder<uint64_t, void*>* data_pointer)
+void VulkanResourceTrackingConsumer::Process_vkMapMemory(VkResult                         returnValue,
+                                                         format::HandleId                 device,
+                                                         format::HandleId                 memory,
+                                                         VkDeviceSize                     offset,
+                                                         VkDeviceSize                     size,
+                                                         VkMemoryMapFlags                 flags,
+                                                         PointerDecoder<uint64_t, void*>* data_pointer)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+
     auto memory_info = GetTrackedObjectInfoTable().GetTrackedDeviceMemoryInfo(memory);
 
     assert((memory_info != nullptr));
@@ -517,7 +550,7 @@ void VulkanResourceTrackingConsumerBase::OverrideMapMemory(format::HandleId     
     memory_info->InsertMappedMemorySizesList(size);
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideGetBufferMemoryRequirements(
+void VulkanResourceTrackingConsumer::Process_vkGetBufferMemoryRequirements(
     format::HandleId                                    device,
     format::HandleId                                    buffer,
     StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements)
@@ -565,7 +598,7 @@ void VulkanResourceTrackingConsumerBase::OverrideGetBufferMemoryRequirements(
     }
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideGetImageMemoryRequirements(
+void VulkanResourceTrackingConsumer::Process_vkGetImageMemoryRequirements(
     format::HandleId                                    device,
     format::HandleId                                    image,
     StructPointerDecoder<Decoded_VkMemoryRequirements>* pMemoryRequirements)
@@ -613,8 +646,8 @@ void VulkanResourceTrackingConsumerBase::OverrideGetImageMemoryRequirements(
     }
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideDestroyInstance(
-    format::HandleId instance, const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanResourceTrackingConsumer::Process_vkDestroyInstance(
+    format::HandleId instance, StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     auto       instance_info = GetTrackedObjectInfoTable().GetTrackedInstanceInfo(instance);
     VkInstance in_instance   = instance_info->GetHandleId();
@@ -622,8 +655,8 @@ void VulkanResourceTrackingConsumerBase::OverrideDestroyInstance(
     GetInstanceTable(in_instance)->DestroyInstance(in_instance, nullptr);
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideDestroyDevice(
-    format::HandleId device, const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanResourceTrackingConsumer::Process_vkDestroyDevice(
+    format::HandleId device, StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     auto     device_info = GetTrackedObjectInfoTable().GetTrackedDeviceInfo(device);
     VkDevice in_device   = device_info->GetHandleId();
@@ -631,10 +664,8 @@ void VulkanResourceTrackingConsumerBase::OverrideDestroyDevice(
     GetDeviceTable(in_device)->DestroyDevice(in_device, nullptr);
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideDestroyBuffer(
-    format::HandleId                                           device,
-    format::HandleId                                           buffer,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanResourceTrackingConsumer::Process_vkDestroyBuffer(
+    format::HandleId device, format::HandleId buffer, StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     auto     device_info = GetTrackedObjectInfoTable().GetTrackedDeviceInfo(device);
     auto     buffer_info = GetTrackedObjectInfoTable().GetTrackedResourceInfo(buffer);
@@ -644,10 +675,8 @@ void VulkanResourceTrackingConsumerBase::OverrideDestroyBuffer(
     GetDeviceTable(in_device)->DestroyBuffer(in_device, in_buffer, nullptr);
 }
 
-void VulkanResourceTrackingConsumerBase::OverrideDestroyImage(
-    format::HandleId                                           device,
-    format::HandleId                                           image,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+void VulkanResourceTrackingConsumer::Process_vkDestroyImage(
+    format::HandleId device, format::HandleId image, StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     auto     device_info = GetTrackedObjectInfoTable().GetTrackedDeviceInfo(device);
     auto     image_info  = GetTrackedObjectInfoTable().GetTrackedResourceInfo(image);
@@ -657,10 +686,10 @@ void VulkanResourceTrackingConsumerBase::OverrideDestroyImage(
     GetDeviceTable(in_device)->DestroyImage(in_device, in_image, nullptr);
 }
 
-void VulkanResourceTrackingConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
-                                                                  uint64_t       offset,
-                                                                  uint64_t       size,
-                                                                  const uint8_t* data)
+void VulkanResourceTrackingConsumer::ProcessFillMemoryCommand(uint64_t       memory_id,
+                                                              uint64_t       offset,
+                                                              uint64_t       size,
+                                                              const uint8_t* data)
 {
     auto memory_info = GetTrackedObjectInfoTable().GetTrackedDeviceMemoryInfo(memory_id);
 
@@ -677,7 +706,7 @@ bool CompareOffset(TrackedResourceInfo* resource1, TrackedResourceInfo* resource
 }
 
 // Sort the bound resources in each device memory object according to their trace binding offset.
-void VulkanResourceTrackingConsumerBase::SortMemoriesBoundResourcesByOffset()
+void VulkanResourceTrackingConsumer::SortMemoriesBoundResourcesByOffset()
 {
     auto tracked_device_memories_map = GetTrackedObjectInfoTable().GetTrackedDeviceMemoriesInfoMap();
     assert(tracked_device_memories_map != nullptr);
@@ -699,7 +728,7 @@ void VulkanResourceTrackingConsumerBase::SortMemoriesBoundResourcesByOffset()
 
 // TODO(gfxrec-28): split this function into smaller utility functions
 // Calculate the replay binding offset and memory allocation size
-void VulkanResourceTrackingConsumerBase::CalculateReplayBindingOffsetAndMemoryAllocationSize()
+void VulkanResourceTrackingConsumer::CalculateReplayBindingOffsetAndMemoryAllocationSize()
 {
     auto tracked_device_memories_map = GetTrackedObjectInfoTable().GetTrackedDeviceMemoriesInfoMap();
     assert(tracked_device_memories_map != nullptr);
