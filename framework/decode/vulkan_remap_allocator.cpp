@@ -16,10 +16,7 @@
 
 #include "decode/vulkan_remap_allocator.h"
 
-#include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/portability.h"
-#include "decode/vulkan_object_info.h"
-#include "generated/generated_vulkan_struct_decoders.h"
 #include "util/logging.h"
 
 #include <cassert>

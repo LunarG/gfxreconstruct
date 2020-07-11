@@ -21,7 +21,7 @@
 #include "application/android_window.h"
 #include "decode/file_processor.h"
 #include "decode/vulkan_replay_options.h"
-#include "decode/vulkan_resource_tracking_consumer.h"
+#include "decode/vulkan_tracked_object_info_table.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
@@ -47,41 +47,6 @@ std::string GetIntentExtra(struct android_app* app, const char* key);
 void        ProcessAppCmd(struct android_app* app, int32_t cmd);
 int32_t     ProcessInputEvent(struct android_app* app, AInputEvent* event);
 void        DestroyActivity(struct android_app* app);
-
-void run_first_pass_replay_portability(const gfxrecon::decode::ReplayOptions              replay_options,
-                                       gfxrecon::decode::VulkanDecoder                    decoder,
-                                       gfxrecon::util::ArgumentParser                     arg_parser,
-                                       gfxrecon::decode::VulkanResourceTrackingConsumer** resource_tracking_consumer,
-                                       std::string                                        filename)
-{
-    if (replay_options.enable_multipass_replay_portability == true)
-    {
-        // enable first pass of replay to generate resource tracking information
-        GFXRECON_WRITE_CONSOLE("First pass of replay resource tracking for memory portability. This may "
-                               "take some time. Please wait...");
-        gfxrecon::decode::FileProcessor file_processor_resource_tracking;
-        *resource_tracking_consumer = new gfxrecon::decode::VulkanResourceTrackingConsumer(replay_options);
-
-        if (file_processor_resource_tracking.Initialize(filename))
-        {
-            decoder.AddConsumer(*resource_tracking_consumer);
-
-            file_processor_resource_tracking.AddDecoder(&decoder);
-            file_processor_resource_tracking.ProcessAllFrames();
-
-            file_processor_resource_tracking.RemoveDecoder(&decoder);
-            decoder.RemoveConsumer(*resource_tracking_consumer);
-        }
-
-        // sort the bound resources according to the binding offsets
-        (*resource_tracking_consumer)->SortMemoriesBoundResourcesByOffset();
-
-        // calculate the replay binding offset of the bound resources and replay memory allocation size
-        (*resource_tracking_consumer)->CalculateReplayBindingOffsetAndMemoryAllocationSize();
-
-        GFXRECON_WRITE_CONSOLE("First pass of replay resource tracking done.");
-    }
-}
 
 void android_main(struct android_app* app)
 {
@@ -139,49 +104,27 @@ void android_main(struct android_app* app)
                 }
                 else
                 {
+                    gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
+                    gfxrecon::decode::VulkanReplayConsumer         replay_consumer(
+                        window_factory.get(), GetReplayOptions(arg_parser, filename, &tracked_object_info_table));
                     gfxrecon::decode::VulkanDecoder        decoder;
 
-                    // get user replay option
-                    const gfxrecon::decode::ReplayOptions replay_options = GetReplayOptions(arg_parser);
+                    replay_consumer.SetFatalErrorHandler(
+                        [](const char* message) { throw std::runtime_error(message); });
 
-                    // -m <remap or rebind> and --empr usage should be mutually exclusive, check for the user replay
-                    // option and stop replay if both are enabled at the same time.
-                    if ((replay_options.create_resource_allocator != CreateDefaultAllocator) &&
-                        (replay_options.enable_multipass_replay_portability == true))
-                    {
-                        GFXRECON_LOG_FATAL(
-                            "Multipass (2 pass) replay argument \'--emrp\' cannot be used with single pass memory "
-                            "translation argument \'-m\'. Please choose either one of the argument for replay.");
-                    }
-                    else
-                    {
-                        gfxrecon::decode::VulkanResourceTrackingConsumer* resource_tracking_consumer = nullptr;
+                    decoder.AddConsumer(&replay_consumer);
+                    file_processor.AddDecoder(&decoder);
+                    application->SetPauseFrame(GetPauseFrame(arg_parser));
 
-                        // run first pass of resource tracking in replay for memory portability if enabled by user
-                        run_first_pass_replay_portability(
-                            replay_options, decoder, arg_parser, &resource_tracking_consumer, filename);
+                    // Warn if the capture layer is active.
+                    CheckActiveLayers(kLayerProperty);
 
-                        // replay trace
-                        gfxrecon::decode::VulkanReplayConsumer replay_consumer(
-                            window_factory.get(), resource_tracking_consumer, replay_options);
+                    // Start the application in the paused state, preventing replay from starting before the app
+                    // gained focus event is received.
+                    application->SetPaused(true);
 
-                        replay_consumer.SetFatalErrorHandler(
-                            [](const char* message) { throw std::runtime_error(message); });
-
-                        decoder.AddConsumer(&replay_consumer);
-                        file_processor.AddDecoder(&decoder);
-                        application->SetPauseFrame(GetPauseFrame(arg_parser));
-
-                        // Warn if the capture layer is active.
-                        CheckActiveLayers(kLayerProperty);
-
-                        // Start the application in the paused state, preventing replay from starting before the app
-                        // gained focus event is received.
-                        application->SetPaused(true);
-
-                        app->userData = application.get();
-                        application->Run();
-                    }
+                    app->userData = application.get();
+                    application->Run();
                 }
             }
         }

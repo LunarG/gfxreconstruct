@@ -343,6 +343,9 @@ Optional arguments:
                             remap       Attempt to map capture memory types to
                                         compatible replay memory types, without
                                         altering memory allocation behavior.
+                            realign     Adjust memory allocation sizes and
+                                        resource binding offests based on
+                                        replay memory properties.
                             rebind      Change memory allocation behavior based
                                         on resource usage and replay memory
                                         properties.  Resources may be bound

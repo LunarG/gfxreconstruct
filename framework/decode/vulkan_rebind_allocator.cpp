@@ -21,13 +21,10 @@
 
 #include "decode/vulkan_rebind_allocator.h"
 
-#include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/resource_util.h"
 #include "decode/vulkan_enum_util.h"
-#include "decode/vulkan_object_info.h"
 #include "format/format.h"
 #include "format/format_util.h"
-#include "generated/generated_vulkan_struct_decoders.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
@@ -761,8 +758,10 @@ VkResult VulkanRebindAllocator::InvalidateMappedMemoryRanges(uint32_t           
     return UpdateMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas, vmaInvalidateAllocation);
 }
 
-VkResult VulkanRebindAllocator::WriteMappedMemoryRange(
-    MemoryData allocator_data, uint64_t offset, uint64_t size, uint64_t data_offset, const uint8_t* data)
+VkResult VulkanRebindAllocator::WriteMappedMemoryRange(MemoryData     allocator_data,
+                                                       uint64_t       offset,
+                                                       uint64_t       size,
+                                                       const uint8_t* data)
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 

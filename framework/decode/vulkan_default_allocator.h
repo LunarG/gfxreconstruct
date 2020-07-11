@@ -129,8 +129,8 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                                   const VkMappedMemoryRange* memory_ranges,
                                                   const MemoryData*          allocator_datas) override;
 
-    virtual VkResult WriteMappedMemoryRange(
-        MemoryData allocator_data, uint64_t offset, uint64_t size, uint64_t data_offset, const uint8_t* data) override;
+    virtual VkResult
+    WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
     virtual void ReportAllocateMemoryIncompatibility(const VkMemoryAllocateInfo* allocate_info) override;
 
@@ -153,13 +153,6 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                                  const MemoryData*            allocator_memory_datas) override;
 
   protected:
-    VkResult Allocate(const VkMemoryAllocateInfo*  allocate_info,
-                      const VkAllocationCallbacks* allocation_callbacks,
-                      format::HandleId             capture_id,
-                      VkDeviceMemory*              memory,
-                      MemoryData*                  allocator_data);
-
-  private:
     struct ResourceAllocInfo
     {
         format::HandleId capture_id{ 0 };
@@ -172,6 +165,23 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
         VkMemoryPropertyFlags property_flags{ 0 };
         uint8_t*              mapped_pointer{ nullptr };
     };
+
+  protected:
+    const ResourceAllocInfo* GetResourceAllocInfo(ResourceData allocator_data) const
+    {
+        return reinterpret_cast<ResourceAllocInfo*>(allocator_data);
+    }
+
+    const MemoryAllocInfo* GetMemoryAllocInfo(MemoryData allocator_data) const
+    {
+        return reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+    }
+
+    VkResult Allocate(const VkMemoryAllocateInfo*  allocate_info,
+                      const VkAllocationCallbacks* allocation_callbacks,
+                      format::HandleId             capture_id,
+                      VkDeviceMemory*              memory,
+                      MemoryData*                  allocator_data);
 
   private:
     void ReportBindIncompatibility(const VkMemoryRequirements* requirements,
