@@ -165,8 +165,8 @@ class VulkanResourceAllocator
                                                   const MemoryData*          allocator_datas) = 0;
 
     // Offset is relative to the start of the pointer returned by vkMapMemory.
-    virtual VkResult WriteMappedMemoryRange(
-        MemoryData allocator_data, uint64_t offset, uint64_t size, uint64_t data_offset, const uint8_t* data) = 0;
+    virtual VkResult
+    WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) = 0;
 
     virtual void ReportAllocateMemoryIncompatibility(const VkMemoryAllocateInfo* allocate_info) = 0;
 

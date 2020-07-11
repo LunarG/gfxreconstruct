@@ -282,7 +282,7 @@ optional arguments:
                         Enable memory translation for replay on GPUs with
                         memory types that are not compatible with the capture
                         GPU's memory types. Available modes are: none, remap,
-                        rebind (forwarded to replay tool)
+                        realign, rebind (forwarded to replay tool)
 ```
 
 The command will force-stop an active replay process before starting the replay

@@ -31,7 +31,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanResourceTrackingConsumer : public VulkanConsumer
 {
   public:
-    VulkanResourceTrackingConsumer(const ReplayOptions& options);
+    VulkanResourceTrackingConsumer(const ReplayOptions&          options,
+                                   VulkanTrackedObjectInfoTable* tracked_object_info_table);
 
     virtual ~VulkanResourceTrackingConsumer() override;
 
@@ -139,11 +140,12 @@ class VulkanResourceTrackingConsumer : public VulkanConsumer
 
     void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
-    VulkanTrackedObjectInfoTable& GetTrackedObjectInfoTable() { return tracked_object_info_table_; }
-
     void SortMemoriesBoundResourcesByOffset();
 
     void CalculateReplayBindingOffsetAndMemoryAllocationSize();
+
+  protected:
+    VulkanTrackedObjectInfoTable* GetTrackedObjectInfoTable() { return tracked_object_info_table_; }
 
   private:
     util::platform::LibraryHandle loader_handle_;
@@ -157,8 +159,8 @@ class VulkanResourceTrackingConsumer : public VulkanConsumer
     PFN_vkCreateInstance      create_instance_function_;
     PFN_vkGetInstanceProcAddr get_instance_proc_addr_;
 
-    ReplayOptions                options_;
-    VulkanTrackedObjectInfoTable tracked_object_info_table_;
+    ReplayOptions                 options_;
+    VulkanTrackedObjectInfoTable* tracked_object_info_table_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
