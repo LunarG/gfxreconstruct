@@ -52,6 +52,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     virtual VkResult CreateBuffer(const VkBufferCreateInfo*    create_info,
                                   const VkAllocationCallbacks* allocation_callbacks,
+                                  format::HandleId             capture_id,
                                   VkBuffer*                    buffer,
                                   ResourceData*                allocator_data) override;
 
@@ -61,6 +62,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     virtual VkResult CreateImage(const VkImageCreateInfo*     create_info,
                                  const VkAllocationCallbacks* allocation_callbacks,
+                                 format::HandleId             capture_id,
                                  VkImage*                     image,
                                  ResourceData*                allocator_data) override;
 
@@ -76,6 +78,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
 
     virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,
+                                    format::HandleId             capture_id,
                                     VkDeviceMemory*              memory,
                                     MemoryData*                  allocator_data) override;
 

@@ -92,6 +92,7 @@ VkResult VulkanRemapAllocator::Initialize(uint32_t                              
 
 VkResult VulkanRemapAllocator::AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                               const VkAllocationCallbacks* allocation_callbacks,
+                                              format::HandleId             capture_id,
                                               VkDeviceMemory*              memory,
                                               MemoryData*                  allocator_data)
 {
@@ -105,7 +106,7 @@ VkResult VulkanRemapAllocator::AllocateMemory(const VkMemoryAllocateInfo*  alloc
 
         replay_allocate_info.memoryTypeIndex = index_map_[allocate_info->memoryTypeIndex];
 
-        result = Allocate(&replay_allocate_info, allocation_callbacks, memory, allocator_data);
+        result = Allocate(&replay_allocate_info, allocation_callbacks, capture_id, memory, allocator_data);
     }
 
     return result;

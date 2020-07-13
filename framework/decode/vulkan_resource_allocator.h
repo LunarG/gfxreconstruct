@@ -19,6 +19,7 @@
 
 #include "decode/handle_pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
+#include "format/format.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"
@@ -85,6 +86,7 @@ class VulkanResourceAllocator
 
     virtual VkResult CreateBuffer(const VkBufferCreateInfo*    create_info,
                                   const VkAllocationCallbacks* allocation_callbacks,
+                                  format::HandleId             capture_id,
                                   VkBuffer*                    buffer,
                                   ResourceData*                allocator_data) = 0;
 
@@ -93,6 +95,7 @@ class VulkanResourceAllocator
 
     virtual VkResult CreateImage(const VkImageCreateInfo*     create_info,
                                  const VkAllocationCallbacks* allocation_callbacks,
+                                 format::HandleId             capture_id,
                                  VkImage*                     image,
                                  ResourceData*                allocator_data) = 0;
 
@@ -107,6 +110,7 @@ class VulkanResourceAllocator
 
     virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,
+                                    format::HandleId             capture_id,
                                     VkDeviceMemory*              memory,
                                     MemoryData*                  allocator_data) = 0;
 
