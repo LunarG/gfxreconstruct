@@ -326,13 +326,9 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 returnValue = 'result'
 
             if handle.isArray:
-                lengthName = handle.arrayLength
-                for value in values:
-                    if (value.name == lengthName) and value.isPointer:
-                        lengthName = '({name} != nullptr) ? (*{name}) : 0'.format(name=lengthName)
-                        break
+                lengthName = self.makeArrayLengthExpression(handle)
 
-                if '->' in lengthName:
+                if 'pAllocateInfo->' in lengthName:
                     # This is a pool allocation call, which receives one allocate info structure that is shared by all object being allocated.
                     decl += 'EndPoolCreateApiCallTrace<{}, {}Wrapper, {}>({}, {}, {}, {}, {}, encoder)'.format(parentHandle.baseType, handle.baseType[2:], infoBaseType, returnValue, parentHandle.name, lengthName, handle.name, infoName)
                 else:
