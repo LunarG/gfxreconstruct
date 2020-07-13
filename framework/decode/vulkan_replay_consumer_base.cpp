@@ -2756,7 +2756,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 {
     GFXRECON_UNREFERENCED_PARAMETER(func);
 
-    assert((device_info != nullptr) && (pAllocateInfo != nullptr) && (pMemory != nullptr) &&
+    assert((device_info != nullptr) && (pAllocateInfo != nullptr) && (pMemory != nullptr) && !pMemory->IsNull() &&
            (pMemory->GetHandlePointer() != nullptr));
 
     VkResult result = original_result;
@@ -2773,6 +2773,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         VulkanResourceAllocator::MemoryData allocator_data;
         auto                                replay_allocate_info = pAllocateInfo->GetPointer();
         auto                                replay_memory        = pMemory->GetHandlePointer();
+        auto                                capture_id           = (*pMemory->GetPointer());
 
         // allocate new memory allocation size collected from first pass by resource tracking
         VkMemoryAllocateInfo* modified_allocate_info = const_cast<VkMemoryAllocateInfo*>(replay_allocate_info);
@@ -2785,7 +2786,7 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
         }
 
         result = allocator->AllocateMemory(
-            replay_allocate_info, GetAllocationCallbacks(pAllocator), replay_memory, &allocator_data);
+            replay_allocate_info, GetAllocationCallbacks(pAllocator), capture_id, replay_memory, &allocator_data);
 
         if ((result == VK_SUCCESS) && (modified_allocate_info != nullptr) && ((*replay_memory) != VK_NULL_HANDLE))
         {
@@ -3229,19 +3230,20 @@ VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer               
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pBuffer != nullptr) &&
+    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pBuffer != nullptr) && !pBuffer->IsNull() &&
            (pBuffer->GetHandlePointer() != nullptr));
 
     auto allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
     VulkanResourceAllocator::ResourceData allocator_data;
+    auto                                  replay_buffer = pBuffer->GetHandlePointer();
+    auto                                  capture_id    = (*pBuffer->GetPointer());
 
     VkResult result = allocator->CreateBuffer(
-        pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), pBuffer->GetHandlePointer(), &allocator_data);
+        pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), capture_id, replay_buffer, &allocator_data);
 
     auto replay_create_info = pCreateInfo->GetPointer();
-    auto replay_buffer      = pBuffer->GetHandlePointer();
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_buffer) != VK_NULL_HANDLE))
     {
@@ -3309,12 +3311,13 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
     assert(allocator != nullptr);
 
     VulkanResourceAllocator::ResourceData allocator_data;
+    auto                                  replay_image = pImage->GetHandlePointer();
+    auto                                  capture_id   = (*pImage->GetPointer());
 
     VkResult result = allocator->CreateImage(
-        pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), pImage->GetHandlePointer(), &allocator_data);
+        pCreateInfo->GetPointer(), GetAllocationCallbacks(pAllocator), capture_id, replay_image, &allocator_data);
 
     auto replay_create_info = pCreateInfo->GetPointer();
-    auto replay_image       = pImage->GetHandlePointer();
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_image) != VK_NULL_HANDLE))
     {

@@ -48,6 +48,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
 
     virtual VkResult CreateBuffer(const VkBufferCreateInfo*    create_info,
                                   const VkAllocationCallbacks* allocation_callbacks,
+                                  format::HandleId             capture_id,
                                   VkBuffer*                    buffer,
                                   ResourceData*                allocator_data) override;
 
@@ -57,6 +58,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
 
     virtual VkResult CreateImage(const VkImageCreateInfo*     create_info,
                                  const VkAllocationCallbacks* allocation_callbacks,
+                                 format::HandleId             capture_id,
                                  VkImage*                     image,
                                  ResourceData*                allocator_data) override;
 
@@ -72,6 +74,7 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
 
     virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,
+                                    format::HandleId             capture_id,
                                     VkDeviceMemory*              memory,
                                     MemoryData*                  allocator_data) override;
 
@@ -152,12 +155,19 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
   protected:
     VkResult Allocate(const VkMemoryAllocateInfo*  allocate_info,
                       const VkAllocationCallbacks* allocation_callbacks,
+                      format::HandleId             capture_id,
                       VkDeviceMemory*              memory,
                       MemoryData*                  allocator_data);
 
   private:
+    struct ResourceAllocInfo
+    {
+        format::HandleId capture_id{ 0 };
+    };
+
     struct MemoryAllocInfo
     {
+        format::HandleId      capture_id{ 0 };
         uint32_t              memory_type_index{ std::numeric_limits<uint32_t>::max() };
         VkMemoryPropertyFlags property_flags{ 0 };
         uint8_t*              mapped_pointer{ nullptr };

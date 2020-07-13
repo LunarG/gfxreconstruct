@@ -794,7 +794,8 @@ VkResult VulkanResourceInitializer::CreateStagingImage(const VkImageCreateInfo* 
     VkImage                               staging_image      = VK_NULL_HANDLE;
     VulkanResourceAllocator::ResourceData staging_image_data = 0;
 
-    VkResult result = resource_allocator_->CreateImage(image_create_info, nullptr, &staging_image, &staging_image_data);
+    VkResult result =
+        resource_allocator_->CreateImage(image_create_info, nullptr, 0, &staging_image, &staging_image_data);
 
     if (result == VK_SUCCESS)
     {
@@ -814,7 +815,7 @@ VkResult VulkanResourceInitializer::CreateStagingImage(const VkImageCreateInfo* 
         alloc_info.memoryTypeIndex      = memory_type_index;
         alloc_info.allocationSize       = memory_reqs.size;
 
-        result = resource_allocator_->AllocateMemory(&alloc_info, nullptr, &staging_memory, &staging_memory_data);
+        result = resource_allocator_->AllocateMemory(&alloc_info, nullptr, 0, &staging_memory, &staging_memory_data);
 
         if (result == VK_SUCCESS)
         {
@@ -928,7 +929,7 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceMemory*        
         create_info.queueFamilyIndexCount = 0;
         create_info.pQueueFamilyIndices   = nullptr;
 
-        result = resource_allocator_->CreateBuffer(&create_info, nullptr, &staging_buffer, &staging_buffer_data);
+        result = resource_allocator_->CreateBuffer(&create_info, nullptr, 0, &staging_buffer, &staging_buffer_data);
 
         if (result == VK_SUCCESS)
         {
@@ -949,7 +950,8 @@ VkResult VulkanResourceInitializer::AcquireStagingBuffer(VkDeviceMemory*        
             alloc_info.allocationSize       = memory_requirements.size;
             alloc_info.memoryTypeIndex      = memory_type_index;
 
-            result = resource_allocator_->AllocateMemory(&alloc_info, nullptr, &staging_memory, &staging_memory_data);
+            result =
+                resource_allocator_->AllocateMemory(&alloc_info, nullptr, 0, &staging_memory, &staging_memory_data);
 
             if (result == VK_SUCCESS)
             {

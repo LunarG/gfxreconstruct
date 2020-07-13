@@ -46,6 +46,7 @@ class VulkanRemapAllocator : public VulkanDefaultAllocator
 
     virtual VkResult AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                     const VkAllocationCallbacks* allocation_callbacks,
+                                    format::HandleId             capture_id,
                                     VkDeviceMemory*              memory,
                                     MemoryData*                  allocator_data) override;
 

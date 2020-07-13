@@ -157,10 +157,12 @@ void VulkanRebindAllocator::Destroy()
 
 VkResult VulkanRebindAllocator::CreateBuffer(const VkBufferCreateInfo*    create_info,
                                              const VkAllocationCallbacks* allocation_callbacks,
+                                             format::HandleId             capture_id,
                                              VkBuffer*                    buffer,
                                              ResourceData*                allocator_data)
 {
     GFXRECON_UNREFERENCED_PARAMETER(allocation_callbacks);
+    GFXRECON_UNREFERENCED_PARAMETER(capture_id);
 
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
@@ -216,10 +218,12 @@ void VulkanRebindAllocator::DestroyBuffer(VkBuffer                     buffer,
 
 VkResult VulkanRebindAllocator::CreateImage(const VkImageCreateInfo*     create_info,
                                             const VkAllocationCallbacks* allocation_callbacks,
+                                            format::HandleId             capture_id,
                                             VkImage*                     image,
                                             ResourceData*                allocator_data)
 {
     GFXRECON_UNREFERENCED_PARAMETER(allocation_callbacks);
+    GFXRECON_UNREFERENCED_PARAMETER(capture_id);
 
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
@@ -309,10 +313,12 @@ void VulkanRebindAllocator::GetImageSubresourceLayout(VkImage                   
 
 VkResult VulkanRebindAllocator::AllocateMemory(const VkMemoryAllocateInfo*  allocate_info,
                                                const VkAllocationCallbacks* allocation_callbacks,
+                                               format::HandleId             capture_id,
                                                VkDeviceMemory*              memory,
                                                MemoryData*                  allocator_data)
 {
     GFXRECON_UNREFERENCED_PARAMETER(allocation_callbacks);
+    GFXRECON_UNREFERENCED_PARAMETER(capture_id);
 
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
