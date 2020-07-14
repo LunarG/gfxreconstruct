@@ -155,12 +155,12 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
   protected:
     struct ResourceAllocInfo
     {
-        format::HandleId capture_id{ 0 };
+        format::HandleId capture_id{ format::kNullHandleId };
     };
 
     struct MemoryAllocInfo
     {
-        format::HandleId      capture_id{ 0 };
+        format::HandleId      capture_id{ format::kNullHandleId };
         uint32_t              memory_type_index{ std::numeric_limits<uint32_t>::max() };
         VkMemoryPropertyFlags property_flags{ 0 };
         uint8_t*              mapped_pointer{ nullptr };

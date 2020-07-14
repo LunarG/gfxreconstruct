@@ -50,8 +50,8 @@ struct HandleWrapper
     void* dispatch_key{ nullptr };
 
     // Standard state info required for all handles.
-    HandleType        handle{ VK_NULL_HANDLE }; // Original handle value provided by the driver.
-    format::HandleId  handle_id{ 0 };           // Globally unique ID assigned to the handle by the layer.
+    HandleType        handle{ VK_NULL_HANDLE };           // Original handle value provided by the driver.
+    format::HandleId  handle_id{ format::kNullHandleId }; // Globally unique ID assigned to the handle by the layer.
     format::ApiCallId create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  create_parameters;
 };
@@ -153,13 +153,13 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     void*            external_allocation{ nullptr };
     uintptr_t        shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
     AHardwareBuffer* hardware_buffer{ nullptr };
-    format::HandleId hardware_buffer_memory_id{ 0 };
+    format::HandleId hardware_buffer_memory_id{ format::kNullHandleId };
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
 {
     DeviceWrapper*   bind_device{ nullptr };
-    format::HandleId bind_memory_id{ 0 };
+    format::HandleId bind_memory_id{ format::kNullHandleId };
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
     VkDeviceSize     created_size{ 0 };
@@ -168,7 +168,7 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
 struct ImageWrapper : public HandleWrapper<VkImage>
 {
     DeviceWrapper*        bind_device{ nullptr };
-    format::HandleId      bind_memory_id{ 0 };
+    format::HandleId      bind_memory_id{ format::kNullHandleId };
     VkDeviceSize          bind_offset{ 0 };
     uint32_t              queue_family_index{ 0 };
     VkImageType           image_type{ VK_IMAGE_TYPE_2D };
@@ -183,19 +183,19 @@ struct ImageWrapper : public HandleWrapper<VkImage>
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
 {
-    format::HandleId buffer_id{ 0 };
+    format::HandleId buffer_id{ format::kNullHandleId };
 };
 
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
 {
-    format::HandleId image_id{ 0 };
+    format::HandleId image_id{ format::kNullHandleId };
     ImageWrapper*    image{ nullptr };
 };
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
 {
     // Creation info for objects used to create the framebuffer, which may have been destroyed after creation.
-    format::HandleId  render_pass_id{ 0 };
+    format::HandleId  render_pass_id{ format::kNullHandleId };
     format::ApiCallId render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  render_pass_create_parameters;
 

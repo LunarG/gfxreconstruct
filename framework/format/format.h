@@ -48,6 +48,7 @@ typedef uint64_t         ThreadId;
 const uint32_t kCompressedBlockTypeBit    = 0x80000000;
 const size_t   kUuidSize                  = 16;
 const size_t   kMaxPhysicalDeviceNameSize = 256;
+const HandleId kNullHandleId              = 0;
 
 constexpr uint32_t MakeCompressedBlockType(uint32_t block_type)
 {

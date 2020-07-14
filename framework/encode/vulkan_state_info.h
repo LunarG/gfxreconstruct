@@ -69,7 +69,7 @@ struct DescriptorInfo
 
 struct CreateDependencyInfo
 {
-    format::HandleId  handle_id{ 0 };
+    format::HandleId  handle_id{ format::kNullHandleId };
     format::ApiCallId create_call_id{ format::ApiCallId::ApiCall_Unknown };
     CreateParameters  create_parameters;
 };
@@ -85,8 +85,8 @@ struct ImageAcquiredInfo
 {
     bool             is_acquired{ false };
     uint32_t         acquired_device_mask{ 0 };
-    format::HandleId acquired_semaphore_id{ 0 };
-    format::HandleId acquired_fence_id{ 0 };
+    format::HandleId acquired_semaphore_id{ format::kNullHandleId };
+    format::HandleId acquired_fence_id{ format::kNullHandleId };
     VkQueue          last_presented_queue{ VK_NULL_HANDLE };
 };
 

@@ -78,7 +78,7 @@ class VulkanStateWriter
 
     struct QueryActivationData
     {
-        format::HandleId    pool_id{ 0 };
+        format::HandleId    pool_id{ format::kNullHandleId };
         VkQueryType         type{};
         VkQueryControlFlags flags{ 0 };
         uint32_t            index{ 0 };

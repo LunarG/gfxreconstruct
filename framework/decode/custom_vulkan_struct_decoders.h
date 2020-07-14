@@ -107,8 +107,8 @@ struct Decoded_VkDescriptorImageInfo
 
     VkDescriptorImageInfo* decoded_value{ nullptr };
 
-    format::HandleId sampler{ 0 };
-    format::HandleId imageView{ 0 };
+    format::HandleId sampler{ format::kNullHandleId };
+    format::HandleId imageView{ format::kNullHandleId };
 };
 
 struct Decoded_VkWriteDescriptorSet
@@ -118,7 +118,7 @@ struct Decoded_VkWriteDescriptorSet
     VkWriteDescriptorSet* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode>                                            pNext;
-    format::HandleId                                                      dstSet{ 0 };
+    format::HandleId                                                      dstSet{ format::kNullHandleId };
     std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorImageInfo>>  pImageInfo;
     std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorBufferInfo>> pBufferInfo;
     HandlePointerDecoder<VkBufferView>                                    pTexelBufferView;

@@ -128,8 +128,11 @@ class VulkanStructDecodersHeaderGenerator(BaseGenerator):
     #
     # Determines if the struct member requires default initalization and determines the value to use.
     def getDefaultInitValue(self, type):
-        if type in ['uint64_t',  'format::HandleId']:
-            # These types represent values recorded for Vulkan handles, function pointers, and void pointers to non-Vulkan objects.
+        if type == 'format::HandleId':
+            # These types represent values recorded for Vulkan handles.
+            return 'format::kNullHandleId'
+        elif type == 'uint64_t':
+            # These types represent values recorded for function pointers and void pointers to non-Vulkan objects.
             return '0'
         return None
 
