@@ -60,7 +60,8 @@ uint32_t                                               TraceManager::instance_co
 std::mutex                                             TraceManager::instance_lock_;
 thread_local std::unique_ptr<TraceManager::ThreadData> TraceManager::thread_data_;
 LayerTable                                             TraceManager::layer_table_;
-std::atomic<format::ThreadId>                          TraceManager::unique_id_counter_{ 0 };
+
+std::atomic<format::HandleId> TraceManager::unique_id_counter_{ format::kNullHandleId };
 
 TraceManager::ThreadData::ThreadData() : thread_id_(GetThreadId()), call_id_(format::ApiCallId::ApiCall_Unknown)
 {

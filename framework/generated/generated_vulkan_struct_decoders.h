@@ -87,7 +87,7 @@ struct Decoded_VkBufferMemoryBarrier
     VkBufferMemoryBarrier* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId buffer{ 0 };
+    format::HandleId buffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkDispatchIndirectCommand
@@ -125,7 +125,7 @@ struct Decoded_VkImageMemoryBarrier
     VkImageMemoryBarrier* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId image{ 0 };
+    format::HandleId image{ format::kNullHandleId };
     std::unique_ptr<Decoded_VkImageSubresourceRange> subresourceRange;
 };
 
@@ -326,7 +326,7 @@ struct Decoded_VkMappedMemoryRange
     VkMappedMemoryRange* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId memory{ 0 };
+    format::HandleId memory{ format::kNullHandleId };
 };
 
 struct Decoded_VkMemoryAllocateInfo
@@ -351,7 +351,7 @@ struct Decoded_VkSparseMemoryBind
 
     VkSparseMemoryBind* decoded_value{ nullptr };
 
-    format::HandleId memory{ 0 };
+    format::HandleId memory{ format::kNullHandleId };
 };
 
 struct Decoded_VkSparseBufferMemoryBindInfo
@@ -360,7 +360,7 @@ struct Decoded_VkSparseBufferMemoryBindInfo
 
     VkSparseBufferMemoryBindInfo* decoded_value{ nullptr };
 
-    format::HandleId buffer{ 0 };
+    format::HandleId buffer{ format::kNullHandleId };
     std::unique_ptr<StructPointerDecoder<Decoded_VkSparseMemoryBind>> pBinds;
 };
 
@@ -370,7 +370,7 @@ struct Decoded_VkSparseImageOpaqueMemoryBindInfo
 
     VkSparseImageOpaqueMemoryBindInfo* decoded_value{ nullptr };
 
-    format::HandleId image{ 0 };
+    format::HandleId image{ format::kNullHandleId };
     std::unique_ptr<StructPointerDecoder<Decoded_VkSparseMemoryBind>> pBinds;
 };
 
@@ -390,7 +390,7 @@ struct Decoded_VkSparseImageMemoryBind
     std::unique_ptr<Decoded_VkImageSubresource> subresource;
     std::unique_ptr<Decoded_VkOffset3D> offset;
     std::unique_ptr<Decoded_VkExtent3D> extent;
-    format::HandleId memory{ 0 };
+    format::HandleId memory{ format::kNullHandleId };
 };
 
 struct Decoded_VkSparseImageMemoryBindInfo
@@ -399,7 +399,7 @@ struct Decoded_VkSparseImageMemoryBindInfo
 
     VkSparseImageMemoryBindInfo* decoded_value{ nullptr };
 
-    format::HandleId image{ 0 };
+    format::HandleId image{ format::kNullHandleId };
     std::unique_ptr<StructPointerDecoder<Decoded_VkSparseImageMemoryBind>> pBinds;
 };
 
@@ -488,7 +488,7 @@ struct Decoded_VkBufferViewCreateInfo
     VkBufferViewCreateInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId buffer{ 0 };
+    format::HandleId buffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkImageCreateInfo
@@ -523,7 +523,7 @@ struct Decoded_VkImageViewCreateInfo
     VkImageViewCreateInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId image{ 0 };
+    format::HandleId image{ format::kNullHandleId };
     std::unique_ptr<Decoded_VkComponentMapping> components;
     std::unique_ptr<Decoded_VkImageSubresourceRange> subresourceRange;
 };
@@ -572,7 +572,7 @@ struct Decoded_VkPipelineShaderStageCreateInfo
     VkPipelineShaderStageCreateInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId module{ 0 };
+    format::HandleId module{ format::kNullHandleId };
     StringDecoder pName;
     std::unique_ptr<StructPointerDecoder<Decoded_VkSpecializationInfo>> pSpecializationInfo;
 };
@@ -585,8 +585,8 @@ struct Decoded_VkComputePipelineCreateInfo
 
     std::unique_ptr<PNextNode> pNext;
     std::unique_ptr<Decoded_VkPipelineShaderStageCreateInfo> stage;
-    format::HandleId layout{ 0 };
-    format::HandleId basePipelineHandle{ 0 };
+    format::HandleId layout{ format::kNullHandleId };
+    format::HandleId basePipelineHandle{ format::kNullHandleId };
 };
 
 struct Decoded_VkVertexInputBindingDescription
@@ -732,9 +732,9 @@ struct Decoded_VkGraphicsPipelineCreateInfo
     std::unique_ptr<StructPointerDecoder<Decoded_VkPipelineDepthStencilStateCreateInfo>> pDepthStencilState;
     std::unique_ptr<StructPointerDecoder<Decoded_VkPipelineColorBlendStateCreateInfo>> pColorBlendState;
     std::unique_ptr<StructPointerDecoder<Decoded_VkPipelineDynamicStateCreateInfo>> pDynamicState;
-    format::HandleId layout{ 0 };
-    format::HandleId renderPass{ 0 };
-    format::HandleId basePipelineHandle{ 0 };
+    format::HandleId layout{ format::kNullHandleId };
+    format::HandleId renderPass{ format::kNullHandleId };
+    format::HandleId basePipelineHandle{ format::kNullHandleId };
 };
 
 struct Decoded_VkPushConstantRange
@@ -771,8 +771,8 @@ struct Decoded_VkCopyDescriptorSet
     VkCopyDescriptorSet* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId srcSet{ 0 };
-    format::HandleId dstSet{ 0 };
+    format::HandleId srcSet{ format::kNullHandleId };
+    format::HandleId dstSet{ format::kNullHandleId };
 };
 
 struct Decoded_VkDescriptorBufferInfo
@@ -781,7 +781,7 @@ struct Decoded_VkDescriptorBufferInfo
 
     VkDescriptorBufferInfo* decoded_value{ nullptr };
 
-    format::HandleId buffer{ 0 };
+    format::HandleId buffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkDescriptorPoolSize
@@ -808,7 +808,7 @@ struct Decoded_VkDescriptorSetAllocateInfo
     VkDescriptorSetAllocateInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId descriptorPool{ 0 };
+    format::HandleId descriptorPool{ format::kNullHandleId };
     HandlePointerDecoder<VkDescriptorSetLayout> pSetLayouts;
 };
 
@@ -852,7 +852,7 @@ struct Decoded_VkFramebufferCreateInfo
     VkFramebufferCreateInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId renderPass{ 0 };
+    format::HandleId renderPass{ format::kNullHandleId };
     HandlePointerDecoder<VkImageView> pAttachments;
 };
 
@@ -904,7 +904,7 @@ struct Decoded_VkCommandBufferAllocateInfo
     VkCommandBufferAllocateInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId commandPool{ 0 };
+    format::HandleId commandPool{ format::kNullHandleId };
 };
 
 struct Decoded_VkCommandBufferInheritanceInfo
@@ -914,8 +914,8 @@ struct Decoded_VkCommandBufferInheritanceInfo
     VkCommandBufferInheritanceInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId renderPass{ 0 };
-    format::HandleId framebuffer{ 0 };
+    format::HandleId renderPass{ format::kNullHandleId };
+    format::HandleId framebuffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkCommandBufferBeginInfo
@@ -1023,8 +1023,8 @@ struct Decoded_VkRenderPassBeginInfo
     VkRenderPassBeginInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId renderPass{ 0 };
-    format::HandleId framebuffer{ 0 };
+    format::HandleId renderPass{ format::kNullHandleId };
+    format::HandleId framebuffer{ format::kNullHandleId };
     std::unique_ptr<Decoded_VkRect2D> renderArea;
     std::unique_ptr<StructPointerDecoder<Decoded_VkClearValue>> pClearValues;
 };
@@ -1045,8 +1045,8 @@ struct Decoded_VkBindBufferMemoryInfo
     VkBindBufferMemoryInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId buffer{ 0 };
-    format::HandleId memory{ 0 };
+    format::HandleId buffer{ format::kNullHandleId };
+    format::HandleId memory{ format::kNullHandleId };
 };
 
 struct Decoded_VkBindImageMemoryInfo
@@ -1056,8 +1056,8 @@ struct Decoded_VkBindImageMemoryInfo
     VkBindImageMemoryInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId image{ 0 };
-    format::HandleId memory{ 0 };
+    format::HandleId image{ format::kNullHandleId };
+    format::HandleId memory{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDevice16BitStorageFeatures
@@ -1085,8 +1085,8 @@ struct Decoded_VkMemoryDedicatedAllocateInfo
     VkMemoryDedicatedAllocateInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId image{ 0 };
-    format::HandleId buffer{ 0 };
+    format::HandleId image{ format::kNullHandleId };
+    format::HandleId buffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkMemoryAllocateFlagsInfo
@@ -1186,7 +1186,7 @@ struct Decoded_VkBufferMemoryRequirementsInfo2
     VkBufferMemoryRequirementsInfo2* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId buffer{ 0 };
+    format::HandleId buffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkImageMemoryRequirementsInfo2
@@ -1196,7 +1196,7 @@ struct Decoded_VkImageMemoryRequirementsInfo2
     VkImageMemoryRequirementsInfo2* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId image{ 0 };
+    format::HandleId image{ format::kNullHandleId };
 };
 
 struct Decoded_VkImageSparseMemoryRequirementsInfo2
@@ -1206,7 +1206,7 @@ struct Decoded_VkImageSparseMemoryRequirementsInfo2
     VkImageSparseMemoryRequirementsInfo2* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId image{ 0 };
+    format::HandleId image{ format::kNullHandleId };
 };
 
 struct Decoded_VkMemoryRequirements2
@@ -1453,7 +1453,7 @@ struct Decoded_VkSamplerYcbcrConversionInfo
     VkSamplerYcbcrConversionInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId conversion{ 0 };
+    format::HandleId conversion{ format::kNullHandleId };
 };
 
 struct Decoded_VkBindImagePlaneMemoryInfo
@@ -1507,8 +1507,8 @@ struct Decoded_VkDescriptorUpdateTemplateCreateInfo
 
     std::unique_ptr<PNextNode> pNext;
     std::unique_ptr<StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateEntry>> pDescriptorUpdateEntries;
-    format::HandleId descriptorSetLayout{ 0 };
-    format::HandleId pipelineLayout{ 0 };
+    format::HandleId descriptorSetLayout{ format::kNullHandleId };
+    format::HandleId pipelineLayout{ format::kNullHandleId };
 };
 
 struct Decoded_VkExternalMemoryProperties
@@ -2119,7 +2119,7 @@ struct Decoded_VkSemaphoreSignalInfo
     VkSemaphoreSignalInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId semaphore{ 0 };
+    format::HandleId semaphore{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures
@@ -2138,7 +2138,7 @@ struct Decoded_VkBufferDeviceAddressInfo
     VkBufferDeviceAddressInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId buffer{ 0 };
+    format::HandleId buffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkBufferOpaqueCaptureAddressCreateInfo
@@ -2166,7 +2166,7 @@ struct Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo
     VkDeviceMemoryOpaqueCaptureAddressInfo* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId memory{ 0 };
+    format::HandleId memory{ format::kNullHandleId };
 };
 
 struct Decoded_VkSurfaceCapabilitiesKHR
@@ -2194,10 +2194,10 @@ struct Decoded_VkSwapchainCreateInfoKHR
     VkSwapchainCreateInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId surface{ 0 };
+    format::HandleId surface{ format::kNullHandleId };
     std::unique_ptr<Decoded_VkExtent2D> imageExtent;
     PointerDecoder<uint32_t> pQueueFamilyIndices;
-    format::HandleId oldSwapchain{ 0 };
+    format::HandleId oldSwapchain{ format::kNullHandleId };
 };
 
 struct Decoded_VkPresentInfoKHR
@@ -2220,7 +2220,7 @@ struct Decoded_VkImageSwapchainCreateInfoKHR
     VkImageSwapchainCreateInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId swapchain{ 0 };
+    format::HandleId swapchain{ format::kNullHandleId };
 };
 
 struct Decoded_VkBindImageMemorySwapchainInfoKHR
@@ -2230,7 +2230,7 @@ struct Decoded_VkBindImageMemorySwapchainInfoKHR
     VkBindImageMemorySwapchainInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId swapchain{ 0 };
+    format::HandleId swapchain{ format::kNullHandleId };
 };
 
 struct Decoded_VkAcquireNextImageInfoKHR
@@ -2240,9 +2240,9 @@ struct Decoded_VkAcquireNextImageInfoKHR
     VkAcquireNextImageInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId swapchain{ 0 };
-    format::HandleId semaphore{ 0 };
-    format::HandleId fence{ 0 };
+    format::HandleId swapchain{ format::kNullHandleId };
+    format::HandleId semaphore{ format::kNullHandleId };
+    format::HandleId fence{ format::kNullHandleId };
 };
 
 struct Decoded_VkDeviceGroupPresentCapabilitiesKHR
@@ -2299,7 +2299,7 @@ struct Decoded_VkDisplayModePropertiesKHR
 
     VkDisplayModePropertiesKHR* decoded_value{ nullptr };
 
-    format::HandleId displayMode{ 0 };
+    format::HandleId displayMode{ format::kNullHandleId };
     std::unique_ptr<Decoded_VkDisplayModeParametersKHR> parameters;
 };
 
@@ -2325,7 +2325,7 @@ struct Decoded_VkDisplayPlanePropertiesKHR
 
     VkDisplayPlanePropertiesKHR* decoded_value{ nullptr };
 
-    format::HandleId currentDisplay{ 0 };
+    format::HandleId currentDisplay{ format::kNullHandleId };
 };
 
 struct Decoded_VkDisplayPropertiesKHR
@@ -2334,7 +2334,7 @@ struct Decoded_VkDisplayPropertiesKHR
 
     VkDisplayPropertiesKHR* decoded_value{ nullptr };
 
-    format::HandleId display{ 0 };
+    format::HandleId display{ format::kNullHandleId };
     StringDecoder displayName;
     std::unique_ptr<Decoded_VkExtent2D> physicalDimensions;
     std::unique_ptr<Decoded_VkExtent2D> physicalResolution;
@@ -2347,7 +2347,7 @@ struct Decoded_VkDisplaySurfaceCreateInfoKHR
     VkDisplaySurfaceCreateInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId displayMode{ 0 };
+    format::HandleId displayMode{ format::kNullHandleId };
     std::unique_ptr<Decoded_VkExtent2D> imageExtent;
 };
 
@@ -2512,7 +2512,7 @@ struct Decoded_VkMemoryGetWin32HandleInfoKHR
     VkMemoryGetWin32HandleInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId memory{ 0 };
+    format::HandleId memory{ format::kNullHandleId };
 };
 
 struct Decoded_VkImportMemoryFdInfoKHR
@@ -2540,7 +2540,7 @@ struct Decoded_VkMemoryGetFdInfoKHR
     VkMemoryGetFdInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId memory{ 0 };
+    format::HandleId memory{ format::kNullHandleId };
 };
 
 struct Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR
@@ -2570,7 +2570,7 @@ struct Decoded_VkImportSemaphoreWin32HandleInfoKHR
     VkImportSemaphoreWin32HandleInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId semaphore{ 0 };
+    format::HandleId semaphore{ format::kNullHandleId };
     uint64_t handle{ 0 };
     WStringDecoder name;
 };
@@ -2604,7 +2604,7 @@ struct Decoded_VkSemaphoreGetWin32HandleInfoKHR
     VkSemaphoreGetWin32HandleInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId semaphore{ 0 };
+    format::HandleId semaphore{ format::kNullHandleId };
 };
 
 struct Decoded_VkImportSemaphoreFdInfoKHR
@@ -2614,7 +2614,7 @@ struct Decoded_VkImportSemaphoreFdInfoKHR
     VkImportSemaphoreFdInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId semaphore{ 0 };
+    format::HandleId semaphore{ format::kNullHandleId };
 };
 
 struct Decoded_VkSemaphoreGetFdInfoKHR
@@ -2624,7 +2624,7 @@ struct Decoded_VkSemaphoreGetFdInfoKHR
     VkSemaphoreGetFdInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId semaphore{ 0 };
+    format::HandleId semaphore{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDevicePushDescriptorPropertiesKHR
@@ -2719,7 +2719,7 @@ struct Decoded_VkImportFenceWin32HandleInfoKHR
     VkImportFenceWin32HandleInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId fence{ 0 };
+    format::HandleId fence{ format::kNullHandleId };
     uint64_t handle{ 0 };
     WStringDecoder name;
 };
@@ -2742,7 +2742,7 @@ struct Decoded_VkFenceGetWin32HandleInfoKHR
     VkFenceGetWin32HandleInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId fence{ 0 };
+    format::HandleId fence{ format::kNullHandleId };
 };
 
 struct Decoded_VkImportFenceFdInfoKHR
@@ -2752,7 +2752,7 @@ struct Decoded_VkImportFenceFdInfoKHR
     VkImportFenceFdInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId fence{ 0 };
+    format::HandleId fence{ format::kNullHandleId };
 };
 
 struct Decoded_VkFenceGetFdInfoKHR
@@ -2762,7 +2762,7 @@ struct Decoded_VkFenceGetFdInfoKHR
     VkFenceGetFdInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId fence{ 0 };
+    format::HandleId fence{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDevicePerformanceQueryFeaturesKHR
@@ -2850,7 +2850,7 @@ struct Decoded_VkPhysicalDeviceSurfaceInfo2KHR
     VkPhysicalDeviceSurfaceInfo2KHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId surface{ 0 };
+    format::HandleId surface{ format::kNullHandleId };
 };
 
 struct Decoded_VkSurfaceCapabilities2KHR
@@ -2914,7 +2914,7 @@ struct Decoded_VkDisplayPlaneInfo2KHR
     VkDisplayPlaneInfo2KHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId mode{ 0 };
+    format::HandleId mode{ format::kNullHandleId };
 };
 
 struct Decoded_VkDisplayPlaneCapabilities2KHR
@@ -3036,7 +3036,7 @@ struct Decoded_VkDeferredOperationInfoKHR
     VkDeferredOperationInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId operationHandle{ 0 };
+    format::HandleId operationHandle{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR
@@ -3055,7 +3055,7 @@ struct Decoded_VkPipelineInfoKHR
     VkPipelineInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId pipeline{ 0 };
+    format::HandleId pipeline{ format::kNullHandleId };
 };
 
 struct Decoded_VkPipelineExecutablePropertiesKHR
@@ -3076,7 +3076,7 @@ struct Decoded_VkPipelineExecutableInfoKHR
     VkPipelineExecutableInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId pipeline{ 0 };
+    format::HandleId pipeline{ format::kNullHandleId };
 };
 
 struct Decoded_VkPipelineExecutableStatisticKHR
@@ -3189,8 +3189,8 @@ struct Decoded_VkDedicatedAllocationMemoryAllocateInfoNV
     VkDedicatedAllocationMemoryAllocateInfoNV* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId image{ 0 };
-    format::HandleId buffer{ 0 };
+    format::HandleId image{ format::kNullHandleId };
+    format::HandleId buffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDeviceTransformFeedbackFeaturesEXT
@@ -3227,8 +3227,8 @@ struct Decoded_VkImageViewHandleInfoNVX
     VkImageViewHandleInfoNVX* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId imageView{ 0 };
-    format::HandleId sampler{ 0 };
+    format::HandleId imageView{ format::kNullHandleId };
+    format::HandleId sampler{ format::kNullHandleId };
 };
 
 struct Decoded_VkImageViewAddressPropertiesNVX
@@ -3399,7 +3399,7 @@ struct Decoded_VkConditionalRenderingBeginInfoEXT
     VkConditionalRenderingBeginInfoEXT* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId buffer{ 0 };
+    format::HandleId buffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT
@@ -3738,7 +3738,7 @@ struct Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID
     VkMemoryGetAndroidHardwareBufferInfoANDROID* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId memory{ 0 };
+    format::HandleId memory{ format::kNullHandleId };
 };
 
 struct Decoded_VkExternalFormatANDROID
@@ -4006,7 +4006,7 @@ struct Decoded_VkShaderModuleValidationCacheCreateInfoEXT
     VkShaderModuleValidationCacheCreateInfoEXT* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId validationCache{ 0 };
+    format::HandleId validationCache{ format::kNullHandleId };
 };
 
 typedef Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfoEXT;
@@ -4101,8 +4101,8 @@ struct Decoded_VkRayTracingPipelineCreateInfoNV
     std::unique_ptr<PNextNode> pNext;
     std::unique_ptr<StructPointerDecoder<Decoded_VkPipelineShaderStageCreateInfo>> pStages;
     std::unique_ptr<StructPointerDecoder<Decoded_VkRayTracingShaderGroupCreateInfoNV>> pGroups;
-    format::HandleId layout{ 0 };
-    format::HandleId basePipelineHandle{ 0 };
+    format::HandleId layout{ format::kNullHandleId };
+    format::HandleId basePipelineHandle{ format::kNullHandleId };
 };
 
 struct Decoded_VkGeometryTrianglesNV
@@ -4112,9 +4112,9 @@ struct Decoded_VkGeometryTrianglesNV
     VkGeometryTrianglesNV* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId vertexData{ 0 };
-    format::HandleId indexData{ 0 };
-    format::HandleId transformData{ 0 };
+    format::HandleId vertexData{ format::kNullHandleId };
+    format::HandleId indexData{ format::kNullHandleId };
+    format::HandleId transformData{ format::kNullHandleId };
 };
 
 struct Decoded_VkGeometryAABBNV
@@ -4124,7 +4124,7 @@ struct Decoded_VkGeometryAABBNV
     VkGeometryAABBNV* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId aabbData{ 0 };
+    format::HandleId aabbData{ format::kNullHandleId };
 };
 
 struct Decoded_VkGeometryDataNV
@@ -4174,8 +4174,8 @@ struct Decoded_VkBindAccelerationStructureMemoryInfoKHR
     VkBindAccelerationStructureMemoryInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId accelerationStructure{ 0 };
-    format::HandleId memory{ 0 };
+    format::HandleId accelerationStructure{ format::kNullHandleId };
+    format::HandleId memory{ format::kNullHandleId };
     PointerDecoder<uint32_t> pDeviceIndices;
 };
 
@@ -4196,7 +4196,7 @@ struct Decoded_VkAccelerationStructureMemoryRequirementsInfoNV
     VkAccelerationStructureMemoryRequirementsInfoNV* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId accelerationStructure{ 0 };
+    format::HandleId accelerationStructure{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDeviceRayTracingPropertiesNV
@@ -5021,7 +5021,7 @@ struct Decoded_VkIndirectCommandsStreamNV
 
     VkIndirectCommandsStreamNV* decoded_value{ nullptr };
 
-    format::HandleId buffer{ 0 };
+    format::HandleId buffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkIndirectCommandsLayoutTokenNV
@@ -5031,7 +5031,7 @@ struct Decoded_VkIndirectCommandsLayoutTokenNV
     VkIndirectCommandsLayoutTokenNV* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId pushconstantPipelineLayout{ 0 };
+    format::HandleId pushconstantPipelineLayout{ format::kNullHandleId };
     PointerDecoder<VkIndexType> pIndexTypes;
     PointerDecoder<uint32_t> pIndexTypeValues;
 };
@@ -5054,12 +5054,12 @@ struct Decoded_VkGeneratedCommandsInfoNV
     VkGeneratedCommandsInfoNV* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId pipeline{ 0 };
-    format::HandleId indirectCommandsLayout{ 0 };
+    format::HandleId pipeline{ format::kNullHandleId };
+    format::HandleId indirectCommandsLayout{ format::kNullHandleId };
     std::unique_ptr<StructPointerDecoder<Decoded_VkIndirectCommandsStreamNV>> pStreams;
-    format::HandleId preprocessBuffer{ 0 };
-    format::HandleId sequencesCountBuffer{ 0 };
-    format::HandleId sequencesIndexBuffer{ 0 };
+    format::HandleId preprocessBuffer{ format::kNullHandleId };
+    format::HandleId sequencesCountBuffer{ format::kNullHandleId };
+    format::HandleId sequencesIndexBuffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV
@@ -5069,8 +5069,8 @@ struct Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV
     VkGeneratedCommandsMemoryRequirementsInfoNV* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId pipeline{ 0 };
-    format::HandleId indirectCommandsLayout{ 0 };
+    format::HandleId pipeline{ format::kNullHandleId };
+    format::HandleId indirectCommandsLayout{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT
@@ -5276,8 +5276,8 @@ struct Decoded_VkRayTracingPipelineCreateInfoKHR
     std::unique_ptr<StructPointerDecoder<Decoded_VkRayTracingShaderGroupCreateInfoKHR>> pGroups;
     std::unique_ptr<Decoded_VkPipelineLibraryCreateInfoKHR> libraries;
     std::unique_ptr<StructPointerDecoder<Decoded_VkRayTracingPipelineInterfaceCreateInfoKHR>> pLibraryInterface;
-    format::HandleId layout{ 0 };
-    format::HandleId basePipelineHandle{ 0 };
+    format::HandleId layout{ format::kNullHandleId };
+    format::HandleId basePipelineHandle{ format::kNullHandleId };
 };
 
 struct Decoded_VkAccelerationStructureGeometryTrianglesDataKHR
@@ -5348,7 +5348,7 @@ struct Decoded_VkAccelerationStructureMemoryRequirementsInfoKHR
     VkAccelerationStructureMemoryRequirementsInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId accelerationStructure{ 0 };
+    format::HandleId accelerationStructure{ format::kNullHandleId };
 };
 
 struct Decoded_VkPhysicalDeviceRayTracingFeaturesKHR
@@ -5376,7 +5376,7 @@ struct Decoded_VkAccelerationStructureDeviceAddressInfoKHR
     VkAccelerationStructureDeviceAddressInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId accelerationStructure{ 0 };
+    format::HandleId accelerationStructure{ format::kNullHandleId };
 };
 
 struct Decoded_VkAccelerationStructureVersionKHR
@@ -5395,7 +5395,7 @@ struct Decoded_VkStridedBufferRegionKHR
 
     VkStridedBufferRegionKHR* decoded_value{ nullptr };
 
-    format::HandleId buffer{ 0 };
+    format::HandleId buffer{ format::kNullHandleId };
 };
 
 struct Decoded_VkTraceRaysIndirectCommandKHR
@@ -5412,7 +5412,7 @@ struct Decoded_VkCopyAccelerationStructureToMemoryInfoKHR
     VkCopyAccelerationStructureToMemoryInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId src{ 0 };
+    format::HandleId src{ format::kNullHandleId };
     std::unique_ptr<Decoded_VkDeviceOrHostAddressKHR> dst;
 };
 
@@ -5424,7 +5424,7 @@ struct Decoded_VkCopyMemoryToAccelerationStructureInfoKHR
 
     std::unique_ptr<PNextNode> pNext;
     std::unique_ptr<Decoded_VkDeviceOrHostAddressConstKHR> src;
-    format::HandleId dst{ 0 };
+    format::HandleId dst{ format::kNullHandleId };
 };
 
 struct Decoded_VkCopyAccelerationStructureInfoKHR
@@ -5434,8 +5434,8 @@ struct Decoded_VkCopyAccelerationStructureInfoKHR
     VkCopyAccelerationStructureInfoKHR* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
-    format::HandleId src{ 0 };
-    format::HandleId dst{ 0 };
+    format::HandleId src{ format::kNullHandleId };
+    format::HandleId dst{ format::kNullHandleId };
 };
 
 GFXRECON_END_NAMESPACE(decode)
