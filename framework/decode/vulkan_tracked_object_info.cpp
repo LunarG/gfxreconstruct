@@ -26,7 +26,7 @@ void TrackedDeviceInfo::SetParentPhysicalDevice(VkPhysicalDevice physical_device
 }
 
 // Get physical device which is the parent of this logical device
-VkPhysicalDevice TrackedDeviceInfo::GetParentPhysicalDevice()
+VkPhysicalDevice TrackedDeviceInfo::GetParentPhysicalDevice() const
 {
     return parent_;
 }
@@ -39,7 +39,7 @@ void TrackedDeviceInfo::SetCaptureDevicePhysicalMemoryProperties(
 }
 
 // Get capture device physical memory properties
-const VkPhysicalDeviceMemoryProperties* TrackedDeviceInfo::GetCaptureDevicePhysicalMemoryProperties()
+const VkPhysicalDeviceMemoryProperties* TrackedDeviceInfo::GetCaptureDevicePhysicalMemoryProperties() const
 {
     return capture_memory_properties_;
 }
@@ -52,7 +52,7 @@ void TrackedDeviceInfo::SetReplayDevicePhysicalMemoryProperties(
 }
 
 // Get replay device physical memory properties
-const VkPhysicalDeviceMemoryProperties* TrackedDeviceInfo::GetReplayDevicePhysicalMemoryProperties()
+const VkPhysicalDeviceMemoryProperties* TrackedDeviceInfo::GetReplayDevicePhysicalMemoryProperties() const
 {
     return replay_memory_properties_;
 }
@@ -64,7 +64,7 @@ void TrackedDeviceMemoryInfo::SetTraceMemoryAllocationSize(VkDeviceSize memory_a
 }
 
 // Get trace memory allocation size
-VkDeviceSize TrackedDeviceMemoryInfo::GetTraceMemoryAllocationSize()
+VkDeviceSize TrackedDeviceMemoryInfo::GetTraceMemoryAllocationSize() const
 {
     return trace_memory_allocation_size_;
 }
@@ -76,7 +76,7 @@ void TrackedDeviceMemoryInfo::InsertMappedMemorySizesList(VkDeviceSize mapped_me
 }
 
 // Get mapped memories sizes list
-const std::vector<VkDeviceSize>& TrackedDeviceMemoryInfo::GetMappedMemorySizesList()
+const std::vector<VkDeviceSize>& TrackedDeviceMemoryInfo::GetMappedMemorySizesList() const
 {
     return mapped_memories_sizes_;
 }
@@ -88,7 +88,7 @@ void TrackedDeviceMemoryInfo::InsertMappedMemoryOffsetsList(VkDeviceSize mapped_
 }
 
 // Get mapped memories offsets list
-const std::vector<VkDeviceSize>& TrackedDeviceMemoryInfo::GetMappedMemoryOffsetsList()
+const std::vector<VkDeviceSize>& TrackedDeviceMemoryInfo::GetMappedMemoryOffsetsList() const
 {
     return mapped_memories_offsets_;
 }
@@ -100,7 +100,7 @@ void TrackedDeviceMemoryInfo::InsertFilledMemorySizesList(VkDeviceSize filled_me
 }
 
 // Get filled memories sizes list
-const std::vector<VkDeviceSize>& TrackedDeviceMemoryInfo::GetFilledMemorySizesList()
+const std::vector<VkDeviceSize>& TrackedDeviceMemoryInfo::GetFilledMemorySizesList() const
 {
     return filled_memories_sizes_;
 }
@@ -112,7 +112,7 @@ void TrackedDeviceMemoryInfo::InsertFilledMemoryOffsetsList(VkDeviceSize filled_
 }
 
 // Get filled memories offsets list
-const std::vector<VkDeviceSize>& TrackedDeviceMemoryInfo::GetFilledMemoryOffsetsList()
+const std::vector<VkDeviceSize>& TrackedDeviceMemoryInfo::GetFilledMemoryOffsetsList() const
 {
     return filled_memories_offsets_;
 }
@@ -129,12 +129,17 @@ std::vector<TrackedResourceInfo*>* TrackedDeviceMemoryInfo::GetBoundResourcesLis
     return &bound_resources_;
 }
 
+const std::vector<TrackedResourceInfo*>* TrackedDeviceMemoryInfo::GetBoundResourcesList() const
+{
+    return &bound_resources_;
+}
+
 void TrackedDeviceMemoryInfo::AllocateReplayMemoryAllocationSize(VkDeviceSize size)
 {
     replay_memory_allocation_size_ = size;
 }
 
-VkDeviceSize TrackedDeviceMemoryInfo::GetReplayMemoryAllocationSize()
+VkDeviceSize TrackedDeviceMemoryInfo::GetReplayMemoryAllocationSize() const
 {
     return replay_memory_allocation_size_;
 }
@@ -144,7 +149,7 @@ void TrackedDeviceMemoryInfo::SetMemoryPropertyFlags(VkMemoryPropertyFlags prope
     property_flags_ = property_flags;
 }
 
-VkMemoryPropertyFlags TrackedDeviceMemoryInfo::GetMemoryPropertyFlags()
+VkMemoryPropertyFlags TrackedDeviceMemoryInfo::GetMemoryPropertyFlags() const
 {
     return property_flags_;
 }
@@ -156,7 +161,7 @@ void TrackedResourceInfo::SetBoundMemoryId(format::HandleId memory_id)
 }
 
 // Get memory ID that this resource bound to
-format::HandleId TrackedResourceInfo::GetBoundMemoryId()
+format::HandleId TrackedResourceInfo::GetBoundMemoryId() const
 {
     return memory_id_;
 }
@@ -168,7 +173,7 @@ void TrackedResourceInfo::SetBoundMemoryPropertyFlags(VkMemoryPropertyFlags memo
 }
 
 // Get memory property flags that this resource bound to
-VkMemoryPropertyFlags TrackedResourceInfo::GetBoundMemoryPropertyFlags()
+VkMemoryPropertyFlags TrackedResourceInfo::GetBoundMemoryPropertyFlags() const
 {
     return memory_property_flags_;
 }
@@ -183,7 +188,7 @@ void TrackedResourceInfo::SetTraceBindOffset(VkDeviceSize bind_offset)
 }
 
 // Get trace source binding offset
-VkDeviceSize TrackedResourceInfo::GetTraceBindOffset()
+VkDeviceSize TrackedResourceInfo::GetTraceBindOffset() const
 {
     return trace_bind_offset_;
 }
@@ -196,7 +201,7 @@ void TrackedResourceInfo::SetReplayBindOffset(VkDeviceSize bind_offset)
     }
 }
 
-VkDeviceSize TrackedResourceInfo::GetReplayBindOffset()
+VkDeviceSize TrackedResourceInfo::GetReplayBindOffset() const
 {
     return replay_bind_offset_;
 }
@@ -209,7 +214,7 @@ void TrackedResourceInfo::SetTraceResourceSize(VkDeviceSize size)
     }
 }
 
-VkDeviceSize TrackedResourceInfo::GetTraceResourceSize()
+VkDeviceSize TrackedResourceInfo::GetTraceResourceSize() const
 {
     return trace_size_;
 }
@@ -222,7 +227,7 @@ void TrackedResourceInfo::SetTraceResourceAlignment(VkDeviceSize alignment)
     }
 }
 
-VkDeviceSize TrackedResourceInfo::GetTraceResourceAlignment()
+VkDeviceSize TrackedResourceInfo::GetTraceResourceAlignment() const
 {
     return trace_alignment_;
 }
@@ -232,7 +237,7 @@ void TrackedResourceInfo::SetTraceResourceMemoryTypeBits(uint32_t memory_type_bi
     trace_memory_type_bits_ = memory_type_bits;
 }
 
-uint32_t TrackedResourceInfo::GetTraceResourceMemoryTypeBits()
+uint32_t TrackedResourceInfo::GetTraceResourceMemoryTypeBits() const
 {
     return trace_memory_type_bits_;
 }
@@ -245,7 +250,7 @@ void TrackedResourceInfo::SetReplayResourceSize(VkDeviceSize size)
     }
 }
 
-VkDeviceSize TrackedResourceInfo::GetReplayResourceSize()
+VkDeviceSize TrackedResourceInfo::GetReplayResourceSize() const
 {
     return replay_size_;
 }
@@ -258,7 +263,7 @@ void TrackedResourceInfo::SetReplayResourceAlignment(VkDeviceSize alignment)
     }
 }
 
-VkDeviceSize TrackedResourceInfo::GetReplayResourceAlignment()
+VkDeviceSize TrackedResourceInfo::GetReplayResourceAlignment() const
 {
     return replay_alignment_;
 }
@@ -268,7 +273,7 @@ void TrackedResourceInfo::SetReplayResourceMemoryTypeBits(uint32_t memory_type_b
     replay_memory_type_bits_ = memory_type_bits;
 }
 
-uint32_t TrackedResourceInfo::GetReplayResourceMemoryTypeBits()
+uint32_t TrackedResourceInfo::GetReplayResourceMemoryTypeBits() const
 {
     return replay_memory_type_bits_;
 }
@@ -280,7 +285,7 @@ void TrackedResourceInfo::SetQueueFamilyIndex(uint32_t queue_family_index)
 }
 
 // Get resource's queue family index
-uint32_t TrackedResourceInfo::GetQueueFamilyIndex()
+uint32_t TrackedResourceInfo::GetQueueFamilyIndex() const
 {
     return queue_family_index_;
 }
@@ -292,7 +297,7 @@ void TrackedResourceInfo::SetBufferCreateInfo(VkBufferCreateInfo buffer_create_i
 }
 
 // Get buffer binding offset
-VkBufferCreateInfo TrackedResourceInfo::GetBufferCreateInfo()
+VkBufferCreateInfo TrackedResourceInfo::GetBufferCreateInfo() const
 {
     return buffer_create_info_;
 }
@@ -302,7 +307,7 @@ void TrackedResourceInfo::SetImageCreateInfo(VkImageCreateInfo image_create_info
     image_create_info_ = image_create_info;
 }
 
-VkImageCreateInfo TrackedResourceInfo::GetImageCreateInfo()
+VkImageCreateInfo TrackedResourceInfo::GetImageCreateInfo() const
 {
     return image_create_info_;
 }
@@ -318,6 +323,11 @@ VkPhysicalDeviceMemoryProperties* TrackedPhysicalDeviceInfo::GetCaptureDevicePhy
     return &capture_memory_properties_;
 }
 
+const VkPhysicalDeviceMemoryProperties* TrackedPhysicalDeviceInfo::GetCaptureDevicePhysicalMemoryProperties() const
+{
+    return &capture_memory_properties_;
+}
+
 void TrackedPhysicalDeviceInfo::SetReplayDevicePhysicalMemoryProperties(
     VkPhysicalDeviceMemoryProperties memory_properties)
 {
@@ -325,6 +335,11 @@ void TrackedPhysicalDeviceInfo::SetReplayDevicePhysicalMemoryProperties(
 }
 
 VkPhysicalDeviceMemoryProperties* TrackedPhysicalDeviceInfo::GetReplayDevicePhysicalMemoryProperties()
+{
+    return &replay_memory_properties_;
+}
+
+const VkPhysicalDeviceMemoryProperties* TrackedPhysicalDeviceInfo::GetReplayDevicePhysicalMemoryProperties() const
 {
     return &replay_memory_properties_;
 }
