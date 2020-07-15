@@ -54,7 +54,17 @@ TrackedInstanceInfo* VulkanTrackedObjectInfoTable::GetTrackedInstanceInfo(format
     return GetTrackedObjectInfo<TrackedInstanceInfo>(id, &tracked_instance_map_);
 }
 
+const TrackedInstanceInfo* VulkanTrackedObjectInfoTable::GetTrackedInstanceInfo(format::HandleId id) const
+{
+    return GetTrackedObjectInfo<TrackedInstanceInfo>(id, &tracked_instance_map_);
+}
+
 TrackedPhysicalDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedPhysicalDeviceInfo(format::HandleId id)
+{
+    return GetTrackedObjectInfo<TrackedPhysicalDeviceInfo>(id, &tracked_physical_device_map_);
+}
+
+const TrackedPhysicalDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedPhysicalDeviceInfo(format::HandleId id) const
 {
     return GetTrackedObjectInfo<TrackedPhysicalDeviceInfo>(id, &tracked_physical_device_map_);
 }
@@ -70,14 +80,30 @@ TrackedDeviceMemoryInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoryInf
     return GetTrackedObjectInfo<TrackedDeviceMemoryInfo>(id, &tracked_device_memory_map_);
 }
 
+const TrackedDeviceMemoryInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoryInfo(format::HandleId id) const
+{
+    return GetTrackedObjectInfo<TrackedDeviceMemoryInfo>(id, &tracked_device_memory_map_);
+}
+
 // Return specified handle ID's buffer information from the tracked buffers information table map
 TrackedResourceInfo* VulkanTrackedObjectInfoTable::GetTrackedResourceInfo(format::HandleId id)
 {
     return GetTrackedObjectInfo<TrackedResourceInfo>(id, &tracked_resource_map_);
 }
 
+const TrackedResourceInfo* VulkanTrackedObjectInfoTable::GetTrackedResourceInfo(format::HandleId id) const
+{
+    return GetTrackedObjectInfo<TrackedResourceInfo>(id, &tracked_resource_map_);
+}
+
 std::unordered_map<format::HandleId, TrackedDeviceMemoryInfo>*
 VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoriesInfoMap()
+{
+    return &tracked_device_memory_map_;
+}
+
+const std::unordered_map<format::HandleId, TrackedDeviceMemoryInfo>*
+VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoriesInfoMap() const
 {
     return &tracked_device_memory_map_;
 }
