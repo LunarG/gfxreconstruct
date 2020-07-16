@@ -526,11 +526,12 @@ InitializeState<VkDevice, SwapchainKHRWrapper, VkSwapchainCreateInfoKHR>(VkDevic
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device       = reinterpret_cast<DeviceWrapper*>(parent_handle);
-    wrapper->surface      = reinterpret_cast<SurfaceKHRWrapper*>(create_info->surface);
-    wrapper->format       = create_info->imageFormat;
-    wrapper->extent       = { create_info->imageExtent.width, create_info->imageExtent.height, 0 };
-    wrapper->array_layers = create_info->imageArrayLayers;
+    wrapper->device        = reinterpret_cast<DeviceWrapper*>(parent_handle);
+    wrapper->surface       = reinterpret_cast<SurfaceKHRWrapper*>(create_info->surface);
+    wrapper->format        = create_info->imageFormat;
+    wrapper->extent        = { create_info->imageExtent.width, create_info->imageExtent.height, 0 };
+    wrapper->pre_transform = create_info->preTransform;
+    wrapper->array_layers  = create_info->imageArrayLayers;
 
     if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
     {

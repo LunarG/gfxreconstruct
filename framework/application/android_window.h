@@ -48,6 +48,9 @@ class AndroidWindow : public decode::Window
 
     virtual void SetSize(const uint32_t width, const uint32_t height) override;
 
+    virtual void
+    SetSizePreTransform(const uint32_t width, const uint32_t height, const uint32_t pre_transform) override;
+
     virtual void SetVisibility(bool) override {}
 
     virtual void SetForeground() override {}
@@ -64,6 +67,7 @@ class AndroidWindow : public decode::Window
     ANativeWindow*      window_;
     uint32_t            width_;
     uint32_t            height_;
+    uint32_t            pre_transform_;
 };
 
 class AndroidWindowFactory : public decode::WindowFactory

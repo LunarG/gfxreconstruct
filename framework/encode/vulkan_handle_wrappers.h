@@ -349,6 +349,7 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     uint32_t                       queue_family_index{ 0 };
     VkFormat                       format{ VK_FORMAT_UNDEFINED };
     VkExtent3D                     extent{ 0, 0, 0 };
+    VkSurfaceTransformFlagBitsKHR  pre_transform{ VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR };
     uint32_t                       array_layers{ 0 };
     uint32_t                       last_presented_image{ std::numeric_limits<uint32_t>::max() };
     std::vector<ImageAcquiredInfo> image_acquired_info;

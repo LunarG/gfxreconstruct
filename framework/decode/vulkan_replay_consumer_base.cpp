@@ -335,6 +335,35 @@ void VulkanReplayConsumerBase::ProcessResizeWindowCommand(format::HandleId surfa
     }
 }
 
+void VulkanReplayConsumerBase::ProcessResizeWindowCommand2(format::HandleId surface_id,
+                                                           uint32_t         width,
+                                                           uint32_t         height,
+                                                           uint32_t         pre_transform)
+{
+    // We need to find the surface associated with this ID, and then lookup its window.
+    const SurfaceKHRInfo* surface_info = object_info_table_.GetSurfaceKHRInfo(surface_id);
+
+    if (surface_info != nullptr)
+    {
+        Window* window = surface_info->window;
+
+        if (window != nullptr)
+        {
+            window->SetSizePreTransform(width, height, pre_transform);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Skipping window resize for VkSurface object (ID = %" PRIu64
+                                 ") without an associated window",
+                                 surface_id);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Skipping window resize for unrecognized VkSurface object (ID = %" PRIu64 ")", surface_id);
+    }
+}
+
 void VulkanReplayConsumerBase::ProcessCreateHardwareBufferCommand(
     format::HandleId                                    memory_id,
     uint64_t                                            buffer_id,

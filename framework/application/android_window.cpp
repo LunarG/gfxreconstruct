@@ -21,6 +21,7 @@
 
 #include <android/native_window.h>
 
+#include <array>
 #include <cassert>
 #include <cstdlib>
 #include <limits>
@@ -29,7 +30,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
 AndroidWindow::AndroidWindow(AndroidApplication* application, ANativeWindow* window) :
-    android_application_(application), window_(window), width_(0), height_(0)
+    android_application_(application), window_(window), width_(0), height_(0), pre_transform_(0)
 {
     assert((application != nullptr) && (window != nullptr));
 
@@ -39,27 +40,46 @@ AndroidWindow::AndroidWindow(AndroidApplication* application, ANativeWindow* win
 
 void AndroidWindow::SetSize(const uint32_t width, const uint32_t height)
 {
-    if ((width != width_) || (height != height_))
+    SetSizePreTransform(width, height, format::ResizeWindowPreTransform::kPreTransform0);
+}
+
+void AndroidWindow::SetSizePreTransform(const uint32_t width, const uint32_t height, const uint32_t pre_transform)
+{
+    if ((width != width_) || (height != height_) || (pre_transform != pre_transform_))
     {
-        width_  = width;
-        height_ = height;
+        width_         = width;
+        height_        = height;
+        pre_transform_ = pre_transform;
 
         // For Android, we adjust the screen orientation based on requested width and height.
         int32_t pixel_width  = ANativeWindow_getWidth(window_);
         int32_t pixel_height = ANativeWindow_getHeight(window_);
 
         // We don't change the current orientation if width == height or if the requested orientation matches the
-        // current orientation.
-        if ((width != height) && ((width < height) != (pixel_width < pixel_height)))
+        // current orientation, unless a pre-transform has been applied to the swapchain, in which case the orientation
+        // will be adjusted to match the pre-transform.
+        if (((width != height) && ((width < height) != (pixel_width < pixel_height))) ||
+            (pre_transform != format::ResizeWindowPreTransform::kPreTransform0))
         {
-            if (width > height)
+            const std::array<AndroidApplication::ScreenOrientation, 2> kOrientations{
+                AndroidApplication::ScreenOrientation::kLandscape, AndroidApplication::ScreenOrientation::kPortrait
+            };
+
+            uint32_t orientation_index = 0;
+
+            if (height > width)
             {
-                android_application_->SetOrientation(AndroidApplication::ScreenOrientation::kLandscape);
+                orientation_index = 1;
             }
-            else
+
+            // Toggle orientation between landscape and portrait for 90 and 270 degree pre-transform values.
+            if ((pre_transform == format::ResizeWindowPreTransform::kPreTransform90) ||
+                (pre_transform == format::ResizeWindowPreTransform::kPreTransform270))
             {
-                android_application_->SetOrientation(AndroidApplication::ScreenOrientation::kPortrait);
+                orientation_index ^= 1;
             }
+
+            android_application_->SetOrientation(kOrientations[orientation_index]);
         }
 
         int32_t result = ANativeWindow_setBuffersGeometry(window_, width, height, ANativeWindow_getFormat(window_));

@@ -950,6 +950,10 @@ class TraceManager
     ParameterEncoder* InitApiCallTrace(format::ApiCallId call_id);
 
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
+    void WriteResizeWindowCmd2(format::HandleId              surface_id,
+                               uint32_t                      width,
+                               uint32_t                      height,
+                               VkSurfaceTransformFlagBitsKHR pre_transform);
     void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
     void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
                                       AHardwareBuffer*                                    buffer,

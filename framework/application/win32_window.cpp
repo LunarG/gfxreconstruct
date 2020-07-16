@@ -221,6 +221,12 @@ void Win32Window::SetSize(const uint32_t width, const uint32_t height)
     }
 }
 
+void Win32Window::SetSizePreTransform(const uint32_t width, const uint32_t height, const uint32_t pre_transform)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pre_transform);
+    SetSize(width, height);
+}
+
 void Win32Window::SetVisibility(bool show)
 {
     ShowWindow(hwnd_, show ? SW_SHOWDEFAULT : SW_HIDE);

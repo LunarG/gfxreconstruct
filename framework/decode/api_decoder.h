@@ -60,6 +60,12 @@ class ApiDecoder
                                              uint32_t         width,
                                              uint32_t         height) = 0;
 
+    virtual void DispatchResizeWindowCommand2(format::ThreadId thread_id,
+                                              format::HandleId surface_id,
+                                              uint32_t         width,
+                                              uint32_t         height,
+                                              uint32_t         pre_transform) = 0;
+
     virtual void
     DispatchCreateHardwareBufferCommand(format::ThreadId                                    thread_id,
                                         format::HandleId                                    memory_id,

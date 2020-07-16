@@ -63,6 +63,8 @@ class Window
 
     virtual void SetSize(const uint32_t width, const uint32_t height) = 0;
 
+    virtual void SetSizePreTransform(const uint32_t width, const uint32_t height, const uint32_t pre_transform) = 0;
+
     virtual void SetVisibility(bool show) = 0;
 
     virtual void SetForeground() = 0;

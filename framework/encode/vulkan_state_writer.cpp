@@ -806,7 +806,8 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
         const SurfaceKHRWrapper* surface_wrapper = wrapper->surface;
         assert(surface_wrapper != nullptr);
 
-        WriteResizeWindowCmd(surface_wrapper->handle_id, wrapper->extent.width, wrapper->extent.height);
+        WriteResizeWindowCmd2(
+            surface_wrapper->handle_id, wrapper->extent.width, wrapper->extent.height, wrapper->pre_transform);
 
         // Write swapchain creation call.
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
@@ -2439,6 +2440,50 @@ void VulkanStateWriter::WriteResizeWindowCmd(format::HandleId surface_id, uint32
     resize_cmd.height     = height;
 
     output_stream_->Write(&resize_cmd, sizeof(resize_cmd));
+}
+
+// TODO: This is the same code used by TraceManager to write command data. It could be moved to a format
+// utility.
+void VulkanStateWriter::WriteResizeWindowCmd2(format::HandleId              surface_id,
+                                              uint32_t                      width,
+                                              uint32_t                      height,
+                                              VkSurfaceTransformFlagBitsKHR pre_transform)
+{
+    format::ResizeWindowCommand2 resize_cmd2;
+    resize_cmd2.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    resize_cmd2.meta_header.block_header.size = sizeof(resize_cmd2.meta_header.meta_data_type) +
+                                                sizeof(resize_cmd2.thread_id) + sizeof(resize_cmd2.surface_id) +
+                                                sizeof(resize_cmd2.width) + sizeof(resize_cmd2.height);
+    resize_cmd2.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand2;
+    resize_cmd2.thread_id                  = thread_id_;
+
+    resize_cmd2.surface_id = surface_id;
+    resize_cmd2.width      = width;
+    resize_cmd2.height     = height;
+
+    switch (pre_transform)
+    {
+        default:
+        case VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR:
+        case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_BIT_KHR:
+        case VK_SURFACE_TRANSFORM_INHERIT_BIT_KHR:
+            resize_cmd2.pre_transform = format::ResizeWindowPreTransform::kPreTransform0;
+            break;
+        case VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR:
+        case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90_BIT_KHR:
+            resize_cmd2.pre_transform = format::ResizeWindowPreTransform::kPreTransform90;
+            break;
+        case VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR:
+        case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180_BIT_KHR:
+            resize_cmd2.pre_transform = format::ResizeWindowPreTransform::kPreTransform180;
+            break;
+        case VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR:
+        case VK_SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270_BIT_KHR:
+            resize_cmd2.pre_transform = format::ResizeWindowPreTransform::kPreTransform270;
+            break;
+    }
+
+    output_stream_->Write(&resize_cmd2, sizeof(resize_cmd2));
 }
 
 // TODO: This is the same code used by TraceManager to write command data. It could be moved to a format

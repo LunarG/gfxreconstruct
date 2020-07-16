@@ -257,6 +257,24 @@ void CompressionConverter::DispatchResizeWindowCommand(format::ThreadId thread_i
     bytes_written_ += file_stream_->Write(&resize_cmd, sizeof(resize_cmd));
 }
 
+void CompressionConverter::DispatchResizeWindowCommand2(
+    format::ThreadId thread_id, format::HandleId surface_id, uint32_t width, uint32_t height, uint32_t pre_transform)
+{
+    format::ResizeWindowCommand2 resize_cmd2;
+    resize_cmd2.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    resize_cmd2.meta_header.block_header.size = sizeof(resize_cmd2.meta_header.meta_data_type) +
+                                                sizeof(resize_cmd2.thread_id) + sizeof(resize_cmd2.surface_id) +
+                                                sizeof(resize_cmd2.width) + sizeof(resize_cmd2.height);
+    resize_cmd2.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
+    resize_cmd2.thread_id                  = thread_id;
+    resize_cmd2.surface_id                 = surface_id;
+    resize_cmd2.width                      = width;
+    resize_cmd2.height                     = height;
+    resize_cmd2.pre_transform              = pre_transform;
+
+    bytes_written_ += file_stream_->Write(&resize_cmd2, sizeof(resize_cmd2));
+}
+
 void CompressionConverter::DispatchCreateHardwareBufferCommand(
     format::ThreadId                                    thread_id,
     format::HandleId                                    memory_id,

@@ -87,7 +87,8 @@ enum MetaDataType : uint32_t
     kCreateHardwareBufferCommand        = 9,
     kDestroyHardwareBufferCommand       = 10,
     kSetDevicePropertiesCommand         = 11,
-    kSetDeviceMemoryPropertiesCommand   = 12
+    kSetDeviceMemoryPropertiesCommand   = 12,
+    kResizeWindowCommand2               = 13
 };
 
 enum CompressionType : uint32_t
@@ -121,6 +122,14 @@ enum PointerAttributes : uint32_t
     // What was encoded
     kHasAddress     = 0x40, // The address of the pointer was encoded (always comes before data).
     kHasData        = 0x80, // The data pointed to was encoded.
+};
+
+enum ResizeWindowPreTransform : uint32_t
+{
+    kPreTransform0   = 0,
+    kPreTransform90  = 1,
+    kPreTransform180 = 2,
+    kPreTransform270 = 3
 };
 // clang-format on
 
@@ -218,6 +227,18 @@ struct ResizeWindowCommand
     HandleId         surface_id;
     uint32_t         width;
     uint32_t         height;
+};
+
+// Not a header because this command does not include a variable length data payload.
+// All of the command data is present in the struct.
+struct ResizeWindowCommand2
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    HandleId         surface_id;
+    uint32_t         width;
+    uint32_t         height;
+    uint32_t         pre_transform;
 };
 
 struct CreateHardwareBufferCommandHeader
