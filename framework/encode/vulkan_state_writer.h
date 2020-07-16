@@ -244,6 +244,11 @@ class VulkanStateWriter
 
     void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
 
+    void WriteResizeWindowCmd2(format::HandleId              surface_id,
+                               uint32_t                      width,
+                               uint32_t                      height,
+                               VkSurfaceTransformFlagBitsKHR pre_transform);
+
     void WriteCreateHardwareBufferCmd(format::HandleId                                    memory_id,
                                       AHardwareBuffer*                                    hardware_buffer,
                                       const std::vector<format::HardwareBufferPlaneInfo>& plane_info);

@@ -67,6 +67,9 @@ class XcbWindow : public decode::Window
 
     virtual void SetSize(const uint32_t width, const uint32_t height) override;
 
+    virtual void
+    SetSizePreTransform(const uint32_t width, const uint32_t height, const uint32_t pre_transform) override;
+
     virtual void SetVisibility(bool show) override;
 
     virtual void SetForeground() override;

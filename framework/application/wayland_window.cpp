@@ -135,6 +135,12 @@ void WaylandWindow::SetSize(const uint32_t width, const uint32_t height)
     }
 }
 
+void WaylandWindow::SetSizePreTransform(const uint32_t width, const uint32_t height, const uint32_t pre_transform)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pre_transform);
+    SetSize(width, height);
+}
+
 void WaylandWindow::SetVisibility(bool show)
 {
     GFXRECON_UNREFERENCED_PARAMETER(show);

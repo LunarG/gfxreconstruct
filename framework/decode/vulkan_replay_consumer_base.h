@@ -75,6 +75,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height) override;
 
+    virtual void ProcessResizeWindowCommand2(format::HandleId surface_id,
+                                             uint32_t         width,
+                                             uint32_t         height,
+                                             uint32_t         pre_transform) override;
+
     virtual void
     ProcessCreateHardwareBufferCommand(format::HandleId                                    memory_id,
                                        uint64_t                                            buffer_id,

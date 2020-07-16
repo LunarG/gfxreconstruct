@@ -269,6 +269,12 @@ void XcbWindow::SetSize(const uint32_t width, const uint32_t height)
     }
 }
 
+void XcbWindow::SetSizePreTransform(const uint32_t width, const uint32_t height, const uint32_t pre_transform)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(pre_transform);
+    SetSize(width, height);
+}
+
 void XcbWindow::SetFullscreen(bool fullscreen)
 {
     if (fullscreen != fullscreen_)

@@ -74,6 +74,17 @@ void VulkanDecoderBase::DispatchResizeWindowCommand(format::ThreadId thread_id,
     }
 }
 
+void VulkanDecoderBase::DispatchResizeWindowCommand2(
+    format::ThreadId thread_id, format::HandleId surface_id, uint32_t width, uint32_t height, uint32_t pre_transform)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessResizeWindowCommand2(surface_id, width, height, pre_transform);
+    }
+}
+
 void VulkanDecoderBase::DispatchCreateHardwareBufferCommand(
     format::ThreadId                                    thread_id,
     format::HandleId                                    memory_id,
