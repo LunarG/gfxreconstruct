@@ -1,12 +1,18 @@
-//=============================================================================
-/// Copyright (c) 2020 Advanced Micro Devices, Inc. All rights reserved.
-/// \author AMD Developer Tools Team
-/// \file   vulkan_resource_tracking_consumer_base.h
-/// \brief  Header file of vulkan resource_tracking_consumer_base class,
-///         which is used to track memory data mapping during
-///         the first pass of the replay. This data will then be
-///         used in second pass of replay for memory portability.
-//=============================================================================
+/*
+** Copyright (c) 2020 Advanced Micro Devices, Inc. All rights reserved.
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
 
 #ifndef GFXRECON_DECODE_VULKAN_RESOURCE_TRACKING_CONSUMER_H
 #define GFXRECON_DECODE_VULKAN_RESOURCE_TRACKING_CONSUMER_H
