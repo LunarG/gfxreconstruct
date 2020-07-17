@@ -230,6 +230,28 @@ VkResult VulkanRealignAllocator::MapMemory(VkDeviceMemory   memory,
     return VulkanDefaultAllocator::MapMemory(memory, realign_offset, size, flags, data, allocator_data);
 }
 
+VkResult VulkanRealignAllocator::FlushMappedMemoryRanges(uint32_t                   memory_range_count,
+                                                         const VkMappedMemoryRange* memory_ranges,
+                                                         const MemoryData*          allocator_datas)
+{
+    std::unique_ptr<VkMappedMemoryRange[]> realign_memory_ranges =
+        UpdateMappedMemoryOffsets(memory_range_count, memory_ranges, allocator_datas);
+
+    return VulkanDefaultAllocator::FlushMappedMemoryRanges(
+        memory_range_count, realign_memory_ranges.get(), allocator_datas);
+}
+
+VkResult VulkanRealignAllocator::InvalidateMappedMemoryRanges(uint32_t                   memory_range_count,
+                                                              const VkMappedMemoryRange* memory_ranges,
+                                                              const MemoryData*          allocator_datas)
+{
+    std::unique_ptr<VkMappedMemoryRange[]> realign_memory_ranges =
+        UpdateMappedMemoryOffsets(memory_range_count, memory_ranges, allocator_datas);
+
+    return VulkanDefaultAllocator::InvalidateMappedMemoryRanges(
+        memory_range_count, realign_memory_ranges.get(), allocator_datas);
+}
+
 VkResult VulkanRealignAllocator::WriteMappedMemoryRange(MemoryData     allocator_data,
                                                         uint64_t       offset,
                                                         uint64_t       size,
@@ -254,7 +276,7 @@ VkResult VulkanRealignAllocator::WriteMappedMemoryRange(MemoryData     allocator
 
 // Util function to find the matching offset with the resources offsets.
 VkDeviceSize VulkanRealignAllocator::FindMatchingResourceOffset(const TrackedDeviceMemoryInfo* tracked_memory_info,
-                                                                VkDeviceSize                   offset)
+                                                                VkDeviceSize                   offset) const
 {
     assert(tracked_memory_info != nullptr);
 
@@ -331,7 +353,6 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
             }
             else if ((resource_start <= copy_data_start) && (resource_end >= copy_data_end))
             {
-
                 copy_size            = size;
                 mapped_memory_offset = entry->GetReplayBindOffset() + (copy_data_start - resource_start);
             }
@@ -365,6 +386,39 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
     }
 
     return result;
+}
+
+std::unique_ptr<VkMappedMemoryRange[]> VulkanRealignAllocator::UpdateMappedMemoryOffsets(
+    uint32_t memory_range_count, const VkMappedMemoryRange* memory_ranges, const MemoryData* allocator_datas) const
+{
+    std::unique_ptr<VkMappedMemoryRange[]> realign_memory_ranges;
+
+    if ((allocator_datas != nullptr) && (memory_ranges != nullptr))
+    {
+        realign_memory_ranges = std::make_unique<VkMappedMemoryRange[]>(memory_range_count);
+
+        for (uint32_t i = 0; i < memory_range_count; ++i)
+        {
+            realign_memory_ranges[i] = memory_ranges[i];
+
+            auto memory_info = GetMemoryAllocInfo(allocator_datas[i]);
+
+            if (memory_info != nullptr)
+            {
+                // Update map memory size to new allocated memory size.
+                auto tracked_memory_info = tracked_object_table_->GetTrackedDeviceMemoryInfo(memory_info->capture_id);
+
+                if (tracked_memory_info != nullptr)
+                {
+                    // Update map memory offset.
+                    realign_memory_ranges[i].offset =
+                        FindMatchingResourceOffset(tracked_memory_info, memory_ranges[i].offset);
+                }
+            }
+        }
+    }
+
+    return realign_memory_ranges;
 }
 
 GFXRECON_END_NAMESPACE(decode)
