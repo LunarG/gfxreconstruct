@@ -76,17 +76,29 @@ class VulkanRealignAllocator : public VulkanDefaultAllocator
                                void**           data,
                                MemoryData       allocator_data) override;
 
+    virtual VkResult FlushMappedMemoryRanges(uint32_t                   memory_range_count,
+                                             const VkMappedMemoryRange* memory_ranges,
+                                             const MemoryData*          allocator_datas) override;
+
+    virtual VkResult InvalidateMappedMemoryRanges(uint32_t                   memory_range_count,
+                                                  const VkMappedMemoryRange* memory_ranges,
+                                                  const MemoryData*          allocator_datas) override;
+
     virtual VkResult
     WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
   private:
     // Util function to find the matching offset with the resources offsets.
     VkDeviceSize FindMatchingResourceOffset(const TrackedDeviceMemoryInfo* tracked_memory_info,
-                                            VkDeviceSize                   original_offset);
+                                            VkDeviceSize                   original_offset) const;
 
     // Util function to update the resource data (memcpy to mapped memory).
     VkResult UpdateResourceData(
         format::HandleId capture_id, MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data);
+
+    std::unique_ptr<VkMappedMemoryRange[]> UpdateMappedMemoryOffsets(uint32_t                   memory_range_count,
+                                                                     const VkMappedMemoryRange* memory_ranges,
+                                                                     const MemoryData*          allocator_datas) const;
 
   private:
     const VulkanTrackedObjectInfoTable* tracked_object_table_;
