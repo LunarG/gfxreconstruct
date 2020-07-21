@@ -64,7 +64,14 @@ VkResult VulkanRealignAllocator::AllocateMemory(const VkMemoryAllocateInfo*  all
         auto                 tracked_memory_info   = tracked_object_table_->GetTrackedDeviceMemoryInfo(capture_id);
         VkMemoryAllocateInfo realign_allocate_info = *allocate_info;
 
-        realign_allocate_info.allocationSize = tracked_memory_info->GetReplayMemoryAllocationSize();
+        VkDeviceSize realign_size = tracked_memory_info->GetReplayMemoryAllocationSize();
+
+        // The realign size can be zero when no resources were bound to allocation.  We skip the size override for this
+        // case because vkAllocateMemory can fail with a zero allocation size.
+        if (realign_size > 0)
+        {
+            realign_allocate_info.allocationSize = realign_size;
+        }
 
         result = VulkanDefaultAllocator::AllocateMemory(
             &realign_allocate_info, allocation_callbacks, capture_id, memory, allocator_data);
