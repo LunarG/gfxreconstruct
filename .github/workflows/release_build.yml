@@ -53,6 +53,7 @@ jobs:
         cp LICENSE.txt build/linux/x64/bin/
         cp LICENSE_ThirdParty.txt build/linux/x64/bin/
         cp USAGE_desktop.md build/linux/x64/bin/
+        cp layer/vk_layer_settings.txt build/linux/x64/bin/
         rm -rf build/linux/x64/bin/staging-json
         mv build/linux/x64/bin gfxreconstruct-dev
     - name: Upload artifacts
@@ -85,6 +86,7 @@ jobs:
         copy LICENSE.txt build\windows\x64\bin\
         copy LICENSE_ThirdParty.txt build\windows\x64\bin\
         copy USAGE_desktop.md build\windows\x64\bin\
+        copy layer\vk_layer_settings.txt build\windows\x64\bin\
         move build\windows\x64\bin gfxreconstruct-dev
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
@@ -122,6 +124,7 @@ jobs:
         cp LICENSE.txt gfxreconstruct-dev/
         cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
         cp USAGE_android.md gfxreconstruct-dev/
+        cp layer/vk_layer_settings.txt gfxreconstruct-dev/
         cp -r android/layer/build/intermediates/cmake/release/obj/arm64-v8a gfxreconstruct-dev/layer/
         cp -r android/layer/build/intermediates/cmake/release/obj/armeabi-v7a gfxreconstruct-dev/layer/
         cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/

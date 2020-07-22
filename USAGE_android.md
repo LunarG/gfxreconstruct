@@ -117,8 +117,9 @@ adb shell "setprop debug.vulkan.layers ''"
 ### Capture Options
 
 The GFXReconstruct layer supports the following options, which may be enabled
-with Android system properties.  Each property begins with the prefix `debug.gfxrecon`,
-and can be set through ADB with the following command syntax:
+through Android system properties or a layer settings file.  Each Android
+system property begins with the prefix `debug.gfxrecon`, and can be set
+through ADB with the following command syntax:
 
 ```bash
 adb shell "setprop <option> '<value>'"
@@ -159,6 +160,35 @@ Log File Keep Open | debug.gfxrecon.log_file_keep_open | BOOL | Keep the log fil
 Memory Tracking Mode | debug.gfxrecon.memory_tracking_mode | STRING | Specifies the memory tracking mode to use for detecting modifications to mapped Vulkan memory objects. Available options are: `page_guard`, `assisted`, and `unassisted`. Default is `page_guard` <ul><li>`page_guard` tracks modifications to individual memory pages, which are written to the capture file on calls to `vkFlushMappedMemoryRanges`, `vkUnmapMemory`, and `vkQueueSubmit`. Tracking modifications requires allocating shadow memory for all mapped memory.</li><li>`assisted` expects the application to call `vkFlushMappedMemoryRanges` after memory is modified; the memory ranges specified to the `vkFlushMappedMemoryRanges` call will be written to the capture file during the call.</li><li>`unassisted` writes the full content of mapped memory to the capture file on calls to `vkUnmapMemory` and `vkQueueSubmit`. It is very inefficient and may be unusable with real-world applications that map large amounts of memory.</li></ul>
 Page Guard Copy on Map | debug.gfxrecon.page_guard_copy_on_map | BOOL | When the `page_guard` memory tracking mode is enabled, copies the content of the mapped memory to the shadow memory immediately after the memory is mapped. Default is: `true`
 Page Guard Separate Read Tracking | debug.gfxrecon.page_guard_separate_read | BOOL | When the `page_guard` memory tracking mode is enabled, copies the content of pages accessed for read from mapped memory to shadow memory on each read. Can overwrite unprocessed shadow memory content when an application is reading from and writing to the same page. Default is: `true`
+
+#### Settings File
+
+Capture options may also be specified through a layer settings file.  The layer
+settings file will be loaded before the Android system properties are
+processed, allowing system properties to override individual settings file
+entries.
+
+The `debug.gfxrecon.settings_path` Android system property is used to enable
+a settings file:
+
+```bash
+adb shell "setprop debug.gfxrecon.settings_path /sdcard/vk_layer_settings.txt"
+```
+
+The system property may be set as either the path to the folder containing a
+file named `vk_layer_settings.txt` or the full path to a file with a custom
+name. When set to a folder, the capture layer will try to open a file in that
+folder named `vk_layer_settings.txt`.  When set to a file, the capture layer
+will try to open a file with the specified name.
+
+The settings file may be combined with settings files for other layers. The
+capture layer will ignore entries that do not start with the
+'lunarg_gfxreconstruct.' prefix.
+
+A sample layer settings file, documenting each available setting, can be found
+in the GFXReconstruct GitHub repository at `layer/vk_layer_settings.txt`. Most
+binary distributions of the GFXReconstruct software will also include a sample
+settings file.
 
 ### Capture Files
 
