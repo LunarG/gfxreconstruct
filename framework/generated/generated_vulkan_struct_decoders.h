@@ -4917,6 +4917,15 @@ struct Decoded_VkPipelineRasterizationLineStateCreateInfoEXT
     std::unique_ptr<PNextNode> pNext;
 };
 
+struct Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderAtomicFloatFeaturesEXT;
+
+    VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 typedef Decoded_VkPhysicalDeviceHostQueryResetFeatures Decoded_VkPhysicalDeviceHostQueryResetFeaturesEXT;
 
 struct Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesEXT
@@ -5224,6 +5233,15 @@ struct Decoded_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT
     using struct_type = VkPhysicalDeviceFragmentDensityMap2PropertiesEXT;
 
     VkPhysicalDeviceFragmentDensityMap2PropertiesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDeviceImageRobustnessFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceImageRobustnessFeaturesEXT;
+
+    VkPhysicalDeviceImageRobustnessFeaturesEXT* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
 };

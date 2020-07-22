@@ -4563,6 +4563,24 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineRasterizationLineSt
     encoder->EncodeUInt16Value(value.lineStipplePattern);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicFloatFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.shaderBufferFloat32Atomics);
+    encoder->EncodeVkBool32Value(value.shaderBufferFloat32AtomicAdd);
+    encoder->EncodeVkBool32Value(value.shaderBufferFloat64Atomics);
+    encoder->EncodeVkBool32Value(value.shaderBufferFloat64AtomicAdd);
+    encoder->EncodeVkBool32Value(value.shaderSharedFloat32Atomics);
+    encoder->EncodeVkBool32Value(value.shaderSharedFloat32AtomicAdd);
+    encoder->EncodeVkBool32Value(value.shaderSharedFloat64Atomics);
+    encoder->EncodeVkBool32Value(value.shaderSharedFloat64AtomicAdd);
+    encoder->EncodeVkBool32Value(value.shaderImageFloat32Atomics);
+    encoder->EncodeVkBool32Value(value.shaderImageFloat32AtomicAdd);
+    encoder->EncodeVkBool32Value(value.sparseImageFloat32Atomics);
+    encoder->EncodeVkBool32Value(value.sparseImageFloat32AtomicAdd);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceIndexTypeUint8FeaturesEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -4845,6 +4863,13 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensi
     encoder->EncodeVkBool32Value(value.subsampledCoarseReconstructionEarlyAccess);
     encoder->EncodeUInt32Value(value.maxSubsampledArrayLayers);
     encoder->EncodeUInt32Value(value.maxDescriptorSetSubsampledSamplers);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageRobustnessFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVkBool32Value(value.robustImageAccess);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDirectFBSurfaceCreateInfoEXT& value)
