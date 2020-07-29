@@ -59,9 +59,15 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  <output_file>\t\tPath to the output file to generate.");
     GFXRECON_WRITE_CONSOLE("  <compression_format>\tCompression format to apply to the output file.");
     GFXRECON_WRITE_CONSOLE("                      \tOptions are: ");
+#if defined(ENABLE_LZ4_COMPRESSION)
     GFXRECON_WRITE_CONSOLE("                      \t  LZ4  - Use LZ4 compression.");
+#endif
+#if defined(ENABLE_ZLIB_COMPRESSION)
     GFXRECON_WRITE_CONSOLE("                      \t  ZLIB - Use zlib compression.");
+#endif
+#if defined(ENABLE_ZSTD_COMPRESSION)
     GFXRECON_WRITE_CONSOLE("                      \t  ZSTD - Use Zstandard compression.");
+#endif
     GFXRECON_WRITE_CONSOLE("                      \t  NONE - Remove compression.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
@@ -121,7 +127,6 @@ static std::string GetCompressionTypeName(uint32_t type)
         case gfxrecon::format::CompressionType::kZstd:
             return kArgZstd;
         default:
-            assert(false);
             break;
     }
 
@@ -192,12 +197,13 @@ int main(int argc, const char** argv)
     if (file_processor.Initialize(input_filename))
     {
         gfxrecon::decode::CompressionConverter decoder;
+        bool                                   succeeded = true;
 
         if (decoder.Initialize(
                 output_filename, file_processor.GetFileHeader(), file_processor.GetFileOptions(), compression_type))
         {
             file_processor.AddDecoder(&decoder);
-            bool succeeded = file_processor.ProcessAllFrames();
+            succeeded = file_processor.ProcessAllFrames();
 
             if (succeeded)
             {
@@ -246,11 +252,16 @@ int main(int argc, const char** argv)
                     GFXRECON_WRITE_CONSOLE("  Percent Increase                     = %.2f%%", percent_increase);
                 }
             }
-            else
-            {
-                GFXRECON_LOG_ERROR("Failed to process capture file %s", input_filename.c_str());
-                return_code = -1;
-            }
+        }
+        else
+        {
+            succeeded = false;
+        }
+
+        if (!succeeded)
+        {
+            GFXRECON_WRITE_CONSOLE("Capture file %s could not be converted.", input_filename.c_str());
+            return_code = -1;
         }
     }
 
