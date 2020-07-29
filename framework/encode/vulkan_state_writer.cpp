@@ -1046,8 +1046,7 @@ void VulkanStateWriter::ProcessBufferMemory(const DeviceWrapper*                
             }
 
             // Calculate size of packet with compressed or uncompressed data size.
-            upload_cmd.meta_header.block_header.size =
-                (sizeof(upload_cmd) - sizeof(upload_cmd.meta_header.block_header)) + data_size;
+            upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd) + data_size;
 
             output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
             output_stream_->Write(bytes, data_size);
@@ -1296,7 +1295,7 @@ void VulkanStateWriter::ProcessImageMemory(const DeviceWrapper*                 
         format::InitImageCommandHeader upload_cmd;
 
         // Packet size without the resource data.
-        upload_cmd.meta_header.block_header.size = (sizeof(upload_cmd) - sizeof(upload_cmd.meta_header.block_header));
+        upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd);
         upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
         upload_cmd.meta_header.meta_data_type    = format::kInitImageCommand;
         upload_cmd.thread_id                     = thread_id_;
@@ -1613,7 +1612,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
             const DeviceTable* device_table = &device_wrapper->layer_table;
 
             format::BeginResourceInitCommand begin_cmd;
-            begin_cmd.meta_header.block_header.size = (sizeof(begin_cmd) - sizeof(begin_cmd.meta_header.block_header));
+            begin_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(begin_cmd);
             begin_cmd.meta_header.block_header.type = format::kMetaDataBlock;
             begin_cmd.meta_header.meta_data_type    = format::kBeginResourceInitCommand;
             begin_cmd.thread_id                     = thread_id_;
@@ -1676,7 +1675,7 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
             }
 
             format::EndResourceInitCommand end_cmd;
-            end_cmd.meta_header.block_header.size = (sizeof(end_cmd) - sizeof(end_cmd.meta_header.block_header));
+            end_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(end_cmd);
             end_cmd.meta_header.block_header.type = format::kMetaDataBlock;
             end_cmd.meta_header.meta_data_type    = format::kEndResourceInitCommand;
             end_cmd.thread_id                     = thread_id_;
@@ -1735,10 +1734,7 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
         format::SwapchainImageStateInfo             info;
 
         // Initialize standard block header.
-        header.meta_header.block_header.size = sizeof(header.meta_header.meta_data_type) + sizeof(header.thread_id) +
-                                               sizeof(header.device_id) + sizeof(header.swapchain_id) +
-                                               sizeof(header.last_presented_image) + sizeof(header.image_info_count) +
-                                               (image_count * sizeof(info));
+        header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(header) + (image_count * sizeof(info));
         header.meta_header.block_header.type = format::kMetaDataBlock;
 
         // Initialize block data for set-swapchain-image-state meta-data command.
@@ -2415,9 +2411,7 @@ void VulkanStateWriter::WriteFillMemoryCmd(format::HandleId memory_id,
     }
 
     // Calculate size of packet with compressed or uncompressed data size.
-    fill_cmd.meta_header.block_header.size = sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.thread_id) +
-                                             sizeof(fill_cmd.memory_id) + sizeof(fill_cmd.memory_offset) +
-                                             sizeof(fill_cmd.memory_size) + write_size;
+    fill_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(fill_cmd) + write_size;
 
     output_stream_->Write(&fill_cmd, sizeof(fill_cmd));
     output_stream_->Write(write_address, write_size);
@@ -2429,11 +2423,9 @@ void VulkanStateWriter::WriteResizeWindowCmd(format::HandleId surface_id, uint32
 {
     format::ResizeWindowCommand resize_cmd;
     resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
-                                               sizeof(resize_cmd.thread_id) + sizeof(resize_cmd.surface_id) +
-                                               sizeof(resize_cmd.width) + sizeof(resize_cmd.height);
-    resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
-    resize_cmd.thread_id                  = thread_id_;
+    resize_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd);
+    resize_cmd.meta_header.meta_data_type    = format::MetaDataType::kResizeWindowCommand;
+    resize_cmd.thread_id                     = thread_id_;
 
     resize_cmd.surface_id = surface_id;
     resize_cmd.width      = width;
@@ -2451,7 +2443,7 @@ void VulkanStateWriter::WriteResizeWindowCmd2(format::HandleId              surf
 {
     format::ResizeWindowCommand2 resize_cmd2;
     resize_cmd2.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    resize_cmd2.meta_header.block_header.size = sizeof(resize_cmd2) - sizeof(resize_cmd2.meta_header.block_header);
+    resize_cmd2.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd2);
     resize_cmd2.meta_header.meta_data_type    = format::MetaDataType::kResizeWindowCommand2;
     resize_cmd2.thread_id                     = thread_id_;
 
@@ -2496,12 +2488,11 @@ void VulkanStateWriter::WriteCreateHardwareBufferCmd(format::HandleId memory_id,
     format::CreateHardwareBufferCommandHeader create_buffer_cmd;
 
     create_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    create_buffer_cmd.meta_header.block_header.size =
-        sizeof(create_buffer_cmd) - sizeof(create_buffer_cmd.meta_header.block_header);
-    create_buffer_cmd.meta_header.meta_data_type = format::MetaDataType::kCreateHardwareBufferCommand;
-    create_buffer_cmd.thread_id                  = thread_id_;
-    create_buffer_cmd.memory_id                  = memory_id;
-    create_buffer_cmd.buffer_id                  = reinterpret_cast<uint64_t>(hardware_buffer);
+    create_buffer_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(create_buffer_cmd);
+    create_buffer_cmd.meta_header.meta_data_type    = format::MetaDataType::kCreateHardwareBufferCommand;
+    create_buffer_cmd.thread_id                     = thread_id_;
+    create_buffer_cmd.memory_id                     = memory_id;
+    create_buffer_cmd.buffer_id                     = reinterpret_cast<uint64_t>(hardware_buffer);
 
     // Get AHB description data.
     AHardwareBuffer_Desc ahb_desc = {};
@@ -2549,16 +2540,15 @@ void VulkanStateWriter::WriteSetDevicePropertiesCommand(format::HandleId        
     uint32_t device_name_len = static_cast<uint32_t>(util::platform::StringLength(properties.deviceName));
 
     properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    properties_cmd.meta_header.block_header.size =
-        (sizeof(properties_cmd) - sizeof(properties_cmd.meta_header.block_header)) + device_name_len;
-    properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDevicePropertiesCommand;
-    properties_cmd.thread_id                  = thread_id_;
-    properties_cmd.physical_device_id         = physical_device_id;
-    properties_cmd.api_version                = properties.apiVersion;
-    properties_cmd.driver_version             = properties.driverVersion;
-    properties_cmd.vendor_id                  = properties.vendorID;
-    properties_cmd.device_id                  = properties.deviceID;
-    properties_cmd.device_type                = properties.deviceType;
+    properties_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(properties_cmd) + device_name_len;
+    properties_cmd.meta_header.meta_data_type    = format::MetaDataType::kSetDevicePropertiesCommand;
+    properties_cmd.thread_id                     = thread_id_;
+    properties_cmd.physical_device_id            = physical_device_id;
+    properties_cmd.api_version                   = properties.apiVersion;
+    properties_cmd.driver_version                = properties.driverVersion;
+    properties_cmd.vendor_id                     = properties.vendorID;
+    properties_cmd.device_id                     = properties.deviceID;
+    properties_cmd.device_type                   = properties.deviceType;
     util::platform::MemoryCopy(
         properties_cmd.pipeline_cache_uuid, format::kUuidSize, properties.pipelineCacheUUID, VK_UUID_SIZE);
     properties_cmd.device_name_len = device_name_len;
@@ -2574,7 +2564,7 @@ void VulkanStateWriter::WriteSetDeviceMemoryPropertiesCommand(format::HandleId p
 
     memory_properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     memory_properties_cmd.meta_header.block_header.size =
-        (sizeof(memory_properties_cmd) - sizeof(memory_properties_cmd.meta_header.block_header)) +
+        format::GetMetaDataBlockBaseSize(memory_properties_cmd) +
         (sizeof(format::DeviceMemoryType) * memory_properties.memoryTypeCount) +
         (sizeof(format::DeviceMemoryHeap) * memory_properties.memoryHeapCount);
     memory_properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDeviceMemoryPropertiesCommand;

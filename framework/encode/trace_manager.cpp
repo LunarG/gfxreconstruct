@@ -648,10 +648,9 @@ void TraceManager::WriteDisplayMessageCmd(const char* message)
         format::DisplayMessageCommandHeader message_cmd;
 
         message_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        message_cmd.meta_header.block_header.size =
-            sizeof(message_cmd.meta_header.meta_data_type) + sizeof(message_cmd.thread_id) + message_length;
-        message_cmd.meta_header.meta_data_type = format::MetaDataType::kDisplayMessageCommand;
-        message_cmd.thread_id                  = GetThreadData()->thread_id_;
+        message_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(message_cmd) + message_length;
+        message_cmd.meta_header.meta_data_type    = format::MetaDataType::kDisplayMessageCommand;
+        message_cmd.thread_id                     = GetThreadData()->thread_id_;
 
         {
             std::lock_guard<std::mutex> lock(file_lock_);
@@ -673,11 +672,9 @@ void TraceManager::WriteResizeWindowCmd(format::HandleId surface_id, uint32_t wi
     {
         format::ResizeWindowCommand resize_cmd;
         resize_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        resize_cmd.meta_header.block_header.size = sizeof(resize_cmd.meta_header.meta_data_type) +
-                                                   sizeof(resize_cmd.thread_id) + sizeof(resize_cmd.surface_id) +
-                                                   sizeof(resize_cmd.width) + sizeof(resize_cmd.height);
-        resize_cmd.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
-        resize_cmd.thread_id                  = GetThreadData()->thread_id_;
+        resize_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd);
+        resize_cmd.meta_header.meta_data_type    = format::MetaDataType::kResizeWindowCommand;
+        resize_cmd.thread_id                     = GetThreadData()->thread_id_;
 
         resize_cmd.surface_id = surface_id;
         resize_cmd.width      = width;
@@ -704,7 +701,7 @@ void TraceManager::WriteResizeWindowCmd2(format::HandleId              surface_i
     {
         format::ResizeWindowCommand2 resize_cmd2;
         resize_cmd2.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        resize_cmd2.meta_header.block_header.size = sizeof(resize_cmd2) - sizeof(resize_cmd2.meta_header.block_header);
+        resize_cmd2.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(resize_cmd2);
         resize_cmd2.meta_header.meta_data_type    = format::MetaDataType::kResizeWindowCommand2;
         resize_cmd2.thread_id                     = GetThreadData()->thread_id_;
 
@@ -785,9 +782,7 @@ void TraceManager::WriteFillMemoryCmd(format::HandleId memory_id,
         }
 
         // Calculate size of packet with compressed or uncompressed data size.
-        fill_cmd.meta_header.block_header.size =
-            sizeof(fill_cmd.meta_header.meta_data_type) + sizeof(fill_cmd.thread_id) + sizeof(fill_cmd.memory_id) +
-            sizeof(fill_cmd.memory_offset) + sizeof(fill_cmd.memory_size) + write_size;
+        fill_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(fill_cmd) + write_size;
 
         {
             std::lock_guard<std::mutex> lock(file_lock_);
@@ -818,12 +813,11 @@ void TraceManager::WriteCreateHardwareBufferCmd(format::HandleId                
         assert(thread_data != nullptr);
 
         create_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        create_buffer_cmd.meta_header.block_header.size =
-            sizeof(create_buffer_cmd) - sizeof(create_buffer_cmd.meta_header.block_header);
-        create_buffer_cmd.meta_header.meta_data_type = format::MetaDataType::kCreateHardwareBufferCommand;
-        create_buffer_cmd.thread_id                  = thread_data->thread_id_;
-        create_buffer_cmd.memory_id                  = memory_id;
-        create_buffer_cmd.buffer_id                  = reinterpret_cast<uint64_t>(buffer);
+        create_buffer_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(create_buffer_cmd);
+        create_buffer_cmd.meta_header.meta_data_type    = format::MetaDataType::kCreateHardwareBufferCommand;
+        create_buffer_cmd.thread_id                     = thread_data->thread_id_;
+        create_buffer_cmd.memory_id                     = memory_id;
+        create_buffer_cmd.buffer_id                     = reinterpret_cast<uint64_t>(buffer);
 
         // Get AHB description data.
         AHardwareBuffer_Desc ahb_desc = {};
@@ -888,11 +882,10 @@ void TraceManager::WriteDestroyHardwareBufferCmd(AHardwareBuffer* buffer)
         assert(thread_data != nullptr);
 
         destroy_buffer_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        destroy_buffer_cmd.meta_header.block_header.size =
-            sizeof(destroy_buffer_cmd) - sizeof(destroy_buffer_cmd.meta_header.block_header);
-        destroy_buffer_cmd.meta_header.meta_data_type = format::MetaDataType::kDestroyHardwareBufferCommand;
-        destroy_buffer_cmd.thread_id                  = thread_data->thread_id_;
-        destroy_buffer_cmd.buffer_id                  = reinterpret_cast<uint64_t>(buffer);
+        destroy_buffer_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(destroy_buffer_cmd);
+        destroy_buffer_cmd.meta_header.meta_data_type    = format::MetaDataType::kDestroyHardwareBufferCommand;
+        destroy_buffer_cmd.thread_id                     = thread_data->thread_id_;
+        destroy_buffer_cmd.buffer_id                     = reinterpret_cast<uint64_t>(buffer);
 
         {
             std::lock_guard<std::mutex> lock(file_lock_);
@@ -924,7 +917,7 @@ void TraceManager::WriteSetDevicePropertiesCommand(format::HandleId             
 
         properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         properties_cmd.meta_header.block_header.size =
-            (sizeof(properties_cmd) - sizeof(properties_cmd.meta_header.block_header)) + device_name_len;
+            format::GetMetaDataBlockBaseSize(properties_cmd) + device_name_len;
         properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDevicePropertiesCommand;
         properties_cmd.thread_id                  = thread_data->thread_id_;
         properties_cmd.physical_device_id         = physical_device_id;
@@ -963,7 +956,7 @@ void TraceManager::WriteSetDeviceMemoryPropertiesCommand(format::HandleId       
 
         memory_properties_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         memory_properties_cmd.meta_header.block_header.size =
-            (sizeof(memory_properties_cmd) - sizeof(memory_properties_cmd.meta_header.block_header)) +
+            format::GetMetaDataBlockBaseSize(memory_properties_cmd) +
             (sizeof(format::DeviceMemoryType) * memory_properties.memoryTypeCount) +
             (sizeof(format::DeviceMemoryHeap) * memory_properties.memoryHeapCount);
         memory_properties_cmd.meta_header.meta_data_type = format::MetaDataType::kSetDeviceMemoryPropertiesCommand;
