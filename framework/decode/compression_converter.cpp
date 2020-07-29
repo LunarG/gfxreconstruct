@@ -265,7 +265,7 @@ void CompressionConverter::DispatchResizeWindowCommand2(
     resize_cmd2.meta_header.block_header.size = sizeof(resize_cmd2.meta_header.meta_data_type) +
                                                 sizeof(resize_cmd2.thread_id) + sizeof(resize_cmd2.surface_id) +
                                                 sizeof(resize_cmd2.width) + sizeof(resize_cmd2.height);
-    resize_cmd2.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand;
+    resize_cmd2.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand2;
     resize_cmd2.thread_id                  = thread_id;
     resize_cmd2.surface_id                 = surface_id;
     resize_cmd2.width                      = width;
