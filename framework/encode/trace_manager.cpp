@@ -704,11 +704,9 @@ void TraceManager::WriteResizeWindowCmd2(format::HandleId              surface_i
     {
         format::ResizeWindowCommand2 resize_cmd2;
         resize_cmd2.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-        resize_cmd2.meta_header.block_header.size = sizeof(resize_cmd2.meta_header.meta_data_type) +
-                                                    sizeof(resize_cmd2.thread_id) + sizeof(resize_cmd2.surface_id) +
-                                                    sizeof(resize_cmd2.width) + sizeof(resize_cmd2.height);
-        resize_cmd2.meta_header.meta_data_type = format::MetaDataType::kResizeWindowCommand2;
-        resize_cmd2.thread_id                  = GetThreadData()->thread_id_;
+        resize_cmd2.meta_header.block_header.size = sizeof(resize_cmd2) - sizeof(resize_cmd2.meta_header.block_header);
+        resize_cmd2.meta_header.meta_data_type    = format::MetaDataType::kResizeWindowCommand2;
+        resize_cmd2.thread_id                     = GetThreadData()->thread_id_;
 
         resize_cmd2.surface_id = surface_id;
         resize_cmd2.width      = width;
