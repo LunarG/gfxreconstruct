@@ -68,6 +68,13 @@ inline BlockType RemoveCompressedBlockBit(BlockType type)
     return static_cast<BlockType>(type & ~kCompressedBlockTypeBit);
 }
 
+// Utilities for file encoding.
+template <typename T>
+uint64_t GetMetaDataBlockBaseSize(const T& block)
+{
+    return (sizeof(block) - sizeof(block.meta_header.block_header));
+}
+
 // Utilities for format validation.
 bool ValidateFileHeader(const FileHeader& header);
 
