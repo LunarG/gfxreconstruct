@@ -52,9 +52,8 @@ bool CompressionConverter::Initialize(std::string                               
         decompressing_ = false;
         compressor_    = format::CreateCompressor(target_compression_type);
 
-        if (nullptr == compressor_)
+        if (compressor_ == nullptr)
         {
-            GFXRECON_LOG_WARNING("Failed to initialized file compression module (type = %u)", target_compression_type);
             return false;
         }
     }
