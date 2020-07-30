@@ -1452,15 +1452,11 @@ void VulkanReplayConsumerBase::RaiseFatalError(const char* message) const
 
 void VulkanReplayConsumerBase::InitializeLoader()
 {
-    for (auto name : kLoaderLibNames)
+    loader_handle_ = util::platform::OpenLibrary(kLoaderLibNames);
+    if (loader_handle_ != nullptr)
     {
-        loader_handle_ = util::platform::OpenLibrary(name.c_str());
-        if (loader_handle_ != nullptr)
-        {
-            get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
-                util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
-            break;
-        }
+        get_instance_proc_addr_ = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
+            util::platform::GetProcAddress(loader_handle_, "vkGetInstanceProcAddr"));
     }
 
     if (get_instance_proc_addr_ != nullptr)

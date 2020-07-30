@@ -33,6 +33,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+const std::vector<std::string> kX11XcbLibNames = {
+#if defined(X11_XCB_LIBRARY)
+    X11_XCB_LIBRARY,
+#endif
+    "libX11-xcb.so.1",
+    "libX11-xcb.so"
+};
+
 #if defined(VK_USE_PLATFORM_XCB_KHR)
 bool Keyboard::Initialize(xcb_connection_t* connection)
 {
@@ -50,7 +58,7 @@ bool Keyboard::Initialize(Display* display)
 {
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     // TODO: Native Xlib support
-    auto xlib_xcb = util::platform::OpenLibrary("libX11-xcb.so");
+    auto xlib_xcb = util::platform::OpenLibrary(kX11XcbLibNames);
     if (xlib_xcb)
     {
         // Convert X display to XCB connection

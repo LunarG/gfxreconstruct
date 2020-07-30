@@ -22,6 +22,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+const std::vector<std::string> kWaylandLibNames = {
+#if defined(WAYLAND_LIBRARY)
+    WAYLAND_LIBRARY,
+#endif
+    "libwayland-client.so.0",
+    "libwayland-client.so"
+};
+
 WaylandLoader::WaylandLoader() : libwayland_(nullptr), function_table_{} {}
 
 WaylandLoader::~WaylandLoader()
@@ -40,7 +48,7 @@ bool WaylandLoader::Initialize()
     // Guard against double initialization
     if (!libwayland_)
     {
-        libwayland_ = util::platform::OpenLibrary("libwayland-client.so");
+        libwayland_ = util::platform::OpenLibrary(kWaylandLibNames);
         if (libwayland_)
         {
             // Client functions

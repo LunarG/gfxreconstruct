@@ -83,6 +83,22 @@ if (UNIX AND NOT APPLE)
     endif()
 endif()
 
+if (XCB_LIBRARY)
+    target_compile_definitions(gfxrecon_util PUBLIC "XCB_LIBRARY=\"${XCB_LIBRARY}\"")
+endif()
+
+if (XCB_KEYSYMS_LIBRARY)
+    target_compile_definitions(gfxrecon_util PUBLIC "XCB_KEYSYMS_LIBRARY=\"${XCB_KEYSYMS_LIBRARY}\"")
+endif()
+
+if (X11_XCB_LIBRARY)
+    target_compile_definitions(gfxrecon_util PUBLIC "X11_XCB_LIBRARY=\"${X11_XCB_LIBRARY}\"")
+endif()
+
+if (WAYLAND_LIBRARY)
+    target_compile_definitions(gfxrecon_util PUBLIC "WAYLAND_LIBRARY=\"${WAYLAND_LIBRARY}\"")
+endif()
+
 if (TARGET LZ4::LZ4)
     target_compile_definitions(gfxrecon_util PUBLIC ENABLE_LZ4_COMPRESSION)
     target_link_libraries(gfxrecon_util LZ4::LZ4)
