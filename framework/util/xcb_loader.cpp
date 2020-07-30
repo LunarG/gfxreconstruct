@@ -22,6 +22,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+const std::vector<std::string> kXcbLibNames = {
+#if defined(XCB_LIBRARY)
+    XCB_LIBRARY,
+#endif
+    "libxcb.so.1",
+    "libxcb.so"
+};
+
 XcbLoader::XcbLoader() : libxcb_(nullptr), function_table_{} {}
 
 XcbLoader::~XcbLoader()
@@ -40,7 +48,7 @@ bool XcbLoader::Initialize()
     // Guard against double initializaiton
     if (!libxcb_)
     {
-        libxcb_ = util::platform::OpenLibrary("libxcb.so");
+        libxcb_ = util::platform::OpenLibrary(kXcbLibNames);
         if (libxcb_)
         {
             function_table_.change_property = reinterpret_cast<decltype(xcb_change_property)*>(

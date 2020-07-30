@@ -27,6 +27,7 @@
 #include <cwchar>
 #include <string>
 #include <thread>
+#include <vector>
 
 #if defined(WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
@@ -449,6 +450,19 @@ inline int32_t MakeDirectory(const char* filename)
 }
 
 #endif // WIN32
+
+inline LibraryHandle OpenLibrary(const std::vector<std::string>& name_list)
+{
+    for (const auto& name : name_list)
+    {
+        const auto handle = OpenLibrary(name.c_str());
+        if (handle != nullptr)
+        {
+            return handle;
+        }
+    }
+    return nullptr;
+}
 
 inline size_t StringLength(const char* s)
 {

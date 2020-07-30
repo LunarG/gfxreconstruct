@@ -22,6 +22,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
+const std::vector<std::string> kXcbKeysymsLibNames = {
+#if defined(XCB_KEYSYMS_LIBRARY)
+    XCB_KEYSYMS_LIBRARY,
+#endif
+    "libxcb-keysyms.so.1",
+    "libxcb-keysyms.so"
+};
+
 XcbKeysymsLoader::XcbKeysymsLoader() : libxcbkeysyms_(nullptr), function_table_{} {}
 
 XcbKeysymsLoader::~XcbKeysymsLoader()
@@ -40,7 +48,7 @@ bool XcbKeysymsLoader::Initialize()
     // Guard against double initializaiton
     if (!libxcbkeysyms_)
     {
-        libxcbkeysyms_ = util::platform::OpenLibrary("libxcb-keysyms.so");
+        libxcbkeysyms_ = util::platform::OpenLibrary(kXcbKeysymsLibNames);
         if (libxcbkeysyms_)
         {
             function_table_.key_symbols_alloc = reinterpret_cast<decltype(xcb_key_symbols_alloc)*>(
