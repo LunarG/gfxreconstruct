@@ -202,7 +202,7 @@ For Ubuntu, the required packages can be installed with the following command:
 
 ```bash
 sudo apt-get install git cmake build-essential libx11-xcb-dev libxcb-keysyms1-dev \
-        libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+        libwayland-dev libxrandr-dev zlib1g-dev liblz4-dev libzstd-dev
 ```
 
 #### Fedora
@@ -212,7 +212,7 @@ command:
 
 ```bash
 sudo dnf install git cmake libxcb-devel libX11-devel xcb-util-keysyms-devel \
-        libXrandr-devel wayland-devel lz4-devel libzstd-devel
+        libXrandr-devel wayland-devel zlib-devel lz4-devel libzstd-devel
 ```
 
 ### Linux Build
