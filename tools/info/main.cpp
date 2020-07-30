@@ -18,6 +18,7 @@
 
 #include "decode/file_processor.h"
 #include "format/format.h"
+#include "format/format_util.h"
 #include "generated/generated_vulkan_consumer.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "util/argument_parser.h"
@@ -38,6 +39,8 @@ const char kVersionOption[]   = "--version";
 const char kNoDebugPopup[]    = "--no-debug-popup";
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup";
+
+const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -473,6 +476,31 @@ int main(int argc, const char** argv)
         if ((file_processor.GetCurrentFrameNumber() > 0) &&
             (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
         {
+            GFXRECON_WRITE_CONSOLE("File info:");
+
+            // File options.
+            gfxrecon::format::CompressionType compression_type = gfxrecon::format::CompressionType::kNone;
+
+            auto file_options = file_processor.GetFileOptions();
+            for (const auto& option : file_options)
+            {
+                if (option.key == gfxrecon::format::FileOption::kCompressionType)
+                {
+                    compression_type = static_cast<gfxrecon::format::CompressionType>(option.value);
+                }
+            }
+
+            // Compression type.
+            std::string compression_type_name = gfxrecon::format::GetCompressionTypeName(compression_type);
+            if (!compression_type_name.empty())
+            {
+                GFXRECON_WRITE_CONSOLE("\tCompression format: %s", compression_type_name.c_str());
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("\tCompression format: %s", kUnrecognizedFormatString);
+            }
+
             // Frame counts.
             uint32_t trim_start_frame = stats_consumer.GetTrimmedStartFrame();
             uint32_t frame_count      = file_processor.GetCurrentFrameNumber();
@@ -480,12 +508,12 @@ int main(int argc, const char** argv)
             if (trim_start_frame == 0)
             {
                 // Not a trimmed file.
-                GFXRECON_WRITE_CONSOLE("Total frames: %u", frame_count);
+                GFXRECON_WRITE_CONSOLE("\tTotal frames: %u", frame_count);
             }
             else
             {
                 // Include the frame range for trimmed files.
-                GFXRECON_WRITE_CONSOLE("Total frames: %u (trimmed frame range %u-%u)",
+                GFXRECON_WRITE_CONSOLE("\tTotal frames: %u (trimmed frame range %u-%u)",
                                        frame_count,
                                        trim_start_frame,
                                        trim_start_frame + frame_count - 1);

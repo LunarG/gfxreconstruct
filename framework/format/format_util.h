@@ -22,6 +22,8 @@
 #include "util/compressor.h"
 #include "util/defines.h"
 
+#include <string>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(format)
 
@@ -71,6 +73,8 @@ bool ValidateFileHeader(const FileHeader& header);
 
 // Utilities for object creation.
 util::Compressor* CreateCompressor(CompressionType type);
+
+std::string GetCompressionTypeName(CompressionType type);
 
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)

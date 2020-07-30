@@ -78,5 +78,24 @@ util::Compressor* CreateCompressor(CompressionType type)
     return compressor;
 }
 
+std::string GetCompressionTypeName(CompressionType type)
+{
+    switch (type)
+    {
+        case kLz4:
+            return "LZ4";
+        case kZlib:
+            return "zlib";
+        case kZstd:
+            return "Zstandard";
+        case kNone:
+            return "None";
+        default:
+            break;
+    }
+
+    return "";
+}
+
 GFXRECON_END_NAMESPACE(format)
 GFXRECON_END_NAMESPACE(gfxrecon)
