@@ -85,12 +85,14 @@ configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/p
 
 # Code checks
 include("CodeStyle")
-include("Test")
+include("Cpp")
 include("Lint")
+include("Test")
 include("FindVulkanVersion")
 
 # Apply misc build directives to the given target
 macro(common_build_directives TARGET)
+    set_cxx_target_output_dir(${TARGET})
     target_code_style_build_directives(${TARGET})
     target_lint_build_directives(${TARGET})
     add_target_to_test_package(${TARGET})
