@@ -14,7 +14,7 @@
 # limitations under the License.
 
 '''
-GFX reconstruct build script
+GFXReconstruct build script
 '''
 
 import argparse
@@ -39,8 +39,6 @@ DEFAULT_ARCHITECTURE = ARCHITECTURES[0]
 BUILD_ROOT = os.path.abspath(
     os.path.join(os.path.split(os.path.abspath(__file__))[0], '..'))
 BUILD_CONFIGS = {'debug': 'dbuild', 'release': 'build'}
-if is_windows():
-    BUILD_CONFIGS['debug'] = 'build'
 CMAKE_VERSION_3_13 = distutils.version.StrictVersion('3.13.0')
 CONFIGURATIONS = ['release', 'debug']
 DEFAULT_CONFIGURATION = CONFIGURATIONS[0]
@@ -118,14 +116,31 @@ def update_external_dependencies(args):
             raise BuildError('failed to update git submodules')
 
 
-def build_dir(args):
-    '''
-    Get the CMake build directory
+def build_dir(configuration, architecture):
+    '''Get the CMake build directory
     '''
     return os.path.join(BUILD_ROOT,
-                        BUILD_CONFIGS[args.configuration],
+                        BUILD_CONFIGS[configuration],
                         platform.system().lower(),
-                        args.architecture)
+                        architecture)
+
+
+def build_output_dir(configuration, architecture):
+    '''Get the build output directory
+
+    This is the directory that will hold the compiled, linked and generated
+    outputs of the build.
+    '''
+    return os.path.join(build_dir(configuration, architecture), 'output')
+
+
+def build_cmake_output_dir(configuration, architecture):
+    '''Get the CMake files output directory
+
+    This is the directory that will hold the CMake cache, and generated build
+    files.
+    '''
+    return os.path.join(build_dir(configuration, architecture), 'cmake_output')
 
 
 def cmake_version():
@@ -178,7 +193,8 @@ def cmake_generate_build_files(args):
     system = platform.system().lower()
     cmake_generate_args = [
         'cmake',
-        '-DCMAKE_INSTALL_PREFIX=' + os.path.join(build_dir(args), 'install')]
+        '-DCMAKE_INSTALL_PREFIX=' + os.path.join(
+            build_dir(args.configuration, args.architecture), 'install')]
     cmake_generate_env = os.environ.copy()
     if 'windows' == system:
         if 'x64' == args.architecture:
@@ -188,28 +204,25 @@ def cmake_generate_build_files(args):
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
         else:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
-        if (shutil.which('clang') is not None) and\
-                (shutil.which('clang++') is not None):
-            cmake_generate_env['CC'] = 'clang'
-            cmake_generate_env['CXX'] = 'clang++'
-    for config, dir in BUILD_CONFIGS.items():
+    for config in BUILD_CONFIGS.keys():
         for output in [('ARCHIVE', 'lib'), ('LIBRARY', 'bin'), ('RUNTIME', 'bin')]:
             cmake_generate_args.append(
-                '-DCMAKE_{0}_OUTPUT_DIRECTORY_{1}={2}/{3}/{4}/{5}/{6}'.format(
+                '-DCMAKE_{0}_OUTPUT_DIRECTORY_{1}={2}'.format(
                     output[0],
                     config.upper(),
-                    BUILD_ROOT,
-                    dir,
-                    system,
-                    args.architecture,
-                    output[1]))
+                    os.path.join(
+                        build_output_dir(config, args.architecture), output[1])))
+    cmake_generate_args.append('-DPYTHON={0}'.format(sys.executable))
     cmake_generate_args.extend(cmake_generate_options(args))
     work_dir = BUILD_ROOT
     if(cmake_version() < CMAKE_VERSION_3_13):
-        work_dir = build_dir(args)
+        work_dir = build_cmake_output_dir(
+            args.configuration, args.architecture)
         cmake_generate_args.append(BUILD_ROOT)
     else:
-        cmake_generate_args.extend(['-S', '.', '-B', build_dir(args)])
+        cmake_generate_args.extend([
+            '-S', '.',
+            '-B', build_cmake_output_dir(args.configuration, args.architecture)])
     os.makedirs(work_dir, mode=0o744, exist_ok=True)
     cmake_generate_result = subprocess.run(
         cmake_generate_args, cwd=work_dir, env=cmake_generate_env)
@@ -228,25 +241,24 @@ def cmake_build(args):
     if args.clean or args.clobber:
         cmake_build_args.extend(['--target', 'clean'])
     cmake_build_result = subprocess.run(
-        cmake_build_args, cwd=build_dir(args))
+        cmake_build_args,
+        cwd=build_cmake_output_dir(args.configuration, args.architecture))
     if 0 != cmake_build_result.returncode:
         raise BuildError('cmake build failed')
 
 
 # Main entry point
 if '__main__' == __name__:
-    try:
-        args = parse_args()
-        clean = args.clean or args.clobber
-        if not clean:
-            update_external_dependencies(args)
-        build_dir_exists = os.path.exists(build_dir(args))
-        if (clean and build_dir_exists) or (not clean):
-            cmake_generate_build_files(args)
-            cmake_build(args)
-        if args.clobber and build_dir_exists:
-            shutil.rmtree(build_dir(args))
-    except Exception as error:
-        print('Error', *(error.args))
-        sys.exit(1)
+    args = parse_args()
+    clean = args.clean or args.clobber
+    if not clean:
+        update_external_dependencies(args)
+    build_dir_exists = os.path.exists(
+        build_dir(args.configuration, args.architecture))
+    if (clean and build_dir_exists) or (not clean):
+        cmake_generate_build_files(args)
+        cmake_build(args)
+    if args.clobber and build_dir_exists:
+        shutil.rmtree(
+            build_cmake_output_dir(args.configuration, args.architecture))
     sys.exit(0)

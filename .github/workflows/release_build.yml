@@ -50,12 +50,12 @@ jobs:
         python3 scripts/build.py --skip-check-code-style --skip-tests
     - name: Prepare artifacts
       run: |
-        cp LICENSE.txt build/linux/x64/bin/
-        cp LICENSE_ThirdParty.txt build/linux/x64/bin/
-        cp USAGE_desktop.md build/linux/x64/bin/
-        cp layer/vk_layer_settings.txt build/linux/x64/bin/
-        rm -rf build/linux/x64/bin/staging-json
-        mv build/linux/x64/bin gfxreconstruct-dev
+        cp LICENSE.txt build/linux/x64/output/bin/
+        cp LICENSE_ThirdParty.txt build/linux/x64/output/bin/
+        cp USAGE_desktop.md build/linux/x64/output/bin/
+        cp layer/vk_layer_settings.txt build/linux/x64/output/bin/
+        rm -rf build/linux/x64/output/bin/staging-json
+        mv build/linux/x64/output/bin gfxreconstruct-dev
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
@@ -83,11 +83,11 @@ jobs:
         python scripts\build.py --skip-check-code-style --skip-tests
     - name: Prepare artifacts
       run: |
-        copy LICENSE.txt build\windows\x64\bin\
-        copy LICENSE_ThirdParty.txt build\windows\x64\bin\
-        copy USAGE_desktop.md build\windows\x64\bin\
-        copy layer\vk_layer_settings.txt build\windows\x64\bin\
-        move build\windows\x64\bin gfxreconstruct-dev
+        copy LICENSE.txt build\windows\x64\output\bin\
+        copy LICENSE_ThirdParty.txt build\windows\x64\output\bin\
+        copy USAGE_desktop.md build\windows\x64\output\bin\
+        copy layer\vk_layer_settings.txt build\windows\x64\output\bin\
+        move build\windows\x64\output\bin gfxreconstruct-dev
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
