@@ -85,8 +85,8 @@ configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/p
 
 # Code checks
 include("CodeStyle")
-include("Test")
 include("Lint")
+include("Test")
 include("FindVulkanVersion")
 
 # Apply misc build directives to the given target
