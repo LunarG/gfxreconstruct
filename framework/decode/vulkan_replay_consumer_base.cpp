@@ -2683,6 +2683,11 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
         }
     }
 
+    if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
+    {
+        GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+    }
+
     return result;
 }
 
