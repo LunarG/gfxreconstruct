@@ -90,15 +90,37 @@ static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_p
 #endif
 }
 
-static void CheckActiveLayers(const char* env_var)
+static void CheckActiveLayers(const std::string& list)
 {
-    std::string result = gfxrecon::util::platform::GetEnv(env_var);
-
-    if (!result.empty())
+    if (!list.empty())
     {
-        if (result.find(kCaptureLayer) != std::string::npos)
+        // Check for the presence of the layer name in the list of active layers.
+        size_t start = list.find(kCaptureLayer);
+
+        if (start != std::string::npos)
         {
-            GFXRECON_LOG_WARNING("Replay tool has detected that the capture layer is enabled");
+            size_t end         = start + gfxrecon::util::platform::StringLength(kCaptureLayer);
+            bool   match_start = false;
+            bool   match_end   = false;
+
+            // For an exact match, the start of the layer name is either at the start of the list or comes after a path
+            // separator.
+            if ((start == 0) || ((list[start - 1] == ';') || (list[start - 1] == ':')))
+            {
+                match_start = true;
+            }
+
+            // For an exact match, the end of the layer name is either at the end of the list or comes before a path
+            // separator.
+            if ((list.length() == end) || ((list[end] == ';') || (list[end] == ':')))
+            {
+                match_end = true;
+            }
+
+            if (match_start && match_end)
+            {
+                GFXRECON_LOG_WARNING("Replay tool has detected that the capture layer is enabled");
+            }
         }
     }
 }

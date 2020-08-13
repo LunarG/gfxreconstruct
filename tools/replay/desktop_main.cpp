@@ -154,7 +154,7 @@ int main(int argc, const char** argv)
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
 
                 // Warn if the capture layer is active.
-                CheckActiveLayers(kLayerEnvVar);
+                CheckActiveLayers(gfxrecon::util::platform::GetEnv(kLayerEnvVar));
 
                 // Grab the start frame/time information for the FPS result.
                 uint32_t start_frame = 1;
