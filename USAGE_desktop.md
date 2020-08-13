@@ -327,9 +327,9 @@ The `gfxrecon-replay` tool for desktop accepts the following command line
 arguments:
 
 ```text
-gfxrecon-replay         [--version] [--gpu <index>] [--pause-frame <N>]
-                        [--paused] [--sfa | --skip-failed-allocations]
-                        [--replace-shaders <dir>]
+gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
+                        [--pause-frame <N>] [--paused] [-s | --sync]
+                        [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [-m <mode> | --memory-translation <mode>] <file>
 
@@ -337,6 +337,7 @@ Required arguments:
   <file>                Path to the capture file to replay.
 
 Optional arguments:
+  -h                    Print usage information and exit (same as --help).
   --version             Print version information and exit.
   --gpu <index>         Use the specified device for replay, where index
                         is the zero-based index to the array of physical devices
@@ -350,13 +351,15 @@ Optional arguments:
                         vkAllocateDescriptorSets calls that failed during
                         capture (same as --skip-failed-allocations).
   --replace-shaders <dir> Replace the shader code in each CreateShaderModule
-                        with the contents of the file <dir>/sh<handle_id> if
-                        found, where <handle_id> is the handle id of the
-                        vkCreateShaderModule call. Also see gfxrecon-extract.
+                        with the contents of the file <dir>/sh<handle_id> if found, where
+                        <handle_id> is the handle id of the CreateShaderModule call.
+                        See gfxrecon-extract.
   --opcd                Omit pipeline cache data from calls to
                         vkCreatePipelineCache (same as --omit-pipeline-cache-data).
   --wsi <platform>      Force replay to use the specified wsi platform.
                         Available platforms are: auto,win32,xcb,wayland
+  -s                    Synchronize after each queue submission with vkQueueWaitIdle
+                        (same as --sync).
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:

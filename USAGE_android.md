@@ -284,7 +284,7 @@ The `gfxrecon.py replay` command has the following usage:
 
 ```text
 usage: gfxrecon.py replay [-h] [-p local-file] [--version] [--pause-frame N]
-                          [--paused] [--sfa] [--opcd] [-m <mode>]
+                          [--paused] [--sfa] [--opcd] [-s] [-m <mode>]
                           [file]
 
 positional arguments:
@@ -308,6 +308,8 @@ optional arguments:
   --opcd, --omit-pipeline-cache-data
                         Omit pipeline cache data from calls to
                         vkCreatePipelineCache (forwarded to replay tool)
+  -s, --sync            Synchronize after each queue submission with
+                        vkQueueWaitIdle (forwarded to replay tool)
   -m <mode>, --memory-translation <mode>
                         Enable memory translation for replay on GPUs with
                         memory types that are not compatible with the capture

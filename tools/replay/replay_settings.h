@@ -350,8 +350,7 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup]");
 #endif
-    GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--emrp | --enable-multipass-replay-portability] <file>\n");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>] <file>\n");
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
@@ -381,7 +380,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("       \t\t\tdisplayed when abort() is called (Windows debug only).");
 #endif
     GFXRECON_WRITE_CONSOLE("  -s\t\t\tSynchronize after each queue submission with vkQueueWaitIdle");
-    GFXRECON_WRITE_CONSOLE("    \t\t\t(Same as --sync).");
+    GFXRECON_WRITE_CONSOLE("    \t\t\t(same as --sync).");
     GFXRECON_WRITE_CONSOLE("  -m <mode>\t\tEnable memory translation for replay on GPUs with memory");
     GFXRECON_WRITE_CONSOLE("          \t\ttypes that are not compatible with the capture GPU's");
     GFXRECON_WRITE_CONSOLE("          \t\tmemory types.  Available modes are:");
