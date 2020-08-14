@@ -19,10 +19,24 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+# Get the target build architecture.
+# There is no CMake variable that stores target build architecture, it is
+# derived from the CMake void* size
+if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+    set(ARCHITECTURE "x64")
+elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
+    set(ARCHITECTURE "x86")
+else()
+    message(FATAL_ERROR "Failed to detect target architecture")
+endif()
+
+# Get the CMake target build OS from the host system name
+string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} HOST_SYSTEM_NAME)
+
 # Set target build output directory
 function(set_cxx_target_output_dir TARGET)
-    set(OUTPUT_DIR_DEBUG "${BUILD_DIR_DEBUG}/output")
-    set(OUTPUT_DIR_RELEASE "${BUILD_DIR_RELEASE}/output")
+    set(OUTPUT_DIR_DEBUG "${CMAKE_SOURCE_DIR}/dbuild/${HOST_SYSTEM_NAME}/${ARCHITECTURE}/output")
+    set(OUTPUT_DIR_RELEASE "${CMAKE_SOURCE_DIR}/build/${HOST_SYSTEM_NAME}/${ARCHITECTURE}/output")
     set_target_properties(${TARGET}
             PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${OUTPUT_DIR_DEBUG}/lib

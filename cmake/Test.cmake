@@ -90,26 +90,21 @@ if (${RUN_TESTS})
     function(generate_test_package TEST_ARCHIVE)
         get_property(TEST_ARCHIVE_FILES GLOBAL PROPERTY TEST_ARCHIVE_FILES)
         if(${GENERATE_TEST_ARCHIVE})
-            set(CMAKE_PACKAGE_DIR "$<$<CONFIG:Debug>:${BUILD_DIR_DEBUG}>$<$<CONFIG:Release>:${BUILD_DIR_RELEASE}>/packages")
             if(CMAKE_HOST_WIN32)
+                set(TEST_ARCHIVE_DIR build/packages/windows/${ARCHITECTURE})
+                file(MAKE_DIRECTORY ${TEST_ARCHIVE_DIR})
                 add_custom_target(GenerateTestPackage ALL
-                    COMMAND cmake -E make_directory "${CMAKE_PACKAGE_DIR}"
-                    COMMAND cmake -E tar "vcf"
-                        "${CMAKE_PACKAGE_DIR}/${TEST_ARCHIVE}.zip"
-                        --format=zip
-                        --
+                    COMMAND cmake -E tar "vcf" ${TEST_ARCHIVE_DIR}/${TEST_ARCHIVE}.zip --format=zip --
                         ${TEST_ARCHIVE_FILES}
                     DEPENDS ${TEST_ARCHIVE_FILES}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                     COMMENT "Generate Windows test package")
             elseif(CMAKE_HOST_UNIX)
+                set(TEST_ARCHIVE_DIR build/packages/linux/${ARCHITECTURE})
+                file(MAKE_DIRECTORY ${TEST_ARCHIVE_DIR})
                 add_custom_target(GenerateTestPackage ALL
-                    COMMAND cmake -E make_directory "${CMAKE_PACKAGE_DIR}"
-                    COMMAND cmake -E tar "cf"
-                    "${CMAKE_PACKAGE_DIR}/${TEST_ARCHIVE}.tar"
-                    --format=gnutar
-                    --
-                    ${TEST_ARCHIVE_FILES}
+                    COMMAND cmake -E tar "cf" ${TEST_ARCHIVE_DIR}/${TEST_ARCHIVE}.tar --format=gnutar --
+                        ${TEST_ARCHIVE_FILES}
                     DEPENDS ${TEST_ARCHIVE_FILES}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                     COMMENT "Generate Linux test package")
