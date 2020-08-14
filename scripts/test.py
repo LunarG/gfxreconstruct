@@ -135,7 +135,6 @@ if '__main__' == __name__:
                     build_script.BUILD_CONFIGS[args.configuration],
                     platform.system().lower(),
                     args.architecture,
-                    'output',
                     'bin')
             test_exe = os.path.join(test_exe_dir, test[0])
             test_args = copy.deepcopy(test[1])
@@ -146,4 +145,3 @@ if '__main__' == __name__:
         tests = [(args.test_exe, args.test_args)]
     for test_exe, test_args in tests:
         run_test(test_exe, test_args)
-    sys.exit(0)
