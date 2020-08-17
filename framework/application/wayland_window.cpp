@@ -169,11 +169,26 @@ VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
                                       VkFlags                      flags,
                                       VkSurfaceKHR*                pSurface)
 {
-    VkWaylandSurfaceCreateInfoKHR create_info{
-        VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR, nullptr, flags, wayland_application_->GetDisplay(), surface_
-    };
+    if (table != nullptr)
+    {
+        VkWaylandSurfaceCreateInfoKHR create_info{ VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
+                                                   nullptr,
+                                                   flags,
+                                                   wayland_application_->GetDisplay(),
+                                                   surface_ };
 
-    return table->CreateWaylandSurfaceKHR(instance, &create_info, nullptr, pSurface);
+        return table->CreateWaylandSurfaceKHR(instance, &create_info, nullptr, pSurface);
+    }
+
+    return VK_ERROR_INITIALIZATION_FAILED;
+}
+
+void WaylandWindow::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+{
+    if (table != nullptr)
+    {
+        table->DestroySurfaceKHR(instance, surface, nullptr);
+    }
 }
 
 void WaylandWindow::UpdateWindowSize()

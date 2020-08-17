@@ -63,6 +63,8 @@ class Win32Window : public decode::Window
                                    VkFlags                      flags,
                                    VkSurfaceKHR*                pSurface) override;
 
+    virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+
   private:
     HWND              hwnd_;
     Win32Application* win32_application_;

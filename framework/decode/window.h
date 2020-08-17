@@ -73,14 +73,16 @@ class Window
 
     virtual VkResult
     CreateSurface(const encode::InstanceTable* table, VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface) = 0;
+
+    virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) = 0;
 };
 
 class WindowFactory
 {
   public:
-    WindowFactory(){};
+    WindowFactory() {}
 
-    virtual ~WindowFactory(){};
+    virtual ~WindowFactory() {}
 
     virtual const char* GetSurfaceExtensionName() const = 0;
 
