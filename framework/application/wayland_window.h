@@ -66,6 +66,8 @@ class WaylandWindow : public decode::Window
                                    VkFlags                      flags,
                                    VkSurfaceKHR*                pSurface) override;
 
+    virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+
   private:
     static void HandleSurfaceEnter(void* data, struct wl_surface* surface, struct wl_output* output);
     static void HandleSurfaceLeave(void* data, struct wl_surface* surface, struct wl_output* output);

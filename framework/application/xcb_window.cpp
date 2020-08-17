@@ -396,11 +396,24 @@ bool XcbWindow::GetNativeHandle(HandleType type, void** handle)
 VkResult
 XcbWindow::CreateSurface(const encode::InstanceTable* table, VkInstance instance, VkFlags flags, VkSurfaceKHR* pSurface)
 {
-    VkXcbSurfaceCreateInfoKHR create_info{
-        VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR, nullptr, flags, xcb_application_->GetConnection(), window_
-    };
+    if (table != nullptr)
+    {
+        VkXcbSurfaceCreateInfoKHR create_info{
+            VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR, nullptr, flags, xcb_application_->GetConnection(), window_
+        };
 
-    return table->CreateXcbSurfaceKHR(instance, &create_info, nullptr, pSurface);
+        return table->CreateXcbSurfaceKHR(instance, &create_info, nullptr, pSurface);
+    }
+
+    return VK_ERROR_INITIALIZATION_FAILED;
+}
+
+void XcbWindow::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+{
+    if (table != nullptr)
+    {
+        table->DestroySurfaceKHR(instance, surface, nullptr);
+    }
 }
 
 xcb_intern_atom_cookie_t

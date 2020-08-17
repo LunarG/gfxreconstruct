@@ -81,6 +81,8 @@ class XcbWindow : public decode::Window
                                    VkFlags                      flags,
                                    VkSurfaceKHR*                pSurface) override;
 
+    virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+
   private:
     void SetFullscreen(bool fullscreen);
 

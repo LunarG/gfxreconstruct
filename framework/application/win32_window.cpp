@@ -258,11 +258,24 @@ VkResult Win32Window::CreateSurface(const encode::InstanceTable* table,
                                     VkFlags                      flags,
                                     VkSurfaceKHR*                pSurface)
 {
-    VkWin32SurfaceCreateInfoKHR create_info{
-        VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR, nullptr, flags, hinstance_, hwnd_
-    };
+    if (table != nullptr)
+    {
+        VkWin32SurfaceCreateInfoKHR create_info{
+            VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR, nullptr, flags, hinstance_, hwnd_
+        };
 
-    return table->CreateWin32SurfaceKHR(instance, &create_info, nullptr, pSurface);
+        return table->CreateWin32SurfaceKHR(instance, &create_info, nullptr, pSurface);
+    }
+
+    return VK_ERROR_INITIALIZATION_FAILED;
+}
+
+void Win32Window::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+{
+    if (table != nullptr)
+    {
+        table->DestroySurfaceKHR(instance, surface, nullptr);
+    }
 }
 
 Win32WindowFactory::Win32WindowFactory(Win32Application* application) : win32_application_(application)

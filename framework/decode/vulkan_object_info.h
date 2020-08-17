@@ -194,7 +194,7 @@ struct InstanceInfo : public VulkanObjectInfo<VkInstance>
 
     // Ensure swapchains and surfaces are cleaned up on exit to avoid issues encountered when calling xcb_disconnect
     // with active xcb surfaces.
-    std::unordered_set<VkSurfaceKHR> active_surfaces;
+    std::unordered_map<VkSurfaceKHR, Window*> active_surfaces;
 };
 
 struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>

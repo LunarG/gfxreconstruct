@@ -167,10 +167,20 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
         if (instance_info != nullptr)
         {
             VkInstance instance = instance_info->handle;
+            auto       table    = GetInstanceTable(instance);
 
             for (auto surface : instance_info->active_surfaces)
             {
-                GetInstanceTable(instance)->DestroySurfaceKHR(instance, surface, nullptr);
+                auto window = surface.second;
+
+                if (window != nullptr)
+                {
+                    window->DestroySurface(table, instance, surface.first);
+                }
+                else
+                {
+                    table->DestroySurfaceKHR(instance, surface.first, nullptr);
+                }
             }
         }
     }
@@ -1996,7 +2006,7 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
         surface_info->window = window;
         active_windows_.insert(window);
 
-        instance_info->active_surfaces.insert(*replay_surface);
+        instance_info->active_surfaces.insert(std::make_pair(*replay_surface, window));
     }
     else
     {
@@ -4259,12 +4269,15 @@ void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(
         instance_info->active_surfaces.erase(surface);
     }
 
-    func(instance, surface, GetAllocationCallbacks(pAllocator));
-
     if (window != nullptr)
     {
+        window->DestroySurface(GetInstanceTable(instance), instance, surface);
         active_windows_.erase(window);
         window_factory_->Destroy(window);
+    }
+    else
+    {
+        func(instance, surface, GetAllocationCallbacks(pAllocator));
     }
 }
 

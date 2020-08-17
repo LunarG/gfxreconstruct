@@ -110,11 +110,24 @@ VkResult AndroidWindow::CreateSurface(const encode::InstanceTable* table,
                                       VkFlags                      flags,
                                       VkSurfaceKHR*                pSurface)
 {
-    VkAndroidSurfaceCreateInfoKHR create_info{
-        VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR, nullptr, flags, window_
-    };
+    if (table != nullptr)
+    {
+        VkAndroidSurfaceCreateInfoKHR create_info{
+            VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR, nullptr, flags, window_
+        };
 
-    return table->CreateAndroidSurfaceKHR(instance, &create_info, nullptr, pSurface);
+        return table->CreateAndroidSurfaceKHR(instance, &create_info, nullptr, pSurface);
+    }
+
+    return VK_ERROR_INITIALIZATION_FAILED;
+}
+
+void AndroidWindow::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+{
+    if (table != nullptr)
+    {
+        table->DestroySurfaceKHR(instance, surface, nullptr);
+    }
 }
 
 AndroidWindowFactory::AndroidWindowFactory(AndroidApplication* application) : android_application_(application)

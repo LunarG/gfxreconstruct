@@ -62,6 +62,8 @@ class AndroidWindow : public decode::Window
                                    VkFlags                      flags,
                                    VkSurfaceKHR*                pSurface) override;
 
+    virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+
   private:
     AndroidApplication* android_application_;
     ANativeWindow*      window_;
