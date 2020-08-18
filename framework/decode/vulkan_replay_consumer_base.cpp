@@ -153,9 +153,14 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
             // Idle device before destroying other resources.
             GetDeviceTable(device)->DeviceWaitIdle(device);
 
-            for (auto swapchain : device_info->active_swapchains)
+            for (auto swapchain_id : device_info->active_swapchains)
             {
-                GetDeviceTable(device)->DestroySwapchainKHR(device, swapchain, nullptr);
+                auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_id);
+
+                if (swapchain_info != nullptr)
+                {
+                    GetDeviceTable(device)->DestroySwapchainKHR(device, swapchain_info->handle, nullptr);
+                }
             }
         }
     }
@@ -169,17 +174,21 @@ VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
             VkInstance instance = instance_info->handle;
             auto       table    = GetInstanceTable(instance);
 
-            for (auto surface : instance_info->active_surfaces)
+            for (auto surface_id : instance_info->active_surfaces)
             {
-                auto window = surface.second;
+                auto surface_info = object_info_table_.GetSurfaceKHRInfo(surface_id);
 
-                if (window != nullptr)
+                if (surface_info)
                 {
-                    window->DestroySurface(table, instance, surface.first);
-                }
-                else
-                {
-                    table->DestroySurfaceKHR(instance, surface.first, nullptr);
+                    auto window = surface_info->window;
+                    if (window != nullptr)
+                    {
+                        window->DestroySurface(table, instance, surface_info->handle);
+                    }
+                    else
+                    {
+                        table->DestroySurfaceKHR(instance, surface_info->handle, nullptr);
+                    }
                 }
             }
         }
@@ -2000,13 +2009,14 @@ VkResult VulkanReplayConsumerBase::CreateSurface(InstanceInfo*                  
 
     if ((result == VK_SUCCESS) && (replay_surface != nullptr))
     {
+        auto surface_id   = surface->GetPointer();
         auto surface_info = reinterpret_cast<SurfaceKHRInfo*>(surface->GetConsumerData(0));
-        assert(surface_info != nullptr);
+        assert((surface_id != nullptr) && (surface_info != nullptr));
 
         surface_info->window = window;
         active_windows_.insert(window);
 
-        instance_info->active_surfaces.insert(std::make_pair(*replay_surface, window));
+        instance_info->active_surfaces.insert(*surface_id);
     }
     else
     {
@@ -3743,7 +3753,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
-    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pSwapchain != nullptr) &&
+    assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pSwapchain != nullptr) && !pSwapchain->IsNull() &&
            (pSwapchain->GetHandlePointer() != nullptr));
 
     auto replay_create_info = pCreateInfo->GetPointer();
@@ -3771,7 +3781,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
 
         swapchain_info->surface = replay_create_info->surface;
 
-        device_info->active_swapchains.insert(*replay_swapchain);
+        device_info->active_swapchains.insert(*pSwapchain->GetPointer());
     }
 
     return result;
@@ -3791,7 +3801,7 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
     if (swapchain_info != nullptr)
     {
         swapchain = swapchain_info->handle;
-        device_info->active_swapchains.erase(swapchain);
+        device_info->active_swapchains.erase(swapchain_info->capture_id);
     }
 
     func(device, swapchain, GetAllocationCallbacks(pAllocator));
@@ -4266,7 +4276,7 @@ void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(
     {
         surface = surface_info->handle;
         window  = surface_info->window;
-        instance_info->active_surfaces.erase(surface);
+        instance_info->active_surfaces.erase(surface_info->capture_id);
     }
 
     if (window != nullptr)
