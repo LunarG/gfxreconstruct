@@ -53,14 +53,15 @@ jobs:
         cp LICENSE_ThirdParty.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
         cp USAGE_desktop.md ${{ matrix.config.build_dir }}/linux/x64/output/bin/
         cp layer/vk_layer_settings.txt ${{ matrix.config.build_dir }}/linux/x64/output/bin/
-        rm -rf ${{ matrix.config.build_dir }}/linux/x64/output/bin/staging-json
         mv ${{ matrix.config.build_dir }}/linux/x64/output/bin gfxreconstruct-dev
+        mv ${{ matrix.config.build_dir }}/linux/x64/output/lib*/*.so gfxreconstruct-dev/
+        mv ${{ matrix.config.build_dir }}/linux/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev
-  
+
   windows:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}

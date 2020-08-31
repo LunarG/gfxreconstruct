@@ -17,7 +17,7 @@ name: SDK Android Build
 
 on:
   push:
-    tags:       
+    tags:
       - sdk-*
 
 jobs:

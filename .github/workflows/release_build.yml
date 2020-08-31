@@ -22,7 +22,7 @@ name: Release Build
 
 on:
   push:
-    tags:       
+    tags:
       - v*
 
 jobs:
@@ -54,14 +54,15 @@ jobs:
         cp LICENSE_ThirdParty.txt build/linux/x64/output/bin/
         cp USAGE_desktop.md build/linux/x64/output/bin/
         cp layer/vk_layer_settings.txt build/linux/x64/output/bin/
-        rm -rf build/linux/x64/output/bin/staging-json
         mv build/linux/x64/output/bin gfxreconstruct-dev
+        mv build/linux/x64/output/lib*/*.so gfxreconstruct-dev/
+        mv build/linux/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev
-  
+
   windows:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
