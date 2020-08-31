@@ -60,6 +60,12 @@ def parse_args():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     arg_parser.add_argument('--version', dest='version',
                             action='version', version=str(VERSION))
+    arg_parser.add_argument('--build-dir', dest='build_dir',
+                            metavar='PATH', action='store', default=None,
+                            help='Directory for build files. When not specified, defaults to <build|dbuild>/<platform>/<architecture>/cmake_output')
+    arg_parser.add_argument('--install-dir', dest='install_dir',
+                            metavar='PATH', action='store', default=None,
+                            help='Install directory for build artifacts. When not specified, defaults to <build|dbuild>/<platform>/<architecture>/output')
     arg_parser.add_argument(
         '-a', '--arch', dest='architecture',
         metavar='ARCH', action='store',
@@ -116,7 +122,7 @@ def update_external_dependencies(args):
             raise BuildError('failed to update git submodules')
 
 
-def build_dir(configuration, architecture):
+def prefix_dir(configuration, architecture):
     '''Get the CMake build directory
     '''
     return os.path.join(BUILD_ROOT,
@@ -125,22 +131,28 @@ def build_dir(configuration, architecture):
                         architecture)
 
 
-def build_output_dir(configuration, architecture):
+def get_install_dir(user_install_dir, configuration, architecture):
     '''Get the build output directory
 
     This is the directory that will hold the compiled, linked and generated
     outputs of the build.
     '''
-    return os.path.join(build_dir(configuration, architecture), 'output')
+    if user_install_dir:
+        return user_install_dir
+    else:
+        return os.path.join(prefix_dir(configuration, architecture), 'output')
 
 
-def build_cmake_output_dir(configuration, architecture):
+def get_build_dir(user_build_dir, configuration, architecture):
     '''Get the CMake files output directory
 
     This is the directory that will hold the CMake cache, and generated build
     files.
     '''
-    return os.path.join(build_dir(configuration, architecture), 'cmake_output')
+    if user_build_dir:
+        return user_build_dir
+    else:
+        return os.path.join(prefix_dir(configuration, architecture), 'cmake_output')
 
 
 def cmake_version():
@@ -193,8 +205,7 @@ def cmake_generate_build_files(args):
     system = platform.system().lower()
     cmake_generate_args = [
         'cmake',
-        '-DCMAKE_INSTALL_PREFIX=' + os.path.join(
-            build_dir(args.configuration, args.architecture), 'install')]
+        '-DCMAKE_INSTALL_PREFIX=' + get_install_dir(args.install_dir, args.configuration, args.architecture)]
     cmake_generate_env = os.environ.copy()
     if 'windows' == system:
         if 'x64' == args.architecture:
@@ -204,25 +215,17 @@ def cmake_generate_build_files(args):
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
         else:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
-    for config in BUILD_CONFIGS.keys():
-        for output in [('ARCHIVE', 'lib'), ('LIBRARY', 'bin'), ('RUNTIME', 'bin')]:
-            cmake_generate_args.append(
-                '-DCMAKE_{0}_OUTPUT_DIRECTORY_{1}={2}'.format(
-                    output[0],
-                    config.upper(),
-                    os.path.join(
-                        build_output_dir(config, args.architecture), output[1])))
     cmake_generate_args.append('-DPYTHON={0}'.format(sys.executable))
     cmake_generate_args.extend(cmake_generate_options(args))
     work_dir = BUILD_ROOT
     if(cmake_version() < CMAKE_VERSION_3_13):
-        work_dir = build_cmake_output_dir(
-            args.configuration, args.architecture)
+        work_dir = get_build_dir(
+            args.build_dir, args.configuration, args.architecture)
         cmake_generate_args.append(BUILD_ROOT)
     else:
         cmake_generate_args.extend([
             '-S', '.',
-            '-B', build_cmake_output_dir(args.configuration, args.architecture)])
+            '-B', get_build_dir(args.build_dir, args.configuration, args.architecture)])
     os.makedirs(work_dir, mode=0o744, exist_ok=True)
     cmake_generate_result = subprocess.run(
         cmake_generate_args, cwd=work_dir, env=cmake_generate_env)
@@ -242,9 +245,19 @@ def cmake_build(args):
         cmake_build_args.extend(['--target', 'clean'])
     cmake_build_result = subprocess.run(
         cmake_build_args,
-        cwd=build_cmake_output_dir(args.configuration, args.architecture))
+        cwd=get_build_dir(args.build_dir, args.configuration, args.architecture))
     if 0 != cmake_build_result.returncode:
         raise BuildError('cmake build failed')
+    if not (args.clean or args.clobber):
+        cmake_install_args = ['cmake', '--install', '.']
+        if is_windows():
+            cmake_install_args.extend(
+                ['--config', args.configuration.capitalize()])
+        cmake_install_result = subprocess.run(
+            cmake_install_args,
+            cwd=get_build_dir(args.build_dir, args.configuration, args.architecture))
+        if 0 != cmake_install_result.returncode:
+            raise BuildError('cmake install failed')
 
 
 # Main entry point
@@ -253,12 +266,15 @@ if '__main__' == __name__:
     clean = args.clean or args.clobber
     if not clean:
         update_external_dependencies(args)
-    build_dir_exists = os.path.exists(
-        build_dir(args.configuration, args.architecture))
+    build_dir = get_build_dir(args.build_dir, args.configuration, args.architecture)
+    build_dir_exists = os.path.exists(build_dir)
     if (clean and build_dir_exists) or (not clean):
         cmake_generate_build_files(args)
         cmake_build(args)
-    if args.clobber and build_dir_exists:
-        shutil.rmtree(
-            build_cmake_output_dir(args.configuration, args.architecture))
+    if args.clobber:
+        if build_dir_exists:
+            shutil.rmtree(build_dir)
+        install_dir = get_install_dir(args.install_dir, args.configuration, args.architecture)
+        if os.path.exists(install_dir):
+            shutil.rmtree(install_dir)
     sys.exit(0)
