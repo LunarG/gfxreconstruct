@@ -210,11 +210,15 @@ def cmake_generate_build_files(args):
     if 'windows' == system:
         if 'x64' == args.architecture:
             cmake_generate_args.extend(['-A', 'x64'])
+        elif 'x86' == args.architecture:
+            cmake_generate_args.extend(['-A', 'Win32'])
     else:
         if 'debug' == args.configuration:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Debug')
         else:
             cmake_generate_args.append('-DCMAKE_BUILD_TYPE=Release')
+        if 'x86' == args.architecture:
+            cmake_generate_args.extend(['-DCMAKE_CXX_FLAGS=-m32', '-DCMAKE_SHARED_LINKER_FLAGS=-m32'])
     cmake_generate_args.append('-DPYTHON={0}'.format(sys.executable))
     cmake_generate_args.extend(cmake_generate_options(args))
     work_dir = BUILD_ROOT
