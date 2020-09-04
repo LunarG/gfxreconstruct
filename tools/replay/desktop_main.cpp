@@ -43,6 +43,10 @@
 #include "application/xcb_application.h"
 #include "application/xcb_window.h"
 #endif
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+#include "application/xlib_application.h"
+#include "application/xlib_window.h"
+#endif
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
 #include "application/wayland_application.h"
 #include "application/wayland_window.h"
@@ -128,6 +132,17 @@ int main(int argc, const char** argv)
                 {
                     window_factory = std::make_unique<gfxrecon::application::XcbWindowFactory>(xcb_application.get());
                     application    = std::move(xcb_application);
+                }
+            }
+#endif
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+            if (wsi_platform == WsiPlatform::kXlib || (wsi_platform == WsiPlatform::kAuto && !application))
+            {
+                auto xlib_application = std::make_unique<gfxrecon::application::XlibApplication>(kApplicationName);
+                if (xlib_application->Initialize(&file_processor))
+                {
+                    window_factory = std::make_unique<gfxrecon::application::XlibWindowFactory>(xlib_application.get());
+                    application    = std::move(xlib_application);
                 }
             }
 #endif
