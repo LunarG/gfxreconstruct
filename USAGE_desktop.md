@@ -384,7 +384,7 @@ Optional arguments:
   --opcd                Omit pipeline cache data from calls to
                         vkCreatePipelineCache (same as --omit-pipeline-cache-data).
   --wsi <platform>      Force replay to use the specified wsi platform.
-                        Available platforms are: auto,win32,xcb,wayland
+                        Available platforms are: auto,win32,xlib,xcb,wayland
   --sync                Synchronize after each queue submission with vkQueueWaitIdle.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's

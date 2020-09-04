@@ -74,12 +74,14 @@ enum class WsiPlatform
 {
     kAuto,
     kWin32,
+    kXlib,
     kXcb,
     kWayland
 };
 
 const char kWsiPlatformAuto[]    = "auto";
 const char kWsiPlatformWin32[]   = "win32";
+const char kWsiPlatformXlib[]    = "xlib";
 const char kWsiPlatformXcb[]     = "xcb";
 const char kWsiPlatformWayland[] = "wayland";
 
@@ -232,6 +234,14 @@ static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_pars
             GFXRECON_LOG_WARNING("Ignoring wsi option \"%s\", which is not enabled on this system", value.c_str());
 #endif
         }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kWsiPlatformXlib, value.c_str()) == 0)
+        {
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+            wsi_platform = WsiPlatform::kXlib;
+#else
+            GFXRECON_LOG_WARNING("Ignoring wsi option %s, which is not enabled on this system", value.c_str());
+#endif
+        }
         else if (gfxrecon::util::platform::StringCompareNoCase(kWsiPlatformXcb, value.c_str()) == 0)
         {
 #if defined(VK_USE_PLATFORM_XCB_KHR)
@@ -263,6 +273,10 @@ static std::string GetWsiArgString()
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
     wsi_args += ',';
     wsi_args += kWsiPlatformWin32;
+#endif
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+    wsi_args += ',';
+    wsi_args += kWsiPlatformXlib;
 #endif
 #if defined(VK_USE_PLATFORM_XCB_KHR)
     wsi_args += ',';
