@@ -2532,17 +2532,18 @@ void VulkanReplayConsumer::Process_vkGetSwapchainImagesKHR(
     PointerDecoder<uint32_t>*                   pSwapchainImageCount,
     HandlePointerDecoder<VkImage>*              pSwapchainImages)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkSwapchainKHR in_swapchain = MapHandle<SwapchainKHRInfo>(swapchain, &VulkanObjectInfoTable::GetSwapchainKHRInfo);
-    uint32_t* out_pSwapchainImageCount = pSwapchainImageCount->IsNull() ? nullptr : pSwapchainImageCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, SwapchainKHRInfo>("vkGetSwapchainImagesKHR", returnValue, swapchain, kSwapchainKHRArrayGetSwapchainImagesKHR, pSwapchainImageCount, pSwapchainImages, &VulkanObjectInfoTable::GetSwapchainKHRInfo));
-    if (!pSwapchainImages->IsNull()) { pSwapchainImages->SetHandleLength(*out_pSwapchainImageCount); }
-    VkImage* out_pSwapchainImages = pSwapchainImages->GetHandlePointer();
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_swapchain = GetObjectInfoTable().GetSwapchainKHRInfo(swapchain);
+    pSwapchainImageCount->IsNull() ? nullptr : pSwapchainImageCount->AllocateOutputData(1, GetOutputArrayCount<uint32_t, SwapchainKHRInfo>("vkGetSwapchainImagesKHR", returnValue, swapchain, kSwapchainKHRArrayGetSwapchainImagesKHR, pSwapchainImageCount, pSwapchainImages, &VulkanObjectInfoTable::GetSwapchainKHRInfo));
+    if (!pSwapchainImages->IsNull()) { pSwapchainImages->SetHandleLength(*pSwapchainImageCount->GetOutputPointer()); }
+    std::vector<ImageInfo> handle_info(*pSwapchainImageCount->GetOutputPointer());
+    for (size_t i = 0; i < *pSwapchainImageCount->GetOutputPointer(); ++i) { pSwapchainImages->SetConsumerData(i, &handle_info[i]); }
 
-    VkResult replay_result = GetDeviceTable(in_device)->GetSwapchainImagesKHR(in_device, in_swapchain, out_pSwapchainImageCount, out_pSwapchainImages);
+    VkResult replay_result = OverrideGetSwapchainImagesKHR(GetDeviceTable(in_device->handle)->GetSwapchainImagesKHR, returnValue, in_device, in_swapchain, pSwapchainImageCount, pSwapchainImages);
     CheckResult("vkGetSwapchainImagesKHR", returnValue, replay_result);
 
-    if (pSwapchainImages->IsNull()) { SetOutputArrayCount<SwapchainKHRInfo>(swapchain, kSwapchainKHRArrayGetSwapchainImagesKHR, *out_pSwapchainImageCount, &VulkanObjectInfoTable::GetSwapchainKHRInfo); }
-    AddHandles<ImageInfo>(pSwapchainImages->GetPointer(), pSwapchainImages->GetLength(), out_pSwapchainImages, *out_pSwapchainImageCount, &VulkanObjectInfoTable::AddImageInfo);
+    if (pSwapchainImages->IsNull()) { SetOutputArrayCount<SwapchainKHRInfo>(swapchain, kSwapchainKHRArrayGetSwapchainImagesKHR, *pSwapchainImageCount->GetOutputPointer(), &VulkanObjectInfoTable::GetSwapchainKHRInfo); }
+    AddHandles<ImageInfo>(pSwapchainImages->GetPointer(), pSwapchainImages->GetLength(), pSwapchainImages->GetHandlePointer(), *pSwapchainImageCount->GetOutputPointer(), std::move(handle_info), &VulkanObjectInfoTable::AddImageInfo);
 }
 
 void VulkanReplayConsumer::Process_vkAcquireNextImageKHR(

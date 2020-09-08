@@ -138,6 +138,11 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(WindowFactory* window_factory
 {
     assert(window_factory != nullptr);
     assert(options.create_resource_allocator != nullptr);
+
+    if (!options.screenshot_ranges.empty())
+    {
+        InitializeScreenshotHandler();
+    }
 }
 
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()
@@ -2122,6 +2127,70 @@ void VulkanReplayConsumerBase::ProcessImportAndroidHardwareBufferInfo(const Deco
     }
 }
 
+void VulkanReplayConsumerBase::InitializeScreenshotHandler()
+{
+    screenshot_file_prefix_ = options_.screenshot_file_prefix;
+
+    if (screenshot_file_prefix_.empty())
+    {
+        screenshot_file_prefix_ = kDefaultScreenshotFilePrefix;
+    }
+
+    if (!options_.screenshot_dir.empty())
+    {
+        screenshot_file_prefix_ = util::filepath::Join(options_.screenshot_dir, screenshot_file_prefix_);
+    }
+
+    screenshot_handler_ = std::make_unique<ScreenshotHandler>(options_.screenshot_format, options_.screenshot_ranges);
+}
+
+void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const
+{
+    if ((meta_info != nullptr) && (meta_info->decoded_value != nullptr) && !meta_info->pSwapchains.IsNull())
+    {
+        auto present_info  = meta_info->decoded_value;
+        auto swapchain_ids = meta_info->pSwapchains.GetPointer();
+
+        for (uint32_t i = 0; i < present_info->swapchainCount; ++i)
+        {
+            auto swapchain_info = object_info_table_.GetSwapchainKHRInfo(swapchain_ids[i]);
+            if ((swapchain_info != nullptr) && (swapchain_info->device_info != nullptr))
+            {
+                auto     device_info = swapchain_info->device_info;
+                uint32_t image_index = present_info->pImageIndices[i];
+
+                auto instance_table = GetInstanceTable(device_info->parent);
+                assert(instance_table != nullptr);
+
+                // TODO: This should be stored in the DeviceInfo structure to avoid the need for frequent queries.
+                VkPhysicalDeviceMemoryProperties memory_properties;
+                instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
+
+                std::string filename_prefix = screenshot_file_prefix_;
+
+                if (present_info->swapchainCount > 1)
+                {
+                    filename_prefix += "_swapchain_";
+                    filename_prefix += std::to_string(i);
+                }
+
+                filename_prefix += "_frame_";
+                filename_prefix += std::to_string(screenshot_handler_->GetCurrentFrame());
+
+                screenshot_handler_->WriteImage(filename_prefix,
+                                                device_info->handle,
+                                                GetDeviceTable(device_info->handle),
+                                                memory_properties,
+                                                device_info->allocator.get(),
+                                                swapchain_info->images[image_index],
+                                                swapchain_info->format,
+                                                swapchain_info->width,
+                                                swapchain_info->height);
+            }
+        }
+    }
+}
+
 VkResult
 VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                                                  const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
@@ -2342,6 +2411,11 @@ void VulkanReplayConsumerBase::OverrideDestroyDevice(
     {
         device = device_info->handle;
         active_device_ids_.erase(device_info->capture_id);
+
+        if (screenshot_handler_ != nullptr)
+        {
+            screenshot_handler_->DestroyDevice(device, GetDeviceTable(device));
+        }
     }
 
     func(device, GetAllocationCallbacks(pAllocator));
@@ -3756,13 +3830,23 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     assert((device_info != nullptr) && (pCreateInfo != nullptr) && (pSwapchain != nullptr) && !pSwapchain->IsNull() &&
            (pSwapchain->GetHandlePointer() != nullptr));
 
-    auto replay_create_info = pCreateInfo->GetPointer();
-    auto replay_swapchain   = pSwapchain->GetHandlePointer();
+    VkResult result             = VK_ERROR_INITIALIZATION_FAILED;
+    auto     replay_create_info = pCreateInfo->GetPointer();
+    auto     replay_swapchain   = pSwapchain->GetHandlePointer();
 
     ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo->GetMetaStructPointer());
 
-    VkResult result =
-        func(device_info->handle, replay_create_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
+    if (screenshot_handler_ == nullptr)
+    {
+        result = func(device_info->handle, replay_create_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
+    }
+    else
+    {
+        // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
+        VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
+        modified_create_info.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        result = func(device_info->handle, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_swapchain);
+    }
 
     if ((result == VK_SUCCESS) && (replay_create_info != nullptr) && ((*replay_swapchain) != VK_NULL_HANDLE))
     {
@@ -3779,7 +3863,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
             swapchain_info->queue_family_index = 0;
         }
 
-        swapchain_info->surface = replay_create_info->surface;
+        swapchain_info->surface     = replay_create_info->surface;
+        swapchain_info->device_info = device_info;
+        swapchain_info->width       = replay_create_info->imageExtent.width;
+        swapchain_info->height      = replay_create_info->imageExtent.height;
+        swapchain_info->format      = replay_create_info->imageFormat;
 
         device_info->active_swapchains.insert(*pSwapchain->GetPointer());
     }
@@ -3805,6 +3893,43 @@ void VulkanReplayConsumerBase::OverrideDestroySwapchainKHR(
     }
 
     func(device, swapchain, GetAllocationCallbacks(pAllocator));
+}
+
+VkResult VulkanReplayConsumerBase::OverrideGetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR    func,
+                                                                 VkResult                       original_result,
+                                                                 const DeviceInfo*              device_info,
+                                                                 SwapchainKHRInfo*              swapchain_info,
+                                                                 PointerDecoder<uint32_t>*      pSwapchainImageCount,
+                                                                 HandlePointerDecoder<VkImage>* pSwapchainImages)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    assert((device_info != nullptr) && (swapchain_info != nullptr) && (pSwapchainImageCount != nullptr) &&
+           (pSwapchainImages != nullptr));
+
+    auto image_count = pSwapchainImageCount->GetOutputPointer();
+    auto images      = pSwapchainImages->GetHandlePointer();
+
+    VkResult result = func(device_info->handle, swapchain_info->handle, image_count, images);
+
+    if ((result == VK_SUCCESS) && (screenshot_handler_ != nullptr) && (images != nullptr) &&
+        (swapchain_info->images.size() < (*image_count)))
+    {
+        uint32_t count = (*image_count);
+
+        if (!swapchain_info->images.empty())
+        {
+            // Clear any images that may have been stored by a previous, incomplete call to vkGetSwapchainImagesKHR.
+            swapchain_info->images.clear();
+        }
+
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            swapchain_info->images.push_back(images[i]);
+        }
+    }
+
+    return result;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
@@ -3936,6 +4061,14 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
     VkResult                result       = VK_SUCCESS;
     const VkPresentInfoKHR* present_info = pPresentInfo->GetPointer();
 
+    if ((screenshot_handler_ != nullptr) && (screenshot_handler_->IsScreenshotFrame()))
+    {
+        auto meta_info = pPresentInfo->GetMetaStructPointer();
+        assert((meta_info != nullptr) && !meta_info->pSwapchains.IsNull());
+
+        WriteScreenshots(meta_info);
+    }
+
     // Only attempt to find imported semaphores if we know at least one has been imported.
     if (!have_imported_semaphores_ || (present_info == nullptr))
     {
@@ -3983,6 +4116,11 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
 
             result = func(queue_info->handle, &modified_present_info);
         }
+    }
+
+    if (screenshot_handler_ != nullptr)
+    {
+        screenshot_handler_->EndFrame();
     }
 
     return result;
