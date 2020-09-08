@@ -23,20 +23,38 @@
 
 #include <functional>
 #include <string>
+#include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 typedef std::function<VulkanResourceAllocator*()> CreateResourceAllocator;
 
+const char kDefaultScreenshotFilePrefix[] = "screenshot";
+
+enum class ScreenshotFormat : uint32_t
+{
+    kBmp = 0
+};
+
+struct ScreenshotRange
+{
+    uint32_t first{ 0 }; // First frame to capture.
+    uint32_t last{ 0 };  // Last frame to capture.
+};
+
 struct ReplayOptions
 {
-    bool                    sync_queue_submissions{ false };
-    bool                    skip_failed_allocations{ false };
-    bool                    omit_pipeline_cache_data{ false };
-    int32_t                 override_gpu_index{ -1 };
-    CreateResourceAllocator create_resource_allocator;
-    std::string             replace_dir{};
+    bool                         sync_queue_submissions{ false };
+    bool                         skip_failed_allocations{ false };
+    bool                         omit_pipeline_cache_data{ false };
+    int32_t                      override_gpu_index{ -1 };
+    CreateResourceAllocator      create_resource_allocator;
+    std::string                  replace_dir{};
+    ScreenshotFormat             screenshot_format{ ScreenshotFormat::kBmp };
+    std::vector<ScreenshotRange> screenshot_ranges;
+    std::string                  screenshot_dir;
+    std::string                  screenshot_file_prefix{ kDefaultScreenshotFilePrefix };
 };
 
 GFXRECON_END_NAMESPACE(decode)

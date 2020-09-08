@@ -20,6 +20,7 @@
 
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
+#include "decode/screenshot_handler.h"
 #include "decode/swapchain_image_tracker.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
@@ -547,6 +548,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      const SwapchainKHRInfo*                                    swapchain_info,
                                      const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
+    VkResult OverrideGetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR    func,
+                                           VkResult                       original_result,
+                                           const DeviceInfo*              device_info,
+                                           SwapchainKHRInfo*              swapchain_info,
+                                           PointerDecoder<uint32_t>*      pSwapchainImageCount,
+                                           HandlePointerDecoder<VkImage>* pSwapchainImages);
+
     VkResult OverrideAcquireNextImageKHR(PFN_vkAcquireNextImageKHR func,
                                          VkResult                  original_result,
                                          const DeviceInfo*         device_info,
@@ -725,6 +733,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void ProcessImportAndroidHardwareBufferInfo(const Decoded_VkMemoryAllocateInfo* allocate_info);
 
+    void InitializeScreenshotHandler();
+
+    void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
+
   private:
     typedef std::unordered_set<Window*> ActiveWindows;
 
@@ -772,6 +784,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
     std::unordered_set<format::HandleId>                             active_instance_ids_;
     std::unordered_set<format::HandleId>                             active_device_ids_;
+    std::unique_ptr<ScreenshotHandler>                               screenshot_handler_;
+    std::string                                                      screenshot_file_prefix_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

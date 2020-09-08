@@ -1,0 +1,656 @@
+/*
+** Copyright (c) 2020 LunarG, Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+
+#include "decode/screenshot_handler.h"
+
+#include "util/image_writer.h"
+#include "util/logging.h"
+#include "util/platform.h"
+
+#include <limits>
+
+GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
+
+const uint32_t kDefaultQueueFamilyIndex = 0;
+const uint32_t kDefaultQueueIndex       = 0;
+
+const VkFormat kImageFormats[] = {
+    VK_FORMAT_B8G8R8A8_UNORM // Vulkan image format for ScreenshotFormat::kBmp
+};
+
+ScreenshotHandler::ScreenshotHandler(ScreenshotFormat                    screenshot_format,
+                                     const std::vector<ScreenshotRange>& screenshot_ranges) :
+    current_frame_number_(1),
+    screenshot_format_(screenshot_format), screenshot_ranges_(screenshot_ranges), current_range_index_(0)
+{}
+
+ScreenshotHandler::ScreenshotHandler(ScreenshotFormat               screenshot_format,
+                                     std::vector<ScreenshotRange>&& screenshot_ranges) :
+    current_frame_number_(1),
+    screenshot_format_(screenshot_format), screenshot_ranges_(std::move(screenshot_ranges)), current_range_index_(0)
+{}
+
+void ScreenshotHandler::EndFrame()
+{
+    if (current_range_index_ < screenshot_ranges_.size())
+    {
+        const auto& current_range = screenshot_ranges_[current_range_index_];
+        if (current_range.last == current_frame_number_)
+        {
+            ++current_range_index_;
+        }
+    }
+
+    ++current_frame_number_;
+}
+
+bool ScreenshotHandler::IsScreenshotFrame() const
+{
+    if (current_range_index_ < screenshot_ranges_.size())
+    {
+        const auto& current_range = screenshot_ranges_[current_range_index_];
+        if ((current_range.first <= current_frame_number_) && (current_range.last >= current_frame_number_))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void ScreenshotHandler::WriteImage(const std::string&                      filename_prefix,
+                                   VkDevice                                device,
+                                   const encode::DeviceTable*              device_table,
+                                   const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                   VulkanResourceAllocator*                allocator,
+                                   VkImage                                 image,
+                                   VkFormat                                format,
+                                   uint32_t                                width,
+                                   uint32_t                                height)
+{
+    if ((device_table == nullptr) || (allocator == nullptr))
+    {
+        GFXRECON_LOG_ERROR("Screenshot could not be created: missing device table or allocator");
+        return;
+    }
+
+    VkResult result = VK_SUCCESS;
+
+    // TODO: Improved queue selection; ensure queue supports transfer operations.
+
+    // Get a command pool for the device.
+    auto copy_resource_entry = copy_resources_.find(device);
+    if (copy_resource_entry == copy_resources_.end())
+    {
+        VkCommandPoolCreateInfo create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
+        create_info.pNext                   = nullptr;
+        create_info.flags                   = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+        create_info.queueFamilyIndex        = kDefaultQueueFamilyIndex;
+
+        VkCommandPool command_pool = VK_NULL_HANDLE;
+        result                     = device_table->CreateCommandPool(device, &create_info, nullptr, &command_pool);
+
+        if (result == VK_SUCCESS)
+        {
+            CopyResource copy_resource = {};
+            copy_resource.command_pool = command_pool;
+            copy_resource.allocator    = allocator;
+
+            auto pair           = copy_resources_.emplace(device, std::move(copy_resource));
+            copy_resource_entry = pair.first;
+        }
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        auto&   copy_resource = copy_resource_entry->second;
+        VkQueue queue         = VK_NULL_HANDLE;
+
+        // Get a queue.
+        device_table->GetDeviceQueue(device, kDefaultQueueFamilyIndex, kDefaultQueueIndex, &queue);
+
+        // Get a buffer size.
+        VkDeviceSize buffer_size     = copy_resource.buffer_size;
+        bool         create_resource = false;
+
+        // If the copy resource is not initialized, or the image properties have changed, recompute the copy size.
+        if ((buffer_size == 0) || (copy_resource.width != width) || (copy_resource.height != height) ||
+            (copy_resource.format != format))
+        {
+            buffer_size     = GetCopyBufferSize(device, device_table, format, width, height);
+            create_resource = true;
+        }
+
+        if (create_resource)
+        {
+            // Need to create/recreate resource.
+            DestroyCopyResource(device, device_table, &copy_resource);
+
+            result = CreateCopyResource(
+                device, device_table, memory_properties, buffer_size, format, width, height, &copy_resource);
+            if (result == VK_SUCCESS)
+            {
+                // Resource creation succeeded,
+                copy_resource.buffer_size = buffer_size;
+                copy_resource.format      = format;
+                copy_resource.width       = width;
+                copy_resource.height      = height;
+            }
+        }
+        else if (buffer_size == 0)
+        {
+            // GetCopyBufferSize failed to determine a valid size.
+            result = VK_ERROR_INITIALIZATION_FAILED;
+        }
+
+        if (result == VK_SUCCESS)
+        {
+            // Get a command buffer.
+            VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+
+            VkCommandBufferAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO };
+            allocate_info.pNext                       = nullptr;
+            allocate_info.commandPool                 = copy_resource.command_pool;
+            allocate_info.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            allocate_info.commandBufferCount          = 1;
+
+            result = device_table->AllocateCommandBuffers(device, &allocate_info, &command_buffer);
+            if (result == VK_SUCCESS)
+            {
+                VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+                begin_info.pNext                    = nullptr;
+                begin_info.flags                    = 0;
+                begin_info.pInheritanceInfo         = nullptr;
+
+                result = device_table->BeginCommandBuffer(command_buffer, &begin_info);
+            }
+
+            if (result == VK_SUCCESS)
+            {
+                // Transition source image to target to the TRANSFER_DST layout.
+                VkImageMemoryBarrier image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+                image_barrier.pNext                           = nullptr;
+                image_barrier.srcAccessMask                   = 0;
+                image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
+                image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                image_barrier.image                           = image;
+                image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                image_barrier.subresourceRange.baseArrayLayer = 0;
+                image_barrier.subresourceRange.layerCount     = 1;
+                image_barrier.subresourceRange.baseMipLevel   = 0;
+                image_barrier.subresourceRange.levelCount     = 1;
+
+                device_table->CmdPipelineBarrier(command_buffer,
+                                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                 0,
+                                                 0,
+                                                 nullptr,
+                                                 0,
+                                                 nullptr,
+                                                 1,
+                                                 &image_barrier);
+
+                // The 'copy_image' is the image to be used with the image to buffer copy.
+                VkImage copy_image = image;
+                if (copy_resource.convert_image != VK_NULL_HANDLE)
+                {
+                    // Need to perform a blit to covert the Vulkan image format to the image file format.
+                    copy_image = copy_resource.convert_image;
+
+                    // Transition blit target to the TRANSFER_DST layout.
+                    VkImageMemoryBarrier convert_image_barrier            = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
+                    convert_image_barrier.pNext                           = nullptr;
+                    convert_image_barrier.srcAccessMask                   = 0;
+                    convert_image_barrier.dstAccessMask                   = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    convert_image_barrier.oldLayout                       = VK_IMAGE_LAYOUT_UNDEFINED;
+                    convert_image_barrier.newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                    convert_image_barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                    convert_image_barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+                    convert_image_barrier.image                           = copy_image;
+                    convert_image_barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                    convert_image_barrier.subresourceRange.baseArrayLayer = 0;
+                    convert_image_barrier.subresourceRange.layerCount     = 1;
+                    convert_image_barrier.subresourceRange.baseMipLevel   = 0;
+                    convert_image_barrier.subresourceRange.levelCount     = 1;
+
+                    device_table->CmdPipelineBarrier(command_buffer,
+                                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                     0,
+                                                     0,
+                                                     nullptr,
+                                                     0,
+                                                     nullptr,
+                                                     1,
+                                                     &convert_image_barrier);
+
+                    VkImageBlit blit_region;
+                    blit_region.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                    blit_region.srcSubresource.mipLevel       = 0;
+                    blit_region.srcSubresource.baseArrayLayer = 0;
+                    blit_region.srcSubresource.layerCount     = 1;
+                    blit_region.srcOffsets[0].x               = 0;
+                    blit_region.srcOffsets[0].y               = 0;
+                    blit_region.srcOffsets[0].z               = 0;
+                    blit_region.srcOffsets[1].x               = width;
+                    blit_region.srcOffsets[1].y               = height;
+                    blit_region.srcOffsets[1].z               = 1;
+                    blit_region.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                    blit_region.dstSubresource.mipLevel       = 0;
+                    blit_region.dstSubresource.baseArrayLayer = 0;
+                    blit_region.dstSubresource.layerCount     = 1;
+                    blit_region.dstOffsets[0].x               = 0;
+                    blit_region.dstOffsets[0].y               = 0;
+                    blit_region.dstOffsets[0].z               = 0;
+                    blit_region.dstOffsets[1].x               = width;
+                    blit_region.dstOffsets[1].y               = height;
+                    blit_region.dstOffsets[1].z               = 1;
+
+                    device_table->CmdBlitImage(command_buffer,
+                                               image,
+                                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                               copy_image,
+                                               VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                               1,
+                                               &blit_region,
+                                               VK_FILTER_NEAREST);
+
+                    // Transition blit target from the TRANSFER_DST layout to TRANSFER_SRC layout for the image to
+                    // buffer copy.
+                    convert_image_barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    convert_image_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    convert_image_barrier.oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                    convert_image_barrier.newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+                    device_table->CmdPipelineBarrier(command_buffer,
+                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                     0,
+                                                     0,
+                                                     nullptr,
+                                                     0,
+                                                     nullptr,
+                                                     1,
+                                                     &convert_image_barrier);
+                }
+
+                VkBufferImageCopy copy_region;
+                copy_region.bufferOffset                    = 0;
+                copy_region.bufferRowLength                 = 0;
+                copy_region.bufferImageHeight               = 0;
+                copy_region.imageSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+                copy_region.imageSubresource.mipLevel       = 0;
+                copy_region.imageSubresource.baseArrayLayer = 0;
+                copy_region.imageSubresource.layerCount     = 1;
+                copy_region.imageOffset                     = { 0, 0, 0 };
+                copy_region.imageExtent                     = { width, height, 1 };
+
+                device_table->CmdCopyImageToBuffer(command_buffer,
+                                                   copy_image,
+                                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                                                   copy_resource.buffer,
+                                                   1,
+                                                   &copy_region);
+
+                // Transition source image to PRESENT_SOURCE layout for vkQueuePresentKHR.
+                image_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+                image_barrier.dstAccessMask       = 0;
+                image_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                image_barrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+                image_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                image_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+                device_table->CmdPipelineBarrier(command_buffer,
+                                                 VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                                 0,
+                                                 0,
+                                                 nullptr,
+                                                 0,
+                                                 nullptr,
+                                                 1,
+                                                 &image_barrier);
+
+                device_table->EndCommandBuffer(command_buffer);
+
+                // Make sure any pending work is finished, as we are not waiting on any semaphores from previous
+                // submissions.
+                result = device_table->DeviceWaitIdle(device);
+
+                if (result == VK_SUCCESS)
+                {
+                    VkSubmitInfo submit_info         = { VK_STRUCTURE_TYPE_SUBMIT_INFO };
+                    submit_info.waitSemaphoreCount   = 0;
+                    submit_info.pWaitSemaphores      = nullptr;
+                    submit_info.pWaitDstStageMask    = nullptr;
+                    submit_info.commandBufferCount   = 1;
+                    submit_info.pCommandBuffers      = &command_buffer;
+                    submit_info.signalSemaphoreCount = 0;
+                    submit_info.pSignalSemaphores    = nullptr;
+
+                    result = device_table->QueueSubmit(queue, 1, &submit_info, VK_NULL_HANDLE);
+                }
+
+                if (result == VK_SUCCESS)
+                {
+                    result = device_table->QueueWaitIdle(queue);
+                }
+
+                if (result == VK_SUCCESS)
+                {
+                    void* data = nullptr;
+                    result     = allocator->MapMemory(copy_resource.buffer_memory,
+                                                  0,
+                                                  copy_resource.buffer_size,
+                                                  0,
+                                                  &data,
+                                                  copy_resource.buffer_memory_data);
+
+                    if (result == VK_SUCCESS)
+                    {
+                        if ((copy_resource.memory_property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) !=
+                            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
+                        {
+                            VkMappedMemoryRange invalidate_range = { VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE };
+                            invalidate_range.pNext               = nullptr;
+                            invalidate_range.memory              = copy_resource.buffer_memory;
+                            invalidate_range.offset              = 0;
+                            invalidate_range.size                = copy_resource.buffer_size;
+
+                            device_table->InvalidateMappedMemoryRanges(device, 1, &invalidate_range);
+                        }
+
+                        std::string filename = filename_prefix;
+                        filename += ".bmp";
+
+                        if (!util::imagewriter::WriteBmpImage(filename, width, height, copy_resource.buffer_size, data))
+                        {
+                            GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write file %s",
+                                               filename.c_str());
+                        }
+
+                        allocator->UnmapMemory(copy_resource.buffer_memory, copy_resource.buffer_memory_data);
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Screenshot could not be created: failed to execute image transfer");
+                }
+
+                device_table->FreeCommandBuffers(device, copy_resource.command_pool, 1, &command_buffer);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Screenshot could not be created: failed to create a transfer resource");
+        }
+    }
+}
+
+void ScreenshotHandler::DestroyDevice(VkDevice device, const encode::DeviceTable* device_table)
+{
+    auto entry = copy_resources_.find(device);
+    if (entry != copy_resources_.end())
+    {
+        if (device_table != nullptr)
+        {
+            auto& copy_resource = entry->second;
+            device_table->DestroyCommandPool(entry->first, copy_resource.command_pool, nullptr);
+
+            DestroyCopyResource(device, device_table, &copy_resource);
+        }
+
+        copy_resources_.erase(entry);
+    }
+}
+
+VkDeviceSize ScreenshotHandler::GetCopyBufferSize(
+    VkDevice device, const encode::DeviceTable* device_table, VkFormat format, uint32_t width, uint32_t height) const
+{
+    VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+    create_info.pNext                 = nullptr;
+    create_info.flags                 = 0;
+    create_info.imageType             = VK_IMAGE_TYPE_2D;
+    create_info.format                = format;
+    create_info.extent                = { width, height, 1 };
+    create_info.mipLevels             = 1;
+    create_info.arrayLayers           = 1;
+    create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+    create_info.tiling                = VK_IMAGE_TILING_LINEAR;
+    create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.queueFamilyIndexCount = 0;
+    create_info.pQueueFamilyIndices   = nullptr;
+    create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    VkImage              image               = VK_NULL_HANDLE;
+    VkMemoryRequirements memory_requirements = {};
+
+    VkResult result = device_table->CreateImage(device, &create_info, nullptr, &image);
+    if (result == VK_SUCCESS)
+    {
+        device_table->GetImageMemoryRequirements(device, image, &memory_requirements);
+        device_table->DestroyImage(device, image, nullptr);
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Screenshot could not be created: failed to determine transfer buffer size");
+    }
+
+    return memory_requirements.size;
+}
+
+uint32_t ScreenshotHandler::GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                               uint32_t                                type_bits,
+                                               VkMemoryPropertyFlags                   property_flags) const
+{
+    uint32_t memory_type_index = std::numeric_limits<uint32_t>::max();
+
+    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+    {
+        if ((type_bits & (1 << i)) &&
+            ((memory_properties.memoryTypes[i].propertyFlags & property_flags) == property_flags))
+        {
+            memory_type_index = i;
+            break;
+        }
+    }
+
+    return memory_type_index;
+}
+
+VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                device,
+                                               const encode::DeviceTable*              device_table,
+                                               const VkPhysicalDeviceMemoryProperties& memory_properties,
+                                               VkDeviceSize                            buffer_size,
+                                               VkFormat                                image_format,
+                                               uint32_t                                width,
+                                               uint32_t                                height,
+                                               CopyResource*                           copy_resource) const
+{
+    assert(device_table != nullptr);
+
+    if ((buffer_size == 0) || (copy_resource == nullptr))
+    {
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    auto allocator = copy_resource->allocator;
+
+    VkBufferCreateInfo create_info    = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
+    create_info.pNext                 = nullptr;
+    create_info.flags                 = 0;
+    create_info.size                  = buffer_size;
+    create_info.usage                 = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    create_info.queueFamilyIndexCount = 0;
+    create_info.pQueueFamilyIndices   = nullptr;
+
+    VkResult result = allocator->CreateBuffer(
+        &create_info, nullptr, format::kNullHandleId, &copy_resource->buffer, &copy_resource->buffer_data);
+
+    if (result == VK_SUCCESS)
+    {
+        VkMemoryRequirements memory_requirements;
+        device_table->GetBufferMemoryRequirements(device, copy_resource->buffer, &memory_requirements);
+
+        uint32_t memory_type_index =
+            GetMemoryTypeIndex(memory_properties,
+                               memory_requirements.memoryTypeBits,
+                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
+
+        assert(memory_type_index != std::numeric_limits<uint32_t>::max());
+
+        VkMemoryAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+        allocate_info.pNext                = nullptr;
+        allocate_info.allocationSize       = memory_requirements.size;
+        allocate_info.memoryTypeIndex      = memory_type_index;
+
+        result = allocator->AllocateMemory(&allocate_info,
+                                           nullptr,
+                                           format::kNullHandleId,
+                                           &copy_resource->buffer_memory,
+                                           &copy_resource->buffer_memory_data);
+    }
+
+    if (result == VK_SUCCESS)
+    {
+        result = allocator->BindBufferMemory(copy_resource->buffer,
+                                             copy_resource->buffer_memory,
+                                             0,
+                                             copy_resource->buffer_data,
+                                             copy_resource->buffer_memory_data,
+                                             &copy_resource->memory_property_flags);
+    }
+
+    if ((result == VK_SUCCESS) && (image_format != kImageFormats[static_cast<size_t>(screenshot_format_)]))
+    {
+        // The source image format does not match the image file format and requires a format conversion.  Create an
+        // image to serve as the tranfer destination of a blit based color conversion.
+        VkImageCreateInfo image_create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+        image_create_info.pNext                 = nullptr;
+        image_create_info.flags                 = 0;
+        image_create_info.imageType             = VK_IMAGE_TYPE_2D;
+        image_create_info.format                = image_format;
+        image_create_info.extent                = { width, height, 1 };
+        image_create_info.mipLevels             = 1;
+        image_create_info.arrayLayers           = 1;
+        image_create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
+        image_create_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
+        image_create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        image_create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+        image_create_info.queueFamilyIndexCount = 0;
+        image_create_info.pQueueFamilyIndices   = nullptr;
+        image_create_info.initialLayout         = VK_IMAGE_LAYOUT_UNDEFINED;
+
+        result = allocator->CreateImage(&image_create_info,
+                                        nullptr,
+                                        format::kNullHandleId,
+                                        &copy_resource->convert_image,
+                                        &copy_resource->convert_image_data);
+
+        if (result == VK_SUCCESS)
+        {
+            VkMemoryRequirements memory_requirements;
+            device_table->GetImageMemoryRequirements(device, copy_resource->convert_image, &memory_requirements);
+
+            uint32_t memory_type_index = GetMemoryTypeIndex(
+                memory_properties, memory_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+            assert(memory_type_index != std::numeric_limits<uint32_t>::max());
+
+            VkMemoryAllocateInfo allocate_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
+            allocate_info.pNext                = nullptr;
+            allocate_info.allocationSize       = memory_requirements.size;
+            allocate_info.memoryTypeIndex      = memory_type_index;
+
+            result = allocator->AllocateMemory(&allocate_info,
+                                               nullptr,
+                                               format::kNullHandleId,
+                                               &copy_resource->convert_image_memory,
+                                               &copy_resource->convert_image_memory_data);
+        }
+
+        if (result == VK_SUCCESS)
+        {
+            VkMemoryPropertyFlags image_memory_property_flags = 0;
+
+            result = allocator->BindImageMemory(copy_resource->convert_image,
+                                                copy_resource->convert_image_memory,
+                                                0,
+                                                copy_resource->convert_image_data,
+                                                copy_resource->convert_image_memory_data,
+                                                &image_memory_property_flags);
+        }
+    }
+
+    if (result != VK_SUCCESS)
+    {
+        DestroyCopyResource(device, device_table, copy_resource);
+    }
+
+    return result;
+}
+
+void ScreenshotHandler::DestroyCopyResource(VkDevice                   device,
+                                            const encode::DeviceTable* device_table,
+                                            CopyResource*              copy_resource) const
+{
+    assert(device_table != nullptr);
+
+    if (copy_resource != nullptr)
+    {
+        if (copy_resource->buffer != VK_NULL_HANDLE)
+        {
+            copy_resource->allocator->DestroyBuffer(copy_resource->buffer, nullptr, copy_resource->buffer_data);
+            copy_resource->buffer      = VK_NULL_HANDLE;
+            copy_resource->buffer_data = 0;
+        }
+
+        if (copy_resource->buffer_memory != VK_NULL_HANDLE)
+        {
+            copy_resource->allocator->FreeMemory(
+                copy_resource->buffer_memory, nullptr, copy_resource->buffer_memory_data);
+            copy_resource->buffer_memory         = VK_NULL_HANDLE;
+            copy_resource->buffer_memory_data    = 0;
+            copy_resource->memory_property_flags = 0;
+        }
+
+        if (copy_resource->convert_image != VK_NULL_HANDLE)
+        {
+            copy_resource->allocator->DestroyImage(
+                copy_resource->convert_image, nullptr, copy_resource->convert_image_data);
+            copy_resource->convert_image      = VK_NULL_HANDLE;
+            copy_resource->convert_image_data = 0;
+        }
+
+        if (copy_resource->convert_image_memory != VK_NULL_HANDLE)
+        {
+            copy_resource->allocator->FreeMemory(
+                copy_resource->convert_image_memory, nullptr, copy_resource->convert_image_memory_data);
+            copy_resource->convert_image_memory      = VK_NULL_HANDLE;
+            copy_resource->convert_image_memory_data = 0;
+        }
+    }
+}
+
+GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(gfxrecon)

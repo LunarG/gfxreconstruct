@@ -92,6 +92,6 @@ void CopyImageSubresourceMemory(
     }
 }
 
-GFXRECON_END_NAMESPACE(enumutil)
+GFXRECON_END_NAMESPACE(resource)
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

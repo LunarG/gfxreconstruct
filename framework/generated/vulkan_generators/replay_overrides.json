@@ -46,6 +46,7 @@
     "vkCreateDebugUtilsMessengerEXT": "OverrideCreateDebugUtilsMessengerEXT",
     "vkCreateSwapchainKHR": "OverrideCreateSwapchainKHR",
     "vkDestroySwapchainKHR": "OverrideDestroySwapchainKHR",
+    "vkGetSwapchainImagesKHR": "OverrideGetSwapchainImagesKHR",
     "vkAcquireNextImageKHR": "OverrideAcquireNextImageKHR",
     "vkAcquireNextImage2KHR": "OverrideAcquireNextImage2KHR",
     "vkQueuePresentKHR": "OverrideQueuePresentKHR",

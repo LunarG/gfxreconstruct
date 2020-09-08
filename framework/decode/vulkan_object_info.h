@@ -316,6 +316,11 @@ struct SurfaceKHRInfo : public VulkanObjectInfo<VkSurfaceKHR>
 struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
 {
     VkSurfaceKHR                         surface{ VK_NULL_HANDLE };
+    DeviceInfo*                          device_info{ nullptr };
+    uint32_t                             width{ 0 };
+    uint32_t                             height{ 0 };
+    VkFormat                             format{ VK_FORMAT_UNDEFINED };
+    std::vector<VkImage>                 images;
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // The following values are only used when loading the initial state for trimmed files.
