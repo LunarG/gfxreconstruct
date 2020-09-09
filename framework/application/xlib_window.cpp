@@ -39,15 +39,16 @@ XlibWindow::~XlibWindow() {}
 bool XlibWindow::Create(
     const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
 {
+    const auto xlib    = xlib_application_->GetXlibFunctionTable();
     const auto display = xlib_application_->GetDisplay();
-    auto       screen  = DefaultScreen(display);
-    auto       root    = RootWindow(display, screen);
+    const auto screen  = DefaultScreen(display);
+    const auto root    = RootWindow(display, screen);
 
     xlib_application_->RegisterXlibWindow(this);
 
     // Get screen size
     XWindowAttributes root_attributes;
-    XGetWindowAttributes(display, root, &root_attributes);
+    xlib.GetWindowAttributes(display, root, &root_attributes);
     screen_width_  = root_attributes.width;
     screen_height_ = root_attributes.height;
 
@@ -84,21 +85,21 @@ bool XlibWindow::Create(
     unsigned long attribute_mask = CWEventMask;
 
     // Create window
-    window_ = XCreateWindow(display,
-                            RootWindow(display, screen),
-                            x,
-                            y,
-                            width,
-                            height,
-                            0,
-                            CopyFromParent,
-                            InputOutput,
-                            CopyFromParent,
-                            attribute_mask,
-                            &attributes);
+    window_ = xlib.CreateWindow(display,
+                                RootWindow(display, screen),
+                                x,
+                                y,
+                                width,
+                                height,
+                                0,
+                                CopyFromParent,
+                                InputOutput,
+                                CopyFromParent,
+                                attribute_mask,
+                                &attributes);
 
     // Set window title
-    XStoreName(display, window_, title.c_str());
+    SetTitle(title);
 
     // Display the window
     SetVisibility(true);
@@ -116,13 +117,14 @@ bool XlibWindow::Destroy()
 {
     if (window_ != 0)
     {
-        auto display = xlib_application_->GetDisplay();
+        const auto xlib    = xlib_application_->GetXlibFunctionTable();
+        const auto display = xlib_application_->GetDisplay();
 
         SetFullscreen(false);
         SetVisibility(false);
 
-        XDestroyWindow(display, window_);
-        XSync(display, true);
+        xlib.DestroyWindow(display, window_);
+        xlib.Sync(display, true);
 
         xlib_application_->UnregisterXlibWindow(this);
         window_ = 0;
@@ -134,13 +136,16 @@ bool XlibWindow::Destroy()
 
 void XlibWindow::SetTitle(const std::string& title)
 {
-    XStoreName(xlib_application_->GetDisplay(), window_, title.c_str());
+    const auto xlib    = xlib_application_->GetXlibFunctionTable();
+    const auto display = xlib_application_->GetDisplay();
+    xlib.StoreName(display, window_, title.c_str());
 }
 
 void XlibWindow::SetPosition(const int32_t x, const int32_t y)
 {
+    const auto xlib    = xlib_application_->GetXlibFunctionTable();
     const auto display = xlib_application_->GetDisplay();
-    XMoveWindow(xlib_application_->GetDisplay(), window_, x, y);
+    xlib.MoveWindow(display, window_, x, y);
 }
 
 void XlibWindow::SetSize(const uint32_t width, const uint32_t height)
@@ -165,9 +170,10 @@ void XlibWindow::SetSize(const uint32_t width, const uint32_t height)
             }
 
             SetFullscreen(false);
+            const auto xlib    = xlib_application_->GetXlibFunctionTable();
             const auto display = xlib_application_->GetDisplay();
-            XResizeWindow(display, window_, width, height);
-            XSync(display, true);
+            xlib.ResizeWindow(display, window_, width, height);
+            xlib.Sync(display, true);
         }
     }
 }
@@ -182,6 +188,7 @@ void XlibWindow::SetFullscreen(bool fullscreen)
 {
     if (fullscreen != fullscreen_)
     {
+        const auto xlib    = xlib_application_->GetXlibFunctionTable();
         const auto display = xlib_application_->GetDisplay();
         const auto screen  = DefaultScreen(display);
         const auto root    = RootWindow(display, screen);
@@ -190,15 +197,15 @@ void XlibWindow::SetFullscreen(bool fullscreen)
         event.type                 = ClientMessage;
         event.xclient.window       = window_;
         event.xclient.format       = 32;
-        event.xclient.message_type = XInternAtom(display, "_NET_WM_STATE", false);
+        event.xclient.message_type = xlib.InternAtom(display, "_NET_WM_STATE", false);
         event.xclient.data.l[0]    = fullscreen ? 1 : 0;
-        event.xclient.data.l[1]    = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", false);
+        event.xclient.data.l[1]    = xlib.InternAtom(display, "_NET_WM_STATE_FULLSCREEN", false);
         event.xclient.data.l[2]    = 0;
         event.xclient.data.l[3]    = 0;
         event.xclient.data.l[4]    = 0;
 
-        XSendEvent(display, root, false, (SubstructureNotifyMask | SubstructureRedirectMask), &event);
-        XSync(display, true);
+        xlib.SendEvent(display, root, false, (SubstructureNotifyMask | SubstructureRedirectMask), &event);
+        xlib.Sync(display, true);
         fullscreen_ = fullscreen;
     }
 }
@@ -207,22 +214,24 @@ void XlibWindow::SetVisibility(bool show)
 {
     if (show != visible_)
     {
+        const auto xlib    = xlib_application_->GetXlibFunctionTable();
         const auto display = xlib_application_->GetDisplay();
         if (show)
         {
-            XMapWindow(display, window_);
+            xlib.MapWindow(display, window_);
         }
         else
         {
-            XUnmapWindow(display, window_);
+            xlib.UnmapWindow(display, window_);
         }
-        XSync(display, true);
+        xlib.Sync(display, true);
         visible_ = show;
     }
 }
 
 void XlibWindow::SetForeground()
 {
+    const auto xlib    = xlib_application_->GetXlibFunctionTable();
     const auto display = xlib_application_->GetDisplay();
     const auto screen  = DefaultScreen(display);
     const auto root    = RootWindow(display, screen);
@@ -231,14 +240,14 @@ void XlibWindow::SetForeground()
     event.type                 = ClientMessage;
     event.xclient.window       = window_;
     event.xclient.format       = 32;
-    event.xclient.message_type = XInternAtom(display, "_NET_ACTIVE_WINDOW", false);
+    event.xclient.message_type = xlib.InternAtom(display, "_NET_ACTIVE_WINDOW", false);
     event.xclient.data.l[0]    = 1;
     event.xclient.data.l[1]    = 0;
     event.xclient.data.l[2]    = 0;
     event.xclient.data.l[3]    = 0;
     event.xclient.data.l[4]    = 0;
 
-    XSendEvent(display, root, false, (SubstructureNotifyMask | SubstructureRedirectMask), &event);
+    xlib.SendEvent(display, root, false, (SubstructureNotifyMask | SubstructureRedirectMask), &event);
 }
 
 bool XlibWindow::GetNativeHandle(HandleType type, void** handle)
@@ -288,7 +297,7 @@ XlibWindowFactory::XlibWindowFactory(XlibApplication* application) : xlib_applic
 
 decode::Window* XlibWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
 {
-    auto window = new XlibWindow(xlib_application_);
+    const auto window = new XlibWindow(xlib_application_);
     window->Create(xlib_application_->GetName(), x, y, width, height);
     return window;
 }

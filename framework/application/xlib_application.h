@@ -19,6 +19,7 @@
 
 #include "application/application.h"
 #include "util/defines.h"
+#include "util/xlib_loader.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
@@ -32,6 +33,8 @@ class XlibApplication : public Application
 
     virtual ~XlibApplication() override;
 
+    const util::XlibLoader::FunctionTable& GetXlibFunctionTable() const { return xlib_loader_.GetFunctionTable(); }
+
     Display* GetDisplay() const { return display_; }
 
     virtual bool Initialize(decode::FileProcessor* file_processor) override;
@@ -43,7 +46,8 @@ class XlibApplication : public Application
     virtual void ProcessEvents(bool wait_for_input) override;
 
   private:
-    Display*      display_;
+    Display*         display_;
+    util::XlibLoader xlib_loader_;
 };
 
 GFXRECON_END_NAMESPACE(application)

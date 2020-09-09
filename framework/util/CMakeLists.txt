@@ -60,6 +60,8 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_loader.cpp>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.h>
                     $<$<BOOL:${XCB_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xcb_keysyms_loader.cpp>
+                    $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_loader.h>
+                    $<$<BOOL:${X11_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/xlib_loader.cpp>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.h>
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_CURRENT_LIST_DIR}/wayland_loader.cpp>
 )
@@ -95,6 +97,10 @@ endif()
 
 if (X11_XCB_LIBRARY)
     target_compile_definitions(gfxrecon_util PUBLIC "X11_XCB_LIBRARY=\"${X11_XCB_LIBRARY}\"")
+endif()
+
+if (X11_LIBRARY)
+    target_compile_definitions(gfxrecon_util PUBLIC "X11_LIBRARY=\"${X11_LIBRARY}\"")
 endif()
 
 if (WAYLAND_LIBRARY)
