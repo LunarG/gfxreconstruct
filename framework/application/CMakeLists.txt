@@ -54,7 +54,6 @@ target_link_libraries(gfxrecon_application
                       gfxrecon_util
                       vulkan_registry
                       platform_specific
-                      $<$<BOOL:${X11_FOUND}>:${X11_LIBRARIES}>
                      )
 
 common_build_directives(gfxrecon_application)

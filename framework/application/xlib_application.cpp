@@ -30,23 +30,28 @@ XlibApplication::~XlibApplication()
 {
     if (display_ != nullptr)
     {
-        XCloseDisplay(display_);
+        const auto xlib = xlib_loader_.GetFunctionTable();
+        xlib.CloseDisplay(display_);
     }
 }
 
 static int ErrorHandler(Display* display, XErrorEvent* error_event)
 {
-    std::array<char, 256> error_name;
-    XGetErrorText(display, error_event->error_code, error_name.data(), error_name.size());
-    GFXRECON_LOG_ERROR("Xlib error: %s", error_name.data());
+    GFXRECON_LOG_ERROR("Xlib error: %d", error_event->error_code);
     return 0;
 }
 
 bool XlibApplication::Initialize(decode::FileProcessor* file_processor)
 {
-    XSetErrorHandler(ErrorHandler);
+    if (!xlib_loader_.Initialize())
+    {
+        return false;
+    }
 
-    display_ = XOpenDisplay(nullptr);
+    const auto xlib = xlib_loader_.GetFunctionTable();
+    xlib.SetErrorHandler(ErrorHandler);
+
+    display_ = xlib.OpenDisplay(nullptr);
     if (!display_)
     {
         return false;
@@ -69,12 +74,13 @@ bool XlibApplication::UnregisterXlibWindow(XlibWindow* window)
 
 void XlibApplication::ProcessEvents(bool wait_for_input)
 {
-    while (IsRunning() && (wait_for_input || (XPending(display_) > 0)))
+    const auto xlib = xlib_loader_.GetFunctionTable();
+    while (IsRunning() && (wait_for_input || (xlib.Pending(display_) > 0)))
     {
         wait_for_input = false;
 
         XEvent event;
-        XNextEvent(display_, &event);
+        xlib.NextEvent(display_, &event);
 
         switch (event.type)
         {

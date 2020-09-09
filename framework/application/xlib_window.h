@@ -21,9 +21,6 @@
 #include "decode/window.h"
 #include "util/defines.h"
 
-#include <X11/Xlib.h>
-#include <X11/X.h>
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(application)
 
