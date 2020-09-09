@@ -32,7 +32,9 @@
 #include "vulkan/vulkan_core.h"
 
 #include <cstdlib>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #ifndef GFXRECON_REPLAY_SETTINGS_H
 #define GFXRECON_REPLAY_SETTINGS_H
@@ -56,10 +58,15 @@ const char kMemoryPortabilityShortOption[]     = "-m";
 const char kMemoryPortabilityLongOption[]      = "--memory-translation";
 const char kSyncOption[]                       = "--sync";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
+const char kScreenshotRangeArgument[]          = "--screenshots";
+const char kScreenshotFormatArgument[]         = "--screenshot-format";
+const char kScreenshotDirArgument[]            = "--screenshot-dir";
+const char kScreenshotFilePrefixArgument[]     = "--screenshot-prefix";
 
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
                         "opcd|--omit-pipeline-cache-data";
-const char kArguments[] = "--gpu,--pause-frame,--wsi,-m|--memory-translation,--replace-shaders";
+const char kArguments[] = "--gpu,--pause-frame,--wsi,-m|--memory-translation,--replace-shaders,--screenshots,--"
+                          "screenshot-format,--screenshot-dir,--screenshot-prefix";
 
 enum class WsiPlatform
 {
@@ -78,6 +85,14 @@ const char kMemoryTranslationNone[]    = "none";
 const char kMemoryTranslationRemap[]   = "remap";
 const char kMemoryTranslationRealign[] = "realign";
 const char kMemoryTranslationRebind[]  = "rebind";
+
+const char kScreenshotFormatBmp[] = "bmp";
+
+#if defined(__ANDROID__)
+const char kDefaultScreenshotDir[] = "/sdcard";
+#else
+const char kDefaultScreenshotDir[] = "";
+#endif
 
 static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_parser)
 {
@@ -182,7 +197,7 @@ InitRealignAllocatorCreateFunc(const std::string&                              f
 static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     uint32_t    pause_frame = 0;
-    std::string value       = arg_parser.GetArgumentValue(kPauseFrameArgument);
+    const auto& value       = arg_parser.GetArgumentValue(kPauseFrameArgument);
 
     if (arg_parser.IsOptionSet(kPausedOption))
     {
@@ -199,7 +214,7 @@ static uint32_t GetPauseFrame(const gfxrecon::util::ArgumentParser& arg_parser)
 static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     WsiPlatform wsi_platform = WsiPlatform::kAuto;
-    std::string value        = arg_parser.GetArgumentValue(kWsiArgument);
+    const auto& value        = arg_parser.GetArgumentValue(kWsiArgument);
 
     if (!value.empty())
     {
@@ -212,7 +227,7 @@ static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_pars
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
             wsi_platform = WsiPlatform::kWin32;
 #else
-            GFXRECON_LOG_WARNING("Ignoring wsi option %s, which is not enabled on this system", value.c_str());
+            GFXRECON_LOG_WARNING("Ignoring wsi option \"%s\", which is not enabled on this system", value.c_str());
 #endif
         }
         else if (gfxrecon::util::platform::StringCompareNoCase(kWsiPlatformXcb, value.c_str()) == 0)
@@ -220,7 +235,7 @@ static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_pars
 #if defined(VK_USE_PLATFORM_XCB_KHR)
             wsi_platform = WsiPlatform::kXcb;
 #else
-            GFXRECON_LOG_WARNING("Ignoring wsi option %s, which is not enabled on this system", value.c_str());
+            GFXRECON_LOG_WARNING("Ignoring wsi option \"%s\", which is not enabled on this system", value.c_str());
 #endif
         }
         else if (gfxrecon::util::platform::StringCompareNoCase(kWsiPlatformWayland, value.c_str()) == 0)
@@ -228,19 +243,19 @@ static WsiPlatform GetWsiPlatform(const gfxrecon::util::ArgumentParser& arg_pars
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
             wsi_platform = WsiPlatform::kWayland;
 #else
-            GFXRECON_LOG_WARNING("Ignoring wsi option %s, which is not enabled on this system", value.c_str());
+            GFXRECON_LOG_WARNING("Ignoring wsi option \"%s\", which is not enabled on this system", value.c_str());
 #endif
         }
         else
         {
-            GFXRECON_LOG_WARNING("Ignoring unrecognized wsi option %s", value.c_str());
+            GFXRECON_LOG_WARNING("Ignoring unrecognized wsi option \"%s\"", value.c_str());
         }
     }
 
     return wsi_platform;
 }
 
-const std::string GetWsiArgString()
+static std::string GetWsiArgString()
 {
     std::string wsi_args = kWsiPlatformAuto;
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
@@ -258,6 +273,162 @@ const std::string GetWsiArgString()
     return wsi_args;
 }
 
+static gfxrecon::decode::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    gfxrecon::decode::ScreenshotFormat format = gfxrecon::decode::ScreenshotFormat::kBmp;
+    const auto&                        value  = arg_parser.GetArgumentValue(kScreenshotFormatArgument);
+
+    if (!value.empty())
+    {
+        if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatBmp, value.c_str()) == 0)
+        {
+            format = gfxrecon::decode::ScreenshotFormat::kBmp;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Ignoring unrecognized screenshot format option \"%s\"", value.c_str());
+        }
+    }
+
+    return format;
+}
+
+static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    const auto& value = arg_parser.GetArgumentValue(kScreenshotDirArgument);
+
+    if (!value.empty())
+    {
+        return value;
+    }
+
+    return kDefaultScreenshotDir;
+}
+
+static std::vector<gfxrecon::decode::ScreenshotRange>
+GetScreenshotRanges(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    std::vector<gfxrecon::decode::ScreenshotRange> ranges;
+    const auto&                                    value = arg_parser.GetArgumentValue(kScreenshotRangeArgument);
+
+    if (!value.empty())
+    {
+        std::istringstream value_input;
+        value_input.str(value);
+
+        for (std::string range; std::getline(value_input, range, ',');)
+        {
+            if (range.empty() || (std::count(range.begin(), range.end(), '-') > 1))
+            {
+                GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\"", range.c_str());
+                continue;
+            }
+
+            // Remove whitespace.
+            range.erase(std::remove_if(range.begin(), range.end(), ::isspace), range.end());
+
+            // Split string on '-' delimiter.
+            bool                     invalid = false;
+            std::vector<std::string> values;
+            std::istringstream       range_input;
+            range_input.str(range);
+
+            for (std::string value; std::getline(range_input, value, '-');)
+            {
+                if (value.empty())
+                {
+                    break;
+                }
+
+                // Check that the value string only contains numbers.
+                size_t count = std::count_if(value.begin(), value.end(), ::isdigit);
+                if (count == value.length())
+                {
+                    values.push_back(value);
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Ignoring invalid screenshot frame range \"%s\", which contains non-numeric values",
+                        range.c_str());
+                    invalid = true;
+                    break;
+                }
+            }
+
+            if (!invalid)
+            {
+                gfxrecon::decode::ScreenshotRange screenshot_range;
+
+                if (values.size() == 1)
+                {
+                    if (std::count(range.begin(), range.end(), '-') == 0)
+                    {
+                        screenshot_range.first = std::stoi(values[0]);
+                        screenshot_range.last  = screenshot_range.first;
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\"", range.c_str());
+                        continue;
+                    }
+                }
+                else if (values.size() == 2)
+                {
+                    screenshot_range.first = std::stoi(values[0]);
+                    screenshot_range.last  = std::stoi(values[1]);
+                    if (screenshot_range.first > screenshot_range.last)
+                    {
+                        GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\", where first frame is "
+                                             "greater than last frame",
+                                             range.c_str());
+                        continue;
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\"", range.c_str());
+                    continue;
+                }
+
+                // Check for invalid start frame of 0.
+                if (screenshot_range.first == 0)
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Ignoring invalid screenshot frame range \"%s\", with first frame equal to zero",
+                        range.c_str());
+                    continue;
+                }
+
+                uint32_t next_allowed = 0;
+
+                // Check that first frame is outside the bounds of the previous range.
+                if (!ranges.empty())
+                {
+                    // The number of the frame after the last frame of the last range.
+                    next_allowed = ranges.back().last + 1;
+                }
+
+                if (screenshot_range.first >= next_allowed)
+                {
+                    ranges.emplace_back(std::move(screenshot_range));
+                }
+                else
+                {
+                    const auto& back = ranges.back();
+                    GFXRECON_LOG_WARNING("Ignoring invalid screenshot frame range \"%s\", "
+                                         "where start frame precedes the end of the previous range \"%u-%u\"",
+                                         range.c_str(),
+                                         back.first,
+                                         back.last);
+                }
+            }
+        }
+    }
+
+    return ranges;
+}
+
 static gfxrecon::decode::CreateResourceAllocator
 GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           arg_parser,
                                const std::string&                              filename,
@@ -265,7 +436,7 @@ GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           a
                                gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
 {
     gfxrecon::decode::CreateResourceAllocator func  = CreateDefaultAllocator;
-    std::string                               value = arg_parser.GetArgumentValue(kMemoryPortabilityShortOption);
+    const auto&                               value = arg_parser.GetArgumentValue(kMemoryPortabilityShortOption);
 
     if (!value.empty())
     {
@@ -283,7 +454,7 @@ GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           a
         }
         else if (gfxrecon::util::platform::StringCompareNoCase(kMemoryTranslationNone, value.c_str()) != 0)
         {
-            GFXRECON_LOG_WARNING("Ignoring unrecognized memory translation option %s", value.c_str());
+            GFXRECON_LOG_WARNING("Ignoring unrecognized memory translation option \"%s\"", value.c_str());
         }
     }
 
@@ -296,7 +467,7 @@ GetReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
                  gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
 {
     gfxrecon::decode::ReplayOptions replay_options;
-    std::string                     override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
+    const auto&                     override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
 
     if (!override_gpu.empty())
     {
@@ -323,6 +494,11 @@ GetReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
     replay_options.replace_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);
     replay_options.create_resource_allocator =
         GetCreateResourceAllocatorFunc(arg_parser, filename, replay_options, tracked_object_info_table);
+
+    replay_options.screenshot_ranges      = GetScreenshotRanges(arg_parser);
+    replay_options.screenshot_format      = GetScreenshotFormat(arg_parser);
+    replay_options.screenshot_dir         = GetScreenshotDir(arg_parser);
+    replay_options.screenshot_file_prefix = arg_parser.GetArgumentValue(kScreenshotFilePrefixArgument);
 
     return replay_options;
 }
@@ -366,6 +542,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s\t[-h | --help] [--version] [--gpu <index>]", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("\t\t\t[--pause-frame <N>] [--paused] [--sync]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshots <N1(-N2),...>] [--screenshot-format <format>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sfa | --skip-failed-allocations] [--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
 #if defined(WIN32) && defined(_DEBUG)
@@ -385,6 +563,28 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N.");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1).");
+    GFXRECON_WRITE_CONSOLE("  --screenshots <N1[-N2][,...]>");
+    GFXRECON_WRITE_CONSOLE("          \t\tGenerate screenshots for the specified frames.");
+    GFXRECON_WRITE_CONSOLE("          \t\tTarget frames are specified as a comma separated");
+    GFXRECON_WRITE_CONSOLE("          \t\tlist of frame ranges.  A frame range can be specified");
+    GFXRECON_WRITE_CONSOLE("          \t\tas a single value, to specify a single frame, or as");
+    GFXRECON_WRITE_CONSOLE("          \t\ttwo hyphenated values, to specify the first and last");
+    GFXRECON_WRITE_CONSOLE("          \t\tframes to process.  Frame ranges should be specified in");
+    GFXRECON_WRITE_CONSOLE("          \t\tascending order and cannot overlap.  Note that frame");
+    GFXRECON_WRITE_CONSOLE("          \t\tnumbering is 1-based (i.e. the first frame is frame 1).");
+    GFXRECON_WRITE_CONSOLE("          \t\tExample: 200,301-305 will generate six screenshots.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-format <format>");
+    GFXRECON_WRITE_CONSOLE("          \t\tImage file format to use for screenshot generation.");
+    GFXRECON_WRITE_CONSOLE("          \t\tAvailable formats are:");
+    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tBitmap file format.  This is the default format.",
+                           kScreenshotFormatBmp);
+    GFXRECON_WRITE_CONSOLE("  --screenshot-dir <dir>");
+    GFXRECON_WRITE_CONSOLE("          \t\tDirectory to write screenshots.  Default is the current");
+    GFXRECON_WRITE_CONSOLE("          \t\tworking directory.");
+    GFXRECON_WRITE_CONSOLE("  --screenshot-prefix <file-prefix>");
+    GFXRECON_WRITE_CONSOLE("          \t\tPrefix to apply to the screenshot file name.  Default is ");
+    GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot\", producing file names similar to");
+    GFXRECON_WRITE_CONSOLE("          \t\t\"screenshot_frame8049.bmp\".");
     GFXRECON_WRITE_CONSOLE("  --sfa\t\t\tSkip vkAllocateMemory, vkAllocateCommandBuffers, and");
     GFXRECON_WRITE_CONSOLE("       \t\t\tvkAllocateDescriptorSets calls that failed during");
     GFXRECON_WRITE_CONSOLE("       \t\t\tcapture (same as --skip-failed-allocations).");
@@ -410,7 +610,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tcompatible replay memory types, without");
     GFXRECON_WRITE_CONSOLE("          \t\t         \taltering memory allocation behavior.");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tAdjust memory allocation sizes and", kMemoryTranslationRealign);
-    GFXRECON_WRITE_CONSOLE("          \t\t         \tresource binding offests based on");
+    GFXRECON_WRITE_CONSOLE("          \t\t         \tresource binding offsets based on");
     GFXRECON_WRITE_CONSOLE("          \t\t         \treplay memory properties.");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tChange memory allocation behavior based", kMemoryTranslationRebind);
     GFXRECON_WRITE_CONSOLE("          \t\t         \ton resource usage and replay memory");
