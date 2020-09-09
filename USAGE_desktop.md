@@ -329,6 +329,8 @@ arguments:
 ```text
 gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--pause-frame <N>] [--paused] [--sync]
+                        [--screenshots <N1(-N2),...>] [--screenshot-format <format>]
+                        [--screenshot-dir <dir>] [--screenshot-prefix <file-prefix>]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [-m <mode> | --memory-translation <mode>] <file>
@@ -347,6 +349,27 @@ Optional arguments:
   --pause-frame <N>     Pause after replaying frame number N.
   --paused              Pause after replaying the first frame (same
                         as --pause-frame 1).
+  --screenshots <N1[-N2][,...]>
+                        Generate screenshots for the specified frames.
+                        Target frames are specified as a comma separated
+                        list of frame ranges.  A frame range can be specified
+                        as a single value, to specify a single frame, or as
+                        two hyphenated values, to specify the first and last
+                        frames to process.  Frame ranges should be specified in
+                        ascending order and cannot overlap.  Note that frame
+                        numbering is 1-based (i.e. the first frame is frame 1).
+                        Example: 200,301-305 will generate six screenshots.
+  --screenshot-format <format>
+                        Image file format to use for screenshot generation.
+                        Available formats are:
+                            bmp         Bitmap file format.  This is the default format.
+  --screenshot-dir <dir>
+                        Directory to write screenshots.  Default is the current
+                        working directory.
+  --screenshot-prefix <file-prefix>
+                        Prefix to apply to the screenshot file name.  Default is
+                        "screenshot", producing file names similar to
+                        "screenshot_frame8049.bmp".
   --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and
                         vkAllocateDescriptorSets calls that failed during
                         capture (same as --skip-failed-allocations).
@@ -368,7 +391,7 @@ Optional arguments:
                                         compatible replay memory types, without
                                         altering memory allocation behavior.
                             realign     Adjust memory allocation sizes and
-                                        resource binding offests based on
+                                        resource binding offsets based on
                                         replay memory properties.
                             rebind      Change memory allocation behavior based
                                         on resource usage and replay memory
