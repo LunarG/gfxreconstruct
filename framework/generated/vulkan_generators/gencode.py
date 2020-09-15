@@ -34,6 +34,8 @@ from decode_pnext_struct_generator import DecodePNextStructGenerator,DecodePNext
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator,VulkanConsumerHeaderGeneratorOptions
 from vulkan_ascii_consumer_body_generator import VulkanAsciiConsumerBodyGenerator,VulkanAsciiConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator,VulkanReplayConsumerBodyGeneratorOptions
+from vulkan_referenced_resource_consumer_header_generator import VulkanReferencedResourceHeaderGenerator,VulkanReferencedResourceHeaderGeneratorOptions
+from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedResourceBodyGenerator,VulkanReferencedResourceBodyGeneratorOptions
 from vulkan_struct_handle_mappers_header_generator import VulkanStructHandleMappersHeaderGenerator,VulkanStructHandleMappersHeaderGeneratorOptions
 from vulkan_struct_handle_mappers_body_generator import VulkanStructHandleMappersBodyGenerator,VulkanStructHandleMappersBodyGeneratorOptions
 
@@ -227,6 +229,18 @@ def makeGenOpts(args):
         protectFeature    = False)
     ]
 
+    genOpts['generated_vulkan_referenced_resource_consumer.h'] = [
+        VulkanReferencedResourceHeaderGenerator,
+        VulkanReferencedResourceHeaderGeneratorOptions(
+        filename          = 'generated_vulkan_referenced_resource_consumer.h',
+        directory         = directory,
+        blacklists        = blacklists,
+        platformTypes     = platformTypes,
+        prefixText        = prefixStrings + vkPrefixStrings,
+        protectFile       = False,
+        protectFeature    = False)
+    ]
+
     genOpts['generated_vulkan_replay_consumer.h'] = [
         VulkanConsumerHeaderGenerator,
         VulkanConsumerHeaderGeneratorOptions(
@@ -262,6 +276,18 @@ def makeGenOpts(args):
         directory         = directory,
         blacklists        = blacklists,
         replayOverrides   = replayOverrides,
+        platformTypes     = platformTypes,
+        prefixText        = prefixStrings + vkPrefixStrings,
+        protectFile       = False,
+        protectFeature    = False)
+    ]
+
+    genOpts['generated_vulkan_referenced_resource_consumer.cpp'] = [
+        VulkanReferencedResourceBodyGenerator,
+        VulkanReferencedResourceBodyGeneratorOptions(
+        filename          = 'generated_vulkan_referenced_resource_consumer.cpp',
+        directory         = directory,
+        blacklists        = blacklists,
         platformTypes     = platformTypes,
         prefixText        = prefixStrings + vkPrefixStrings,
         protectFile       = False,
