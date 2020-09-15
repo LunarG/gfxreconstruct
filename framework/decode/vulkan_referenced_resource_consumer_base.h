@@ -153,11 +153,12 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                               format::HandleId          commandBuffer,
                                               VkCommandBufferResetFlags flags) override;
 
-  private:
+  protected:
     bool IsStateLoading() const { return loading_state_; }
 
     ReferencedResourceTable& GetTable() { return table_; }
 
+  private:
     void
     AddImagesToContainer(format::HandleId container_id, size_t count, const Decoded_VkDescriptorImageInfo* image_info);
 
