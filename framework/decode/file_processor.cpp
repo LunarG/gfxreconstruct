@@ -345,7 +345,7 @@ void FileProcessor::HandleBlockReadError(Error error_code, const char* error_mes
     else
     {
         GFXRECON_LOG_ERROR("%s", error_message);
-        error_state_ = kErrorReadingCompressedBlockData;
+        error_state_ = error_code;
     }
 }
 
