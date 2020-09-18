@@ -17,6 +17,7 @@
 #include "decode/vulkan_referenced_resource_consumer_base.h"
 
 #include <cassert>
+#include <limits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -159,6 +160,33 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateFramebuffer(
     }
 }
 
+void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorSetLayout(
+    VkResult                                                       returnValue,
+    format::HandleId                                               device,
+    StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*           pAllocator,
+    HandlePointerDecoder<VkDescriptorSetLayout>*                   pSetLayout)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+
+    assert((pCreateInfo != nullptr) && (pSetLayout != nullptr));
+
+    if (!pCreateInfo->IsNull() && pCreateInfo->HasData() && !pSetLayout->IsNull() && pSetLayout->HasData())
+    {
+        const auto  create_info = pCreateInfo->GetPointer();
+        const auto& bindings    = create_info->pBindings;
+        auto        layout_id   = (*pSetLayout->GetPointer());
+
+        for (uint32_t i = 0; i < create_info->bindingCount; ++i)
+        {
+            const auto& binding = bindings[i];
+            layout_binding_counts_[layout_id].emplace(binding.binding, binding.descriptorCount);
+        }
+    }
+}
+
 void VulkanReferencedResourceConsumerBase::Process_vkDestroyDescriptorPool(
     format::HandleId                                     device,
     format::HandleId                                     descriptorPool,
@@ -199,12 +227,17 @@ void VulkanReferencedResourceConsumerBase::Process_vkAllocateDescriptorSets(
         const auto alloc_info      = pAllocateInfo->GetPointer();
         const auto alloc_meta_info = pAllocateInfo->GetMetaStructPointer();
         const auto sets            = pDescriptorSets->GetPointer();
+        const auto layouts         = alloc_meta_info->pSetLayouts.GetPointer();
         auto       pool            = alloc_meta_info->descriptorPool;
         auto       count           = alloc_info->descriptorSetCount;
 
+        assert((pDescriptorSets->GetLength() == count) && (alloc_meta_info->pSetLayouts.GetLength() == count));
+
         for (uint32_t i = 0; i < count; ++i)
         {
-            table_.AddContainer(pool, sets[i]);
+            auto set_id          = sets[i];
+            set_layouts_[set_id] = layouts[i];
+            table_.AddContainer(pool, set_id);
         }
     }
 }
@@ -329,14 +362,40 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
             const auto& copy      = copies[i];
             const auto& meta_copy = meta_copies[i];
 
+            auto src_element       = copy.srcArrayElement;
+            auto dst_element       = copy.dstArrayElement;
+            auto src_binding       = copy.srcBinding;
+            auto dst_binding       = copy.dstBinding;
+            auto src_binding_count = GetBindingCount(meta_copy.srcSet, copy.srcBinding);
+            auto dst_binding_count = GetBindingCount(meta_copy.dstSet, copy.dstBinding);
+            assert((src_element < src_binding_count) && (dst_element < dst_binding_count));
+
             for (uint32_t j = 0; j < copy.descriptorCount; ++j)
             {
-                table_.CopyContainerEntry(meta_copy.srcSet,
-                                          copy.srcBinding,
-                                          copy.srcArrayElement + j,
-                                          meta_copy.dstSet,
-                                          copy.dstBinding,
-                                          copy.dstArrayElement + j);
+                if (src_element >= src_binding_count)
+                {
+                    // If the element has advanced past the end of the current binding's descriptor count, advance to
+                    // the next binding.
+                    ++src_binding;
+                    src_element       = 0;
+                    src_binding_count = GetBindingCount(meta_copy.srcSet, copy.srcBinding);
+                }
+
+                if (dst_element >= dst_binding_count)
+                {
+                    // If the element has advanced past the end of the current binding's descriptor count, advance to
+                    // the next binding.
+                    ++dst_binding;
+                    dst_element       = 0;
+                    dst_binding_count = GetBindingCount(meta_copy.dstSet, copy.dstBinding);
+                }
+
+                table_.CopyContainerEntry(
+                    meta_copy.srcSet, src_binding, src_element, meta_copy.dstSet, dst_binding, dst_element);
+
+                // Advance to the next array element for the current bindings.
+                ++src_element;
+                ++dst_element;
             }
         }
     }
@@ -473,32 +532,81 @@ void VulkanReferencedResourceConsumerBase::Process_vkResetCommandBuffer(VkResult
     table_.ResetUser(commandBuffer);
 }
 
+uint32_t VulkanReferencedResourceConsumerBase::GetBindingCount(format::HandleId container_id, uint32_t binding) const
+{
+    const auto layout_entry = set_layouts_.find(container_id);
+    if (layout_entry != set_layouts_.end())
+    {
+        auto       layout_id     = layout_entry->second;
+        const auto binding_entry = layout_binding_counts_.find(layout_id);
+        if (binding_entry != layout_binding_counts_.end())
+        {
+            const auto& binding_counts = binding_entry->second;
+            const auto  count_entry    = binding_counts.find(binding);
+            if (count_entry != binding_counts.end())
+            {
+                return count_entry->second;
+            }
+        }
+    }
+
+    return std::numeric_limits<uint32_t>::max();
+}
+
+void VulkanReferencedResourceConsumerBase::AddDescriptorToContainer(
+    format::HandleId                                 container_id,
+    int32_t                                          binding,
+    uint32_t                                         element,
+    uint32_t                                         count,
+    std::function<void(uint32_t, int32_t, uint32_t)> add_descriptor)
+{
+    auto binding_count = GetBindingCount(container_id, binding);
+    assert(element < binding_count);
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        if (element >= binding_count)
+        {
+            // If the element has advanced past the end of the current binding's descriptor count, advance to the
+            // next binding.
+            ++binding;
+            element       = 0;
+            binding_count = GetBindingCount(container_id, binding);
+        }
+
+        add_descriptor(i, binding, element);
+
+        // Advance to next array element for the current binding.
+        ++element;
+    }
+}
+
 void VulkanReferencedResourceConsumerBase::AddImagesToContainer(format::HandleId                     container_id,
                                                                 int32_t                              binding,
                                                                 uint32_t                             element,
                                                                 uint32_t                             count,
-                                                                const Decoded_VkDescriptorImageInfo* image_info)
+                                                                const Decoded_VkDescriptorImageInfo* image_infos)
 {
-    assert(image_info != nullptr);
+    assert(image_infos != nullptr);
 
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        table_.AddResourceToContainer(container_id, image_info[i].imageView, binding, element + i);
-    }
+    AddDescriptorToContainer(
+        container_id, binding, element, count, [&](uint32_t index, int32_t current_binding, uint32_t current_element) {
+            table_.AddResourceToContainer(container_id, image_infos[index].imageView, current_binding, current_element);
+        });
 }
 
 void VulkanReferencedResourceConsumerBase::AddBuffersToContainer(format::HandleId                      container_id,
                                                                  int32_t                               binding,
                                                                  uint32_t                              element,
                                                                  uint32_t                              count,
-                                                                 const Decoded_VkDescriptorBufferInfo* buffer_info)
+                                                                 const Decoded_VkDescriptorBufferInfo* buffer_infos)
 {
-    assert(buffer_info != nullptr);
+    assert(buffer_infos != nullptr);
 
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        table_.AddResourceToContainer(container_id, buffer_info[i].buffer, binding, element + i);
-    }
+    AddDescriptorToContainer(
+        container_id, binding, element, count, [&](uint32_t index, int32_t current_binding, uint32_t current_element) {
+            table_.AddResourceToContainer(container_id, buffer_infos[index].buffer, current_binding, current_element);
+        });
 }
 
 void VulkanReferencedResourceConsumerBase::AddTexelBufferViewsToContainer(
@@ -506,10 +614,10 @@ void VulkanReferencedResourceConsumerBase::AddTexelBufferViewsToContainer(
 {
     assert(view_ids != nullptr);
 
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        table_.AddResourceToContainer(container_id, view_ids[i], binding, element + i);
-    }
+    AddDescriptorToContainer(
+        container_id, binding, element, count, [&](uint32_t index, int32_t current_binding, uint32_t current_element) {
+            table_.AddResourceToContainer(container_id, view_ids[index], current_binding, current_element);
+        });
 }
 
 void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(

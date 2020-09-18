@@ -23,6 +23,8 @@
 
 #include "vulkan/vulkan.h"
 
+#include <functional>
+#include <unordered_map>
 #include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -78,6 +80,13 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                              StructPointerDecoder<Decoded_VkFramebufferCreateInfo>* pCreateInfo,
                                              StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
                                              HandlePointerDecoder<VkFramebuffer>* pFramebuffer) override;
+
+    virtual void
+    Process_vkCreateDescriptorSetLayout(VkResult                                                       returnValue,
+                                        format::HandleId                                               device,
+                                        StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
+                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*           pAllocator,
+                                        HandlePointerDecoder<VkDescriptorSetLayout>* pSetLayout) override;
 
     virtual void
     Process_vkDestroyDescriptorPool(format::HandleId                                     device,
@@ -159,17 +168,34 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     ReferencedResourceTable& GetTable() { return table_; }
 
   private:
+    // Table of descriptor set layout binding counts, keyed by VkDescriptorSetLayout ID.  Each entry is a table of
+    // descriptor counts keyed by binding index.
+    typedef std::unordered_map<format::HandleId, std::unordered_map<uint32_t, uint32_t>> LayoutBindingCounts;
+
+    // Table to associate VkDescriptorSet IDs with the VkDescriptorSetLayout IDs used to create them, keyed by
+    // VkDescriptorSet ID.
+    typedef std::unordered_map<format::HandleId, format::HandleId> SetLayouts;
+
+  private:
+    uint32_t GetBindingCount(format::HandleId container_id, uint32_t binding) const;
+
+    void AddDescriptorToContainer(format::HandleId                                 container_id,
+                                  int32_t                                          binding,
+                                  uint32_t                                         element,
+                                  uint32_t                                         count,
+                                  std::function<void(uint32_t, int32_t, uint32_t)> add_descriptor);
+
     void AddImagesToContainer(format::HandleId                     container_id,
                               int32_t                              binding,
                               uint32_t                             element,
                               uint32_t                             count,
-                              const Decoded_VkDescriptorImageInfo* image_info);
+                              const Decoded_VkDescriptorImageInfo* image_infos);
 
     void AddBuffersToContainer(format::HandleId                      container_id,
                                int32_t                               binding,
                                uint32_t                              element,
                                uint32_t                              count,
-                               const Decoded_VkDescriptorBufferInfo* buffer_info);
+                               const Decoded_VkDescriptorBufferInfo* buffer_infos);
 
     void AddTexelBufferViewsToContainer(format::HandleId        container_id,
                                         int32_t                 binding,
@@ -190,6 +216,8 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
   private:
     bool                    loading_state_;
     ReferencedResourceTable table_;
+    LayoutBindingCounts     layout_binding_counts_;
+    SetLayouts              set_layouts_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
