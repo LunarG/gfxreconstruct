@@ -73,7 +73,10 @@ void ReferencedResourceTable::AddResource(size_t                  parent_id_coun
     }
 }
 
-void ReferencedResourceTable::AddResourceToContainer(format::HandleId container_id, format::HandleId resource_id)
+void ReferencedResourceTable::AddResourceToContainer(format::HandleId container_id,
+                                                     format::HandleId resource_id,
+                                                     int32_t          binding,
+                                                     uint32_t         element)
 {
     if ((container_id != format::kNullHandleId) && (resource_id != format::kNullHandleId))
     {
@@ -89,6 +92,11 @@ void ReferencedResourceTable::AddResourceToContainer(format::HandleId container_
                 assert((container_info != nullptr) && (resource_info != nullptr));
 
                 container_info->resource_infos.emplace(resource_id, std::weak_ptr<ResourceInfo>{ resource_info });
+
+                if (binding >= 0)
+                {
+                    container_info->resource_bindings[binding].insert(std::make_pair(element, resource_id));
+                }
             }
         }
     }
@@ -243,6 +251,7 @@ void ReferencedResourceTable::ResetContainer(format::HandleId container_id)
             assert(container_info != nullptr);
 
             container_info->resource_infos.clear();
+            container_info->resource_bindings.clear();
         }
     }
 }
@@ -312,6 +321,34 @@ void ReferencedResourceTable::ClearUsers(format::HandleId pool_id)
         }
 
         user_ids.clear();
+    }
+}
+
+void ReferencedResourceTable::CopyContainerEntry(format::HandleId source_container_id,
+                                                 int32_t          source_binding,
+                                                 uint32_t         source_element,
+                                                 format::HandleId destination_container_id,
+                                                 int32_t          destination_binding,
+                                                 uint32_t         destination_element)
+{
+    if (source_container_id != format::kNullHandleId)
+    {
+        const auto container_entry = containers_.find(source_container_id);
+        if (container_entry != containers_.end())
+        {
+            const auto& container_info = container_entry->second;
+            const auto  binding_entry  = container_info->resource_bindings.find(source_binding);
+            if (binding_entry != container_info->resource_bindings.end())
+            {
+                const auto& binding_elements = binding_entry->second;
+                const auto  element_entry    = binding_elements.find(source_element);
+                if (element_entry != binding_elements.end())
+                {
+                    AddResourceToContainer(
+                        destination_container_id, element_entry->second, destination_binding, destination_element);
+                }
+            }
+        }
     }
 }
 

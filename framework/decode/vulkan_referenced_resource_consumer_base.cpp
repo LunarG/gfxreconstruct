@@ -268,8 +268,11 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
 
                     if (!image_info->IsNull() && image_info->HasData())
                     {
-                        AddImagesToContainer(
-                            meta_writes[i].dstSet, writes[i].descriptorCount, image_info->GetMetaStructPointer());
+                        AddImagesToContainer(meta_writes[i].dstSet,
+                                             writes[i].dstBinding,
+                                             writes[i].dstArrayElement,
+                                             writes[i].descriptorCount,
+                                             image_info->GetMetaStructPointer());
                     }
 
                     break;
@@ -284,8 +287,11 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
 
                     if (!buffer_info->IsNull() && buffer_info->HasData())
                     {
-                        AddBuffersToContainer(
-                            meta_writes[i].dstSet, writes[i].descriptorCount, buffer_info->GetMetaStructPointer());
+                        AddBuffersToContainer(meta_writes[i].dstSet,
+                                              writes[i].dstBinding,
+                                              writes[i].dstArrayElement,
+                                              writes[i].descriptorCount,
+                                              buffer_info->GetMetaStructPointer());
                     }
 
                     break;
@@ -297,8 +303,11 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
 
                     if (!views.IsNull() && views.HasData())
                     {
-                        AddTexelBufferViewsToContainer(
-                            meta_writes[i].dstSet, writes[i].descriptorCount, views.GetPointer());
+                        AddTexelBufferViewsToContainer(meta_writes[i].dstSet,
+                                                       writes[i].dstBinding,
+                                                       writes[i].dstArrayElement,
+                                                       writes[i].descriptorCount,
+                                                       views.GetPointer());
                     }
 
                     break;
@@ -312,7 +321,24 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
 
     if (!pDescriptorCopies->IsNull() && pDescriptorCopies->HasData())
     {
-        // TODO: Containers need to support indexes for copies.
+        const auto copies      = pDescriptorCopies->GetPointer();
+        const auto meta_copies = pDescriptorCopies->GetMetaStructPointer();
+
+        for (uint32_t i = 0; i < descriptorCopyCount; ++i)
+        {
+            const auto& copy      = copies[i];
+            const auto& meta_copy = meta_copies[i];
+
+            for (uint32_t j = 0; j < copy.descriptorCount; ++j)
+            {
+                table_.CopyContainerEntry(meta_copy.srcSet,
+                                          copy.srcBinding,
+                                          copy.srcArrayElement + j,
+                                          meta_copy.dstSet,
+                                          copy.dstBinding,
+                                          copy.dstArrayElement + j);
+            }
+        }
     }
 }
 
@@ -448,38 +474,41 @@ void VulkanReferencedResourceConsumerBase::Process_vkResetCommandBuffer(VkResult
 }
 
 void VulkanReferencedResourceConsumerBase::AddImagesToContainer(format::HandleId                     container_id,
-                                                                size_t                               count,
+                                                                int32_t                              binding,
+                                                                uint32_t                             element,
+                                                                uint32_t                             count,
                                                                 const Decoded_VkDescriptorImageInfo* image_info)
 {
     assert(image_info != nullptr);
 
-    for (size_t i = 0; i < count; ++i)
+    for (uint32_t i = 0; i < count; ++i)
     {
-        table_.AddResourceToContainer(container_id, image_info[i].imageView);
+        table_.AddResourceToContainer(container_id, image_info[i].imageView, binding, element + i);
     }
 }
 
 void VulkanReferencedResourceConsumerBase::AddBuffersToContainer(format::HandleId                      container_id,
-                                                                 size_t                                count,
+                                                                 int32_t                               binding,
+                                                                 uint32_t                              element,
+                                                                 uint32_t                              count,
                                                                  const Decoded_VkDescriptorBufferInfo* buffer_info)
 {
     assert(buffer_info != nullptr);
 
-    for (size_t i = 0; i < count; ++i)
+    for (uint32_t i = 0; i < count; ++i)
     {
-        table_.AddResourceToContainer(container_id, buffer_info[i].buffer);
+        table_.AddResourceToContainer(container_id, buffer_info[i].buffer, binding, element + i);
     }
 }
 
-void VulkanReferencedResourceConsumerBase::AddTexelBufferViewsToContainer(format::HandleId        container_id,
-                                                                          size_t                  count,
-                                                                          const format::HandleId* view_ids)
+void VulkanReferencedResourceConsumerBase::AddTexelBufferViewsToContainer(
+    format::HandleId container_id, int32_t binding, uint32_t element, uint32_t count, const format::HandleId* view_ids)
 {
     assert(view_ids != nullptr);
 
-    for (size_t i = 0; i < count; ++i)
+    for (uint32_t i = 0; i < count; ++i)
     {
-        table_.AddResourceToContainer(container_id, view_ids[i]);
+        table_.AddResourceToContainer(container_id, view_ids[i], binding, element + i);
     }
 }
 
@@ -488,9 +517,9 @@ void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
 {
     assert(decoder != nullptr);
 
-    size_t image_info_count        = decoder->GetImageInfoCount();
-    size_t buffer_info_count       = decoder->GetBufferInfoCount();
-    size_t texel_buffer_view_count = decoder->GetTexelBufferViewCount();
+    auto image_info_count        = static_cast<uint32_t>(decoder->GetImageInfoCount());
+    auto buffer_info_count       = static_cast<uint32_t>(decoder->GetBufferInfoCount());
+    auto texel_buffer_view_count = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
 
     if (image_info_count > 0)
     {
@@ -499,7 +528,7 @@ void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
         const auto image_info = decoder->GetImageInfoMetaStructPointer();
         assert(image_info != nullptr);
 
-        AddImagesToContainer(container_id, image_info_count, image_info);
+        AddImagesToContainer(container_id, -1, 0, image_info_count, image_info);
     }
 
     if (buffer_info_count > 0)
@@ -507,7 +536,7 @@ void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
         const auto buffer_info = decoder->GetBufferInfoMetaStructPointer();
         assert(buffer_info != nullptr);
 
-        AddBuffersToContainer(container_id, buffer_info_count, buffer_info);
+        AddBuffersToContainer(container_id, -1, 0, buffer_info_count, buffer_info);
     }
 
     if (texel_buffer_view_count > 0)
@@ -515,7 +544,7 @@ void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
         auto view_ids = decoder->GetTexelBufferViewHandleIdsPointer();
         assert(view_ids != nullptr);
 
-        AddTexelBufferViewsToContainer(container_id, texel_buffer_view_count, view_ids);
+        AddTexelBufferViewsToContainer(container_id, -1, 0, texel_buffer_view_count, view_ids);
     }
 }
 

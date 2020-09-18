@@ -159,14 +159,23 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     ReferencedResourceTable& GetTable() { return table_; }
 
   private:
-    void
-    AddImagesToContainer(format::HandleId container_id, size_t count, const Decoded_VkDescriptorImageInfo* image_info);
+    void AddImagesToContainer(format::HandleId                     container_id,
+                              int32_t                              binding,
+                              uint32_t                             element,
+                              uint32_t                             count,
+                              const Decoded_VkDescriptorImageInfo* image_info);
 
     void AddBuffersToContainer(format::HandleId                      container_id,
-                               size_t                                count,
+                               int32_t                               binding,
+                               uint32_t                              element,
+                               uint32_t                              count,
                                const Decoded_VkDescriptorBufferInfo* buffer_info);
 
-    void AddTexelBufferViewsToContainer(format::HandleId container_id, size_t count, const format::HandleId* view_ids);
+    void AddTexelBufferViewsToContainer(format::HandleId        container_id,
+                                        int32_t                 binding,
+                                        uint32_t                element,
+                                        uint32_t                count,
+                                        const format::HandleId* view_ids);
 
     void UpdateDescriptorSetWithTemplate(format::HandleId container_id, const DescriptorUpdateTemplateDecoder* decoder);
 
