@@ -24,6 +24,7 @@
 #include "vulkan/vulkan.h"
 
 #include <functional>
+#include <limits>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -87,6 +88,20 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                         StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
                                         StructPointerDecoder<Decoded_VkAllocationCallbacks>*           pAllocator,
                                         HandlePointerDecoder<VkDescriptorSetLayout>* pSetLayout) override;
+
+    virtual void Process_vkCreateDescriptorUpdateTemplate(
+        VkResult                                                            returnValue,
+        format::HandleId                                                    device,
+        StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
+        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate) override;
+
+    virtual void Process_vkCreateDescriptorUpdateTemplateKHR(
+        VkResult                                                            returnValue,
+        format::HandleId                                                    device,
+        StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
+        HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate) override;
 
     virtual void
     Process_vkDestroyDescriptorPool(format::HandleId                                     device,
@@ -168,6 +183,25 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
     ReferencedResourceTable& GetTable() { return table_; }
 
   private:
+    struct UpdateTemplateEntryInfo
+    {
+        uint32_t         binding{ std::numeric_limits<uint32_t>::max() };
+        uint32_t         array_element{ 0 };
+        uint32_t         count{ 0 };
+        VkDescriptorType type{};
+    };
+
+    struct UpdateTemplateInfo
+    {
+        format::HandleId                     set_id{ format::kNullHandleId };
+        std::vector<UpdateTemplateEntryInfo> image_infos;
+        std::vector<UpdateTemplateEntryInfo> buffer_infos;
+        std::vector<UpdateTemplateEntryInfo> texel_buffer_view_infos;
+    };
+
+    // Table of descriptor update template info, keyed by VkDescriptorUpdateTemplate ID.
+    typedef std::unordered_map<format::HandleId, UpdateTemplateInfo> UpdateTemplateInfos;
+
     // Table of descriptor set layout binding counts, keyed by VkDescriptorSetLayout ID.  Each entry is a table of
     // descriptor counts keyed by binding index.
     typedef std::unordered_map<format::HandleId, std::unordered_map<uint32_t, uint32_t>> LayoutBindingCounts;
@@ -203,21 +237,30 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
                                         uint32_t                count,
                                         const format::HandleId* view_ids);
 
-    void UpdateDescriptorSetWithTemplate(format::HandleId container_id, const DescriptorUpdateTemplateDecoder* decoder);
-
     void AddImagesToUser(format::HandleId user_id, size_t count, const Decoded_VkDescriptorImageInfo* image_info);
 
     void AddBuffersToUser(format::HandleId user_id, size_t count, const Decoded_VkDescriptorBufferInfo* buffer_info);
 
     void AddTexelBufferViewsToUser(format::HandleId user_id, size_t count, const format::HandleId* view_ids);
 
-    void PushDescriptorSetWithTemplate(format::HandleId user_id, const DescriptorUpdateTemplateDecoder* decoder);
+    void CreateDescriptorUpdateTemplate(
+        const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
+        const HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate);
+
+    void UpdateDescriptorSetWithTemplate(format::HandleId                       container_id,
+                                         format::HandleId                       template_id,
+                                         const DescriptorUpdateTemplateDecoder* decoder);
+
+    void PushDescriptorSetWithTemplate(format::HandleId                       user_id,
+                                       format::HandleId                       template_id,
+                                       const DescriptorUpdateTemplateDecoder* decoder);
 
   private:
     bool                    loading_state_;
     ReferencedResourceTable table_;
     LayoutBindingCounts     layout_binding_counts_;
     SetLayouts              set_layouts_;
+    UpdateTemplateInfos     template_infos_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

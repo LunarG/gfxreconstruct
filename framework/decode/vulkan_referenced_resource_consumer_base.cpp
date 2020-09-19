@@ -16,8 +16,9 @@
 
 #include "decode/vulkan_referenced_resource_consumer_base.h"
 
+#include "util/logging.h"
+
 #include <cassert>
-#include <limits>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -185,6 +186,34 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorSetLayout(
             layout_binding_counts_[layout_id].emplace(binding.binding, binding.descriptorCount);
         }
     }
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorUpdateTemplate(
+    VkResult                                                            returnValue,
+    format::HandleId                                                    device,
+    StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
+    HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+
+    CreateDescriptorUpdateTemplate(pCreateInfo, pDescriptorUpdateTemplate);
+}
+
+void VulkanReferencedResourceConsumerBase::Process_vkCreateDescriptorUpdateTemplateKHR(
+    VkResult                                                            returnValue,
+    format::HandleId                                                    device,
+    StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
+    HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   pDescriptorUpdateTemplate)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(returnValue);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+
+    CreateDescriptorUpdateTemplate(pCreateInfo, pDescriptorUpdateTemplate);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkDestroyDescriptorPool(
@@ -408,9 +437,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemp
     DescriptorUpdateTemplateDecoder* pData)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
 
-    UpdateDescriptorSetWithTemplate(descriptorSet, pData);
+    UpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(
@@ -420,11 +448,10 @@ void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTem
     uint32_t                         set,
     DescriptorUpdateTemplateDecoder* pData)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
     GFXRECON_UNREFERENCED_PARAMETER(layout);
     GFXRECON_UNREFERENCED_PARAMETER(set);
 
-    PushDescriptorSetWithTemplate(commandBuffer, pData);
+    PushDescriptorSetWithTemplate(commandBuffer, descriptorUpdateTemplate, pData);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
@@ -434,9 +461,8 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemp
     DescriptorUpdateTemplateDecoder* pData)
 {
     GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(descriptorUpdateTemplate);
 
-    UpdateDescriptorSetWithTemplate(descriptorSet, pData);
+    UpdateDescriptorSetWithTemplate(descriptorSet, descriptorUpdateTemplate, pData);
 }
 
 void VulkanReferencedResourceConsumerBase::Process_vkDestroyCommandPool(
@@ -620,42 +646,6 @@ void VulkanReferencedResourceConsumerBase::AddTexelBufferViewsToContainer(
         });
 }
 
-void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
-    format::HandleId container_id, const DescriptorUpdateTemplateDecoder* decoder)
-{
-    assert(decoder != nullptr);
-
-    auto image_info_count        = static_cast<uint32_t>(decoder->GetImageInfoCount());
-    auto buffer_info_count       = static_cast<uint32_t>(decoder->GetBufferInfoCount());
-    auto texel_buffer_view_count = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
-
-    if (image_info_count > 0)
-    {
-        // TODO: Get descriptor type from template creation so that sampler only writes can be ignored. Worst case is a
-        // handle with an uninitialized value, which will never be referenced, is added to the tracker.
-        const auto image_info = decoder->GetImageInfoMetaStructPointer();
-        assert(image_info != nullptr);
-
-        AddImagesToContainer(container_id, -1, 0, image_info_count, image_info);
-    }
-
-    if (buffer_info_count > 0)
-    {
-        const auto buffer_info = decoder->GetBufferInfoMetaStructPointer();
-        assert(buffer_info != nullptr);
-
-        AddBuffersToContainer(container_id, -1, 0, buffer_info_count, buffer_info);
-    }
-
-    if (texel_buffer_view_count > 0)
-    {
-        auto view_ids = decoder->GetTexelBufferViewHandleIdsPointer();
-        assert(view_ids != nullptr);
-
-        AddTexelBufferViewsToContainer(container_id, -1, 0, texel_buffer_view_count, view_ids);
-    }
-}
-
 void VulkanReferencedResourceConsumerBase::AddImagesToUser(format::HandleId                     user_id,
                                                            size_t                               count,
                                                            const Decoded_VkDescriptorImageInfo* image_info)
@@ -692,7 +682,155 @@ void VulkanReferencedResourceConsumerBase::AddTexelBufferViewsToUser(format::Han
     }
 }
 
-void VulkanReferencedResourceConsumerBase::PushDescriptorSetWithTemplate(format::HandleId                       user_id,
+void VulkanReferencedResourceConsumerBase::CreateDescriptorUpdateTemplate(
+    const StructPointerDecoder<Decoded_VkDescriptorUpdateTemplateCreateInfo>* create_info,
+    const HandlePointerDecoder<VkDescriptorUpdateTemplate>*                   descriptor_update_template)
+{
+    assert((create_info != nullptr) && (descriptor_update_template != nullptr));
+
+    if (!create_info->IsNull() && create_info->HasData() && !descriptor_update_template->IsNull() &&
+        descriptor_update_template->HasData())
+    {
+        UpdateTemplateInfo template_info;
+
+        auto       template_id          = (*descriptor_update_template->GetPointer());
+        const auto template_create_info = create_info->GetPointer();
+        auto       update_entry_count   = template_create_info->descriptorUpdateEntryCount;
+        const auto update_entries       = template_create_info->pDescriptorUpdateEntries;
+
+        // Capture file encoding converts the update template data to tightly packed arrays of descriptor info
+        // structures in the order of images, buffes, texel buffer views.  For the update template info tracking, we
+        // build arrays of update template entry info with the same ordering.
+        for (uint32_t i = 0; i < update_entry_count; ++i)
+        {
+            UpdateTemplateEntryInfo entry_info;
+            entry_info.binding       = update_entries[i].dstBinding;
+            entry_info.array_element = update_entries[i].dstArrayElement;
+            entry_info.count         = update_entries[i].descriptorCount;
+            entry_info.type          = update_entries[i].descriptorType;
+
+            if ((entry_info.type == VK_DESCRIPTOR_TYPE_SAMPLER) ||
+                (entry_info.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) ||
+                (entry_info.type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) ||
+                (entry_info.type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
+                (entry_info.type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
+            {
+                template_info.image_infos.emplace_back(std::move(entry_info));
+            }
+            else if ((entry_info.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) ||
+                     (entry_info.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
+                     (entry_info.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
+                     (entry_info.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
+            {
+                template_info.buffer_infos.emplace_back(std::move(entry_info));
+            }
+            else if ((entry_info.type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) ||
+                     (entry_info.type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
+            {
+                template_info.texel_buffer_view_infos.emplace_back(std::move(entry_info));
+            }
+        }
+
+        template_infos_.emplace(template_id, std::move(template_info));
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::UpdateDescriptorSetWithTemplate(
+    format::HandleId container_id, format::HandleId template_id, const DescriptorUpdateTemplateDecoder* decoder)
+{
+    assert(decoder != nullptr);
+
+    auto image_info_count        = static_cast<uint32_t>(decoder->GetImageInfoCount());
+    auto buffer_info_count       = static_cast<uint32_t>(decoder->GetBufferInfoCount());
+    auto texel_buffer_view_count = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
+
+    const auto template_info_entry = template_infos_.find(template_id);
+    if (template_info_entry != template_infos_.end())
+    {
+        // Update template data is stored as tightly packed arrays of image, buffer, and texel buffer view descriptor
+        // info structures.  Each update template entry references a subrange of info structures, organized in
+        // consecutive order.  Descriptor update template data will be processed by entry/subrange.
+        const auto& template_info = template_info_entry->second;
+
+        if (image_info_count > 0)
+        {
+            uint32_t   offset     = 0;
+            const auto image_info = decoder->GetImageInfoMetaStructPointer();
+            assert(image_info != nullptr);
+
+            for (const auto& info : template_info.image_infos)
+            {
+                assert((offset + info.count) <= image_info_count);
+
+                if ((offset + info.count) > image_info_count)
+                {
+                    GFXRECON_LOG_ERROR("Descriptor update template entry count exceeds the total number of entries in "
+                                       "the update template data.");
+                    break;
+                }
+
+                // Sample only descriptor types can be ignored as we only need to track image view handles.
+                if (info.type != VK_DESCRIPTOR_TYPE_SAMPLER)
+                {
+                    AddImagesToContainer(
+                        container_id, info.binding, info.array_element, info.count, &image_info[offset]);
+                }
+
+                offset += info.count;
+            }
+        }
+
+        if (buffer_info_count > 0)
+        {
+            uint32_t   offset      = 0;
+            const auto buffer_info = decoder->GetBufferInfoMetaStructPointer();
+            assert(buffer_info != nullptr);
+
+            for (const auto& info : template_info.buffer_infos)
+            {
+                assert((offset + info.count) <= buffer_info_count);
+
+                if ((offset + info.count) > buffer_info_count)
+                {
+                    GFXRECON_LOG_ERROR("Descriptor update template entry count exceeds the total number of entries in "
+                                       "the update template data.");
+                    break;
+                }
+
+                AddBuffersToContainer(container_id, info.binding, info.array_element, info.count, &buffer_info[offset]);
+
+                offset += info.count;
+            }
+        }
+
+        if (texel_buffer_view_count > 0)
+        {
+            uint32_t offset   = 0;
+            auto     view_ids = decoder->GetTexelBufferViewHandleIdsPointer();
+            assert(view_ids != nullptr);
+
+            for (const auto& info : template_info.texel_buffer_view_infos)
+            {
+                assert((offset + info.count) <= texel_buffer_view_count);
+
+                if ((offset + info.count) > texel_buffer_view_count)
+                {
+                    GFXRECON_LOG_ERROR("Descriptor update template entry count exceeds the total number of entries in "
+                                       "the update template data.");
+                    break;
+                }
+
+                AddTexelBufferViewsToContainer(
+                    container_id, info.binding, info.array_element, info.count, &view_ids[offset]);
+
+                offset += info.count;
+            }
+        }
+    }
+}
+
+void VulkanReferencedResourceConsumerBase::PushDescriptorSetWithTemplate(format::HandleId user_id,
+                                                                         format::HandleId template_id,
                                                                          const DescriptorUpdateTemplateDecoder* decoder)
 {
     assert(decoder != nullptr);
@@ -703,12 +841,38 @@ void VulkanReferencedResourceConsumerBase::PushDescriptorSetWithTemplate(format:
 
     if (image_info_count > 0)
     {
-        // TODO: Get descriptor type from template creation so that sampler only writes can be ignored. Worst case is a
-        // handle with an uninitialized value, which will never be referenced, is added to the tracker.
-        const auto image_info = decoder->GetImageInfoMetaStructPointer();
-        assert(image_info != nullptr);
+        const auto template_info_entry = template_infos_.find(template_id);
+        if (template_info_entry != template_infos_.end())
+        {
+            // Update template data is stored as tightly packed arrays of image, buffer, and texel buffer view
+            // descriptor info structures.  Each update template entry references a subrange of info structures,
+            // organized in consecutive order.  Descriptor update template data for images will be processed by
+            // entry/subrange so that descriptors with a sampler type can be ignored.
+            const auto& template_info = template_info_entry->second;
+            const auto  image_info    = decoder->GetImageInfoMetaStructPointer();
+            size_t      offset        = 0;
+            assert(image_info != nullptr);
 
-        AddImagesToUser(user_id, image_info_count, image_info);
+            for (const auto& info : template_info.image_infos)
+            {
+                assert((offset + info.count) <= image_info_count);
+
+                if ((offset + info.count) > image_info_count)
+                {
+                    GFXRECON_LOG_ERROR("Descriptor update template entry count exceeds the total number of entries in "
+                                       "the update template data.");
+                    break;
+                }
+
+                // Sample only descriptor types can be ignored as we only need to track image view handles.
+                if (info.type != VK_DESCRIPTOR_TYPE_SAMPLER)
+                {
+                    AddImagesToUser(user_id, info.count, &image_info[offset]);
+                }
+
+                offset += info.count;
+            }
+        }
     }
 
     if (buffer_info_count > 0)
