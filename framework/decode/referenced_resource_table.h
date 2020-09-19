@@ -41,7 +41,7 @@ class ReferencedResourceTable
 
     void AddResourceToContainer(format::HandleId container_id,
                                 format::HandleId resource_id,
-                                int32_t          binding,
+                                uint32_t         binding,
                                 uint32_t         element);
 
     void AddResourceToUser(format::HandleId user_id, format::HandleId resource_id);
@@ -71,10 +71,10 @@ class ReferencedResourceTable
     void ClearUsers(format::HandleId pool_id);
 
     void CopyContainerEntry(format::HandleId source_container_id,
-                            int32_t          source_binding,
+                            uint32_t         source_binding,
                             uint32_t         source_element,
                             format::HandleId destination_container_id,
-                            int32_t          destination_binding,
+                            uint32_t         destination_binding,
                             uint32_t         destination_element);
 
     void ProcessUserSubmission(format::HandleId user_id);
@@ -99,7 +99,7 @@ class ReferencedResourceTable
 
         // Table mapping a container binding to a handle.  Each binding contains a table of handles keyed by array
         // element index.
-        std::unordered_map<int32_t, std::unordered_map<uint32_t, format::HandleId>> resource_bindings;
+        std::unordered_map<uint32_t, std::unordered_map<uint32_t, format::HandleId>> resource_bindings;
     };
 
     // Track the state of a resource user (command buffer).
