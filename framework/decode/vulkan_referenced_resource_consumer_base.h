@@ -44,7 +44,11 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
 
     virtual void ProcessStateBeginMarker(uint64_t) override { loading_state_ = true; }
 
-    virtual void ProcessStateEndMarker(uint64_t) override { loading_state_ = false; }
+    virtual void ProcessStateEndMarker(uint64_t) override
+    {
+        loading_state_ = false;
+        loaded_state_  = true;
+    }
 
     virtual void Process_vkQueueSubmit(VkResult                                    returnValue,
                                        format::HandleId                            queue,
@@ -257,6 +261,7 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
 
   private:
     bool                    loading_state_;
+    bool                    loaded_state_;
     ReferencedResourceTable table_;
     LayoutBindingCounts     layout_binding_counts_;
     SetLayouts              set_layouts_;

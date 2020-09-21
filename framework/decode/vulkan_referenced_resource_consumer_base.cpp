@@ -19,11 +19,14 @@
 #include "util/logging.h"
 
 #include <cassert>
+#include <stdexcept>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanReferencedResourceConsumerBase::VulkanReferencedResourceConsumerBase() : loading_state_(false) {}
+VulkanReferencedResourceConsumerBase::VulkanReferencedResourceConsumerBase() :
+    loading_state_(false), loaded_state_(false)
+{}
 
 void VulkanReferencedResourceConsumerBase::Process_vkQueueSubmit(VkResult         returnValue,
                                                                  format::HandleId queue,
@@ -71,9 +74,22 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateBuffer(
     assert(pBuffer != nullptr);
 
     // Only track buffers that were created by the trimmed file state snapshot.
-    if (IsStateLoading() && !pBuffer->IsNull() && pBuffer->HasData())
+    if (IsStateLoading())
     {
-        table_.AddResource(*pBuffer->GetPointer());
+        if (!pBuffer->IsNull() && pBuffer->HasData())
+        {
+            table_.AddResource(*pBuffer->GetPointer());
+        }
+    }
+    else
+    {
+        // Stop processing if file did not start with a state block.
+        if (!loaded_state_)
+        {
+            // There is currently no way for a consumer to indicate that file processing should terminate early, except
+            // by throwing an exception.
+            throw std::runtime_error("File does not contain a state block to optimize");
+        }
     }
 }
 
@@ -112,9 +128,22 @@ void VulkanReferencedResourceConsumerBase::Process_vkCreateImage(
     assert(pImage != nullptr);
 
     // Only track images that were created by the trimmed file state snapshot.
-    if (IsStateLoading() && !pImage->IsNull() && pImage->HasData())
+    if (IsStateLoading())
     {
-        table_.AddResource(*pImage->GetPointer());
+        if (!pImage->IsNull() && pImage->HasData())
+        {
+            table_.AddResource(*pImage->GetPointer());
+        }
+    }
+    else
+    {
+        // Stop processing the file if it did not start with a state block.
+        if (!loaded_state_)
+        {
+            // There is currently no way for a consumer to indicate that file processing should terminate early, except
+            // by throwing an exception.
+            throw std::runtime_error("File does not contain a state block to optimize");
+        }
     }
 }
 
