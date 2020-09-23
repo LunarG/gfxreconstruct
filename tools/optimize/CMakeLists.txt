@@ -24,8 +24,8 @@ add_executable(gfxrecon-optimize "")
 target_sources(gfxrecon-optimize
                PRIVATE
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-                   ${CMAKE_CURRENT_LIST_DIR}/optimizing_file_processor.h
-                   ${CMAKE_CURRENT_LIST_DIR}/optimizing_file_processor.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/file_optimizer.h
+                   ${CMAKE_CURRENT_LIST_DIR}/file_optimizer.cpp
               )
 
 target_include_directories(gfxrecon-optimize PUBLIC ${CMAKE_BINARY_DIR})

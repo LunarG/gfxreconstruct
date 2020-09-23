@@ -15,7 +15,7 @@
 */
 
 #include "project_version.h"
-#include "optimizing_file_processor.h"
+#include "file_optimizer.h"
 
 #include "decode/file_processor.h"
 #include "format/format.h"
@@ -151,12 +151,12 @@ void FilterUnreferencedResources(const std::string&                             
                                  const std::string&                               output_filename,
                                  std::unordered_set<gfxrecon::format::HandleId>&& unreferenced_ids)
 {
-    gfxrecon::OptimizingFileProcessor file_processor(std::move(unreferenced_ids));
+    gfxrecon::FileOptimizer file_processor(std::move(unreferenced_ids));
     if (file_processor.Initialize(input_filename, output_filename))
     {
         file_processor.Process();
 
-        if (file_processor.GetErrorState() != gfxrecon::OptimizingFileProcessor::kErrorNone)
+        if (file_processor.GetErrorState() != gfxrecon::FileOptimizer::kErrorNone)
         {
             GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
             gfxrecon::util::Log::Release();
