@@ -9,12 +9,12 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders_forward.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_handle_mappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_handle_mappers.cpp
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/compression_converter.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/compression_converter.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/descriptor_update_template_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/descriptor_update_template_decoder.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_processor.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_processor.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/file_transformer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/file_transformer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/handle_pointer_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_typed_node.h

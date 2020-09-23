@@ -16,8 +16,8 @@
 */
 
 #include "project_version.h"
+#include "compression_converter.h"
 
-#include "decode/compression_converter.h"
 #include "decode/file_processor.h"
 #include "format/format.h"
 #include "util/argument_parser.h"
@@ -192,73 +192,55 @@ int main(int argc, const char** argv)
         }
     }
 
-    gfxrecon::decode::FileProcessor file_processor;
+    gfxrecon::CompressionConverter file_converter;
 
-    if (file_processor.Initialize(input_filename))
+    if (file_converter.Initialize(input_filename, output_filename, compression_type))
     {
-        gfxrecon::decode::CompressionConverter decoder;
-        bool                                   succeeded = true;
-
-        if (decoder.Initialize(
-                output_filename, file_processor.GetFileHeader(), file_processor.GetFileOptions(), compression_type))
+        if (file_converter.Process())
         {
-            file_processor.AddDecoder(&decoder);
-            succeeded = file_processor.ProcessAllFrames();
+            std::string src_compression = kArgNone;
 
-            if (succeeded)
+            for (const auto& option : file_converter.GetFileOptions())
             {
-                std::string src_compression = kArgNone;
-
-                for (const auto& option : file_processor.GetFileOptions())
+                if (option.key == gfxrecon::format::kCompressionType)
                 {
-                    if (option.key == gfxrecon::format::kCompressionType)
-                    {
-                        src_compression = GetCompressionTypeName(option.value);
+                    src_compression = GetCompressionTypeName(option.value);
 
-                        if (src_compression == kArgUnknown)
-                        {
-                            GFXRECON_LOG_ERROR("Unrecognized source compression type %u", option.value);
-                        }
+                    if (src_compression == kArgUnknown)
+                    {
+                        GFXRECON_LOG_ERROR("Unrecognized source compression type %u", option.value);
                     }
                 }
+            }
 
-                if (gfxrecon::format::CompressionType::kNone != compression_type)
-                {
-                    std::string dst_compression = GetCompressionTypeName(compression_type);
-                    uint64_t    bytes_read      = file_processor.GetNumBytesRead();
-                    uint64_t    bytes_written   = decoder.NumBytesWritten();
-                    float       percent_reduction =
-                        100.f * (1.f - (static_cast<float>(bytes_written) / static_cast<float>(bytes_read)));
-                    GFXRECON_WRITE_CONSOLE("Compression Results:");
-                    GFXRECON_WRITE_CONSOLE("  Original Size   [Compression: %5s] = %" PRIu64 " bytes",
-                                           src_compression.c_str(),
-                                           bytes_read);
-                    GFXRECON_WRITE_CONSOLE("  Compressed Size [Compression: %5s] = %" PRIu64 " bytes",
-                                           dst_compression.c_str(),
-                                           bytes_written);
-                    GFXRECON_WRITE_CONSOLE("  Percent Reduction                    = %.2f%%", percent_reduction);
-                }
-                else
-                {
-                    uint64_t bytes_read    = file_processor.GetNumBytesRead();
-                    uint64_t bytes_written = decoder.NumBytesWritten();
-                    float    percent_increase =
-                        100.f * ((static_cast<float>(bytes_written) / static_cast<float>(bytes_read)) - 1.f);
-                    GFXRECON_WRITE_CONSOLE("Decompression Results:");
-                    GFXRECON_WRITE_CONSOLE("  Original Size   [Compression: %5s] = %" PRIu64 " bytes",
-                                           src_compression.c_str(),
-                                           bytes_read);
-                    GFXRECON_WRITE_CONSOLE("  Uncompressed Size                    = %" PRIu64 " bytes", bytes_written);
-                    GFXRECON_WRITE_CONSOLE("  Percent Increase                     = %.2f%%", percent_increase);
-                }
+            if (gfxrecon::format::CompressionType::kNone != compression_type)
+            {
+                std::string dst_compression = GetCompressionTypeName(compression_type);
+                uint64_t    bytes_read      = file_converter.GetNumBytesRead();
+                uint64_t    bytes_written   = file_converter.GetNumBytesWritten();
+                float       percent_reduction =
+                    100.f * (1.f - (static_cast<float>(bytes_written) / static_cast<float>(bytes_read)));
+                GFXRECON_WRITE_CONSOLE("Compression Results:");
+                GFXRECON_WRITE_CONSOLE(
+                    "  Original Size   [Compression: %5s] = %" PRIu64 " bytes", src_compression.c_str(), bytes_read);
+                GFXRECON_WRITE_CONSOLE(
+                    "  Compressed Size [Compression: %5s] = %" PRIu64 " bytes", dst_compression.c_str(), bytes_written);
+                GFXRECON_WRITE_CONSOLE("  Percent Reduction                    = %.2f%%", percent_reduction);
+            }
+            else
+            {
+                uint64_t bytes_read    = file_converter.GetNumBytesRead();
+                uint64_t bytes_written = file_converter.GetNumBytesWritten();
+                float    percent_increase =
+                    100.f * ((static_cast<float>(bytes_written) / static_cast<float>(bytes_read)) - 1.f);
+                GFXRECON_WRITE_CONSOLE("Decompression Results:");
+                GFXRECON_WRITE_CONSOLE(
+                    "  Original Size   [Compression: %5s] = %" PRIu64 " bytes", src_compression.c_str(), bytes_read);
+                GFXRECON_WRITE_CONSOLE("  Uncompressed Size                    = %" PRIu64 " bytes", bytes_written);
+                GFXRECON_WRITE_CONSOLE("  Percent Increase                     = %.2f%%", percent_increase);
             }
         }
         else
-        {
-            succeeded = false;
-        }
-
-        if (!succeeded)
         {
             GFXRECON_WRITE_CONSOLE("Capture file %s could not be converted.", input_filename.c_str());
             return_code = -1;

@@ -31,12 +31,12 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders_forward.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_handle_mappers.cpp
-                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.h
-                    ${CMAKE_CURRENT_LIST_DIR}/compression_converter.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/descriptor_update_template_decoder.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.h
                     ${CMAKE_CURRENT_LIST_DIR}/file_processor.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/file_transformer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/file_transformer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/handle_pointer_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/pnext_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/pnext_typed_node.h

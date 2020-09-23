@@ -14,7 +14,7 @@
 ** limitations under the License.
 */
 
-#include "optimizing_file_processor.h"
+#include "file_transformer.h"
 
 #include "format/format_util.h"
 #include "util/logging.h"
@@ -23,18 +23,14 @@
 #include <cassert>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+GFXRECON_BEGIN_NAMESPACE(decode)
 
-OptimizingFileProcessor::OptimizingFileProcessor(const std::unordered_set<format::HandleId>& unreferenced_ids) :
-    unreferenced_ids_(unreferenced_ids), file_header_{}, input_file_(nullptr), output_file_(nullptr), bytes_read_(0),
-    bytes_written_(0), error_state_(kErrorInvalidFileDescriptor), loading_state_(false)
+FileTransformer::FileTransformer() :
+    file_header_{}, input_file_(nullptr), output_file_(nullptr), bytes_read_(0), bytes_written_(0),
+    error_state_(kErrorInvalidFileDescriptor), loading_state_(false)
 {}
 
-OptimizingFileProcessor::OptimizingFileProcessor(std::unordered_set<format::HandleId>&& unreferenced_ids) :
-    unreferenced_ids_(std::move(unreferenced_ids)), file_header_{}, input_file_(nullptr), output_file_(nullptr),
-    bytes_read_(0), bytes_written_(0), error_state_(kErrorInvalidFileDescriptor), loading_state_(false)
-{}
-
-OptimizingFileProcessor::~OptimizingFileProcessor()
+FileTransformer::~FileTransformer()
 {
     if (input_file_ != nullptr)
     {
@@ -47,7 +43,7 @@ OptimizingFileProcessor::~OptimizingFileProcessor()
     }
 }
 
-bool OptimizingFileProcessor::Initialize(const std::string& input_filename, const std::string& output_filename)
+bool FileTransformer::Initialize(const std::string& input_filename, const std::string& output_filename)
 {
     bool success = false;
 
@@ -60,18 +56,6 @@ bool OptimizingFileProcessor::Initialize(const std::string& input_filename, cons
         if ((result == 0) && (output_file_ != nullptr))
         {
             success = ProcessFileHeader();
-
-            if (success)
-            {
-                error_state_ = kErrorNone;
-            }
-            else
-            {
-                fclose(input_file_);
-                fclose(output_file_);
-                input_file_  = nullptr;
-                output_file_ = nullptr;
-            }
         }
         else
         {
@@ -85,11 +69,30 @@ bool OptimizingFileProcessor::Initialize(const std::string& input_filename, cons
         error_state_ = kErrorOpeningFile;
     }
 
+    if (success)
+    {
+        error_state_ = kErrorNone;
+    }
+    else
+    {
+        if (input_file_ != nullptr)
+        {
+            fclose(input_file_);
+            input_file_ = nullptr;
+        }
+
+        if (output_file_ != nullptr)
+        {
+            fclose(output_file_);
+            output_file_ = nullptr;
+        }
+    }
+
     return success;
 }
 
 // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
-bool OptimizingFileProcessor::Process()
+bool FileTransformer::Process()
 {
     bool success = true;
 
@@ -98,9 +101,9 @@ bool OptimizingFileProcessor::Process()
         success = ProcessNextBlock();
     }
 
-    if (!success)
+    if (!success && (error_state_ == kErrorNone))
     {
-        // If not EOF, determine reason for invalid state.
+        // If a failure occured, but no error code was set, check for a file error.
         if ((input_file_ == nullptr) || (output_file_ == nullptr))
         {
             error_state_ = kErrorInvalidFileDescriptor;
@@ -118,7 +121,7 @@ bool OptimizingFileProcessor::Process()
     return (error_state_ == kErrorNone);
 }
 
-bool OptimizingFileProcessor::ProcessFileHeader()
+bool FileTransformer::ProcessFileHeader()
 {
     bool success = false;
 
@@ -149,30 +152,13 @@ bool OptimizingFileProcessor::ProcessFileHeader()
                     }
                 }
 
-                compressor_ =
-                    std::unique_ptr<util::Compressor>(format::CreateCompressor(enabled_options_.compression_type));
-
-                if ((compressor_ == nullptr) && (enabled_options_.compression_type != format::CompressionType::kNone))
-                {
-                    GFXRECON_LOG_ERROR("Failed to initialized file compression module (type = %u); processing of "
-                                       "compressed data will not be possible",
-                                       enabled_options_.compression_type);
-                    success      = false;
-                    error_state_ = kErrorUnsupportedCompressionType;
-                }
+                success = CreateCompressor(enabled_options_.compression_type, &compressor_);
             }
 
             if (success)
             {
                 // Write header to output file.
-                success = WriteBytes(&file_header_, sizeof(file_header_));
-                success = success && WriteBytes(file_options_.data(), option_data_size);
-
-                if (!success)
-                {
-                    GFXRECON_LOG_ERROR("Failed to write file header");
-                    error_state_ = kErrorWritingFileHeader;
-                }
+                success = WriteFileHeader(file_header_, file_options_);
             }
         }
         else
@@ -190,7 +176,7 @@ bool OptimizingFileProcessor::ProcessFileHeader()
     return success;
 }
 
-bool OptimizingFileProcessor::ProcessNextBlock()
+bool FileTransformer::ProcessNextBlock()
 {
     format::BlockHeader block_header;
     bool                success = true;
@@ -275,7 +261,7 @@ bool OptimizingFileProcessor::ProcessNextBlock()
     return success;
 }
 
-bool OptimizingFileProcessor::ReadBlockHeader(format::BlockHeader* block_header)
+bool FileTransformer::ReadBlockHeader(format::BlockHeader* block_header)
 {
     assert(block_header != nullptr);
 
@@ -287,7 +273,7 @@ bool OptimizingFileProcessor::ReadBlockHeader(format::BlockHeader* block_header)
     return false;
 }
 
-bool OptimizingFileProcessor::WriteBlockHeader(const format::BlockHeader& block_header)
+bool FileTransformer::WriteBlockHeader(const format::BlockHeader& block_header)
 {
     if (!WriteBytes(&block_header, sizeof(block_header)))
     {
@@ -299,7 +285,7 @@ bool OptimizingFileProcessor::WriteBlockHeader(const format::BlockHeader& block_
     return true;
 }
 
-bool OptimizingFileProcessor::ReadParameterBuffer(size_t buffer_size)
+bool FileTransformer::ReadParameterBuffer(size_t buffer_size)
 {
     if (buffer_size > parameter_buffer_.size())
     {
@@ -309,9 +295,9 @@ bool OptimizingFileProcessor::ReadParameterBuffer(size_t buffer_size)
     return ReadBytes(parameter_buffer_.data(), buffer_size);
 }
 
-bool OptimizingFileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size,
-                                                            size_t  expected_uncompressed_size,
-                                                            size_t* uncompressed_buffer_size)
+bool FileTransformer::ReadCompressedParameterBuffer(size_t  compressed_buffer_size,
+                                                    size_t  expected_uncompressed_size,
+                                                    size_t* uncompressed_buffer_size)
 {
     // This should only be null if initialization failed.
     assert(compressor_ != nullptr);
@@ -340,21 +326,21 @@ bool OptimizingFileProcessor::ReadCompressedParameterBuffer(size_t  compressed_b
     return false;
 }
 
-bool OptimizingFileProcessor::ReadBytes(void* buffer, size_t buffer_size)
+bool FileTransformer::ReadBytes(void* buffer, size_t buffer_size)
 {
     size_t bytes_read = util::platform::FileRead(buffer, 1, buffer_size, input_file_);
     bytes_read_ += bytes_read;
     return (bytes_read == buffer_size);
 }
 
-bool OptimizingFileProcessor::WriteBytes(const void* buffer, size_t buffer_size)
+bool FileTransformer::WriteBytes(const void* buffer, size_t buffer_size)
 {
     size_t bytes_written = util::platform::FileWrite(buffer, 1, buffer_size, output_file_);
     bytes_written_ += bytes_written;
     return (bytes_written == buffer_size);
 }
 
-bool OptimizingFileProcessor::SkipBytes(uint64_t skip_size)
+bool FileTransformer::SkipBytes(uint64_t skip_size)
 {
     bool success = util::platform::FileSeek(input_file_, skip_size, util::platform::FileSeekCurrent);
 
@@ -367,7 +353,7 @@ bool OptimizingFileProcessor::SkipBytes(uint64_t skip_size)
     return success;
 }
 
-bool OptimizingFileProcessor::CopyBytes(uint64_t copy_size)
+bool FileTransformer::CopyBytes(uint64_t copy_size)
 {
     GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, copy_size);
     if (ReadParameterBuffer(static_cast<size_t>(copy_size)))
@@ -381,7 +367,7 @@ bool OptimizingFileProcessor::CopyBytes(uint64_t copy_size)
     return false;
 }
 
-void OptimizingFileProcessor::HandleBlockReadError(Error error_code, const char* error_message)
+void FileTransformer::HandleBlockReadError(Error error_code, const char* error_message)
 {
     // Report incomplete block at end of file as a warning, other I/O errors as an error.
     if (feof(input_file_) && !ferror(input_file_))
@@ -395,9 +381,63 @@ void OptimizingFileProcessor::HandleBlockReadError(Error error_code, const char*
     }
 }
 
-bool OptimizingFileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
+void FileTransformer::HandleBlockWriteError(Error error_code, const char* error_message)
 {
-    // This is currently only copying the API call data from the old to the new file.
+    GFXRECON_LOG_ERROR("%s", error_message);
+    error_state_ = error_code;
+}
+
+void FileTransformer::HandleBlockCopyError(Error error_code, const char* error_message)
+{
+    if (ferror(output_file_))
+    {
+        HandleBlockWriteError(error_code, error_message);
+    }
+    else
+    {
+        HandleBlockReadError(error_code, error_message);
+    }
+}
+
+bool FileTransformer::CreateCompressor(format::CompressionType type, std::unique_ptr<util::Compressor>* compressor)
+{
+    assert(compressor != nullptr);
+
+    if (type != format::CompressionType::kNone)
+    {
+        (*compressor) = std::unique_ptr<util::Compressor>(format::CreateCompressor(type));
+
+        if ((*compressor) == nullptr)
+        {
+            GFXRECON_LOG_ERROR("Failed to initialized file compression module (type = %u); processing of "
+                               "compressed data will not be possible",
+                               type);
+            error_state_ = kErrorUnsupportedCompressionType;
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool FileTransformer::WriteFileHeader(const format::FileHeader&                  header,
+                                      const std::vector<format::FileOptionPair>& options)
+{
+    bool success = WriteBytes(&header, sizeof(header));
+    success      = success && WriteBytes(options.data(), options.size() * sizeof(format::FileOptionPair));
+
+    if (!success)
+    {
+        GFXRECON_LOG_ERROR("Failed to write file header");
+        error_state_ = kErrorWritingFileHeader;
+    }
+
+    return success;
+}
+
+bool FileTransformer::ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
+{
+    // Copy block data from old file to new file.
     if (!WriteBlockHeader(block_header))
     {
         return false;
@@ -405,60 +445,45 @@ bool OptimizingFileProcessor::ProcessFunctionCall(const format::BlockHeader& blo
 
     if (!WriteBytes(&call_id, sizeof(call_id)))
     {
-        GFXRECON_LOG_ERROR("Failed to write function call block header");
-        error_state_ = kErrorWritingBlockHeader;
+        HandleBlockWriteError(kErrorWritingBlockHeader, "Failed to write function call block header");
         return false;
     }
 
     if (!CopyBytes(block_header.size - sizeof(call_id)))
     {
-        GFXRECON_LOG_ERROR("Failed to copy function call block data");
-        error_state_ = kErrorWritingBlockData;
+        HandleBlockCopyError(kErrorCopyingBlockData, "Failed to copy function call block data");
         return false;
     }
 
     return true;
 }
 
-bool OptimizingFileProcessor::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type)
+bool FileTransformer::ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataType meta_type)
 {
-    if (meta_type == format::MetaDataType::kInitBufferCommand)
+    // Copy block data from old file to new file.
+    if (!WriteBlockHeader(block_header))
     {
-        return FilterInitBufferMetaData(block_header, meta_type);
+        return false;
     }
-    else if (meta_type == format::MetaDataType::kInitImageCommand)
+
+    if (!WriteBytes(&meta_type, sizeof(meta_type)))
     {
-        return FilterInitImageMetaData(block_header, meta_type);
+        HandleBlockWriteError(kErrorWritingBlockHeader, "Failed to write meta-data block header");
+        return false;
     }
-    else
+
+    if (!CopyBytes(block_header.size - sizeof(meta_type)))
     {
-        // Copy the meta data block, if it was not filtered.
-        if (!WriteBlockHeader(block_header))
-        {
-            return false;
-        }
-
-        if (!WriteBytes(&meta_type, sizeof(meta_type)))
-        {
-            GFXRECON_LOG_ERROR("Failed to write meta-data block header");
-            error_state_ = kErrorWritingBlockHeader;
-            return false;
-        }
-
-        if (!CopyBytes(block_header.size - sizeof(meta_type)))
-        {
-            GFXRECON_LOG_ERROR("Failed to copy meta-data block data");
-            error_state_ = kErrorWritingBlockData;
-            return false;
-        }
+        HandleBlockCopyError(kErrorCopyingBlockData, "Failed to copy meta-data block data");
+        return false;
     }
 
     return true;
 }
 
-bool OptimizingFileProcessor::ProcessStateMarker(const format::BlockHeader& block_header,
-                                                 format::MarkerType         marker_type)
+bool FileTransformer::ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
 {
+    // Copy marker data from old file to new file.
     uint64_t frame_number = 0;
 
     if (ReadBytes(&frame_number, sizeof(frame_number)))
@@ -479,135 +504,18 @@ bool OptimizingFileProcessor::ProcessStateMarker(const format::BlockHeader& bloc
 
         if (!WriteBytes(&marker, sizeof(marker)))
         {
-            GFXRECON_LOG_ERROR("Failed to write state marker data");
-            error_state_ = kErrorWritingBlockData;
+            HandleBlockWriteError(kErrorWritingBlockData, "Failed to write state marker data");
             return false;
         }
     }
     else
     {
-        GFXRECON_LOG_ERROR("Failed to read state marker data");
-        error_state_ = kErrorReadingBlockData;
+        HandleBlockWriteError(kErrorReadingBlockData, "Failed to read state marker data");
         return false;
     }
 
     return true;
 }
 
-bool OptimizingFileProcessor::FilterInitBufferMetaData(const format::BlockHeader& block_header,
-                                                       format::MetaDataType       meta_type)
-{
-    assert(meta_type == format::MetaDataType::kInitBufferCommand);
-
-    format::InitBufferCommandHeader header;
-
-    bool success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
-    success      = success && ReadBytes(&header.device_id, sizeof(header.device_id));
-    success      = success && ReadBytes(&header.buffer_id, sizeof(header.buffer_id));
-    success      = success && ReadBytes(&header.data_size, sizeof(header.data_size));
-
-    if (success)
-    {
-        // Total number of bytes remaining to be read for the current block.
-        uint64_t unread_bytes = block_header.size - (sizeof(header) - sizeof(block_header));
-
-        // If the buffer is in the unused list, omit its initialization data from the file.
-        if (unreferenced_ids_.find(header.buffer_id) != unreferenced_ids_.end())
-        {
-            if (!SkipBytes(unread_bytes))
-            {
-                GFXRECON_LOG_ERROR("Failed to skip init buffer data meta-data block data");
-                return false;
-            }
-        }
-        else
-        {
-            // Copy the block from the input file to the output file.
-            header.meta_header.block_header   = block_header;
-            header.meta_header.meta_data_type = meta_type;
-
-            if (!WriteBytes(&header, sizeof(header)))
-            {
-                GFXRECON_LOG_ERROR("Failed to write init buffer data meta-data block header");
-                error_state_ = kErrorReadingBlockHeader;
-                return false;
-            }
-
-            if (!CopyBytes(unread_bytes))
-            {
-                GFXRECON_LOG_ERROR("Failed to copy init buffer data meta-data block data");
-                error_state_ = kErrorWritingBlockData;
-                return false;
-            }
-        }
-    }
-    else
-    {
-        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init buffer data meta-data block header");
-        return false;
-    }
-
-    return true;
-}
-
-bool OptimizingFileProcessor::FilterInitImageMetaData(const format::BlockHeader& block_header,
-                                                      format::MetaDataType       meta_type)
-{
-    assert(meta_type == format::MetaDataType::kInitImageCommand);
-
-    format::InitImageCommandHeader header;
-    std::vector<uint64_t>          level_sizes;
-
-    bool success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
-    success      = success && ReadBytes(&header.device_id, sizeof(header.device_id));
-    success      = success && ReadBytes(&header.image_id, sizeof(header.image_id));
-    success      = success && ReadBytes(&header.data_size, sizeof(header.data_size));
-    success      = success && ReadBytes(&header.aspect, sizeof(header.aspect));
-    success      = success && ReadBytes(&header.layout, sizeof(header.layout));
-    success      = success && ReadBytes(&header.level_count, sizeof(header.level_count));
-
-    if (success)
-    {
-        // Total number of bytes remaining to be read for the current block.
-        uint64_t unread_bytes = block_header.size - (sizeof(header) - sizeof(block_header));
-
-        // If the image is in the unused list, omit its initialization data from the file.
-        if (unreferenced_ids_.find(header.image_id) != unreferenced_ids_.end())
-        {
-            if (!SkipBytes(unread_bytes))
-            {
-                GFXRECON_LOG_ERROR("Failed to skip init image data meta-data block data");
-                return false;
-            }
-        }
-        else
-        {
-            // Copy the block from the input file to the output file.
-            header.meta_header.block_header   = block_header;
-            header.meta_header.meta_data_type = meta_type;
-
-            if (!WriteBytes(&header, sizeof(header)))
-            {
-                GFXRECON_LOG_ERROR("Failed to write init image data meta-data block header");
-                error_state_ = kErrorReadingBlockHeader;
-                return false;
-            }
-
-            if (!CopyBytes(unread_bytes))
-            {
-                GFXRECON_LOG_ERROR("Failed to copy init image data meta-data block data");
-                error_state_ = kErrorWritingBlockData;
-                return false;
-            }
-        }
-    }
-    else
-    {
-        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read init image data meta-data block header");
-        return false;
-    }
-
-    return true;
-}
-
+GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
