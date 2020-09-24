@@ -35,6 +35,7 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
 #include "decode/vulkan_resource_initializer.h"
+#include "decode/vulkan_swapchain.h"
 #include "decode/window.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
@@ -638,6 +639,32 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                            const StructPointerDecoder<Decoded_VkImageSubresource>* pSubresource,
                                            StructPointerDecoder<Decoded_VkSubresourceLayout>*      pLayout);
 
+    VkResult OverrideCreateRenderPass(PFN_vkCreateRenderPass                                      func,
+                                      VkResult                                                    original_result,
+                                      const DeviceInfo*                                           device_info,
+                                      const StructPointerDecoder<Decoded_VkRenderPassCreateInfo>* pCreateInfo,
+                                      const StructPointerDecoder<Decoded_VkAllocationCallbacks>*  pAllocator,
+                                      HandlePointerDecoder<VkRenderPass>*                         pRenderPass);
+
+    VkResult OverrideCreateRenderPass2(PFN_vkCreateRenderPass2                                      func,
+                                       VkResult                                                     original_result,
+                                       const DeviceInfo*                                            device_info,
+                                       const StructPointerDecoder<Decoded_VkRenderPassCreateInfo2>* pCreateInfo,
+                                       const StructPointerDecoder<Decoded_VkAllocationCallbacks>*   pAllocator,
+                                       HandlePointerDecoder<VkRenderPass>*                          pRenderPass);
+
+    void OverrideCmdPipelineBarrier(PFN_vkCmdPipelineBarrier                                   func,
+                                    const CommandBufferInfo*                                   command_buffer_info,
+                                    VkPipelineStageFlags                                       srcStageMask,
+                                    VkPipelineStageFlags                                       dstStageMask,
+                                    VkDependencyFlags                                          dependencyFlags,
+                                    uint32_t                                                   memoryBarrierCount,
+                                    const StructPointerDecoder<Decoded_VkMemoryBarrier>*       pMemoryBarriers,
+                                    uint32_t                                                   bufferMemoryBarrierCount,
+                                    const StructPointerDecoder<Decoded_VkBufferMemoryBarrier>* pBufferMemoryBarriers,
+                                    uint32_t                                                   imageMemoryBarrierCount,
+                                    const StructPointerDecoder<Decoded_VkImageMemoryBarrier>*  pImageMemoryBarriers);
+
     VkResult OverrideCreateDescriptorUpdateTemplate(
         PFN_vkCreateDescriptorUpdateTemplate                                      func,
         VkResult                                                                  original_result,
@@ -703,7 +730,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void OverrideDestroySwapchainKHR(PFN_vkDestroySwapchainKHR                                  func,
                                      DeviceInfo*                                                device_info,
-                                     const SwapchainKHRInfo*                                    swapchain_info,
+                                     SwapchainKHRInfo*                                          swapchain_info,
                                      const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     VkResult OverrideGetSwapchainImagesKHR(PFN_vkGetSwapchainImagesKHR    func,
@@ -1036,6 +1063,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     HardwareBufferMap                                                hardware_buffers_;
     HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
     std::unique_ptr<ScreenshotHandler>                               screenshot_handler_;
+    std::unique_ptr<VulkanSwapchain>                                 swapchain_;
     std::string                                                      screenshot_file_prefix_;
     int32_t                                                          create_surface_count_;
     graphics::FpsInfo*                                               fps_info_;

@@ -23,6 +23,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_OBJECT_CLEANUP_UTIL_H
 #define GFXRECON_DECODE_VULKAN_OBJECT_CLEANUP_UTIL_H
 
+#include "decode/vulkan_swapchain.h"
 #include "decode/vulkan_object_info_table.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "util/defines.h"
@@ -37,7 +38,8 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
                         bool                                                     remove_entries,
                         bool                                                     report_leaks,
                         std::function<const encode::InstanceTable*(const void*)> get_instance_table,
-                        std::function<const encode::DeviceTable*(const void*)>   get_device_table);
+                        std::function<const encode::DeviceTable*(const void*)>   get_device_table,
+                        VulkanSwapchain*                                         swapchain);
 
 void FreeAllLiveInstances(VulkanObjectInfoTable*                                   table,
                           bool                                                     remove_entries,
