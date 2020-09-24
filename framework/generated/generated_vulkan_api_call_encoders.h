@@ -1538,6 +1538,30 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(
     uint32_t*                                   pInternalRepresentationCount,
     VkPipelineExecutableInternalRepresentationKHR* pInternalRepresentations);
 
+VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyBufferInfo2KHR*                 pCopyBufferInfo);
+
+VKAPI_ATTR void VKAPI_CALL CmdCopyImage2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyImageInfo2KHR*                  pCopyImageInfo);
+
+VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyBufferToImageInfo2KHR*          pCopyBufferToImageInfo);
+
+VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyImageToBufferInfo2KHR*          pCopyImageToBufferInfo);
+
+VKAPI_ATTR void VKAPI_CALL CmdBlitImage2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkBlitImageInfo2KHR*                  pBlitImageInfo);
+
+VKAPI_ATTR void VKAPI_CALL CmdResolveImage2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkResolveImageInfo2KHR*               pResolveImageInfo);
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     VkInstance                                  instance,
     const VkDebugReportCallbackCreateInfoEXT*   pCreateInfo,

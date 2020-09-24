@@ -105,6 +105,18 @@ void TrackCmdDrawIndirectCountKHRHandles(CommandBufferWrapper* wrapper, VkBuffer
 
 void TrackCmdDrawIndexedIndirectCountKHRHandles(CommandBufferWrapper* wrapper, VkBuffer buffer, VkBuffer countBuffer);
 
+void TrackCmdCopyBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2KHR* pCopyBufferInfo);
+
+void TrackCmdCopyImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageInfo2KHR* pCopyImageInfo);
+
+void TrackCmdCopyBufferToImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2KHR* pCopyBufferToImageInfo);
+
+void TrackCmdCopyImageToBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2KHR* pCopyImageToBufferInfo);
+
+void TrackCmdBlitImage2KHRHandles(CommandBufferWrapper* wrapper, const VkBlitImageInfo2KHR* pBlitImageInfo);
+
+void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2KHR* pResolveImageInfo);
+
 void TrackCmdBindTransformFeedbackBuffersEXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers);
 
 void TrackCmdBeginTransformFeedbackEXTHandles(CommandBufferWrapper* wrapper, uint32_t counterBufferCount, const VkBuffer* pCounterBuffers);

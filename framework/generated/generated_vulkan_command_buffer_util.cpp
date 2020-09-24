@@ -494,6 +494,72 @@ void TrackCmdDrawIndexedIndirectCountKHRHandles(CommandBufferWrapper* wrapper, V
     wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(countBuffer));
 }
 
+void TrackCmdCopyBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferInfo2KHR* pCopyBufferInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyBufferInfo != nullptr)
+    {
+        wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pCopyBufferInfo->srcBuffer));
+        wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pCopyBufferInfo->dstBuffer));
+    }
+}
+
+void TrackCmdCopyImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageInfo2KHR* pCopyImageInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyImageInfo != nullptr)
+    {
+        wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pCopyImageInfo->srcImage));
+        wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pCopyImageInfo->dstImage));
+    }
+}
+
+void TrackCmdCopyBufferToImage2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyBufferToImageInfo2KHR* pCopyBufferToImageInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyBufferToImageInfo != nullptr)
+    {
+        wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pCopyBufferToImageInfo->srcBuffer));
+        wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pCopyBufferToImageInfo->dstImage));
+    }
+}
+
+void TrackCmdCopyImageToBuffer2KHRHandles(CommandBufferWrapper* wrapper, const VkCopyImageToBufferInfo2KHR* pCopyImageToBufferInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pCopyImageToBufferInfo != nullptr)
+    {
+        wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pCopyImageToBufferInfo->srcImage));
+        wrapper->command_handles[CommandHandleType::BufferHandle].insert(GetWrappedId(pCopyImageToBufferInfo->dstBuffer));
+    }
+}
+
+void TrackCmdBlitImage2KHRHandles(CommandBufferWrapper* wrapper, const VkBlitImageInfo2KHR* pBlitImageInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pBlitImageInfo != nullptr)
+    {
+        wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pBlitImageInfo->srcImage));
+        wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pBlitImageInfo->dstImage));
+    }
+}
+
+void TrackCmdResolveImage2KHRHandles(CommandBufferWrapper* wrapper, const VkResolveImageInfo2KHR* pResolveImageInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pResolveImageInfo != nullptr)
+    {
+        wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pResolveImageInfo->srcImage));
+        wrapper->command_handles[CommandHandleType::ImageHandle].insert(GetWrappedId(pResolveImageInfo->dstImage));
+    }
+}
+
 void TrackCmdBindTransformFeedbackBuffersEXTHandles(CommandBufferWrapper* wrapper, uint32_t bindingCount, const VkBuffer* pBuffers)
 {
     assert(wrapper != nullptr);

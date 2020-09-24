@@ -1678,6 +1678,30 @@ class VulkanConsumer : public VulkanConsumerBase
         PointerDecoder<uint32_t>*                   pInternalRepresentationCount,
         StructPointerDecoder<Decoded_VkPipelineExecutableInternalRepresentationKHR>* pInternalRepresentations) {}
 
+    virtual void Process_vkCmdCopyBuffer2KHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo) {}
+
+    virtual void Process_vkCmdCopyImage2KHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyImageInfo2KHR>* pCopyImageInfo) {}
+
+    virtual void Process_vkCmdCopyBufferToImage2KHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2KHR>* pCopyBufferToImageInfo) {}
+
+    virtual void Process_vkCmdCopyImageToBuffer2KHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2KHR>* pCopyImageToBufferInfo) {}
+
+    virtual void Process_vkCmdBlitImage2KHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkBlitImageInfo2KHR>* pBlitImageInfo) {}
+
+    virtual void Process_vkCmdResolveImage2KHR(
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkResolveImageInfo2KHR>* pResolveImageInfo) {}
+
     virtual void Process_vkCreateDebugReportCallbackEXT(
         VkResult                                    returnValue,
         format::HandleId                            instance,

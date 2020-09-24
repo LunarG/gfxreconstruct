@@ -353,6 +353,12 @@ static VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(VkDevice, VkDefer
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(VkDevice, const VkPipelineInfoKHR*, uint32_t*, VkPipelineExecutablePropertiesKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableStatisticKHR*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(VkDevice, const VkPipelineExecutableInfoKHR*, uint32_t*, VkPipelineExecutableInternalRepresentationKHR*) { return VK_SUCCESS; }
+static VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2KHR(VkCommandBuffer, const VkCopyBufferInfo2KHR*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdCopyImage2KHR(VkCommandBuffer, const VkCopyImageInfo2KHR*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2KHR(VkCommandBuffer, const VkCopyBufferToImageInfo2KHR*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer2KHR(VkCommandBuffer, const VkCopyImageToBufferInfo2KHR*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdBlitImage2KHR(VkCommandBuffer, const VkBlitImageInfo2KHR*) {}
+static VKAPI_ATTR void VKAPI_CALL CmdResolveImage2KHR(VkCommandBuffer, const VkResolveImageInfo2KHR*) {}
 static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(VkDevice, const VkDebugMarkerObjectTagInfoEXT*) { return VK_SUCCESS; }
 static VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(VkDevice, const VkDebugMarkerObjectNameInfoEXT*) { return VK_SUCCESS; }
 static VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(VkCommandBuffer, const VkDebugMarkerMarkerInfoEXT*) {}
@@ -797,6 +803,12 @@ struct DeviceTable
     PFN_vkGetPipelineExecutablePropertiesKHR GetPipelineExecutablePropertiesKHR{ noop::GetPipelineExecutablePropertiesKHR };
     PFN_vkGetPipelineExecutableStatisticsKHR GetPipelineExecutableStatisticsKHR{ noop::GetPipelineExecutableStatisticsKHR };
     PFN_vkGetPipelineExecutableInternalRepresentationsKHR GetPipelineExecutableInternalRepresentationsKHR{ noop::GetPipelineExecutableInternalRepresentationsKHR };
+    PFN_vkCmdCopyBuffer2KHR CmdCopyBuffer2KHR{ noop::CmdCopyBuffer2KHR };
+    PFN_vkCmdCopyImage2KHR CmdCopyImage2KHR{ noop::CmdCopyImage2KHR };
+    PFN_vkCmdCopyBufferToImage2KHR CmdCopyBufferToImage2KHR{ noop::CmdCopyBufferToImage2KHR };
+    PFN_vkCmdCopyImageToBuffer2KHR CmdCopyImageToBuffer2KHR{ noop::CmdCopyImageToBuffer2KHR };
+    PFN_vkCmdBlitImage2KHR CmdBlitImage2KHR{ noop::CmdBlitImage2KHR };
+    PFN_vkCmdResolveImage2KHR CmdResolveImage2KHR{ noop::CmdResolveImage2KHR };
     PFN_vkDebugMarkerSetObjectTagEXT DebugMarkerSetObjectTagEXT{ noop::DebugMarkerSetObjectTagEXT };
     PFN_vkDebugMarkerSetObjectNameEXT DebugMarkerSetObjectNameEXT{ noop::DebugMarkerSetObjectNameEXT };
     PFN_vkCmdDebugMarkerBeginEXT CmdDebugMarkerBeginEXT{ noop::CmdDebugMarkerBeginEXT };
@@ -1248,6 +1260,12 @@ static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, Device
     LoadFunction(gpa, device, "vkGetPipelineExecutablePropertiesKHR", &table->GetPipelineExecutablePropertiesKHR);
     LoadFunction(gpa, device, "vkGetPipelineExecutableStatisticsKHR", &table->GetPipelineExecutableStatisticsKHR);
     LoadFunction(gpa, device, "vkGetPipelineExecutableInternalRepresentationsKHR", &table->GetPipelineExecutableInternalRepresentationsKHR);
+    LoadFunction(gpa, device, "vkCmdCopyBuffer2KHR", &table->CmdCopyBuffer2KHR);
+    LoadFunction(gpa, device, "vkCmdCopyImage2KHR", &table->CmdCopyImage2KHR);
+    LoadFunction(gpa, device, "vkCmdCopyBufferToImage2KHR", &table->CmdCopyBufferToImage2KHR);
+    LoadFunction(gpa, device, "vkCmdCopyImageToBuffer2KHR", &table->CmdCopyImageToBuffer2KHR);
+    LoadFunction(gpa, device, "vkCmdBlitImage2KHR", &table->CmdBlitImage2KHR);
+    LoadFunction(gpa, device, "vkCmdResolveImage2KHR", &table->CmdResolveImage2KHR);
     LoadFunction(gpa, device, "vkDebugMarkerSetObjectTagEXT", &table->DebugMarkerSetObjectTagEXT);
     LoadFunction(gpa, device, "vkDebugMarkerSetObjectNameEXT", &table->DebugMarkerSetObjectNameEXT);
     LoadFunction(gpa, device, "vkCmdDebugMarkerBeginEXT", &table->CmdDebugMarkerBeginEXT);

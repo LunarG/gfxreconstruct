@@ -6018,6 +6018,114 @@ size_t VulkanDecoder::Decode_vkGetPipelineExecutableInternalRepresentationsKHR(c
     return bytes_read;
 }
 
+size_t VulkanDecoder::Decode_vkCmdCopyBuffer2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR> pCopyBufferInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pCopyBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyBuffer2KHR(commandBuffer, &pCopyBufferInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyImage2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyImageInfo2KHR> pCopyImageInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pCopyImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyImage2KHR(commandBuffer, &pCopyImageInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyBufferToImage2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2KHR> pCopyBufferToImageInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pCopyBufferToImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyBufferToImage2KHR(commandBuffer, &pCopyBufferToImageInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdCopyImageToBuffer2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2KHR> pCopyImageToBufferInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pCopyImageToBufferInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdCopyImageToBuffer2KHR(commandBuffer, &pCopyImageToBufferInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdBlitImage2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkBlitImageInfo2KHR> pBlitImageInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pBlitImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdBlitImage2KHR(commandBuffer, &pBlitImageInfo);
+    }
+
+    return bytes_read;
+}
+
+size_t VulkanDecoder::Decode_vkCmdResolveImage2KHR(const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId commandBuffer;
+    StructPointerDecoder<Decoded_VkResolveImageInfo2KHR> pResolveImageInfo;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read += pResolveImageInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_vkCmdResolveImage2KHR(commandBuffer, &pResolveImageInfo);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoder::Decode_vkCreateDebugReportCallbackEXT(const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -10219,6 +10327,24 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_vkGetPipelineExecutableInternalRepresentationsKHR:
         Decode_vkGetPipelineExecutableInternalRepresentationsKHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR:
+        Decode_vkCmdCopyBuffer2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyImage2KHR:
+        Decode_vkCmdCopyImage2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR:
+        Decode_vkCmdCopyBufferToImage2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR:
+        Decode_vkCmdCopyImageToBuffer2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdBlitImage2KHR:
+        Decode_vkCmdBlitImage2KHR(parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_vkCmdResolveImage2KHR:
+        Decode_vkCmdResolveImage2KHR(parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_vkCreateDebugReportCallbackEXT:
         Decode_vkCreateDebugReportCallbackEXT(parameter_buffer, buffer_size);

@@ -723,6 +723,66 @@ void UnwrapStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemo
     }
 }
 
+void UnwrapStructHandles(VkCopyBufferInfo2KHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->srcBuffer = GetWrappedHandle<VkBuffer>(value->srcBuffer);
+
+        value->dstBuffer = GetWrappedHandle<VkBuffer>(value->dstBuffer);
+    }
+}
+
+void UnwrapStructHandles(VkCopyImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->srcImage = GetWrappedHandle<VkImage>(value->srcImage);
+
+        value->dstImage = GetWrappedHandle<VkImage>(value->dstImage);
+    }
+}
+
+void UnwrapStructHandles(VkCopyBufferToImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->srcBuffer = GetWrappedHandle<VkBuffer>(value->srcBuffer);
+
+        value->dstImage = GetWrappedHandle<VkImage>(value->dstImage);
+    }
+}
+
+void UnwrapStructHandles(VkCopyImageToBufferInfo2KHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->srcImage = GetWrappedHandle<VkImage>(value->srcImage);
+
+        value->dstBuffer = GetWrappedHandle<VkBuffer>(value->dstBuffer);
+    }
+}
+
+void UnwrapStructHandles(VkBlitImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->srcImage = GetWrappedHandle<VkImage>(value->srcImage);
+
+        value->dstImage = GetWrappedHandle<VkImage>(value->dstImage);
+    }
+}
+
+void UnwrapStructHandles(VkResolveImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->srcImage = GetWrappedHandle<VkImage>(value->srcImage);
+
+        value->dstImage = GetWrappedHandle<VkImage>(value->dstImage);
+    }
+}
+
 void UnwrapStructHandles(VkDedicatedAllocationMemoryAllocateInfoNV* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -1306,6 +1366,12 @@ static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleU
     case VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_SUBMIT_INFO_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPerformanceQuerySubmitInfoKHR*>(base), 1, unwrap_memory));
         break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePortabilitySubsetFeaturesKHR*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevicePortabilitySubsetPropertiesKHR*>(base), 1, unwrap_memory));
+        break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceShaderClockFeaturesKHR*>(base), 1, unwrap_memory));
         break;
@@ -1725,6 +1791,9 @@ static VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleU
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES_EXT:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceImageRobustnessFeaturesEXT*>(base), 1, unwrap_memory));
+        break;
+    case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
+        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDevice4444FormatsFeaturesEXT*>(base), 1, unwrap_memory));
         break;
     case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR:
         copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkPhysicalDeviceRayTracingFeaturesKHR*>(base), 1, unwrap_memory));

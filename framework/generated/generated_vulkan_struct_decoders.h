@@ -2959,6 +2959,24 @@ typedef Decoded_VkBindBufferMemoryInfo Decoded_VkBindBufferMemoryInfoKHR;
 
 typedef Decoded_VkBindImageMemoryInfo Decoded_VkBindImageMemoryInfoKHR;
 
+struct Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR
+{
+    using struct_type = VkPhysicalDevicePortabilitySubsetFeaturesKHR;
+
+    VkPhysicalDevicePortabilitySubsetFeaturesKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDevicePortabilitySubsetPropertiesKHR
+{
+    using struct_type = VkPhysicalDevicePortabilitySubsetPropertiesKHR;
+
+    VkPhysicalDevicePortabilitySubsetPropertiesKHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
 typedef Decoded_VkPhysicalDeviceMaintenance3Properties Decoded_VkPhysicalDeviceMaintenance3PropertiesKHR;
 
 typedef Decoded_VkDescriptorSetLayoutSupport Decoded_VkDescriptorSetLayoutSupportKHR;
@@ -3111,6 +3129,140 @@ struct Decoded_VkPipelineLibraryCreateInfoKHR
 
     std::unique_ptr<PNextNode> pNext;
     HandlePointerDecoder<VkPipeline> pLibraries;
+};
+
+struct Decoded_VkBufferCopy2KHR
+{
+    using struct_type = VkBufferCopy2KHR;
+
+    VkBufferCopy2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkCopyBufferInfo2KHR
+{
+    using struct_type = VkCopyBufferInfo2KHR;
+
+    VkCopyBufferInfo2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    format::HandleId srcBuffer{ format::kNullHandleId };
+    format::HandleId dstBuffer{ format::kNullHandleId };
+    std::unique_ptr<StructPointerDecoder<Decoded_VkBufferCopy2KHR>> pRegions;
+};
+
+struct Decoded_VkImageCopy2KHR
+{
+    using struct_type = VkImageCopy2KHR;
+
+    VkImageCopy2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> srcSubresource;
+    std::unique_ptr<Decoded_VkOffset3D> srcOffset;
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> dstSubresource;
+    std::unique_ptr<Decoded_VkOffset3D> dstOffset;
+    std::unique_ptr<Decoded_VkExtent3D> extent;
+};
+
+struct Decoded_VkCopyImageInfo2KHR
+{
+    using struct_type = VkCopyImageInfo2KHR;
+
+    VkCopyImageInfo2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    format::HandleId srcImage{ format::kNullHandleId };
+    format::HandleId dstImage{ format::kNullHandleId };
+    std::unique_ptr<StructPointerDecoder<Decoded_VkImageCopy2KHR>> pRegions;
+};
+
+struct Decoded_VkBufferImageCopy2KHR
+{
+    using struct_type = VkBufferImageCopy2KHR;
+
+    VkBufferImageCopy2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> imageSubresource;
+    std::unique_ptr<Decoded_VkOffset3D> imageOffset;
+    std::unique_ptr<Decoded_VkExtent3D> imageExtent;
+};
+
+struct Decoded_VkCopyBufferToImageInfo2KHR
+{
+    using struct_type = VkCopyBufferToImageInfo2KHR;
+
+    VkCopyBufferToImageInfo2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    format::HandleId srcBuffer{ format::kNullHandleId };
+    format::HandleId dstImage{ format::kNullHandleId };
+    std::unique_ptr<StructPointerDecoder<Decoded_VkBufferImageCopy2KHR>> pRegions;
+};
+
+struct Decoded_VkCopyImageToBufferInfo2KHR
+{
+    using struct_type = VkCopyImageToBufferInfo2KHR;
+
+    VkCopyImageToBufferInfo2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    format::HandleId srcImage{ format::kNullHandleId };
+    format::HandleId dstBuffer{ format::kNullHandleId };
+    std::unique_ptr<StructPointerDecoder<Decoded_VkBufferImageCopy2KHR>> pRegions;
+};
+
+struct Decoded_VkImageBlit2KHR
+{
+    using struct_type = VkImageBlit2KHR;
+
+    VkImageBlit2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> srcSubresource;
+    std::unique_ptr<StructPointerDecoder<Decoded_VkOffset3D>> srcOffsets;
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> dstSubresource;
+    std::unique_ptr<StructPointerDecoder<Decoded_VkOffset3D>> dstOffsets;
+};
+
+struct Decoded_VkBlitImageInfo2KHR
+{
+    using struct_type = VkBlitImageInfo2KHR;
+
+    VkBlitImageInfo2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    format::HandleId srcImage{ format::kNullHandleId };
+    format::HandleId dstImage{ format::kNullHandleId };
+    std::unique_ptr<StructPointerDecoder<Decoded_VkImageBlit2KHR>> pRegions;
+};
+
+struct Decoded_VkImageResolve2KHR
+{
+    using struct_type = VkImageResolve2KHR;
+
+    VkImageResolve2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> srcSubresource;
+    std::unique_ptr<Decoded_VkOffset3D> srcOffset;
+    std::unique_ptr<Decoded_VkImageSubresourceLayers> dstSubresource;
+    std::unique_ptr<Decoded_VkOffset3D> dstOffset;
+    std::unique_ptr<Decoded_VkExtent3D> extent;
+};
+
+struct Decoded_VkResolveImageInfo2KHR
+{
+    using struct_type = VkResolveImageInfo2KHR;
+
+    VkResolveImageInfo2KHR* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+    format::HandleId srcImage{ format::kNullHandleId };
+    format::HandleId dstImage{ format::kNullHandleId };
+    std::unique_ptr<StructPointerDecoder<Decoded_VkImageResolve2KHR>> pRegions;
 };
 
 struct Decoded_VkDebugReportCallbackCreateInfoEXT
@@ -5242,6 +5394,15 @@ struct Decoded_VkPhysicalDeviceImageRobustnessFeaturesEXT
     using struct_type = VkPhysicalDeviceImageRobustnessFeaturesEXT;
 
     VkPhysicalDeviceImageRobustnessFeaturesEXT* decoded_value{ nullptr };
+
+    std::unique_ptr<PNextNode> pNext;
+};
+
+struct Decoded_VkPhysicalDevice4444FormatsFeaturesEXT
+{
+    using struct_type = VkPhysicalDevice4444FormatsFeaturesEXT;
+
+    VkPhysicalDevice4444FormatsFeaturesEXT* decoded_value{ nullptr };
 
     std::unique_ptr<PNextNode> pNext;
 };

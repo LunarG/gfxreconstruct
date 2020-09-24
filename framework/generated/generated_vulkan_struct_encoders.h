@@ -345,6 +345,9 @@ void EncodeStruct(ParameterEncoder* encoder, const VkDisplayModeProperties2KHR& 
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPlaneInfo2KHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDisplayPlaneCapabilities2KHR& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePortabilitySubsetFeaturesKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePortabilitySubsetPropertiesKHR& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderClockFeaturesKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkSurfaceProtectedCapabilitiesKHR& value);
@@ -359,6 +362,18 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatistic
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableInternalRepresentationKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPipelineLibraryCreateInfoKHR& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferCopy2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyBufferInfo2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageCopy2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageInfo2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkBufferImageCopy2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyBufferToImageInfo2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkCopyImageToBufferInfo2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageBlit2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkBlitImageInfo2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkImageResolve2KHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkResolveImageInfo2KHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDebugReportCallbackCreateInfoEXT& value);
 
@@ -679,6 +694,8 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensi
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceFragmentDensityMap2PropertiesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageRobustnessFeaturesEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevice4444FormatsFeaturesEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDirectFBSurfaceCreateInfoEXT& value);
 

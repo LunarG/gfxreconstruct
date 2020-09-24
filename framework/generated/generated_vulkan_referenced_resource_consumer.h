@@ -291,6 +291,36 @@ void Process_vkCmdDrawIndexedIndirectCountKHR(
     uint32_t                                    stride);
 
 
+void Process_vkCmdCopyBuffer2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo);
+
+
+void Process_vkCmdCopyImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyImageInfo2KHR>* pCopyImageInfo);
+
+
+void Process_vkCmdCopyBufferToImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2KHR>* pCopyBufferToImageInfo);
+
+
+void Process_vkCmdCopyImageToBuffer2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2KHR>* pCopyImageToBufferInfo);
+
+
+void Process_vkCmdBlitImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkBlitImageInfo2KHR>* pBlitImageInfo);
+
+
+void Process_vkCmdResolveImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkResolveImageInfo2KHR>* pResolveImageInfo);
+
+
 void Process_vkCmdBindTransformFeedbackBuffersEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    firstBinding,
