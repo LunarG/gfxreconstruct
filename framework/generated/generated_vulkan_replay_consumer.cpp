@@ -1274,16 +1274,15 @@ void VulkanReplayConsumer::Process_vkCreateRenderPass(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    const VkRenderPassCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
     if (!pRenderPass->IsNull()) { pRenderPass->SetHandleLength(1); }
-    VkRenderPass* out_pRenderPass = pRenderPass->GetHandlePointer();
+    RenderPassInfo handle_info;
+    pRenderPass->SetConsumerData(0, &handle_info);
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateRenderPass(in_device, in_pCreateInfo, in_pAllocator, out_pRenderPass);
+    VkResult replay_result = OverrideCreateRenderPass(GetDeviceTable(in_device->handle)->CreateRenderPass, returnValue, in_device, pCreateInfo, pAllocator, pRenderPass);
     CheckResult("vkCreateRenderPass", returnValue, replay_result);
 
-    AddHandle<RenderPassInfo>(device, pRenderPass->GetPointer(), out_pRenderPass, &VulkanObjectInfoTable::AddRenderPassInfo);
+    AddHandle<RenderPassInfo>(device, pRenderPass->GetPointer(), pRenderPass->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::AddRenderPassInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyRenderPass(
@@ -1919,14 +1918,13 @@ void VulkanReplayConsumer::Process_vkCmdPipelineBarrier(
     uint32_t                                    imageMemoryBarrierCount,
     StructPointerDecoder<Decoded_VkImageMemoryBarrier>* pImageMemoryBarriers)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
-    const VkMemoryBarrier* in_pMemoryBarriers = pMemoryBarriers->GetPointer();
-    const VkBufferMemoryBarrier* in_pBufferMemoryBarriers = pBufferMemoryBarriers->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetCommandBufferInfo(commandBuffer);
+
     MapStructArrayHandles(pBufferMemoryBarriers->GetMetaStructPointer(), pBufferMemoryBarriers->GetLength(), GetObjectInfoTable());
-    const VkImageMemoryBarrier* in_pImageMemoryBarriers = pImageMemoryBarriers->GetPointer();
+
     MapStructArrayHandles(pImageMemoryBarriers->GetMetaStructPointer(), pImageMemoryBarriers->GetLength(), GetObjectInfoTable());
 
-    GetDeviceTable(in_commandBuffer)->CmdPipelineBarrier(in_commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, in_pMemoryBarriers, bufferMemoryBarrierCount, in_pBufferMemoryBarriers, imageMemoryBarrierCount, in_pImageMemoryBarriers);
+    OverrideCmdPipelineBarrier(GetDeviceTable(in_commandBuffer->handle)->CmdPipelineBarrier, in_commandBuffer, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, pMemoryBarriers, bufferMemoryBarrierCount, pBufferMemoryBarriers, imageMemoryBarrierCount, pImageMemoryBarriers);
 }
 
 void VulkanReplayConsumer::Process_vkCmdBeginQuery(
@@ -2475,16 +2473,15 @@ void VulkanReplayConsumer::Process_vkCreateRenderPass2(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    const VkRenderPassCreateInfo2* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
     if (!pRenderPass->IsNull()) { pRenderPass->SetHandleLength(1); }
-    VkRenderPass* out_pRenderPass = pRenderPass->GetHandlePointer();
+    RenderPassInfo handle_info;
+    pRenderPass->SetConsumerData(0, &handle_info);
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateRenderPass2(in_device, in_pCreateInfo, in_pAllocator, out_pRenderPass);
+    VkResult replay_result = OverrideCreateRenderPass2(GetDeviceTable(in_device->handle)->CreateRenderPass2, returnValue, in_device, pCreateInfo, pAllocator, pRenderPass);
     CheckResult("vkCreateRenderPass2", returnValue, replay_result);
 
-    AddHandle<RenderPassInfo>(device, pRenderPass->GetPointer(), out_pRenderPass, &VulkanObjectInfoTable::AddRenderPassInfo);
+    AddHandle<RenderPassInfo>(device, pRenderPass->GetPointer(), pRenderPass->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::AddRenderPassInfo);
 }
 
 void VulkanReplayConsumer::Process_vkCmdBeginRenderPass2(
@@ -4033,16 +4030,15 @@ void VulkanReplayConsumer::Process_vkCreateRenderPass2KHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkRenderPass>*         pRenderPass)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    const VkRenderPassCreateInfo2* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
     if (!pRenderPass->IsNull()) { pRenderPass->SetHandleLength(1); }
-    VkRenderPass* out_pRenderPass = pRenderPass->GetHandlePointer();
+    RenderPassInfo handle_info;
+    pRenderPass->SetConsumerData(0, &handle_info);
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateRenderPass2KHR(in_device, in_pCreateInfo, in_pAllocator, out_pRenderPass);
+    VkResult replay_result = OverrideCreateRenderPass2(GetDeviceTable(in_device->handle)->CreateRenderPass2KHR, returnValue, in_device, pCreateInfo, pAllocator, pRenderPass);
     CheckResult("vkCreateRenderPass2KHR", returnValue, replay_result);
 
-    AddHandle<RenderPassInfo>(device, pRenderPass->GetPointer(), out_pRenderPass, &VulkanObjectInfoTable::AddRenderPassInfo);
+    AddHandle<RenderPassInfo>(device, pRenderPass->GetPointer(), pRenderPass->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::AddRenderPassInfo);
 }
 
 void VulkanReplayConsumer::Process_vkCmdBeginRenderPass2KHR(

@@ -76,6 +76,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_decoder_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_allocator.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_swapchain.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_default_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_enum_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_feature_util.cpp
@@ -102,10 +104,13 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_initializer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resource_tracking_consumer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_swapchain.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info_table.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_tracked_object_info_table.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_virtual_swapchain.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/window.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_ascii_consumer.cpp

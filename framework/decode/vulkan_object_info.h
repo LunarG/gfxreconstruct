@@ -376,8 +376,11 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t                             height{ 0 };
     VkFormat                             format{ VK_FORMAT_UNDEFINED };
     std::vector<VkImage>                 images;
-    std::vector<uint32_t>                acquired_indices;
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    // TODO: The acquired_indices value and the remapping performed with it can be removed in favor of the new virtual
+    // swapchain mode.
+    std::vector<uint32_t> acquired_indices;
 
     // The following values are only used when loading the initial state for trimmed files.
     uint32_t queue_family_index{ 0 };
@@ -391,6 +394,22 @@ struct SwapchainKHRInfo : public VulkanObjectInfo<VkSwapchainKHR>
     uint32_t                  image_array_layers;
     VkImageUsageFlags         image_usage;
     VkSharingMode             image_sharing_mode;
+
+    // TODO: These values are used by the virtual swapchain.  They should be replaced with an opaque handle, similar to
+    // DeviceMemoryInfo::allocator_data, which is really a pointer to a struct that contains the virtual swapchain's
+    // internal info.  The memory for the struct referenced by the opaque handle would be managed by the virtual
+    // swapchain class, similar to the way that the VulkanRebindAllocator works.
+    struct VirtualImage
+    {
+        VkDeviceMemory                        memory{ VK_NULL_HANDLE };
+        VkImage                               image{ VK_NULL_HANDLE };
+        VulkanResourceAllocator::MemoryData   memory_allocator_data{ 0 };
+        VulkanResourceAllocator::ResourceData resource_allocator_data{ 0 };
+    };
+    uint32_t                  replay_image_count{ 0 };
+    std::vector<VirtualImage> virtual_images;   // Images created by replay, returned in place of the swapchain images.
+    std::vector<VkImage>      swapchain_images; // The real swapchain images.
+    std::vector<uint32_t>     acquired_index_map; // Maps the capture index to the replay index.
 };
 
 struct ValidationCacheEXTInfo : public VulkanObjectInfo<VkValidationCacheEXT>
