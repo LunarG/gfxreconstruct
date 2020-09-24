@@ -2479,6 +2479,48 @@ void VulkanAsciiConsumer::Process_vkGetPipelineExecutableInternalRepresentations
     fprintf(GetFile(), "%s\n", "vkGetPipelineExecutableInternalRepresentationsKHR");
 }
 
+void VulkanAsciiConsumer::Process_vkCmdCopyBuffer2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdCopyBuffer2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdCopyImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyImageInfo2KHR>* pCopyImageInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdCopyImage2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdCopyBufferToImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2KHR>* pCopyBufferToImageInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdCopyBufferToImage2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdCopyImageToBuffer2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2KHR>* pCopyImageToBufferInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdCopyImageToBuffer2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdBlitImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkBlitImageInfo2KHR>* pBlitImageInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdBlitImage2KHR");
+}
+
+void VulkanAsciiConsumer::Process_vkCmdResolveImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkResolveImageInfo2KHR>* pResolveImageInfo)
+{
+    fprintf(GetFile(), "%s\n", "vkCmdResolveImage2KHR");
+}
+
 void VulkanAsciiConsumer::Process_vkCreateDebugReportCallbackEXT(
     VkResult                                    returnValue,
     format::HandleId                            instance,

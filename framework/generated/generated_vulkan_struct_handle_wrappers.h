@@ -183,6 +183,18 @@ void UnwrapStructHandles(VkPipelineExecutableInfoKHR* value, HandleUnwrapMemory*
 
 void UnwrapStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkCopyBufferInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyBufferToImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkCopyImageToBufferInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkBlitImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkResolveImageInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(VkDedicatedAllocationMemoryAllocateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkImageViewHandleInfoNVX* value, HandleUnwrapMemory* unwrap_memory);

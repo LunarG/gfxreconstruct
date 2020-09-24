@@ -703,6 +703,90 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     GetTable().AddResourceToUser(commandBuffer, countBuffer);
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyBuffer2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo)
+{
+    assert(pCopyBufferInfo != nullptr);
+
+    if (!pCopyBufferInfo->IsNull() && (pCopyBufferInfo->HasData()))
+    {
+        auto pCopyBufferInfo_ptr = pCopyBufferInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyBufferInfo_ptr->srcBuffer);
+        GetTable().AddResourceToUser(commandBuffer, pCopyBufferInfo_ptr->dstBuffer);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyImageInfo2KHR>* pCopyImageInfo)
+{
+    assert(pCopyImageInfo != nullptr);
+
+    if (!pCopyImageInfo->IsNull() && (pCopyImageInfo->HasData()))
+    {
+        auto pCopyImageInfo_ptr = pCopyImageInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyImageInfo_ptr->srcImage);
+        GetTable().AddResourceToUser(commandBuffer, pCopyImageInfo_ptr->dstImage);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyBufferToImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2KHR>* pCopyBufferToImageInfo)
+{
+    assert(pCopyBufferToImageInfo != nullptr);
+
+    if (!pCopyBufferToImageInfo->IsNull() && (pCopyBufferToImageInfo->HasData()))
+    {
+        auto pCopyBufferToImageInfo_ptr = pCopyBufferToImageInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyBufferToImageInfo_ptr->srcBuffer);
+        GetTable().AddResourceToUser(commandBuffer, pCopyBufferToImageInfo_ptr->dstImage);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdCopyImageToBuffer2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2KHR>* pCopyImageToBufferInfo)
+{
+    assert(pCopyImageToBufferInfo != nullptr);
+
+    if (!pCopyImageToBufferInfo->IsNull() && (pCopyImageToBufferInfo->HasData()))
+    {
+        auto pCopyImageToBufferInfo_ptr = pCopyImageToBufferInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pCopyImageToBufferInfo_ptr->srcImage);
+        GetTable().AddResourceToUser(commandBuffer, pCopyImageToBufferInfo_ptr->dstBuffer);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdBlitImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkBlitImageInfo2KHR>* pBlitImageInfo)
+{
+    assert(pBlitImageInfo != nullptr);
+
+    if (!pBlitImageInfo->IsNull() && (pBlitImageInfo->HasData()))
+    {
+        auto pBlitImageInfo_ptr = pBlitImageInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pBlitImageInfo_ptr->srcImage);
+        GetTable().AddResourceToUser(commandBuffer, pBlitImageInfo_ptr->dstImage);
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdResolveImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkResolveImageInfo2KHR>* pResolveImageInfo)
+{
+    assert(pResolveImageInfo != nullptr);
+
+    if (!pResolveImageInfo->IsNull() && (pResolveImageInfo->HasData()))
+    {
+        auto pResolveImageInfo_ptr = pResolveImageInfo->GetMetaStructPointer();
+        GetTable().AddResourceToUser(commandBuffer, pResolveImageInfo_ptr->srcImage);
+        GetTable().AddResourceToUser(commandBuffer, pResolveImageInfo_ptr->dstImage);
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdBindTransformFeedbackBuffersEXT(
     format::HandleId                            commandBuffer,
     uint32_t                                    firstBinding,

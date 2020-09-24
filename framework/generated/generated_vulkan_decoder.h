@@ -584,6 +584,18 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkGetPipelineExecutableInternalRepresentationsKHR(const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_vkCmdCopyBuffer2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyImage2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyBufferToImage2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdCopyImageToBuffer2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdBlitImage2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_vkCmdResolveImage2KHR(const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_vkCreateDebugReportCallbackEXT(const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkDestroyDebugReportCallbackEXT(const uint8_t* parameter_buffer, size_t buffer_size);

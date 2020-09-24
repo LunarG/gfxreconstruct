@@ -8037,6 +8037,144 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(
     return result;
 }
 
+VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyBufferInfo2KHR*                 pCopyBufferInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyBufferInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pCopyBufferInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyBuffer2KHRHandles, pCopyBufferInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkCopyBufferInfo2KHR* pCopyBufferInfo_unwrapped = UnwrapStructPtrHandles(pCopyBufferInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdCopyBuffer2KHR(commandBuffer_unwrapped, pCopyBufferInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBuffer2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyBufferInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdCopyImage2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyImageInfo2KHR*                  pCopyImageInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyImageInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImage2KHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pCopyImageInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyImage2KHRHandles, pCopyImageInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkCopyImageInfo2KHR* pCopyImageInfo_unwrapped = UnwrapStructPtrHandles(pCopyImageInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdCopyImage2KHR(commandBuffer_unwrapped, pCopyImageInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyImageInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyBufferToImageInfo2KHR*          pCopyBufferToImageInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyBufferToImageInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pCopyBufferToImageInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyBufferToImage2KHRHandles, pCopyBufferToImageInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkCopyBufferToImageInfo2KHR* pCopyBufferToImageInfo_unwrapped = UnwrapStructPtrHandles(pCopyBufferToImageInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdCopyBufferToImage2KHR(commandBuffer_unwrapped, pCopyBufferToImageInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyBufferToImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyBufferToImageInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkCopyImageToBufferInfo2KHR*          pCopyImageToBufferInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyImageToBufferInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pCopyImageToBufferInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdCopyImageToBuffer2KHRHandles, pCopyImageToBufferInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkCopyImageToBufferInfo2KHR* pCopyImageToBufferInfo_unwrapped = UnwrapStructPtrHandles(pCopyImageToBufferInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdCopyImageToBuffer2KHR(commandBuffer_unwrapped, pCopyImageToBufferInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdCopyImageToBuffer2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pCopyImageToBufferInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdBlitImage2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkBlitImageInfo2KHR*                  pBlitImageInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdBlitImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pBlitImageInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdBlitImage2KHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pBlitImageInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdBlitImage2KHRHandles, pBlitImageInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkBlitImageInfo2KHR* pBlitImageInfo_unwrapped = UnwrapStructPtrHandles(pBlitImageInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdBlitImage2KHR(commandBuffer_unwrapped, pBlitImageInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBlitImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pBlitImageInfo);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdResolveImage2KHR(
+    VkCommandBuffer                             commandBuffer,
+    const VkResolveImageInfo2KHR*               pResolveImageInfo)
+{
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdResolveImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pResolveImageInfo);
+
+    auto encoder = TraceManager::Get()->BeginTrackedApiCallTrace(format::ApiCallId::ApiCall_vkCmdResolveImage2KHR);
+    if (encoder)
+    {
+        encoder->EncodeHandleValue(commandBuffer);
+        EncodeStructPtr(encoder, pResolveImageInfo);
+        TraceManager::Get()->EndCommandApiCallTrace(commandBuffer, encoder, TrackCmdResolveImage2KHRHandles, pResolveImageInfo);
+    }
+
+    auto handle_unwrap_memory = TraceManager::Get()->GetHandleUnwrapMemory();
+    VkCommandBuffer commandBuffer_unwrapped = GetWrappedHandle<VkCommandBuffer>(commandBuffer);
+    const VkResolveImageInfo2KHR* pResolveImageInfo_unwrapped = UnwrapStructPtrHandles(pResolveImageInfo, handle_unwrap_memory);
+
+    GetDeviceTable(commandBuffer)->CmdResolveImage2KHR(commandBuffer_unwrapped, pResolveImageInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdResolveImage2KHR>::Dispatch(TraceManager::Get(), commandBuffer, pResolveImageInfo);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     VkInstance                                  instance,
     const VkDebugReportCallbackCreateInfoEXT*   pCreateInfo,

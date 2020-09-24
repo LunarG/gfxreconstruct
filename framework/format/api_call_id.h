@@ -493,6 +493,12 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdSetStencilOpEXT                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x121a),
     ApiCall_vkCreateDirectFBSurfaceEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x121b),
     ApiCall_vkGetPhysicalDeviceDirectFBPresentationSupportEXT                                     = MakeApiCallId(ApiFamily_Vulkan, 0x121c),
+    ApiCall_vkCmdCopyBuffer2KHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x121d),
+    ApiCall_vkCmdCopyImage2KHR                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x121e),
+    ApiCall_vkCmdCopyBufferToImage2KHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x121f),
+    ApiCall_vkCmdCopyImageToBuffer2KHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x1220),
+    ApiCall_vkCmdBlitImage2KHR                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x1221),
+    ApiCall_vkCmdResolveImage2KHR                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x1222),
 
     ApiCall_VulkanLast
     // clang-format on

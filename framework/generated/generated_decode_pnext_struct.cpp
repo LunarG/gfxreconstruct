@@ -450,6 +450,14 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  s
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPerformanceQuerySubmitInfoKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDevicePortabilitySubsetPropertiesKHR>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceShaderClockFeaturesKHR>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
@@ -1032,6 +1040,10 @@ size_t DecodePNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  s
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES_EXT:
                 (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDeviceImageRobustnessFeaturesEXT>>();
+                bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
+                break;
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT:
+                (*pNext) = std::make_unique<PNextTypedNode<Decoded_VkPhysicalDevice4444FormatsFeaturesEXT>>();
                 bytes_read = (*pNext)->Decode(parameter_buffer, buffer_size);
                 break;
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR:

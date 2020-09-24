@@ -3898,6 +3898,72 @@ void VulkanReplayConsumer::Process_vkGetPipelineExecutableInternalRepresentation
     if (pInternalRepresentations->IsNull()) { SetOutputArrayCount<DeviceInfo>(device, kDeviceArrayGetPipelineExecutableInternalRepresentationsKHR, *out_pInternalRepresentationCount, &VulkanObjectInfoTable::GetDeviceInfo); }
 }
 
+void VulkanReplayConsumer::Process_vkCmdCopyBuffer2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyBufferInfo2KHR>* pCopyBufferInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkCopyBufferInfo2KHR* in_pCopyBufferInfo = pCopyBufferInfo->GetPointer();
+    MapStructHandles(pCopyBufferInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdCopyBuffer2KHR(in_commandBuffer, in_pCopyBufferInfo);
+}
+
+void VulkanReplayConsumer::Process_vkCmdCopyImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyImageInfo2KHR>* pCopyImageInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkCopyImageInfo2KHR* in_pCopyImageInfo = pCopyImageInfo->GetPointer();
+    MapStructHandles(pCopyImageInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdCopyImage2KHR(in_commandBuffer, in_pCopyImageInfo);
+}
+
+void VulkanReplayConsumer::Process_vkCmdCopyBufferToImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyBufferToImageInfo2KHR>* pCopyBufferToImageInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkCopyBufferToImageInfo2KHR* in_pCopyBufferToImageInfo = pCopyBufferToImageInfo->GetPointer();
+    MapStructHandles(pCopyBufferToImageInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdCopyBufferToImage2KHR(in_commandBuffer, in_pCopyBufferToImageInfo);
+}
+
+void VulkanReplayConsumer::Process_vkCmdCopyImageToBuffer2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkCopyImageToBufferInfo2KHR>* pCopyImageToBufferInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkCopyImageToBufferInfo2KHR* in_pCopyImageToBufferInfo = pCopyImageToBufferInfo->GetPointer();
+    MapStructHandles(pCopyImageToBufferInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdCopyImageToBuffer2KHR(in_commandBuffer, in_pCopyImageToBufferInfo);
+}
+
+void VulkanReplayConsumer::Process_vkCmdBlitImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkBlitImageInfo2KHR>* pBlitImageInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkBlitImageInfo2KHR* in_pBlitImageInfo = pBlitImageInfo->GetPointer();
+    MapStructHandles(pBlitImageInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdBlitImage2KHR(in_commandBuffer, in_pBlitImageInfo);
+}
+
+void VulkanReplayConsumer::Process_vkCmdResolveImage2KHR(
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkResolveImageInfo2KHR>* pResolveImageInfo)
+{
+    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    const VkResolveImageInfo2KHR* in_pResolveImageInfo = pResolveImageInfo->GetPointer();
+    MapStructHandles(pResolveImageInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    GetDeviceTable(in_commandBuffer)->CmdResolveImage2KHR(in_commandBuffer, in_pResolveImageInfo);
+}
+
 void VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(
     VkResult                                    returnValue,
     format::HandleId                            instance,
