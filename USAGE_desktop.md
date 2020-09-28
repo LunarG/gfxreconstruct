@@ -27,10 +27,11 @@ Vulkan API calls on Desktop systems.
     1. [Command Line Arguments](#command-line-arguments)
     2. [Keyboard Controls](#keyboard-controls)
 3. [Other Capture File Processing Tools](#other-capture-file-processing-tools)
-    1. [Capture File Compression](#capture-file-compression)
-    2. [Shader Extraction](#shader-extraction)
-    3. [Capture File Info](#capture-file-info)
-    4. [Command Launcher](#command-launcher)
+    1. [Capture File Info](#capture-file-info)
+    2. [Capture File Compression](#capture-file-compression)
+    3. [Shader Extraction](#shader-extraction)
+    4. [Trimmed File Optimizer](#trimmed-file-optimizer)
+    5. [Command Launcher](#command-launcher)
 
 ## Capturing API calls
 
@@ -415,6 +416,26 @@ Right arrow, n | Advance to the next frame when paused.
 
 ## Other Capture File Processing Tools
 
+### Capture File Info
+
+The `gfxrecon-info` tool prints statistics for a GFXReconstruct capture file, including
+information about the application,
+the physical device , device memory allocation, and device pipelines.
+
+```text
+gfxrecon-info - Print statistics for a GFXReconstruct capture file.
+
+Usage:
+  gfxrecon-info [-h | --help] [--version] <file>
+
+Required arguments:
+  <file>      The GFXReconstruct capture file to be processed.
+
+Optional arguments:
+  -h          Print usage information and exit (same as --help).
+  --version   Print version information and exit.
+```
+
 ### Capture File Compression
 
 The `gfxrecon-compress` tool compresses or decompresses GFXReconstruct
@@ -425,7 +446,7 @@ in a capture file.
 gfxrecon-compress - A tool to compress/decompress GFXReconstruct capture files.
 
 Usage:
-  gfxrecon-compress [--version] <input_file> <output_file> <compression_format>
+  gfxrecon-compress [-h | --help] [--version] <input_file> <output_file> <compression_format>
 
 Required arguments:
   <input_file>    Path to the input file to process.
@@ -438,7 +459,8 @@ Required arguments:
                           NONE - Remove compression.
 
 Optional arguments:
-  --version       Print version information and exit
+  -h              Print usage information and exit (same as --help).
+  --version       Print version information and exit.
 ```
 
 ### Shader Extraction
@@ -450,9 +472,11 @@ file. The extracted shaders are placed into a specified directory.
 gfxrecon-extract - Extract shaders from a GFXReconstruct capture file.
 
 Usage:
-  gfxrecon-extract [--dir <dir>] <file>
+  gfxrecon-extract [-h | --help] [--version] [--dir <dir>] <file>
 
 Optional arguments:
+  -h          Print usage information and exit (same as --help).
+  --version   Print version information and exit.
   --dir <dir> Place extracted shaders into directory <dir>. Otherwise
               use <file>.shaders in working directory. Create directory
               if necessary. Each shader is placed in individual file
@@ -462,23 +486,37 @@ Required arguments:
   <file>      The GFXReconstruct capture file to be processed.
 ```
 
-### Capture File Info
+### Trimmed File Optimizer
 
-The `gfxrecon-info` tool prints statistics for a GFXReconstruct capture file, including
-information about the application,
-the physical device , device memory allocation, and device pipelines.
+The `gfxrecon-optimize` tool removes unused buffer and image initialization
+data from trimmed capture files.
+
+For trimmed capture files, a snapshot of the Vulkan API state is written at
+the start of the file. This state snapshot includes the data for all buffers
+and images that were live at the time that capture started. Some of the buffer
+and image objects captured in the state snapshot may go unreferenced by the
+captured frames and their data can be removed from the capture file. The
+`gfxrecon-optimize` tool will process a trimmed file to identify buffer and
+image objects that were initialized in the state snapshot, but were not used
+by any of the captured frames, and generate a new capture file that omits the
+data for these unused buffer and image objects.
 
 ```text
-gfxrecon-info - Print statistics for a GFXReconstruct capture file.
+gfxrecon-optimize - Remove unused resource initialization data from trimmed
+                    GFXReconstruct capture files.
 
 Usage:
-  gfxrecon-info [--version] <file>
+  gfxrecon-optimize [-h | --help] [--version] <input-file> <output-file>
 
 Required arguments:
-  <file>      The GFXReconstruct capture file to be processed.
+  <input-file>          The trimmed GFXReconstruct capture file to be
+                        processed.
+  <output-file>         The name of the new GFXReconstruct capture file to be
+                        created.
 
 Optional arguments:
-  --version   Print version information and exit.
+  -h                    Print usage information and exit (same as --help).
+  --version             Print version information and exit.
 ```
 
 ### Command Launcher
@@ -492,10 +530,10 @@ usage: gfxrecon.py [-h] command ...
 GFXReconstruct utility launcher.
 
 positional arguments:
-  command     Command to execute. Valid options are [capture, compress,
-              extract, info, replay]
-  args        Command-specific argument list. Specify -h after command name
-              for command help.
+  command     Command to execute. Valid options are [capture, compress, extract, info,
+              optimize, replay]
+  args        Command-specific argument list. Specify -h after command name for command
+              help.
 
 optional arguments:
   -h, --help  show this help message and exit
