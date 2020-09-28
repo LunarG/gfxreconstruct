@@ -50,6 +50,8 @@ bool XlibLoader::Initialize()
         libx11_ = util::platform::OpenLibrary(kXlibNames);
         if (libx11_)
         {
+            function_table_.ChangeProperty = reinterpret_cast<decltype(XChangeProperty)*>(
+                util::platform::GetProcAddress(libx11_, "XChangeProperty"));
             function_table_.CloseDisplay =
                 reinterpret_cast<decltype(XCloseDisplay)*>(util::platform::GetProcAddress(libx11_, "XCloseDisplay"));
             function_table_.CreateWindow =
