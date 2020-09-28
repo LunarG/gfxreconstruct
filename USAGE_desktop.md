@@ -328,7 +328,7 @@ arguments:
 
 ```text
 gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
-                        [--pause-frame <N>] [--paused] [-s | --sync]
+                        [--pause-frame <N>] [--paused] [--sync]
                         [--sfa | --skip-failed-allocations] [--replace-shaders <dir>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [-m <mode> | --memory-translation <mode>] <file>
@@ -358,8 +358,7 @@ Optional arguments:
                         vkCreatePipelineCache (same as --omit-pipeline-cache-data).
   --wsi <platform>      Force replay to use the specified wsi platform.
                         Available platforms are: auto,win32,xcb,wayland
-  -s                    Synchronize after each queue submission with vkQueueWaitIdle
-                        (same as --sync).
+  --sync                Synchronize after each queue submission with vkQueueWaitIdle.
   -m <mode>             Enable memory translation for replay on GPUs with memory
                         types that are not compatible with the capture GPU's
                         memory types.  Available modes are:

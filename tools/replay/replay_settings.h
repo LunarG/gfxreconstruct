@@ -54,11 +54,10 @@ const char kOmitPipelineCacheDataLongOption[]  = "--omit-pipeline-cache-data";
 const char kWsiArgument[]                      = "--wsi";
 const char kMemoryPortabilityShortOption[]     = "-m";
 const char kMemoryPortabilityLongOption[]      = "--memory-translation";
-const char kSyncShortOption[]                  = "-s";
-const char kSyncLongOption[]                   = "--sync";
+const char kSyncOption[]                       = "--sync";
 const char kShaderReplaceArgument[]            = "--replace-shaders";
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--paused,-s|--sync,--sfa|--skip-failed-allocations,--"
+const char kOptions[] = "-h|--help,--version,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
                         "opcd|--omit-pipeline-cache-data";
 const char kArguments[] = "--gpu,--pause-frame,--wsi,-m|--memory-translation,--replace-shaders";
 
@@ -304,7 +303,7 @@ GetReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
         replay_options.override_gpu_index = std::stoi(override_gpu);
     }
 
-    if (arg_parser.IsOptionSet(kSyncLongOption) || arg_parser.IsOptionSet(kSyncShortOption))
+    if (arg_parser.IsOptionSet(kSyncOption))
     {
         replay_options.sync_queue_submissions = true;
     }
@@ -366,7 +365,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\n%s - A tool to replay GFXReconstruct capture files.\n", app_name.c_str());
     GFXRECON_WRITE_CONSOLE("Usage:");
     GFXRECON_WRITE_CONSOLE("  %s\t[-h | --help] [--version] [--gpu <index>]", app_name.c_str());
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--pause-frame <N>] [--paused] [-s | --sync]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--pause-frame <N>] [--paused] [--sync]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sfa | --skip-failed-allocations] [--replace-shaders <dir>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--opcd | --omit-pipeline-cache-data] [--wsi <platform>]");
 #if defined(WIN32) && defined(_DEBUG)
@@ -401,8 +400,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("       \t\t\tdisplayed when abort() is called (Windows debug only).");
 #endif
-    GFXRECON_WRITE_CONSOLE("  -s\t\t\tSynchronize after each queue submission with vkQueueWaitIdle");
-    GFXRECON_WRITE_CONSOLE("    \t\t\t(same as --sync).");
+    GFXRECON_WRITE_CONSOLE("  --sync\t\tSynchronize after each queue submission with vkQueueWaitIdle.");
     GFXRECON_WRITE_CONSOLE("  -m <mode>\t\tEnable memory translation for replay on GPUs with memory");
     GFXRECON_WRITE_CONSOLE("          \t\ttypes that are not compatible with the capture GPU's");
     GFXRECON_WRITE_CONSOLE("          \t\tmemory types.  Available modes are:");
