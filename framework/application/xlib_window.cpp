@@ -18,6 +18,8 @@
 
 #include "util/logging.h"
 
+#include "X11/Xatom.h"
+
 #include <cassert>
 #include <cstdlib>
 #include <limits>
@@ -175,6 +177,8 @@ void XlibWindow::SetSize(const uint32_t width, const uint32_t height)
             xlib.ResizeWindow(display, window_, width, height);
             xlib.Sync(display, true);
         }
+        // Sleep to ensure window resize has completed.
+        usleep(50000); // 0.05 seconds (same as vktrace)
     }
 }
 
@@ -205,7 +209,22 @@ void XlibWindow::SetFullscreen(bool fullscreen)
         event.xclient.data.l[4]    = 0;
 
         xlib.SendEvent(display, root, false, (SubstructureNotifyMask | SubstructureRedirectMask), &event);
+
+        // Use same compositor workaround as XcbWindow for GNOME/NVIDIA VK_ERROR_OUT_OF_DATE_KHR issue
+        int32_t bypass = fullscreen ? 2 : 0;
+        xlib.ChangeProperty(display,
+                            window_,
+                            xlib.InternAtom(display, "_NET_WM_BYPASS_COMPOSITOR", false),
+                            XA_CARDINAL,
+                            32,
+                            PropModeReplace,
+                            reinterpret_cast<unsigned char*>(&bypass),
+                            1);
+
         xlib.Sync(display, true);
+
+        // Sleep to ensure window resize has completed.
+        usleep(50000); // 0.05 seconds (same as vktrace)
         fullscreen_ = fullscreen;
     }
 }

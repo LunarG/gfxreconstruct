@@ -30,6 +30,7 @@ class XlibLoader
   public:
     struct FunctionTable
     {
+        decltype(XChangeProperty)*      ChangeProperty;
         decltype(XCloseDisplay)*        CloseDisplay;
         decltype(XCreateWindow)*        CreateWindow;
         decltype(XDestroyWindow)*       DestroyWindow;
