@@ -1670,7 +1670,7 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceMemoryProperties(
 
 void VulkanReplayConsumerBase::SelectPhysicalDevice(PhysicalDeviceInfo* physical_device_info)
 {
-    assert((physical_device_info != nullptr) && (physical_device_info->parent_id != 0));
+    assert((physical_device_info != nullptr) && (physical_device_info->parent_id != format::kNullHandleId));
 
     InstanceInfo* instance_info = object_info_table_.GetInstanceInfo(physical_device_info->parent_id);
 
@@ -2479,7 +2479,6 @@ VulkanReplayConsumerBase::OverrideEnumeratePhysicalDevices(PFN_vkEnumeratePhysic
             assert(physical_device_info != nullptr);
 
             physical_device_info->parent             = instance;
-            physical_device_info->parent_id          = instance_info->capture_id;
             physical_device_info->parent_api_version = instance_info->api_version;
             physical_device_info->replay_device_info = &instance_info->replay_device_info[replay_devices[i]];
 

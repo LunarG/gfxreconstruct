@@ -197,30 +197,34 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     template <typename T>
-    void AddHandle(const format::HandleId*       id,
+    void AddHandle(format::HandleId              parent_id,
+                   const format::HandleId*       id,
                    const typename T::HandleType* handle,
                    T&&                           initial_info,
                    void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         if ((id != nullptr) && (handle != nullptr))
         {
-            handle_mapping::AddHandle(*id, *handle, std::forward<T>(initial_info), &object_info_table_, AddFunc);
+            handle_mapping::AddHandle(
+                parent_id, *id, *handle, std::forward<T>(initial_info), &object_info_table_, AddFunc);
         }
     }
 
     template <typename T>
-    void AddHandle(const format::HandleId*       id,
+    void AddHandle(format::HandleId              parent_id,
+                   const format::HandleId*       id,
                    const typename T::HandleType* handle,
                    void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         if ((id != nullptr) && (handle != nullptr))
         {
-            handle_mapping::AddHandle(*id, *handle, &object_info_table_, AddFunc);
+            handle_mapping::AddHandle(parent_id, *id, *handle, &object_info_table_, AddFunc);
         }
     }
 
     template <typename T>
-    void AddHandles(const format::HandleId*       ids,
+    void AddHandles(format::HandleId              parent_id,
+                    const format::HandleId*       ids,
                     size_t                        ids_len,
                     const typename T::HandleType* handles,
                     size_t                        handles_len,
@@ -228,17 +232,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         handle_mapping::AddHandleArray(
-            ids, ids_len, handles, handles_len, std::move(initial_infos), &object_info_table_, AddFunc);
+            parent_id, ids, ids_len, handles, handles_len, std::move(initial_infos), &object_info_table_, AddFunc);
     }
 
     template <typename T>
-    void AddHandles(const format::HandleId*       ids,
+    void AddHandles(format::HandleId              parent_id,
+                    const format::HandleId*       ids,
                     size_t                        ids_len,
                     const typename T::HandleType* handles,
                     size_t                        handles_len,
                     void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
-        handle_mapping::AddHandleArray(ids, ids_len, handles, handles_len, &object_info_table_, AddFunc);
+        handle_mapping::AddHandleArray(parent_id, ids, ids_len, handles, handles_len, &object_info_table_, AddFunc);
     }
 
     template <typename HandleInfoT>
