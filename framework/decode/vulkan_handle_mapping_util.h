@@ -80,7 +80,8 @@ static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::H
 }
 
 template <typename T>
-static void AddHandle(const format::HandleId       id,
+static void AddHandle(format::HandleId             parent_id,
+                      format::HandleId             id,
                       const typename T::HandleType handle,
                       T&&                          initial_info,
                       VulkanObjectInfoTable*       object_info_table,
@@ -90,11 +91,13 @@ static void AddHandle(const format::HandleId       id,
 
     initial_info.handle     = handle;
     initial_info.capture_id = id;
+    initial_info.parent_id  = parent_id;
     (object_info_table->*AddFunc)(std::forward<T>(initial_info));
 }
 
 template <typename T>
-static void AddHandle(format::HandleId       id,
+static void AddHandle(format::HandleId       parent_id,
+                      format::HandleId       id,
                       typename T::HandleType handle,
                       VulkanObjectInfoTable* object_info_table,
                       void (VulkanObjectInfoTable::*AddFunc)(T&&))
@@ -104,11 +107,13 @@ static void AddHandle(format::HandleId       id,
     T info;
     info.handle     = handle;
     info.capture_id = id;
+    info.parent_id  = parent_id;
     (object_info_table->*AddFunc)(std::move(info));
 }
 
 template <typename T>
-static void AddHandleArray(const format::HandleId*       ids,
+static void AddHandleArray(format::HandleId              parent_id,
+                           const format::HandleId*       ids,
                            size_t                        ids_len,
                            const typename T::HandleType* handles,
                            size_t                        handles_len,
@@ -129,13 +134,15 @@ static void AddHandleArray(const format::HandleId*       ids,
             auto info_iter        = std::next(initial_infos.begin(), i);
             info_iter->handle     = handles[i];
             info_iter->capture_id = ids[i];
+            info_iter->parent_id  = parent_id;
             (object_info_table->*AddFunc)(std::move(*info_iter));
         }
     }
 }
 
 template <typename T>
-static void AddHandleArray(const format::HandleId*       ids,
+static void AddHandleArray(format::HandleId              parent_id,
+                           const format::HandleId*       ids,
                            size_t                        ids_len,
                            const typename T::HandleType* handles,
                            size_t                        handles_len,
@@ -152,6 +159,7 @@ static void AddHandleArray(const format::HandleId*       ids,
             T info;
             info.handle     = handles[i];
             info.capture_id = ids[i];
+            info.parent_id  = parent_id;
             (object_info_table->*AddFunc)(std::move(info));
         }
     }

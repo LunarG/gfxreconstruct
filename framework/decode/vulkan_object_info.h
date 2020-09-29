@@ -144,6 +144,7 @@ struct VulkanObjectInfo
     // Standard info stored for all Vulkan objects.
     HandleType       handle{ VK_NULL_HANDLE };            // Handle created for the object during replay.
     format::HandleId capture_id{ format::kNullHandleId }; // ID assigned to the object at capture.
+    format::HandleId parent_id{ format::kNullHandleId };  // ID of the object's parent instance/device object.
 };
 
 //
@@ -200,7 +201,6 @@ struct InstanceInfo : public VulkanObjectInfo<VkInstance>
 struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 {
     VkInstance                           parent{ VK_NULL_HANDLE };
-    format::HandleId                     parent_id{ format::kNullHandleId };
     uint32_t                             parent_api_version{ 0 };
     std::unordered_map<uint32_t, size_t> array_counts;
 
