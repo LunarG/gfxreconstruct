@@ -41,6 +41,35 @@ static int ErrorHandler(Display* display, XErrorEvent* error_event)
     return 0;
 }
 
+// A reference-counting interface to to XOpenDisplay/XCloseDisplay which shares
+// a single display connection among multiple windows, and closes it when the
+// last window is destroyed. This is a workaround for an issue with the NVIDIA
+// driver which registers a callback for XCloseDisplay that needs to happen
+// before the ICD is unloaded at vkDestroyInstance time.
+// https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/issues/1894
+Display* XlibApplication::OpenDisplay()
+{
+    if (display_ == nullptr)
+    {
+        auto xlib = xlib_loader_.GetFunctionTable();
+        display_  = xlib.OpenDisplay(nullptr);
+    }
+    ++display_open_count_;
+    return display_;
+}
+
+void XlibApplication::CloseDisplay(Display* display)
+{
+    assert(display == display_);
+
+    if ((--display_open_count_ == 0) && (display_ != nullptr))
+    {
+        auto xlib = xlib_loader_.GetFunctionTable();
+        xlib.CloseDisplay(display_);
+        display_ = nullptr;
+    }
+}
+
 bool XlibApplication::Initialize(decode::FileProcessor* file_processor)
 {
     if (!xlib_loader_.Initialize())
